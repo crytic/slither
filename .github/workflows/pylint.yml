@@ -23,13 +23,13 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
 
@@ -43,7 +43,7 @@ jobs:
           echo "::add-matcher::.github/workflows/matchers/pylint.json"
 
       - name: Pylint
-        uses: super-linter/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v6.1.1
         if: always()
         env:
           # Run linters only on new files for pylint to speed up the CI

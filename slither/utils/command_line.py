@@ -48,6 +48,7 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
@@ -60,6 +61,7 @@ defaults_flag_in_config = {
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
     "filter_paths": None,
+    "include_paths": None,
     "generate_patches": False,
     # debug command
     "skip_assembly": False,
@@ -68,21 +70,17 @@ defaults_flag_in_config = {
     "zip_type": "lzma",
     "show_ignored_findings": False,
     "no_fail": False,
+    "sarif_input": "export.sarif",
+    "sarif_triage": "export.sarif.sarifexplorer",
+    "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
-}
-
-deprecated_flags = {
-    "fail_pedantic": True,
-    "fail_low": False,
-    "fail_medium": False,
-    "fail_high": False,
 }
 
 
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
     if args.config_file is None:
-        # Check wether the default config file is present
+        # Check whether the default config file is present
         if os.path.exists("slither.config.json"):
             # The default file exists, use it
             args.config_file = "slither.config.json"
@@ -94,12 +92,6 @@ def read_config_file(args: argparse.Namespace) -> None:
             with open(args.config_file, encoding="utf8") as f:
                 config = json.load(f)
                 for key, elem in config.items():
-                    if key in deprecated_flags:
-                        logger.info(
-                            yellow(f"{args.config_file} has a deprecated key: {key} : {elem}")
-                        )
-                        migrate_config_options(args, key, elem)
-                        continue
                     if key not in defaults_flag_in_config:
                         logger.info(
                             yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
@@ -112,28 +104,6 @@ def read_config_file(args: argparse.Namespace) -> None:
     else:
         logger.error(red(f"File {args.config_file} is not a file or does not exist"))
         logger.error(yellow("Falling back to the default settings..."))
-
-
-def migrate_config_options(args: argparse.Namespace, key: str, elem):
-    if key.startswith("fail_") and getattr(args, "fail_on") == defaults_flag_in_config["fail_on"]:
-        if key == "fail_pedantic":
-            pedantic_setting = elem
-            fail_on = FailOnLevel.PEDANTIC if pedantic_setting else FailOnLevel.NONE
-            setattr(args, "fail_on", fail_on)
-            logger.info(f"Migrating fail_pedantic: {pedantic_setting} as fail_on: {fail_on.value}")
-        elif key == "fail_low" and elem is True:
-            logger.info("Migrating fail_low: true -> fail_on: low")
-            setattr(args, "fail_on", FailOnLevel.LOW)
-
-        elif key == "fail_medium" and elem is True:
-            logger.info("Migrating fail_medium: true -> fail_on: medium")
-            setattr(args, "fail_on", FailOnLevel.MEDIUM)
-
-        elif key == "fail_high" and elem is True:
-            logger.info("Migrating fail_high: true -> fail_on: high")
-            setattr(args, "fail_on", FailOnLevel.HIGH)
-        else:
-            logger.warning(yellow(f"Key {key} was deprecated but no migration was provided"))
 
 
 def output_to_markdown(
@@ -390,8 +360,10 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+        # Clean multi line HELP info
+        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
         idx = idx + 1
+
     print(table)
 
 

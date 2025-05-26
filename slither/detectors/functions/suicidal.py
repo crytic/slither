@@ -59,7 +59,7 @@ Bob calls `kill` and destructs the contract."""
         if func.visibility not in ["public", "external"]:
             return False
 
-        calls = [c.name for c in func.internal_calls]
+        calls = [ir.function.name for ir in func.all_internal_calls()]
         if not ("suicide(address)" in calls or "selfdestruct(address)" in calls):
             return False
 

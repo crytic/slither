@@ -1,0 +1,63 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_strategies = strategies
+
+IRs:
+_strategies(address[3]) := strategies(address[3])"];
+1->2;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->4;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+counter_var = 0
+
+IRs:
+counter_var(uint256) := 0(uint256)"];
+4->5;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+counter_var <= 10
+
+IRs:
+TMP_0(bool) = counter_var <= 10
+CONDITION TMP_0"];
+5->7[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+counter_var += 1
+
+IRs:
+counter_var(uint256) = counter_var (c)+ 1"];
+6->5;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+i = counter_var
+
+IRs:
+i(uint256) := counter_var(uint256)"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+max_withdraw = IStrategy(_strategies[i]).maxWithdraw(self)
+
+IRs:
+REF_0(address) -> _strategies[i]
+TMP_1 = CONVERT REF_0 to IStrategy
+TMP_2(uint256) = HIGH_LEVEL_CALL, dest:TMP_1(IStrategy), function:maxWithdraw, arguments:['self']  
+max_withdraw(uint256) := TMP_2(uint256)"];
+8->6;
+}

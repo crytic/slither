@@ -86,7 +86,7 @@ def _visit(
             lvalue = refs_lvalues
 
     ret: List[Variable] = []
-    if not node.sons and node.type not in [NodeType.THROW, NodeType.RETURN]:
+    if not node.sons and node.type is not NodeType.THROW:
         ret += [v for v in variables_to_write if v not in variables_written]
 
     # Explore sons if

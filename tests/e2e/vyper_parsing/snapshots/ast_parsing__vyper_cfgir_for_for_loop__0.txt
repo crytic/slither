@@ -1,0 +1,56 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: BEGIN_LOOP 1
+"];
+1->3;
+2[label="Node Type: END_LOOP 2
+"];
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+counter_var = 0
+
+IRs:
+counter_var(uint256) := 0(uint256)"];
+3->4;
+4[label="Node Type: IF_LOOP 4
+
+EXPRESSION:
+counter_var <= len()(self.strategies)
+
+IRs:
+TMP_0(uint256) = SOLIDITY_CALL len()(strategies)
+TMP_1(bool) = counter_var <= TMP_0
+CONDITION TMP_1"];
+4->6[label="True"];
+4->2[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+counter_var += 1
+
+IRs:
+counter_var(uint256) = counter_var (c)+ 1"];
+5->4;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+strategy = strategies[counter_var]
+
+IRs:
+REF_0(address) -> strategies[counter_var]
+strategy(address) := REF_0(address)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+z = IStrategy(strategy).asset()
+
+IRs:
+TMP_2 = CONVERT strategy to IStrategy
+TMP_3(address) = HIGH_LEVEL_CALL, dest:TMP_2(IStrategy), function:asset, arguments:[]  
+z(address) := TMP_3(address)"];
+7->5;
+}

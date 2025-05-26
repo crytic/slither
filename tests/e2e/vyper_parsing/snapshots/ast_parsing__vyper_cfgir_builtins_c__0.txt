@@ -1,0 +1,38 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+user_shares = ()
+
+IRs:
+user_shares(uint256[10]) = []"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+user_shares.append(1)
+
+IRs:
+REF_2 -> LENGTH user_shares
+TMP_4(uint256) := REF_2(uint256)
+TMP_5(uint256) = TMP_4 (c)+ 1
+REF_2(uint256) (->user_shares) := TMP_5(uint256)
+REF_3(uint256) -> user_shares[TMP_4]
+REF_3(uint256) (->user_shares) := 1(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+user_shares.pop()
+
+IRs:
+REF_5 -> LENGTH user_shares
+TMP_7(uint256) = REF_5 (c)- 1
+REF_6(uint256) -> user_shares[TMP_7]
+REF_6 = delete REF_6 
+REF_7 -> LENGTH user_shares
+REF_7(uint256) (->user_shares) := TMP_7(uint256)"];
+}

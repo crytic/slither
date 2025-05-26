@@ -3,6 +3,7 @@ FROM ubuntu:jammy AS python-wheels
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     gcc \
     git \
+    make \
     python3-dev \
     python3-pip \
   && rm -rf /var/lib/apt/lists/*
@@ -47,6 +48,6 @@ ENV PATH="/home/slither/.local/bin:${PATH}"
 RUN --mount=type=bind,target=/mnt,source=/wheels,from=python-wheels \
     pip3 install --user --no-cache-dir --upgrade --no-index --find-links /mnt --no-deps /mnt/*.whl
 
-RUN solc-select install 0.4.25 && solc-select use 0.4.25
+RUN solc-select use latest --always-install
 
 CMD /bin/bash

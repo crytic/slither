@@ -25,26 +25,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               "path_filtering",
-               # "embark",
-               "erc",
-               # "etherlime",
-               "etherscan",
-               "find_paths",
-               "flat",
-               "interface",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+        os: ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]')) || fromJSON('["ubuntu-latest", "windows-2022"]') }}
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+        type: ${{ (github.event_name == 'pull_request' && fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability"]')) || fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability", "cli", "dapp", "etherscan", "kspec", "simil", "truffle"]') }}
         exclude:
           # Requires nix
           - os: windows-2022
@@ -53,9 +36,9 @@ jobs:
           - os: windows-2022
             type: truffle
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
@@ -67,11 +50,11 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v31
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v16
         with:
           name: dapp
 

@@ -3,20 +3,31 @@ from typing import Optional, Any, List, Union
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables import Variable
+from slither.core.solidity_types import UserDefinedType
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(
-        self, contract_name: Constant, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+        self,
+        contract_name: UserDefinedType,
+        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
+        names: Optional[List[str]] = None,
     ) -> None:
-        assert isinstance(contract_name, Constant)
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
+        assert isinstance(
+            contract_name.type, Contract
+        ), f"contract_name is {contract_name} of type {type(contract_name)}"
         assert is_valid_lvalue(lvalue)
-        super().__init__()
+        super().__init__(names=names)
         self._contract_name = contract_name
         # todo create analyze to add the contract instance
         self._lvalue = lvalue
@@ -49,7 +60,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         self._call_salt = s
 
     @property
-    def contract_name(self) -> Constant:
+    def contract_name(self) -> UserDefinedType:
         return self._contract_name
 
     @property
@@ -60,10 +71,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
 
     @property
     def contract_created(self) -> Contract:
-        contract_name = self.contract_name
-        contract_instance = self.node.file_scope.get_contract_from_name(contract_name)
-        assert contract_instance
-        return contract_instance
+        return self.contract_name.type
 
     ###################################################################################
     ###################################################################################

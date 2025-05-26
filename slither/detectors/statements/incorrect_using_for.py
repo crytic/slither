@@ -165,7 +165,7 @@ class IncorrectUsingFor(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-using-for-usage"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-usage-of-using-for-statement"
 
     WIKI_TITLE = "Incorrect usage of using-for statement"
     WIKI_DESCRIPTION = (

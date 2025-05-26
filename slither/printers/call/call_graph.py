@@ -10,6 +10,7 @@ from typing import Optional, Union, Dict, Set, Tuple, Sequence
 
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
+from slither.slithir.operations import HighLevelCall, InternalCall
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -49,26 +50,26 @@ def _node(node: str, label: Optional[str] = None) -> str:
 def _process_internal_call(
     contract: Contract,
     function: Function,
-    internal_call: Union[Function, SolidityFunction],
+    internal_call: InternalCall,
     contract_calls: Dict[Contract, Set[str]],
     solidity_functions: Set[str],
     solidity_calls: Set[str],
 ) -> None:
-    if isinstance(internal_call, (Function)):
+    if isinstance(internal_call.function, (Function)):
         contract_calls[contract].add(
             _edge(
                 _function_node(contract, function),
-                _function_node(contract, internal_call),
+                _function_node(contract, internal_call.function),
             )
         )
-    elif isinstance(internal_call, (SolidityFunction)):
+    elif isinstance(internal_call.function, (SolidityFunction)):
         solidity_functions.add(
-            _node(_solidity_function_node(internal_call)),
+            _node(_solidity_function_node(internal_call.function)),
         )
         solidity_calls.add(
             _edge(
                 _function_node(contract, function),
-                _solidity_function_node(internal_call),
+                _solidity_function_node(internal_call.function),
             )
         )
 
@@ -112,29 +113,29 @@ def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str
 def _process_external_call(
     contract: Contract,
     function: Function,
-    external_call: Tuple[Contract, Union[Function, Variable]],
+    external_call: Tuple[Contract, HighLevelCall],
     contract_functions: Dict[Contract, Set[str]],
     external_calls: Set[str],
     all_contracts: Set[Contract],
 ) -> None:
-    external_contract, external_function = external_call
+    external_contract, ir = external_call
 
     if not external_contract in all_contracts:
         return
 
     # add variable as node to respective contract
-    if isinstance(external_function, (Variable)):
+    if isinstance(ir.function, (Variable)):
         contract_functions[external_contract].add(
             _node(
-                _function_node(external_contract, external_function),
-                external_function.name,
+                _function_node(external_contract, ir.function),
+                ir.function.name,
             )
         )
 
     external_calls.add(
         _edge(
             _function_node(contract, function),
-            _function_node(external_contract, external_function),
+            _function_node(external_contract, ir.function),
         )
     )
 
@@ -256,6 +257,8 @@ class PrinterCallGraph(AbstractPrinter):
             }
             content = "\n".join(
                 ["strict digraph {"]
+                + ['rankdir="LR"']
+                + ["node [shape=box]"]
                 + [_process_functions(list(all_functions_as_dict.values()))]
                 + ["}"]
             )
@@ -267,7 +270,11 @@ class PrinterCallGraph(AbstractPrinter):
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
-                    ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
+                    ["strict digraph {"]
+                    + ['rankdir="LR"']
+                    + ["node [shape=box]"]
+                    + [_process_functions(derived_contract.functions)]
+                    + ["}"]
                 )
                 f.write(content)
                 results.append((derived_output_filename, content))

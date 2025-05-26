@@ -339,7 +339,10 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     :return:
     """
     v = "var "
-    return slither.core.source_code[filename][start : start + len(v)] == v
+    return (
+        slither.core.source_code[filename].encode("utf8")[start : start + len(v)].decode("utf8")
+        == v
+    )
 
 
 def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
@@ -501,7 +504,7 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
 
                         idx_beginning = func.source_mapping.start
                         idx_beginning += -func.source_mapping.starting_column + 1
-                        idx_beginning += -sum([len(c) for c in potential_comments])
+                        idx_beginning += -sum(len(c) for c in potential_comments)
 
                         old_comment = f"@param {old_str}".encode("utf8")
 

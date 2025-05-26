@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_contract import CustomErrorContract
@@ -10,6 +10,7 @@ from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
 
 # Part of the code was copied from the function parsing
@@ -21,11 +22,13 @@ class CustomErrorSolc(CallerContextExpression):
         self,
         custom_error: CustomError,
         custom_error_data: dict,
+        contract_parser: Optional["ContractSolc"],
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_data["name"]
+        self._contract_parser = contract_parser
         self._params_was_analyzed = False
 
         if not self._slither_parser.is_compact_ast:
@@ -55,6 +58,10 @@ class CustomErrorSolc(CallerContextExpression):
 
         if params:
             self._parse_params(params)
+
+    @property
+    def contract_parser(self) -> Optional["ContractSolc"]:
+        return self._contract_parser
 
     @property
     def is_compact_ast(self) -> bool:

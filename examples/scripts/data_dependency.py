@@ -126,3 +126,17 @@ print(f"{var_tainted} is tainted: {is_tainted(var_tainted, contract)}")
 assert is_tainted(var_tainted, contract)
 print(f"{var_not_tainted} is tainted: {is_tainted(var_not_tainted, contract)}")
 assert not is_tainted(var_not_tainted, contract)
+
+print("SimpleModifier contract")
+contracts = slither.get_contract_from_name("SimpleModifier")
+assert len(contracts) == 1
+contract = contracts[0]
+dependent_state_var = contract.get_state_variable_from_name("owner")
+assert dependent_state_var
+baz = contract.get_modifier_from_signature("baz()")
+intermediate = baz.get_local_variable_from_name("intermediate")
+assert intermediate
+print(
+    f"{intermediate} depends on msg.sender: {is_dependent(intermediate, SolidityVariableComposed('msg.sender'), baz)}"
+)
+assert is_dependent(intermediate, SolidityVariableComposed("msg.sender"), baz)

@@ -45,12 +45,6 @@ from slither.slithir.variables import (
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        HighLevelCallType,
-        LibraryCallType,
-        LowLevelCallType,
-    )
     from slither.core.cfg.scope import Scope
     from slither.core.scope.scope import FileScope
 
@@ -74,6 +68,7 @@ class NodeType(Enum):
     IF = "IF"
     VARIABLE = "NEW VARIABLE"  # Variable declaration
     ASSEMBLY = "INLINE ASM"
+    ENDASSEMBLY = "END INLINE ASM"
     IFLOOP = "IF_LOOP"
 
     # Nodes where control flow merges
@@ -151,11 +146,11 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._ssa_vars_written: List["SlithIRVariable"] = []
         self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls: List[Union["Function", "SolidityFunction"]] = []
-        self._solidity_calls: List[SolidityFunction] = []
-        self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
-        self._library_calls: List["LibraryCallType"] = []
-        self._low_level_calls: List["LowLevelCallType"] = []
+        self._internal_calls: List[InternalCall] = []  # contains solidity calls
+        self._solidity_calls: List[SolidityCall] = []
+        self._high_level_calls: List[Tuple[Contract, HighLevelCall]] = []  # contains library calls
+        self._library_calls: List[LibraryCall] = []
+        self._low_level_calls: List[LowLevelCall] = []
         self._external_calls_as_expressions: List[Expression] = []
         self._internal_calls_as_expressions: List[Expression] = []
         self._irs: List[Operation] = []
@@ -193,6 +188,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self.file_scope: "FileScope" = file_scope
         self._function: Optional["Function"] = None
 
+        self._is_reachable: bool = False
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -222,8 +219,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def will_return(self) -> bool:
         if not self.sons and self.type != NodeType.THROW:
-            if SolidityFunction("revert()") not in self.solidity_calls:
-                if SolidityFunction("revert(string)") not in self.solidity_calls:
+            solidity_calls = [ir.function for ir in self.solidity_calls]
+            if SolidityFunction("revert()") not in solidity_calls:
+                if SolidityFunction("revert(string)") not in solidity_calls:
                     return True
         return False
 
@@ -233,6 +231,13 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def function(self) -> "Function":
         return self._function
+
+    @property
+    def is_reachable(self) -> bool:
+        return self._is_reachable
+
+    def set_is_reachable(self, new_is_reachable: bool) -> None:
+        self._is_reachable = new_is_reachable
 
     # endregion
     ###################################################################################
@@ -362,44 +367,38 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List["InternalCallType"]:
+    def internal_calls(self) -> List[InternalCall]:
         """
-        list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(InternalCall): List of IR operations with internal/solidity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityFunction]:
+    def solidity_calls(self) -> List[SolidityCall]:
         """
-        list(SolidityFunction): List of Soldity calls
+        list(SolidityCall): List of IR operations with solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List["HighLevelCallType"]:
+    def high_level_calls(self) -> List[HighLevelCall]:
         """
-        list((Contract, Function|Variable)):
-        List of high level calls (external calls).
-        A variable is called in case of call to a public state variable
+        list(HighLevelCall): List of IR operations with high level calls (external calls).
         Include library calls
         """
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List["LibraryCallType"]:
+    def library_calls(self) -> List[LibraryCall]:
         """
-        list((Contract, Function)):
-        Include library calls
+        list(LibraryCall): List of IR operations with library calls.
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List["LowLevelCallType"]:
+    def low_level_calls(self) -> List[LowLevelCall]:
         """
-        list((Variable|SolidityVariable, str)): List of low_level call
-        A low level call is defined by
-        - the variable called
-        - the name of the function (call/delegatecall/codecall)
+        list(LowLevelCall): List of IR operations with low_level call
         """
         return list(self._low_level_calls)
 
@@ -518,8 +517,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             bool: True if the node has a require or assert call
         """
         return any(
-            c.name in ["require(bool)", "require(bool,string)", "assert(bool)"]
-            for c in self.internal_calls
+            ir.function.name
+            in ["require(bool)", "require(bool,string)", "require(bool,error)", "assert(bool)"]
+            for ir in self.internal_calls
         )
 
     def contains_if(self, include_loop: bool = True) -> bool:
@@ -883,29 +883,29 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
-                self._internal_calls.append(ir.function)
+                self._internal_calls.append(ir)
             if isinstance(ir, SolidityCall):
                 # TODO: consider removing dependancy of solidity_call to internal_call
-                self._solidity_calls.append(ir.function)
-                self._internal_calls.append(ir.function)
+                self._solidity_calls.append(ir)
+                self._internal_calls.append(ir)
             if isinstance(ir, LowLevelCall):
                 assert isinstance(ir.destination, (Variable, SolidityVariable))
-                self._low_level_calls.append((ir.destination, str(ir.function_name.value)))
+                self._low_level_calls.append(ir)
             elif isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 # Todo investigate this if condition
                 # It does seem right to compare against a contract
                 # This might need a refactoring
                 if isinstance(ir.destination.type, Contract):
-                    self._high_level_calls.append((ir.destination.type, ir.function))
+                    self._high_level_calls.append((ir.destination.type, ir))
                 elif ir.destination == SolidityVariable("this"):
                     func = self.function
                     # Can't use this in a top level function
                     assert isinstance(func, FunctionContract)
-                    self._high_level_calls.append((func.contract, ir.function))
+                    self._high_level_calls.append((func.contract, ir))
                 else:
                     try:
                         # Todo this part needs more tests and documentation
-                        self._high_level_calls.append((ir.destination.type.type, ir.function))
+                        self._high_level_calls.append((ir.destination.type.type, ir))
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
@@ -914,8 +914,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 assert isinstance(ir.function, Function)
-                self._high_level_calls.append((ir.destination, ir.function))
-                self._library_calls.append((ir.destination, ir.function))
+                self._high_level_calls.append((ir.destination, ir))
+                self._library_calls.append(ir)
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
@@ -946,42 +946,96 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         non_ssa_var = function.get_local_variable_from_name(v.name)
         return non_ssa_var
 
-    def update_read_write_using_ssa(self) -> None:
-        if not self.expression:
-            return
-        for ir in self.irs_ssa:
-            if isinstance(ir, PhiCallback):
-                continue
-            if not isinstance(ir, (Phi, Index, Member)):
-                self._ssa_vars_read += [
-                    v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
-                ]
-                for var in ir.read:
-                    if isinstance(var, ReferenceVariable):
-                        origin = var.points_to_origin
-                        if isinstance(origin, (StateIRVariable, LocalIRVariable)):
-                            self._ssa_vars_read.append(origin)
+    def _update_read_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_read
+        This look for all operations that read a IRvariable
+        It uses the result of the storage pointer
+        - For "normal" operation, the read are mostly everything in ir.read
+        - For "index", the read is the left part (the right part being a reference variable)
+        - For Phi, nothing is considered read
 
-            elif isinstance(ir, (Member, Index)):
-                variable_right: RVALUE = ir.variable_right
-                if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
-                    self._ssa_vars_read.append(variable_right)
-                if isinstance(variable_right, ReferenceVariable):
-                    origin = variable_right.points_to_origin
+        """
+
+        # For variable read, phi and index have special treatments
+        # Phi don't lead to values read
+        # Index leads to read the variable right (the left variable is a ref variable, not the actual object)
+        # Not that Member is a normal operation here, given we filter out constant by checking for the IRvaraible
+        if not isinstance(ir, (Phi, Index)):
+            self._ssa_vars_read += [
+                v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
+            ]
+            for var in ir.read:
+                if isinstance(var, ReferenceVariable):
+                    origin = var.points_to_origin
                     if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                         self._ssa_vars_read.append(origin)
 
-            if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length)):
-                    continue  # Don't consider Member and Index operations -> ReferenceVariable
-                var = ir.lvalue
-                if isinstance(var, ReferenceVariable):
-                    var = var.points_to_origin
+                # If we read from a storage variable (outside of phi operator)
+                if isinstance(var, LocalIRVariable) and var.is_storage:
+                    for refer_to in var.refers_to:
+                        # the following should always be true
+                        if isinstance(refer_to, (StateIRVariable, LocalIRVariable)):
+                            self._ssa_vars_read.append(refer_to)
+
+        elif isinstance(ir, Index):
+            variable_right: RVALUE = ir.variable_right
+            if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
+                self._ssa_vars_read.append(variable_right)
+
+            if isinstance(variable_right, ReferenceVariable):
+                origin = variable_right.points_to_origin
+                if isinstance(origin, (StateIRVariable, LocalIRVariable)):
+                    self._ssa_vars_read.append(origin)
+
+    def _update_write_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_written
+        This look for all operations that write a IRvariable
+        It uses the result of the storage pointer
+
+        Index/member/Length are not considering writing to anything
+        For index/member it is implictely handled when their associated RefernceVarible are written
+
+        """
+
+        if isinstance(ir, OperationWithLValue) and not isinstance(ir, Phi):
+            if isinstance(ir, (Index, Member, Length)):
+                return  # Don't consider Member and Index operations -> ReferenceVariable
+
+            var = ir.lvalue
+
+            if isinstance(var, ReferenceVariable):
+                var = var.points_to_origin
+
+            candidates = [var]
+
+            # If we write to a storage pointer, add everything it points to as target
+            # if it's a variable declaration we do not want to consider the right variable written in that case
+            # string storage ss = s; // s is a storage variable but should not be considered written at that point
+            if (
+                isinstance(var, LocalIRVariable)
+                and var.is_storage
+                and ir.node.type is not NodeType.VARIABLE
+            ):
+                candidates += var.refers_to
+
+            for var in candidates:
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
                     if isinstance(ir, PhiCallback):
                         continue
                     self._ssa_vars_written.append(var)
+
+    def update_read_write_using_ssa(self) -> None:
+
+        for ir in self.irs_ssa:
+            if isinstance(ir, PhiCallback):
+                continue
+
+            self._update_read_using_ssa(ir)
+            self._update_write_using_ssa(ir)
+
         self._ssa_vars_read = list(set(self._ssa_vars_read))
         self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
         self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]

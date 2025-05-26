@@ -90,13 +90,13 @@ def transform_slithir_vars_to_ssa(
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx, _ in enumerate(tmp_variables):
-        tmp_variables[idx].index = idx
+        tmp_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
     ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
     for idx, _ in enumerate(ref_variables):
-        ref_variables[idx].index = idx
+        ref_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx, _ in enumerate(tuple_variables):
-        tuple_variables[idx].index = idx
+        tuple_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
 
 
 ###################################################################################
@@ -735,12 +735,17 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
+        names = ir.names
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = LibraryCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         else:
-            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = HighLevelCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
@@ -761,7 +766,8 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
+        names = ir.names
+        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, InternalDynamicCall):
@@ -811,7 +817,8 @@ def copy_ir(ir: Operation, *instances) -> Operation:
     if isinstance(ir, NewStructure):
         structure = ir.structure
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewStructure(structure, lvalue)
+        names = ir.names
+        new_ir = NewStructure(structure, lvalue, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, Nop):

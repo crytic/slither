@@ -17,7 +17,7 @@ class CacheArrayLength(AbstractDetector):
     ARGUMENT = "cache-array-length"
     HELP = (
         "Detects `for` loops that use `length` member of some storage array in their loop condition and don't "
-        "modify it. "
+        "modify it."
     )
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
@@ -216,9 +216,8 @@ contract C
         for usage in non_optimal_array_len_usages:
             info = [
                 "Loop condition ",
-                f"`{usage.source_mapping.content}` ",
-                f"({usage.source_mapping}) ",
-                "should use cached array length instead of referencing `length` member "
+                usage,
+                " should use cached array length instead of referencing `length` member "
                 "of the storage array.\n ",
             ]
             res = self.generate_result(info)
