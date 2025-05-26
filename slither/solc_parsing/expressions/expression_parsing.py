@@ -62,9 +62,12 @@ def _fit_smallest_integer(val: str) -> str:
     :param val:
     :return:
     """
+    val = val.lower()
     if val.startswith("0x"):
         val = int(val, base=16)
     elif val.find("e") != -1:
+        val = int(float(val))
+    elif val.find(".") != -1:
         val = int(float(val))
     else:
         val = int(val)

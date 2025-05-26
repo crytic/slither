@@ -182,7 +182,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> List[Operation]:
         return self._result
 
-    def _convert_right_assignment(self, left: Any, right: Any, expression: AssignmentOperation) -> Any:
+    def _convert_right_assignment(
+        self, left: Any, right: Any, expression: AssignmentOperation
+    ) -> Any:
         if (
             isinstance(left.type, ElementaryType)
             and isinstance(right.type, ElementaryType)
