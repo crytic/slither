@@ -3,7 +3,7 @@ from .enum import Enum
 from .event import Event
 from .event_contract import EventContract
 from .event_top_level import EventTopLevel
-from .function import Function
+from .function import Function, FunctionLanguage
 from .import_directive import Import
 from .modifier import Modifier
 from .pragma_directive import Pragma

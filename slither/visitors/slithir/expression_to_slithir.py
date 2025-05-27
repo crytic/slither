@@ -5,6 +5,7 @@ from slither.core import expressions
 from slither.core.scope.scope import FileScope
 from slither.core.declarations import (
     Function,
+    FunctionLanguage,
     SolidityVariable,
     SolidityVariableComposed,
     SolidityFunction,
@@ -185,6 +186,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _convert_right_assignment(
         self, left: Any, right: Any, expression: AssignmentOperation
     ) -> Any:
+        if self._node.function.function_language == FunctionLanguage.Vyper:
+            return right
         if isinstance(right, list):
             # Case to implicitly convert elements when assigning to an array. Also handles nested arrays.
             # uint16[2] memory t = [uint16(2),9];
@@ -365,7 +368,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # From solidity docs
             # The operators ** (exponentiation), << and >> use the type of the left operand for the operation and the result.
             if (  # pylint: disable=too-many-boolean-expressions
-                isinstance(left.type, ElementaryType)
+                self._node.function.function_language != FunctionLanguage.Vyper
+                and isinstance(left.type, ElementaryType)
                 and isinstance(right.type, ElementaryType)
                 and left.type != right.type
                 and expression.type
