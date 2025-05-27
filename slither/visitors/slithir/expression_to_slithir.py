@@ -185,7 +185,27 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _convert_right_assignment(
         self, left: Any, right: Any, expression: AssignmentOperation
     ) -> Any:
-        if (
+        if isinstance(right, list):
+            # Case to implicitly convert elements when assigning to an array. Also handles nested arrays.
+            # uint16[2] memory t = [uint16(2),9];
+            # 9 should be converted to uint16(9)
+            for i, val in enumerate(right):
+                # For the first element in the array, we don't need conversion (it's the reference type)
+                if i == 0:
+                    # If the first element is itself a nested list, recursively process it
+                    if isinstance(val, list):
+                        right[i] = self._convert_right_assignment(left, val, expression)
+                else:
+                    # If this is a nested list, we need to recursively process it
+                    if isinstance(val, list):
+                        # If right[0] is also a list, use its first element as the reference type
+                        # Otherwise use right[0] directly as the reference type
+                        reference = right[0][0] if isinstance(right[0], list) else right[0]
+                        right[i] = self._convert_right_assignment(reference, val, expression)
+                    else:
+                        # For non-nested elements, convert using the first element as reference
+                        right[i] = self._convert_right_assignment(right[0], val, expression)
+        elif (
             isinstance(left.type, ElementaryType)
             and isinstance(right.type, ElementaryType)
             and left.type != right.type
