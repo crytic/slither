@@ -1754,6 +1754,11 @@ ALL_TESTS = [
         "optimism_deprecation.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.MsgSenderEqTxOrigin,
+        "sender_eq_origin.sol",
+        "0.8.0",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",

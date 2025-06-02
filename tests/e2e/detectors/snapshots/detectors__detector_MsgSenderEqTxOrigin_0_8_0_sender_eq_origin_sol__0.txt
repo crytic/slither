@@ -1,0 +1,8 @@
+T.bad4() (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#26-29) checks msg.sender against tx.origin: require(bool)(msg.sender == tx.origin) (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#27)
+
+T.bad() (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#2-4) checks msg.sender against tx.origin: require(bool)(msg.sender == tx.origin) (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#3)
+
+T.bad3() (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#10-12) checks msg.sender against tx.origin: msg.sender == tx.origin (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#11)
+
+T.bad2(uint256) (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#6-8) checks msg.sender against tx.origin: msg.sender == tx.origin && y == 45 (tests/e2e/detectors/test_data/sender-eq-origin/0.8.0/sender_eq_origin.sol#7)
+

@@ -104,5 +104,6 @@ from .statements.pyth_unchecked_publishtime import PythUncheckedPublishTime
 from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
 from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
+from .statements.msg_sender_eq_tx_origin import MsgSenderEqTxOrigin
 
 # from .statements.unused_import import UnusedImport
