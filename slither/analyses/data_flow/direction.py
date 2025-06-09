@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Deque, Dict, List
+
+from slither.analyses.data_flow.analysis import A, Analysis, AnalysisState
 from slither.core.cfg.node import Node
-from typing import List
+from slither.core.declarations.function import Function
 
 
 class Direction(ABC):
@@ -10,17 +13,38 @@ class Direction(ABC):
         pass
 
     @abstractmethod
-    def apply_transfer_function(self, nodes: List[Node]):
+    def apply_transfer_function(
+        self,
+        analysis: Analysis,
+        current_state: AnalysisState,
+        node: Node,
+        worklist: Deque[Node],
+        global_state: Dict[int, AnalysisState[A]],
+        functions: List[Function],
+    ):
         pass
 
 
 class Forward(Direction):
+
     @property
     def IS_FORWARD(self) -> bool:
         return True
 
-    def apply_transfer_function(self, nodes: List[Node]):
-        raise NotImplementedError("Forward transfer function hasn't been developed yet")
+    def apply_transfer_function(
+        self,
+        analysis: Analysis,
+        current_state: AnalysisState,
+        node: Node,
+        worklist: Deque[Node],
+        global_state: Dict[int, AnalysisState[A]],
+        functions: List[Function],
+    ):
+        for operation in node.irs:
+            analysis.transfer_function(
+                node=node, domain=current_state.pre, operation=operation, functions=functions
+            )
+
 
 
 class Backward(Direction):
@@ -28,5 +52,12 @@ class Backward(Direction):
     def IS_FORWARD(self) -> bool:
         return False
 
-    def apply_transfer_function(self, nodes: List[Node]):
+    def apply_transfer_function(
+        self,
+        current_state: AnalysisState,
+        node: Node,
+        worklist: Deque[Node],
+        global_state: Dict[int, AnalysisState[A]],
+        functions: List[Function],
+    ):
         raise NotImplementedError("Backward transfer function hasn't been developed yet")

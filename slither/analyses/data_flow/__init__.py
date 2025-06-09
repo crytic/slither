@@ -1,5 +1,5 @@
-from slither.analyses.data_flow.direction import Forward
 from slither import Slither
+from slither.analyses.data_flow.direction import Forward
 
 slither = Slither("../contracts/Storage.sol")
 
