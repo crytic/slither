@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Deque, Dict, List
+from typing import TYPE_CHECKING, Deque, Dict, List
 
-from slither.analyses.data_flow.analysis import A, Analysis, AnalysisState
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analysis import Analysis, AnalysisState, A
+
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
-
 
 class Direction(ABC):
     @property
@@ -15,11 +16,11 @@ class Direction(ABC):
     @abstractmethod
     def apply_transfer_function(
         self,
-        analysis: Analysis,
-        current_state: AnalysisState,
+        analysis: "Analysis",
+        current_state: "AnalysisState",
         node: Node,
         worklist: Deque[Node],
-        global_state: Dict[int, AnalysisState[A]],
+        global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
         pass
@@ -33,11 +34,11 @@ class Forward(Direction):
 
     def apply_transfer_function(
         self,
-        analysis: Analysis,
-        current_state: AnalysisState,
+        analysis: "Analysis",
+        current_state: "AnalysisState",
         node: Node,
         worklist: Deque[Node],
-        global_state: Dict[int, AnalysisState[A]],
+        global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
         for operation in node.irs:
@@ -54,10 +55,10 @@ class Backward(Direction):
 
     def apply_transfer_function(
         self,
-        current_state: AnalysisState,
+        current_state: "AnalysisState",
         node: Node,
         worklist: Deque[Node],
-        global_state: Dict[int, AnalysisState[A]],
+        global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
         raise NotImplementedError("Backward transfer function hasn't been developed yet")

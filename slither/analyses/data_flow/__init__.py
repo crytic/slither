@@ -1,13 +1,9 @@
 from slither import Slither
-from slither.analyses.data_flow.direction import Forward
+from slither.analyses.data_flow.engine import Engine
+from slither.analyses.data_flow.reentrancy import ReentrancyAnalysis
 
 slither = Slither("../contracts/Storage.sol")
 
-contracts = slither.contracts
-for contract in contracts:
-    functions = contract.functions
-    for function in functions:
-        nodes = function.nodes
-        Forward().apply_transfer_function(nodes=nodes)
-
-
+functions = [f for c in slither.contracts for f in c.functions]
+engine = Engine.new(analysis=ReentrancyAnalysis(), functions=functions)
+engine.run_analysis(slither.contracts)
