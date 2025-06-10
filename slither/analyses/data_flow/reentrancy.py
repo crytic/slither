@@ -1,5 +1,5 @@
-from typing import List, Optional, Set
 from enum import Enum, auto
+from typing import List, Optional, Set
 
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
