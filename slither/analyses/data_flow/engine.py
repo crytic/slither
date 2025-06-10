@@ -1,12 +1,11 @@
 from collections import deque
 from typing import Deque, Dict, Generic, List
 
+from loguru import logger
 from slither.analyses.data_flow.analysis import A, Analysis, AnalysisState
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract
 from slither.core.declarations.function import Function
-
-from loguru import logger
 
 
 class Engine(Generic[A]):
