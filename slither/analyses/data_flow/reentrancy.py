@@ -82,6 +82,19 @@ class ReentrancyAnalysis(Analysis):
         return ReentrancyDomain.bottom()
 
     def transfer_function(
-        self, node: Node, domain: Domain, operation: Operation, functions: List[Function]
+        self, node: Node, domain: ReentrancyDomain, operation: Operation, functions: List[Function]
     ):
-        print(f"{node.expression} -- {operation}")
+        self.transfer_function_helper(node, domain, operation, functions)
+    
+    def transfer_function_helper(self, node: Node, domain: ReentrancyDomain, operation: Operation, functions: List[Function], private_functions_seen: Set[Function]=set()):
+        match domain.variant:
+            case DomainVariant.BOTTOM:
+                domain.state = ReentrancyDomain.state(ReentrancyInfo())
+                domain.variant = DomainVariant.STATE
+            case DomainVariant.TOP:
+                domain.variant = DomainVariant.TOP
+            
+                
+
+
+     
