@@ -1,4 +1,5 @@
 from typing import List, Optional, Set
+from enum import Enum, auto
 
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
@@ -25,21 +26,47 @@ class ReentrancyInfo:
         self.events = events or set()
 
 
-class ReentrancyDomain:
-    def __init__(self, variant: str, state: Optional[ReentrancyInfo] = None):
+class DomainVariant(Enum):
+    BOTTOM = auto()
+    TOP = auto()
+    STATE = auto()
+
+
+class ReentrancyDomain(Domain):
+    def __init__(self, variant: DomainVariant, state: Optional[ReentrancyInfo] = None):
         self.variant = variant
         self.state = state
 
     @classmethod
     def bottom(cls) -> "ReentrancyDomain":
-        return cls("bottom")
+        return cls(DomainVariant.BOTTOM)
 
     @classmethod
     def top(cls) -> "ReentrancyDomain":
-        return cls("top")
+        return cls(DomainVariant.TOP)
+
+    @classmethod
+    def state(cls, info: ReentrancyInfo) -> "ReentrancyDomain":
+        return cls(DomainVariant.STATE, info)
 
     def join(self, other: "ReentrancyDomain") -> bool:
-        return False
+        match self.variant, other.variant:
+            case DomainVariant.TOP, _:
+                return False
+            case _, DomainVariant.BOTTOM:
+                return False
+            case DomainVariant.STATE, DomainVariant.STATE:
+                if self.state == other.state:
+                    return False
+                self.state.external_calls.union(other.state.external_calls)
+                self.state.storage_variables_read.union(other.state.storage_variables_read)
+                self.state.storage_variables_read_before_calls.union(other.state.storage_variables_read_before_calls)
+            case DomainVariant.BOTTOM, DomainVariant.STATE:
+                self.state = other.state
+            case _:
+                self.variant = DomainVariant.TOP
+        return True
+
 
 class ReentrancyAnalysis(Analysis):
     def __init__(self):
