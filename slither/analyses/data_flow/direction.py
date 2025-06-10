@@ -48,7 +48,7 @@ class Forward(Direction):
             analysis.transfer_function(
                 node=node, domain=current_state.pre, operation=operation, functions=functions
             )
-        return
+
         node_index = node_to_index[node]
         global_state[node_index].post = current_state.pre # set the post state of the current block
 
