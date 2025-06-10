@@ -12,7 +12,7 @@ class ReentrancyDomain(Domain):
 
     @classmethod
     def top(cls) -> "ReentrancyDomain":
-       return cls()
+        return cls()
 
     @classmethod
     def bottom(cls) -> "ReentrancyDomain":
@@ -35,5 +35,7 @@ class ReentrancyAnalysis(Analysis):
     def bottom_value(self) -> Domain:
         return ReentrancyDomain.bottom()
 
-    def transfer_function(self, node: Node, domain: Domain, operation: Operation, functions: List[Function]):
+    def transfer_function(
+        self, node: Node, domain: Domain, operation: Operation, functions: List[Function]
+    ):
         print(node.expression)

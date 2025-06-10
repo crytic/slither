@@ -1,10 +1,13 @@
 from collections import deque
 from typing import Deque, Dict, Generic, List
 
-from slither.analyses.data_flow.analysis import Analysis, AnalysisState, A
+from slither.analyses.data_flow.analysis import A, Analysis, AnalysisState
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract
 from slither.core.declarations.function import Function
+
+from loguru import logger
+
 
 class Engine(Generic[A]):
     def __init__(self):
@@ -42,7 +45,7 @@ class Engine(Generic[A]):
 
         while worklist:
             node = worklist.popleft()
-                
+
             node_index = self.node_to_index[node]
 
             current_state = AnalysisState(
@@ -56,6 +59,7 @@ class Engine(Generic[A]):
                 worklist=worklist,
                 global_state=self.state,
                 functions=self.functions,
+                node_to_index=self.node_to_index,
             )
 
     def result(self) -> Dict[Node, AnalysisState[A]]:
