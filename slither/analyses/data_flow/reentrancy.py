@@ -1,14 +1,12 @@
-from typing import List, Set
+from typing import List, Optional, Set
 
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
 from slither.core.cfg.node import Node
-from slither.core.declarations.event import Event
 from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
-from slither.slithir.operations.call import Call
-from slither.slithir.operations.operation import Operation
+from slither.slithir.operations import Call, EventCall, Operation
 
 
 class ReentrancyInfo:
@@ -18,7 +16,7 @@ class ReentrancyInfo:
         storage_variables_read: Set[Variable] = None,
         storage_variables_written: Set[Variable] = None,
         storage_variables_read_before_calls: Set[Variable] = None,
-        events: Set[Event] = None,
+        events: Set[EventCall] = None,
     ):
         self.external_calls = external_calls or set()
         self.storage_variables_read = storage_variables_read or set()
@@ -27,19 +25,21 @@ class ReentrancyInfo:
         self.events = events or set()
 
 
-class ReentrancyDomain(Domain):
-
-    @classmethod
-    def top(cls) -> "ReentrancyDomain":
-        return cls()
+class ReentrancyDomain:
+    def __init__(self, variant: str, state: Optional[ReentrancyInfo] = None):
+        self.variant = variant
+        self.state = state
 
     @classmethod
     def bottom(cls) -> "ReentrancyDomain":
-        return cls()
+        return cls("bottom")
+
+    @classmethod
+    def top(cls) -> "ReentrancyDomain":
+        return cls("top")
 
     def join(self, other: "ReentrancyDomain") -> bool:
         return False
-
 
 class ReentrancyAnalysis(Analysis):
     def __init__(self):
@@ -57,4 +57,4 @@ class ReentrancyAnalysis(Analysis):
     def transfer_function(
         self, node: Node, domain: Domain, operation: Operation, functions: List[Function]
     ):
-        print(node.expression)
+        print(f"{node.expression} -- {operation}")

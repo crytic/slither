@@ -34,7 +34,7 @@ class Engine(Generic[A]):
 
         return engine
 
-    def run_analysis(self, contracts: List[Contract]):
+    def run_analysis(self):
         worklist: Deque[Node] = deque()
 
         if self.analysis.direction().IS_FORWARD:
