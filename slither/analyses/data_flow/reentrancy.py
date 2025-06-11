@@ -2,14 +2,22 @@ from enum import Enum, auto
 from typing import List, Optional, Set
 
 from loguru import logger
-
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
+from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import Call, EventCall, Operation
+from slither.slithir.operations import (
+    Call,
+    EventCall,
+    HighLevelCall,
+    LowLevelCall,
+    Operation,
+    Send,
+    Transfer,
+)
 
 
 class ReentrancyInfo:
@@ -101,9 +109,10 @@ class ReentrancyDomain(Domain):
             if self.state == other.state:
                 return False
 
-            self.state.external_calls.union(other.state.external_calls)
-            self.state.storage_variables_read.union(other.state.storage_variables_read)
-            self.state.storage_variables_read_before_calls.union(
+            self.state.external_calls.update(other.state.external_calls)
+            self.state.storage_variables_read.update(other.state.storage_variables_read)
+            self.state.storage_variables_written.update(other.state.storage_variables_written)
+            self.state.storage_variables_read_before_calls.update(
                 other.state.storage_variables_read_before_calls
             )
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
@@ -138,12 +147,58 @@ class ReentrancyAnalysis(Analysis):
         domain: ReentrancyDomain,
         operation: Operation,
         functions: List[Function],
-        private_functions_seen: Set[Function] = set(),
+        private_functions_seen: Optional[Set[Function]] = None,
     ):
+        if private_functions_seen is None:
+            private_functions_seen = set()
+
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
             domain.state = ReentrancyInfo()
         elif domain.variant == DomainVariant.TOP:
             return
         elif domain.variant == DomainVariant.STATE:
-            print(operation, type(operation))
+            self._analyze_operation_by_type(
+                operation, domain, node, functions, private_functions_seen
+            )
+
+    def _analyze_operation_by_type(
+        self,
+        operation: Operation,
+        domain: ReentrancyDomain,
+        node: Node,
+        functions: List[Function],
+        private_functions_seen: Set[Function],
+    ):
+        # storage -- first case in caracal
+        self._handle_storage(domain, node)
+
+        # events -- second case in caracal
+        if isinstance(operation, EventCall):
+            domain.state.events.add(operation)
+
+        # external calls -- third case in caracal
+        if isinstance(operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
+            self._handle_external_call_operation(operation, domain)
+
+    def _handle_storage(self, domain: ReentrancyDomain, node: Node):
+        for var in node.state_variables_read:
+            if isinstance(var, StateVariable) and var.is_stored:
+                domain.state.storage_variables_read.add(var)
+        for var in node.state_variables_written:
+            if isinstance(var, StateVariable) and var.is_stored:
+                domain.state.storage_variables_written.add(var)
+
+    def _handle_external_call_operation(self, operation: Operation, domain: ReentrancyDomain):
+        # get vars before call
+        storage_reads_before_call = domain.state.storage_variables_read
+
+        if not isinstance(operation, Call):
+            return
+
+        # Track this external call
+        domain.state.external_calls.add(operation)
+
+        # track var if we read before call
+        if storage_reads_before_call:
+            domain.state.storage_variables_read_before_calls = storage_reads_before_call
