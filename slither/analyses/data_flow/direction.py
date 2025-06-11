@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Deque, Dict, List
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analysis import Analysis, AnalysisState, A
 
+from loguru import logger
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 
@@ -50,13 +51,16 @@ class Forward(Direction):
             )
 
         node_index = node_to_index[node]
-        global_state[node_index].post = current_state.pre # set the post state of the current block
+        global_state[node_index].post = current_state.pre  # set the post state of the current block
 
-        for son in node.sons: #propagate
+        for son in node.sons:  # propagate
+            if not son:
+                continue
             son_index = node_to_index[son]
             if son_index not in global_state:
                 continue
             son_state = global_state[son_index]
+
             changed = son_state.pre.join(current_state.pre)
 
             if not changed:

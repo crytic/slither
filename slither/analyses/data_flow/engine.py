@@ -13,7 +13,8 @@ class Engine(Generic[A]):
         self.state: Dict[int, AnalysisState[A]] = {}
         self.nodes: List[Node] = []
         self.node_to_index: Dict[Node, int] = {}
-        self.analysis: Analysis = None
+        self.analysis: Analysis
+        self.functions: List[Function]
 
     @classmethod
     def new(cls, analysis: Analysis, functions: List[Function]):
