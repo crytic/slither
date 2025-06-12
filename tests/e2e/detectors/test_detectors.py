@@ -889,6 +889,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ReentrancyDataFlow,
+        "reentrancy_filtered_comments.sol",
+        "0.8.10",
+    ),
+    Test(
         all_detectors.IncorrectStrictEquality,
         "incorrect_equality.sol",
         "0.4.25",
@@ -1944,6 +1949,7 @@ ALL_TESTS = [
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
 
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)

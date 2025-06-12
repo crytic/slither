@@ -18,6 +18,7 @@ from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
+from .reentrancy_data_flow.reentrancy_events_df import ReentrancyEventsDF
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.could_be_constant import CouldBeConstant
 from .variables.could_be_immutable import CouldBeImmutable

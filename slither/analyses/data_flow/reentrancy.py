@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from typing import List, Optional, Set
+from collections import defaultdict
 
 from loguru import logger
 from slither.analyses.data_flow.analysis import Analysis
@@ -29,12 +30,15 @@ class ReentrancyInfo:
         storage_variables_written: Optional[Set[Variable]] = None,
         storage_variables_read_before_calls: Optional[Set[Variable]] = None,
         events: Optional[Set[EventCall]] = None,
+        calls_emitted_after_events: Optional[Set[Call]] = None,
     ):
         self.external_calls = external_calls or set()
         self.storage_variables_read = storage_variables_read or set()
         self.storage_variables_written = storage_variables_written or set()
         self.storage_variables_read_before_calls = storage_variables_read_before_calls or set()
         self.events = events or set()
+        self.calls_emitted_after_events = calls_emitted_after_events or set()
+        self.events_with_later_calls = defaultdict(set)
 
     def __eq__(self, other):
         if not isinstance(other, ReentrancyInfo):
@@ -84,6 +88,8 @@ class ReentrancyDomain(Domain):
     def __init__(self, variant: DomainVariant, state: Optional[ReentrancyInfo] = None):
         self.variant = variant
         self.state = state or ReentrancyInfo()
+        self.events = set()
+        self.events_with_later_calls = defaultdict(set)
 
     @classmethod
     def bottom(cls) -> "ReentrancyDomain":
@@ -180,7 +186,8 @@ class ReentrancyAnalysis(Analysis):
 
         # events -- second case in caracal
         if isinstance(operation, EventCall):
-            domain.state.events.add(operation)
+            # domain.state.events.add(operation)
+            self._handle_event_call_operation(operation, domain)
 
         # internal calls -- third case in caracal
         if isinstance(operation, InternalCall):
@@ -238,3 +245,10 @@ class ReentrancyAnalysis(Analysis):
         # track var if we read before call
         if storage_reads_before_call:
             domain.state.storage_variables_read_before_calls = storage_reads_before_call
+
+    def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
+        calls_before_events = domain.state.external_calls
+        domain.state.events.add(operation)
+
+        if calls_before_events:
+            domain.state.calls_emitted_after_events.update(calls_before_events)
