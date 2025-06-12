@@ -889,6 +889,21 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ReentrancyEventsDF,
+        "reentrancy-events.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyEventsDF,
+        "reentrancy-events.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyEventsDF,
+        "reentrancy-events.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.IncorrectStrictEquality,
         "incorrect_equality.sol",
         "0.4.25",

@@ -39,7 +39,7 @@ class ReentrancyEventsDF(AbstractDetector):
     Reentrancy detector using data flow analysis
     """
 
-    ARGUMENT = "reentrancy-events-data-flow"
+    ARGUMENT = "reentrancy-events-df"
     HELP = "Reentrancy vulnerabilities leading to out-of-order Events (data flow analysis)"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
