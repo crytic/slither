@@ -13,6 +13,7 @@ from slither.slithir.operations import (
     Call,
     EventCall,
     HighLevelCall,
+    InternalCall,
     LowLevelCall,
     Operation,
     Send,
@@ -97,6 +98,7 @@ class ReentrancyDomain(Domain):
         return cls(DomainVariant.STATE, info)
 
     def join(self, other: "ReentrancyDomain") -> bool:
+        # TOP || BOTTOM
         if self.variant == DomainVariant.TOP or other.variant == DomainVariant.BOTTOM:
             return False
 
@@ -111,7 +113,6 @@ class ReentrancyDomain(Domain):
 
             self.state.external_calls.update(other.state.external_calls)
             self.state.storage_variables_read.update(other.state.storage_variables_read)
-            self.state.storage_variables_written.update(other.state.storage_variables_written)
             self.state.storage_variables_read_before_calls.update(
                 other.state.storage_variables_read_before_calls
             )
@@ -155,6 +156,10 @@ class ReentrancyAnalysis(Analysis):
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
             domain.state = ReentrancyInfo()
+            self._analyze_operation_by_type(
+                operation, domain, node, functions, private_functions_seen
+            )
+            return
         elif domain.variant == DomainVariant.TOP:
             return
         elif domain.variant == DomainVariant.STATE:
@@ -177,24 +182,55 @@ class ReentrancyAnalysis(Analysis):
         if isinstance(operation, EventCall):
             domain.state.events.add(operation)
 
-        # external calls -- third case in caracal
+        # internal calls -- third case in caracal
+        if isinstance(operation, InternalCall):
+            self._handle_internal_call_operation(operation, domain, private_functions_seen)
+
+        # abi calls -- fourth case in caracal
         if isinstance(operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
-            self._handle_external_call_operation(operation, domain)
+            self._handle_abi_call_contract_operation(operation, domain)
 
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         for var in node.state_variables_read:
-            if isinstance(var, StateVariable) and var.is_stored:
+            if isinstance(var, StateVariable):
                 domain.state.storage_variables_read.add(var)
         for var in node.state_variables_written:
             if isinstance(var, StateVariable) and var.is_stored:
                 domain.state.storage_variables_written.add(var)
 
-    def _handle_external_call_operation(self, operation: Operation, domain: ReentrancyDomain):
-        # get vars before call
-        storage_reads_before_call = domain.state.storage_variables_read
+    def _handle_internal_call_operation(
+        self,
+        operation: InternalCall,
+        domain: ReentrancyDomain,
+        private_functions_seen: Set[Function],
+    ):
+        function = operation.function
+
+        if not isinstance(function, Function):
+            return
+
+        if function in private_functions_seen:
+            return
+
+        private_functions_seen.add(function)
+
+        # process operatins in internal function
+        for internal_node in function.all_nodes():
+            for internal_operation in internal_node.irs:
+                self.transfer_function_helper(
+                    internal_node,
+                    domain,
+                    internal_operation,
+                    [function],
+                    private_functions_seen,
+                )
+
+    def _handle_abi_call_contract_operation(self, operation: Operation, domain: ReentrancyDomain):
 
         if not isinstance(operation, Call):
             return
+        # get vars before call
+        storage_reads_before_call = domain.state.storage_variables_read
 
         # Track this external call
         domain.state.external_calls.add(operation)

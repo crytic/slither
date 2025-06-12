@@ -1,10 +1,8 @@
 from slither import Slither
 from slither.analyses.data_flow.engine import Engine
-from slither.analyses.data_flow.reentrancy import (
-    ReentrancyAnalysis,
-    ReentrancyDomain,
-    DomainVariant,
-)
+from slither.analyses.data_flow.reentrancy import (DomainVariant,
+                                                   ReentrancyAnalysis,
+                                                   ReentrancyDomain)
 
 
 def analyze_reentrancy(file_path: str):
@@ -64,4 +62,7 @@ def analyze_reentrancy(file_path: str):
 
 
 if __name__ == "__main__":
+
+    analyze_reentrancy("../contracts/Reentrancy2.sol")
+    analyze_reentrancy("../contracts/Reentrancy.sol")
     analyze_reentrancy("../contracts/Ethernaut.sol")
