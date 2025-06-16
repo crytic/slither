@@ -232,7 +232,6 @@ class ReentrancyAnalysis(Analysis):
         if function in private_functions_seen:
             return
 
-        logger.debug(f"Calling function: {function.canonical_name}")
         private_functions_seen.add(function)
 
         # process operatins in internal function
