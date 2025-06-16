@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 from collections import defaultdict
 
 from loguru import logger
@@ -45,8 +45,9 @@ class ReentrancyInfo:
         self.events_with_later_calls = defaultdict(set)
         self.send_eth: Dict[Node, Set[Node]] = defaultdict(set)
         self.internal_calls: Dict[Node, Set[Node]] = defaultdict(set)
-        # Track all variables written in internal calls
-        self.internal_variables_written: Dict[Node, Set[Variable]] = defaultdict(set)
+        self.internal_variables_written: Dict[Node, Set[Variable]] = defaultdict(
+            set
+        )  # Track variables written in internal calls
 
     def __eq__(self, other):
         if not isinstance(other, ReentrancyInfo):
