@@ -11,7 +11,6 @@ from typing import Dict, Set, List
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
 from ...utils.output import Output
-from slither.core.declarations import Function
 
 FindingKey = namedtuple("FindingKey", ["function", "calls"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
@@ -68,14 +67,6 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                         for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            # Include variables written in internal functions
-                            internal_written = set()
-                            for ir in node.internal_calls:
-                                if isinstance(ir.function, Function):
-                                    for internal_node in ir.function.all_nodes():
-                                        for v in internal_node.state_variables_written:
-                                            internal_written.add(v)
-
                             read_then_written |= {
                                 FindingValue(
                                     v,
@@ -88,10 +79,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                     ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
-                                if (
-                                    v in node.context[self.KEY].reads_prior_calls[c]
-                                    or v in internal_written
-                                )
+                                if v in node.context[self.KEY].reads_prior_calls[c]
                                 and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 
