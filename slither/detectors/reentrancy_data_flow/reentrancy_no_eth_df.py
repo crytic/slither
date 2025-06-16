@@ -17,7 +17,7 @@ from slither.analyses.data_flow.reentrancy import (
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node
 from slither.utils.output import Output
-from slither.slithir.operations import Send, Transfer, HighLevelCall, LowLevelCall
+from slither.slithir.operations import Send, Transfer, HighLevelCall, LowLevelCall, InternalCall
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
@@ -33,6 +33,9 @@ class ReentrancyFinding(NamedTuple):
     variables_written: Dict[
         Variable, Set[Node]
     ]  # Variables written after external calls and their write locations
+    internal_calls: Dict[
+        Node, Set[Node]
+    ]  # Internal calls that lead to reentrancy, mapped to their external call targets
 
 
 def to_hashable(data):
@@ -103,13 +106,10 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
                     )
                 )
 
-                # Get external calls that do not send ETH
                 external_calls_no_eth = set()
                 for call in state.external_calls:
-                    # Skip if the call is in send_eth
                     if call.node in state.send_eth:
-                        # Check if the call actually sends ETH
-                        sends_eth = False
+                        sends_eth = False  # Check if the call actually sends ETH
                         for ir in call.node.irs:
                             if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall)):
                                 if ir.call_value is not None and ir.call_value != 0:
@@ -121,26 +121,26 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
                         external_calls_no_eth.add(call.node)
 
                 if vars_at_risk and external_calls_no_eth:
-
-                    # Initialize variables_written with empty sets
                     variables_written = {var: set() for var in vars_at_risk}
+                    internal_calls = defaultdict(set)
 
-                    # Find nodes where variables are written after external calls
+                    for ext_call in external_calls_no_eth:
+                        if ext_call in state.internal_calls:
+                            internal_calls[ext_call] = state.internal_calls[ext_call]
+
                     for node in function.nodes:
-                        # Skip nodes before or at external calls
                         if node in external_calls_no_eth:
                             continue
 
-                        # Add nodes that write to variables at risk
                         for var in vars_at_risk:
                             if var in node.state_variables_written:
-
                                 variables_written[var].add(node)
 
                     finding = ReentrancyFinding(
                         function=function,
                         external_calls=external_calls_no_eth,
                         variables_written=variables_written,
+                        internal_calls=internal_calls,
                     )
                     findings.append(finding)
 
@@ -156,8 +156,19 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
             info = ["Reentrancy in ", finding.function, ":\n"]
 
             info += ["\tExternal calls:\n"]
+            internal_calls_printed = set()
             for call in finding.external_calls:
-                info += ["\t- ", call, "\n"]
+                if call in finding.internal_calls:
+                    for internal_call in finding.internal_calls[call]:
+                        if internal_call not in internal_calls_printed:
+                            info += ["\t- ", internal_call, "\n"]
+                            internal_calls_printed.add(internal_call)
+                            info += ["\t\t- ", call, "\n"]
+                            if internal_call in finding.internal_calls:
+                                for nested_call in finding.internal_calls[internal_call]:
+                                    info += ["\t\t\t- ", nested_call, "\n"]
+                else:
+                    info += ["\t- ", call, "\n"]
 
             info += ["\tState variables written after the call(s):\n"]
             for var, write_nodes in finding.variables_written.items():
@@ -186,6 +197,14 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
 
             for call in finding.external_calls:
                 res.add(call, {"underlying_type": "external_calls"})
+                # Add internal calls that lead to this external call
+                if call in finding.internal_calls:
+                    for internal_call in finding.internal_calls[call]:
+                        res.add(internal_call, {"underlying_type": "internal_calls"})
+                        # Add nested internal calls
+                        if internal_call in finding.internal_calls:
+                            for nested_call in finding.internal_calls[internal_call]:
+                                res.add(nested_call, {"underlying_type": "internal_calls"})
 
             # Add all variables written
             for var, write_nodes in finding.variables_written.items():

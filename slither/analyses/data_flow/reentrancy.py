@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict
 
 from loguru import logger
@@ -44,6 +44,9 @@ class ReentrancyInfo:
         self.calls_emitted_after_events = calls_emitted_after_events or set()
         self.events_with_later_calls = defaultdict(set)
         self.send_eth: Dict[Node, Set[Node]] = defaultdict(set)
+        self.internal_calls: Dict[Node, Set[Node]] = defaultdict(set)
+        # Track all variables written in internal calls
+        self.internal_variables_written: Dict[Node, Set[Variable]] = defaultdict(set)
 
     def __eq__(self, other):
         if not isinstance(other, ReentrancyInfo):
@@ -223,20 +226,31 @@ class ReentrancyAnalysis(Analysis):
         domain: ReentrancyDomain,
         private_functions_seen: Set[Function],
     ):
-
         function = operation.function
 
-        if not isinstance(function, Function):
-            return
-
-        if function in private_functions_seen:
+        if not isinstance(function, Function) or function in private_functions_seen:
             return
 
         private_functions_seen.add(function)
+        current_node = operation.node
 
-        # process operatins in internal function
+        # Process operations in internal function
         for node in function.nodes:
+            # Track all variables written in this internal call
+            for var in node.state_variables_written:
+                if isinstance(var, StateVariable):
+                    domain.state.internal_variables_written[current_node].add(var)
+                    domain.state.storage_variables_written.add(var)
+
+            for var in node.local_variables_written:
+                domain.state.internal_variables_written[current_node].add(var)
+
             for internal_operation in node.irs:
+                # Track external calls found in internal functions
+                if isinstance(internal_operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
+                    domain.state.internal_calls[internal_operation.node].add(current_node)
+                    domain.state.external_calls.add(internal_operation)
+
                 self.transfer_function_helper(
                     node,
                     domain,
