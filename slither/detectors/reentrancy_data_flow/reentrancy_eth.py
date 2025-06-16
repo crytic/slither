@@ -39,9 +39,9 @@ class ReentrancyEventsDF(AbstractDetector):
     Reentrancy detector using data flow analysis
     """
 
-    ARGUMENT = "reentrancy-events-df"
+    ARGUMENT = "reentrancy-eth-df"
     HELP = "Reentrancy vulnerabilities leading to out-of-order Events (data flow analysis)"
-    IMPACT = DetectorClassification.LOW
+    IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = (
@@ -66,6 +66,7 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
         result = defaultdict(set)
 
         functions = [f for c in self.contracts for f in c.functions if f.is_implemented]
+        vulnerable_functions = []
 
         for function in functions:
             func_name = str(function.name)
@@ -94,6 +95,7 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
                 )
 
                 if calls_after_events:
+                    is_vulnerable = True
                     finding_key = FindingKey(
                         function=function,
                         calls=to_hashable(calls_after_events),
@@ -112,6 +114,9 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
                     vulnerable_events.extend(
                         [call.node.function.name for call in calls_after_events]
                     )
+
+            if is_vulnerable:
+                vulnerable_functions.append(func_name)
 
         return result
 

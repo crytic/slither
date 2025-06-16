@@ -5,6 +5,7 @@ from slither.analyses.data_flow.reentrancy import (
     ReentrancyAnalysis,
     ReentrancyDomain,
 )
+from slither.slithir.operations import Send, Transfer, HighLevelCall, LowLevelCall
 
 
 def analyze_reentrancy(file_path: str):
@@ -43,7 +44,31 @@ def analyze_reentrancy(file_path: str):
                     state.storage_variables_written
                 )
 
-                if vars_at_risk and state.external_calls:
+                # Check for external calls that can reenter but don't send ether
+                has_reentrant_calls = False
+                for node, eth_calls in state.send_eth.items():
+                    # Skip if any of the calls send ether
+                    if any(
+                        ir.call_value is not None and ir.call_value != 0
+                        for call_node in eth_calls
+                        for ir in call_node.irs
+                        if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall))
+                    ):
+                        continue
+
+                    # Check if any of the calls can reenter
+                    for call_node in eth_calls:
+                        for ir in call_node.irs:
+                            if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall)):
+                                if ir.can_reenter():
+                                    has_reentrant_calls = True
+                                    break
+                        if has_reentrant_calls:
+                            break
+                    if has_reentrant_calls:
+                        break
+
+                if vars_at_risk and has_reentrant_calls:
                     is_vulnerable = True
                     vulnerable_vars.extend([var.name for var in vars_at_risk])
 
@@ -66,5 +91,5 @@ def analyze_reentrancy(file_path: str):
 if __name__ == "__main__":
 
     analyze_reentrancy(
-        "tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol"
+        "tests/e2e/detectors/test_data/reentrancy-no-eth/0.7.6/no-reentrancy-staticcall.sol"
     )

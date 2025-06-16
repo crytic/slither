@@ -137,6 +137,53 @@ ALL_TESTS = [
         "no-reentrancy-staticcall.sol",
         "0.7.6",
     ),
+    # start of reentrancy-no-eth-df
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "reentrancy-write.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "reentrancy-write.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "reentrancy-write.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "reentrancy-write.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "DAO.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "comment.sol",
+        "0.8.2",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "no-reentrancy-staticcall.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "no-reentrancy-staticcall.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyNoEthDF,
+        "no-reentrancy-staticcall.sol",
+        "0.7.6",
+    ),
+    # end of reentrancy-no-eth-df
     Test(
         all_detectors.BooleanEquality,
         "boolean-constant-equality.sol",

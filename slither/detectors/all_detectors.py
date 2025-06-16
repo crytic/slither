@@ -15,6 +15,7 @@ from .functions.suicidal import Suicidal
 # from .functions.complex_function import ComplexFunction
 from .reentrancy.reentrancy_benign import ReentrancyBenign
 from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
+from .reentrancy_data_flow.reentrancy_no_eth_df import ReentrancyNoEthDF
 from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent

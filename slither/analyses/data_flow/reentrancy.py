@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 from collections import defaultdict
 
 from loguru import logger
@@ -29,6 +29,7 @@ class ReentrancyInfo:
         storage_variables_read: Optional[Set[Variable]] = None,
         storage_variables_written: Optional[Set[Variable]] = None,
         storage_variables_read_before_calls: Optional[Set[Variable]] = None,
+        storage_variables_written_before_calls: Optional[Set[Variable]] = None,
         events: Optional[Set[EventCall]] = None,
         calls_emitted_after_events: Optional[Set[Call]] = None,
     ):
@@ -36,9 +37,13 @@ class ReentrancyInfo:
         self.storage_variables_read = storage_variables_read or set()
         self.storage_variables_written = storage_variables_written or set()
         self.storage_variables_read_before_calls = storage_variables_read_before_calls or set()
+        self.storage_variables_written_before_calls = (
+            storage_variables_written_before_calls or set()
+        )
         self.events = events or set()
         self.calls_emitted_after_events = calls_emitted_after_events or set()
         self.events_with_later_calls = defaultdict(set)
+        self.send_eth: Dict[Node, Set[Node]] = defaultdict(set)
 
     def __eq__(self, other):
         if not isinstance(other, ReentrancyInfo):
@@ -50,30 +55,32 @@ class ReentrancyInfo:
             and self.storage_variables_written == other.storage_variables_written
             and self.storage_variables_read_before_calls
             == other.storage_variables_read_before_calls
+            and self.storage_variables_written_before_calls
+            == other.storage_variables_written_before_calls
             and self.events == other.events
         )
 
     def __hash__(self):
-
         return hash(
             (
                 frozenset(self.external_calls),
                 frozenset(self.storage_variables_read),
                 frozenset(self.storage_variables_written),
                 frozenset(self.storage_variables_read_before_calls),
+                frozenset(self.storage_variables_written_before_calls),
                 frozenset(self.events),
             )
         )
 
     def __str__(self):
-
         return (
             f"ReentrancyInfo(\n"
             f"  external_calls: {len(self.external_calls)} items,\n"
             f"  storage_variables_read: {len(self.storage_variables_read)} items,\n"
             f"  storage_variables_written: {len(self.storage_variables_written)} items,\n"
             f"  storage_variables_read_before_calls: {len(self.storage_variables_read_before_calls)} items,\n"
-            f"  events: {len(self.events)} items\n"
+            f"  storage_variables_written_before_calls: {len(self.storage_variables_written_before_calls)} items,\n"
+            f"  events: {len(self.events)} item,\n"
             f")"
         )
 
@@ -122,6 +129,11 @@ class ReentrancyDomain(Domain):
             self.state.storage_variables_read_before_calls.update(
                 other.state.storage_variables_read_before_calls
             )
+            self.state.storage_variables_written_before_calls.update(
+                other.state.storage_variables_written_before_calls
+            )
+            self.state.send_eth.update(other.state.send_eth)
+
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
             self.state = other.state
         else:
@@ -195,7 +207,7 @@ class ReentrancyAnalysis(Analysis):
 
         # abi calls -- fourth case in caracal
         if isinstance(operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
-            self._handle_abi_call_contract_operation(operation, domain)
+            self._handle_abi_call_contract_operation(operation, domain, node)
 
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         for var in node.state_variables_read:
@@ -211,6 +223,7 @@ class ReentrancyAnalysis(Analysis):
         domain: ReentrancyDomain,
         private_functions_seen: Set[Function],
     ):
+
         function = operation.function
 
         if not isinstance(function, Function):
@@ -219,32 +232,41 @@ class ReentrancyAnalysis(Analysis):
         if function in private_functions_seen:
             return
 
+        logger.debug(f"Calling function: {function.canonical_name}")
         private_functions_seen.add(function)
 
         # process operatins in internal function
-        for internal_node in function.all_nodes():
-            for internal_operation in internal_node.irs:
+        for node in function.nodes:
+            for internal_operation in node.irs:
                 self.transfer_function_helper(
-                    internal_node,
+                    node,
                     domain,
                     internal_operation,
                     [function],
                     private_functions_seen,
                 )
 
-    def _handle_abi_call_contract_operation(self, operation: Operation, domain: ReentrancyDomain):
+    def _handle_abi_call_contract_operation(
+        self, operation: Operation, domain: ReentrancyDomain, node: Node
+    ):
+        # Add the call to external calls
+        if isinstance(operation, Call):
+            domain.state.external_calls.add(operation)
 
-        if not isinstance(operation, Call):
-            return
-        # get vars before call
-        storage_reads_before_call = domain.state.storage_variables_read
+        # Track variables written before this call
+        for var in domain.state.storage_variables_written:
+            if var not in domain.state.storage_variables_written_before_calls:
+                domain.state.storage_variables_written_before_calls.add(var)
 
-        # Track this external call
-        domain.state.external_calls.add(operation)
+        # Track variables read before this call
+        for var in domain.state.storage_variables_read:
+            if var not in domain.state.storage_variables_read_before_calls:
+                domain.state.storage_variables_read_before_calls.add(var)
 
-        # track var if we read before call
-        if storage_reads_before_call:
-            domain.state.storage_variables_read_before_calls = storage_reads_before_call
+        # Check if the call sends ETH
+        if isinstance(operation, (Send, Transfer, HighLevelCall, LowLevelCall)):
+            if operation.call_value is not None and operation.call_value != 0:
+                domain.state.send_eth[node].add(node)
 
     def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
         calls_before_events = domain.state.external_calls
