@@ -126,69 +126,70 @@ An attacker can reenter the function before the balance is updated, allowing mul
                     if sends_eth:
                         external_calls_with_eth.add(call.node)
 
+                if not (vars_at_risk and external_calls_with_eth):
+                    continue
+
                 # Only create findings if we have both vulnerable variables and ETH-sending calls
-                if vars_at_risk and external_calls_with_eth:
-                    variables_written = {var: set() for var in vars_at_risk}
-                    internal_calls = defaultdict(set)
-                    internal_variables_written = defaultdict(lambda: defaultdict(set))
+                variables_written = {var: set() for var in vars_at_risk}
+                internal_calls = defaultdict(set)
+                internal_variables_written = defaultdict(lambda: defaultdict(set))
 
-                    # Track internal calls that lead to ETH-sending external calls
-                    for ext_call in external_calls_with_eth:
-                        if ext_call in state.internal_calls:
-                            internal_calls[ext_call] = state.internal_calls[ext_call]
+                # Track internal calls that lead to ETH-sending external calls
+                for ext_call in external_calls_with_eth:
+                    if ext_call in state.internal_calls:
+                        internal_calls[ext_call] = state.internal_calls[ext_call]
 
-                    # Find nodes that write vulnerable variables after external calls
-                    for node in function.nodes:
-                        if node in external_calls_with_eth:
+                for node in function.nodes:
+                    if node in external_calls_with_eth:
+                        continue
+
+                    for var in vars_at_risk:
+                        if var in node.state_variables_written:
+                            variables_written[var].add(
+                                node
+                            )  # checks if node writes to vulnerable variable
+
+                # Track variables written in internal calls
+                for (
+                    internal_call_node,
+                    written_vars,
+                ) in state.internal_variables_written.items():
+                    for var in written_vars:
+                        if var not in vars_at_risk:
                             continue
 
-                        for var in vars_at_risk:
-                            if var in node.state_variables_written:
-                                variables_written[var].add(node)
+                        internal_function = next(
+                            (
+                                ir.function
+                                for ir in internal_call_node.irs
+                                if isinstance(ir, InternalCall)
+                            ),
+                            None,
+                        )
 
-                    # Track variables written in internal calls
-                    for (
-                        internal_call_node,
-                        written_vars,
-                    ) in state.internal_variables_written.items():
-                        for var in written_vars:
-                            if var not in vars_at_risk:
-                                continue
+                        if not internal_function:
+                            continue
 
-                            internal_function = next(
-                                (
-                                    ir.function
-                                    for ir in internal_call_node.irs
-                                    if isinstance(ir, InternalCall)
-                                ),
-                                None,
-                            )
+                        # Find nodes that write this variable
+                        writing_nodes = {
+                            node
+                            for node in internal_function.nodes
+                            if var in node.state_variables_written
+                            or var in node.local_variables_written
+                        }
 
-                            if not internal_function:
-                                continue
+                        internal_variables_written[internal_call_node][var].update(writing_nodes)
 
-                            # Find nodes that write this variable
-                            writing_nodes = {
-                                node
-                                for node in internal_function.nodes
-                                if var in node.state_variables_written
-                                or var in node.local_variables_written
-                            }
-
-                            internal_variables_written[internal_call_node][var].update(
-                                writing_nodes
-                            )
-
-                    finding = ReentrancyFinding(
-                        function=function,
-                        external_calls=external_calls_with_eth,
-                        variables_written=variables_written,
-                        internal_calls=dict(internal_calls),
-                        internal_variables_written=dict(
-                            {k: dict(v) for k, v in internal_variables_written.items()}
-                        ),
-                    )
-                    findings.append(finding)
+                finding = ReentrancyFinding(
+                    function=function,
+                    external_calls=external_calls_with_eth,
+                    variables_written=variables_written,
+                    internal_calls=dict(internal_calls),
+                    internal_variables_written=dict(
+                        {k: dict(v) for k, v in internal_variables_written.items()}
+                    ),
+                )
+                findings.append(finding)
 
         return findings
 
@@ -199,9 +200,9 @@ An attacker can reenter the function before the balance is updated, allowing mul
         results = []
 
         for finding in findings:
-            info = ["Reentrancy in ", finding.function, " (ETH sending):\n"]
+            info = ["Reentrancy in ", finding.function, ":\n"]
+            info += ["\tExternal calls:\n"]
 
-            info += ["\tExternal calls (sending ETH):\n"]
             internal_calls_printed = set()
             for call in finding.external_calls:
                 if call in finding.internal_calls:
@@ -210,9 +211,8 @@ An attacker can reenter the function before the balance is updated, allowing mul
                             info += ["\t- ", internal_call, "\n"]
                             internal_calls_printed.add(internal_call)
                             info += ["\t\t- ", call, "\n"]
-                            if internal_call in finding.internal_calls:
-                                for nested_call in finding.internal_calls[internal_call]:
-                                    info += ["\t\t\t- ", nested_call, "\n"]
+                            for nested_call in finding.internal_calls.get(internal_call, []):
+                                info += ["\t\t\t- ", nested_call, "\n"]
                 else:
                     info += ["\t- ", call, "\n"]
 
