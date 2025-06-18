@@ -433,6 +433,48 @@ def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_prote
                 function.context[KEY_SSA_UNPROTECTED][lvalue].add(v)
 
 
+def _init_unset_local_ir_vars(function: Function) -> dict:
+    unset_local_ir_vars = {}
+    for node in function.nodes:
+        for ir in node.irs_ssa:
+            for v in ir.used:
+                if isinstance(v, LocalIRVariable):
+                    if v not in unset_local_ir_vars:
+                        unset_local_ir_vars[v] = True
+    return unset_local_ir_vars
+
+
+def _handle_operation_with_lvalue(function: Function, node, is_protected, unset_local_ir_vars):
+    for ir in node.irs_ssa:
+        if isinstance(ir, OperationWithLValue) and ir.lvalue:
+            if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+                return
+            if isinstance(ir.lvalue, ReferenceVariable):
+                lvalue = ir.lvalue.points_to
+                if lvalue:
+                    unset_local_ir_vars[lvalue] = False
+                    add_dependency(lvalue, function, ir, is_protected)
+            unset_local_ir_vars[ir.lvalue] = False
+            add_dependency(ir.lvalue, function, ir, is_protected)
+
+
+def _add_param_dependency_if_needed(function: Function, node, is_protected, unset_local_ir_vars):
+    for ir in node.irs_ssa:
+        for v in ir.used:
+            if isinstance(v, LocalIRVariable) and unset_local_ir_vars.get(v):
+                for param_ssa in function.parameters_ssa:
+                    if v.non_ssa_version == param_ssa.non_ssa_version:
+                        if v not in function.context[KEY_SSA]:
+                            function.context[KEY_SSA][v] = set()
+                        function.context[KEY_SSA][v].add(param_ssa)
+                        if not is_protected:
+                            if v not in function.context[KEY_SSA_UNPROTECTED]:
+                                function.context[KEY_SSA_UNPROTECTED][v] = set()
+                            function.context[KEY_SSA_UNPROTECTED][v].add(param_ssa)
+                            unset_local_ir_vars[param_ssa] = False
+                        break
+
+
 def compute_dependency_function(function: Function) -> None:
     if KEY_SSA in function.context:
         return
@@ -440,45 +482,14 @@ def compute_dependency_function(function: Function) -> None:
     function.context[KEY_SSA] = {}
     function.context[KEY_SSA_UNPROTECTED] = {}
 
-    unset_local_ir_vars = {}
-
     is_protected = function.is_protected()
-    for node in function.nodes:
-        for ir in node.irs_ssa:
-            for v in ir.used:
-                if isinstance(v, LocalIRVariable):
-                    if v not in unset_local_ir_vars:
-                        unset_local_ir_vars[v] = True
-            if isinstance(ir, OperationWithLValue) and ir.lvalue:
-                if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
-                    continue
-                if isinstance(ir.lvalue, ReferenceVariable):
-                    lvalue = ir.lvalue.points_to
-                    if lvalue:
-                        unset_local_ir_vars[lvalue] = False
-                        add_dependency(lvalue, function, ir, is_protected)
-                unset_local_ir_vars[ir.lvalue] = False
-                add_dependency(ir.lvalue, function, ir, is_protected)
+    unset_local_ir_vars = _init_unset_local_ir_vars(function)
 
-    # If an SSA locl IR variable is read but never written to,,
-    # and it is from a parameter, we should add a dependency edge from the variable to the parameter
     for node in function.nodes:
-        for ir in node.irs_ssa:
-            for v in ir.used:
-                # We need to make sure that this variable is never used as lvalue
-                if isinstance(v, LocalIRVariable) and unset_local_ir_vars.get(v):
-                    # We need to check the parameter
-                    for param_ssa in function.parameters_ssa:
-                        if v.non_ssa_version == param_ssa.non_ssa_version:
-                            if v not in function.context[KEY_SSA]:
-                                function.context[KEY_SSA][v] = set()
-                            function.context[KEY_SSA][v].add(param_ssa)
-                            if not is_protected:
-                                if v not in function.context[KEY_SSA_UNPROTECTED]:
-                                    function.context[KEY_SSA_UNPROTECTED][v] = set()
-                                function.context[KEY_SSA_UNPROTECTED][v].add(param_ssa)
-                                unset_local_ir_vars[param_ssa] = False
-                                break
+        _handle_operation_with_lvalue(function, node, is_protected, unset_local_ir_vars)
+
+    for node in function.nodes:
+        _add_param_dependency_if_needed(function, node, is_protected, unset_local_ir_vars)
 
     function.context[KEY_NON_SSA] = convert_to_non_ssa(function.context[KEY_SSA])
     function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(
