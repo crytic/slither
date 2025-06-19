@@ -1,0 +1,27 @@
+Reentrancy in DAO.withdrawRewardFor(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1064-1074):
+	External calls:
+	- (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account] (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1065)
+	- reward = (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account] (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1068-1069)
+	- ! rewardAccount.payOut(_account,reward) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1070)
+	State variables written after the call(s):
+	- paidOut[_account] += reward (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1072)
+	DAOInterface.paidOut (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#426) can be used in cross function reentrancies:
+	- DAOInterface.paidOut (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#426)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#947-1020)
+	- DAO.transferPaidOut(address,address,uint256) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1124-1136)
+	- DAO.withdrawRewardFor(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1064-1074)
+
+Reentrancy in DAO.retrieveDAOReward(bool) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1037-1057):
+	External calls:
+	- (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) / totalRewardToken < DAOpaidOut[msg.sender] (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1040-1041)
+	- reward = (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) / totalRewardToken - DAOpaidOut[msg.sender] (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1044-1046)
+	- ! DAOrewardAccount.payOut(dao.rewardAccount(),reward) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1048)
+	- ! DAOrewardAccount.payOut(dao,reward) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1052)
+	State variables written after the call(s):
+	- DAOpaidOut[msg.sender] += reward (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1055)
+	DAOInterface.DAOpaidOut (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#423) can be used in cross function reentrancies:
+	- DAOInterface.DAOpaidOut (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#423)
+	- DAO.newContract(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1022-1034)
+	- DAO.retrieveDAOReward(bool) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#1037-1057)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/DAO.sol#947-1020)
+

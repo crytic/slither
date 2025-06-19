@@ -414,6 +414,56 @@ ALL_TESTS = [
     Test(all_detectors.ReentrancyEth, "reentrancy_with_non_reentrant.sol", "0.8.10"),
     # Test parse_ignore_comments
     Test(all_detectors.ReentrancyEth, "reentrancy_filtered_comments.sol", "0.8.10"),
+    # start of reentrancy-eth-df
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "DAO.sol",
+        "0.4.25",
+    ),
+    Test(all_detectors.ReentrancyEthDF, "reentrancy_with_non_reentrant.sol", "0.8.10"),
+    # Test parse_ignore_comments
+    Test(all_detectors.ReentrancyEthDF, "reentrancy_filtered_comments.sol", "0.8.10"),
+    # end of reentrancy-eth-df
     Test(
         all_detectors.UninitializedStorageVars,
         "uninitialized_storage_pointer.sol",

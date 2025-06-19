@@ -1,53 +1,32 @@
-"""
-Re-entrancy detection using data flow analysis
-
-Based on data flow analysis to detect reentrancy vulnerabilities
-that affect event ordering and emission
+""" "
+Re-entrancy detection (No ETH)
 """
 
-from collections import defaultdict
-from typing import Dict, List, NamedTuple, Set
+from collections import namedtuple, defaultdict
+from typing import List, Dict, Set
+from slither.core.declarations.function import Function
+from slither.core.variables.state_variable import StateVariable
+from slither.core.cfg.node import Node
+from slither.detectors.abstract_detector import DetectorClassification
 
-
-from slither.analyses.data_flow.engine import Engine
 from slither.analyses.data_flow.reentrancy import (
     DomainVariant,
     ReentrancyAnalysis,
     ReentrancyDomain,
 )
-from slither.core.cfg.node import Node
-from slither.core.declarations import Function
-from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.variable import Variable
+from slither.analyses.data_flow.engine import Engine
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import HighLevelCall, InternalCall, LowLevelCall, Send, Transfer
-from slither.slithir.operations.operation import Operation
+from slither.detectors.reentrancy.reentrancy import to_hashable
+from slither.slithir.operations import Send, Transfer
 from slither.utils.output import Output
 
-
-class ReentrancyFinding(NamedTuple):
-    """Represents a reentrancy vulnerability finding"""
-
-    function: Function  # Function with reentrancy
-    external_calls: Set[Node]  # External calls that can reenter
-    variables_written: Dict[
-        Variable, Set[Node]
-    ]  # Variables written after external calls and their write locations
-    internal_calls: Dict[
-        Node, Set[Node]
-    ]  # Internal calls that lead to reentrancy, mapped to their external call targets
-    internal_variables_written: Dict[
-        Node, Dict[Variable, Set[Node]]
-    ]  # Variables written in internal calls, mapped by internal call node
+FindingKey = namedtuple("FindingKey", ["function", "calls"])
+FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
 
 
 class ReentrancyNoEthDF(AbstractDetector):
-    """
-    Reentrancy detector using data flow analysis
-    """
-
     ARGUMENT = "reentrancy-no-eth-df"
-    HELP = "Reentrancy vulnerabilities leading to out-of-order Events (data flow analysis)"
+    HELP = "Reentrancy vulnerabilities (no theft of ethers)"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
@@ -55,230 +34,237 @@ class ReentrancyNoEthDF(AbstractDetector):
         "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1"
     )
 
-    WIKI_TITLE = "Reentrancy vulnerabilities (data flow)"
+    WIKI_TITLE = "Reentrancy vulnerabilities"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
-Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy) that allow manipulation of the order or value of events using data flow analysis."""
+Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that involve Ether (see `reentrancy-eth`)"""
+    # endregion wiki_description
 
-    WIKI_EXPLOIT_SCENARIO = "insert here"
-    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](https://docs.soliditylang.org/en/latest/security-considerations.html#re-entrancy)."
+    # region wiki_exploit_scenario
+    WIKI_EXPLOIT_SCENARIO = """
+```solidity
+    function bug(){
+        require(not_called);
+        if( ! (msg.sender.call() ) ){
+            throw;
+        }
+        not_called = False;
+    }
+```
+
+The function `bug` has a reentrancy bug, it can be called multiple times and is not protected by a mutex."""
+    # endregion wiki_exploit_scenario
+
+    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions pattern`](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     STANDARD_JSON = False
 
-    def __init__(self, compilation_unit, slither_instance, logger_obj):
-        super().__init__(compilation_unit, slither_instance, logger_obj)
-        self.analysis = ReentrancyAnalysis()
+    def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
+        """
+        Per-function reentrancy detection for non-ETH reentrancy.
+        Detects external calls that don't send ETH but can still cause reentrancy.
+        """
+        result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
 
-    def _send_eth(self, operation: Operation) -> bool:
-        if isinstance(operation, (Send, Transfer, HighLevelCall, LowLevelCall)):
-            if operation.call_value is not None and operation.call_value != 0:
-                return True
-        return False
+        for contract in self.contracts:
+            variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
 
-    def find_reentrancies(self) -> List[ReentrancyFinding]:
-        findings = []
+            # Get all implemented functions for this contract
+            functions = [
+                f
+                for f in contract.functions_and_modifiers_declared
+                if f.is_implemented and not f.is_constructor
+            ]
 
-        functions = [f for c in self.contracts for f in c.functions if not f.is_constructor]
+            for f in functions:
+                engine = Engine.new(analysis=ReentrancyAnalysis(), functions=[f])
+                engine.run_analysis()
+                engine_result = engine.result()
 
-        for function in functions:
-            # Run reentrancy analysis
-            engine = Engine.new(analysis=ReentrancyAnalysis(), functions=[function])
-            engine.run_analysis()
-            results = engine.result()
+                vulnerable_findings = set()
+                function_calls = {}
+                function_send_eth = {}
 
-            for _, analysis in results.items():
-                if not hasattr(analysis, "post") or not isinstance(analysis.post, ReentrancyDomain):
-                    continue
+                for node in f.nodes:
+                    if node not in engine_result:
+                        continue
 
-                if analysis.post.variant != DomainVariant.STATE:
-                    continue
+                    analysis = engine_result[node]
+                    if not hasattr(analysis, "post") or not isinstance(
+                        analysis.post, ReentrancyDomain
+                    ):
+                        continue
 
-                state = analysis.post.state
+                    if analysis.post.variant != DomainVariant.STATE:
+                        continue
 
-                # Get variables at risk (read before calls and written after)
-                vars_at_risk = state.storage_variables_read_before_calls.intersection(
-                    state.storage_variables_written.difference(
-                        state.storage_variables_written_before_calls
-                    )
-                )
+                    state = analysis.post.state
 
-                external_calls_no_eth = set()
-                for call in state.external_calls:
-                    if call.node not in state.send_eth:  # node does not send ETH
-                        external_calls_no_eth.add(call.node)
-                    elif not any(
-                        self._send_eth(ir) for ir in call.node.irs
-                    ):  # checking if it actually sends ETH
-                        external_calls_no_eth.add(call.node)
+                    for call_node, call_destinations in state.calls.items():
+                        if call_node not in function_calls:
+                            function_calls[call_node] = set()
+                        function_calls[call_node].update(call_destinations)
 
-                if vars_at_risk and external_calls_no_eth:
-                    variables_written = {var: set() for var in vars_at_risk}
-                    internal_calls = defaultdict(set)
-                    internal_variables_written = defaultdict(lambda: defaultdict(set))
+                    # Track unsafe ETH calls for exclusion
+                    for send_node, send_destinations in state.send_eth.items():
+                        if send_node not in function_send_eth:
+                            function_send_eth[send_node] = set()
+                        function_send_eth[send_node].update(send_destinations)
 
-                    # Track internal calls
-                    for ext_call in external_calls_no_eth:
-                        if ext_call in state.internal_calls:
-                            internal_calls[ext_call] = state.internal_calls[ext_call]
+                    if not state.calls:
+                        continue
 
-                    for node in function.nodes:
-                        if node in external_calls_no_eth:
+                    if state.send_eth or state.safe_send_eth:
+                        continue
+
+                    processed_vars = set()
+
+                    for call_node in state.calls.keys():
+
+                        if call_node in state.send_eth:
                             continue
 
-                        for var in vars_at_risk:
+                        vars_read_before_call = state.reads_prior_calls.get(call_node, set())
+
+                        if not vars_read_before_call:
+                            continue
+
+                        for var in vars_read_before_call:
+                            if not isinstance(var, StateVariable):
+                                continue
+
+                            if var in processed_vars:
+                                continue
+
+                            # Use the contract-level reentrancy info (cross-function context)
+                            if var not in variables_used_in_reentrancy:
+                                continue
+
+                            writing_nodes = state.written.get(var, set())
+                            if not writing_nodes:
+                                continue
+
                             if var in node.state_variables_written:
-                                variables_written[var].add(node)
+                                could_be_post_call_write = self._could_execute_after_call(
+                                    call_node, node
+                                )
 
-                    # Track variables written in internal calls
-                    for (
-                        internal_call_node,
-                        written_vars,
-                    ) in state.internal_variables_written.items():
-                        for var in written_vars:
+                                if could_be_post_call_write:
+                                    processed_vars.add(var)
 
-                            if var not in vars_at_risk:
-                                continue
+                                    cross_functions = variables_used_in_reentrancy.get(var, [])
+                                    if isinstance(cross_functions, set):
+                                        cross_functions = list(cross_functions)
 
-                            internal_function = next(
-                                (
-                                    ir.function
-                                    for ir in internal_call_node.irs
-                                    if isinstance(ir, InternalCall)
-                                ),
-                                None,
-                            )  # Find the internal function being called
+                                    finding_value = FindingValue(
+                                        var,
+                                        node,
+                                        tuple(sorted(writing_nodes, key=lambda x: x.node_id)),
+                                        tuple(sorted(cross_functions, key=lambda x: str(x))),
+                                    )
+                                    vulnerable_findings.add(finding_value)
 
-                            if not internal_function:
-                                continue
-
-                            # Find nodes that write this variable
-                            writing_nodes = {
-                                node
-                                for node in internal_function.nodes
-                                if var in node.state_variables_written
-                                or var in node.local_variables_written
-                            }
-
-                            # Add found nodes to tracking
-                            internal_variables_written[internal_call_node][var].update(
-                                writing_nodes
-                            )
-
-                    finding = ReentrancyFinding(
-                        function=function,
-                        external_calls=external_calls_no_eth,
-                        variables_written=variables_written,
-                        internal_calls=dict(internal_calls),
-                        internal_variables_written=dict(
-                            {k: dict(v) for k, v in internal_variables_written.items()}
-                        ),
+                if vulnerable_findings:
+                    finding_key = FindingKey(
+                        function=f,
+                        calls=to_hashable(function_calls),
                     )
-                    findings.append(finding)
+                    result[finding_key] |= vulnerable_findings
 
-        return findings
+        return result
 
-    def _detect(self) -> List[Output]:
+    def _could_execute_after_call(self, call_node: Node, write_node: Node) -> bool:
+        if call_node.function != write_node.function:
+            return False
+
+        def is_reachable(from_node: Node, to_node: Node, visited: set) -> bool:
+            if from_node == to_node:
+                return True
+            if from_node in visited:
+                return False
+            visited.add(from_node)
+            return any(is_reachable(son, to_node, visited.copy()) for son in from_node.sons)
+
+        result = is_reachable(call_node, write_node, set())
+
+        return result
+
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+        """"""
+
         super()._detect()
+        reentrancies = self.find_reentrancies()
 
-        findings = self.find_reentrancies()
         results = []
 
-        for finding in findings:
-            info = ["Reentrancy in ", finding.function, ":\n"]
+        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
+        varsWritten: List[FindingValue]
+        varsWrittenSet: Set[FindingValue]
+        for (func, calls), varsWrittenSet in result_sorted:
+            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
+            varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
+
+            info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]
-            internal_calls_printed = set()
-            for call in finding.external_calls:
-                if call in finding.internal_calls:
-                    for internal_call in finding.internal_calls[call]:
-                        if internal_call not in internal_calls_printed:
-                            info += ["\t- ", internal_call, "\n"]
-                            internal_calls_printed.add(internal_call)
-                            info += ["\t\t- ", call, "\n"]
-                            if internal_call in finding.internal_calls:
-                                for nested_call in finding.internal_calls[internal_call]:
-                                    info += ["\t\t\t- ", nested_call, "\n"]
-                else:
-                    info += ["\t- ", call, "\n"]
-
-            info += ["\tState variables written after the call(s):\n"]
-
-            # Display variables written in function
-            for var, write_nodes in finding.variables_written.items():
-                for node in write_nodes:
-                    info += ["\t- ", node, "\n"]
-
-            # Display variables written in internal calls
-            for internal_call_node, var_writes in finding.internal_variables_written.items():
-                if not var_writes:
-                    continue
-                info += ["\t- ", internal_call_node, "\n"]
-                for var, write_nodes in var_writes.items():
-                    for node in write_nodes:
-                        info += ["\t\t- ", node, "\n"]
-
-            # Cross-function reentrancy information
-            all_written_vars = set(finding.variables_written.keys())
-            for internal_var_writes in finding.internal_variables_written.values():
-                all_written_vars.update(internal_var_writes.keys())
-
-            for var in all_written_vars:
-                if isinstance(var, StateVariable):
-                    functions_reading = []
-                    for contract in self.contracts:
-                        for function in contract.functions:
-                            if function.is_implemented and var in function.state_variables_read:
-                                functions_reading.append(function)
-
-                    if functions_reading:
-                        info += [
-                            f"\t{var.canonical_name} ({var.source_mapping}) can be used in cross function reentrancies:\n"
-                        ]
-                        for function in functions_reading:
-                            info += [f"\t- {function.canonical_name} ({function.source_mapping})\n"]
+            for call_info, calls_list in calls:
+                info += ["\t- ", call_info, "\n"]
+                for call_list_info in calls_list:
+                    if call_list_info != call_info:
+                        info += ["\t\t- ", call_list_info, "\n"]
+            info += "\tState variables written after the call(s):\n"
+            for finding_value in varsWritten:
+                info += ["\t- ", finding_value.node, "\n"]
+                for other_node in finding_value.nodes:
+                    if other_node != finding_value.node:
+                        info += ["\t\t- ", other_node, "\n"]
+                if finding_value.cross_functions:
+                    info += [
+                        "\t",
+                        finding_value.variable,
+                        " can be used in cross function reentrancies:\n",
+                    ]
+                    for cross in finding_value.cross_functions:
+                        info += ["\t- ", cross, "\n"]
 
             # Create our JSON result
             res = self.generate_result(info)
 
-            res.add(finding.function)
+            # Add the function with the re-entrancy first
+            res.add(func)
 
-            for call in finding.external_calls:
-                res.add(call, {"underlying_type": "external_calls"})
-                # Add internal calls that lead to this external call
-                if call in finding.internal_calls:
-                    for internal_call in finding.internal_calls[call]:
-                        res.add(internal_call, {"underlying_type": "internal_calls"})
-                        # Add nested internal calls
-                        if internal_call in finding.internal_calls:
-                            for nested_call in finding.internal_calls[internal_call]:
-                                res.add(nested_call, {"underlying_type": "internal_calls"})
-
-            # Add all variables written in function
-            for var, write_nodes in finding.variables_written.items():
-                for node in write_nodes:
-                    res.add(
-                        node,
-                        {
-                            "underlying_type": "variables_written",
-                            "variable_name": var.name,
-                            "expression": str(node.expression),
-                        },
-                    )
-
-            # Add all variables written in internal calls
-            for internal_call_node, var_writes in finding.internal_variables_written.items():
-                for var, write_nodes in var_writes.items():
-                    for node in write_nodes:
+            # Add all underlying calls in the function which are potentially problematic.
+            for call_info, calls_list in calls:
+                res.add(call_info, {"underlying_type": "external_calls"})
+                for call_list_info in calls_list:
+                    if call_list_info != call_info:
                         res.add(
-                            node,
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
+                        )
+
+            # Add all variables written via nodes which write them.
+            for finding_value in varsWritten:
+                res.add(
+                    finding_value.node,
+                    {
+                        "underlying_type": "variables_written",
+                        "variable_name": finding_value.variable.name,
+                    },
+                )
+                for other_node in finding_value.nodes:
+                    if other_node != finding_value.node:
+                        res.add(
+                            other_node,
                             {
-                                "underlying_type": "variables_written_internal",
-                                "variable_name": var.name,
-                                "expression": str(node.expression),
-                                "internal_call": str(internal_call_node),
+                                "underlying_type": "variables_written",
+                                "variable_name": finding_value.variable.name,
                             },
                         )
 
+            # Append our result
             results.append(res)
 
         return results

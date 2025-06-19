@@ -23,68 +23,97 @@ from slither.slithir.operations import (
 
 
 class ReentrancyInfo:
-    def __init__(
-        self,
-        external_calls: Optional[Set[Call]] = None,
-        storage_variables_read: Optional[Set[Variable]] = None,
-        storage_variables_written: Optional[Set[Variable]] = None,
-        storage_variables_read_before_calls: Optional[Set[Variable]] = None,
-        storage_variables_written_before_calls: Optional[Set[Variable]] = None,
-        events: Optional[Set[EventCall]] = None,
-        calls_emitted_after_events: Optional[Set[Call]] = None,
-    ):
-        self.external_calls = external_calls or set()
-        self.storage_variables_read = storage_variables_read or set()
-        self.storage_variables_written = storage_variables_written or set()
-        self.storage_variables_read_before_calls = storage_variables_read_before_calls or set()
-        self.storage_variables_written_before_calls = (
-            storage_variables_written_before_calls or set()
-        )
-        self.events = events or set()
-        self.calls_emitted_after_events = calls_emitted_after_events or set()
-        self.events_with_later_calls = defaultdict(set)
-        self.send_eth: Dict[Node, Set[Node]] = defaultdict(set)
-        self.internal_calls: Dict[Node, Set[Node]] = defaultdict(set)
-        self.internal_variables_written: Dict[Node, Set[Variable]] = defaultdict(
-            set
-        )  # Track variables written in internal calls
+    def __init__(self):
+        self._send_eth: Dict[Node, Set[Node]] = defaultdict(set)
+        self._safe_send_eth: Dict[Node, Set[Node]] = defaultdict(set)
+        self._calls: Dict[Node, Set[Node]] = defaultdict(set)
+        self._reads: Dict[Variable, Set[Node]] = defaultdict(set)
+        self._reads_prior_calls: Dict[Node, Set[Variable]] = defaultdict(set)
+        self._events: Dict[EventCall, Set[Node]] = defaultdict(set)
+        self._written: Dict[Variable, Set[Node]] = defaultdict(set)
+
+    @property
+    def send_eth(self) -> Dict[Node, Set[Node]]:
+        """Return the list of calls sending value (unsafe calls only)"""
+        return self._send_eth
+
+    @property
+    def safe_send_eth(self) -> Dict[Node, Set[Node]]:
+        """Return the list of safe ETH transfers (Send/Transfer operations)"""
+        return self._safe_send_eth
+
+    @property
+    def all_eth_calls(self) -> Dict[Node, Set[Node]]:
+        """Return all ETH-sending calls (both safe and unsafe) - for other analyses"""
+        result = defaultdict(set)
+        for node, calls in self._send_eth.items():
+            result[node].update(calls)
+        for node, calls in self._safe_send_eth.items():
+            result[node].update(calls)
+        return result
+
+    @property
+    def calls(self) -> Dict[Node, Set[Node]]:
+        """Return the list of calls that can callback"""
+        return self._calls
+
+    @property
+    def reads(self) -> Dict[Variable, Set[Node]]:
+        """Return of variables that are read"""
+        return self._reads
+
+    @property
+    def written(self) -> Dict[Variable, Set[Node]]:
+        """Return of variables that are written"""
+        return self._written
+
+    @property
+    def reads_prior_calls(self) -> Dict[Node, Set[Variable]]:
+        """Return the dictionary node -> variables read before any call"""
+        return self._reads_prior_calls
+
+    @property
+    def events(self) -> Dict[EventCall, Set[Node]]:
+        """Return the list of events"""
+        return self._events
 
     def __eq__(self, other):
         if not isinstance(other, ReentrancyInfo):
             return False
 
         return (
-            self.external_calls == other.external_calls
-            and self.storage_variables_read == other.storage_variables_read
-            and self.storage_variables_written == other.storage_variables_written
-            and self.storage_variables_read_before_calls
-            == other.storage_variables_read_before_calls
-            and self.storage_variables_written_before_calls
-            == other.storage_variables_written_before_calls
-            and self.events == other.events
+            self._send_eth == other._send_eth
+            and self._safe_send_eth == other._safe_send_eth
+            and self._calls == other._calls
+            and self._reads == other._reads
+            and self._reads_prior_calls == other._reads_prior_calls
+            and self._events == other._events
+            and self._written == other._written
         )
 
     def __hash__(self):
         return hash(
             (
-                frozenset(self.external_calls),
-                frozenset(self.storage_variables_read),
-                frozenset(self.storage_variables_written),
-                frozenset(self.storage_variables_read_before_calls),
-                frozenset(self.storage_variables_written_before_calls),
-                frozenset(self.events),
+                frozenset(self._send_eth.items()),
+                frozenset(self._safe_send_eth.items()),
+                frozenset(self._calls.items()),
+                frozenset(self._reads.items()),
+                frozenset(self._reads_prior_calls.items()),
+                frozenset(self._events.items()),
+                frozenset(self._written.items()),
             )
         )
 
     def __str__(self):
         return (
             f"ReentrancyInfo(\n"
-            f"  external_calls: {len(self.external_calls)} items,\n"
-            f"  storage_variables_read: {len(self.storage_variables_read)} items,\n"
-            f"  storage_variables_written: {len(self.storage_variables_written)} items,\n"
-            f"  storage_variables_read_before_calls: {len(self.storage_variables_read_before_calls)} items,\n"
-            f"  storage_variables_written_before_calls: {len(self.storage_variables_written_before_calls)} items,\n"
-            f"  events: {len(self.events)} item,\n"
+            f"  send_eth: {len(self._send_eth)} items,\n"
+            f"  safe_send_eth: {len(self._safe_send_eth)} items,\n"
+            f"  calls: {len(self._calls)} items,\n"
+            f"  reads: {len(self._reads)} items,\n"
+            f"  reads_prior_calls: {len(self._reads_prior_calls)} items,\n"
+            f"  events: {len(self._events)} items,\n"
+            f"  written: {len(self._written)} items,\n"
             f")"
         )
 
@@ -128,18 +157,13 @@ class ReentrancyDomain(Domain):
             if self.state == other.state:
                 return False
 
-            self.state.external_calls.update(other.state.external_calls)
-            self.state.storage_variables_read.update(other.state.storage_variables_read)
-            self.state.storage_variables_read_before_calls.update(
-                other.state.storage_variables_read_before_calls
-            )
-            self.state.storage_variables_written_before_calls.update(
-                other.state.storage_variables_written_before_calls
-            )
             self.state.send_eth.update(other.state.send_eth)
+            self.state.calls.update(other.state.calls)
+            self.state.reads.update(other.state.reads)
+            self.state.reads_prior_calls.update(other.state.reads_prior_calls)
+            self.state.safe_send_eth.update(other.state.safe_send_eth)
+            return True
 
-        if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
-            self.state = other.state
         else:
             self.variant = DomainVariant.TOP
 
@@ -202,7 +226,6 @@ class ReentrancyAnalysis(Analysis):
 
         # events -- second case in caracal
         if isinstance(operation, EventCall):
-            # domain.state.events.add(operation)
             self._handle_event_call_operation(operation, domain)
 
         # internal calls -- third case in caracal
@@ -216,10 +239,10 @@ class ReentrancyAnalysis(Analysis):
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         for var in node.state_variables_read:
             if isinstance(var, StateVariable):
-                domain.state.storage_variables_read.add(var)
+                domain.state.reads[var].add(node)
         for var in node.state_variables_written:
             if isinstance(var, StateVariable) and var.is_stored:
-                domain.state.storage_variables_written.add(var)
+                domain.state.written[var].add(node)
 
     def _handle_internal_call_operation(
         self,
@@ -233,24 +256,11 @@ class ReentrancyAnalysis(Analysis):
             return
 
         private_functions_seen.add(function)
-        current_node = operation.node
 
-        # Process operations in internal function
         for node in function.nodes:
-            # Track all variables written in this internal call
-            for var in node.state_variables_written:
-                if isinstance(var, StateVariable):
-                    domain.state.internal_variables_written[current_node].add(var)
-                    domain.state.storage_variables_written.add(var)
-
-            for var in node.local_variables_written:
-                domain.state.internal_variables_written[current_node].add(var)
-
             for internal_operation in node.irs:
-                # Track external calls found in internal functions
                 if isinstance(internal_operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
-                    domain.state.internal_calls[internal_operation.node].add(current_node)
-                    domain.state.external_calls.add(internal_operation)
+                    continue
 
                 self.transfer_function_helper(
                     node,
@@ -265,26 +275,33 @@ class ReentrancyAnalysis(Analysis):
     ):
         # Add the call to external calls
         if isinstance(operation, Call):
-            domain.state.external_calls.add(operation)
+            domain.state.calls[node].add(operation.node)
 
-        # Track variables written before this call
-        for var in domain.state.storage_variables_written:
-            if var not in domain.state.storage_variables_written_before_calls:
-                domain.state.storage_variables_written_before_calls.add(var)
+        vars_read_before_call = set()
+        for var in domain.state.reads.keys():
+            vars_read_before_call.add(var)
 
-        # Track variables read before this call
-        for var in domain.state.storage_variables_read:
-            if var not in domain.state.storage_variables_read_before_calls:
-                domain.state.storage_variables_read_before_calls.add(var)
+        domain.state.reads_prior_calls[node] = vars_read_before_call
 
         # Check if the call sends ETH
         if isinstance(operation, (Send, Transfer, HighLevelCall, LowLevelCall)):
             if operation.call_value is not None and operation.call_value != 0:
-                domain.state.send_eth[node].add(node)
+                if isinstance(operation, (Send, Transfer)):
+                    # Safe ETH transfers (gas-limited)
+                    logger.info(f"Call {operation.node} is safe ETH transfer (Send/Transfer)")
+                    domain.state.safe_send_eth[node].add(operation.node)
+                else:
+                    # Unsafe ETH transfers (can cause reentrancy)
+                    logger.info(f"Call {operation.node} sends ETH (unsafe)")
+                    logger.info(f"Call value: {operation.call_value}")
+                    domain.state.send_eth[node].add(operation.node)
 
     def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
-        calls_before_events = domain.state.external_calls
-        domain.state.events.add(operation)
+        calls_before_events = set()
+        for calls_set in domain.state.calls.values():
+            calls_before_events.update(calls_set)
+        domain.state.events[operation].add(operation.node)
 
         if calls_before_events:
-            domain.state.calls_emitted_after_events.update(calls_before_events)
+            for call_node in calls_before_events:
+                domain.state.calls[operation.node].add(call_node)
