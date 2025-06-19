@@ -63,9 +63,6 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
     STANDARD_JSON = False
 
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
-        """
-        Per-function reentrancy detection that handles modifiers correctly.
-        """
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
 
         for contract in self.contracts:

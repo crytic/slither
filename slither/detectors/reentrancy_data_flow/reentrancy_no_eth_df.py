@@ -62,10 +62,6 @@ The function `bug` has a reentrancy bug, it can be called multiple times and is 
     STANDARD_JSON = False
 
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
-        """
-        Per-function reentrancy detection for non-ETH reentrancy.
-        Detects external calls that don't send ETH but can still cause reentrancy.
-        """
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
 
         for contract in self.contracts:
