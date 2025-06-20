@@ -16,6 +16,7 @@ from slither.analyses.data_flow.reentrancy import (
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.detectors.reentrancy.reentrancy import to_hashable
+from slither.utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
@@ -86,7 +87,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 engine.run_analysis()
                 engine_result = engine.result()
 
-                vulnerable_findings = set()
+                vulnerable_findings: Set[FindingValue] = set()
                 function_calls = {}
                 function_send_eth = {}
 
@@ -168,6 +169,18 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     vulnerable_findings.add(finding_value)
 
                 if vulnerable_findings:
+                    for finding in vulnerable_findings:
+                        print(f"Variable: {finding.variable.name}")
+                        print(f"Node: {finding.node.node_id}")
+                        print(f"Nodes: {len(finding.nodes)}")
+                        for node in finding.nodes:
+                            print(f"\t{node.node_id}")
+                        print(f"Cross functions: {len(finding.cross_functions)}")
+                        for cross_function in finding.cross_functions:
+                            print(f"\t{cross_function.name}")
+
+                    print("--------------------------------")
+
                     finding_key = FindingKey(
                         function=f,
                         calls=to_hashable(function_calls),
@@ -177,7 +190,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches,too-many-locals
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches,too-many-locals
         """"""
         super()._detect()
 
@@ -189,12 +202,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
         varsWritten: List[FindingValue]
         varsWrittenSet: Set[FindingValue]
         for (func, calls, send_eth), varsWrittenSet in result_sorted:
-            # Deduplicate calls and send_eth by converting to sets and back to lists
-            unique_calls = list(set(calls))
-            unique_send_eth = list(set(send_eth))
-
-            calls = sorted(unique_calls, key=lambda x: x[0].node_id)
-            send_eth = sorted(unique_send_eth, key=lambda x: x[0].node_id)
+            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
+            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

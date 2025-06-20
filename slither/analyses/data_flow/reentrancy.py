@@ -302,7 +302,7 @@ class ReentrancyAnalysis(Analysis):
 
         # Check if the call sends ETH
 
-        if operation.call_value is not None and operation.call_value != 0:
+        if operation.can_send_eth:
             if isinstance(operation, (Send, Transfer)):
                 domain.state.safe_send_eth[node].add(operation.node)
             else:
