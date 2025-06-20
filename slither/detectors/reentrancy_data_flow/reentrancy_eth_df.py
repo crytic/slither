@@ -136,10 +136,6 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                 if not var or not isinstance(var, StateVariable):
                                     continue
 
-                                # Check cross-function reentrancy
-                                if var not in variables_used_in_reentrancy:
-                                    continue
-
                                 # Check if this variable is written anywhere
                                 if var_canonical_name in state.written:
                                     writing_nodes = state.written[var_canonical_name]
