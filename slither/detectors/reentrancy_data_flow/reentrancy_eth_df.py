@@ -117,11 +117,6 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
                     state = analysis.post.state
 
-                    print("--------------------------------")
-                    print(f"node: {node.expression}")
-                    print(f"state: {state}")
-                    print("--------------------------------")
-
                     # Collect call information
                     for call_node, call_destinations in state.calls.items():
                         if call_node not in function_calls:
@@ -134,11 +129,22 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                         function_send_eth[send_node].update(send_destinations)
 
                     # Check for reentrancy vulnerabilities using data flow information
-                    if state.send_eth and state.written and state.reads_prior_calls:
+                    if (
+                        (state.send_eth or state.safe_send_eth)
+                        and state.written
+                        and state.reads_prior_calls
+                    ):
                         # For each variable that was read before a call
                         for call_node, vars_read_before_call in state.reads_prior_calls.items():
-                            for var in vars_read_before_call:
-                                if not isinstance(var, StateVariable):
+                            for var_canonical_name in vars_read_before_call:
+                                # Find the actual StateVariable by canonical name
+                                var = None
+                                for state_var in contract.state_variables:
+                                    if state_var.canonical_name == var_canonical_name:
+                                        var = state_var
+                                        break
+
+                                if not var or not isinstance(var, StateVariable):
                                     continue
 
                                 # Check cross-function reentrancy
@@ -146,35 +152,35 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     continue
 
                                 # Check if this variable is written anywhere
-                                if var in state.written:
-                                    writing_nodes = state.written[var]
+                                if var_canonical_name in state.written:
+                                    writing_nodes = state.written[var_canonical_name]
 
                                     # Filter out entry points
                                     non_entry_writing_nodes = {
                                         node for node in writing_nodes if node != f.entry_point
                                     }
 
-                                    if non_entry_writing_nodes:
-                                        cross_functions = variables_used_in_reentrancy.get(var, [])
-                                        if isinstance(cross_functions, set):
-                                            cross_functions = list(cross_functions)
+                                    if not non_entry_writing_nodes:
+                                        continue
 
-                                        # Use the first writing node as the main node
-                                        main_node = min(
-                                            non_entry_writing_nodes, key=lambda x: x.node_id
-                                        )
+                                    cross_functions = variables_used_in_reentrancy.get(var, [])
+                                    if isinstance(cross_functions, set):
+                                        cross_functions = list(cross_functions)
 
-                                        finding_value = FindingValue(
-                                            var,
-                                            main_node,
-                                            tuple(
-                                                sorted(
-                                                    non_entry_writing_nodes, key=lambda x: x.node_id
-                                                )
-                                            ),
-                                            tuple(sorted(cross_functions, key=lambda x: str(x))),
-                                        )
-                                        vulnerable_findings.add(finding_value)
+                                    # Use the first writing node as the main node
+                                    main_node = min(
+                                        non_entry_writing_nodes, key=lambda x: x.node_id
+                                    )
+
+                                    finding_value = FindingValue(
+                                        var,
+                                        main_node,
+                                        tuple(
+                                            sorted(non_entry_writing_nodes, key=lambda x: x.node_id)
+                                        ),
+                                        tuple(sorted(cross_functions, key=lambda x: str(x))),
+                                    )
+                                    vulnerable_findings.add(finding_value)
 
                 if vulnerable_findings:
                     finding_key = FindingKey(
@@ -198,8 +204,12 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
         varsWritten: List[FindingValue]
         varsWrittenSet: Set[FindingValue]
         for (func, calls, send_eth), varsWrittenSet in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            # Deduplicate calls and send_eth by converting to sets and back to lists
+            unique_calls = list(set(calls))
+            unique_send_eth = list(set(send_eth))
+
+            calls = sorted(unique_calls, key=lambda x: x[0].node_id)
+            send_eth = sorted(unique_send_eth, key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

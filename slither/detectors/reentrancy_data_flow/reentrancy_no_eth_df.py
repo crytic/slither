@@ -128,34 +128,43 @@ The function `bug` has a reentrancy bug, it can be called multiple times and is 
                             continue
 
                         for var in vars_read_before_call:
-                            if not isinstance(var, StateVariable):
+                            # Find the actual StateVariable by canonical name
+                            state_var = None
+                            for sv in contract.state_variables:
+                                if sv.canonical_name == var:
+                                    state_var = sv
+                                    break
+
+                            if not state_var or not isinstance(state_var, StateVariable):
                                 continue
 
-                            if var in processed_vars:
+                            if state_var in processed_vars:
                                 continue
 
                             # Use the contract-level reentrancy info (cross-function context)
-                            if var not in variables_used_in_reentrancy:
+                            if state_var not in variables_used_in_reentrancy:
                                 continue
 
                             writing_nodes = state.written.get(var, set())
                             if not writing_nodes:
                                 continue
 
-                            if var in node.state_variables_written:
+                            if state_var in node.state_variables_written:
                                 could_be_post_call_write = self._could_execute_after_call(
                                     call_node, node
                                 )
 
                                 if could_be_post_call_write:
-                                    processed_vars.add(var)
+                                    processed_vars.add(state_var)
 
-                                    cross_functions = variables_used_in_reentrancy.get(var, [])
+                                    cross_functions = variables_used_in_reentrancy.get(
+                                        state_var, []
+                                    )
                                     if isinstance(cross_functions, set):
                                         cross_functions = list(cross_functions)
 
                                     finding_value = FindingValue(
-                                        var,
+                                        state_var,
                                         node,
                                         tuple(sorted(writing_nodes, key=lambda x: x.node_id)),
                                         tuple(sorted(cross_functions, key=lambda x: str(x))),

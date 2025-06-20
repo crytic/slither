@@ -30,10 +30,10 @@ class ReentrancyInfo:
         self._send_eth: Dict[Node, Set[Node]] = defaultdict(set)
         self._safe_send_eth: Dict[Node, Set[Node]] = defaultdict(set)
         self._calls: Dict[Node, Set[Node]] = defaultdict(set)
-        self._reads: Dict[Variable, Set[Node]] = defaultdict(set)
-        self._reads_prior_calls: Dict[Node, Set[Variable]] = defaultdict(set)
+        self._reads: Dict[str, Set[Node]] = defaultdict(set)
+        self._reads_prior_calls: Dict[Node, Set[str]] = defaultdict(set)
         self._events: Dict[EventCall, Set[Node]] = defaultdict(set)
-        self._written: Dict[Variable, Set[Node]] = defaultdict(set)
+        self._written: Dict[str, Set[Node]] = defaultdict(set)
 
     @property
     def send_eth(self) -> Dict[Node, Set[Node]]:
@@ -61,17 +61,17 @@ class ReentrancyInfo:
         return self._calls
 
     @property
-    def reads(self) -> Dict[Variable, Set[Node]]:
+    def reads(self) -> Dict[str, Set[Node]]:
         """Return of variables that are read"""
         return self._reads
 
     @property
-    def written(self) -> Dict[Variable, Set[Node]]:
+    def written(self) -> Dict[str, Set[Node]]:
         """Return of variables that are written"""
         return self._written
 
     @property
-    def reads_prior_calls(self) -> Dict[Node, Set[Variable]]:
+    def reads_prior_calls(self) -> Dict[Node, Set[str]]:
         """Return the dictionary node -> variables read before any call"""
         return self._reads_prior_calls
 
@@ -254,18 +254,13 @@ class ReentrancyAnalysis(Analysis):
 
         self._handle_storage(domain, node)
 
-        # print("--------------------------------")
-        # print(node.expression)
-        # print(domain.state)
-        # print("--------------------------------")
-
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         for var in node.state_variables_read:
             if isinstance(var, StateVariable):
-                domain.state.reads[var].add(node)
+                domain.state.reads[var.canonical_name].add(node)
         for var in node.state_variables_written:
             if isinstance(var, StateVariable) and var.is_stored:
-                domain.state.written[var].add(node)
+                domain.state.written[var.canonical_name].add(node)
 
     def _handle_internal_call_operation(
         self,
@@ -303,19 +298,19 @@ class ReentrancyAnalysis(Analysis):
         domain.state.calls[node].add(operation.node)
 
         # Track variables read before this specific call
-        vars_read_before_call = set()
+        vars_read_before_call: set[str] = set()
         for var in domain.state.reads.keys():
             vars_read_before_call.add(var)
 
         domain.state.reads_prior_calls[node] = vars_read_before_call
 
         # Check if the call sends ETH
-        if operation.can_send_eth():
-            if operation.call_value is not None and operation.call_value != 0:
-                if isinstance(operation, (Send, Transfer)):
-                    domain.state.safe_send_eth[node].add(operation.node)
-                else:
-                    domain.state.send_eth[node].add(operation.node)
+
+        if operation.call_value is not None and operation.call_value != 0:
+            if isinstance(operation, (Send, Transfer)):
+                domain.state.safe_send_eth[node].add(operation.node)
+            else:
+                domain.state.send_eth[node].add(operation.node)
 
     def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
         calls_before_events = set()
