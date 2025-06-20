@@ -3,16 +3,14 @@ from typing import Dict, List, Optional, Set, Union
 from collections import defaultdict
 import copy
 
-from loguru import logger
+
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.variable import Variable
 from slither.slithir.operations import (
-    Call,
     EventCall,
     HighLevelCall,
     InternalCall,
@@ -20,8 +18,6 @@ from slither.slithir.operations import (
     Operation,
     Send,
     Transfer,
-    Assignment,
-    Index,
 )
 
 

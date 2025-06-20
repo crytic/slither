@@ -2,31 +2,20 @@
 Re-entrancy detection
 """
 
-from collections import namedtuple, defaultdict
-from typing import List, Dict, Set
+from collections import defaultdict, namedtuple
+from typing import Dict, List, Set
 
 from loguru import logger
-from slither.core.declarations.function import Function
-from slither.core.variables.state_variable import StateVariable
-from slither.core.cfg.node import Node
-from slither.detectors.abstract_detector import DetectorClassification
 
+from slither.analyses.data_flow.engine import Engine
 from slither.analyses.data_flow.reentrancy import (
     DomainVariant,
     ReentrancyAnalysis,
     ReentrancyDomain,
 )
-from slither.analyses.data_flow.engine import Engine
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.detectors.reentrancy.reentrancy import to_hashable
-from slither.slithir.operations import (
-    Send,
-    Transfer,
-    HighLevelCall,
-    LowLevelCall,
-    OperationWithLValue,
-)
-
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])

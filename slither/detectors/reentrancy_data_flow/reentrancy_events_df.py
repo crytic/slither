@@ -4,23 +4,20 @@ Reentrancy Events detection
 Detect when an event is emitted after an external call leading to out-of-order events
 """
 
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from typing import DefaultDict, List, Set
-from slither.core.declarations.function import Function
-from slither.core.cfg.node import Node
-from slither.detectors.abstract_detector import DetectorClassification
 
-from slither.analyses.data_flow.reentrancy import (
-    DomainVariant,
-    ReentrancyAnalysis,
-    ReentrancyDomain,
-)
 from slither.analyses.data_flow.engine import Engine
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.analyses.data_flow.reentrancy import (DomainVariant,
+                                                   ReentrancyAnalysis,
+                                                   ReentrancyDomain)
+from slither.core.cfg.node import Node
+from slither.core.declarations.function import Function
+from slither.detectors.abstract_detector import (AbstractDetector,
+                                                 DetectorClassification)
 from slither.detectors.reentrancy.reentrancy import to_hashable
-from slither.utils.output import Output
 from slither.slithir.operations import EventCall
-
+from slither.utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])

@@ -2,20 +2,18 @@
 Re-entrancy detection (No ETH)
 """
 
-from collections import namedtuple, defaultdict
-from typing import List, Dict, Set
+from collections import defaultdict, namedtuple
+from typing import Dict, List, Set
+
+from slither.analyses.data_flow.engine import Engine
+from slither.analyses.data_flow.reentrancy import (DomainVariant,
+                                                   ReentrancyAnalysis,
+                                                   ReentrancyDomain)
+from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
-from slither.core.cfg.node import Node
-from slither.detectors.abstract_detector import DetectorClassification
-
-from slither.analyses.data_flow.reentrancy import (
-    DomainVariant,
-    ReentrancyAnalysis,
-    ReentrancyDomain,
-)
-from slither.analyses.data_flow.engine import Engine
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (AbstractDetector,
+                                                 DetectorClassification)
 from slither.detectors.reentrancy.reentrancy import to_hashable
 from slither.slithir.operations import Send, Transfer
 from slither.utils.output import Output
