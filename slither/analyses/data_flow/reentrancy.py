@@ -1,6 +1,7 @@
 from enum import Enum, auto
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Union
 from collections import defaultdict
+import copy
 
 from loguru import logger
 from slither.analyses.data_flow.analysis import Analysis
@@ -119,6 +120,18 @@ class ReentrancyInfo:
             f")"
         )
 
+    def deep_copy(self) -> "ReentrancyInfo":
+        """Create a deep copy of this ReentrancyInfo object"""
+        new_info = ReentrancyInfo()
+        new_info._send_eth = copy.deepcopy(self._send_eth)
+        new_info._safe_send_eth = copy.deepcopy(self._safe_send_eth)
+        new_info._calls = copy.deepcopy(self._calls)
+        new_info._reads = copy.deepcopy(self._reads)
+        new_info._reads_prior_calls = copy.deepcopy(self._reads_prior_calls)
+        new_info._events = copy.deepcopy(self._events)
+        new_info._written = copy.deepcopy(self._written)
+        return new_info
+
 
 class DomainVariant(Enum):
     BOTTOM = auto()
@@ -151,7 +164,7 @@ class ReentrancyDomain(Domain):
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
 
             self.variant = DomainVariant.STATE
-            self.state = other.state
+            self.state = other.state.deep_copy()
             self.state.written.clear()
             self.state.events.clear()
 
@@ -281,7 +294,10 @@ class ReentrancyAnalysis(Analysis):
                 )
 
     def _handle_abi_call_contract_operation(
-        self, operation: Operation, domain: ReentrancyDomain, node: Node
+        self,
+        operation: Union[LowLevelCall, HighLevelCall, Send, Transfer],
+        domain: ReentrancyDomain,
+        node: Node,
     ):
 
         domain.state.calls[node].add(operation.node)
@@ -294,7 +310,7 @@ class ReentrancyAnalysis(Analysis):
         domain.state.reads_prior_calls[node] = vars_read_before_call
 
         # Check if the call sends ETH
-        if isinstance(operation, (Send, Transfer, HighLevelCall, LowLevelCall)):
+        if operation.can_send_eth():
             if operation.call_value is not None and operation.call_value != 0:
                 if isinstance(operation, (Send, Transfer)):
                     domain.state.safe_send_eth[node].add(operation.node)

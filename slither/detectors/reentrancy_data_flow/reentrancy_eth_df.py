@@ -117,6 +117,11 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
                     state = analysis.post.state
 
+                    print("--------------------------------")
+                    print(f"node: {node.expression}")
+                    print(f"state: {state}")
+                    print("--------------------------------")
+
                     # Collect call information
                     for call_node, call_destinations in state.calls.items():
                         if call_node not in function_calls:
