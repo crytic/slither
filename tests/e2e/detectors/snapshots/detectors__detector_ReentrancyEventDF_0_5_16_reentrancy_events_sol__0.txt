@@ -1,0 +1,15 @@
+Reentrancy in Test.ok(C) (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#19-23):
+	External calls:
+	- c.f() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#21)
+	- c.f() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#22)
+	Event emitted after the call(s):
+	- E() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#20)
+
+Reentrancy in Test.bug(C) (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#14-17):
+	External calls:
+	- c.f() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#15)
+	- E() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#16)
+		- c.f() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#15)
+	Event emitted after the call(s):
+	- E() (tests/e2e/detectors/test_data/reentrancy-events/0.5.16/reentrancy-events.sol#16)
+

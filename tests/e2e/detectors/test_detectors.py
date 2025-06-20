@@ -986,17 +986,17 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.ReentrancyEventsDF,
+        all_detectors.ReentrancyEventDF,
         "reentrancy-events.sol",
         "0.5.16",
     ),
     Test(
-        all_detectors.ReentrancyEventsDF,
+        all_detectors.ReentrancyEventDF,
         "reentrancy-events.sol",
         "0.6.11",
     ),
     Test(
-        all_detectors.ReentrancyEventsDF,
+        all_detectors.ReentrancyEventDF,
         "reentrancy-events.sol",
         "0.7.6",
     ),

@@ -69,6 +69,8 @@ class Forward(Direction):
             if son in worklist:
                 continue
 
+            print(f"node: {son.expression}")
+            print(f"pre-state: {son_state.pre.state}")
             worklist.append(son)
 
 

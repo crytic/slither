@@ -4,6 +4,8 @@ Re-entrancy detection
 
 from collections import namedtuple, defaultdict
 from typing import List, Dict, Set
+
+from loguru import logger
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
 from slither.core.cfg.node import Node
@@ -17,7 +19,13 @@ from slither.analyses.data_flow.reentrancy import (
 from slither.analyses.data_flow.engine import Engine
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.detectors.reentrancy.reentrancy import to_hashable
-from slither.slithir.operations import Send, Transfer
+from slither.slithir.operations import (
+    Send,
+    Transfer,
+    HighLevelCall,
+    LowLevelCall,
+    OperationWithLValue,
+)
 
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
@@ -63,6 +71,13 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
     STANDARD_JSON = False
 
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
+        """
+        Per-function reentrancy detection using data flow analysis information.
+        The data flow analysis already tracks:
+        - Variables read before calls (reads_prior_calls)
+        - Variables written (written)
+        - Calls that send ETH (send_eth)
+        """
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
 
         for contract in self.contracts:
@@ -76,6 +91,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             ]
 
             for f in functions:
+
+                # Run separate analysis for each function
                 engine = Engine.new(analysis=ReentrancyAnalysis(), functions=[f])
                 engine.run_analysis()
                 engine_result = engine.result()
@@ -84,6 +101,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 function_calls = {}
                 function_send_eth = {}
 
+                # Process results for this specific function
                 for node in f.nodes:
                     if node not in engine_result:
                         continue
@@ -99,67 +117,59 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
                     state = analysis.post.state
 
+                    # Collect call information
                     for call_node, call_destinations in state.calls.items():
                         if call_node not in function_calls:
                             function_calls[call_node] = set()
                         function_calls[call_node].update(call_destinations)
 
-                    # ONLY track unsafe ETH calls for reentrancy detection
                     for send_node, send_destinations in state.send_eth.items():
                         if send_node not in function_send_eth:
                             function_send_eth[send_node] = set()
                         function_send_eth[send_node].update(send_destinations)
 
-                    if not state.send_eth:
-                        continue
+                    # Check for reentrancy vulnerabilities using data flow information
+                    if state.send_eth and state.written and state.reads_prior_calls:
+                        # For each variable that was read before a call
+                        for call_node, vars_read_before_call in state.reads_prior_calls.items():
+                            for var in vars_read_before_call:
+                                if not isinstance(var, StateVariable):
+                                    continue
 
-                    processed_vars = set()
+                                # Check cross-function reentrancy
+                                if var not in variables_used_in_reentrancy:
+                                    continue
 
-                    for eth_call_node in state.send_eth.keys():
+                                # Check if this variable is written anywhere
+                                if var in state.written:
+                                    writing_nodes = state.written[var]
 
-                        vars_read_before_call = state.reads_prior_calls.get(eth_call_node, set())
+                                    # Filter out entry points
+                                    non_entry_writing_nodes = {
+                                        node for node in writing_nodes if node != f.entry_point
+                                    }
 
-                        if not vars_read_before_call:
-                            continue
+                                    if non_entry_writing_nodes:
+                                        cross_functions = variables_used_in_reentrancy.get(var, [])
+                                        if isinstance(cross_functions, set):
+                                            cross_functions = list(cross_functions)
 
-                        for var in vars_read_before_call:
-                            if not isinstance(var, StateVariable):
-                                continue
+                                        # Use the first writing node as the main node
+                                        main_node = min(
+                                            non_entry_writing_nodes, key=lambda x: x.node_id
+                                        )
 
-                            if var in processed_vars:
-                                continue
-
-                            # Use the contract-level reentrancy info (cross-function context)
-                            if var not in variables_used_in_reentrancy:
-                                continue
-
-                            writing_nodes = state.written.get(var, set())
-                            if not writing_nodes:
-                                continue
-
-                            # Check if current node writes this variable
-                            if var in node.state_variables_written:
-                                # Check if write could happen after ETH call
-                                could_be_post_call_write = any(
-                                    self._could_execute_after_call(eth_call_node, node)
-                                    for eth_call_node in state.send_eth.keys()
-                                    if var in state.reads_prior_calls.get(eth_call_node, set())
-                                )
-
-                                if could_be_post_call_write:
-                                    processed_vars.add(var)
-
-                                    cross_functions = variables_used_in_reentrancy.get(var, [])
-                                    if isinstance(cross_functions, set):
-                                        cross_functions = list(cross_functions)
-
-                                    finding_value = FindingValue(
-                                        var,
-                                        node,
-                                        tuple(sorted(writing_nodes, key=lambda x: x.node_id)),
-                                        tuple(sorted(cross_functions, key=lambda x: str(x))),
-                                    )
-                                    vulnerable_findings.add(finding_value)
+                                        finding_value = FindingValue(
+                                            var,
+                                            main_node,
+                                            tuple(
+                                                sorted(
+                                                    non_entry_writing_nodes, key=lambda x: x.node_id
+                                                )
+                                            ),
+                                            tuple(sorted(cross_functions, key=lambda x: str(x))),
+                                        )
+                                        vulnerable_findings.add(finding_value)
 
                 if vulnerable_findings:
                     finding_key = FindingKey(
@@ -168,22 +178,6 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                         send_eth=to_hashable(function_send_eth),
                     )
                     result[finding_key] |= vulnerable_findings
-
-        return result
-
-    def _could_execute_after_call(self, call_node: Node, write_node: Node) -> bool:
-        if call_node.function != write_node.function:
-            return False
-
-        def is_reachable(from_node: Node, to_node: Node, visited: set) -> bool:
-            if from_node == to_node:
-                return True
-            if from_node in visited:
-                return False
-            visited.add(from_node)
-            return any(is_reachable(son, to_node, visited.copy()) for son in from_node.sons)
-
-        result = is_reachable(call_node, write_node, set())
 
         return result
 

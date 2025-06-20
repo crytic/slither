@@ -3,7 +3,6 @@ Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_dat
 	- (ret,mem) = msg.sender.call.value(amount)() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#60)
 	State variables written after the call(s):
 	- userBalance[msg.sender] = amount (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#62)
-		- userBalance[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#59)
 	Reentrancy.userBalance (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#4) can be used in cross function reentrancies:
 	- Reentrancy.addToBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#10-12)
 	- Reentrancy.constructor() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#15-23)

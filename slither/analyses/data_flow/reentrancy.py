@@ -19,6 +19,8 @@ from slither.slithir.operations import (
     Operation,
     Send,
     Transfer,
+    Assignment,
+    Index,
 )
 
 
@@ -128,8 +130,6 @@ class ReentrancyDomain(Domain):
     def __init__(self, variant: DomainVariant, state: Optional[ReentrancyInfo] = None):
         self.variant = variant
         self.state = state or ReentrancyInfo()
-        self.events = set()
-        self.events_with_later_calls = defaultdict(set)
 
     @classmethod
     def bottom(cls) -> "ReentrancyDomain":
@@ -149,8 +149,12 @@ class ReentrancyDomain(Domain):
             return False
 
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
+
             self.variant = DomainVariant.STATE
             self.state = other.state
+            self.state.written.clear()
+            self.state.events.clear()
+
             return True
 
         if self.variant == DomainVariant.STATE and other.variant == DomainVariant.STATE:
@@ -162,6 +166,7 @@ class ReentrancyDomain(Domain):
             self.state.reads.update(other.state.reads)
             self.state.reads_prior_calls.update(other.state.reads_prior_calls)
             self.state.safe_send_eth.update(other.state.safe_send_eth)
+
             return True
 
         else:
@@ -221,20 +226,25 @@ class ReentrancyAnalysis(Analysis):
         functions: List[Function],
         private_functions_seen: Set[Function],
     ):
-        # storage -- first case in caracal
-        self._handle_storage(domain, node)
 
         # events -- second case in caracal
         if isinstance(operation, EventCall):
             self._handle_event_call_operation(operation, domain)
 
         # internal calls -- third case in caracal
-        if isinstance(operation, InternalCall):
+        elif isinstance(operation, InternalCall):
             self._handle_internal_call_operation(operation, domain, private_functions_seen)
 
         # abi calls -- fourth case in caracal
-        if isinstance(operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
+        elif isinstance(operation, (HighLevelCall, LowLevelCall, Transfer, Send)):
             self._handle_abi_call_contract_operation(operation, domain, node)
+
+        self._handle_storage(domain, node)
+
+        # print("--------------------------------")
+        # print(node.expression)
+        # print(domain.state)
+        # print("--------------------------------")
 
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         for var in node.state_variables_read:
@@ -273,10 +283,10 @@ class ReentrancyAnalysis(Analysis):
     def _handle_abi_call_contract_operation(
         self, operation: Operation, domain: ReentrancyDomain, node: Node
     ):
-        # Add the call to external calls
-        if isinstance(operation, Call):
-            domain.state.calls[node].add(operation.node)
 
+        domain.state.calls[node].add(operation.node)
+
+        # Track variables read before this specific call
         vars_read_before_call = set()
         for var in domain.state.reads.keys():
             vars_read_before_call.add(var)
@@ -287,13 +297,8 @@ class ReentrancyAnalysis(Analysis):
         if isinstance(operation, (Send, Transfer, HighLevelCall, LowLevelCall)):
             if operation.call_value is not None and operation.call_value != 0:
                 if isinstance(operation, (Send, Transfer)):
-                    # Safe ETH transfers (gas-limited)
-                    logger.info(f"Call {operation.node} is safe ETH transfer (Send/Transfer)")
                     domain.state.safe_send_eth[node].add(operation.node)
                 else:
-                    # Unsafe ETH transfers (can cause reentrancy)
-                    logger.info(f"Call {operation.node} sends ETH (unsafe)")
-                    logger.info(f"Call value: {operation.call_value}")
                     domain.state.send_eth[node].add(operation.node)
 
     def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
