@@ -12,7 +12,6 @@ class Engine(Generic[A]):
     def __init__(self):
         self.state: Dict[int, AnalysisState[A]] = {}
         self.nodes: List[Node] = []
-        self.node_to_index: Dict[Node, int] = {}
         self.analysis: Analysis
         self.functions: List[Function]
 
@@ -22,16 +21,13 @@ class Engine(Generic[A]):
         engine.analysis = analysis
         engine.functions = functions
 
-        #  create state mapping
-        node_index = 0
+        #  create state mapping using node.node_id directly
         for function in functions:
             for node in function.nodes:
                 engine.nodes.append(node)
-                engine.node_to_index[node] = node_index
-                engine.state[node_index] = AnalysisState(
+                engine.state[node.node_id] = AnalysisState(
                     pre=analysis.bottom_value(), post=analysis.bottom_value()
                 )
-                node_index += 1
 
         return engine
 
@@ -46,10 +42,8 @@ class Engine(Generic[A]):
         while worklist:
             node = worklist.popleft()
 
-            node_index = self.node_to_index[node]
-
             current_state = AnalysisState(
-                pre=self.state[node_index].pre, post=self.state[node_index].post
+                pre=self.state[node.node_id].pre, post=self.state[node.node_id].post
             )
 
             self.analysis.direction().apply_transfer_function(
@@ -59,11 +53,10 @@ class Engine(Generic[A]):
                 worklist=worklist,
                 global_state=self.state,
                 functions=self.functions,
-                node_to_index=self.node_to_index,
             )
 
     def result(self) -> Dict[Node, AnalysisState[A]]:
         result = {}
-        for node, index in self.node_to_index.items():
-            result[node] = self.state[index]
+        for node in self.nodes:
+            result[node] = self.state[node.node_id]
         return result

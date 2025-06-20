@@ -24,7 +24,6 @@ class Direction(ABC):
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
-        node_to_index: Dict[Node, int],
     ):
         pass
 
@@ -43,23 +42,22 @@ class Forward(Direction):
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
-        node_to_index: Dict[Node, int],
     ):
         for operation in node.irs:
             analysis.transfer_function(
                 node=node, domain=current_state.pre, operation=operation, functions=functions
             )
 
-        node_index = node_to_index[node]
-        global_state[node_index].post = current_state.pre  # set the post state of the current block
+        global_state[node.node_id].post = (
+            current_state.pre
+        )  # set the post state of the current block
 
         for son in node.sons:  # propagate
             if not son:
                 continue
-            son_index = node_to_index[son]
-            if son_index not in global_state:
+            if son.node_id not in global_state:
                 continue
-            son_state = global_state[son_index]
+            son_state = global_state[son.node_id]
 
             changed = son_state.pre.join(current_state.pre)
 
@@ -69,8 +67,6 @@ class Forward(Direction):
             if son in worklist:
                 continue
 
-            print(f"node: {son.expression}")
-            print(f"pre-state: {son_state.pre.state}")
             worklist.append(son)
 
 
@@ -87,6 +83,5 @@ class Backward(Direction):
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
-        node_to_index: Dict[Node, int],
     ):
         raise NotImplementedError("Backward transfer function hasn't been developed yet")
