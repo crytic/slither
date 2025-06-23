@@ -5,11 +5,15 @@ contract Args {
     
    
     function foo(uint a) public pure returns (uint256) {
-        uint b = 10;
+        uint b = 20;
         uint c = a + b;
         return c;
     }
 
-   
-   
+    function bar() public pure returns (uint256) {
+        uint a = 10;
+        uint b = 20;
+        uint c = a + b;
+        return c;
+    }
 }

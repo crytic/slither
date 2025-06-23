@@ -1,6 +1,6 @@
 from enum import Enum, auto
 import math
-
+from decimal import Decimal, getcontext
 from typing import List, Mapping, Optional, Union
 
 from loguru import logger
@@ -11,6 +11,7 @@ from slither.analyses.data_flow.domain import Domain
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
@@ -21,11 +22,26 @@ from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 
+# Set high precision for Decimal operations
+getcontext().prec = 100
+
 
 class IntervalInfo:
-    def __init__(self, upper_bound: float = math.inf, lower_bound: float = -math.inf):
-        self.upper_bound = upper_bound
-        self.lower_bound = lower_bound
+    def __init__(
+        self,
+        upper_bound: Union[int, Decimal] = Decimal("Infinity"),
+        lower_bound: Union[int, Decimal] = Decimal("-Infinity"),
+    ):
+        # Convert to Decimal to maintain precision
+        if isinstance(upper_bound, (int, float)):
+            self.upper_bound = Decimal(str(upper_bound))
+        else:
+            self.upper_bound = upper_bound
+
+        if isinstance(lower_bound, (int, float)):
+            self.lower_bound = Decimal(str(lower_bound))
+        else:
+            self.lower_bound = lower_bound
 
     def __eq__(self, other):
         return self.upper_bound == other.upper_bound and self.lower_bound == other.lower_bound
@@ -41,7 +57,17 @@ class IntervalInfo:
         self.upper_bound = max(self.upper_bound, other.upper_bound)
 
     def __str__(self):
-        return f"[{self.lower_bound}, {self.upper_bound}]"
+        lower_str = (
+            str(int(self.lower_bound))
+            if self.lower_bound == int(self.lower_bound)
+            else str(self.lower_bound)
+        )
+        upper_str = (
+            str(int(self.upper_bound))
+            if self.upper_bound == int(self.upper_bound)
+            else str(self.upper_bound)
+        )
+        return f"[{lower_str}, {upper_str}]"
 
 
 class IntervalState:
@@ -146,10 +172,29 @@ class IntervalAnalysis(Analysis):
         elif domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
             domain.state = IntervalState({})
+            for parameter in node.function.parameters:
+                if isinstance(parameter.type, ElementaryType) and self.is_numeric_type(
+                    parameter.type
+                ):
+                    # Use Decimal for precise bounds
+                    domain.state.info[parameter.canonical_name] = IntervalInfo(
+                        upper_bound=Decimal(str(parameter.type.max)),
+                        lower_bound=Decimal(str(parameter.type.min)),
+                    )
+
             self._analyze_operation_by_type(operation, domain, node)
 
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node)
+
+    def is_numeric_type(self, elementary_type: ElementaryType):
+        type_name = elementary_type.name
+        return (
+            type_name.startswith("int")
+            or type_name.startswith("uint")
+            or type_name.startswith("fixed")
+            or type_name.startswith("ufixed")
+        )
 
     def _analyze_operation_by_type(
         self,
@@ -193,10 +238,9 @@ class IntervalAnalysis(Analysis):
     ) -> IntervalInfo:
 
         if isinstance(var, Constant):
-            # create interval info for the left var
-            left_interval_info = IntervalInfo(
-                upper_bound=float(var.value), lower_bound=float(var.value)
-            )
+            # Use Decimal for precise constant values
+            value = Decimal(str(var.value))
+            left_interval_info = IntervalInfo(upper_bound=value, lower_bound=value)
 
         elif isinstance(var, Variable):
 
@@ -214,13 +258,13 @@ class IntervalAnalysis(Analysis):
         return left_interval_info
 
     def calculate_min_max(
-        self, a: float, b: float, c: float, d: float, operation_type: BinaryType
-    ) -> tuple[float, float]:
+        self, a: Decimal, b: Decimal, c: Decimal, d: Decimal, operation_type: BinaryType
+    ) -> tuple[Decimal, Decimal]:
         operations = {
             BinaryType.ADDITION: lambda x, y: x + y,
             BinaryType.SUBTRACTION: lambda x, y: x - y,
             BinaryType.MULTIPLICATION: lambda x, y: x * y,
-            BinaryType.DIVISION: lambda x, y: x / y,
+            BinaryType.DIVISION: lambda x, y: x / y if y != 0 else Decimal("Infinity"),
         }
 
         op = operations[operation_type]
@@ -231,6 +275,7 @@ class IntervalAnalysis(Analysis):
         r4 = op(b, d)
 
         results = [r1, r2, r3, r4]
+
         return min(results), max(results)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
@@ -252,10 +297,9 @@ class IntervalAnalysis(Analysis):
             return
 
         if isinstance(right_value, Constant):
-
-            domain.state.info[name] = IntervalInfo(
-                upper_bound=float(right_value.value), lower_bound=float(right_value.value)
-            )
+            # Use Decimal for precise constant values
+            value = Decimal(str(right_value.value))
+            domain.state.info[name] = IntervalInfo(upper_bound=value, lower_bound=value)
         elif isinstance(right_value, TemporaryVariable):
             temp_var_name = right_value.name
             # get range for temp var
