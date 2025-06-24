@@ -31,6 +31,7 @@ class IntervalInfo:
         self,
         upper_bound: Union[int, Decimal] = Decimal("Infinity"),
         lower_bound: Union[int, Decimal] = Decimal("-Infinity"),
+        var_type: Optional[ElementaryType] = None,
     ):
         # Convert to Decimal to maintain precision
         if isinstance(upper_bound, (int, float)):
@@ -42,6 +43,7 @@ class IntervalInfo:
             self.lower_bound = Decimal(str(lower_bound))
         else:
             self.lower_bound = lower_bound
+        self.var_type = var_type
 
     def __eq__(self, other):
         return self.upper_bound == other.upper_bound and self.lower_bound == other.lower_bound
@@ -50,11 +52,31 @@ class IntervalInfo:
         return hash((self.upper_bound, self.lower_bound))
 
     def deep_copy(self) -> "IntervalInfo":
-        return IntervalInfo(self.upper_bound, self.lower_bound)
+        return IntervalInfo(self.upper_bound, self.lower_bound, self.var_type)
 
     def join(self, other: "IntervalInfo") -> None:
         self.lower_bound = min(self.lower_bound, other.lower_bound)
         self.upper_bound = max(self.upper_bound, other.upper_bound)
+
+    def get_type_bounds(self) -> tuple[Decimal, Decimal]:
+        """Get the theoretical min/max bounds for this variable's type"""
+        if self.var_type and hasattr(self.var_type, "max") and hasattr(self.var_type, "min"):
+            return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
+        else:
+            # Default to uint256 bounds for temporary variables or unknown types
+            return Decimal("0"), Decimal(
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            )
+
+    def has_overflow(self) -> bool:
+        """Check if current bounds exceed the variable's type bounds"""
+        type_min, type_max = self.get_type_bounds()
+        return self.upper_bound > type_max
+
+    def has_underflow(self) -> bool:
+        """Check if current bounds go below the variable's type bounds"""
+        type_min, type_max = self.get_type_bounds()
+        return self.lower_bound < type_min
 
     def __str__(self):
         lower_str = (
@@ -93,7 +115,7 @@ class DomainVariant(Enum):
 class IntervalDomain(Domain):
     def __init__(self, variant: DomainVariant, state: Optional[IntervalState] = None):
         self.variant = variant
-        # Always ensure state is not None
+
         if state is None:
             self.state = IntervalState({})
         else:
@@ -148,7 +170,6 @@ class IntervalAnalysis(Analysis):
         self._direction = Forward()
 
     def domain(self) -> Domain:
-        # Return an empty STATE domain instead of BOTTOM for the initial state
         return IntervalDomain.with_state({})
 
     def direction(self) -> Direction:
@@ -180,6 +201,7 @@ class IntervalAnalysis(Analysis):
                     domain.state.info[parameter.canonical_name] = IntervalInfo(
                         upper_bound=Decimal(str(parameter.type.max)),
                         lower_bound=Decimal(str(parameter.type.min)),
+                        var_type=parameter.type,
                     )
 
             self._analyze_operation_by_type(operation, domain, node)
@@ -224,7 +246,7 @@ class IntervalAnalysis(Analysis):
         if isinstance(operation.lvalue, Variable):
             variable_name = self.get_variable_name(operation.lvalue)
             domain.state.info[variable_name] = IntervalInfo(
-                upper_bound=upper_bound, lower_bound=lower_bound
+                upper_bound=upper_bound, lower_bound=lower_bound, var_type=None
             )
         else:
             logger.error(f"lvalue is not a variable for operation: {operation}")
@@ -233,17 +255,18 @@ class IntervalAnalysis(Analysis):
     def retrieve_interval_info(
         self, var: RVALUE | Function, domain: IntervalDomain, operation: Binary
     ) -> IntervalInfo:
-
         if isinstance(var, Constant):
-            # Use Decimal for precise constant values
             value = Decimal(str(var.value))
-            left_interval_info = IntervalInfo(upper_bound=value, lower_bound=value)
-
+            return IntervalInfo(upper_bound=value, lower_bound=value, var_type=None)
         elif isinstance(var, Variable):
             left_var_name = self.get_variable_name(var)
-            left_interval_info = domain.state.info[left_var_name]
+            if left_var_name in domain.state.info:
+                return domain.state.info[left_var_name]
+            else:
+                # Handle undefined variables - return safe default
+                return IntervalInfo(Decimal(0), Decimal(0), var_type=None)
 
-        return left_interval_info
+        return IntervalInfo(var_type=None)
 
     def get_variable_name(self, variable: Variable) -> str:
 
@@ -294,7 +317,7 @@ class IntervalAnalysis(Analysis):
             # Use Decimal for precise constant values
             value = Decimal(str(right_value.value))
             domain.state.info[writing_variable_name] = IntervalInfo(
-                upper_bound=value, lower_bound=value
+                upper_bound=value, lower_bound=value, var_type=None
             )
         elif isinstance(right_value, TemporaryVariable):
             temp_var_name = right_value.name
@@ -302,4 +325,4 @@ class IntervalAnalysis(Analysis):
             temp_var_range = domain.state.info[temp_var_name]
 
             # update range for left var
-            domain.state.info[writing_variable_name] = temp_var_range
+            domain.state.info[writing_variable_name] = temp_var_range.deep_copy()
