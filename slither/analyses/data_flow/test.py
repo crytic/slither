@@ -70,9 +70,6 @@ def analyze_interval(file_path: str):
                                     var_info,
                                     var_type_range,
                                     node,
-                                    var_info.lower_bound,
-                                    var_type_range.lower_bound,
-                                    var_type_range.lower_bound - var_info.lower_bound,
                                 )
 
                             # Check for overflow
@@ -83,9 +80,6 @@ def analyze_interval(file_path: str):
                                     var_info,
                                     var_type_range,
                                     node,
-                                    var_info.upper_bound,
-                                    var_type_range.upper_bound,
-                                    var_info.upper_bound - var_type_range.upper_bound,
                                 )
 
     except Exception as e:
@@ -99,20 +93,15 @@ def print_bounds_violation(
     var_info: IntervalInfo,
     var_type_range: IntervalInfo,
     node: Node,
-    actual_bound,
-    type_bound,
-    excess_or_deficit,
 ):
     print(f"🚨 {violation_type.upper()} DETECTED 🚨")
     print(f"  Expression: {node.expression}")
     print(f"  Variable: {var_name}")
     print(f"  Bounds: {var_type_range}")
     print(f"  Actual value: {var_info}")
-    print(f"  Actual bound: {actual_bound}")
-    print(f"  Type bound: {type_bound}")
-    print(f"  {'Excess' if violation_type == 'overflow' else 'Deficit'}: {excess_or_deficit}")
+
     print("-" * 50)
 
 
 if __name__ == "__main__":
-    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/Args.sol")
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/SimpleSum.sol")
