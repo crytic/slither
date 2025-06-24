@@ -222,16 +222,13 @@ class IntervalAnalysis(Analysis):
         )
 
         if isinstance(operation.lvalue, Variable):
-            if isinstance(operation.lvalue, Union[StateVariable, LocalVariable]):
-                domain.state.info[operation.lvalue.canonical_name] = IntervalInfo(
-                    upper_bound=upper_bound, lower_bound=lower_bound
-                )
-            else:
-                name = operation.lvalue.name
-                if name is not None:
-                    domain.state.info[name] = IntervalInfo(
-                        upper_bound=upper_bound, lower_bound=lower_bound
-                    )
+            variable_name = self.get_variable_name(operation.lvalue)
+            domain.state.info[variable_name] = IntervalInfo(
+                upper_bound=upper_bound, lower_bound=lower_bound
+            )
+        else:
+            logger.error(f"lvalue is not a variable for operation: {operation}")
+            raise ValueError(f"lvalue is not a variable for operation: {operation}")
 
     def retrieve_interval_info(
         self, var: RVALUE | Function, domain: IntervalDomain, operation: Binary
@@ -243,19 +240,23 @@ class IntervalAnalysis(Analysis):
             left_interval_info = IntervalInfo(upper_bound=value, lower_bound=value)
 
         elif isinstance(var, Variable):
-
-            if isinstance(var, (StateVariable, LocalVariable)):
-                left_var_name = var.canonical_name
-            else:
-                left_var_name = var.name
-
-            if left_var_name is None:
-                logger.error(f"left_var_name is None for operation: {operation}")
-                return IntervalInfo()
-
+            left_var_name = self.get_variable_name(var)
             left_interval_info = domain.state.info[left_var_name]
 
         return left_interval_info
+
+    def get_variable_name(self, variable: Variable) -> str:
+
+        if isinstance(variable, (StateVariable, LocalVariable)):
+            variable_name = variable.canonical_name
+        else:
+            variable_name = variable.name
+
+        if variable_name is None:
+            logger.error(f"Variable name is None for variable: {variable}")
+            raise ValueError(f"Variable name is None for variable: {variable}")
+
+        return variable_name
 
     def calculate_min_max(
         self, a: Decimal, b: Decimal, c: Decimal, d: Decimal, operation_type: BinaryType
@@ -287,23 +288,18 @@ class IntervalAnalysis(Analysis):
         written_variable = operation.lvalue
         right_value = operation.rvalue
 
-        if isinstance(written_variable, (StateVariable, LocalVariable)):
-            name = written_variable.canonical_name
-        else:
-            name = written_variable.name
-
-        if name is None:
-            logger.warning(f"name is None for operation: {operation}")
-            return
+        writing_variable_name = self.get_variable_name(written_variable)
 
         if isinstance(right_value, Constant):
             # Use Decimal for precise constant values
             value = Decimal(str(right_value.value))
-            domain.state.info[name] = IntervalInfo(upper_bound=value, lower_bound=value)
+            domain.state.info[writing_variable_name] = IntervalInfo(
+                upper_bound=value, lower_bound=value
+            )
         elif isinstance(right_value, TemporaryVariable):
             temp_var_name = right_value.name
             # get range for temp var
             temp_var_range = domain.state.info[temp_var_name]
 
             # update range for left var
-            domain.state.info[name] = temp_var_range
+            domain.state.info[writing_variable_name] = temp_var_range
