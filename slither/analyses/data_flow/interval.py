@@ -18,6 +18,7 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
@@ -224,12 +225,38 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
         node: Node,
     ):
+        print(f"Operation: {operation}, type: {type(operation)}")
         if isinstance(operation, Binary):
             self.handle_binary(node, domain, operation)
         if isinstance(operation, Assignment):
             self.handle_assignment(node, domain, operation)
+        if isinstance(operation, SolidityCall):
+            self.handle_solidity_call(node, domain, operation)
+
+    def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
+        print(f"Solidity call: {operation}")
 
     def handle_binary(self, node: Node, domain: IntervalDomain, operation: Binary):
+        if operation.type in [
+            BinaryType.ADDITION,
+            BinaryType.SUBTRACTION,
+            BinaryType.MULTIPLICATION,
+            BinaryType.DIVISION,
+        ]:
+            self.handle_arithmetic_operation(domain, operation)
+        elif operation.type in [
+            BinaryType.GREATER,
+            BinaryType.LESS,
+            BinaryType.GREATER_EQUAL,
+            BinaryType.LESS_EQUAL,
+            BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL,
+        ]:
+            self.handle_comparison_operation(node, domain, operation)
+        else:
+            print(f"⚠️ Unhandled binary operation: {operation.type}")
+
+    def handle_arithmetic_operation(self, domain: IntervalDomain, operation: Binary):
         left_interval_info = self.retrieve_interval_info(operation.variable_left, domain, operation)
         right_interval_info = self.retrieve_interval_info(
             operation.variable_right, domain, operation
@@ -251,6 +278,9 @@ class IntervalAnalysis(Analysis):
         else:
             logger.error(f"lvalue is not a variable for operation: {operation}")
             raise ValueError(f"lvalue is not a variable for operation: {operation}")
+
+    def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
+        print(f"Comparison operation: {operation}")
 
     def retrieve_interval_info(
         self, var: RVALUE | Function, domain: IntervalDomain, operation: Binary

@@ -45,10 +45,20 @@ def analyze_interval(file_path: str):
                 state = analysis.post.state
 
                 for var_name, var_info in state.info.items():
+
                     if var_info.has_overflow():
-                        print_bounds_violation("overflow", var_name, var_info, var_info, node)
+                        type_min, type_max = var_info.get_type_bounds()
+                        type_bounds = IntervalInfo(
+                            upper_bound=type_max, lower_bound=type_min, var_type=var_info.var_type
+                        )
+                        print_bounds_violation("overflow", var_name, var_info, type_bounds, node)
+
                     if var_info.has_underflow():
-                        print_bounds_violation("underflow", var_name, var_info, var_info, node)
+                        type_min, type_max = var_info.get_type_bounds()
+                        type_bounds = IntervalInfo(
+                            upper_bound=type_max, lower_bound=type_min, var_type=var_info.var_type
+                        )
+                        print_bounds_violation("underflow", var_name, var_info, type_bounds, node)
 
     except Exception as e:
         print(f"Error: {e}")
