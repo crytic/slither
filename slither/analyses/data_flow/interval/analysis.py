@@ -94,8 +94,6 @@ class IntervalAnalysis(Analysis):
     def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
         if operation.function.name in ["require(bool)", "assert(bool)"]:
             args = operation.arguments
-            for arg in args:
-                print(f"🔍 Argument: {arg}")
 
     def handle_binary(self, node: Node, domain: IntervalDomain, operation: Binary):
         if operation.type in [
@@ -118,58 +116,58 @@ class IntervalAnalysis(Analysis):
             print(f"⚠️ Unhandled binary operation: {operation.type}")
 
     def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
-        """
-        Handle comparison operations to update variable bounds based on the constraint.
-        Supports <, <=, >, >= with constants.
-        """
+        """Handle comparison operations to update variable bounds"""
         print(f"🔍 Comparison operation: {operation.type}")
 
-        # Only handle comparison operations
         if operation.type not in [
             BinaryType.LESS,
             BinaryType.LESS_EQUAL,
             BinaryType.GREATER,
             BinaryType.GREATER_EQUAL,
+            BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL,
         ]:
             return
 
         left_var = operation.variable_left
         right_var = operation.variable_right
 
-        # Determine which operands are variables vs constants
         left_is_variable = isinstance(left_var, Variable) and not isinstance(left_var, Constant)
         right_is_variable = isinstance(right_var, Variable) and not isinstance(right_var, Constant)
-
         left_is_constant = isinstance(left_var, Constant)
         right_is_constant = isinstance(right_var, Constant)
 
-        # Get interval info for both operands
         left_interval = self.retrieve_interval_info(left_var, domain, operation)
         right_interval = self.retrieve_interval_info(right_var, domain, operation)
 
-        # Case 1: variable op constant
         if left_is_variable and right_is_constant:
             if isinstance(left_var, Variable):
                 self._update_variable_bounds_from_comparison(
                     left_var, right_interval, operation.type, domain
                 )
 
-        # Case 2: constant op variable
         elif left_is_constant and right_is_variable:
-            # Flip the operation since constant is on left
             flipped_op = self._flip_comparison_operator(operation.type)
             if isinstance(right_var, Variable):
                 self._update_variable_bounds_from_comparison(
                     right_var, left_interval, flipped_op, domain
                 )
 
+        elif left_is_variable and right_is_variable:
+            if isinstance(left_var, Variable) and isinstance(right_var, Variable):
+                self._handle_variable_to_variable_comparison(
+                    left_var, right_var, operation.type, domain
+                )
+
     def _flip_comparison_operator(self, op_type: BinaryType) -> BinaryType:
-        """Flip comparison operator when swapping operands (e.g., 10 >= a becomes a <= 10)"""
+        """Flip comparison operator when swapping operands"""
         flip_map = {
             BinaryType.GREATER: BinaryType.LESS,
             BinaryType.LESS: BinaryType.GREATER,
             BinaryType.GREATER_EQUAL: BinaryType.LESS_EQUAL,
             BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
+            BinaryType.EQUAL: BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL: BinaryType.NOT_EQUAL,
         }
         return flip_map[op_type]
 
@@ -183,46 +181,161 @@ class IntervalAnalysis(Analysis):
         """Update variable bounds based on comparison with a constraint value"""
         var_name = self.get_variable_name(variable)
 
-        # Get current bounds for the variable
         if var_name in domain.state.info:
             current_interval = domain.state.info[var_name]
         else:
-            # Initialize with type bounds if variable not tracked yet
             var_type = getattr(variable, "type", None)
             current_interval = IntervalInfo(var_type=var_type)
             if var_type and isinstance(var_type, ElementaryType) and self.is_numeric_type(var_type):
                 current_interval.lower_bound = Decimal(str(var_type.min))
                 current_interval.upper_bound = Decimal(str(var_type.max))
 
-        # Use the constraint value (for constants, lower_bound == upper_bound)
         constraint_value = constraint_interval.lower_bound
-
-        # Update bounds based on comparison type
         new_interval = current_interval.deep_copy()
 
-        if op_type == BinaryType.GREATER_EQUAL:  # var >= constraint
+        if op_type == BinaryType.GREATER_EQUAL:
             new_interval.lower_bound = max(new_interval.lower_bound, constraint_value)
 
-        elif op_type == BinaryType.GREATER:  # var > constraint
+        elif op_type == BinaryType.GREATER:
             new_interval.lower_bound = max(
                 new_interval.lower_bound, constraint_value + Decimal("1")
             )
 
-        elif op_type == BinaryType.LESS_EQUAL:  # var <= constraint
+        elif op_type == BinaryType.LESS_EQUAL:
             new_interval.upper_bound = min(new_interval.upper_bound, constraint_value)
 
-        elif op_type == BinaryType.LESS:  # var < constraint
+        elif op_type == BinaryType.LESS:
             new_interval.upper_bound = min(
                 new_interval.upper_bound, constraint_value - Decimal("1")
             )
 
-        # Check for impossible constraints
+        elif op_type == BinaryType.EQUAL:
+            if (
+                constraint_value >= new_interval.lower_bound
+                and constraint_value <= new_interval.upper_bound
+            ):
+                new_interval.lower_bound = constraint_value
+                new_interval.upper_bound = constraint_value
+            else:
+                logger.warning(f"Impossible equality constraint for {var_name}")
+                new_interval.lower_bound = Decimal("1")
+                new_interval.upper_bound = Decimal("0")
+
+        elif op_type == BinaryType.NOT_EQUAL:
+            if constraint_value == new_interval.lower_bound == new_interval.upper_bound:
+                logger.warning(f"Impossible inequality constraint for {var_name}")
+                new_interval.lower_bound = Decimal("1")
+                new_interval.upper_bound = Decimal("0")
+            elif constraint_value == new_interval.lower_bound:
+                new_interval.lower_bound = constraint_value + Decimal("1")
+            elif constraint_value == new_interval.upper_bound:
+                new_interval.upper_bound = constraint_value - Decimal("1")
+
         if new_interval.lower_bound > new_interval.upper_bound:
             logger.error(f"Impossible constraint detected for {var_name}: {new_interval}")
-            raise ValueError(f"Impossible constraint detected for {var_name}: {new_interval}")
+            domain.variant = DomainVariant.BOTTOM
+            return
 
-        # Update the domain with new bounds
         domain.state.info[var_name] = new_interval
+
+    def _handle_variable_to_variable_comparison(
+        self,
+        left_var: Variable,
+        right_var: Variable,
+        op_type: BinaryType,
+        domain: IntervalDomain,
+    ):
+        """Handle comparisons between two variables"""
+        left_name = self.get_variable_name(left_var)
+        right_name = self.get_variable_name(right_var)
+
+        left_interval = domain.state.info.get(left_name)
+        right_interval = domain.state.info.get(right_name)
+
+        if not left_interval or not right_interval:
+            print(f"⚠️ Cannot handle variable-to-variable comparison: missing interval info")
+            return
+
+        new_left = left_interval.deep_copy()
+        new_right = right_interval.deep_copy()
+
+        if op_type == BinaryType.EQUAL:
+            common_lower = max(new_left.lower_bound, new_right.lower_bound)
+            common_upper = min(new_left.upper_bound, new_right.upper_bound)
+
+            if common_lower <= common_upper:
+                new_left.lower_bound = new_left.upper_bound = common_lower
+                new_right.lower_bound = new_right.upper_bound = common_lower
+
+                if common_lower == common_upper:
+                    new_left.lower_bound = new_left.upper_bound = common_lower
+                    new_right.lower_bound = new_right.upper_bound = common_lower
+                else:
+                    new_left.lower_bound = new_right.lower_bound = common_lower
+                    new_left.upper_bound = new_right.upper_bound = common_upper
+            else:
+                logger.warning(
+                    f"Impossible equality constraint between {left_name} and {right_name}"
+                )
+                domain.variant = DomainVariant.BOTTOM
+                return
+
+        elif op_type == BinaryType.NOT_EQUAL:
+            if (
+                new_left.lower_bound == new_left.upper_bound
+                and new_right.lower_bound == new_right.upper_bound
+                and new_left.lower_bound == new_right.lower_bound
+            ):
+                logger.warning(
+                    f"Impossible inequality constraint between {left_name} and {right_name}"
+                )
+                domain.variant = DomainVariant.BOTTOM
+                return
+
+        elif op_type == BinaryType.LESS:
+            if new_right.lower_bound != Decimal("-Infinity"):
+                new_left.upper_bound = min(
+                    new_left.upper_bound, new_right.upper_bound - Decimal("1")
+                )
+            if new_left.upper_bound != Decimal("Infinity"):
+                new_right.lower_bound = max(
+                    new_right.lower_bound, new_left.lower_bound + Decimal("1")
+                )
+
+        elif op_type == BinaryType.LESS_EQUAL:
+            if new_right.lower_bound != Decimal("-Infinity"):
+                new_left.upper_bound = min(new_left.upper_bound, new_right.upper_bound)
+            if new_left.upper_bound != Decimal("Infinity"):
+                new_right.lower_bound = max(new_right.lower_bound, new_left.lower_bound)
+
+        elif op_type == BinaryType.GREATER:
+            if new_left.lower_bound != Decimal("-Infinity"):
+                new_right.upper_bound = min(
+                    new_right.upper_bound, new_left.upper_bound - Decimal("1")
+                )
+            if new_right.upper_bound != Decimal("Infinity"):
+                new_left.lower_bound = max(
+                    new_left.lower_bound, new_right.lower_bound + Decimal("1")
+                )
+
+        elif op_type == BinaryType.GREATER_EQUAL:
+            if new_left.lower_bound != Decimal("-Infinity"):
+                new_right.upper_bound = min(new_right.upper_bound, new_left.upper_bound)
+            if new_right.upper_bound != Decimal("Infinity"):
+                new_left.lower_bound = max(new_left.lower_bound, new_right.lower_bound)
+
+        if (
+            new_left.lower_bound > new_left.upper_bound
+            or new_right.lower_bound > new_right.upper_bound
+        ):
+            logger.error(
+                f"Impossible constraint in variable comparison: {left_name} vs {right_name}"
+            )
+            domain.variant = DomainVariant.BOTTOM
+            return
+
+        domain.state.info[left_name] = new_left
+        domain.state.info[right_name] = new_right
 
     def handle_arithmetic_operation(self, domain: IntervalDomain, operation: Binary):
         left_interval_info = self.retrieve_interval_info(operation.variable_left, domain, operation)
