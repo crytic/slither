@@ -45,6 +45,7 @@ def analyze_interval(file_path: str):
                 state = analysis.post.state
 
                 for var_name, var_info in state.info.items():
+                    print(f"🔍 Variable: {var_name}, info: {var_info}")
 
                     if var_info.has_overflow():
                         type_min, type_max = var_info.get_type_bounds()
@@ -82,4 +83,4 @@ def print_bounds_violation(
 
 
 if __name__ == "__main__":
-    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/SimpleSum.sol")
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/IntervalAnalysisTest.sol")

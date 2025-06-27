@@ -225,7 +225,7 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
         node: Node,
     ):
-        print(f"Operation: {operation}, type: {type(operation)}")
+
         if isinstance(operation, Binary):
             self.handle_binary(node, domain, operation)
         if isinstance(operation, Assignment):
@@ -234,7 +234,10 @@ class IntervalAnalysis(Analysis):
             self.handle_solidity_call(node, domain, operation)
 
     def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
-        print(f"Solidity call: {operation}")
+        if operation.function.name in ["require(bool)", "assert(bool)"]:
+            args = operation.arguments
+            for arg in args:
+                print(f"🔍 Argument: {arg}")
 
     def handle_binary(self, node: Node, domain: IntervalDomain, operation: Binary):
         if operation.type in [
@@ -255,6 +258,113 @@ class IntervalAnalysis(Analysis):
             self.handle_comparison_operation(node, domain, operation)
         else:
             print(f"⚠️ Unhandled binary operation: {operation.type}")
+
+    def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
+        """
+        Handle comparison operations to update variable bounds based on the constraint.
+        Supports <, <=, >, >= with constants.
+        """
+        print(f"🔍 Comparison operation: {operation.type}")
+
+        # Only handle comparison operations
+        if operation.type not in [
+            BinaryType.LESS,
+            BinaryType.LESS_EQUAL,
+            BinaryType.GREATER,
+            BinaryType.GREATER_EQUAL,
+        ]:
+            return
+
+        left_var = operation.variable_left
+        right_var = operation.variable_right
+
+        # Determine which operands are variables vs constants
+        left_is_variable = isinstance(left_var, Variable) and not isinstance(left_var, Constant)
+        right_is_variable = isinstance(right_var, Variable) and not isinstance(right_var, Constant)
+
+        left_is_constant = isinstance(left_var, Constant)
+        right_is_constant = isinstance(right_var, Constant)
+
+        # Get interval info for both operands
+        left_interval = self.retrieve_interval_info(left_var, domain, operation)
+        right_interval = self.retrieve_interval_info(right_var, domain, operation)
+
+        # Case 1: variable op constant
+        if left_is_variable and right_is_constant:
+            if isinstance(left_var, Variable):
+                self._update_variable_bounds_from_comparison(
+                    left_var, right_interval, operation.type, domain
+                )
+
+        # Case 2: constant op variable
+        elif left_is_constant and right_is_variable:
+            # Flip the operation since constant is on left
+            flipped_op = self._flip_comparison_operator(operation.type)
+            if isinstance(right_var, Variable):
+                self._update_variable_bounds_from_comparison(
+                    right_var, left_interval, flipped_op, domain
+                )
+
+    def _flip_comparison_operator(self, op_type: BinaryType) -> BinaryType:
+        """Flip comparison operator when swapping operands (e.g., 10 >= a becomes a <= 10)"""
+        flip_map = {
+            BinaryType.GREATER: BinaryType.LESS,
+            BinaryType.LESS: BinaryType.GREATER,
+            BinaryType.GREATER_EQUAL: BinaryType.LESS_EQUAL,
+            BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
+        }
+        return flip_map[op_type]
+
+    def _update_variable_bounds_from_comparison(
+        self,
+        variable: Variable,
+        constraint_interval: IntervalInfo,
+        op_type: BinaryType,
+        domain: IntervalDomain,
+    ):
+        """Update variable bounds based on comparison with a constraint value"""
+        var_name = self.get_variable_name(variable)
+
+        # Get current bounds for the variable
+        if var_name in domain.state.info:
+            current_interval = domain.state.info[var_name]
+        else:
+            # Initialize with type bounds if variable not tracked yet
+            var_type = getattr(variable, "type", None)
+            current_interval = IntervalInfo(var_type=var_type)
+            if var_type and isinstance(var_type, ElementaryType) and self.is_numeric_type(var_type):
+                current_interval.lower_bound = Decimal(str(var_type.min))
+                current_interval.upper_bound = Decimal(str(var_type.max))
+
+        # Use the constraint value (for constants, lower_bound == upper_bound)
+        constraint_value = constraint_interval.lower_bound
+
+        # Update bounds based on comparison type
+        new_interval = current_interval.deep_copy()
+
+        if op_type == BinaryType.GREATER_EQUAL:  # var >= constraint
+            new_interval.lower_bound = max(new_interval.lower_bound, constraint_value)
+
+        elif op_type == BinaryType.GREATER:  # var > constraint
+            new_interval.lower_bound = max(
+                new_interval.lower_bound, constraint_value + Decimal("1")
+            )
+
+        elif op_type == BinaryType.LESS_EQUAL:  # var <= constraint
+            new_interval.upper_bound = min(new_interval.upper_bound, constraint_value)
+
+        elif op_type == BinaryType.LESS:  # var < constraint
+            new_interval.upper_bound = min(
+                new_interval.upper_bound, constraint_value - Decimal("1")
+            )
+
+        # Check for impossible constraints
+        if new_interval.lower_bound > new_interval.upper_bound:
+            logger.error(f"Impossible constraint detected for {var_name}: {new_interval}")
+            raise ValueError(f"Impossible constraint detected for {var_name}: {new_interval}")
+
+        # Update the domain with new bounds
+        domain.state.info[var_name] = new_interval
 
     def handle_arithmetic_operation(self, domain: IntervalDomain, operation: Binary):
         left_interval_info = self.retrieve_interval_info(operation.variable_left, domain, operation)
@@ -278,9 +388,6 @@ class IntervalAnalysis(Analysis):
         else:
             logger.error(f"lvalue is not a variable for operation: {operation}")
             raise ValueError(f"lvalue is not a variable for operation: {operation}")
-
-    def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
-        print(f"Comparison operation: {operation}")
 
     def retrieve_interval_info(
         self, var: RVALUE | Function, domain: IntervalDomain, operation: Binary
