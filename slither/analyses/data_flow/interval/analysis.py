@@ -1,169 +1,27 @@
-from enum import Enum, auto
-import math
-from decimal import Decimal, getcontext
-from typing import List, Mapping, Optional, Union
+from decimal import Decimal
+from typing import List
 
 from loguru import logger
 
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
+from slither.analyses.data_flow.interval.domain import DomainVariant, IntervalDomain
+from slither.analyses.data_flow.interval.info import IntervalInfo
+from slither.analyses.data_flow.interval.state import IntervalState
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
-
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
-
-# Set high precision for Decimal operations
-getcontext().prec = 100
-
-
-class IntervalInfo:
-    def __init__(
-        self,
-        upper_bound: Union[int, Decimal] = Decimal("Infinity"),
-        lower_bound: Union[int, Decimal] = Decimal("-Infinity"),
-        var_type: Optional[ElementaryType] = None,
-    ):
-        # Convert to Decimal to maintain precision
-        if isinstance(upper_bound, (int, float)):
-            self.upper_bound = Decimal(str(upper_bound))
-        else:
-            self.upper_bound = upper_bound
-
-        if isinstance(lower_bound, (int, float)):
-            self.lower_bound = Decimal(str(lower_bound))
-        else:
-            self.lower_bound = lower_bound
-        self.var_type = var_type
-
-    def __eq__(self, other):
-        return self.upper_bound == other.upper_bound and self.lower_bound == other.lower_bound
-
-    def __hash__(self):
-        return hash((self.upper_bound, self.lower_bound))
-
-    def deep_copy(self) -> "IntervalInfo":
-        return IntervalInfo(self.upper_bound, self.lower_bound, self.var_type)
-
-    def join(self, other: "IntervalInfo") -> None:
-        self.lower_bound = min(self.lower_bound, other.lower_bound)
-        self.upper_bound = max(self.upper_bound, other.upper_bound)
-
-    def get_type_bounds(self) -> tuple[Decimal, Decimal]:
-        """Get the theoretical min/max bounds for this variable's type"""
-        if self.var_type and hasattr(self.var_type, "max") and hasattr(self.var_type, "min"):
-            return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
-        else:
-            # Default to uint256 bounds for temporary variables or unknown types
-            return Decimal("0"), Decimal(
-                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
-            )
-
-    def has_overflow(self) -> bool:
-        """Check if current bounds exceed the variable's type bounds"""
-        type_min, type_max = self.get_type_bounds()
-        return self.upper_bound > type_max
-
-    def has_underflow(self) -> bool:
-        """Check if current bounds go below the variable's type bounds"""
-        type_min, type_max = self.get_type_bounds()
-        return self.lower_bound < type_min
-
-    def __str__(self):
-        lower_str = (
-            str(int(self.lower_bound))
-            if self.lower_bound == int(self.lower_bound)
-            else str(self.lower_bound)
-        )
-        upper_str = (
-            str(int(self.upper_bound))
-            if self.upper_bound == int(self.upper_bound)
-            else str(self.upper_bound)
-        )
-        return f"[{lower_str}, {upper_str}]"
-
-
-class IntervalState:
-    def __init__(self, info: Mapping[str, IntervalInfo]):
-        self.info = dict(info)  # Convert to dict to make it mutable
-
-    def __eq__(self, other):
-        if not isinstance(other, IntervalState):
-            return False
-        return self.info == other.info
-
-    def deep_copy(self) -> "IntervalState":
-        copied_info = {key: value.deep_copy() for key, value in self.info.items()}
-        return IntervalState(copied_info)
-
-
-class DomainVariant(Enum):
-    BOTTOM = auto()
-    TOP = auto()
-    STATE = auto()
-
-
-class IntervalDomain(Domain):
-    def __init__(self, variant: DomainVariant, state: Optional[IntervalState] = None):
-        self.variant = variant
-
-        if state is None:
-            self.state = IntervalState({})
-        else:
-            self.state = state
-
-    @classmethod
-    def bottom(cls) -> "IntervalDomain":
-        return cls(DomainVariant.BOTTOM)
-
-    @classmethod
-    def top(cls) -> "IntervalDomain":
-        return cls(DomainVariant.TOP)
-
-    @classmethod
-    def with_state(cls, info: Mapping[str, IntervalInfo]) -> "IntervalDomain":
-        return cls(DomainVariant.STATE, IntervalState(info))
-
-    def join(self, other: "IntervalDomain") -> bool:
-        if self.variant == DomainVariant.TOP or other.variant == DomainVariant.BOTTOM:
-            return False
-
-        if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
-            self.variant = DomainVariant.STATE
-            self.state = other.state.deep_copy()
-            return True
-
-        if self.variant == DomainVariant.STATE and other.variant == DomainVariant.STATE:
-            if self.state == other.state:
-                return False
-
-            changed = False
-            for variable_name, variable_range in other.state.info.items():
-                if variable_name in self.state.info:
-                    old_range = self.state.info[variable_name].deep_copy()
-                    self.state.info[variable_name].join(variable_range)
-                    if self.state.info[variable_name] != old_range:
-                        changed = True
-                else:
-                    self.state.info[variable_name] = variable_range.deep_copy()
-                    changed = True
-
-            return changed
-
-        else:
-            self.variant = DomainVariant.TOP
-
-        return True
 
 
 class IntervalAnalysis(Analysis):

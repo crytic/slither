@@ -14,7 +14,7 @@ contract IntervalAnalysisTest {
     function withdraw(uint256 amount) public {
         // This should constrain: balance >= amount
         require(balance >= 10, "Amount must be positive");
-        require(balance<=2);
+        // require(balance<=2);
         require(amount <= 10, "Insufficient balance");
         
         balance = balance - amount;
