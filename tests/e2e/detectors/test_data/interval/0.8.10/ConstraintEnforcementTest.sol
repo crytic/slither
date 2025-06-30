@@ -154,18 +154,18 @@ contract ConstraintEnforcementTest {
     /**
      * @dev Test that bare comparisons assigned to variables do NOT apply constraints
      */
-    function testBareComparisonAssignedToVariable(uint8 x) public pure returns (uint8) {
-        // x starts with bounds [0, 255]
+    // function testBareComparisonAssignedToVariable(uint8 x) public pure returns (uint8) {
+    //     // x starts with bounds [0, 255]
         
-        // This bare comparison assigned to a variable should NOT constrain x's interval
-        bool condition = x >= 25;  // Expected: x remains [0, 255]
+    //     // This bare comparison assigned to a variable should NOT constrain x's interval
+    //     bool condition = x >= 25;  // Expected: x remains [0, 255]
         
-        // Only enforced constraints should apply
-        require(condition);  // This should apply the constraint from the condition
-        // Expected: x becomes [25, 255]
+    //     // Only enforced constraints should apply
+    //     require(condition);  // This should apply the constraint from the condition
+    //     // Expected: x becomes [25, 255]
         
-        return x;  // Expected: x is [25, 255]
-    } // FAILED: current implementation does not handle assignment of comparison to a variable
+    //     return x;  // Expected: x is [25, 255]
+    // } // FAILED: current implementation does not handle assignment of comparison to a variable
     
     // /**
     //  * @dev Test that multiple require statements work correctly

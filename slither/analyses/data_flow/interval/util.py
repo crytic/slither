@@ -1,6 +1,9 @@
 from decimal import Decimal
+from typing import Optional
 from slither.analyses.data_flow.interval.info import IntervalInfo
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.binary import Binary
+from slither.slithir.variables.temporary import TemporaryVariable
 
 UINT256_MAX = Decimal(
     "115792089237316195423570985008687907853269984665640564039457584007913129639935"
@@ -100,3 +103,27 @@ def _create_interval_from_type(var_type: ElementaryType, min_val, max_val) -> In
         lower_bound=Decimal(str(min_val)),
         var_type=var_type,
     )
+
+
+def _determine_target_type(operation: Binary) -> Optional[ElementaryType]:
+    """Determine the target type for the operation result."""
+    target_type = getattr(operation.lvalue, "type", None)
+
+    # For temporary variables, infer type from operands
+    if target_type is None and isinstance(operation.lvalue, TemporaryVariable):
+        left_type = _get_variable_type(operation.variable_left)
+        right_type = _get_variable_type(operation.variable_right)
+
+        if left_type and right_type:
+            target_type = _get_promotion_type(left_type, right_type)
+        elif left_type:
+            target_type = left_type
+        elif right_type:
+            target_type = right_type
+
+    return target_type
+
+
+def _get_variable_type(variable) -> Optional[ElementaryType]:
+    """Safely get variable type."""
+    return getattr(variable, "type", None) if hasattr(variable, "type") else None
