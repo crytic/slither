@@ -68,8 +68,6 @@ class IntervalAnalysis(Analysis):
         self._direction: Direction = Forward()
         # Track pending constraints that haven't been enforced yet
         self._pending_constraints: Dict[str, Union[Binary, Variable]] = {}
-        # Track relationships between temporary variables and their source variables
-        self._temp_var_sources: Dict[str, TempVarRelationship] = {}
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -435,24 +433,6 @@ class IntervalAnalysis(Analysis):
             upper_bound=upper_bound, lower_bound=lower_bound, var_type=target_type
         )
         domain.state.info[variable_name] = new_interval
-
-        # Track relationship between temporary variable and source variables
-        if isinstance(operation.lvalue, TemporaryVariable):
-            self._track_temp_var_relationship(operation, domain)
-
-    def _track_temp_var_relationship(self, operation: Binary, domain: IntervalDomain) -> None:
-        """Track the relationship between a temporary variable and its source variables."""
-        if operation.lvalue is None:
-            return
-
-        temp_var_name: str = self.get_variable_name(operation.lvalue)
-
-        # Store the relationship: temp_var -> (operation_type, left_var, right_var)
-        self._temp_var_sources[temp_var_name] = {
-            "operation_type": operation.type,
-            "left_var": operation.variable_left,
-            "right_var": operation.variable_right,
-        }
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         """Handle assignment operations."""
