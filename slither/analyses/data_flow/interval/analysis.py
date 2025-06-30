@@ -9,6 +9,12 @@ from slither.analyses.data_flow.domain import Domain
 from slither.analyses.data_flow.interval.domain import DomainVariant, IntervalDomain
 from slither.analyses.data_flow.interval.info import IntervalInfo
 from slither.analyses.data_flow.interval.state import IntervalState
+from slither.analyses.data_flow.interval.util import (
+    _create_interval_from_type,
+    _get_promotion_type,
+    _get_type_bounds_for_elementary_type,
+    _is_numeric_type,
+)
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -27,15 +33,6 @@ from slither.slithir.variables.temporary import TemporaryVariable
 
 class IntervalAnalysis(Analysis):
     # Class constants for commonly used values
-    UINT256_MAX = Decimal(
-        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
-    )
-    INT256_MAX = Decimal(
-        "57896044618658097711785492504343953926634992332820282019728792003956564819967"
-    )
-    INT256_MIN = Decimal(
-        "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
-    )
 
     # Comparison operators that can be flipped
     FLIPPABLE_COMPARISON_OPERATORS = {
@@ -67,6 +64,8 @@ class IntervalAnalysis(Analysis):
 
     def __init__(self):
         self._direction = Forward()
+        # Track pending constraints that haven't been enforced yet
+        self._pending_constraints = {}
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -101,8 +100,8 @@ class IntervalAnalysis(Analysis):
         domain.state = IntervalState({})
 
         for parameter in node.function.parameters:
-            if isinstance(parameter.type, ElementaryType) and self._is_numeric_type(parameter.type):
-                domain.state.info[parameter.canonical_name] = self._create_interval_from_type(
+            if isinstance(parameter.type, ElementaryType) and _is_numeric_type(parameter.type):
+                domain.state.info[parameter.canonical_name] = _create_interval_from_type(
                     parameter.type, parameter.type.min, parameter.type.max
                 )
 
@@ -111,6 +110,8 @@ class IntervalAnalysis(Analysis):
         if isinstance(operation, Binary):
             if operation.type in self.ARITHMETIC_OPERATORS:
                 self.handle_arithmetic_operation(domain, operation, node)
+            elif operation.type in self.COMPARISON_OPERATORS:
+                self.handle_comparison_operation(node, domain, operation)
         elif isinstance(operation, Assignment):
             self.handle_assignment(node, domain, operation)
         elif isinstance(operation, SolidityCall):
@@ -129,12 +130,14 @@ class IntervalAnalysis(Analysis):
 
         if operation.arguments and len(operation.arguments) > 0:
             condition = operation.arguments[0]
+            # logger.debug(f"Processing {operation.function.name} with condition: {condition}")
+            # logger.debug(f"Condition type: {type(condition)}")
             self._apply_constraint_from_condition(condition, domain, operation)
 
     def _apply_constraint_from_condition(
         self, condition, domain: IntervalDomain, operation: SolidityCall
     ):
-
+        """Extract and apply constraint from a condition in require/assert."""
         # Check if the condition is a comparison operation
         if hasattr(condition, "type") and condition.type in self.COMPARISON_OPERATORS:
             # This is a comparison operation, apply the constraint
@@ -143,24 +146,26 @@ class IntervalAnalysis(Analysis):
             # This might be a Binary operation (comparison)
             if condition.type in self.COMPARISON_OPERATORS:
                 self._apply_comparison_constraint_from_operation(condition, domain)
-        elif isinstance(condition, TemporaryVariable):
-            # The condition is a temporary variable, we need to find the operation that created it
-            self._find_and_apply_constraint_from_temporary(condition, domain, operation.node)
-        # TODO: handle condition that is a variable
+        elif isinstance(condition, Variable):
+            # The condition is a variable, check if we have a pending constraint for it
+            self._apply_pending_constraint_for_variable(condition, domain)
 
-    def _find_and_apply_constraint_from_temporary(
-        self, temp_var: TemporaryVariable, domain: IntervalDomain, node: Node
-    ):
-        # Look through the node's IR operations to find the operation that created this temporary variable
-        for ir in node.irs:
-            if (
-                isinstance(ir, Binary)
-                and ir.lvalue == temp_var
-                and ir.type in self.COMPARISON_OPERATORS
-            ):
-                # Found the comparison operation that created this temporary variable
-                self._apply_comparison_constraint_from_operation(ir, domain)
-                return
+    def _apply_pending_constraint_for_variable(self, var: Variable, domain: IntervalDomain):
+        """Apply pending constraint for a variable if it exists."""
+        var_name = self.get_variable_name(var)
+
+        # logger.debug(f"Looking for pending constraint for variable: {var_name}")
+        # logger.debug(f"Available pending constraints: {list(self._pending_constraints.keys())}")
+
+        # Check if we have a pending constraint for this variable
+        if var_name in self._pending_constraints:
+            constraint_operation = self._pending_constraints[var_name]
+            # logger.debug(f"Found pending constraint for {var_name}: {constraint_operation}")
+            self._apply_comparison_constraint_from_operation(constraint_operation, domain)
+            # Remove the constraint from pending since it's now applied
+            del self._pending_constraints[var_name]
+        else:
+            logger.debug(f"No pending constraint found for {var_name}")
 
     def _apply_comparison_constraint_from_operation(self, operation, domain: IntervalDomain):
         if not hasattr(operation, "variable_left") or not hasattr(operation, "variable_right"):
@@ -231,7 +236,6 @@ class IntervalAnalysis(Analysis):
             domain.variant = DomainVariant.BOTTOM
             logger.error(f"Invalid interval: {new_interval}")
             raise ValueError(f"Invalid interval: {new_interval}")
-            return
 
         domain.state.info[var_name] = new_interval
 
@@ -247,8 +251,8 @@ class IntervalAnalysis(Analysis):
         var_type = getattr(variable, "type", None)
         interval = IntervalInfo(var_type=var_type)
 
-        if isinstance(var_type, ElementaryType) and self._is_numeric_type(var_type):
-            min_val, max_val = self._get_type_bounds_for_elementary_type(var_type)
+        if isinstance(var_type, ElementaryType) and _is_numeric_type(var_type):
+            min_val, max_val = _get_type_bounds_for_elementary_type(var_type)
             interval.lower_bound = min_val
             interval.upper_bound = max_val
 
@@ -416,7 +420,7 @@ class IntervalAnalysis(Analysis):
             )
             domain.state.info[variable_name] = new_interval
         else:
-            logger.error(f"lvalue is not a variable for operation: {operation}")
+            # logger.error(f"lvalue is not a variable for operation: {operation}")
             raise ValueError(f"lvalue is not a variable for operation: {operation}")
 
     def _determine_target_type(self, operation: Binary) -> Optional[ElementaryType]:
@@ -429,7 +433,7 @@ class IntervalAnalysis(Analysis):
             right_type = self._get_variable_type(operation.variable_right)
 
             if left_type and right_type:
-                target_type = self._get_promotion_type(left_type, right_type)
+                target_type = _get_promotion_type(left_type, right_type)
             elif left_type:
                 target_type = left_type
             elif right_type:
@@ -449,6 +453,33 @@ class IntervalAnalysis(Analysis):
         written_variable = operation.lvalue
         right_value = operation.rvalue
         writing_variable_name = self.get_variable_name(written_variable)
+
+        # logger.debug(f"Assignment: {writing_variable_name} = {right_value}")
+
+        # Check if the assignment is a comparison operation
+        if hasattr(right_value, "type") and right_value.type in self.COMPARISON_OPERATORS:
+            # This is a comparison assigned to a variable, store as pending constraint
+            # logger.debug(f"Storing pending constraint for {writing_variable_name}: {right_value}")
+            self._pending_constraints[writing_variable_name] = right_value
+        elif hasattr(right_value, "variable_left") and hasattr(right_value, "variable_right"):
+            if right_value.type in self.COMPARISON_OPERATORS:
+                # This is a comparison assigned to a variable, store as pending constraint
+                # logger.debug(
+                #     f"Storing pending constraint for {writing_variable_name}: {right_value}"
+                # )
+                self._pending_constraints[writing_variable_name] = right_value
+        elif isinstance(right_value, TemporaryVariable):
+            # Check if the temporary variable has a pending constraint
+            temp_var_name = self.get_variable_name(right_value)
+            if temp_var_name in self._pending_constraints:
+                # Copy the constraint from the temporary variable to the local variable
+                constraint = self._pending_constraints[temp_var_name]
+                # logger.debug(
+                #     f"Copying constraint from {temp_var_name} to {writing_variable_name}: {constraint}"
+                # )
+                self._pending_constraints[writing_variable_name] = constraint
+                # Remove the constraint from the temporary variable
+                del self._pending_constraints[temp_var_name]
 
         if isinstance(right_value, Constant):
             self._handle_constant_assignment(
@@ -482,8 +513,8 @@ class IntervalAnalysis(Analysis):
             new_interval.var_type = target_type
 
             # Apply type bounds if necessary
-            if isinstance(target_type, ElementaryType) and self._is_numeric_type(target_type):
-                target_min, target_max = self._get_type_bounds_for_elementary_type(target_type)
+            if isinstance(target_type, ElementaryType) and _is_numeric_type(target_type):
+                target_min, target_max = _get_type_bounds_for_elementary_type(target_type)
                 new_interval.lower_bound = max(new_interval.lower_bound, target_min)
                 new_interval.upper_bound = min(new_interval.upper_bound, target_max)
 
@@ -512,7 +543,7 @@ class IntervalAnalysis(Analysis):
             variable_name = variable.name
 
         if variable_name is None:
-            logger.error(f"Variable name is None for variable: {variable}")
+            # logger.error(f"Variable name is None for variable: {variable}")
             raise ValueError(f"Variable name is None for variable: {variable}")
 
         return variable_name
@@ -533,88 +564,11 @@ class IntervalAnalysis(Analysis):
 
         return min(results), max(results)
 
-    def _is_numeric_type(self, elementary_type: ElementaryType) -> bool:
-        """Check if type is numeric."""
-        if not elementary_type:
-            return False
-        type_name = elementary_type.name
-        return (
-            type_name.startswith("int")
-            or type_name.startswith("uint")
-            or type_name.startswith("fixed")
-            or type_name.startswith("ufixed")
-        )
-
-    def _get_type_bounds_for_elementary_type(
-        self, elem_type: ElementaryType
-    ) -> tuple[Decimal, Decimal]:
-        """Get min/max bounds for elementary type."""
-        type_name = elem_type.name
-
-        if type_name.startswith("uint"):
-            return self._get_uint_bounds(type_name)
-        elif type_name.startswith("int"):
-            return self._get_int_bounds(type_name)
-
-        return Decimal("0"), self.UINT256_MAX
-
-    def _get_uint_bounds(self, type_name: str) -> tuple[Decimal, Decimal]:
-        """Get bounds for unsigned integer types."""
-        if type_name == "uint" or type_name == "uint256":
-            return Decimal("0"), self.UINT256_MAX
-
-        try:
-            bits = int(type_name[4:])
-            max_val = (2**bits) - 1
-            return Decimal("0"), Decimal(str(max_val))
-        except ValueError:
-            return Decimal("0"), self.UINT256_MAX
-
-    def _get_int_bounds(self, type_name: str) -> tuple[Decimal, Decimal]:
-        """Get bounds for signed integer types."""
-        if type_name == "int" or type_name == "int256":
-            return self.INT256_MIN, self.INT256_MAX
-
-        try:
-            bits = int(type_name[3:])
-            max_val = (2 ** (bits - 1)) - 1
-            min_val = -(2 ** (bits - 1))
-            return Decimal(str(min_val)), Decimal(str(max_val))
-        except ValueError:
-            return self.INT256_MIN, self.INT256_MAX
-
-    def _get_promotion_type(self, type1: ElementaryType, type2: ElementaryType) -> ElementaryType:
-        """Get the promoted type from two elementary types."""
-        size1 = self._get_type_size(type1)
-        size2 = self._get_type_size(type2)
-        return type1 if size1 >= size2 else type2
-
-    def _get_type_size(self, elem_type: ElementaryType) -> int:
-        """Get the bit size of an elementary type."""
-        type_name = elem_type.name
-
-        if type_name.startswith("uint"):
-            if type_name == "uint" or type_name == "uint256":
-                return 256
-            try:
-                return int(type_name[4:])
-            except ValueError:
-                return 256
-        elif type_name.startswith("int"):
-            if type_name == "int" or type_name == "int256":
-                return 256
-            try:
-                return int(type_name[3:])
-            except ValueError:
-                return 256
-        return 256
-
-    def _create_interval_from_type(
-        self, var_type: ElementaryType, min_val, max_val
-    ) -> IntervalInfo:
-        """Create interval from type with min/max bounds."""
-        return IntervalInfo(
-            upper_bound=Decimal(str(max_val)),
-            lower_bound=Decimal(str(min_val)),
-            var_type=var_type,
-        )
+    def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
+        """Handle comparison operations by storing them as pending constraints."""
+        # Store the comparison operation as a pending constraint
+        # Use the lvalue (variable name) as the key
+        if hasattr(operation, "lvalue") and operation.lvalue:
+            var_name = self.get_variable_name(operation.lvalue)
+            # logger.debug(f"Storing pending constraint for {var_name}: {operation}")
+            self._pending_constraints[var_name] = operation
