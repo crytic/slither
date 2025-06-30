@@ -85,7 +85,7 @@ class IntervalAnalysis(Analysis):
                 BinaryType.MULTIPLICATION,
                 BinaryType.DIVISION,
             ]:
-                self.handle_arithmetic_operation_with_target_type(domain, operation, node)
+                self.handle_arithmetic_operation(domain, operation, node)
             elif operation.type in [
                 BinaryType.GREATER,
                 BinaryType.LESS,
@@ -309,9 +309,7 @@ class IntervalAnalysis(Analysis):
         domain.state.info[left_name] = new_left
         domain.state.info[right_name] = new_right
 
-    def handle_arithmetic_operation_with_target_type(
-        self, domain: IntervalDomain, operation: Binary, node: Node
-    ):
+    def handle_arithmetic_operation(self, domain: IntervalDomain, operation: Binary, node: Node):
         left_interval_info = self.retrieve_interval_info(operation.variable_left, domain, operation)
         right_interval_info = self.retrieve_interval_info(
             operation.variable_right, domain, operation
