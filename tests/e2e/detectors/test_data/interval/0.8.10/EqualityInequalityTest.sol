@@ -25,26 +25,26 @@ contract EqualityInequalityTest {
     //     return a + b; // Expected: result is [0, 2^256-1] + [0, 2^256-1] = potential overflow!
     // }
     
-    function testConstrainedEquality(uint8 x, uint8 y) public pure returns (uint8) {
-        // x starts with bounds [0, 255]
-        // y starts with bounds [0, 255]
-        require(x >= 100);  // Expected: x becomes [100, 255]
-        require(y <= 150);  // Expected: y becomes [0, 150]
-        require(x == y);
-        // Expected: intersection is [100, 150]
-        // Both x and y become [100, 150]
-        return x + y; // Expected: result is [200, 300] - potential overflow for uint8!
-    }
-    
-    // function testImpossibleEquality(uint8 x) public pure returns (uint8) {
+    // function testConstrainedEquality(uint8 x, uint8 y) public pure returns (uint8) {
     //     // x starts with bounds [0, 255]
-    //     require(x >= 200);  // Expected: x becomes [200, 255]
-    //     require(x == 50);
-    //     // Expected: impossible constraint detected!
-    //     // x cannot be 50 when it's constrained to [200, 255]
-    //     // Domain should become BOTTOM (unreachable)
-    //     return x + 1; // This code should be marked as unreachable
+    //     // y starts with bounds [0, 255]
+    //     require(x >= 100);  // Expected: x becomes [100, 255]
+    //     require(y <= 150);  // Expected: y becomes [0, 150]
+    //     require(x == y);
+    //     // Expected: intersection is [100, 150]
+    //     // Both x and y become [100, 150]
+    //     return x + y; // Expected: result is [200, 300] - potential overflow for uint8!
     // }
+    
+    function testImpossibleEquality(uint8 x) public pure returns (uint8) {
+        // x starts with bounds [0, 255]
+        require(x >= 200);  // Expected: x becomes [200, 255]
+        require(x == 50);
+        // Expected: impossible constraint detected!
+        // x cannot be 50 when it's constrained to [200, 255]
+        // Domain should become BOTTOM (unreachable)
+        return x + 1; // This code should be marked as unreachable
+    }
     
     // function testSequentialComparisons(uint16 value) public pure returns (uint16) {
     //     // value starts with bounds [0, 65535]
