@@ -18,6 +18,7 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
+from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
@@ -56,7 +57,6 @@ class IntervalAnalysis(Analysis):
                 if isinstance(parameter.type, ElementaryType) and self.is_numeric_type(
                     parameter.type
                 ):
-                    # Use Decimal for precise bounds
                     domain.state.info[parameter.canonical_name] = IntervalInfo(
                         upper_bound=Decimal(str(parameter.type.max)),
                         lower_bound=Decimal(str(parameter.type.min)),
@@ -77,48 +77,36 @@ class IntervalAnalysis(Analysis):
             or type_name.startswith("ufixed")
         )
 
-    def _analyze_operation_by_type(
-        self,
-        operation: Operation,
-        domain: IntervalDomain,
-        node: Node,
-    ):
-
+    def _analyze_operation_by_type(self, operation: Operation, domain: IntervalDomain, node: Node):
         if isinstance(operation, Binary):
-            self.handle_binary(node, domain, operation)
-        if isinstance(operation, Assignment):
+            if operation.type in [
+                BinaryType.ADDITION,
+                BinaryType.SUBTRACTION,
+                BinaryType.MULTIPLICATION,
+                BinaryType.DIVISION,
+            ]:
+                self.handle_arithmetic_operation_with_target_type(domain, operation, node)
+            elif operation.type in [
+                BinaryType.GREATER,
+                BinaryType.LESS,
+                BinaryType.GREATER_EQUAL,
+                BinaryType.LESS_EQUAL,
+                BinaryType.EQUAL,
+                BinaryType.NOT_EQUAL,
+            ]:
+                self.handle_comparison_operation(node, domain, operation)
+
+        elif isinstance(operation, Assignment):
             self.handle_assignment(node, domain, operation)
-        if isinstance(operation, SolidityCall):
+
+        elif isinstance(operation, SolidityCall):
             self.handle_solidity_call(node, domain, operation)
 
     def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
         if operation.function.name in ["require(bool)", "assert(bool)"]:
-            args = operation.arguments
-
-    def handle_binary(self, node: Node, domain: IntervalDomain, operation: Binary):
-        if operation.type in [
-            BinaryType.ADDITION,
-            BinaryType.SUBTRACTION,
-            BinaryType.MULTIPLICATION,
-            BinaryType.DIVISION,
-        ]:
-            self.handle_arithmetic_operation(domain, operation)
-        elif operation.type in [
-            BinaryType.GREATER,
-            BinaryType.LESS,
-            BinaryType.GREATER_EQUAL,
-            BinaryType.LESS_EQUAL,
-            BinaryType.EQUAL,
-            BinaryType.NOT_EQUAL,
-        ]:
-            self.handle_comparison_operation(node, domain, operation)
-        else:
-            print(f"⚠️ Unhandled binary operation: {operation.type}")
+            print(f"🔄 {operation.function.name} called")
 
     def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
-        """Handle comparison operations to update variable bounds"""
-        print(f"🔍 Comparison operation: {operation.type}")
-
         if operation.type not in [
             BinaryType.LESS,
             BinaryType.LESS_EQUAL,
@@ -160,7 +148,6 @@ class IntervalAnalysis(Analysis):
                 )
 
     def _flip_comparison_operator(self, op_type: BinaryType) -> BinaryType:
-        """Flip comparison operator when swapping operands"""
         flip_map = {
             BinaryType.GREATER: BinaryType.LESS,
             BinaryType.LESS: BinaryType.GREATER,
@@ -178,7 +165,6 @@ class IntervalAnalysis(Analysis):
         op_type: BinaryType,
         domain: IntervalDomain,
     ):
-        """Update variable bounds based on comparison with a constraint value"""
         var_name = self.get_variable_name(variable)
 
         if var_name in domain.state.info:
@@ -217,13 +203,11 @@ class IntervalAnalysis(Analysis):
                 new_interval.lower_bound = constraint_value
                 new_interval.upper_bound = constraint_value
             else:
-                logger.warning(f"Impossible equality constraint for {var_name}")
                 new_interval.lower_bound = Decimal("1")
                 new_interval.upper_bound = Decimal("0")
 
         elif op_type == BinaryType.NOT_EQUAL:
             if constraint_value == new_interval.lower_bound == new_interval.upper_bound:
-                logger.warning(f"Impossible inequality constraint for {var_name}")
                 new_interval.lower_bound = Decimal("1")
                 new_interval.upper_bound = Decimal("0")
             elif constraint_value == new_interval.lower_bound:
@@ -232,7 +216,6 @@ class IntervalAnalysis(Analysis):
                 new_interval.upper_bound = constraint_value - Decimal("1")
 
         if new_interval.lower_bound > new_interval.upper_bound:
-            logger.error(f"Impossible constraint detected for {var_name}: {new_interval}")
             domain.variant = DomainVariant.BOTTOM
             return
 
@@ -245,7 +228,6 @@ class IntervalAnalysis(Analysis):
         op_type: BinaryType,
         domain: IntervalDomain,
     ):
-        """Handle comparisons between two variables"""
         left_name = self.get_variable_name(left_var)
         right_name = self.get_variable_name(right_var)
 
@@ -253,7 +235,6 @@ class IntervalAnalysis(Analysis):
         right_interval = domain.state.info.get(right_name)
 
         if not left_interval or not right_interval:
-            print(f"⚠️ Cannot handle variable-to-variable comparison: missing interval info")
             return
 
         new_left = left_interval.deep_copy()
@@ -274,9 +255,6 @@ class IntervalAnalysis(Analysis):
                     new_left.lower_bound = new_right.lower_bound = common_lower
                     new_left.upper_bound = new_right.upper_bound = common_upper
             else:
-                logger.warning(
-                    f"Impossible equality constraint between {left_name} and {right_name}"
-                )
                 domain.variant = DomainVariant.BOTTOM
                 return
 
@@ -286,9 +264,6 @@ class IntervalAnalysis(Analysis):
                 and new_right.lower_bound == new_right.upper_bound
                 and new_left.lower_bound == new_right.lower_bound
             ):
-                logger.warning(
-                    f"Impossible inequality constraint between {left_name} and {right_name}"
-                )
                 domain.variant = DomainVariant.BOTTOM
                 return
 
@@ -328,16 +303,15 @@ class IntervalAnalysis(Analysis):
             new_left.lower_bound > new_left.upper_bound
             or new_right.lower_bound > new_right.upper_bound
         ):
-            logger.error(
-                f"Impossible constraint in variable comparison: {left_name} vs {right_name}"
-            )
             domain.variant = DomainVariant.BOTTOM
             return
 
         domain.state.info[left_name] = new_left
         domain.state.info[right_name] = new_right
 
-    def handle_arithmetic_operation(self, domain: IntervalDomain, operation: Binary):
+    def handle_arithmetic_operation_with_target_type(
+        self, domain: IntervalDomain, operation: Binary, node: Node
+    ):
         left_interval_info = self.retrieve_interval_info(operation.variable_left, domain, operation)
         right_interval_info = self.retrieve_interval_info(
             operation.variable_right, domain, operation
@@ -353,12 +327,95 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation.lvalue, Variable):
             variable_name = self.get_variable_name(operation.lvalue)
-            domain.state.info[variable_name] = IntervalInfo(
-                upper_bound=upper_bound, lower_bound=lower_bound, var_type=None
+            target_type = getattr(operation.lvalue, "type", None)
+
+            # For temporary variables, infer the appropriate type from operands
+            if target_type is None and isinstance(operation.lvalue, TemporaryVariable):
+                left_type = (
+                    getattr(operation.variable_left, "type", None)
+                    if hasattr(operation.variable_left, "type")
+                    else None
+                )
+                right_type = (
+                    getattr(operation.variable_right, "type", None)
+                    if hasattr(operation.variable_right, "type")
+                    else None
+                )
+
+                if left_type and right_type:
+                    target_type = self._get_promotion_type(left_type, right_type)
+                elif left_type:
+                    target_type = left_type
+                elif right_type:
+                    target_type = right_type
+
+            # Create interval with the full computed bounds and proper type
+            new_interval = IntervalInfo(
+                upper_bound=upper_bound, lower_bound=lower_bound, var_type=target_type
             )
+
+            # Store the interval with computed bounds - test.py will check for overflow
+            domain.state.info[variable_name] = new_interval
         else:
             logger.error(f"lvalue is not a variable for operation: {operation}")
             raise ValueError(f"lvalue is not a variable for operation: {operation}")
+
+    def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
+        if operation.lvalue is None:
+            return
+
+        written_variable = operation.lvalue
+        right_value = operation.rvalue
+        writing_variable_name = self.get_variable_name(written_variable)
+
+        if isinstance(right_value, Constant):
+            value = Decimal(str(right_value.value))
+            target_type = getattr(written_variable, "type", None)
+            domain.state.info[writing_variable_name] = IntervalInfo(
+                upper_bound=value, lower_bound=value, var_type=target_type
+            )
+
+        elif isinstance(right_value, TemporaryVariable):
+            temp_var_name = right_value.name
+            if temp_var_name in domain.state.info:
+                temp_var_range = domain.state.info[temp_var_name]
+                target_type = getattr(written_variable, "type", None)
+
+                new_interval = temp_var_range.deep_copy()
+                new_interval.var_type = target_type
+
+                if (
+                    target_type
+                    and isinstance(target_type, ElementaryType)
+                    and self.is_numeric_type(target_type)
+                ):
+                    target_min, target_max = self._get_type_bounds_for_elementary_type(target_type)
+
+                    new_interval.lower_bound = max(new_interval.lower_bound, target_min)
+                    new_interval.upper_bound = min(new_interval.upper_bound, target_max)
+
+                domain.state.info[writing_variable_name] = new_interval
+
+        elif isinstance(right_value, Variable):
+            right_var_name = self.get_variable_name(right_value)
+            if right_var_name in domain.state.info:
+                right_interval = domain.state.info[right_var_name]
+                target_type = getattr(written_variable, "type", None)
+
+                new_interval = right_interval.deep_copy()
+                new_interval.var_type = target_type
+
+                if (
+                    target_type
+                    and isinstance(target_type, ElementaryType)
+                    and self.is_numeric_type(target_type)
+                ):
+                    target_min, target_max = self._get_type_bounds_for_elementary_type(target_type)
+
+                    new_interval.lower_bound = max(new_interval.lower_bound, target_min)
+                    new_interval.upper_bound = min(new_interval.upper_bound, target_max)
+
+                domain.state.info[writing_variable_name] = new_interval
 
     def retrieve_interval_info(
         self, var: RVALUE | Function, domain: IntervalDomain, operation: Binary
@@ -371,13 +428,11 @@ class IntervalAnalysis(Analysis):
             if left_var_name in domain.state.info:
                 return domain.state.info[left_var_name]
             else:
-                # Handle undefined variables - return safe default
                 return IntervalInfo(Decimal(0), Decimal(0), var_type=None)
 
         return IntervalInfo(var_type=None)
 
     def get_variable_name(self, variable: Variable) -> str:
-
         if isinstance(variable, (StateVariable, LocalVariable)):
             variable_name = variable.canonical_name
         else:
@@ -410,27 +465,70 @@ class IntervalAnalysis(Analysis):
 
         return min(results), max(results)
 
-    def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
+    def _get_type_bounds_for_elementary_type(
+        self, elem_type: ElementaryType
+    ) -> tuple[Decimal, Decimal]:
+        type_name = elem_type.name
 
-        if operation.lvalue is None:
-            logger.warning(f"left_var is None for operation: {operation}")
-            return
+        if type_name.startswith("uint"):
+            if type_name == "uint" or type_name == "uint256":
+                return Decimal("0"), Decimal(
+                    "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                )
+            else:
+                try:
+                    bits = int(type_name[4:])
+                    max_val = (2**bits) - 1
+                    return Decimal("0"), Decimal(str(max_val))
+                except ValueError:
+                    return Decimal("0"), Decimal(
+                        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                    )
 
-        written_variable = operation.lvalue
-        right_value = operation.rvalue
+        elif type_name.startswith("int"):
+            if type_name == "int" or type_name == "int256":
+                return Decimal(
+                    "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+                ), Decimal(
+                    "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+                )
+            else:
+                try:
+                    bits = int(type_name[3:])
+                    max_val = (2 ** (bits - 1)) - 1
+                    min_val = -(2 ** (bits - 1))
+                    return Decimal(str(min_val)), Decimal(str(max_val))
+                except ValueError:
+                    return Decimal(
+                        "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+                    ), Decimal(
+                        "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+                    )
 
-        writing_variable_name = self.get_variable_name(written_variable)
+        return Decimal("0"), Decimal(
+            "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        )
 
-        if isinstance(right_value, Constant):
-            # Use Decimal for precise constant values
-            value = Decimal(str(right_value.value))
-            domain.state.info[writing_variable_name] = IntervalInfo(
-                upper_bound=value, lower_bound=value, var_type=None
-            )
-        elif isinstance(right_value, TemporaryVariable):
-            temp_var_name = right_value.name
-            # get range for temp var
-            temp_var_range = domain.state.info[temp_var_name]
+    def _get_promotion_type(self, type1: ElementaryType, type2: ElementaryType) -> ElementaryType:
+        def get_type_size(elem_type: ElementaryType) -> int:
+            type_name = elem_type.name
+            if type_name.startswith("uint"):
+                if type_name == "uint" or type_name == "uint256":
+                    return 256
+                try:
+                    return int(type_name[4:])
+                except ValueError:
+                    return 256
+            elif type_name.startswith("int"):
+                if type_name == "int" or type_name == "int256":
+                    return 256
+                try:
+                    return int(type_name[3:])
+                except ValueError:
+                    return 256
+            return 256
 
-            # update range for left var
-            domain.state.info[writing_variable_name] = temp_var_range.deep_copy()
+        size1 = get_type_size(type1)
+        size2 = get_type_size(type2)
+
+        return type1 if size1 >= size2 else type2

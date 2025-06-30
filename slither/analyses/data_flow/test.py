@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+from decimal import Decimal
 from loguru import logger
 from slither import Slither
 from slither.analyses.data_flow.engine import Engine
@@ -10,197 +11,193 @@ from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type import Type
 
-
-def print_separator(char="=", length=80):
-    """Print a separator line"""
-    print(char * length)
-
-
-def print_function_header(function_name, contract_name):
-    """Print formatted function header"""
-    print_separator("=")
-    print(f"ANALYZING FUNCTION: {contract_name}.{function_name}")
-    print_separator("=")
-
-
-def print_node_header(node_index, node):
-    """Print formatted node information"""
-    if node.expression:
-        print(f"{node.expression}")
-
-
-def print_variable_state(state, title="Variable State"):
-    """Print formatted variable state information"""
-    if not state.info:
-        return
-
-    # Sort variables for consistent output
-    sorted_vars = sorted(state.info.items())
-
-    for var_name, var_info in sorted_vars:
-        overflow_status = " 🚨 [OVERFLOW]" if var_info.has_overflow() else ""
-        underflow_status = " 🚨 [UNDERFLOW]" if var_info.has_underflow() else ""
-        status = f"{overflow_status}{underflow_status}"
-
-        print(f"   {var_name}: {var_info}{status}")
-    print()
-
-
-def print_overflow_summary(var_name, var_info, node):
-    """Print detailed overflow information"""
-    print_separator("!", 50)
-    print(f"🚨 OVERFLOW DETECTED")
-    print(f"   Function: {node.function.name}")
-    print(f"   Variable: {var_name}")
-    print(f"   Current bounds: {var_info}")
-
-    if var_info.var_type:
-        type_min, type_max = var_info.get_type_bounds()
-        print(f"   Type bounds: [{type_min}, {type_max}]")
-        print(f"   Type: {var_info.var_type}")
-
-    print(f"   Node: {node.type}")
-    print(f"   Expression: {node.expression}")
-    print_separator("!", 50)
-
-
-def print_underflow_summary(var_name, var_info, node):
-    """Print detailed underflow information"""
-    print_separator("!", 50)
-    print(f"🚨 UNDERFLOW DETECTED")
-    print(f"   Function: {node.function.name}")
-    print(f"   Variable: {var_name}")
-    print(f"   Current bounds: {var_info}")
-
-    if var_info.var_type:
-        type_min, type_max = var_info.get_type_bounds()
-        print(f"   Type bounds: [{type_min}, {type_max}]")
-        print(f"   Type: {var_info.var_type}")
-
-    print(f"   Node: {node.type}")
-    print(f"   Expression: {node.expression}")
-    print_separator("!", 50)
+from slither.slithir.operations.assignment import Assignment
+from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 def analyze_interval(file_path: str):
-    """Main analysis function with enhanced output formatting"""
     try:
-        print_separator("=", 80)
-        print("STARTING INTERVAL ANALYSIS")
-        print_separator("=", 80)
-
         slither = Slither(file_path)
-        contracts = [c for c in slither.contracts if not c.is_interface and not c.is_library]
+        functions = [f for c in slither.contracts for f in c.functions if f.is_implemented]
 
-        print(f"\nFound {len(contracts)} contract(s) to analyze")
-        for contract in contracts:
-            print(f"   - {contract.name}")
+        for function in functions:
+            print(f"\n🔍 Analyzing function: {function.name}")
+            print("=" * 60)
 
-        total_vulnerabilities = 0
+            # Run interval analysis
+            engine = Engine.new(analysis=IntervalAnalysis(), functions=[function])
+            engine.run_analysis()
+            results = engine.result()
 
-        for contract in contracts:
-            functions = [f for f in contract.functions if f.is_implemented and not f.is_constructor]
-
-            print(f"\nCONTRACT: {contract.name}")
-            print(f"   Functions to analyze: {len(functions)}")
-
-            for function in functions:
-                print_function_header(function.name, contract.name)
-
-                # Print function parameters
-                if function.parameters:
-                    print("Function Parameters:")
-                    for param in function.parameters:
-                        print(f"   {param.name}: {param.type}")
-                else:
-                    print("No parameters")
-
-                # Run interval analysis
-                engine = Engine.new(analysis=IntervalAnalysis(), functions=[function])
-                engine.run_analysis()
-                results = engine.result()
-
-                # Create variable type mapping
-                var_mapping: Dict[str, Type] = {}
-                for var in function.variables:
-                    key: Optional[str] = (
-                        var.canonical_name if var.canonical_name is not None else var.name
-                    )
-                    if key is not None and isinstance(var.type, ElementaryType):
-                        var_mapping[key] = var.type
-
-                # Process results for each node
-                function_vulnerabilities = 0
-                analyzed_nodes = 0
-
-                # Sort nodes by their order in the function
-                sorted_results = sorted(
-                    results.items(), key=lambda x: x[0].node_id if hasattr(x[0], "node_id") else 0
+            # Build variable type mapping for overflow detection
+            var_mapping: Dict[str, Type] = {}
+            for var in function.variables:
+                key: Optional[str] = (
+                    var.canonical_name if var.canonical_name is not None else var.name
                 )
+                if key is not None and isinstance(var.type, ElementaryType):
+                    var_mapping[key] = var.type
 
-                for node, analysis in sorted_results:
-                    analyzed_nodes += 1
+            # Analyze each node's results
+            for node, analysis in results.items():
+                if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
+                    continue
 
-                    if not hasattr(analysis, "post") or not isinstance(
-                        analysis.post, IntervalDomain
-                    ):
-                        continue
+                if analysis.post.variant != DomainVariant.STATE:
+                    continue
 
-                    if analysis.post.variant != DomainVariant.STATE:
-                        continue
+                state = analysis.post.state
 
-                    state = analysis.post.state
+                # Check variable bounds for overflow/underflow
+                for var_name, var_info in state.info.items():
+                    print(f"📊 Variable: {var_name}, bounds: {var_info}")
 
-                    # Only print nodes that have interesting state changes
-                    if state.info:
-                        print_node_header(analyzed_nodes, node)
-                        print_variable_state(state)
+                    # Check for type bound violations using IntervalInfo's built-in methods
+                    if var_info.has_overflow():
+                        type_min, type_max = var_info.get_type_bounds()
+                        type_bounds = IntervalInfo(
+                            upper_bound=type_max, lower_bound=type_min, var_type=var_info.var_type
+                        )
+                        print_bounds_violation("overflow", var_name, var_info, type_bounds, node)
 
-                        # Check for vulnerabilities
-                        for var_name, var_info in state.info.items():
-                            if var_info.has_overflow():
-                                print_overflow_summary(var_name, var_info, node)
-                                function_vulnerabilities += 1
+                    if var_info.has_underflow():
+                        type_min, type_max = var_info.get_type_bounds()
+                        type_bounds = IntervalInfo(
+                            upper_bound=type_max, lower_bound=type_min, var_type=var_info.var_type
+                        )
+                        print_bounds_violation("underflow", var_name, var_info, type_bounds, node)
 
-                            if var_info.has_underflow():
-                                print_underflow_summary(var_name, var_info, node)
-                                function_vulnerabilities += 1
-
-                # Function summary
-                print_separator("=")
-                print(f"FUNCTION SUMMARY: {function.name}")
-                print(f"   Nodes analyzed: {analyzed_nodes}")
-                print(f"   Vulnerabilities found: {function_vulnerabilities}")
-                print_separator("=")
-
-                total_vulnerabilities += function_vulnerabilities
-
-        # Final summary
-        print_separator("=", 80)
-        print("ANALYSIS COMPLETE")
-        print(f"   Total vulnerabilities found: {total_vulnerabilities}")
-        print_separator("=", 80)
-
-        return total_vulnerabilities
+                # Check for return type violations
+                check_return_type_violations(node, state, function)
 
     except Exception as e:
-        print_separator("=", 80)
-        print(f"ERROR: {e}")
-        print_separator("=", 80)
-        import traceback
-
-        traceback.print_exc()
+        print(f"Error: {e}")
         return None
 
 
-if __name__ == "__main__":
-    # Test with the original test file
-    vulnerabilities = analyze_interval(
-        "tests/e2e/detectors/test_data/interval/0.8.10/EqualityInequalityTest.sol"
+def check_return_type_violations(node: Node, state, function):
+    """Check if return values exceed function return type bounds"""
+    if not hasattr(node, "irs") or not node.irs:
+        return
+
+    for ir in node.irs:
+        if isinstance(ir, Return):
+            function_return_type = function.return_type
+            if not function_return_type or len(function_return_type) != 1:
+                continue
+
+            return_type = function_return_type[0]
+            if not isinstance(return_type, ElementaryType):
+                continue
+
+            return_values = ir.values
+            if not return_values or len(return_values) != 1:
+                continue
+
+            returned_var = return_values[0]
+
+            # Get variable name for lookup
+            if hasattr(returned_var, "name"):
+                var_name = returned_var.name
+            elif hasattr(returned_var, "canonical_name"):
+                var_name = returned_var.canonical_name
+            else:
+                continue
+
+            if var_name in state.info:
+                returned_interval = state.info[var_name]
+                target_min, target_max = get_type_bounds_for_elementary_type(return_type)
+
+                if returned_interval.upper_bound > target_max:
+                    print_return_violation(
+                        "overflow", function.name, return_type, returned_interval, target_max, node
+                    )
+
+                if returned_interval.lower_bound < target_min:
+                    print_return_violation(
+                        "underflow", function.name, return_type, returned_interval, target_min, node
+                    )
+
+
+def get_type_bounds_for_elementary_type(elem_type: ElementaryType) -> tuple[Decimal, Decimal]:
+    """Get min/max bounds for an elementary type"""
+    type_name = elem_type.name
+
+    if type_name.startswith("uint"):
+        if type_name == "uint" or type_name == "uint256":
+            return Decimal("0"), Decimal(
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            )
+        else:
+            try:
+                bits = int(type_name[4:])
+                max_val = (2**bits) - 1
+                return Decimal("0"), Decimal(str(max_val))
+            except ValueError:
+                return Decimal("0"), Decimal(
+                    "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                )
+
+    elif type_name.startswith("int"):
+        if type_name == "int" or type_name == "int256":
+            return Decimal(
+                "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+            ), Decimal(
+                "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+            )
+        else:
+            try:
+                bits = int(type_name[3:])
+                max_val = (2 ** (bits - 1)) - 1
+                min_val = -(2 ** (bits - 1))
+                return Decimal(str(min_val)), Decimal(str(max_val))
+            except ValueError:
+                return Decimal(
+                    "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+                ), Decimal(
+                    "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+                )
+
+    return Decimal("0"), Decimal(
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
     )
 
-    if vulnerabilities is not None:
-        print(f"\nAnalysis completed successfully!")
-        print(f"Found {vulnerabilities} potential vulnerabilities")
-    else:
-        print(f"\nAnalysis failed!")
+
+def print_bounds_violation(
+    violation_type: str,
+    var_name: str,
+    var_info: IntervalInfo,
+    var_type_range: IntervalInfo,
+    node: Node,
+):
+    """Print variable bounds violation"""
+    print(f"🚨 {violation_type.upper()} DETECTED 🚨")
+    print(f"  Expression: {node.expression}")
+    print(f"  Variable: {var_name}")
+    print(f"  Type bounds: {var_type_range}")
+    print(f"  Actual bounds: {var_info}")
+    print("-" * 50)
+
+
+def print_return_violation(
+    violation_type: str,
+    function_name: str,
+    return_type: ElementaryType,
+    actual_interval: IntervalInfo,
+    type_bound: Decimal,
+    node: Node,
+):
+    """Print return type violation"""
+    print(f"🚨 RETURN {violation_type.upper()} DETECTED 🚨")
+    print(f"  Function: {function_name}")
+    print(f"  Return type: {return_type.name}")
+    print(f"  Type bound: {type_bound}")
+    print(f"  Actual bounds: {actual_interval}")
+    print(f"  Expression: {node.expression}")
+    print("-" * 50)
+
+
+if __name__ == "__main__":
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/EqualityInequalityTest.sol")
