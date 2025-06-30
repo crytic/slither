@@ -111,19 +111,59 @@ class IntervalAnalysis(Analysis):
         if isinstance(operation, Binary):
             if operation.type in self.ARITHMETIC_OPERATORS:
                 self.handle_arithmetic_operation(domain, operation, node)
-            elif operation.type in self.COMPARISON_OPERATORS:
-                self.handle_comparison_operation(node, domain, operation)
         elif isinstance(operation, Assignment):
             self.handle_assignment(node, domain, operation)
         elif isinstance(operation, SolidityCall):
             self.handle_solidity_call(node, domain, operation)
 
     def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
-        if operation.function.name in ["require(bool)", "assert(bool)"]:
-            print(f"🔄 {operation.function.name} called")
+        require_assert_functions = [
+            "require(bool)",
+            "assert(bool)",
+            "require(bool,string)",
+            "require(bool,error)",
+        ]
 
-    def handle_comparison_operation(self, node: Node, domain: IntervalDomain, operation: Binary):
-        if operation.type not in self.FLIPPABLE_COMPARISON_OPERATORS:
+        if operation.function.name not in require_assert_functions:
+            return
+
+        if operation.arguments and len(operation.arguments) > 0:
+            condition = operation.arguments[0]
+            self._apply_constraint_from_condition(condition, domain, operation)
+
+    def _apply_constraint_from_condition(
+        self, condition, domain: IntervalDomain, operation: SolidityCall
+    ):
+
+        # Check if the condition is a comparison operation
+        if hasattr(condition, "type") and condition.type in self.COMPARISON_OPERATORS:
+            # This is a comparison operation, apply the constraint
+            self._apply_comparison_constraint_from_operation(condition, domain)
+        elif hasattr(condition, "variable_left") and hasattr(condition, "variable_right"):
+            # This might be a Binary operation (comparison)
+            if condition.type in self.COMPARISON_OPERATORS:
+                self._apply_comparison_constraint_from_operation(condition, domain)
+        elif isinstance(condition, TemporaryVariable):
+            # The condition is a temporary variable, we need to find the operation that created it
+            self._find_and_apply_constraint_from_temporary(condition, domain, operation.node)
+        # TODO: handle condition that is a variable
+
+    def _find_and_apply_constraint_from_temporary(
+        self, temp_var: TemporaryVariable, domain: IntervalDomain, node: Node
+    ):
+        # Look through the node's IR operations to find the operation that created this temporary variable
+        for ir in node.irs:
+            if (
+                isinstance(ir, Binary)
+                and ir.lvalue == temp_var
+                and ir.type in self.COMPARISON_OPERATORS
+            ):
+                # Found the comparison operation that created this temporary variable
+                self._apply_comparison_constraint_from_operation(ir, domain)
+                return
+
+    def _apply_comparison_constraint_from_operation(self, operation, domain: IntervalDomain):
+        if not hasattr(operation, "variable_left") or not hasattr(operation, "variable_right"):
             return
 
         left_var, right_var = operation.variable_left, operation.variable_right

@@ -24,6 +24,18 @@ contract EqualityInequalityTest {
     //     // Expected: both a and b get same bounds [0, 2^256-1]
     //     return a + b; // Expected: result is [0, 2^256-1] + [0, 2^256-1] = potential overflow!
     // }
+
+    function foo(uint8 x) public pure returns (uint8) {
+        if (x>100){
+            revert();
+        }
+        return x;
+    }
+
+    function bar(uint8 x) public pure returns (uint8) {
+        require(x>100);
+        return x;
+    }
     
     // function testConstrainedEquality(uint8 x, uint8 y) public pure returns (uint8) {
     //     // x starts with bounds [0, 255]
@@ -36,15 +48,15 @@ contract EqualityInequalityTest {
     //     return x + y; // Expected: result is [200, 300] - potential overflow for uint8!
     // }
     
-    function testImpossibleEquality(uint8 x) public pure returns (uint8) {
-        // x starts with bounds [0, 255]
-        require(x >= 200);  // Expected: x becomes [200, 255]
-        require(x == 50);
-        // Expected: impossible constraint detected!
-        // x cannot be 50 when it's constrained to [200, 255]
-        // Domain should become BOTTOM (unreachable)
-        return x + 1; // This code should be marked as unreachable
-    }
+    // function testImpossibleEquality(uint8 x) public pure returns (uint8) {
+    //     // x starts with bounds [0, 255]
+    //     require(x >= 200);  // Expected: x becomes [200, 255]
+    //     require(x == 50);
+    //     // Expected: impossible constraint detected!
+    //     // x cannot be 50 when it's constrained to [200, 255]
+    //     // Domain should become BOTTOM (unreachable)
+    //     return x + 1; // This code should be marked as unreachable
+    // }
     
     // function testSequentialComparisons(uint16 value) public pure returns (uint16) {
     //     // value starts with bounds [0, 65535]

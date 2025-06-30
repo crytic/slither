@@ -200,4 +200,4 @@ def print_return_violation(
 
 
 if __name__ == "__main__":
-    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/EqualityInequalityTest.sol")
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/EdgeCaseConstraintTest.sol")
