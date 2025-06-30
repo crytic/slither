@@ -31,14 +31,7 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 
 
-class TempVarRelationship(TypedDict):
-    operation_type: BinaryType
-    left_var: Union[Variable, Constant, RVALUE, Function]
-    right_var: Union[Variable, Constant, RVALUE, Function]
-
-
 class IntervalAnalysis(Analysis):
-    # Class constants for commonly used values
 
     # Arithmetic operators
     ARITHMETIC_OPERATORS: set[BinaryType] = {
