@@ -50,9 +50,12 @@ def analyze_interval(file_path: str):
 
                 state = analysis.post.state
 
+                print(f"\n\tExpression: {node.expression}")
+                print("\t" + "-" * 36)
+
                 # Check variable bounds for overflow/underflow
                 for var_name, var_info in state.info.items():
-                    print(f"📊 Variable: {var_name}, bounds: {var_info}")
+                    print(f"\t\t📊 Variable: {var_name}, bounds: {var_info}")
 
                     # Check for type bound violations using IntervalInfo's built-in methods
                     if var_info.has_overflow():
@@ -71,6 +74,8 @@ def analyze_interval(file_path: str):
 
                 # Check for return type violations
                 check_return_type_violations(node, state, function)
+
+                print("\t" + "-" * 56)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -173,12 +178,10 @@ def print_bounds_violation(
     node: Node,
 ):
     """Print variable bounds violation"""
-    print(f"🚨 {violation_type.upper()} DETECTED 🚨")
-    print(f"  Expression: {node.expression}")
-    print(f"  Variable: {var_name}")
-    print(f"  Type bounds: {var_type_range}")
-    print(f"  Actual bounds: {var_info}")
-    print("-" * 50)
+    print(f"🚨 [VIOLATION] {violation_type.upper()} DETECTED")
+    print(f"        Variable: {var_name}")
+    print(f"        Type bounds: {var_type_range}")
+    print(f"        Actual bounds: {var_info}")
 
 
 def print_return_violation(
@@ -190,14 +193,12 @@ def print_return_violation(
     node: Node,
 ):
     """Print return type violation"""
-    print(f"🚨 RETURN {violation_type.upper()} DETECTED 🚨")
-    print(f"  Function: {function_name}")
-    print(f"  Return type: {return_type.name}")
-    print(f"  Type bound: {type_bound}")
-    print(f"  Actual bounds: {actual_interval}")
-    print(f"  Expression: {node.expression}")
-    print("-" * 50)
+    print(f"🚨 [VIOLATION] RETURN {violation_type.upper()} DETECTED")
+    print(f"        Function: {function_name}")
+    print(f"        Return type: {return_type.name}")
+    print(f"        Type bound: {type_bound}")
+    print(f"        Actual bounds: {actual_interval}")
 
 
 if __name__ == "__main__":
-    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/ConstraintApplicationTest.sol")
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/FunctionCalls.sol")

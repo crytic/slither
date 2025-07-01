@@ -1,9 +1,16 @@
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Dict, Callable, Union
 from slither.analyses.data_flow.interval.info import IntervalInfo
 from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.temporary import TemporaryVariable
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.variables.constant import Constant
+from slither.core.declarations.function import Function
+from slither.analyses.data_flow.interval.domain import IntervalDomain
+from slither.slithir.utils.utils import RVALUE
 
 UINT256_MAX = Decimal(
     "115792089237316195423570985008687907853269984665640564039457584007913129639935"
@@ -127,3 +134,90 @@ def _determine_target_type(operation: Binary) -> Optional[ElementaryType]:
 def _get_variable_type(variable) -> Optional[ElementaryType]:
     """Safely get variable type."""
     return getattr(variable, "type", None) if hasattr(variable, "type") else None
+
+
+def calculate_min_max(
+    a: Decimal, b: Decimal, c: Decimal, d: Decimal, operation_type: BinaryType
+) -> tuple[Decimal, Decimal]:
+    """Calculate min and max bounds for arithmetic operations."""
+    operations: Dict[BinaryType, Callable[[Decimal, Decimal], Decimal]] = {
+        BinaryType.ADDITION: lambda x, y: x + y,
+        BinaryType.SUBTRACTION: lambda x, y: x - y,
+        BinaryType.MULTIPLICATION: lambda x, y: x * y,
+        BinaryType.DIVISION: lambda x, y: x / y if y != 0 else Decimal("Infinity"),
+    }
+    op: Callable[[Decimal, Decimal], Decimal] = operations[operation_type]
+    results: list[Decimal] = [op(a, c), op(a, d), op(b, c), op(b, d)]
+    return min(results), max(results)
+
+
+def get_variable_name(variable: Variable) -> str:
+    """Get canonical variable name."""
+    if isinstance(variable, (StateVariable, LocalVariable)):
+        variable_name: Optional[str] = variable.canonical_name
+    else:
+        variable_name: Optional[str] = variable.name
+    if variable_name is None:
+        raise ValueError(f"Variable name is None for variable: {variable}")
+    return variable_name
+
+
+def retrieve_interval_info(
+    var: Union[RVALUE, Function], domain: IntervalDomain, operation: Binary
+) -> IntervalInfo:
+    """Retrieve interval information for a variable or constant."""
+    if isinstance(var, Constant):
+        value: Decimal = Decimal(str(var.value))
+        return IntervalInfo(upper_bound=value, lower_bound=value, var_type=None)
+    elif isinstance(var, Variable):
+        var_name: str = get_variable_name(var)
+        return domain.state.info.get(var_name, IntervalInfo(Decimal(0), Decimal(0), var_type=None))
+    return IntervalInfo(var_type=None)
+
+
+def apply_equality_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    common_lower: Decimal = max(left.lower_bound, right.lower_bound)
+    common_upper: Decimal = min(left.upper_bound, right.upper_bound)
+    if common_lower <= common_upper:
+        left.lower_bound = right.lower_bound = common_lower
+        left.upper_bound = right.upper_bound = common_upper
+
+
+def apply_inequality_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    if (
+        left.lower_bound == left.upper_bound
+        and right.lower_bound == right.upper_bound
+        and left.lower_bound == right.lower_bound
+    ):
+        left.lower_bound = Decimal("1")
+        left.upper_bound = Decimal("0")
+        right.lower_bound = Decimal("1")
+        right.upper_bound = Decimal("0")
+
+
+def apply_less_than_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    if right.lower_bound != Decimal("-Infinity"):
+        left.upper_bound = min(left.upper_bound, right.upper_bound - Decimal("1"))
+    if left.upper_bound != Decimal("Infinity"):
+        right.lower_bound = max(right.lower_bound, left.lower_bound + Decimal("1"))
+
+
+def apply_less_equal_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    if right.lower_bound != Decimal("-Infinity"):
+        left.upper_bound = min(left.upper_bound, right.upper_bound)
+    if left.upper_bound != Decimal("Infinity"):
+        right.lower_bound = max(right.lower_bound, left.lower_bound)
+
+
+def apply_greater_than_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    if left.lower_bound != Decimal("-Infinity"):
+        right.upper_bound = min(right.upper_bound, left.upper_bound - Decimal("1"))
+    if right.upper_bound != Decimal("Infinity"):
+        left.lower_bound = max(left.lower_bound, right.lower_bound + Decimal("1"))
+
+
+def apply_greater_equal_constraints(left: IntervalInfo, right: IntervalInfo) -> None:
+    if left.lower_bound != Decimal("-Infinity"):
+        right.upper_bound = min(right.upper_bound, left.upper_bound)
+    if right.upper_bound != Decimal("Infinity"):
+        left.lower_bound = max(left.lower_bound, right.lower_bound)

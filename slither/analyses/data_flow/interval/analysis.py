@@ -14,18 +14,27 @@ from slither.analyses.data_flow.interval.util import (
     _determine_target_type,
     _get_type_bounds_for_elementary_type,
     _is_numeric_type,
+    calculate_min_max,
+    get_variable_name,
+    retrieve_interval_info,
+    apply_equality_constraints,
+    apply_inequality_constraints,
+    apply_less_than_constraints,
+    apply_less_equal_constraints,
+    apply_greater_than_constraints,
+    apply_greater_equal_constraints,
 )
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
+from slither.slithir.operations.return_operation import Return
 
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
@@ -61,6 +70,8 @@ class IntervalAnalysis(Analysis):
         self._direction: Direction = Forward()
         # Track pending constraints that haven't been enforced yet
         self._pending_constraints: Dict[str, Union[Binary, Variable]] = {}
+        # Track functions that have been analyzed to avoid infinite recursion
+        self._functions_seen: set[Function] = set()
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -78,18 +89,22 @@ class IntervalAnalysis(Analysis):
         operation: Operation,
         functions: List[Function],
     ) -> None:
-        self.transfer_function_helper(node, domain, operation)
+        self.transfer_function_helper(node, domain, operation, functions)
 
     def transfer_function_helper(
-        self, node: Node, domain: IntervalDomain, operation: Operation
+        self,
+        node: Node,
+        domain: IntervalDomain,
+        operation: Operation,
+        functions: Optional[List[Function]] = None,
     ) -> None:
         if domain.variant == DomainVariant.TOP:
             return
         elif domain.variant == DomainVariant.BOTTOM:
             self._initialize_domain_from_bottom(node, domain)
-            self._analyze_operation_by_type(operation, domain, node)
+            self._analyze_operation_by_type(operation, domain, node, functions or [])
         elif domain.variant == DomainVariant.STATE:
-            self._analyze_operation_by_type(operation, domain, node)
+            self._analyze_operation_by_type(operation, domain, node, functions or [])
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant with function parameters."""
@@ -103,7 +118,7 @@ class IntervalAnalysis(Analysis):
                 )
 
     def _analyze_operation_by_type(
-        self, operation: Operation, domain: IntervalDomain, node: Node
+        self, operation: Operation, domain: IntervalDomain, node: Node, functions: List[Function]
     ) -> None:
         """Route operation to appropriate handler based on type."""
         if isinstance(operation, Binary):
@@ -118,6 +133,139 @@ class IntervalAnalysis(Analysis):
             self.handle_assignment(node, domain, operation)
         elif isinstance(operation, SolidityCall):
             self.handle_solidity_call(node, domain, operation)
+        elif isinstance(operation, InternalCall):
+            self.handle_function_call(node, domain, operation, functions)
+        elif isinstance(operation, Return):
+            self.handle_return_operation(node, domain, operation)
+
+    def handle_return_operation(
+        self, node: Node, domain: IntervalDomain, operation: Return
+    ) -> None:
+        """Handle return operations by capturing return value constraints."""
+        if not operation.values:
+            return
+
+        # For simplicity, handle single return value
+        if len(operation.values) == 1:
+            return_value = operation.values[0]
+            # Check Constant first!
+            if isinstance(return_value, Constant):
+                # Return value is a literal constant - create a variable name for display
+                const_value = Decimal(str(return_value.value))
+                return_type = node.function.return_type[0] if node.function.return_type else None
+                # Cast to ElementaryType if it's not None
+                if return_type and isinstance(return_type, ElementaryType):
+                    var_type = return_type
+                else:
+                    var_type = None
+                # Create a variable name that represents the return value
+                # Use the constant value as the name for display purposes
+                return_var_name = str(const_value)
+                domain.state.info[return_var_name] = IntervalInfo(
+                    upper_bound=const_value,
+                    lower_bound=const_value,
+                    var_type=var_type,
+                )
+            elif isinstance(return_value, Variable):
+                # Return value is a variable
+                return_var_name = get_variable_name(return_value)
+                if return_var_name in domain.state.info:
+                    # The variable already has an interval, no need to create a new one
+                    pass
+        # else: ignore multiple return values
+
+    def handle_function_call(
+        self, node: Node, domain: IntervalDomain, operation: InternalCall, functions: List[Function]
+    ) -> None:
+        """Handle internal function calls with inter-procedural constraint propagation."""
+        called_function = operation.function
+
+        if not isinstance(called_function, Function) or called_function in self._functions_seen:
+            return
+
+        # Mark function as being analyzed to prevent infinite recursion
+        self._functions_seen.add(called_function)
+
+        try:
+            # Map caller arguments to callee parameters
+            self._map_arguments_to_parameters(operation, domain, called_function)
+
+            # Recursively analyze the called function using the same domain
+            for function_node in called_function.nodes:
+                for ir in function_node.irs:
+                    # Skip external calls to avoid analyzing them
+                    if isinstance(ir, (InternalCall, SolidityCall, Binary, Assignment, Return)):
+                        self.transfer_function_helper(function_node, domain, ir, [called_function])
+
+            # Apply return value constraints if the function has a return value
+            if operation.lvalue:
+                self._apply_return_constraints(operation, domain, called_function)
+
+        finally:
+            # Remove from analyzed set to allow re-analysis if needed
+            self._functions_seen.discard(called_function)
+
+    def _map_arguments_to_parameters(
+        self, operation: InternalCall, domain: IntervalDomain, called_function: Function
+    ) -> None:
+        """Map caller arguments to callee parameters in the domain."""
+
+        for arg, param in zip(operation.arguments, called_function.parameters):
+            # Only process numeric parameters
+            if not (isinstance(param.type, ElementaryType) and _is_numeric_type(param.type)):
+                continue
+
+            arg_name = get_variable_name(arg)
+
+            if arg_name in domain.state.info:
+                # Copy existing interval from argument to parameter
+                arg_interval = domain.state.info[arg_name]
+                domain.state.info[param.canonical_name] = arg_interval.deep_copy()
+            else:
+                # Create default interval for parameter
+                domain.state.info[param.canonical_name] = _create_interval_from_type(
+                    param.type, param.type.min, param.type.max
+                )
+
+    def _apply_return_constraints(
+        self, operation: InternalCall, domain: IntervalDomain, called_function: Function
+    ) -> None:
+        """Apply return value constraints to the caller's domain."""
+        if not operation.lvalue:
+            return
+
+        if not called_function.return_type or len(called_function.return_type) == 0:
+            return
+
+        # For simplicity, handle single return value
+        if len(called_function.return_type) == 1:
+            return_type = called_function.return_type[0]
+            if isinstance(return_type, ElementaryType) and _is_numeric_type(return_type):
+                # Look for return statements and extract constraints
+                for node in called_function.nodes:
+                    for ir in node.irs:
+                        if isinstance(ir, Return) and ir.values:
+                            # This is a return operation
+                            return_value = ir.values[0]
+                            result_var_name = get_variable_name(operation.lvalue)
+
+                            if isinstance(return_value, Variable):
+                                # Return value is a variable
+                                return_var_name = get_variable_name(return_value)
+                                if return_var_name in domain.state.info:
+                                    domain.state.info[result_var_name] = domain.state.info[
+                                        return_var_name
+                                    ].deep_copy()
+                                    return
+                            if isinstance(return_value, Constant):
+                                # Return value is a literal constant
+                                const_value = Decimal(str(return_value.value))
+                                domain.state.info[result_var_name] = IntervalInfo(
+                                    upper_bound=const_value,
+                                    lower_bound=const_value,
+                                    var_type=return_type,
+                                )
+                                return
 
     def handle_solidity_call(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
@@ -152,10 +300,9 @@ class IntervalAnalysis(Analysis):
 
     def _apply_pending_constraint_for_variable(self, var: Variable, domain: IntervalDomain) -> None:
         """Apply pending constraint for a variable if it exists."""
-        var_name: str = self.get_variable_name(var)
+        var_name: str = get_variable_name(var)
 
         if var_name not in self._pending_constraints:
-            logger.debug(f"No pending constraint found for {var_name}")
             return
 
         constraint_operation: Union[Binary, Variable] = self._pending_constraints[var_name]
@@ -178,8 +325,8 @@ class IntervalAnalysis(Analysis):
 
         left_var: Union[Variable, Constant, RVALUE, Function] = operation.variable_left
         right_var: Union[Variable, Constant, RVALUE, Function] = operation.variable_right
-        left_interval: IntervalInfo = self.retrieve_interval_info(left_var, domain, operation)
-        right_interval: IntervalInfo = self.retrieve_interval_info(right_var, domain, operation)
+        left_interval: IntervalInfo = retrieve_interval_info(left_var, domain, operation)
+        right_interval: IntervalInfo = retrieve_interval_info(right_var, domain, operation)
 
         # Determine variable types
         left_is_variable: bool = self._is_variable_not_constant(left_var)
@@ -227,7 +374,7 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
     ) -> None:
         """Update variable bounds based on comparison operation."""
-        var_name: str = self.get_variable_name(variable)
+        var_name: str = get_variable_name(variable)
         current_interval: IntervalInfo = self._get_or_create_interval_for_variable(variable, domain)
         constraint_value: Decimal = constraint_interval.lower_bound
         new_interval: IntervalInfo = current_interval.deep_copy()
@@ -238,7 +385,6 @@ class IntervalAnalysis(Analysis):
         # Check for invalid interval
         if new_interval.lower_bound > new_interval.upper_bound:
             domain.variant = DomainVariant.BOTTOM
-            logger.error(f"Invalid interval: {new_interval}")
             raise ValueError(f"Invalid interval: {new_interval}")
 
         domain.state.info[var_name] = new_interval
@@ -247,7 +393,7 @@ class IntervalAnalysis(Analysis):
         self, variable: Variable, domain: IntervalDomain
     ) -> IntervalInfo:
         """Get existing interval or create new one with type bounds."""
-        var_name: str = self.get_variable_name(variable)
+        var_name: str = get_variable_name(variable)
 
         if var_name in domain.state.info:
             return domain.state.info[var_name]
@@ -302,8 +448,8 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
     ) -> None:
         """Handle comparison between two variables."""
-        left_name: str = self.get_variable_name(left_var)
-        right_name: str = self.get_variable_name(right_var)
+        left_name: str = get_variable_name(left_var)
+        right_name: str = get_variable_name(right_var)
 
         left_interval: Optional[IntervalInfo] = domain.state.info.get(left_name)
         right_interval: Optional[IntervalInfo] = domain.state.info.get(right_name)
@@ -333,82 +479,32 @@ class IntervalAnalysis(Analysis):
     ) -> None:
         """Apply constraints for variable-to-variable comparisons."""
         if op_type == BinaryType.EQUAL:
-            self._apply_equality_constraints(left, right)
+            apply_equality_constraints(left, right)
         elif op_type == BinaryType.NOT_EQUAL:
-            self._apply_inequality_constraints(left, right)
+            apply_inequality_constraints(left, right)
         elif op_type == BinaryType.LESS:
-            self._apply_less_than_constraints(left, right)
+            apply_less_than_constraints(left, right)
         elif op_type == BinaryType.LESS_EQUAL:
-            self._apply_less_equal_constraints(left, right)
+            apply_less_equal_constraints(left, right)
         elif op_type == BinaryType.GREATER:
-            self._apply_greater_than_constraints(left, right)
+            apply_greater_than_constraints(left, right)
         elif op_type == BinaryType.GREATER_EQUAL:
-            self._apply_greater_equal_constraints(left, right)
-
-    def _apply_equality_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply equality constraints between two intervals."""
-        common_lower: Decimal = max(left.lower_bound, right.lower_bound)
-        common_upper: Decimal = min(left.upper_bound, right.upper_bound)
-
-        if common_lower <= common_upper:
-            left.lower_bound = right.lower_bound = common_lower
-            left.upper_bound = right.upper_bound = common_upper
-
-    def _apply_inequality_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply inequality constraints between two intervals."""
-        if (
-            left.lower_bound == left.upper_bound
-            and right.lower_bound == right.upper_bound
-            and left.lower_bound == right.lower_bound
-        ):
-            # Both intervals are single points with same value - impossible inequality
-            left.lower_bound = Decimal("1")
-            left.upper_bound = Decimal("0")
-            right.lower_bound = Decimal("1")
-            right.upper_bound = Decimal("0")
-
-    def _apply_less_than_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply less than constraints between two intervals."""
-        if right.lower_bound != Decimal("-Infinity"):
-            left.upper_bound = min(left.upper_bound, right.upper_bound - Decimal("1"))
-        if left.upper_bound != Decimal("Infinity"):
-            right.lower_bound = max(right.lower_bound, left.lower_bound + Decimal("1"))
-
-    def _apply_less_equal_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply less than or equal constraints between two intervals."""
-        if right.lower_bound != Decimal("-Infinity"):
-            left.upper_bound = min(left.upper_bound, right.upper_bound)
-        if left.upper_bound != Decimal("Infinity"):
-            right.lower_bound = max(right.lower_bound, left.lower_bound)
-
-    def _apply_greater_than_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply greater than constraints between two intervals."""
-        if left.lower_bound != Decimal("-Infinity"):
-            right.upper_bound = min(right.upper_bound, left.upper_bound - Decimal("1"))
-        if right.upper_bound != Decimal("Infinity"):
-            left.lower_bound = max(left.lower_bound, right.lower_bound + Decimal("1"))
-
-    def _apply_greater_equal_constraints(self, left: IntervalInfo, right: IntervalInfo) -> None:
-        """Apply greater than or equal constraints between two intervals."""
-        if left.lower_bound != Decimal("-Infinity"):
-            right.upper_bound = min(right.upper_bound, left.upper_bound)
-        if right.upper_bound != Decimal("Infinity"):
-            left.lower_bound = max(left.lower_bound, right.lower_bound)
+            apply_greater_equal_constraints(left, right)
 
     def handle_arithmetic_operation(
         self, domain: IntervalDomain, operation: Binary, node: Node
     ) -> None:
         """Handle arithmetic operations and compute result intervals."""
-        left_interval_info: IntervalInfo = self.retrieve_interval_info(
+        left_interval_info: IntervalInfo = retrieve_interval_info(
             operation.variable_left, domain, operation
         )
-        right_interval_info: IntervalInfo = self.retrieve_interval_info(
+        right_interval_info: IntervalInfo = retrieve_interval_info(
             operation.variable_right, domain, operation
         )
 
         lower_bound: Decimal
         upper_bound: Decimal
-        lower_bound, upper_bound = self.calculate_min_max(
+        lower_bound, upper_bound = calculate_min_max(
             left_interval_info.lower_bound,
             left_interval_info.upper_bound,
             right_interval_info.lower_bound,
@@ -419,7 +515,7 @@ class IntervalAnalysis(Analysis):
         if not isinstance(operation.lvalue, Variable):
             raise ValueError(f"lvalue is not a variable for operation: {operation}")
 
-        variable_name: str = self.get_variable_name(operation.lvalue)
+        variable_name: str = get_variable_name(operation.lvalue)
         target_type: Optional[ElementaryType] = _determine_target_type(operation)
 
         new_interval: IntervalInfo = IntervalInfo(
@@ -434,7 +530,7 @@ class IntervalAnalysis(Analysis):
 
         written_variable: Variable = operation.lvalue
         right_value = operation.rvalue
-        writing_variable_name: str = self.get_variable_name(written_variable)
+        writing_variable_name: str = get_variable_name(written_variable)
 
         # Check if the assignment is a comparison or logical operation
         if isinstance(right_value, Binary) and (
@@ -445,7 +541,7 @@ class IntervalAnalysis(Analysis):
             self._pending_constraints[writing_variable_name] = right_value
         elif isinstance(right_value, TemporaryVariable):
             # Check if the temporary variable has a pending constraint
-            temp_var_name: str = self.get_variable_name(right_value)
+            temp_var_name: str = get_variable_name(right_value)
             if temp_var_name in self._pending_constraints:
                 # Copy the constraint from the temporary variable to the local variable
                 self._pending_constraints[writing_variable_name] = self._pending_constraints[
@@ -481,7 +577,7 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
     ) -> None:
         """Handle assignment from another variable."""
-        source_name: str = self.get_variable_name(source_var)
+        source_name: str = get_variable_name(source_var)
         if source_name in domain.state.info:
             source_interval: IntervalInfo = domain.state.info[source_name]
             target_type: Optional[ElementaryType] = getattr(target_var, "type", None)
@@ -499,57 +595,13 @@ class IntervalAnalysis(Analysis):
 
             domain.state.info[var_name] = new_interval
 
-    def retrieve_interval_info(
-        self, var: Union[RVALUE, Function], domain: IntervalDomain, operation: Binary
-    ) -> IntervalInfo:
-        """Retrieve interval information for a variable or constant."""
-        if isinstance(var, Constant):
-            value: Decimal = Decimal(str(var.value))
-            return IntervalInfo(upper_bound=value, lower_bound=value, var_type=None)
-        elif isinstance(var, Variable):
-            var_name: str = self.get_variable_name(var)
-            return domain.state.info.get(
-                var_name, IntervalInfo(Decimal(0), Decimal(0), var_type=None)
-            )
-
-        return IntervalInfo(var_type=None)
-
-    def get_variable_name(self, variable: Variable) -> str:
-        """Get canonical variable name."""
-        if isinstance(variable, (StateVariable, LocalVariable)):
-            variable_name: Optional[str] = variable.canonical_name
-        else:
-            variable_name: Optional[str] = variable.name
-
-        if variable_name is None:
-            raise ValueError(f"Variable name is None for variable: {variable}")
-
-        return variable_name
-
-    def calculate_min_max(
-        self, a: Decimal, b: Decimal, c: Decimal, d: Decimal, operation_type: BinaryType
-    ) -> tuple[Decimal, Decimal]:
-        """Calculate min and max bounds for arithmetic operations."""
-
-        operations: Dict[BinaryType, Callable[[Decimal, Decimal], Decimal]] = {
-            BinaryType.ADDITION: lambda x, y: x + y,
-            BinaryType.SUBTRACTION: lambda x, y: x - y,
-            BinaryType.MULTIPLICATION: lambda x, y: x * y,
-            BinaryType.DIVISION: lambda x, y: x / y if y != 0 else Decimal("Infinity"),
-        }
-
-        op: Callable[[Decimal, Decimal], Decimal] = operations[operation_type]
-        results: List[Decimal] = [op(a, c), op(a, d), op(b, c), op(b, d)]
-
-        return min(results), max(results)
-
     def handle_comparison_operation(
         self, node: Node, domain: IntervalDomain, operation: Binary
     ) -> None:
         """Handle comparison operations by storing them as pending constraints."""
 
         if hasattr(operation, "lvalue") and operation.lvalue:
-            var_name: str = self.get_variable_name(operation.lvalue)
+            var_name: str = get_variable_name(operation.lvalue)
             self._pending_constraints[var_name] = operation
 
     def _apply_logical_constraint_from_operation(
@@ -579,5 +631,4 @@ class IntervalAnalysis(Analysis):
             # The operand is a variable, check if we have a pending constraint for it
             self._apply_pending_constraint_for_variable(operand, domain)
         else:
-            logger.error(f"Unknown operand type: {operand}")
             raise ValueError(f"Unknown operand type: {operand}")
