@@ -27,11 +27,13 @@ from slither.analyses.data_flow.interval.util import (
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.unpack import Unpack
 
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.internal_call import InternalCall
@@ -145,34 +147,74 @@ class IntervalAnalysis(Analysis):
         if not operation.values:
             return
 
-        # For simplicity, handle single return value
+        # Handle single return value
         if len(operation.values) == 1:
-            return_value = operation.values[0]
-            # Check Constant first!
-            if isinstance(return_value, Constant):
-                # Return value is a literal constant - create a variable name for display
-                const_value = Decimal(str(return_value.value))
+            self._handle_single_return_value(node, domain, operation.values[0])
+        # Handle multiple return values
+        elif len(operation.values) > 1:
+            self._handle_multiple_return_values(node, domain, operation.values)
+
+    def _handle_single_return_value(
+        self, node: Node, domain: IntervalDomain, return_value: Variable
+    ) -> None:
+        """Handle a single return value."""
+        if isinstance(return_value, Constant):
+            const_value = Decimal(str(return_value.value))
+            return_type = node.function.return_type[0] if node.function.return_type else None
+
+            if return_type and isinstance(return_type, ElementaryType):
+                var_type = return_type
+            else:
+                var_type = None
+
+            return_var_name = str(const_value)
+            domain.state.info[return_var_name] = IntervalInfo(
+                upper_bound=const_value,
+                lower_bound=const_value,
+                var_type=var_type,
+            )
+        elif isinstance(return_value, Variable):
+            return_var_name = get_variable_name(return_value)
+            if return_var_name in domain.state.info:
+                # Create a return value entry with the variable's constraints
                 return_type = node.function.return_type[0] if node.function.return_type else None
-                # Cast to ElementaryType if it's not None
-                if return_type and isinstance(return_type, ElementaryType):
-                    var_type = return_type
-                else:
-                    var_type = None
-                # Create a variable name that represents the return value
-                # Use the constant value as the name for display purposes
-                return_var_name = str(const_value)
+                var_type = return_type if isinstance(return_type, ElementaryType) else None
+
+                # Create a return value identifier
+                domain.state.info[f"return_{return_var_name}"] = domain.state.info[
+                    return_var_name
+                ].deep_copy()
+
+    def _handle_multiple_return_values(
+        self, node: Node, domain: IntervalDomain, return_values: List[Variable]
+    ) -> None:
+        """Handle multiple return values."""
+        if not node.function.return_type or len(node.function.return_type) != len(return_values):
+            return
+
+        for i, (return_value, return_type) in enumerate(
+            zip(return_values, node.function.return_type)
+        ):
+            # Only process numeric types
+            if not isinstance(return_type, ElementaryType) or not _is_numeric_type(return_type):
+                continue
+
+            # Create a variable name for this return value
+            return_var_name = f"return_{i}"
+
+            if isinstance(return_value, Constant):
+                # Return value is a literal constant
+                const_value = Decimal(str(return_value.value))
                 domain.state.info[return_var_name] = IntervalInfo(
                     upper_bound=const_value,
                     lower_bound=const_value,
-                    var_type=var_type,
+                    var_type=return_type,
                 )
             elif isinstance(return_value, Variable):
                 # Return value is a variable
-                return_var_name = get_variable_name(return_value)
-                if return_var_name in domain.state.info:
-                    # The variable already has an interval, no need to create a new one
-                    pass
-        # else: ignore multiple return values
+                var_name = get_variable_name(return_value)
+                if var_name in domain.state.info:
+                    domain.state.info[return_var_name] = domain.state.info[var_name].deep_copy()
 
     def handle_function_call(
         self, node: Node, domain: IntervalDomain, operation: InternalCall, functions: List[Function]
@@ -237,35 +279,136 @@ class IntervalAnalysis(Analysis):
         if not called_function.return_type or len(called_function.return_type) == 0:
             return
 
-        # For simplicity, handle single return value
-        if len(called_function.return_type) == 1:
+        # Look for return statements and extract constraints
+        for node in called_function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Return) and ir.values:
+                    # Handle both single and multiple return values
+                    if len(ir.values) == len(called_function.return_type):
+                        self._process_return_values(operation, domain, called_function, ir.values)
+                        # Also propagate constraints back to caller arguments
+                        self._propagate_constraints_to_caller(
+                            operation, domain, called_function, ir.values
+                        )
+                        return
+
+    def _process_return_values(
+        self,
+        operation: InternalCall,
+        domain: IntervalDomain,
+        called_function: Function,
+        return_values: List[Variable],
+    ) -> None:
+        """Process return values (single or multiple) and apply constraints."""
+        if not called_function.return_type or operation.lvalue is None:
+            return
+
+        # Handle single return value
+        if len(return_values) == 1 and len(called_function.return_type) == 1:
             return_type = called_function.return_type[0]
             if isinstance(return_type, ElementaryType) and _is_numeric_type(return_type):
-                # Look for return statements and extract constraints
-                for node in called_function.nodes:
-                    for ir in node.irs:
-                        if isinstance(ir, Return) and ir.values:
-                            # This is a return operation
-                            return_value = ir.values[0]
-                            result_var_name = get_variable_name(operation.lvalue)
+                return_value = return_values[0]
+                result_var_name = get_variable_name(operation.lvalue)
 
-                            if isinstance(return_value, Variable):
-                                # Return value is a variable
-                                return_var_name = get_variable_name(return_value)
-                                if return_var_name in domain.state.info:
-                                    domain.state.info[result_var_name] = domain.state.info[
-                                        return_var_name
-                                    ].deep_copy()
-                                    return
-                            if isinstance(return_value, Constant):
-                                # Return value is a literal constant
-                                const_value = Decimal(str(return_value.value))
-                                domain.state.info[result_var_name] = IntervalInfo(
-                                    upper_bound=const_value,
-                                    lower_bound=const_value,
-                                    var_type=return_type,
-                                )
-                                return
+                if isinstance(return_value, Variable):
+                    return_var_name = get_variable_name(return_value)
+                    if return_var_name in domain.state.info:
+                        domain.state.info[result_var_name] = domain.state.info[
+                            return_var_name
+                        ].deep_copy()
+                elif isinstance(return_value, Constant):
+                    const_value = Decimal(str(return_value.value))
+                    domain.state.info[result_var_name] = IntervalInfo(
+                        upper_bound=const_value,
+                        lower_bound=const_value,
+                        var_type=return_type,
+                    )
+
+        # Handle multiple return values (tuple)
+        elif len(return_values) > 1 and len(called_function.return_type) > 1:
+            # Check if lvalue is a TupleVariable
+            if hasattr(operation.lvalue, "type") and isinstance(operation.lvalue.type, list):
+                # For tuple assignments, we need to find the actual variable names
+                # Look for unpack operations that assign tuple elements to named variables
+                self._find_and_assign_tuple_elements(
+                    operation, domain, return_values, called_function.return_type
+                )
+
+    def _find_and_assign_tuple_elements(
+        self,
+        operation: InternalCall,
+        domain: IntervalDomain,
+        return_values: List[Variable],
+        return_types: List[Type],
+    ) -> None:
+        """Find unpack operations and assign constraints to the actual variable names."""
+        # Look for unpack operations in the same node or subsequent nodes
+        for node in operation.node.function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Unpack):
+                    # This is an Unpack operation
+                    if ir.tuple == operation.lvalue:
+                        # This unpack operation is for our tuple
+                        element_index = ir.index
+                        if element_index < len(return_values):
+                            return_value = return_values[element_index]
+                            return_type = return_types[element_index]
+
+                            if isinstance(return_type, ElementaryType) and _is_numeric_type(
+                                return_type
+                            ):
+                                if ir.lvalue is None:
+                                    continue
+                                element_var_name = get_variable_name(ir.lvalue)
+
+                                if isinstance(return_value, Variable):
+                                    return_var_name = get_variable_name(return_value)
+                                    if return_var_name in domain.state.info:
+                                        domain.state.info[element_var_name] = domain.state.info[
+                                            return_var_name
+                                        ].deep_copy()
+                                elif isinstance(return_value, Constant):
+                                    const_value = Decimal(str(return_value.value))
+                                    domain.state.info[element_var_name] = IntervalInfo(
+                                        upper_bound=const_value,
+                                        lower_bound=const_value,
+                                        var_type=return_type,
+                                    )
+
+    def _propagate_constraints_to_caller(
+        self,
+        operation: InternalCall,
+        domain: IntervalDomain,
+        called_function: Function,
+        return_values: List[Variable],
+    ) -> None:
+        """Propagate constraints from callee back to caller arguments."""
+        # Map callee parameters to caller arguments
+        for arg, param in zip(operation.arguments, called_function.parameters):
+            if not (isinstance(param.type, ElementaryType) and _is_numeric_type(param.type)):
+                continue
+
+            arg_name = get_variable_name(arg)
+            param_name = param.canonical_name
+
+            # If the parameter has constraints in the callee, propagate them back to the argument
+            if param_name in domain.state.info:
+                arg_interval = domain.state.info[param_name]
+                if arg_name in domain.state.info:
+                    # Merge constraints (intersection of intervals)
+                    current_interval = domain.state.info[arg_name]
+                    new_lower = max(current_interval.lower_bound, arg_interval.lower_bound)
+                    new_upper = min(current_interval.upper_bound, arg_interval.upper_bound)
+
+                    if new_lower <= new_upper:
+                        domain.state.info[arg_name] = IntervalInfo(
+                            lower_bound=new_lower,
+                            upper_bound=new_upper,
+                            var_type=current_interval.var_type,
+                        )
+                else:
+                    # Create new interval for the argument
+                    domain.state.info[arg_name] = arg_interval.deep_copy()
 
     def handle_solidity_call(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall

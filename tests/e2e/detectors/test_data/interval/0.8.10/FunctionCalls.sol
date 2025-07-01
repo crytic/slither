@@ -3,18 +3,18 @@ pragma solidity ^0.8.10;
 
 contract FunctionCalls {
     
-    // Test 1: Basic function call with return value constraint
-    function validateNumber(uint256 value) public pure returns (uint256) {
-        require(value == 5, "Value must be equal to 5");
-        return value;
-    }
+    // // Test 1: Basic function call with return value constraint
+    // function validateNumber(uint256 value) public pure returns (uint256) {
+    //     require(value == 5, "Value must be equal to 5");
+    //     return value;
+    // }
     
-    function processValue(uint256 input) public pure returns (uint256) {
-        uint256 result = validateNumber(input);
-        // After the call, result should be constrained to [5,5]
-        // and input should also be constrained to [5,5] due to require
-        return result;
-    } // PASSED
+    // function processValue(uint256 input) public pure returns (uint256) {
+    //     uint256 result = validateNumber(input);
+    //     // After the call, result should be constrained to [5,5]
+    //     // and input should also be constrained to [5,5] due to require
+    //     return result;
+    // } // PASSED
     
     // // Test 2: Function with arithmetic operations and constraints
     // function doubleValue(uint256 x) public pure returns (uint256) {
@@ -306,5 +306,21 @@ contract FunctionCalls {
     //     uint256 result = multiParamValidate(x, y, z);
     //     // result should be constrained by multi-parameter validation
     //     return result;
-    // }
+    // 
+    
+    function foo(uint256 a, uint256 b) public pure returns (uint256 min, uint256 max) {
+        require(a >= 10 && a <= 20, "a must be between 10 and 20");
+        require(b >= 15 && b <= 25, "b must be between 15 and 25");
+        return (a, b);
+    }
+
+    function processfoo(uint256 x, uint256 y) public pure returns (uint256, uint256) {
+        require(x >= 0, "x must be greater than 0");
+        require(y >= 0, "y must be greater than 0");
+
+        (uint256 minimum, uint256 maximum) = foo(x, y);
+        // After the call:
+
+        return (minimum, maximum);
+    }
 }
