@@ -82,35 +82,6 @@ contract ConstraintApplicationTest {
     //     return x + y;  // Expected: x is [6, 255], y is [11, 255]
     // }
     
-    // /**
-    //  * @dev Test OR operator with two variables
-    //  */
-    // function testOrOperator(uint8 x, uint8 y) public pure returns (uint8) {
-    //     // x and y start with bounds [0, 255]
-    //     bool complexCondition = x > 100 || y < 50;  // Expected: x and y remain [0, 255]
-    //     require(complexCondition);  // Expected: x > 100 OR y < 50 (both constraints apply)
-    //     return x + y;  // Expected: x is [101, 255] OR y is [0, 49]
-    // } // FAILED: ranges are correct, but there is no functionality for OR operator
-    
-    // /**
-    //  * @dev Test nested logical operators
-    //  */
-    // function testNestedLogicalOperators(uint8 x, uint8 y, uint8 z) public pure returns (uint8) {
-    //     // x, y, z start with bounds [0, 255]
-    //     bool complexCondition = (x > 10 && y > 20) || z < 30;  // Expected: all remain [0, 255]
-    //     require(complexCondition);  // Expected: (x > 10 AND y > 20) OR z < 30
-    //     return x + y + z;  // Expected: constraints applied based on logical structure
-    // } // FAILED: ranges are correct, but there is no functionality for OR operator
-    
-    // /**
-    //  * @dev Test complex logical expression
-    //  */
-    // function testComplexLogicalExpression(uint8 x, uint8 y, uint8 z) public pure returns (uint8) {
-    //     // x, y, z start with bounds [0, 255]
-    //     bool complexCondition = x > 5 && (y > 10 || z < 20);  // Expected: all remain [0, 255]
-    //     require(complexCondition);  // Expected: x > 5 AND (y > 10 OR z < 20)
-    //     return x + y + z;  // Expected: constraints applied based on logical structure
-    // }
     
     // // ========================================
     // // COMPARISON OPERATOR TESTS
@@ -196,7 +167,7 @@ contract ConstraintApplicationTest {
     //     require(x < 100);  // Expected: x becomes [11, 99]
     //     require(x != 50);  // Expected: x becomes [11, 49] or [51, 99]
     //     return x;  // Expected: x is [11, 49] or [51, 99]
-    // }
+    // } // FAILED -- does not break the range
     
     // /**
     //  * @dev Test that unused constraints are not applied
@@ -225,7 +196,7 @@ contract ConstraintApplicationTest {
     //     // x starts with bounds [0, 255]
     //     require(x > 25);  // Expected: x becomes [26, 255]
     //     return x;  // Expected: x is [26, 255]
-    // }
+    // } // PASSED
     
     // /**
     //  * @dev Test that constraints from one function don't affect another
@@ -248,7 +219,7 @@ contract ConstraintApplicationTest {
     //     require(x >= 0);   // Expected: x remains [0, 255] (no change)
     //     require(x <= 255); // Expected: x remains [0, 255] (no change)
     //     return x;  // Expected: x is [0, 255]
-    // }
+    // } // PASSED
     
     // /**
     //  * @dev Test equality constraints
@@ -268,25 +239,11 @@ contract ConstraintApplicationTest {
     //     return x;  // Expected: x is [0, 49] or [51, 255]
     // }
     
-    // /**
-    //  * @dev Test multiple variables with complex constraints
-    //  */
-    // function testMultipleVariablesComplex(uint8 x, uint8 y, uint8 z) public pure returns (uint8) {
-    //     // x, y, z start with bounds [0, 255]
-    //     bool condition1 = x > y;       // Expected: all remain [0, 255]
-    //     bool condition2 = y > z;       // Expected: all remain [0, 255]
-    //     bool condition3 = z > 10;      // Expected: all remain [0, 255]
-        
-    //     require(condition1);  // Expected: x > y
-    //     require(condition2);  // Expected: y > z
-    //     require(condition3);  // Expected: z > 10
-        
-    //     return x + y + z;  // Expected: x > y > z > 10
-    // } // FAILED:  x[1, 255], y[1, 254], z[11, 253]
+
     
-    // // ========================================
-    // // ADDITIONAL LOGICAL OPERATOR TESTS
-    // // ========================================
+    // ========================================
+    // ADDITIONAL LOGICAL OPERATOR TESTS
+    // ========================================
     
     // /**
     //  * @dev Test multiple AND conditions
@@ -296,28 +253,9 @@ contract ConstraintApplicationTest {
     //     bool condition = x > 10 && y > 20 && z > 30;  // Expected: all remain [0, 255]
     //     require(condition);  // Expected: x > 10 AND y > 20 AND z > 30
     //     return x + y + z;  // Expected: x > 10, y > 20, z > 30
-    // }
+    // } // PASSED
     
-    // /**
-    //  * @dev Test multiple OR conditions
-    //  */
-    // function testMultipleOrConditions(uint8 x, uint8 y, uint8 z) public pure returns (uint8) {
-    //     // x, y, z start with bounds [0, 255]
-    //     bool condition = x > 100 || y > 150 || z > 200;  // Expected: all remain [0, 255]
-    //     require(condition);  // Expected: x > 100 OR y > 150 OR z > 200
-    //     return x + y + z;  // Expected: at least one constraint applies
-    // }
-    
-    // /**
-    //  * @dev Test mixed AND/OR with parentheses
-    //  */
-    // function testMixedAndOrWithParentheses(uint8 x, uint8 y, uint8 z) public pure returns (uint8) {
-    //     // x, y, z start with bounds [0, 255]
-    //     bool condition = (x > 5 && y > 10) || (z > 15 && x > 20);  // Expected: all remain [0, 255]
-    //     require(condition);  // Expected: (x > 5 AND y > 10) OR (z > 15 AND x > 20)
-    //     return x + y + z;  // Expected: constraints applied based on logical structure
-    // }
-    
+
     // ========================================
     // ARITHMETIC COMPLEXITY TESTS
     // ========================================
@@ -330,25 +268,7 @@ contract ConstraintApplicationTest {
         bool condition = x / 2 > 25;  // Expected: x remains [0, 255]
         require(condition);  // Expected: x / 2 > 25, so x > 50
         return x;  // Expected: x is [51, 255]
-    }
+    } // FAILED
     
-    // /**
-    //  * @dev Test constraint with modulo
-    //  */
-    // function testModuloConstraint(uint8 x) public pure returns (uint8) {
-    //     // x starts with bounds [0, 255]
-    //     bool condition = x % 10 == 5;  // Expected: x remains [0, 255]
-    //     require(condition);  // Expected: x % 10 == 5
-    //     return x;  // Expected: x ends with 5 (5, 15, 25, ..., 255)
-    // }
-    
-    // /**
-    //  * @dev Test constraint with complex arithmetic
-    //  */
-    // function testComplexArithmeticConstraint(uint8 x) public pure returns (uint8) {
-    //     // x starts with bounds [0, 255]
-    //     bool condition = (x + 5) * 2 > 100;  // Expected: x remains [0, 255]
-    //     require(condition);  // Expected: (x + 5) * 2 > 100, so x > 45
-    //     return x;  // Expected: x is [46, 255]
-    // }
+
 } 

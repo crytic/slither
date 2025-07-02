@@ -1,20 +1,15 @@
-from typing import Dict, Optional
 from decimal import Decimal
-from loguru import logger
+from typing import Dict, Optional
+
 from slither import Slither
 from slither.analyses.data_flow.engine import Engine
-
 from slither.analyses.data_flow.interval.analysis import IntervalAnalysis
 from slither.analyses.data_flow.interval.domain import DomainVariant, IntervalDomain
 from slither.analyses.data_flow.interval.info import IntervalInfo
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type import Type
-
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.return_operation import Return
-from slither.slithir.variables.temporary import TemporaryVariable
 
 
 def analyze_interval(file_path: str):
