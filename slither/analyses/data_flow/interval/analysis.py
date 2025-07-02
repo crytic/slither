@@ -287,7 +287,7 @@ class IntervalAnalysis(Analysis):
                     if len(ir.values) == len(called_function.return_type):
                         self._process_return_values(operation, domain, called_function, ir.values)
                         # Also propagate constraints back to caller arguments
-                        self._propagate_constraints_to_caller(
+                        self._process_argument_refinements(
                             operation, domain, called_function, ir.values
                         )
                         return
@@ -375,7 +375,7 @@ class IntervalAnalysis(Analysis):
                                         var_type=return_type,
                                     )
 
-    def _propagate_constraints_to_caller(
+    def _process_argument_refinements(
         self,
         operation: InternalCall,
         domain: IntervalDomain,
