@@ -90,3 +90,12 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
                 f.write(str(change.t2))
 
     assert not diff
+
+def test_type_alias() -> None:
+    """verify support for TypeAliasTop
+    """
+    slither = Slither(Path(TEST_DATA_DIR, "typealiastest.sol").as_posix())
+    c = slither.get_contract_from_name("C")
+    srs = SlitherReadStorage(c, 20)
+    srs.get_all_storage_variables()
+    srs.get_storage_layout()
