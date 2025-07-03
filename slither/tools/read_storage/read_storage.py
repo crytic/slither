@@ -13,7 +13,7 @@ from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from slither.core.declarations import Contract, Structure
-from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
+from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType, TypeAliasTopLevel
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
@@ -581,8 +581,12 @@ class SlitherReadStorage:
         size = 0
         for var in elems:
             var_type = var.type
-            if isinstance(var_type, ElementaryType):
-                size = var_type.size
+            is_type_alias = isinstance(var_type, TypeAliasTopLevel)
+            if isinstance(var_type, ElementaryType) or is_type_alias:
+                if is_type_alias:
+                    size, _ = var_type.storage_size
+                else:
+                    size = var_type.size
                 if size > (256 - offset):
                     slot += 1
                     offset = 0
