@@ -13,7 +13,13 @@ from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from slither.core.declarations import Contract, Structure
-from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType, TypeAliasTopLevel
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    MappingType,
+    UserDefinedType,
+    TypeAliasTopLevel,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
