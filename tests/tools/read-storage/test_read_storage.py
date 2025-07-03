@@ -42,7 +42,10 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize(
     "test_contract, storage_file",
-    [("StorageLayout", "storage_layout"), ("UnstructuredStorageLayout", "unstructured_storage")],
+    [
+        ("StorageLayout", "storage_layout"),
+        ("UnstructuredStorageLayout", "unstructured_storage"),
+    ],
 )
 @pytest.mark.usefixtures("web3", "ganache")
 def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_path) -> None:
@@ -90,3 +93,13 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
                 f.write(str(change.t2))
 
     assert not diff
+
+
+def test_type_alias(solc_binary_path) -> None:
+    """verify support for TypeAliasTop"""
+    solc_path = solc_binary_path(version="0.8.10")
+    slither = Slither(Path(TEST_DATA_DIR, "typealiastest.sol").as_posix())
+    c = slither.get_contract_from_name("C")
+    srs = SlitherReadStorage(c, 20)
+    srs.get_all_storage_variables()
+    srs.get_storage_layout()
