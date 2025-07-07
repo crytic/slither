@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import List, Optional, Union
+from loguru import logger
 
 from slither.analyses.data_flow.interval.domain import IntervalDomain
 from slither.analyses.data_flow.interval.info import IntervalInfo
@@ -11,7 +12,7 @@ from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
@@ -38,6 +39,10 @@ class OperationHandler:
         self, domain: IntervalDomain, operation: Binary, node: Node
     ) -> None:
         """Handle arithmetic operations and compute result intervals."""
+        # Check for division by zero BEFORE processing the operation
+        if operation.type == BinaryType.DIVISION:
+            self._check_division_by_zero(operation, domain, node)
+
         left_interval_info: IntervalInfo = self._retrieve_interval_info(
             operation.variable_left, domain, operation
         )
@@ -67,6 +72,47 @@ class OperationHandler:
             upper_bound=upper_bound, lower_bound=lower_bound, var_type=target_type
         )
         domain.state.info[variable_name] = new_interval
+
+        # Track the mapping between temporary variable and source arithmetic expression
+        if isinstance(operation.lvalue, TemporaryVariable):
+            self.constraint_manager.add_temp_var_mapping(variable_name, operation)
+
+    def _check_division_by_zero(
+        self, operation: Binary, domain: IntervalDomain, node: Node
+    ) -> None:
+        """Check if division by zero is possible in the division operation."""
+        if operation.type != BinaryType.DIVISION:
+            return
+
+        # Get the right operand (divisor)
+        right_operand = operation.variable_right
+
+        # Get interval info for the divisor
+        divisor_interval = self._retrieve_interval_info(right_operand, domain, operation)
+
+        # Check if zero is within the divisor's range
+        if divisor_interval.lower_bound <= Decimal("0") <= divisor_interval.upper_bound:
+            # Get variable names for better error reporting
+            left_var_name = self._get_variable_name_for_logging(operation.variable_left)
+            right_var_name = self._get_variable_name_for_logging(operation.variable_right)
+
+            logger.error(
+                f"🚨 DIVISION BY ZERO DETECTED: "
+                f"Division operation {left_var_name} / {right_var_name} "
+                f"at node '{node.expression}' in function '{node.function.name}'. "
+                f"Divisor range: {divisor_interval} contains zero."
+            )
+
+    def _get_variable_name_for_logging(
+        self, var: Union[Variable, Constant, RVALUE, Function]
+    ) -> str:
+        """Get a readable name for a variable for logging purposes."""
+        if isinstance(var, Constant):
+            return str(var.value)
+        elif isinstance(var, Variable):
+            return self.variable_manager.get_canonical_name(var)
+        else:
+            return str(var)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         """Handle assignment operations."""
@@ -141,11 +187,6 @@ class OperationHandler:
                 self.variable_manager.apply_type_bounds_to_interval(new_interval, target_type)
 
             domain.state.info[var_name] = new_interval
-
-    # function foo() returns (uint256) {
-    #     uint256 x = 10;
-    #     return x;  // ← This triggers OperationHandler
-    # }
 
     def handle_return_operation(
         self, node: Node, domain: IntervalDomain, operation: Return

@@ -51,6 +51,7 @@ def analyze_interval(file_path: str):
                 # Check variable bounds for overflow/underflow
                 for var_name, var_info in state.info.items():
                     print(f"\t\t📊 Variable: {var_name}, bounds: {var_info}")
+                    continue
 
                     # Check for type bound violations using IntervalInfo's built-in methods
                     if var_info.has_overflow():
@@ -196,4 +197,4 @@ def print_return_violation(
 
 
 if __name__ == "__main__":
-    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/ConstraintApplicationTest.sol")
+    analyze_interval("tests/e2e/detectors/test_data/interval/0.8.10/ComprehensiveDivisionTests.sol")

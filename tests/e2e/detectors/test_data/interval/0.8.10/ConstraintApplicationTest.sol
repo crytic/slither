@@ -124,19 +124,19 @@ contract ConstraintApplicationTest {
     // // ARITHMETIC CONSTRAINT TESTS
     // // ========================================
     
-    /**
-     * @dev Test constraint with arithmetic operations
-     */
-    function testArithmeticConstraint(uint8 x) public pure returns (uint8) {
-        // x starts with bounds [0, 255]
-        bool condition = x + 10 > 50;  // Expected: x remains [0, 255]
-        require(condition);  // Expected: x + 10 > 50, so x > 40
-        return x;  // Expected: x is [41, 255]
-    } // FAILED
-    
     // /**
-    //  * @dev Test constraint with subtraction
+    //  * @dev Test constraint with arithmetic operations
     //  */
+    // function testArithmeticConstraint(uint8 x) public pure returns (uint8) {
+    //     // x starts with bounds [0, 255]
+    //     bool condition = x + 10 > 50;  // Expected: x remains [0, 255]
+    //     require(condition);  // Expected: x + 10 > 50, so x > 40
+    //     return x;  // Expected: x is [41, 255]
+    // } // FAILED
+    
+    /**
+     * @dev Test constraint with subtraction
+     */
     // function testSubtractionConstraint(uint8 x) public pure returns (uint8) {
     //     // x starts with bounds [0, 255]
     //     bool condition = x - 5 > 10;  // Expected: x remains [0, 255]
@@ -260,14 +260,27 @@ contract ConstraintApplicationTest {
     // ARITHMETIC COMPLEXITY TESTS
     // ========================================
     
+    /**
+     * @dev Test constraint with division
+     */
+    function testDivisionConstraint(uint y) public pure returns (uint) {
+        require (y > 0);
+        
+
+        uint condition = 34/y; 
+        // require(condition);  
+        return y;  
+    } // FAILED
+
     // /**
     //  * @dev Test constraint with division
     //  */
-    // function testDivisionConstraint(uint8 x) public pure returns (uint8) {
+    // function testMultiplicationConstraint(uint8 x) public pure returns (uint8) {
     //     // x starts with bounds [0, 255]
-    //     bool condition = x / 2 > 25;  // Expected: x remains [0, 255]
-    //     require(condition);  // Expected: x / 2 > 25, so x > 50
-    //     return x;  // Expected: x is [51, 255]
+
+    //     bool condition = x * 2 < 25;  // Expected: x remains [0, 255]
+    //     require(condition);  // Expected: x * 2 < 25, so x <= 12
+    //     return x;  // Expected: x is [0, 12]
     // } // FAILED
     
 
