@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 contract SimpleSum {
     
     function simple() public pure returns (uint256) {
-        uint256 firstVar = 5;
-        uint x = firstVar;
-        uint y = x;
+        uint256 firstVar = 10;
+        uint x = firstVar + 5;
+        uint y = x - 10;
         return firstVar;
     }
 
