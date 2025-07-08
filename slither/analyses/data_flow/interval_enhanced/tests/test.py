@@ -7,6 +7,7 @@ from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type import Type
 
@@ -36,6 +37,7 @@ def analyze_interval(file_path: str):
 
             # Analyze each node's results
             for node, analysis in results.items():
+
                 if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
                     continue
 

@@ -4,13 +4,16 @@ from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
-    DomainVariant, IntervalDomain)
-from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation import \
-    OperationHandler
+    DomainVariant,
+    IntervalDomain,
+)
+from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation import OperationHandler
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
+
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
+
 from slither.slithir.operations.operation import Operation
 
 ARITHMETIC_OPERATORS: set[BinaryType] = {
@@ -81,12 +84,32 @@ class IntervalAnalysisEnhanced(Analysis):
             self._analyze_operation_by_type(operation, domain, node, functions or [])
 
     def _analyze_operation_by_type(
-        self, operation: Operation, domain: IntervalDomain, node: Node, functions: List[Function]
+        self,
+        operation: Optional[Operation],
+        domain: IntervalDomain,
+        node: Node,
+        functions: List[Function],
     ) -> None:
         """Route operation to appropriate handler based on type."""
 
+        if self.has_uninitialized_variable(node) and operation is None:
+            self._operation_handler.handle_uninitialized_variable(node, domain)
+
         if isinstance(operation, Assignment):
             self._operation_handler.handle_assignment(node, domain, operation)
+
         if isinstance(operation, Binary):
             if operation.type in ARITHMETIC_OPERATORS:
                 self._operation_handler.handle_arithmetic(node, domain, operation)
+
+    def has_uninitialized_variable(self, node: Node):  # type: ignore
+
+        if not hasattr(node, "variable_declaration"):
+            return False
+
+        var = node.variable_declaration
+        if var is None:
+            return False
+
+        # Check if variable has no initial value
+        return not hasattr(var, "expression") or var.expression is None

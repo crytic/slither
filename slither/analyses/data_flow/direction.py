@@ -43,10 +43,15 @@ class Forward(Direction):
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
-        for operation in node.irs:
+        for operation in node.irs or [None]:
             analysis.transfer_function(
                 node=node, domain=current_state.pre, operation=operation, functions=functions
             )
+        # Original code. Ignores unintialized variables since no operations exist.
+        # for operation in node.irs:
+        #     analysis.transfer_function(
+        #         node=node, domain=current_state.pre, operation=operation, functions=functions
+        #     )
 
         global_state[node.node_id].post = (
             current_state.pre
