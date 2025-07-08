@@ -1,5 +1,7 @@
 from decimal import Decimal, getcontext
-from typing import Union
+from typing import Callable, Dict, Union
+
+from slither.slithir.operations.binary import BinaryType
 
 # Set high precision for Decimal operations
 getcontext().prec = 100
@@ -55,3 +57,28 @@ class IntervalRange:
             else str(self.upper_bound)
         )
         return f"[{lower_str}, {upper_str}]"
+
+    @staticmethod
+    def calculate_arithmetic_bounds(
+        left_range: "IntervalRange", right_range: "IntervalRange", operation_type: "BinaryType"
+    ) -> "IntervalRange":
+        """Calculate min and max bounds for arithmetic operations between two intervals."""
+        # Extract bounds from the intervals
+        a = left_range.get_lower()  # left min
+        b = left_range.get_upper()  # left max
+        c = right_range.get_lower()  # right min
+        d = right_range.get_upper()  # right max
+
+        operations: Dict["BinaryType", Callable[[Decimal, Decimal], Decimal]] = {
+            BinaryType.ADDITION: lambda x, y: x + y,
+            BinaryType.SUBTRACTION: lambda x, y: x - y,
+            BinaryType.MULTIPLICATION: lambda x, y: x * y,
+            BinaryType.DIVISION: lambda x, y: x / y if y != 0 else Decimal("Infinity"),
+        }
+        op: Callable[[Decimal, Decimal], Decimal] = operations[operation_type]
+        results: list[Decimal] = [op(a, c), op(a, d), op(b, c), op(b, d)]
+
+        min_result = min(results)
+        max_result = max(results)
+
+        return IntervalRange(upper_bound=max_result, lower_bound=min_result)

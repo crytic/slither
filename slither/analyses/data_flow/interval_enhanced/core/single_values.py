@@ -1,5 +1,7 @@
 from decimal import Decimal, getcontext
-from typing import Optional, Union, Set, Iterator
+from typing import Callable, Iterator, Optional, Set, Union
+
+from loguru import logger
 
 # Set high precision for Decimal operations
 getcontext().prec = 100
@@ -143,3 +145,24 @@ class SingleValues:
     def __repr__(self):
         """Detailed representation of SingleValues"""
         return f"SingleValues({self._values})"
+
+    def apply_operation(
+        self, operand: Union[int, float, Decimal], operation: Callable[[Decimal, Decimal], Decimal]
+    ) -> "SingleValues":
+        """Apply a binary operation to all values with a given operand"""
+
+        result = SingleValues()
+        decimal_operand = self._convert_to_decimal(operand)
+
+        for value in self._values:
+            try:
+                result_value = operation(value, decimal_operand)
+                result.add(result_value)
+            except ZeroDivisionError:
+                logger.error(f"Division by zero detected: {value} / {decimal_operand}")
+                raise ValueError(f"Division by zero: {value} / {decimal_operand}")
+            except Exception as e:
+                logger.warning(f"Error in arithmetic operation {value} op {decimal_operand}: {e}")
+                # Skip invalid operations but continue processing others
+
+        return result

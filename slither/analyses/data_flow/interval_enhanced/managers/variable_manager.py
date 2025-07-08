@@ -1,9 +1,5 @@
-from typing import Dict, Optional, Set, Union
+from typing import Optional, Set
 
-
-from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
-from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
-from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables import Variable
 from slither.core.variables.local_variable import LocalVariable

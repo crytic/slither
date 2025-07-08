@@ -1,24 +1,21 @@
 from decimal import Decimal
-from typing import Union, Optional
-from loguru import logger
+from typing import Optional
 
+from loguru import logger
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
-from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
+from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class AssignmentHandler:
     def __init__(self):
         self.variable_manager = VariableManager()
-        pass
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         if operation.lvalue is None:
@@ -28,7 +25,6 @@ class AssignmentHandler:
         right_value = operation.rvalue
         writing_variable_name: str = self.variable_manager.get_variable_name(written_variable)
 
-        # Handle different types of right-hand side values
         if isinstance(right_value, Constant):
             self._handle_constant_assignment(
                 writing_variable_name, right_value, written_variable, domain

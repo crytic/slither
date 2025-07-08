@@ -3,18 +3,38 @@ from typing import List, Optional
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
-
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
-    DomainVariant,
-    IntervalDomain,
-)
-from slither.analyses.data_flow.interval_enhanced.handlers.handle_assignment import (
-    AssignmentHandler,
-)
+    DomainVariant, IntervalDomain)
+from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation import \
+    OperationHandler
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.slithir.operations.assignment import Assignment
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
+
+ARITHMETIC_OPERATORS: set[BinaryType] = {
+    BinaryType.ADDITION,
+    BinaryType.SUBTRACTION,
+    BinaryType.MULTIPLICATION,
+    BinaryType.DIVISION,
+}
+
+# Comparison operators
+COMPARISON_OPERATORS: set[BinaryType] = {
+    BinaryType.GREATER,
+    BinaryType.LESS,
+    BinaryType.GREATER_EQUAL,
+    BinaryType.LESS_EQUAL,
+    BinaryType.EQUAL,
+    BinaryType.NOT_EQUAL,
+}
+
+# Logical operators
+LOGICAL_OPERATORS: set[BinaryType] = {
+    BinaryType.ANDAND,
+    BinaryType.OROR,
+}
 
 
 class IntervalAnalysisEnhanced(Analysis):
@@ -25,7 +45,7 @@ class IntervalAnalysisEnhanced(Analysis):
 
     def __init__(self) -> None:
         self._direction: Direction = Forward()
-        self._assignment_handler = AssignmentHandler()
+        self._operation_handler = OperationHandler()
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -66,4 +86,7 @@ class IntervalAnalysisEnhanced(Analysis):
         """Route operation to appropriate handler based on type."""
 
         if isinstance(operation, Assignment):
-            self._assignment_handler.handle_assignment(node, domain, operation)
+            self._operation_handler.handle_assignment(node, domain, operation)
+        if isinstance(operation, Binary):
+            if operation.type in ARITHMETIC_OPERATORS:
+                self._operation_handler.handle_arithmetic(node, domain, operation)
