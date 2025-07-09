@@ -240,6 +240,6 @@ contract ConstraintApplicationTest {
         bool condition = x > 10 && y > 20 && z > 30;  // Expected: all remain [0, 255]
         require(condition);  // Expected: x > 10 AND y > 20 AND z > 30
         return x + y + z;  // Expected: x > 10, y > 20, z > 30
-    } // FAILED
+    } // PASSED
     
 } 

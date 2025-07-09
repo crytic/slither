@@ -147,6 +147,28 @@ class ConstraintManager:
         """Apply constraint from a binary condition"""
         if condition.type in self.COMPARISON_OPERATORS:
             self.apply_constraint_from_comparison_condition(condition, domain)
+        elif condition.type in self.LOGICAL_OPERATORS:
+            self.apply_constraint_from_logical_condition(condition, domain)
+        else:
+            logger.error(f"Unknown binary operator: {condition.type}")
+            raise ValueError(f"Unknown binary operator: {condition.type}")
+
+    def apply_constraint_from_logical_condition(
+        self, condition: Binary, domain: IntervalDomain
+    ) -> None:
+        """Apply constraints from a logical condition"""
+        if not hasattr(condition, "variable_left") or not hasattr(condition, "variable_right"):
+            return
+
+        left_operand = condition.variable_left
+        right_operand = condition.variable_right
+
+        if not isinstance(left_operand, Variable) or not isinstance(right_operand, Variable):
+            logger.debug(f"Unknown operand type: {left_operand} or {right_operand}")
+            return
+
+        self.apply_constraint_from_variable(left_operand, domain)
+        self.apply_constraint_from_variable(right_operand, domain)
 
     def apply_constraint_from_comparison_condition(
         self, condition: Binary, domain: IntervalDomain
