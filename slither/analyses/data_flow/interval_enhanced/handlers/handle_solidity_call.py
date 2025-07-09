@@ -1,12 +1,11 @@
 from typing import List
+
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
 )
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
-
 from slither.core.cfg.node import Node
-from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.solidity_call import SolidityCall
 
 

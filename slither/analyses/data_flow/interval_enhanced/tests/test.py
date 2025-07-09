@@ -2,12 +2,10 @@ from typing import Dict, Optional
 
 from slither import Slither
 from slither.analyses.data_flow.engine import Engine
-from slither.analyses.data_flow.interval_enhanced.analysis.analysis import IntervalAnalysisEnhanced
+from slither.analyses.data_flow.interval_enhanced.analysis.analysis import \
+    IntervalAnalysisEnhanced
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
-    DomainVariant,
-    IntervalDomain,
-)
-from slither.core.cfg.node import Node, NodeType
+    DomainVariant, IntervalDomain)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type import Type
 

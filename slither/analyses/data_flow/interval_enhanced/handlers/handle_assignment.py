@@ -52,15 +52,28 @@ class AssignmentHandler:
         domain: IntervalDomain,
     ) -> None:
         temporary_var_name = self.variable_manager.get_variable_name(temporary)
-        if not self.constraint_manager.has_constraint(temporary_var_name):
-            return
+        target_type = self.variable_manager.get_variable_type(target_var)
 
-        constraint = self.constraint_manager.get_constraint(temporary_var_name)
-        if constraint is None:
-            return
+        # Copy state information from temporary variable to target variable
+        if temporary_var_name in domain.state.info:
+            source_state_info = domain.state.info[temporary_var_name]
 
-        self.constraint_manager.add_constraint(var_name=var_name, constraint=constraint)
-        self.constraint_manager.remove_constraint(temporary_var_name)
+            # Deep copy all components with target variable's type
+            state_info = StateInfo(
+                interval_ranges=[ir.deep_copy() for ir in source_state_info.interval_ranges],
+                valid_values=source_state_info.valid_values.deep_copy(),
+                invalid_values=source_state_info.invalid_values.deep_copy(),
+                var_type=target_type if target_type else ElementaryType("uint256"),
+            )
+
+            domain.state.info[var_name] = state_info
+
+        # Handle constraint propagation
+        if self.constraint_manager.has_constraint(temporary_var_name):
+            constraint = self.constraint_manager.get_constraint(temporary_var_name)
+            if constraint is not None:
+                self.constraint_manager.add_constraint(var_name=var_name, constraint=constraint)
+            self.constraint_manager.remove_constraint(temporary_var_name)
 
     def _handle_constant_assignment(
         self, var_name: str, constant: Constant, target_var: Variable, domain: IntervalDomain

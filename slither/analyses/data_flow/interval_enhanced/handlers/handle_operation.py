@@ -5,7 +5,6 @@ from slither.analyses.data_flow.interval_enhanced.handlers.handle_arithmetic imp
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_assignment import (
     AssignmentHandler,
 )
-
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_comparison import (
     ComparisonHandler,
 )
@@ -19,7 +18,6 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager im
     ConstraintManager,
 )
 from slither.core.cfg.node import Node
-
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.solidity_call import SolidityCall
@@ -28,7 +26,7 @@ from slither.slithir.operations.solidity_call import SolidityCall
 class OperationHandler:
     def __init__(self, constraint_manager: ConstraintManager):
         self.assignment_handler = AssignmentHandler(constraint_manager=constraint_manager)
-        self.arithmetic_handler = ArithmeticHandler()
+        self.arithmetic_handler = ArithmeticHandler(constraint_manager)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.comparison_handler = ComparisonHandler(constraint_manager)
         self.solidity_call_handler = SolidityCallHandler(constraint_manager)

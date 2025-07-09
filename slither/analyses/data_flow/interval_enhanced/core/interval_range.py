@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext
-from typing import Callable, Dict, Union, Optional
+from typing import Callable, Dict, Optional, Union
 
 from slither.slithir.operations.binary import BinaryType
 

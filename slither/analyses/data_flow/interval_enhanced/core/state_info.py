@@ -135,6 +135,10 @@ class StateInfo:
 
         return False
 
+    def clear_intervals(self) -> None:
+        """Clear the intervals"""
+        self.interval_ranges: List[IntervalRange] = []
+
     def __eq__(self, other):
         """Check equality with another StateInfo"""
         if not isinstance(other, StateInfo):

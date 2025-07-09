@@ -6,6 +6,9 @@ from slither.analyses.data_flow.interval_enhanced.analysis.domain import Interva
 from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
+from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
+    ConstraintManager,
+)
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
@@ -17,12 +20,12 @@ from slither.slithir.variables.constant import Constant
 
 
 class ArithmeticHandler:
-    def __init__(self):
+    def __init__(self, constraint_manager: ConstraintManager):
         self.variable_manager = VariableManager()
+        self.constraint_manager = constraint_manager
 
     def handle_arithmetic(self, node: Node, domain: IntervalDomain, operation: Binary) -> None:
         """Handle arithmetic operations and update domain with result"""
-        logger.info(f"Handling arithmetic operation: {operation.type}")
 
         # Get state info for both operands
         left_var_info = self.get_variable_info(domain, operation.variable_left)
@@ -40,6 +43,10 @@ class ArithmeticHandler:
         result_var_name = self.variable_manager.get_variable_name(operation.lvalue)
 
         domain.state.info[result_var_name] = result_state_info
+
+        # Register temporary variable mapping for constraint propagation
+        if operation.type in self.constraint_manager.ARITHMETIC_OPERATORS:
+            self.constraint_manager.add_temp_var_mapping(result_var_name, operation)
 
     def _calculate_arithmetic_result(
         self,

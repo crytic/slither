@@ -16,11 +16,9 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager im
 )
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
-
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import Binary, BinaryType
-
+from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
 

@@ -3,8 +3,7 @@ from typing import Mapping, Optional
 
 from slither.analyses.data_flow.domain import Domain
 from slither.analyses.data_flow.interval_enhanced.core.state import State
-from slither.analyses.data_flow.interval_enhanced.core.state_info import \
-    StateInfo
+from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 
 
 class DomainVariant(Enum):

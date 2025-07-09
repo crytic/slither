@@ -1,18 +1,10 @@
-from decimal import Decimal
-from typing import Optional
 from loguru import logger
-
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
-from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.variables.variable import Variable
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.new_elementary_type import NewElementaryType
-from slither.slithir.variables.constant import Constant
 
 
 class UninitializedVariableHandler:

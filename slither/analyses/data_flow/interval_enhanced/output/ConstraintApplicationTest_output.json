@@ -1,0 +1,2475 @@
+{
+  "file_path": "tests/e2e/detectors/test_data/interval/0.8.10/ConstraintApplicationTest.sol",
+  "timestamp": "2025-07-09T16:40:49.301404",
+  "functions": [
+    {
+      "name": "testDirectComparisonInRequire",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInRequire(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x > 50)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInRequire(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInRequire(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testDirectComparisonInAssert",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInAssert(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "assert(bool)(x < 200)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInAssert(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testDirectComparisonInAssert(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testBareComparisonNoConstraint",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "comparison1 = x > 5",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "comparison2 = x < 100",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "comparison3 = x == 50",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(comparison1)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "6",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBareComparisonNoConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "6",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testVariableAssignedComparison",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testVariableAssignedComparison(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition = x >= 25",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testVariableAssignedComparison(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testVariableAssignedComparison(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "25",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testVariableAssignedComparison(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "25",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testMultipleVariables",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "xCondition = x > 50",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "yCondition = y < 200",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(xCondition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(yCondition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x + y",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleVariables(uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_14",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "454"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testAllComparisonOperators",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "greaterThan = x > 25",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "greaterEqual = x >= 50",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "lessThan = x < 200",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "lessEqual = x <= 150",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "equal = x == 100",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "notEqual = x != 0",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(greaterThan)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "26",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(lessThan)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "26",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testAllComparisonOperators(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "26",
+                  "upper_bound": "199"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testConstantComparisons",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition1 = 10 < x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition2 = x < 100",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition3 = 50 == x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition1)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition2)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstantComparisons(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testArithmeticConstraint",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testArithmeticConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition = x + 10 > 50",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testArithmeticConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_28",
+              "interval_ranges": [
+                {
+                  "lower_bound": "10",
+                  "upper_bound": "265"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testArithmeticConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "41",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_28",
+              "interval_ranges": [
+                {
+                  "lower_bound": "10",
+                  "upper_bound": "265"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testArithmeticConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "41",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_28",
+              "interval_ranges": [
+                {
+                  "lower_bound": "10",
+                  "upper_bound": "265"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testSubtractionConstraint",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testSubtractionConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition = x - 5 > 10",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testSubtractionConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_31",
+              "interval_ranges": [
+                {
+                  "lower_bound": "-5",
+                  "upper_bound": "250"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": true,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testSubtractionConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "16",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_31",
+              "interval_ranges": [
+                {
+                  "lower_bound": "-5",
+                  "upper_bound": "250"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": true,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testSubtractionConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "16",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_31",
+              "interval_ranges": [
+                {
+                  "lower_bound": "-5",
+                  "upper_bound": "250"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": true,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testMultiplicationConstraint",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultiplicationConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition = x * 2 > 100",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultiplicationConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_34",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "510"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultiplicationConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_34",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "510"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultiplicationConstraint(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "51",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_34",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "510"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testMultipleConstraintsSequential",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleConstraintsSequential(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x > 10)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleConstraintsSequential(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x < 100)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleConstraintsSequential(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x != 50)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleConstraintsSequential(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": [
+                  "50"
+                ]
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleConstraintsSequential(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": [
+                  "50"
+                ]
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testUnusedConstraints",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition1 = x > 10",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition2 = x < 100",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition3 = x == 50",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition1)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition2)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testUnusedConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "11",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testConstraintScoping",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintScoping(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x > 25)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintScoping(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "26",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintScoping(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "26",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testConstraintIsolation",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintIsolation(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x < 100)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintIsolation(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testConstraintIsolation(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "99"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testBoundaryConditions",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBoundaryConditions(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x >= 0)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBoundaryConditions(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x <= 255)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBoundaryConditions(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testBoundaryConditions(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testEqualityConstraints",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testEqualityConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x == 100)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testEqualityConstraints(uint8).x",
+              "interval_ranges": [],
+              "valid_values": {
+                "values": [
+                  "100"
+                ]
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testEqualityConstraints(uint8).x",
+              "interval_ranges": [],
+              "valid_values": {
+                "values": [
+                  "100"
+                ]
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testInequalityConstraints",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testInequalityConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(x != 50)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testInequalityConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": [
+                  "50"
+                ]
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testInequalityConstraints(uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": [
+                  "50"
+                ]
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testMultipleAndConditions",
+      "nodes": [
+        {
+          "expression": "None",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).z",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "condition = x > 10 && y > 20 && z > 30",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).z",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "require(bool)(condition)",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).z",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        },
+        {
+          "expression": "x + y + z",
+          "variables": [
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).x",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).y",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "ConstraintApplicationTest.testMultipleAndConditions(uint8,uint8,uint8).z",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "255"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": false,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_66",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "510"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            },
+            {
+              "name": "TMP_67",
+              "interval_ranges": [
+                {
+                  "lower_bound": "0",
+                  "upper_bound": "765"
+                }
+              ],
+              "valid_values": {
+                "values": []
+              },
+              "invalid_values": {
+                "values": []
+              },
+              "has_overflow": true,
+              "has_underflow": false,
+              "var_type": "uint8"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
