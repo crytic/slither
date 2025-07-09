@@ -115,3 +115,7 @@ crytic-export/
 
 # slither.db.json 
 slither.db.json
+
+
+# data flow test output
+slither/analyses/data_flow/interval_enhanced/tests/output/
