@@ -39,6 +39,7 @@ contract ConstraintApplicationTest {
     //     bool comparison2 = x < 100; // Expected: x remains [0, 255]
     //     bool comparison3 = x == 50; // Expected: x remains [0, 255]
     //     require(comparison1);  // Expected: x becomes [6, 255]
+        
     //     return x;  // Expected: x is [6, 255]
     // } // PASSED
     
@@ -124,15 +125,15 @@ contract ConstraintApplicationTest {
     // // ARITHMETIC CONSTRAINT TESTS
     // // ========================================
     
-    // /**
-    //  * @dev Test constraint with arithmetic operations
-    //  */
-    // function testArithmeticConstraint(uint8 x) public pure returns (uint8) {
-    //     // x starts with bounds [0, 255]
-    //     bool condition = x + 10 > 50;  // Expected: x remains [0, 255]
-    //     require(condition);  // Expected: x + 10 > 50, so x > 40
-    //     return x;  // Expected: x is [41, 255]
-    // } // FAILED
+    /**
+     * @dev Test constraint with arithmetic operations
+     */
+    function testArithmeticConstraint(uint8 x) public pure returns (uint8) {
+        // x starts with bounds [0, 255]
+        bool condition = x + 10 > 50;  // Expected: x remains [0, 255]
+        require(condition);  // Expected: x + 10 > 50, so x > 40
+        return x;  // Expected: x is [41, 255]
+    } // FAILED
     
     /**
      * @dev Test constraint with subtraction
@@ -263,14 +264,14 @@ contract ConstraintApplicationTest {
     /**
      * @dev Test constraint with division
      */
-    function testDivisionConstraint(uint y) public pure returns (uint) {
-        require (y > 0);
+    // function testDivisionConstraint(uint y) public pure returns (uint) {
+    //     require (y > 0);
         
 
-        uint condition = 34/y; 
-        // require(condition);  
-        return y;  
-    } // FAILED
+    //     uint condition = 34/y; 
+    //     // require(condition);  
+    //     return y;  
+    // } // FAILED
 
     // /**
     //  * @dev Test constraint with division

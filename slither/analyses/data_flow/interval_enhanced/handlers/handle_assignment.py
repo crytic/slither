@@ -5,17 +5,22 @@ from loguru import logger
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
+from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
+    ConstraintManager,
+)
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class AssignmentHandler:
-    def __init__(self):
+    def __init__(self, constraint_manager: ConstraintManager):
         self.variable_manager = VariableManager()
+        self.constraint_manager = constraint_manager
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         if operation.lvalue is None:
@@ -25,7 +30,12 @@ class AssignmentHandler:
         right_value = operation.rvalue
         writing_variable_name: str = self.variable_manager.get_variable_name(written_variable)
 
-        if isinstance(right_value, Constant):
+        if isinstance(right_value, TemporaryVariable):
+            self._handle_temporary_assignment(
+                writing_variable_name, right_value, written_variable, domain
+            )
+            return
+        elif isinstance(right_value, Constant):
             self._handle_constant_assignment(
                 writing_variable_name, right_value, written_variable, domain
             )
@@ -33,6 +43,24 @@ class AssignmentHandler:
             self._handle_variable_assignment(
                 writing_variable_name, right_value, written_variable, domain
             )
+
+    def _handle_temporary_assignment(
+        self,
+        var_name: str,
+        temporary: TemporaryVariable,
+        target_var: Variable,
+        domain: IntervalDomain,
+    ) -> None:
+        temporary_var_name = self.variable_manager.get_variable_name(temporary)
+        if not self.constraint_manager.has_constraint(temporary_var_name):
+            return
+
+        constraint = self.constraint_manager.get_constraint(temporary_var_name)
+        if constraint is None:
+            return
+
+        self.constraint_manager.add_constraint(var_name=var_name, constraint=constraint)
+        self.constraint_manager.remove_constraint(temporary_var_name)
 
     def _handle_constant_assignment(
         self, var_name: str, constant: Constant, target_var: Variable, domain: IntervalDomain

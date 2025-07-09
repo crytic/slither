@@ -4,9 +4,13 @@ pragma solidity ^0.8.0;
 contract SimpleSum {
     
     function simple() public pure returns (uint256) {
+
         uint256 firstVar;
 
-        firstVar = 10;
+        require(firstVar != 100, "firstVar is not greater than 0");
+        require(firstVar >= 80, "firstVar is not greater than 0");
+
+
         return firstVar;
     }
 

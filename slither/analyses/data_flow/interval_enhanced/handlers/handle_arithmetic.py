@@ -37,10 +37,9 @@ class ArithmeticHandler:
             left_var_info, right_var_info, operation.type, operation.lvalue
         )
 
-        # Update domain with the result
-        if operation.lvalue:
-            result_var_name = self.variable_manager.get_variable_name(operation.lvalue)
-            domain.state.info[result_var_name] = result_state_info
+        result_var_name = self.variable_manager.get_variable_name(operation.lvalue)
+
+        domain.state.info[result_var_name] = result_state_info
 
     def _calculate_arithmetic_result(
         self,

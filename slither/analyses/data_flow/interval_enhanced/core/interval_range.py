@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, Union, Optional
 
 from slither.slithir.operations.binary import BinaryType
 
@@ -36,6 +36,16 @@ class IntervalRange:
     def join(self, other: "IntervalRange") -> None:
         self.lower_bound = min(self.lower_bound, other.lower_bound)
         self.upper_bound = max(self.upper_bound, other.upper_bound)
+
+    def intersection(self, other: "IntervalRange") -> Optional["IntervalRange"]:
+        """Return the intersection of this interval with another, or None if no intersection"""
+        new_lower = max(self.lower_bound, other.lower_bound)
+        new_upper = min(self.upper_bound, other.upper_bound)
+
+        if new_lower <= new_upper:
+            return IntervalRange(lower_bound=new_lower, upper_bound=new_upper)
+        else:
+            return None  # No intersection
 
     def get_lower(self) -> Decimal:
         """Get the lower bound of the interval"""
