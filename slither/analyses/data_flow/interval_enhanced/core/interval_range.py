@@ -1,6 +1,7 @@
 from decimal import Decimal, getcontext
 from typing import Callable, Dict, Optional, Union
 
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import BinaryType
 
 # Set high precision for Decimal operations
@@ -10,8 +11,8 @@ getcontext().prec = 100
 class IntervalRange:
     def __init__(
         self,
-        upper_bound: Union[int, Decimal] = Decimal("Infinity"),
-        lower_bound: Union[int, Decimal] = Decimal("-Infinity"),
+        upper_bound: Union[int, Decimal] = ElementaryType("uint256").max,
+        lower_bound: Union[int, Decimal] = ElementaryType("uint256").min,
     ):
         # Convert to Decimal to maintain precision
         if isinstance(upper_bound, (int, float)):
@@ -83,7 +84,7 @@ class IntervalRange:
             BinaryType.ADDITION: lambda x, y: x + y,
             BinaryType.SUBTRACTION: lambda x, y: x - y,
             BinaryType.MULTIPLICATION: lambda x, y: x * y,
-            BinaryType.DIVISION: lambda x, y: x / y if y != 0 else Decimal("Infinity"),
+            BinaryType.DIVISION: lambda x, y: (x // y) if y != 0 else Decimal("Infinity"),
         }
         op: Callable[[Decimal, Decimal], Decimal] = operations[operation_type]
         results: list[Decimal] = [op(a, c), op(a, d), op(b, c), op(b, d)]

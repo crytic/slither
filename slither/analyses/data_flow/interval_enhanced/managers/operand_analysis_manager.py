@@ -26,7 +26,8 @@ class OperandAnalysisManager:
             var_name = self.variable_manager.get_variable_name(operand)
             if var_name in domain.state.info:
                 var_info = domain.state.info[var_name]
-                if var_info.get_valid_values() == 1:
+                # Check if the variable has exactly one valid value (effectively a constant)
+                if len(var_info.get_valid_values()) == 1 and not var_info.interval_ranges:
                     return True
         return False
 

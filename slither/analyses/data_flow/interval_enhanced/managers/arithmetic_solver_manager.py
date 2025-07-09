@@ -32,6 +32,7 @@ class ArithmeticSolverManager:
     ) -> None:
         """Handle constraint propagation for arithmetic operation in comparisons."""
         # Extract variables from the arithmetic operation
+
         variables_in_operation = (
             self.operand_analyzer_manager.extract_variables_from_arithmetic_operation(
                 arithmetic_operation, domain
@@ -44,9 +45,11 @@ class ArithmeticSolverManager:
         # For now, handle simple cases with one variable
         if len(variables_in_operation) == 1:
             var = variables_in_operation[0]
+
             self._propagate_arithmetic_constraint_to_variable(
                 var, arithmetic_operation, constraint_value, op_type, domain
             )
+
         else:
             logger.warning(
                 f"\tMultiple variables in arithmetic operation. Implement affine relations."

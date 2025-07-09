@@ -116,9 +116,9 @@ class ConstraintManager:
         return self.get_constraint(var_name)
 
     # Temporary variable mapping methods
-    def add_temp_var_mapping(self, temp_var_name: str, source_expression: Binary) -> None:
+    def add_temp_var_mapping(self, temp_var_name: str, source_operationession: Binary) -> None:
         """Track a temporary variable's source arithmetic expression."""
-        self._temp_var_mappings[temp_var_name] = source_expression
+        self._temp_var_mappings[temp_var_name] = source_operationession
 
     def get_temp_var_mapping(self, temp_var_name: str) -> Optional[Binary]:
         """Get the source expression for a temporary variable."""
@@ -183,16 +183,36 @@ class ConstraintManager:
 
         if left_is_variable and not right_is_variable:
             # Check if this is a temporary variable with an arithmetic mapping
+
             if isinstance(left_operand, Variable):
                 left_var_name = self.variable_manager.get_variable_name(left_operand)
+
                 if self.has_temp_var_mapping(left_var_name):
-                    source_expr = self.get_temp_var_mapping(left_var_name)
-                    if source_expr:
+
+                    source_operation = self.get_temp_var_mapping(left_var_name)
+                    if source_operation:
                         # Handle as arithmetic constraint
                         if isinstance(right_operand, Constant):
                             self.arithmetic_solver.handle_arithmetic_comparison_constraint(
-                                source_expr, Decimal(right_operand.value), condition.type, domain
+                                source_operation,
+                                Decimal(right_operand.value),
+                                condition.type,
+                                domain,
                             )
+                        elif isinstance(right_operand, Variable):
+                            # Handle case where right operand is not a constant but has one valid value
+                            right_var_name = self.variable_manager.get_variable_name(right_operand)
+                            right_state_info = domain.state.info[right_var_name]
+
+                            # Extract the single valid value
+                            constant_value = list(right_state_info.valid_values)[0]
+                            self.arithmetic_solver.handle_arithmetic_comparison_constraint(
+                                source_operation,
+                                constant_value,
+                                condition.type,
+                                domain,
+                            )
+
                 else:
                     # Handle as regular variable constraint
                     self.constraint_application_manager.apply_constraint_from_comparison_condition(
@@ -204,8 +224,8 @@ class ConstraintManager:
             if isinstance(right_operand, Variable):
                 right_var_name = self.variable_manager.get_variable_name(right_operand)
                 if self.has_temp_var_mapping(right_var_name):
-                    source_expr = self.get_temp_var_mapping(right_var_name)
-                    if source_expr:
+                    source_operation = self.get_temp_var_mapping(right_var_name)
+                    if source_operation:
                         # Handle as arithmetic constraint
                         if isinstance(left_operand, Constant):
                             flipped_op_type = (
@@ -214,7 +234,10 @@ class ConstraintManager:
                                 )
                             )
                             self.arithmetic_solver.handle_arithmetic_comparison_constraint(
-                                source_expr, Decimal(left_operand.value), flipped_op_type, domain
+                                source_operation,
+                                Decimal(left_operand.value),
+                                flipped_op_type,
+                                domain,
                             )
                 else:
                     # Handle as regular variable constraint

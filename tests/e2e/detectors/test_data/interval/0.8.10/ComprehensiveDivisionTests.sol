@@ -56,7 +56,7 @@ contract ComprehensiveDivisionTests {
      * Expected: x / (-2) < 25 => x > -50 => x >= -49 => x ∈ [-49, 127]
      */
     function testNegativeDivisionLess(int8 x) public pure returns (int8) {
-        require(x / (-2) < 25);
+        require(x / -2 < 25);
         return x;
     } // PASSED
     

@@ -65,6 +65,7 @@ class ArithmeticHandler:
         ):
             target_type = target_var.type
         else:
+            # Default to uint256, but we'll determine the actual type based on the result
             target_type = ElementaryType("uint256")
         result_valid_values = SingleValues()
         result_interval_ranges = []
@@ -138,11 +139,33 @@ class ArithmeticHandler:
         if result_valid_values.is_empty() and not result_interval_ranges:
             result_interval_ranges.append(IntervalRange())
 
+        # Determine the appropriate type based on the result
+        has_negative_values = False
+
+        # Check valid values for negative values
+        for value in result_valid_values:
+            if value < 0:
+                has_negative_values = True
+                break
+
+        # Check interval ranges for negative values
+        if not has_negative_values:
+            for interval_range in result_interval_ranges:
+                if interval_range.get_lower() < 0:
+                    has_negative_values = True
+                    break
+
+        # Set the appropriate type
+        if has_negative_values:
+            result_type = ElementaryType("int256")
+        else:
+            result_type = ElementaryType("uint256")
+
         return StateInfo(
             interval_ranges=result_interval_ranges,
             valid_values=result_valid_values,
             invalid_values=SingleValues(),
-            var_type=target_type,
+            var_type=result_type,
         )
 
     def get_variable_info(
@@ -154,12 +177,20 @@ class ArithmeticHandler:
             valid_values = SingleValues()
             valid_values.add(value)
 
+            # Determine the appropriate type for the constant
+            if value < 0:
+                # Negative constants should use int256
+                constant_type = ElementaryType("int256")
+            else:
+                # Non-negative constants can use uint256
+                constant_type = ElementaryType("uint256")
+
             # For constants, use valid_values instead of interval ranges
             return StateInfo(
                 interval_ranges=[],  # No interval ranges for constants
                 valid_values=valid_values,
                 invalid_values=SingleValues(),
-                var_type=ElementaryType("uint256"),
+                var_type=constant_type,
             )
         elif isinstance(variable, Variable):
             var_name: str = self.variable_manager.get_variable_name(variable)
