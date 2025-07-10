@@ -15,6 +15,10 @@ class ConstraintRangeManager:
 
     def __init__(self, variable_manager: VariableManager):
         self.variable_manager = variable_manager
+        self.constraint_manager = None
+
+    def set_constraint_manager(self, constraint_manager):
+        self.constraint_manager = constraint_manager
 
     def create_constraint_range(
         self, value: Decimal, op_type: BinaryType, type_min: Decimal, type_max: Decimal
@@ -87,6 +91,30 @@ class ConstraintRangeManager:
 
         # Update the variable's interval ranges
         state_info.interval_ranges = constrained_ranges
+
+        # Back-propagate if this is a temp mapping
+        if (
+            hasattr(self, "constraint_manager")
+            and self.constraint_manager
+            and self.constraint_manager.has_temp_var_mapping(var_name)
+        ):
+            mapped_operation = self.constraint_manager.get_temp_var_mapping(var_name)
+            for interval in constrained_ranges:
+                # Propagate the interval as a constraint to the mapped operation
+                # Use the arithmetic solver to handle this
+                if hasattr(self.constraint_manager, "arithmetic_solver"):
+                    self.constraint_manager.arithmetic_solver.handle_arithmetic_comparison_constraint(
+                        mapped_operation,
+                        interval.lower_bound,
+                        BinaryType.GREATER_EQUAL,
+                        domain,
+                    )
+                    self.constraint_manager.arithmetic_solver.handle_arithmetic_comparison_constraint(
+                        mapped_operation,
+                        interval.upper_bound,
+                        BinaryType.LESS_EQUAL,
+                        domain,
+                    )
 
     def apply_constraint_to_variable_with_value(
         self,
