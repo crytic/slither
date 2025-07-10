@@ -15,7 +15,14 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_range_mana
 from slither.analyses.data_flow.interval_enhanced.managers.operand_analysis_manager import (
     OperandAnalysisManager,
 )
+from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
+from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
+from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
+from slither.core.declarations.function import Function
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.type import Type
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
@@ -255,3 +262,144 @@ class ConstraintManager:
             # Case 4: constant < constant, constant > constant, etc.
             # This is a compile-time constant expression, no variables to constrain
             logger.debug(f"Constant comparison: {left_operand} {condition.type} {right_operand}")
+
+    def propagate_constraints_from_caller_to_callee(
+        self,
+        operation_arguments: List[Variable],
+        function_parameters: List[LocalVariable],
+        domain: IntervalDomain,
+    ) -> None:
+        """Propagate constraints from caller arguments to callee parameters."""
+        for arg, param in zip(operation_arguments, function_parameters):
+            if not (
+                isinstance(param.type, ElementaryType)
+                and self.variable_manager.is_type_numeric(param.type)
+            ):
+                continue
+
+            arg_name = self.variable_manager.get_variable_name(arg)
+            param_name = self.variable_manager.get_variable_name(param)
+
+            # The argument should be in the domain at this point
+            if arg_name not in domain.state.info:
+                logger.error(
+                    f"Argument '{arg_name}' not found in domain state during interprocedural analysis"
+                )
+                raise ValueError(
+                    f"Argument '{arg_name}' not found in domain state during interprocedural analysis"
+                )
+
+            arg_state_info = domain.state.info[arg_name]
+
+            # Initialize parameter with deep copy of argument constraints
+            domain.state.info[param_name] = arg_state_info.deep_copy()
+
+    def propagate_constraints_from_callee_to_caller(
+        self,
+        operation_arguments: List[Variable],
+        function_parameters: List[LocalVariable],
+        domain: IntervalDomain,
+    ) -> None:
+        """Propagate constraints from callee parameters back to caller arguments."""
+        for arg, param in zip(operation_arguments, function_parameters):
+            if not (
+                isinstance(param.type, ElementaryType)
+                and self.variable_manager.is_type_numeric(param.type)
+            ):
+                continue
+
+            arg_name = self.variable_manager.get_variable_name(arg)
+            param_name = self.variable_manager.get_variable_name(param)
+
+            # If the parameter has constraints in the callee, propagate them back to the argument
+            if param_name in domain.state.info:
+                param_state_info = domain.state.info[param_name]
+
+                if arg_name in domain.state.info:
+                    # Use constraint application manager to merge constraints
+                    self.constraint_application_manager.merge_constraints_from_callee(
+                        arg_name, param_state_info, domain
+                    )
+                else:
+                    # Create new state info for the argument
+                    domain.state.info[arg_name] = param_state_info.deep_copy()
+
+    def apply_return_value_constraints(
+        self,
+        operation_lvalue: Variable,
+        return_values: List[Variable],
+        return_types: List,
+        domain: IntervalDomain,
+    ) -> None:
+        """Apply return value constraints to the caller's domain using constraint manager."""
+        if not operation_lvalue or not return_types:
+            return
+
+        # Handle single return value
+        if len(return_values) == 1 and len(return_types) == 1:
+            return_type = return_types[0]
+            if isinstance(return_type, ElementaryType) and self.variable_manager.is_type_numeric(
+                return_type
+            ):
+                return_value = return_values[0]
+                result_var_name = self.variable_manager.get_variable_name(operation_lvalue)
+
+                if isinstance(return_value, Variable):
+                    return_var_name = self.variable_manager.get_variable_name(return_value)
+                    # Look for the return value identifier created by OperationHandler
+                    return_identifier = f"return_{return_var_name}"
+                    if return_identifier in domain.state.info:
+                        domain.state.info[result_var_name] = domain.state.info[
+                            return_identifier
+                        ].deep_copy()
+                    elif return_var_name in domain.state.info:
+                        # Fallback to original variable name
+                        domain.state.info[result_var_name] = domain.state.info[
+                            return_var_name
+                        ].deep_copy()
+                elif isinstance(return_value, Constant):
+                    # Use constraint application manager to create constant constraint
+                    self.constraint_application_manager.create_constant_constraint(
+                        result_var_name, return_value, return_type, domain
+                    )
+
+        # Handle multiple return values
+        elif len(return_values) > 1 and len(return_types) > 1:
+            self._process_multiple_return_values(
+                operation_lvalue, return_values, return_types, domain
+            )
+
+    def _process_multiple_return_values(
+        self,
+        operation_lvalue: Variable,
+        return_values: List[Variable],
+        return_types: List[Type],
+        domain: IntervalDomain,
+    ) -> None:
+        """Process multiple return values and apply constraints."""
+        if not operation_lvalue or not hasattr(operation_lvalue, "type"):
+            return
+
+        # Handle tuple return values
+        if hasattr(operation_lvalue.type, "__iter__") and return_types:
+            for i, (return_value, return_type) in enumerate(zip(return_values, return_types)):
+                # Only process numeric types
+                if not (
+                    isinstance(return_type, ElementaryType)
+                    and self.variable_manager.is_type_numeric(return_type)
+                ):
+                    continue
+
+                # Create a variable name for this return value
+                return_var_name = f"return_{i}"
+
+                if isinstance(return_value, Constant):
+                    # Use constraint application manager to create constant constraint
+                    self.constraint_application_manager.create_constant_constraint(
+                        return_var_name, return_value, return_type, domain
+                    )
+                elif isinstance(return_value, Variable):
+                    # Return value is a variable
+                    var_name = self.variable_manager.get_variable_name(return_value)
+                    if var_name in domain.state.info:
+                        domain.state.info[return_var_name] = domain.state.info[var_name].deep_copy()

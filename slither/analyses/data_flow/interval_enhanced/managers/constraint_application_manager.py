@@ -13,7 +13,11 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_range_mana
 from slither.analyses.data_flow.interval_enhanced.managers.operand_analysis_manager import (
     OperandAnalysisManager,
 )
+from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
+from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
+from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
@@ -294,3 +298,100 @@ class ConstraintApplicationManager:
         logger.debug(
             f"Applied variable comparison constraint: {left_var_name} {op_type} {right_var_name}"
         )
+
+    def merge_constraints_from_callee(
+        self, arg_name: str, param_state_info: StateInfo, domain: IntervalDomain
+    ) -> None:
+        """Merge constraints from callee parameter back to caller argument."""
+        current_state_info = domain.state.info[arg_name]
+
+        # If parameter has valid values, prioritize them
+        if not param_state_info.valid_values.is_empty():
+            # Use parameter's valid values and clear intervals
+            merged_state_info = StateInfo(
+                interval_ranges=[],  # Clear intervals when we have valid values
+                valid_values=param_state_info.valid_values.deep_copy(),
+                invalid_values=param_state_info.invalid_values.deep_copy(),
+                var_type=current_state_info.var_type,
+            )
+        else:
+            # Merge interval ranges through intersection
+            merged_ranges = []
+            for current_range in current_state_info.interval_ranges:
+                for param_range in param_state_info.interval_ranges:
+                    intersection = current_range.intersection(param_range)
+                    if intersection is not None:
+                        merged_ranges.append(intersection)
+
+            # Merge valid values through intersection
+            merged_valid = current_state_info.valid_values.intersection(
+                param_state_info.valid_values
+            )
+
+            # Merge invalid values through union
+            merged_invalid = current_state_info.invalid_values.join(param_state_info.invalid_values)
+
+            # Create merged state info
+            merged_state_info = StateInfo(
+                interval_ranges=merged_ranges,
+                valid_values=merged_valid,
+                invalid_values=merged_invalid,
+                var_type=current_state_info.var_type,
+            )
+
+        domain.state.info[arg_name] = merged_state_info
+
+    def merge_constraints_from_caller(
+        self, param_name: str, arg_state_info: StateInfo, domain: IntervalDomain
+    ) -> None:
+        """Merge constraints from caller argument to callee parameter."""
+        current_state_info = domain.state.info[param_name]
+
+        # If argument has valid values, prioritize them
+        if not arg_state_info.valid_values.is_empty():
+
+            # Use argument's valid values and clear intervals
+            merged_state_info = StateInfo(
+                interval_ranges=[],  # Clear intervals when we have valid values
+                valid_values=arg_state_info.valid_values.deep_copy(),
+                invalid_values=arg_state_info.invalid_values.deep_copy(),
+                var_type=current_state_info.var_type,
+            )
+        else:
+            # Merge interval ranges through intersection
+            merged_ranges = []
+            for current_range in current_state_info.interval_ranges:
+                for arg_range in arg_state_info.interval_ranges:
+                    intersection = current_range.intersection(arg_range)
+                    if intersection is not None:
+                        merged_ranges.append(intersection)
+
+            # Merge valid values through intersection
+            merged_valid = current_state_info.valid_values.intersection(arg_state_info.valid_values)
+
+            # Merge invalid values through union
+            merged_invalid = current_state_info.invalid_values.join(arg_state_info.invalid_values)
+
+            # Create merged state info
+            merged_state_info = StateInfo(
+                interval_ranges=merged_ranges,
+                valid_values=merged_valid,
+                invalid_values=merged_invalid,
+                var_type=current_state_info.var_type,
+            )
+
+        domain.state.info[param_name] = merged_state_info
+
+    def create_constant_constraint(
+        self, var_name: str, constant: Constant, var_type: ElementaryType, domain: IntervalDomain
+    ) -> None:
+        """Create a constant constraint for a variable."""
+        const_value = Decimal(str(constant.value))
+        state_info = StateInfo(
+            [IntervalRange(const_value, const_value)],
+            SingleValues(const_value),
+            SingleValues(),
+            var_type,
+        )
+        state_info.clear_intervals()
+        domain.state.info[var_name] = state_info

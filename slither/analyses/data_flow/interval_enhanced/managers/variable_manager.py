@@ -36,3 +36,15 @@ class VariableManager:
                 ),
             )
         return IntervalRange(lower_bound=var_type.min, upper_bound=var_type.max)
+
+    def is_type_numeric(self, elementary_type: ElementaryType) -> bool:
+        """Check if type is numeric."""
+        if not elementary_type:
+            return False
+        type_name = elementary_type.name
+        return (
+            type_name.startswith("int")
+            or type_name.startswith("uint")
+            or type_name.startswith("fixed")
+            or type_name.startswith("ufixed")
+        )
