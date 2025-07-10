@@ -15,6 +15,7 @@ FILES = [
     "tests/e2e/detectors/test_data/interval/0.8.10/ConstraintApplicationTest.sol",
     "tests/e2e/detectors/test_data/interval/0.8.10/ComprehensiveMultiplicationTests.sol",
     "tests/e2e/detectors/test_data/interval/0.8.10/ComprehensiveDivisionTests.sol",
+    "tests/e2e/detectors/test_data/interval/0.8.10/FunctionCalls.sol",
 ]
 
 

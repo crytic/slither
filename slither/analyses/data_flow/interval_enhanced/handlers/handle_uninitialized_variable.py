@@ -21,8 +21,6 @@ class UninitializedVariableHandler:
         var_name = self.variable_manager.get_variable_name(variable)
         var_type = self.variable_manager.get_variable_type(variable)
 
-        print(var_name, var_type)
-
         # Get the type bounds for the variable
         interval_range = self.variable_manager.get_type_bounds(var_type)
 

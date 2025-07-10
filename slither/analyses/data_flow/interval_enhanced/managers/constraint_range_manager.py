@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import Dict
+import math
 
 from loguru import logger
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
@@ -21,14 +22,26 @@ class ConstraintRangeManager:
         """Create an interval range representing the constraint"""
 
         if op_type == BinaryType.LESS:
-            # x < value -> [type_min, value-1]
-            return IntervalRange(lower_bound=type_min, upper_bound=value - Decimal("1"))
+            # x < value -> [type_min, value-1] for integers, [type_min, floor(value)] for decimals
+            if value % 1 == 0:
+                # Integer value: subtract 1
+                upper_bound = value - Decimal("1")
+            else:
+                # Decimal value: round down to nearest integer
+                upper_bound = Decimal(str(math.floor(float(value))))
+            return IntervalRange(lower_bound=type_min, upper_bound=upper_bound)
         elif op_type == BinaryType.LESS_EQUAL:
             # x <= value -> [type_min, value]
             return IntervalRange(lower_bound=type_min, upper_bound=value)
         elif op_type == BinaryType.GREATER:
-            # x > value -> [value+1, type_max]
-            return IntervalRange(lower_bound=value + Decimal("1"), upper_bound=type_max)
+            # x > value -> [value+1, type_max] for integers, [ceil(value), type_max] for decimals
+            if value % 1 == 0:
+                # Integer value: add 1
+                lower_bound = value + Decimal("1")
+            else:
+                # Decimal value: round up to nearest integer
+                lower_bound = Decimal(str(math.ceil(float(value))))
+            return IntervalRange(lower_bound=lower_bound, upper_bound=type_max)
         elif op_type == BinaryType.GREATER_EQUAL:
             # x >= value -> [value, type_max]
             return IntervalRange(lower_bound=value, upper_bound=type_max)
