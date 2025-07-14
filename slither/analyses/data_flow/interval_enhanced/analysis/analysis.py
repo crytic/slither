@@ -15,7 +15,7 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager im
     ConstraintManager,
 )
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
@@ -119,6 +119,9 @@ class IntervalAnalysisEnhanced(Analysis):
             self._operation_handler.handle_solidity_call(node, domain, operation)
         if isinstance(operation, InternalCall):
             self._operation_handler.handle_internal_call(node, domain, operation, self)
+
+        if node.type == NodeType.IF:
+            self._operation_handler.handle_if(node, domain)
 
     def has_uninitialized_variable(self, node: Node):  # type: ignore
 

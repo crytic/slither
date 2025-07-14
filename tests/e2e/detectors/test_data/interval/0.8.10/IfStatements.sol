@@ -7,10 +7,10 @@ contract SimpleIfTest {
     function basicIf(uint256 x) public pure {
         if (x > 100) {
             // This branch should have: x ∈ [101, 255]
-            x = x;  // Just to have some operation
+            x = 5;  // Just to have some operation
         } else {
             // This branch should have: x ∈ [0, 100]
-            x = x;  // Just to have some operation
+            x = 6;  // Just to have some operation
         }
         // Final result: x ∈ [0, 255] but split into two domains
         // Domain 1: x ∈ [101, 255] 
