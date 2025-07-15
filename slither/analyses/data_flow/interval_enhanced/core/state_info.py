@@ -155,3 +155,34 @@ class StateInfo:
         return hash(
             (tuple(self.interval_ranges), self.valid_values, self.invalid_values, self.var_type)
         )
+
+    def __str__(self) -> str:
+        """String representation of StateInfo for debugging"""
+        parts = []
+
+        # Add type information
+        type_name = self.var_type.name if self.var_type else "unknown"
+        parts.append(f"type:{type_name}")
+
+        # Add interval ranges
+        if self.interval_ranges:
+            ranges_str = ", ".join([str(r) for r in self.interval_ranges])
+            parts.append(f"ranges:[{ranges_str}]")
+        else:
+            parts.append("ranges:[]")
+
+        # Add valid values
+        if self.valid_values:
+            valid_str = ", ".join([str(v) for v in self.valid_values])
+            parts.append(f"valid:[{valid_str}]")
+        else:
+            parts.append("valid:[]")
+
+        # Add invalid values
+        if self.invalid_values:
+            invalid_str = ", ".join([str(v) for v in self.invalid_values])
+            parts.append(f"invalid:[{invalid_str}]")
+        else:
+            parts.append("invalid:[]")
+
+        return f"StateInfo({', '.join(parts)})"

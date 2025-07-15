@@ -23,6 +23,7 @@ from slither.analyses.data_flow.interval_enhanced.handlers.handle_uninitialized_
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
 )
+from slither.analyses.data_flow.interval_enhanced.managers.branch_manager import BranchManager
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
@@ -36,14 +37,16 @@ if TYPE_CHECKING:
 
 
 class OperationHandler:
-    def __init__(self, constraint_manager: ConstraintManager):
+    def __init__(self, constraint_manager: ConstraintManager, branch_manager: BranchManager):
         self.assignment_handler = AssignmentHandler(constraint_manager=constraint_manager)
         self.arithmetic_handler = ArithmeticHandler(constraint_manager)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.comparison_handler = ComparisonHandler(constraint_manager)
         self.solidity_call_handler = SolidityCallHandler(constraint_manager)
         self.internal_call_handler = InternalCallHandler(constraint_manager=constraint_manager)
-        self.if_handler = IfHandler(constraint_manager=constraint_manager)
+        self.if_handler = IfHandler(
+            constraint_manager=constraint_manager, branch_manager=branch_manager
+        )
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         self.assignment_handler.handle_assignment(node, domain, operation)

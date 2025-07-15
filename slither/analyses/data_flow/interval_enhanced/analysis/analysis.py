@@ -14,6 +14,7 @@ from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation impo
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
 )
+from slither.analyses.data_flow.interval_enhanced.managers.branch_manager import BranchManager
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
@@ -34,7 +35,8 @@ class IntervalAnalysisEnhanced(Analysis):
     def __init__(self) -> None:
         self._direction: Direction = Forward()
         self._constraint_manager = ConstraintManager()
-        self._operation_handler = OperationHandler(self._constraint_manager)
+        self._branch_manager = BranchManager()
+        self._operation_handler = OperationHandler(self._constraint_manager, self._branch_manager)
         self._variable_manager = VariableManager()
 
     def domain(self) -> Domain:
