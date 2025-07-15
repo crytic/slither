@@ -53,3 +53,14 @@ class BranchManager:
     def is_branch_active(self, branch_id: str) -> bool:
         """Check if branch is active."""
         return branch_id in self.active_branches
+
+    def get_existing_branch_split(self, if_node_id: int) -> BranchSplit:
+        """Get existing branch split for a node that has already been processed."""
+        true_branch_id = f"if_{if_node_id}_true"
+        false_branch_id = f"if_{if_node_id}_false"
+
+        # Get existing domains or create empty ones if not found
+        true_domain = self.active_branches.get(true_branch_id, IntervalDomain.with_state({}))
+        false_domain = self.active_branches.get(false_branch_id, IntervalDomain.with_state({}))
+
+        return BranchSplit(true_domain, false_domain, true_branch_id, false_branch_id)

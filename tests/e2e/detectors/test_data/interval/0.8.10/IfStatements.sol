@@ -11,13 +11,7 @@ contract SimpleIfTest {
         } else if (x > 50) {
             // This branch should have: x ∈ [0, 100]
             x = 6;  // Just to have some operation
-        } else {
-            // This branch should have: x ∈ [0, 50]
-            x = 7;  // Just to have some operation
-        }
-        if (x == 1) {
-            revert("x is 1");
-        }
+        } 
         // Final result: x ∈ [0, 255] but split into two domains
         // Domain 1: x ∈ [101, 255] 
         // Domain 2: x ∈ [0, 100]
