@@ -123,7 +123,7 @@ class IntervalAnalysisEnhanced(Analysis):
             self._operation_handler.handle_internal_call(node, domain, operation, self)
 
         if node.type == NodeType.IF:
-            self._operation_handler.handle_if(node, domain)
+            self._operation_handler.handle_if(node, domain, self)
 
     def has_uninitialized_variable(self, node: Node):  # type: ignore
 

@@ -8,10 +8,16 @@ contract SimpleIfTest {
         if (x > 100) {
             // This branch should have: x ∈ [101, 255]
             x = 5;  // Just to have some operation
+            x = 7;
+            x = 8;
+      
         } else if (x > 50) {
             // This branch should have: x ∈ [0, 100]
             x = 6;  // Just to have some operation
-        } 
+        } else if (x > 25) {
+        x = 9;}
+
+
         // Final result: x ∈ [0, 255] but split into two domains
         // Domain 1: x ∈ [101, 255] 
         // Domain 2: x ∈ [0, 100]

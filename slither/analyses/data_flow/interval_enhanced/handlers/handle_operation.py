@@ -74,5 +74,7 @@ class OperationHandler:
     ) -> None:
         self.internal_call_handler.handle_internal_call(node, domain, operation, analysis_instance)
 
-    def handle_if(self, node: Node, domain: IntervalDomain) -> None:
-        self.if_handler.handle_if(node, domain)
+    def handle_if(
+        self, node: Node, domain: IntervalDomain, analysis_instance: "IntervalAnalysisEnhanced"
+    ) -> None:
+        self.if_handler.handle_if(node, domain, analysis_instance)

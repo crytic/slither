@@ -348,6 +348,8 @@ class IntervalAnalyzer:
                 engine.run_analysis()
                 results = engine.result()
 
+                continue
+
                 # Build variable type mapping for overflow detection
                 var_mapping: Dict[str, Type] = {}
                 for var in function.variables:
