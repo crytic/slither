@@ -1,3 +1,4 @@
+from typing import Set
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
@@ -14,7 +15,7 @@ class IfHandler:
     def __init__(self, constraint_manager: ConstraintManager, branch_manager: BranchManager):
         self.constraint_manager = constraint_manager
         self.branch_manager = branch_manager
-        self.processed_nodes: set = set()  # Track nodes that have already been processed
+        self.processed_nodes: Set[int] = set()  # Track nodes that have already been processed
 
     def handle_if(self, node: Node, domain: IntervalDomain) -> BranchSplit:
         """Handle if node - create two domain copies for basic splitting"""
