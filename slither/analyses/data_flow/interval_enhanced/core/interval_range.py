@@ -56,6 +56,12 @@ class IntervalRange:
         """Get the upper bound of the interval"""
         return self.upper_bound
 
+    def contains(self, value: Union[int, float, Decimal]) -> bool:
+        """Check if a value is contained within this interval"""
+        if isinstance(value, (int, float)):
+            value = Decimal(str(value))
+        return self.lower_bound <= value <= self.upper_bound
+
     def __str__(self):
         lower_str = (
             str(int(self.lower_bound))

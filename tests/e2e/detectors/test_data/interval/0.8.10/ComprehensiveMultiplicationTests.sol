@@ -47,9 +47,9 @@ contract ComprehensiveMultiplicationTests {
         return x;
     } // PASSED
     
-    // // ========================================
-    // // NEGATIVE CONSTANT MULTIPLICATION TESTS
-    // // ========================================
+    // // // ========================================
+    // // // NEGATIVE CONSTANT MULTIPLICATION TESTS
+    // // // ========================================
     
     /**
      * @dev Test: x * (-2) < -100
@@ -87,9 +87,9 @@ contract ComprehensiveMultiplicationTests {
         return x;
     } // PASSED
     
-    // // ========================================
-    // // EDGE CASE TESTS
-    // // ========================================
+    // // // ========================================
+    // // // EDGE CASE TESTS
+    // // // ========================================
     
     /**
      * @dev Test: x * (-1) > -50

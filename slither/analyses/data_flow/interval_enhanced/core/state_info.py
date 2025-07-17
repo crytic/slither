@@ -59,7 +59,17 @@ class StateInfo:
 
     def join(self, other: "StateInfo") -> None:
         """Join this StateInfo with another StateInfo"""
-        # Join interval ranges - merge all ranges from both states
+        # Join valid values
+        self.valid_values = self.valid_values.join(other.valid_values)
+
+        # Join invalid values
+        self.invalid_values = self.invalid_values.join(other.invalid_values)
+
+        # Remove any valid values that are also in invalid values
+        for invalid_value in self.invalid_values:
+            self.valid_values.delete(invalid_value)
+
+        # Merge ranges
         for other_range in other.interval_ranges:
             found_overlap = False
             for self_range in self.interval_ranges:
@@ -73,12 +83,6 @@ class StateInfo:
                     break
             if not found_overlap:
                 self.interval_ranges.append(other_range.deep_copy())
-
-        # Join valid values
-        self.valid_values = self.valid_values.join(other.valid_values)
-
-        # Join invalid values
-        self.invalid_values = self.invalid_values.join(other.invalid_values)
 
     def deep_copy(self) -> "StateInfo":
         """Create a deep copy of the StateInfo"""

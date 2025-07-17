@@ -47,9 +47,9 @@ contract ComprehensiveDivisionTests {
         return x;
     } // PASSED
     
-    // ========================================
-    // NEGATIVE CONSTANT DIVISION TESTS (x / negative)
-    // ========================================
+    // // ========================================
+    // // NEGATIVE CONSTANT DIVISION TESTS (x / negative)
+    // // ========================================
     
     /**
      * @dev Test: x / (-2) < 25
@@ -87,9 +87,9 @@ contract ComprehensiveDivisionTests {
         return x;
     } // PASSED
     
-    // ========================================
-    // CONSTANT / VARIABLE TESTS (constant / x)
-    // ========================================
+    // // ========================================
+    // // CONSTANT / VARIABLE TESTS (constant / x)
+    // // ========================================
     
     /**
      * @dev Test: 100 / x < 4
@@ -131,9 +131,9 @@ contract ComprehensiveDivisionTests {
         return x;
     } // PASSED
     
-    // ========================================
-    // NEGATIVE CONSTANT / VARIABLE TESTS
-    // ========================================
+    // // ========================================
+    // // NEGATIVE CONSTANT / VARIABLE TESTS
+    // // ========================================
     
     /**
      * @dev Test: (-100) / x < -4
@@ -155,9 +155,9 @@ contract ComprehensiveDivisionTests {
         return x;
     }
     
-    // ========================================
-    // EDGE CASE TESTS
-    // ========================================
+    // // ========================================
+    // // EDGE CASE TESTS
+    // // ========================================
     
     /**
      * @dev Test: x / 3 > 16

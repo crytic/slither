@@ -139,25 +139,49 @@ class ArithmeticHandler:
         if result_valid_values.is_empty() and not result_interval_ranges:
             result_interval_ranges.append(IntervalRange())
 
-        # Determine the appropriate type based on the result
-        has_negative_values = False
+        # Determine the appropriate type based on operands and result
+        # Check if any operands are negative (indicating int256 context)
+        has_negative_operands = False
 
-        # Check valid values for negative values
-        for value in result_valid_values:
+        # Check left operand for negative values
+        for value in left_info.valid_values:
             if value < 0:
-                has_negative_values = True
+                has_negative_operands = True
                 break
-
-        # Check interval ranges for negative values
-        if not has_negative_values:
-            for interval_range in result_interval_ranges:
-                if interval_range.get_lower() < 0:
-                    has_negative_values = True
+        if not has_negative_operands:
+            for range_obj in left_info.interval_ranges:
+                if range_obj.get_lower() < 0:
+                    has_negative_operands = True
                     break
 
-        # Set the appropriate type
-        if has_negative_values:
+        # Check right operand for negative values
+        if not has_negative_operands:
+            for value in right_info.valid_values:
+                if value < 0:
+                    has_negative_operands = True
+                    break
+            if not has_negative_operands:
+                for range_obj in right_info.interval_ranges:
+                    if range_obj.get_lower() < 0:
+                        has_negative_operands = True
+                        break
+
+        # Check if result has negative values
+        has_negative_result = False
+        for value in result_valid_values:
+            if value < 0:
+                has_negative_result = True
+                break
+        if not has_negative_result:
+            for interval_range in result_interval_ranges:
+                if interval_range.get_lower() < 0:
+                    has_negative_result = True
+                    break
+
+        # Determine the type: int256 takes priority if any negative values are involved
+        if has_negative_operands or has_negative_result:
             result_type = ElementaryType("int256")
+
         else:
             result_type = ElementaryType("uint256")
 

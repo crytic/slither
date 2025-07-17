@@ -102,8 +102,20 @@ class TestOutputManager:
     def wipe_output_file(self, output_file: Path) -> None:
         """Remove existing output file if it exists"""
         if output_file.exists():
-            output_file.unlink()
-            print(f"🗑️  Wiped existing output file: {output_file}")
+            print(f"⚠️  About to delete existing output file: {output_file}")
+            print("Type 'WIPE' to confirm deletion:")
+
+            try:
+                confirmation = input().strip()
+                if confirmation == "WIPE":
+                    output_file.unlink()
+                    print(f"🗑️  Wiped existing output file: {output_file}")
+                else:
+                    print(f"❌ Deletion cancelled. Expected 'WIPE', got '{confirmation}'")
+                    raise ValueError("User cancelled wipe operation")
+            except KeyboardInterrupt:
+                print("\n❌ Deletion cancelled by user")
+                raise ValueError("User cancelled wipe operation")
         else:
             print(f"ℹ️  No existing output file to wipe: {output_file}")
 
@@ -322,7 +334,14 @@ class IntervalAnalyzer:
 
             # Handle wipe flag
             if wipe_output:
-                self.output_manager.wipe_output_file(output_file)
+                try:
+                    self.output_manager.wipe_output_file(output_file)
+                except ValueError as e:
+                    if "User cancelled wipe operation" in str(e):
+                        print("🛑 Analysis cancelled due to wipe operation being cancelled")
+                        return False
+                    else:
+                        raise e
 
             # Check if this is first run or comparison run
             is_first_run = not output_file.exists()
@@ -347,8 +366,6 @@ class IntervalAnalyzer:
                 engine = Engine.new(analysis=IntervalAnalysisEnhanced(), functions=[function])
                 engine.run_analysis()
                 results = engine.result()
-
-                continue
 
                 # Build variable type mapping for overflow detection
                 var_mapping: Dict[str, Type] = {}

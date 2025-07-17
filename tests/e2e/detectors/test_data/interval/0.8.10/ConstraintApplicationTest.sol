@@ -43,9 +43,9 @@ contract ConstraintApplicationTest {
         return x;  // Expected: x is [6, 255]
     } // PASSED
     
-    // ========================================
-    // VARIABLE ASSIGNMENT TESTS
-    // ========================================
+    // // // ========================================
+    // // // VARIABLE ASSIGNMENT TESTS
+    // // // ========================================
     
     /**
      * @dev Test constraint application for variable assigned comparison
@@ -69,9 +69,9 @@ contract ConstraintApplicationTest {
         return x + y;  // Expected: x is [51, 255], y is [0, 199]
     } // PASSED
     
-    // ========================================
-    // COMPARISON OPERATOR TESTS
-    // ========================================
+    // // // ========================================
+    // // // COMPARISON OPERATOR TESTS
+    // // // ========================================
     
     /**
      * @dev Test all comparison operators
@@ -106,9 +106,9 @@ contract ConstraintApplicationTest {
         return x;  // Expected: x is [11, 99]
     } // PASSED
     
-    // ========================================
-    // ARITHMETIC CONSTRAINT TESTS
-    // ========================================
+    // // ========================================
+    // // ARITHMETIC CONSTRAINT TESTS
+    // // ========================================
     
     /**
      * @dev Test constraint with arithmetic operations
@@ -141,9 +141,9 @@ contract ConstraintApplicationTest {
         return x;  // Expected: x is [51, 255]
     }
     
-    // ========================================
-    // MULTIPLE CONSTRAINT TESTS
-    // ========================================
+    // // // ========================================
+    // // // MULTIPLE CONSTRAINT TESTS
+    // // // ========================================
     
     /**
      * @dev Test multiple constraints applied sequentially
@@ -172,9 +172,9 @@ contract ConstraintApplicationTest {
         return x;  // Expected: x is [11, 99]
     } // PASSED
     
-    // ========================================
-    // SCOPE AND ISOLATION TESTS
-    // ========================================
+    // // // ========================================
+    // // // SCOPE AND ISOLATION TESTS
+    // // // ========================================
     
     /**
      * @dev Test that constraints are properly scoped to the function
@@ -194,9 +194,9 @@ contract ConstraintApplicationTest {
         return x;  // Expected: x is [0, 99]
     }
     
-    // ========================================
-    // EDGE CASE TESTS
-    // ========================================
+    // // // ========================================
+    // // // EDGE CASE TESTS
+    // // // ========================================
     
     /**
      * @dev Test boundary conditions
@@ -228,9 +228,9 @@ contract ConstraintApplicationTest {
     
 
     
-    // ========================================
-    // ADDITIONAL LOGICAL OPERATOR TESTS
-    // ========================================
+    // // // ========================================
+    // // // ADDITIONAL LOGICAL OPERATOR TESTS
+    // // // ========================================
     
     /**
      * @dev Test multiple AND conditions
