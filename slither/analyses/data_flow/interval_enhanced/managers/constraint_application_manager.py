@@ -1,9 +1,10 @@
 from decimal import Decimal
-from typing import List
 
 from loguru import logger
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
+from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
+from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.analyses.data_flow.interval_enhanced.managers.arithmetic_solver_manager import (
     ArithmeticSolverManager,
 )
@@ -13,10 +14,7 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_range_mana
 from slither.analyses.data_flow.interval_enhanced.managers.operand_analysis_manager import (
     OperandAnalysisManager,
 )
-from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
-from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
-from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
@@ -148,8 +146,22 @@ class ConstraintApplicationManager:
             return
 
         if op_type == BinaryType.NOT_EQUAL:
-            # Add the excluded value to invalid_values
+            # For x != value, create two ranges: [type_min, value-1] and [value+1, type_max]
+            # Also add the excluded value to invalid_values
             state_info.invalid_values.add(value)
+
+            # Get type bounds for the variable
+            type_min, type_max = state_info.get_type_bounds()
+
+            # Range 1: [type_min, value-1]
+            lower_range = IntervalRange(lower_bound=type_min, upper_bound=value - Decimal("1"))
+
+            # Range 2: [value+1, type_max]
+            upper_range = IntervalRange(lower_bound=value + Decimal("1"), upper_bound=type_max)
+
+            # Clear existing intervals and add the new ranges
+            state_info.clear_intervals()
+            state_info.interval_ranges = [lower_range, upper_range]
             return
 
         # Get type bounds for the variable
