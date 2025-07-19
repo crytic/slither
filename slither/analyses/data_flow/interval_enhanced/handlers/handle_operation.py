@@ -10,7 +10,6 @@ from slither.analyses.data_flow.interval_enhanced.handlers.handle_assignment imp
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_comparison import (
     ComparisonHandler,
 )
-from slither.analyses.data_flow.interval_enhanced.handlers.handle_if import IfHandler
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_internal_call import (
     InternalCallHandler,
 )
@@ -44,7 +43,6 @@ class OperationHandler:
         self.comparison_handler = ComparisonHandler(constraint_manager)
         self.solidity_call_handler = SolidityCallHandler(constraint_manager)
         self.internal_call_handler = InternalCallHandler(constraint_manager=constraint_manager)
-        self.if_handler = IfHandler(constraint_manager=constraint_manager)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -71,15 +69,3 @@ class OperationHandler:
         analysis_instance: "IntervalAnalysisEnhanced",
     ) -> None:
         self.internal_call_handler.handle_internal_call(node, domain, operation, analysis_instance)
-
-    def handle_if(
-        self,
-        node: Node,
-        domain: IntervalDomain,
-        operation: Binary,
-        analysis_instance: "IntervalAnalysisEnhanced",
-    ) -> None:
-        self.if_handler.handle_if(node, domain, operation, analysis_instance)
-
-    def handle_endif(self, node: Node, domain: IntervalDomain) -> None:
-        self.if_handler.handle_endif(node, domain)

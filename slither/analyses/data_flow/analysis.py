@@ -27,7 +27,13 @@ class Analysis(ABC):
     def bottom_value(self) -> Domain:
         pass
 
+    def apply_condition(self, domain: Domain, condition: Operation, branch_taken: bool) -> Domain:
+        """Override this to handle branch filtering. Default: no-op"""
+        return domain  # Analyses that don't implement this get no filtering
+
+
 A = TypeVar("A", bound=Analysis)
+
 
 class AnalysisState(Generic[A]):
     def __init__(self, pre: Domain, post: Domain) -> None:

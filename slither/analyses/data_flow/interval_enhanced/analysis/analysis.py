@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from loguru import logger
+
 from slither.analyses.data_flow.analysis import Analysis
 from slither.analyses.data_flow.direction import Direction, Forward
 from slither.analyses.data_flow.domain import Domain
@@ -14,16 +16,16 @@ from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation impo
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
 )
-
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
-from slither.core.cfg.node import Node, NodeType
+from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class IntervalAnalysisEnhanced(Analysis):
@@ -73,6 +75,79 @@ class IntervalAnalysisEnhanced(Analysis):
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node, functions or [])
 
+    def apply_condition(
+        self, domain: IntervalDomain, condition: Operation, branch_taken: bool
+    ) -> IntervalDomain:
+        """Apply branch filtering based on the condition and which branch is taken."""
+        if not isinstance(condition, Binary):
+            return domain
+
+        # Create a copy of the domain to avoid modifying the original
+        filtered_domain = domain.deep_copy()
+
+        if branch_taken:
+            return self._apply_true_condition(filtered_domain, condition)
+        else:
+            return self._apply_false_condition(filtered_domain, condition)
+
+    def _apply_true_condition(self, domain: IntervalDomain, operation: Binary) -> IntervalDomain:
+        """Apply the condition when the true branch is taken."""
+        print(f"🔄 APPLYING TRUE CONDITION: {operation}")
+
+        self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
+
+        return domain
+
+    def _apply_false_condition(self, domain: IntervalDomain, operation: Binary) -> IntervalDomain:
+        """Apply inverse condition when false branch is taken."""
+
+        # Create a negated operation by creating a new Binary with the negated operator
+        if operation.type in self._constraint_manager.COMPARISON_OPERATORS:
+            # Get the negated operator type (logical complement)
+            negation_map = {
+                BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
+                BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
+                BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
+                BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
+                BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
+                BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
+            }
+
+            negated_op_type = negation_map.get(operation.type)
+            if negated_op_type is None:
+                print(f"⚠️ Cannot negate operation: {operation.type}")
+                return domain
+
+            # Create a new temporary variable for the negated operation
+            negated_lvalue = TemporaryVariable(operation.node)
+            negated_lvalue.set_type(operation.lvalue.type)
+
+            # Create the negated operation
+            negated_operation = Binary(
+                result=negated_lvalue,
+                left_variable=operation.variable_left,
+                right_variable=operation.variable_right,
+                operation_type=negated_op_type,
+            )
+            negated_operation.set_node(operation.node)
+
+            print(f"🔄 APPLYING FALSE CONDITION: {negated_operation}")
+
+            # Store the negated operation as a constraint for the original variable
+            var_name = self._constraint_manager.variable_manager.get_variable_name(operation.lvalue)
+            self._constraint_manager.add_constraint(var_name, negated_operation)
+
+            # Apply the constraint using the existing infrastructure
+            self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
+
+            # Clean up - remove the temporary constraint
+            self._constraint_manager.remove_constraint(var_name)
+        else:
+            logger.warning(f"⚠️ Cannot negate operation: {operation.type}")
+            print(f"⚠️ Cannot negate operation: {operation.type}")
+
+        return domain
+
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant with function parameters."""
         domain.variant = DomainVariant.STATE
@@ -117,15 +192,10 @@ class IntervalAnalysisEnhanced(Analysis):
             ):
                 self._operation_handler.handle_comparison(node, domain, operation)
 
-                if node.type == NodeType.IF:
-                    self._operation_handler.handle_if(node, domain, operation, self)
-
         if isinstance(operation, SolidityCall):
             self._operation_handler.handle_solidity_call(node, domain, operation)
         if isinstance(operation, InternalCall):
             self._operation_handler.handle_internal_call(node, domain, operation, self)
-        elif node.type == NodeType.ENDIF:
-            self._operation_handler.handle_endif(node, domain)
 
     def has_uninitialized_variable(self, node: Node):  # type: ignore
 

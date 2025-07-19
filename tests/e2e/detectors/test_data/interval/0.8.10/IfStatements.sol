@@ -8,7 +8,8 @@ contract SimpleIf {
         if (x > 100) {
             x = 5;
         }
-        x += 0; // x should be [0, 100] and 5 should be in the valid values
+        x += 3; // x should be [0, 100] and 5 should be in the valid values
+        x = x + 3;
     } // PASSED
     
     // Test: Less than
@@ -51,12 +52,52 @@ contract SimpleIf {
         x += 1; 
     } // x should be {101, 6}
 
-    // function testIfElse(uint256 x) public pure {
+    function two_ifs(uint256 x) public pure {
+        if (x > 100) {
+            x = 5;
+        }  
+        if (x <= 100) {
+            x = 10;
+        }
+
+        x += 0;
+    } //x should be {10}
+
+    function if_else(uint256 x) public pure {
+        if (x > 100) {
+            x = 5;
+
+        }  
+        else {
+            x += 1;
+        }
+        x += 0;
+    } // x should be {5} [1,101]
+
+
+    function test(uint x) public pure returns (uint) {
+        if (x > 100) {
+            x = 5;
+        }
+        else if (x > 50) {
+            x = 25;
+        }
+        else {
+            x += 10;
+        }
+        
+        x += 0;
+        return x;
+    }
+
+    // function nested_if(uint256 x) public pure {
     //     if (x > 100) {
     //         x = 5;
-    //     } else {
-    //         x = 10;
-    //     }
+    //         if (x == 101){
+    //             x = 11;
+    //         }
+    //     }  
     //     x += 0;
-    // } //x should be {5, 10}
+    // } // x should be {5} U [0,100]
+
 }

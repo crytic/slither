@@ -390,7 +390,7 @@ class IntervalAnalyzer:
 
                     state = analysis.post.state
 
-                    print(f"\n\tExpression: {node.expression}")
+                    print(f"\n\tExpression: {node.expression} --- {node.type} --- {node.node_id}")
                     print("\t" + "-" * 36)
 
                     # Collect variable results

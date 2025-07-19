@@ -69,20 +69,18 @@ class StateInfo:
         for invalid_value in self.invalid_values:
             self.valid_values.delete(invalid_value)
 
-        # Merge ranges
-        for other_range in other.interval_ranges:
-            found_overlap = False
-            for self_range in self.interval_ranges:
-                # Check if ranges can be merged (overlapping or adjacent)
-                if (
-                    self_range.get_lower() <= other_range.get_upper()
-                    and self_range.get_upper() >= other_range.get_lower()
-                ):
-                    self_range.join(other_range)
-                    found_overlap = True
-                    break
-            if not found_overlap:
-                self.interval_ranges.append(other_range.deep_copy())
+        # Merge ranges from both states
+        merged_ranges = []
+
+        # Add ranges from current state
+        for range_obj in self.interval_ranges:
+            merged_ranges.append(range_obj.deep_copy())
+
+        # Add ranges from other state
+        for range_obj in other.interval_ranges:
+            merged_ranges.append(range_obj.deep_copy())
+
+        self.interval_ranges = merged_ranges
 
     def deep_copy(self) -> "StateInfo":
         """Create a deep copy of the StateInfo"""
