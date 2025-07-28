@@ -52,6 +52,17 @@ class Forward(Direction):
                 return operation
         return None
 
+    def _is_bottom_domain(self, domain: Domain) -> bool:
+        """Check if the domain is BOTTOM (unreachable state)."""
+        # Check if the domain has a variant attribute and if it's BOTTOM
+        if hasattr(domain, "variant"):
+            # Check by name to avoid importing specific implementations
+            if hasattr(domain.variant, "name") and domain.variant.name == "BOTTOM":
+                print("eureka")
+                return True
+
+        return False
+
     def _propagate_to_successor(
         self,
         node: Node,
@@ -62,6 +73,22 @@ class Forward(Direction):
     ) -> None:
         """Propagate state to a single successor."""
         if not successor or successor.node_id not in global_state:
+            return
+
+        # Check if the filtered state is BOTTOM (unreachable branch)
+        if self._is_bottom_domain(filtered_state):
+            logger.info(
+                f"🚫 Skipping propagation to node {successor.node_id} - BOTTOM domain (unreachable branch)"
+            )
+
+            # Remove the successor from worklist
+            if successor in worklist:
+                if successor.type != NodeType.ENDIF:
+                    worklist.remove(successor)
+                    logger.info(f"🗑️ Removed node {successor.node_id} from worklist - unreachable")
+
+            # Also mark successor's pre-state as BOTTOM to prevent future processing
+            global_state[successor.node_id].pre = filtered_state  # This is BOTTOM
             return
 
         son_state = global_state[successor.node_id]
@@ -82,6 +109,9 @@ class Forward(Direction):
     ):
         # Apply transfer function to current node
         for operation in node.irs or [None]:
+            logger.info(
+                f"🔄 Applying transfer function to node {node.node_id} with operation: {operation}"
+            )
             analysis.transfer_function(
                 node=node, domain=current_state.pre, operation=operation, functions=functions
             )
@@ -92,21 +122,26 @@ class Forward(Direction):
         # Propagate to successors
         condition = self._extract_condition(node)
 
-        if condition:
+        if condition and len(node.sons) >= 2:
             true_successor = node.sons[0]
             false_successor = node.sons[1]
-
             # Apply true condition
             true_state = analysis.apply_condition(current_state.pre, condition, True)
+
+            # Propagate to true successor (will be skipped if BOTTOM)
             self._propagate_to_successor(node, true_successor, true_state, worklist, global_state)
 
             # Apply false condition
             false_state = analysis.apply_condition(current_state.pre, condition, False)
+
+            # Propagate to false successor (will be skipped if BOTTOM)
             self._propagate_to_successor(node, false_successor, false_state, worklist, global_state)
 
         else:
             # Regular propagation for non-conditional nodes
             for successor in node.sons:
+                if successor.node_id == 5:
+                    print(f"Node 5 is successor of node {node.node_id}")
                 self._propagate_to_successor(
                     node, successor, current_state.pre, worklist, global_state
                 )

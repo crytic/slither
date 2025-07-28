@@ -479,6 +479,112 @@ class IntervalAnalyzer:
             print(f"❌ Error during analysis: {e}")
             return False
 
+    def analyze_interval_json(
+        self,
+        file_path: str,
+    ) -> TestResult:
+        """
+        Analyze intervals and return results as JSON-serializable object
+
+        Args:
+            file_path: Path to the Solidity file to analyze
+
+        Returns:
+            TestResult object with analysis results
+        """
+        try:
+            # Run analysis
+            slither = Slither(file_path)
+            functions = [f for c in slither.contracts for f in c.functions if f.is_implemented]
+
+            # Collect results
+            function_results = []
+
+            for function in functions:
+                # Run interval analysis
+                engine = Engine.new(analysis=IntervalAnalysisEnhanced(), functions=[function])
+                engine.run_analysis()
+                results = engine.result()
+
+                # Build variable type mapping for overflow detection
+                var_mapping: Dict[str, Type] = {}
+                for var in function.variables:
+                    key: Optional[str] = (
+                        var.canonical_name if var.canonical_name is not None else var.name
+                    )
+                    if key is not None and isinstance(var.type, ElementaryType):
+                        var_mapping[key] = var.type
+
+                # Collect node results
+                node_results = []
+
+                for node, analysis in results.items():
+                    if not hasattr(analysis, "post") or not isinstance(
+                        analysis.post, IntervalDomain
+                    ):
+                        continue
+
+                    if analysis.post.variant != DomainVariant.STATE:
+                        continue
+
+                    state = analysis.post.state
+
+                    # Collect variable results
+                    variable_results = []
+
+                    for var_name, var_info in state.info.items():
+                        # Convert interval ranges
+                        interval_ranges = [
+                            self.convert_interval_range(ir) for ir in var_info.interval_ranges
+                        ]
+
+                        # Convert valid and invalid values
+                        valid_values = self.convert_single_values(var_info.valid_values)
+                        invalid_values = self.convert_single_values(var_info.invalid_values)
+
+                        # Check for overflow/underflow
+                        has_overflow = var_info.has_overflow()
+                        has_underflow = var_info.has_underflow()
+
+                        # Create variable result
+                        var_result = VariableResult(
+                            name=var_name,
+                            interval_ranges=interval_ranges,
+                            valid_values=valid_values,
+                            invalid_values=invalid_values,
+                            has_overflow=has_overflow,
+                            has_underflow=has_underflow,
+                            var_type=str(var_info.var_type) if var_info.var_type else None,
+                        )
+                        variable_results.append(var_result)
+
+                    # Create node result
+                    node_result = NodeResult(
+                        expression=str(node.expression), variables=variable_results
+                    )
+                    node_results.append(node_result)
+
+                # Create function result
+                function_result = FunctionResult(name=function.name, nodes=node_results)
+                function_results.append(function_result)
+
+            # Create complete test result
+            test_result = TestResult(
+                file_path=file_path,
+                timestamp=datetime.now().isoformat(),
+                functions=function_results,
+            )
+
+            return test_result
+
+        except Exception as e:
+            # Return empty result with error info
+            return TestResult(
+                file_path=file_path,
+                timestamp=datetime.now().isoformat(),
+                functions=[],
+            )
+
 
 def main():
     """Main function with argparse support"""
@@ -492,6 +598,7 @@ Examples:
   python testing.py contract.sol --no-compare       # Skip comparison
   python testing.py contract.sol --wipe             # Reset baseline and create new
   python testing.py contract.sol --output-dir /tmp  # Use custom output directory
+  python testing.py contract.sol --json             # Output JSON for VS Code extension
         """,
     )
 
@@ -519,6 +626,12 @@ Examples:
         "--output-dir", help="Custom output directory (default: ../output relative to this script)"
     )
 
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results as JSON for VS Code extension",
+    )
+
     args = parser.parse_args()
 
     # Validate file exists
@@ -529,7 +642,23 @@ Examples:
     # Create analyzer with custom output directory if specified
     analyzer = IntervalAnalyzer(output_dir=args.output_dir)
 
-    # Run analysis
+    # Handle JSON output mode
+    if args.json:
+        try:
+            result = analyzer.analyze_interval_json(file_path=args.solidity_file)
+            print(json.dumps(asdict(result), indent=2))
+            return 0
+        except Exception as e:
+            error_result = {
+                "error": str(e),
+                "file_path": args.solidity_file,
+                "timestamp": datetime.now().isoformat(),
+                "functions": [],
+            }
+            print(json.dumps(error_result, indent=2))
+            return 1
+
+    # Run analysis in normal mode
     success = analyzer.analyze_interval(
         file_path=args.solidity_file,
         save_output=not args.no_save,

@@ -98,7 +98,7 @@ class ArithmeticHandler:
                 )
 
         # 2. Handle valid_values + interval_ranges (constant + variable)
-        if not left_info.valid_values.is_empty() and left_info.interval_ranges:
+        if not left_info.valid_values.is_empty() and right_info.interval_ranges:
             for left_val in left_info.valid_values:
                 for right_range in right_info.interval_ranges:
                     try:

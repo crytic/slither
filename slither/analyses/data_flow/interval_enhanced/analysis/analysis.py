@@ -13,6 +13,9 @@ from slither.analyses.data_flow.interval_enhanced.core.interval_range import Int
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation import OperationHandler
+from slither.analyses.data_flow.interval_enhanced.managers.condition_validity_checker_manager import (
+    ConditionValidityCheckerManager,
+)
 from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -39,6 +42,9 @@ class IntervalAnalysisEnhanced(Analysis):
         self._constraint_manager = ConstraintManager()
         self._operation_handler = OperationHandler(self._constraint_manager)
         self._variable_manager = VariableManager()
+        self._condition_validator = ConditionValidityCheckerManager(
+            self._variable_manager, self._constraint_manager.operand_analyzer
+        )
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -94,6 +100,12 @@ class IntervalAnalysisEnhanced(Analysis):
         """Apply the condition when the true branch is taken."""
         print(f"🔄 APPLYING TRUE CONDITION: {operation}")
 
+        # Verify condition validity first
+        if not self._condition_validator.verify_condition_validity(operation, domain):
+            logger.info(f"⚠️ Pruning invalid true branch: {operation}")
+            return IntervalDomain.bottom()  # Return BOTTOM to signal unreachable branch
+
+        # Only apply constraint if condition is valid
         self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
 
         return domain
@@ -102,49 +114,48 @@ class IntervalAnalysisEnhanced(Analysis):
         """Apply inverse condition when false branch is taken."""
 
         # Create a negated operation by creating a new Binary with the negated operator
-        if operation.type in self._constraint_manager.COMPARISON_OPERATORS:
-            # Get the negated operator type (logical complement)
-            negation_map = {
-                BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
-                BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
-                BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
-                BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
-                BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
-                BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
-            }
-
-            negated_op_type = negation_map.get(operation.type)
-            if negated_op_type is None:
-                print(f"⚠️ Cannot negate operation: {operation.type}")
-                return domain
-
-            # Create a new temporary variable for the negated operation
-            negated_lvalue = TemporaryVariable(operation.node)
-            negated_lvalue.set_type(operation.lvalue.type)
-
-            # Create the negated operation
-            negated_operation = Binary(
-                result=negated_lvalue,
-                left_variable=operation.variable_left,
-                right_variable=operation.variable_right,
-                operation_type=negated_op_type,
-            )
-            negated_operation.set_node(operation.node)
-
-            print(f"🔄 APPLYING FALSE CONDITION: {negated_operation}")
-
-            # Store the negated operation as a constraint for the original variable
-            var_name = self._constraint_manager.variable_manager.get_variable_name(operation.lvalue)
-            self._constraint_manager.add_constraint(var_name, negated_operation)
-
-            # Apply the constraint using the existing infrastructure
-            self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
-
-            # Clean up - remove the temporary constraint
-            self._constraint_manager.remove_constraint(var_name)
-        else:
+        if not (operation.type in self._constraint_manager.COMPARISON_OPERATORS):
             logger.warning(f"⚠️ Cannot negate operation: {operation.type}")
+            return domain
+
+        # Get the negated operator type (logical complement)
+        negation_map = {
+            BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
+            BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
+            BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
+            BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
+            BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
+            BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
+        }
+
+        negated_op_type = negation_map.get(operation.type)
+        if negated_op_type is None:
             print(f"⚠️ Cannot negate operation: {operation.type}")
+            return domain
+
+        # Create the actual negated operation
+        negated_lvalue = TemporaryVariable(operation.node)
+        negated_lvalue.set_type(operation.lvalue.type)
+
+        negated_operation = Binary(
+            result=negated_lvalue,
+            left_variable=operation.variable_left,
+            right_variable=operation.variable_right,
+            operation_type=negated_op_type,
+        )
+        negated_operation.set_node(operation.node)
+
+        # Verify the negated condition validity
+        if not self._condition_validator.verify_condition_validity(negated_operation, domain):
+            logger.info(f"⚠️ Pruning invalid false branch: negated {operation}")
+            return IntervalDomain.bottom()  # Return BOTTOM to signal unreachable branch
+
+        # Store the negated operation as a constraint for the original variable
+        var_name = self._variable_manager.get_variable_name(operation.lvalue)
+        self._constraint_manager.add_constraint(var_name, negated_operation)
+
+        # Apply the constraint
+        self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
 
         return domain
 
