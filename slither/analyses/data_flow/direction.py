@@ -1,14 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Deque, Dict, List, Optional
+from typing import TYPE_CHECKING, Deque, Dict, List, Optional, Set, Union
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analysis import Analysis, AnalysisState, A
+    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations import Contract
 
 from loguru import logger
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.analyses.data_flow.domain import Domain
+from slither.analyses.data_flow.numeric_literal_extractor import (
+    extract_numeric_literals_with_summary,
+)
 
 
 class Direction(ABC):
@@ -31,6 +36,9 @@ class Direction(ABC):
 
 
 class Forward(Direction):
+    def __init__(self):
+        self._numeric_literals_extracted = False
+
     @property
     def IS_FORWARD(self) -> bool:
         return True
@@ -107,6 +115,23 @@ class Forward(Direction):
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
+        # Extract numeric literals once at the beginning
+        if not self._numeric_literals_extracted:
+            try:
+                # Get compilation unit from the first function
+                if functions and hasattr(functions[0], "contract_declarer"):
+                    contract_declarer: Contract = functions[0].contract_declarer
+                    slither = contract_declarer.compilation_unit.core
+                    set_b: Set[int]
+                    cardinality: int
+                    set_b, cardinality = extract_numeric_literals_with_summary(slither)
+                    logger.info(f"📊 Numeric literals extracted: {cardinality} literals found")
+                    logger.info(f"📋 Set B: {sorted(set_b)}")
+                self._numeric_literals_extracted = True
+            except Exception as e:
+                logger.warning(f"Failed to extract numeric literals: {e}")
+                self._numeric_literals_extracted = True
+
         # Apply transfer function to current node
         for operation in node.irs or [None]:
             logger.info(
