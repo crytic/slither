@@ -38,6 +38,8 @@ class Direction(ABC):
 class Forward(Direction):
     def __init__(self):
         self._numeric_literals_extracted = False
+        self._loop_iteration_counts: Dict[int, int] = {}  # Track iterations per IFLOOP node
+        self._set_b_cardinality: int = 0  # Store |B| for loop control
 
     @property
     def IS_FORWARD(self) -> bool:
@@ -70,6 +72,52 @@ class Forward(Direction):
                 return True
 
         return False
+
+    def _handle_ifloop_node(
+        self,
+        node: Node,
+        current_state: "AnalysisState",
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+    ) -> bool:
+        """Handle IFLOOP nodes to ensure exactly |B| iterations."""
+        if node.type != NodeType.IFLOOP:
+            return False
+
+        loop_node_id = node.node_id
+
+        # Initialize counter if not exists
+        if loop_node_id not in self._loop_iteration_counts:
+            self._loop_iteration_counts[loop_node_id] = 0
+
+        current_iterations = self._loop_iteration_counts[loop_node_id]
+
+        logger.info(
+            f"🔄 IFLOOP node {loop_node_id}: iteration {current_iterations + 1}/{self._set_b_cardinality}"
+        )
+
+        if current_iterations < self._set_b_cardinality:
+            # Continue loop: increment counter and go to loop body
+            self._loop_iteration_counts[loop_node_id] += 1
+            successor_node = node.sons[0] if node.sons else None
+            action_msg = f"Continuing loop: node {loop_node_id}"
+        else:
+            # Exit loop: reset counter and go to loop exit
+            self._loop_iteration_counts[loop_node_id] = 0  # Reset for potential re-entry
+            logger.info(
+                f"🔄 Exiting loop: node {loop_node_id} (completed {self._set_b_cardinality} iterations)"
+            )
+            successor_node = node.sons[1] if node.sons and len(node.sons) > 1 else None
+            action_msg = f"Loop exit: node {loop_node_id}"
+
+        # Propagate state to successor using existing method for consistency
+        if successor_node:
+            logger.info(f"🔄 {action_msg} → {successor_node.node_id}")
+            self._propagate_to_successor(
+                node, successor_node, current_state.pre, worklist, global_state
+            )
+
+        return True  # Handled IFLOOP
 
     def _propagate_to_successor(
         self,
@@ -125,8 +173,10 @@ class Forward(Direction):
                     set_b: Set[int]
                     cardinality: int
                     set_b, cardinality = extract_numeric_literals_with_summary(slither)
+                    self._set_b_cardinality = cardinality  # Store |B| for loop control
                     logger.info(f"📊 Numeric literals extracted: {cardinality} literals found")
                     logger.info(f"📋 Set B: {sorted(set_b)}")
+                    logger.info(f"🔄 Loop iteration limit set to |B| = {cardinality}")
                 self._numeric_literals_extracted = True
             except Exception as e:
                 logger.warning(f"Failed to extract numeric literals: {e}")
@@ -143,6 +193,10 @@ class Forward(Direction):
 
         # Set post state
         global_state[node.node_id].post = current_state.pre
+
+        # Check if this is an IFLOOP node and handle it specially
+        if self._handle_ifloop_node(node, current_state, worklist, global_state):
+            return  # IFLOOP handled, no need for regular propagation
 
         # Propagate to successors
         condition = self._extract_condition(node)
