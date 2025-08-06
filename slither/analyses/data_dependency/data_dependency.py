@@ -448,7 +448,7 @@ def _handle_operation_with_lvalue(function: Function, node, is_protected, unset_
     for ir in node.irs_ssa:
         if isinstance(ir, OperationWithLValue) and ir.lvalue:
             if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
-                return
+                continue
             if isinstance(ir.lvalue, ReferenceVariable):
                 lvalue = ir.lvalue.points_to
                 if lvalue:
