@@ -458,12 +458,14 @@ def _handle_operation_with_lvalue(function: Function, node, is_protected, unset_
             add_dependency(ir.lvalue, function, ir, is_protected)
 
 
-def _add_param_dependency_for_variable(function: Function, v: LocalIRVariable, param_ssa, is_protected, unset_local_ir_vars):
+def _add_param_dependency_for_variable(
+    function: Function, v: LocalIRVariable, param_ssa, is_protected, unset_local_ir_vars
+):
     """Add parameter dependency for a given variable and parameter."""
     if v not in function.context[KEY_SSA]:
         function.context[KEY_SSA][v] = set()
     function.context[KEY_SSA][v].add(param_ssa)
-    
+
     if not is_protected:
         if v not in function.context[KEY_SSA_UNPROTECTED]:
             function.context[KEY_SSA_UNPROTECTED][v] = set()
@@ -484,10 +486,12 @@ def _add_param_dependency_if_needed(function: Function, node, is_protected, unse
         for v in ir.used:
             if not (isinstance(v, LocalIRVariable) and unset_local_ir_vars.get(v)):
                 continue
-                
+
             param_ssa = _find_matching_parameter(function, v)
             if param_ssa:
-                _add_param_dependency_for_variable(function, v, param_ssa, is_protected, unset_local_ir_vars)
+                _add_param_dependency_for_variable(
+                    function, v, param_ssa, is_protected, unset_local_ir_vars
+                )
                 break
 
 
