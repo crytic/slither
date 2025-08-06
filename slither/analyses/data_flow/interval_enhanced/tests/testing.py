@@ -288,9 +288,13 @@ class IntervalAnalyzer:
 
     def format_decimal_value(self, value) -> str:
         """Format decimal value for consistent output"""
-        if value == int(value):
-            return str(int(value))
-        return str(value)
+        try:
+            if value == int(value):
+                return str(int(value))
+            return str(value)
+        except (ValueError, OverflowError):
+            # Handle infinity values
+            return str(value)
 
     def convert_interval_range(self, interval_range) -> IntervalRangeResult:
         """Convert IntervalRange to serializable format"""
@@ -399,9 +403,13 @@ class IntervalAnalyzer:
                     for var_name, var_info in state.info.items():
                         print(f"\t\t📊 Variable: {var_name}")
 
+                        # Optimize the state info
+                        optimized_var_info = var_info.optimize()
+
                         # Convert interval ranges
                         interval_ranges = [
-                            self.convert_interval_range(ir) for ir in var_info.interval_ranges
+                            self.convert_interval_range(ir)
+                            for ir in optimized_var_info.interval_ranges
                         ]
 
                         # Print interval ranges
@@ -409,18 +417,20 @@ class IntervalAnalyzer:
                             print(f"\t\t\t📈 Range {i+1}: {interval_range}")
 
                         # Convert and print valid values
-                        valid_values = self.convert_single_values(var_info.valid_values)
+                        valid_values = self.convert_single_values(optimized_var_info.valid_values)
                         if valid_values.values:
                             print(f"\t\t\t✅ Valid values: {valid_values}")
 
                         # Convert and print invalid values
-                        invalid_values = self.convert_single_values(var_info.invalid_values)
+                        invalid_values = self.convert_single_values(
+                            optimized_var_info.invalid_values
+                        )
                         if invalid_values.values:
                             print(f"\t\t\t❌ Invalid values: {invalid_values}")
 
                         # Check for overflow/underflow
-                        has_overflow = var_info.has_overflow()
-                        has_underflow = var_info.has_underflow()
+                        has_overflow = optimized_var_info.has_overflow()
+                        has_underflow = optimized_var_info.has_underflow()
 
                         if has_overflow:
                             print(f"\t\t\t⚠️  OVERFLOW detected for {var_name}")
@@ -436,7 +446,11 @@ class IntervalAnalyzer:
                             invalid_values=invalid_values,
                             has_overflow=has_overflow,
                             has_underflow=has_underflow,
-                            var_type=str(var_info.var_type) if var_info.var_type else None,
+                            var_type=(
+                                str(optimized_var_info.var_type)
+                                if optimized_var_info.var_type
+                                else None
+                            ),
                         )
                         variable_results.append(var_result)
 

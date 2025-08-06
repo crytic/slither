@@ -1,23 +1,32 @@
 from decimal import Decimal
-from typing import List
+from typing import List, Tuple, Iterator, Optional
 
 from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
+
 from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class StateInfo:
+    """Represents state information with interval ranges, valid/invalid values, and variable type."""
+
+    # Default bounds for uint256
+    DEFAULT_MIN = Decimal("0")
+    DEFAULT_MAX = Decimal(
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    )
+
     def __init__(
         self,
-        interval_ranges: List[IntervalRange],
-        valid_values: SingleValues,
-        invalid_values: SingleValues,
-        var_type: ElementaryType,
+        interval_ranges: List[IntervalRange] = None,
+        valid_values: SingleValues = None,
+        invalid_values: SingleValues = None,
+        var_type: ElementaryType = None,
     ):
         """Initialize StateInfo with interval ranges, valid/invalid values, and variable type"""
-        self.interval_ranges = interval_ranges if interval_ranges else []
-        self.valid_values = valid_values if valid_values else SingleValues()
-        self.invalid_values = invalid_values if invalid_values else SingleValues()
+        self.interval_ranges = interval_ranges or []
+        self.valid_values = valid_values or SingleValues()
+        self.invalid_values = invalid_values or SingleValues()
         self.var_type = var_type
 
     def add_interval_range(self, interval_range: IntervalRange) -> None:
@@ -26,10 +35,11 @@ class StateInfo:
 
     def remove_interval_range(self, interval_range: IntervalRange) -> bool:
         """Remove an interval range from the state, returns True if found and removed"""
-        if interval_range in self.interval_ranges:
+        try:
             self.interval_ranges.remove(interval_range)
             return True
-        return False
+        except ValueError:
+            return False
 
     def get_interval_ranges(self) -> List[IntervalRange]:
         """Get a copy of the interval ranges list"""
@@ -47,22 +57,50 @@ class StateInfo:
         """Get the variable type"""
         return self.var_type
 
-    def get_type_bounds(self) -> tuple[Decimal, Decimal]:
+    def get_type_bounds(self) -> Tuple[Decimal, Decimal]:
         """Get the theoretical min/max bounds for this variable's type"""
         if self.var_type and hasattr(self.var_type, "max") and hasattr(self.var_type, "min"):
             return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
-        else:
-            # Default to uint256 bounds for temporary variables or unknown types
-            return Decimal("0"), Decimal(
-                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        return self.DEFAULT_MIN, self.DEFAULT_MAX
+
+    def _check_bounds_violation(self, bound_value: Decimal, comparison_func) -> bool:
+        """Helper method to check if any values violate bounds using the given comparison function"""
+        # Check interval ranges
+        for interval_range in self.interval_ranges:
+            range_value = (
+                interval_range.get_upper()
+                if comparison_func.__name__ == "gt"
+                else interval_range.get_lower()
             )
+            if comparison_func(range_value, bound_value):
+                return True
+
+        # Check both valid and invalid values
+        for values_collection in [self.valid_values, self.invalid_values]:
+            for value in values_collection:
+                if comparison_func(value, bound_value):
+                    return True
+
+        return False
+
+    def has_overflow(self) -> bool:
+        """Check if any values exceed the variable's type bounds"""
+        _, type_max = self.get_type_bounds()
+        return self._check_bounds_violation(type_max, lambda x, y: x > y)
+
+    def has_underflow(self) -> bool:
+        """Check if any values go below the variable's type bounds"""
+        type_min, _ = self.get_type_bounds()
+        return self._check_bounds_violation(type_min, lambda x, y: x < y)
+
+    def clear_intervals(self) -> None:
+        """Clear the intervals"""
+        self.interval_ranges.clear()
 
     def join(self, other: "StateInfo") -> None:
         """Join this StateInfo with another StateInfo"""
-        # Join valid values
+        # Join valid and invalid values
         self.valid_values = self.valid_values.join(other.valid_values)
-
-        # Join invalid values
         self.invalid_values = self.invalid_values.join(other.invalid_values)
 
         # Remove any valid values that are also in invalid values
@@ -70,78 +108,102 @@ class StateInfo:
             self.valid_values.delete(invalid_value)
 
         # Merge ranges from both states
-        merged_ranges = []
-
-        # Add ranges from current state
-        for range_obj in self.interval_ranges:
-            merged_ranges.append(range_obj.deep_copy())
-
-        # Add ranges from other state
-        for range_obj in other.interval_ranges:
-            merged_ranges.append(range_obj.deep_copy())
-
-        self.interval_ranges = merged_ranges
+        self.interval_ranges.extend(range_obj.deep_copy() for range_obj in other.interval_ranges)
+        # Deep copy existing ranges to maintain consistency
+        self.interval_ranges = [range_obj.deep_copy() for range_obj in self.interval_ranges]
 
     def deep_copy(self) -> "StateInfo":
         """Create a deep copy of the StateInfo"""
-        copied_ranges = [interval_range.deep_copy() for interval_range in self.interval_ranges]
-        copied_valid = self.valid_values.deep_copy()
-        copied_invalid = self.invalid_values.deep_copy()
-
         return StateInfo(
-            interval_ranges=copied_ranges,
-            valid_values=copied_valid,
-            invalid_values=copied_invalid,
+            interval_ranges=[interval_range.deep_copy() for interval_range in self.interval_ranges],
+            valid_values=self.valid_values.deep_copy(),
+            invalid_values=self.invalid_values.deep_copy(),
             var_type=self.var_type,
         )
 
-    def has_overflow(self) -> bool:
-        """Check if any values exceed the variable's type bounds"""
-        _, type_max = self.get_type_bounds()
+    def optimize(self) -> "StateInfo":
+        """Optimize by consolidating ranges and converting consecutive values to ranges."""
+        result = self.deep_copy()
 
-        # Check interval ranges
-        for interval_range in self.interval_ranges:
-            if interval_range.get_upper() > type_max:
-                return True
+        # Merge overlapping ranges
+        if len(result.interval_ranges) > 1:
+            result.interval_ranges = self._merge_ranges(result.interval_ranges)
 
-        # Check valid values
-        for value in self.valid_values:
-            if value > type_max:
-                return True
+        # Convert consecutive valid values to ranges
+        if result.valid_values and len(result.valid_values) >= 2:
+            result = self._convert_consecutive_to_ranges(result)
 
-        # Check invalid values
-        for value in self.invalid_values:
-            if value > type_max:
-                return True
+        return result
 
-        return False
+    def _merge_ranges(self, ranges: List[IntervalRange]) -> List[IntervalRange]:
+        """Merge overlapping/adjacent ranges."""
+        if not ranges:
+            return []
 
-    def has_underflow(self) -> bool:
-        """Check if any values go below the variable's type bounds"""
-        type_min, _ = self.get_type_bounds()
+        sorted_ranges = sorted(ranges, key=lambda r: r.get_lower())
+        merged = [sorted_ranges[0].deep_copy()]
 
-        # Check interval ranges
-        for interval_range in self.interval_ranges:
-            if interval_range.get_lower() < type_min:
-                return True
+        for current_range in sorted_ranges[1:]:
+            last_merged = merged[-1]
+            if last_merged.get_upper() >= current_range.get_lower() - 1:
+                last_merged.join(current_range)
+            else:
+                merged.append(current_range.deep_copy())
 
-        # Check valid values
-        for value in self.valid_values:
-            if value < type_min:
-                return True
+        return merged
 
-        # Check invalid values
-        for value in self.invalid_values:
-            if value < type_min:
-                return True
+    def _convert_consecutive_to_ranges(self, state: "StateInfo") -> "StateInfo":
+        """Convert consecutive valid values to ranges."""
+        values = sorted(state.valid_values.get())
+        result = state.deep_copy()
 
-        return False
+        i = 0
+        while i < len(values) - 1:
+            start_idx = i
+            # Find consecutive sequence
+            while i < len(values) - 1 and values[i + 1] == values[i] + 1:
+                i += 1
 
-    def clear_intervals(self) -> None:
-        """Clear the intervals"""
-        self.interval_ranges: List[IntervalRange] = []
+            # Convert sequence to range if found
+            if i > start_idx:
+                result.add_interval_range(
+                    IntervalRange(lower_bound=values[start_idx], upper_bound=values[i])
+                )
+                # Remove converted values
+                for val_idx in range(start_idx, i + 1):
+                    result.valid_values.delete(values[val_idx])
+            i += 1
 
-    def __eq__(self, other):
+        # Re-merge ranges if needed
+        if len(result.interval_ranges) > 1:
+            result.interval_ranges = self._merge_ranges(result.interval_ranges)
+
+        return result
+
+    def _format_collection(self, collection, name: str) -> str:
+        """Helper method to format collections for string representation"""
+        if collection:
+            if hasattr(collection, "__iter__") and not isinstance(collection, str):
+                items_str = ", ".join(str(item) for item in collection)
+            else:
+                items_str = str(collection)
+            return f"{name}:[{items_str}]"
+        return f"{name}:[]"
+
+    def __str__(self) -> str:
+        """String representation of StateInfo for debugging"""
+        type_name = self.var_type.name if self.var_type else "unknown"
+
+        parts = [
+            f"type:{type_name}",
+            self._format_collection(self.interval_ranges, "ranges"),
+            self._format_collection(self.valid_values, "valid"),
+            self._format_collection(self.invalid_values, "invalid"),
+        ]
+
+        return f"StateInfo({', '.join(parts)})"
+
+    def __eq__(self, other) -> bool:
         """Check equality with another StateInfo"""
         if not isinstance(other, StateInfo):
             return False
@@ -152,39 +214,8 @@ class StateInfo:
             and self.var_type == other.var_type
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash function for StateInfo"""
         return hash(
             (tuple(self.interval_ranges), self.valid_values, self.invalid_values, self.var_type)
         )
-
-    def __str__(self) -> str:
-        """String representation of StateInfo for debugging"""
-        parts = []
-
-        # Add type information
-        type_name = self.var_type.name if self.var_type else "unknown"
-        parts.append(f"type:{type_name}")
-
-        # Add interval ranges
-        if self.interval_ranges:
-            ranges_str = ", ".join([str(r) for r in self.interval_ranges])
-            parts.append(f"ranges:[{ranges_str}]")
-        else:
-            parts.append("ranges:[]")
-
-        # Add valid values
-        if self.valid_values:
-            valid_str = ", ".join([str(v) for v in self.valid_values])
-            parts.append(f"valid:[{valid_str}]")
-        else:
-            parts.append("valid:[]")
-
-        # Add invalid values
-        if self.invalid_values:
-            invalid_str = ", ".join([str(v) for v in self.invalid_values])
-            parts.append(f"invalid:[{invalid_str}]")
-        else:
-            parts.append("invalid:[]")
-
-        return f"StateInfo({', '.join(parts)})"

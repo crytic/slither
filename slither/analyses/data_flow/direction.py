@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from decimal import Decimal
 from typing import TYPE_CHECKING, Deque, Dict, List, Optional, Set, Union
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ from slither.core.declarations.function import Function
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.analyses.data_flow.domain import Domain
 from slither.analyses.data_flow.numeric_literal_extractor import (
-    extract_numeric_literals_with_summary,
+    extract_numeric_literals_for_function,
 )
 
 
@@ -38,8 +39,10 @@ class Direction(ABC):
 class Forward(Direction):
     def __init__(self):
         self._numeric_literals_extracted = False
-        self._loop_iteration_counts: Dict[int, int] = {}  # Track iterations per IFLOOP node
-        self._set_b_cardinality: int = 0  # Store |B| for loop control
+        self._loop_iteration_counts: Dict[int, int] = {}
+        self._loop_previous_states: Dict[int, Domain] = {}  # Track previous state for each loop
+        self._set_b_cardinality: int = 0
+        self._set_b: Set[int] = set()
 
     @property
     def IS_FORWARD(self) -> bool:
@@ -64,14 +67,11 @@ class Forward(Direction):
 
     def _is_bottom_domain(self, domain: Domain) -> bool:
         """Check if the domain is BOTTOM (unreachable state)."""
-        # Check if the domain has a variant attribute and if it's BOTTOM
-        if hasattr(domain, "variant"):
-            # Check by name to avoid importing specific implementations
-            if hasattr(domain.variant, "name") and domain.variant.name == "BOTTOM":
-                print("eureka")
-                return True
-
-        return False
+        return (
+            hasattr(domain, "variant")
+            and hasattr(domain.variant, "name")
+            and domain.variant.name == "BOTTOM"
+        )
 
     def _handle_ifloop_node(
         self,
@@ -79,45 +79,75 @@ class Forward(Direction):
         current_state: "AnalysisState",
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
+        analysis: "Analysis",
     ) -> bool:
-        """Handle IFLOOP nodes to ensure exactly |B| iterations."""
+        """Handle IFLOOP nodes with iteration limiting."""
         if node.type != NodeType.IFLOOP:
             return False
 
-        loop_node_id = node.node_id
+        loop_id = node.node_id
+        current_iteration = self._loop_iteration_counts.setdefault(loop_id, 0)
 
-        # Initialize counter if not exists
-        if loop_node_id not in self._loop_iteration_counts:
-            self._loop_iteration_counts[loop_node_id] = 0
+        # Check if we've exceeded maximum iterations (allow more iterations for widening to converge)
+        max_iterations = max(
+            self._set_b_cardinality * 3, 10
+        )  # Allow more iterations for convergence
+        if current_iteration >= max_iterations:
+            self._exit_loop(node, current_state.pre, worklist, global_state, loop_id)
+            return True
 
-        current_iterations = self._loop_iteration_counts[loop_node_id]
-
-        logger.info(
-            f"🔄 IFLOOP node {loop_node_id}: iteration {current_iterations + 1}/{self._set_b_cardinality}"
-        )
-
-        if current_iterations < self._set_b_cardinality:
-            # Continue loop: increment counter and go to loop body
-            self._loop_iteration_counts[loop_node_id] += 1
-            successor_node = node.sons[0] if node.sons else None
-            action_msg = f"Continuing loop: node {loop_node_id}"
+        # Handle state tracking and widening
+        if current_iteration == 0:
+            # First iteration: save current state as previous
+            self._loop_previous_states[loop_id] = current_state.pre.deep_copy()
         else:
-            # Exit loop: reset counter and go to loop exit
-            self._loop_iteration_counts[loop_node_id] = 0  # Reset for potential re-entry
-            logger.info(
-                f"🔄 Exiting loop: node {loop_node_id} (completed {self._set_b_cardinality} iterations)"
-            )
-            successor_node = node.sons[1] if node.sons and len(node.sons) > 1 else None
-            action_msg = f"Loop exit: node {loop_node_id}"
+            # Apply widening with previous state on every iteration after the first
+            print(f"Widening iteration {current_iteration} with previous state")
+            previous_state = self._loop_previous_states[loop_id]
+            widened_state = analysis.apply_widening(current_state.pre, previous_state, self._set_b)
+            current_state.pre = widened_state
 
-        # Propagate state to successor using existing method for consistency
-        if successor_node:
-            logger.info(f"🔄 {action_msg} → {successor_node.node_id}")
-            self._propagate_to_successor(
-                node, successor_node, current_state.pre, worklist, global_state
-            )
+            # Check for convergence (if state hasn't changed significantly)
+            if self._has_converged(previous_state, current_state.pre):
+                print(f"🔄 Widening converged after {current_iteration} iterations")
+                self._exit_loop(node, current_state.pre, worklist, global_state, loop_id)
+                return True
 
-        return True  # Handled IFLOOP
+            # Update previous state for next iteration
+            self._loop_previous_states[loop_id] = current_state.pre.deep_copy()
+
+        # Continue loop iteration
+        self._continue_loop(node, current_state.pre, worklist, global_state, loop_id)
+        return True
+
+    def _exit_loop(
+        self,
+        node: Node,
+        state: Domain,
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+        loop_id: int,
+    ) -> None:
+        """Exit loop by propagating to exit node and resetting counter."""
+        if len(node.sons) > 1:
+            self._propagate_to_successor(node, node.sons[1], state, worklist, global_state)
+        self._loop_iteration_counts[loop_id] = 0
+        # Clear previous state when exiting loop
+        if loop_id in self._loop_previous_states:
+            del self._loop_previous_states[loop_id]
+
+    def _continue_loop(
+        self,
+        node: Node,
+        state: Domain,
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+        loop_id: int,
+    ) -> None:
+        """Continue loop by propagating to body node and incrementing counter."""
+        self._loop_iteration_counts[loop_id] += 1
+        if node.sons:
+            self._propagate_to_successor(node, node.sons[0], state, worklist, global_state)
 
     def _propagate_to_successor(
         self,
@@ -131,28 +161,85 @@ class Forward(Direction):
         if not successor or successor.node_id not in global_state:
             return
 
-        # Check if the filtered state is BOTTOM (unreachable branch)
+        # Skip unreachable branches
         if self._is_bottom_domain(filtered_state):
-            logger.info(
-                f"🚫 Skipping propagation to node {successor.node_id} - BOTTOM domain (unreachable branch)"
-            )
-
-            # Remove the successor from worklist
-            if successor in worklist:
-                if successor.type != NodeType.ENDIF:
-                    worklist.remove(successor)
-                    logger.info(f"🗑️ Removed node {successor.node_id} from worklist - unreachable")
-
-            # Also mark successor's pre-state as BOTTOM to prevent future processing
-            global_state[successor.node_id].pre = filtered_state  # This is BOTTOM
+            self._handle_unreachable_branch(successor, filtered_state, worklist, global_state)
             return
 
+        # Join states and update worklist
         son_state = global_state[successor.node_id]
-
-        # Join states and add to worklist if changed
-        changed = son_state.pre.join(filtered_state)
-        if changed and successor not in worklist:
+        if son_state.pre.join(filtered_state) and successor not in worklist:
             worklist.append(successor)
+
+    def _handle_unreachable_branch(
+        self,
+        successor: Node,
+        bottom_state: Domain,
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+    ) -> None:
+        """Handle propagation to unreachable branches."""
+        logger.info(
+            f"🚫 Skipping propagation to node {successor.node_id} - BOTTOM domain (unreachable branch)"
+        )
+
+        # Remove from worklist (except ENDIF nodes)
+        if successor in worklist and successor.type != NodeType.ENDIF:
+            worklist.remove(successor)
+
+        # Mark as unreachable
+        global_state[successor.node_id].pre = bottom_state
+
+    def _ensure_numeric_literals_extracted(self, functions: List[Function]) -> None:
+        """Extract numeric literals once at the beginning of analysis."""
+        if self._numeric_literals_extracted:
+            return
+
+        try:
+            if functions and len(functions) > 0:
+                # Extract function-specific numeric literals
+                function = functions[0]  # Use the first function being analyzed
+                self._set_b, self._set_b_cardinality = extract_numeric_literals_for_function(
+                    function
+                )
+
+        except Exception as e:
+            logger.warning(f"Failed to extract numeric literals: {e}")
+        finally:
+            self._numeric_literals_extracted = True
+
+    def _propagate_conditional(
+        self,
+        node: Node,
+        current_state: "AnalysisState",
+        condition: Binary,
+        analysis: "Analysis",
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+    ) -> None:
+        """Handle conditional propagation for IF nodes."""
+        if len(node.sons) < 2:
+            return
+
+        true_successor, false_successor = node.sons[0], node.sons[1]
+
+        # Apply conditions and propagate
+        true_state = analysis.apply_condition(current_state.pre, condition, True)
+        false_state = analysis.apply_condition(current_state.pre, condition, False)
+
+        self._propagate_to_successor(node, true_successor, true_state, worklist, global_state)
+        self._propagate_to_successor(node, false_successor, false_state, worklist, global_state)
+
+    def _propagate_regular(
+        self,
+        node: Node,
+        current_state: "AnalysisState",
+        worklist: Deque[Node],
+        global_state: Dict[int, "AnalysisState[A]"],
+    ) -> None:
+        """Handle regular (non-conditional) propagation."""
+        for successor in node.sons:
+            self._propagate_to_successor(node, successor, current_state.pre, worklist, global_state)
 
     def apply_transfer_function(
         self,
@@ -163,30 +250,11 @@ class Forward(Direction):
         global_state: Dict[int, "AnalysisState[A]"],
         functions: List[Function],
     ):
-        # Extract numeric literals once at the beginning
-        if not self._numeric_literals_extracted:
-            try:
-                # Get compilation unit from the first function
-                if functions and hasattr(functions[0], "contract_declarer"):
-                    contract_declarer: Contract = functions[0].contract_declarer
-                    slither = contract_declarer.compilation_unit.core
-                    set_b: Set[int]
-                    cardinality: int
-                    set_b, cardinality = extract_numeric_literals_with_summary(slither)
-                    self._set_b_cardinality = cardinality  # Store |B| for loop control
-                    logger.info(f"📊 Numeric literals extracted: {cardinality} literals found")
-                    logger.info(f"📋 Set B: {sorted(set_b)}")
-                    logger.info(f"🔄 Loop iteration limit set to |B| = {cardinality}")
-                self._numeric_literals_extracted = True
-            except Exception as e:
-                logger.warning(f"Failed to extract numeric literals: {e}")
-                self._numeric_literals_extracted = True
+        # Ensure numeric literals are extracted
+        self._ensure_numeric_literals_extracted(functions)
 
         # Apply transfer function to current node
         for operation in node.irs or [None]:
-            logger.info(
-                f"🔄 Applying transfer function to node {node.node_id} with operation: {operation}"
-            )
             analysis.transfer_function(
                 node=node, domain=current_state.pre, operation=operation, functions=functions
             )
@@ -194,36 +262,23 @@ class Forward(Direction):
         # Set post state
         global_state[node.node_id].post = current_state.pre
 
-        # Check if this is an IFLOOP node and handle it specially
-        if self._handle_ifloop_node(node, current_state, worklist, global_state):
-            return  # IFLOOP handled, no need for regular propagation
+        # Handle IFLOOP nodes specially
+        if self._handle_ifloop_node(node, current_state, worklist, global_state, analysis):
+            return
 
-        # Propagate to successors
+        # Handle propagation based on node type
         condition = self._extract_condition(node)
-
         if condition and len(node.sons) >= 2:
-            true_successor = node.sons[0]
-            false_successor = node.sons[1]
-            # Apply true condition
-            true_state = analysis.apply_condition(current_state.pre, condition, True)
-
-            # Propagate to true successor (will be skipped if BOTTOM)
-            self._propagate_to_successor(node, true_successor, true_state, worklist, global_state)
-
-            # Apply false condition
-            false_state = analysis.apply_condition(current_state.pre, condition, False)
-
-            # Propagate to false successor (will be skipped if BOTTOM)
-            self._propagate_to_successor(node, false_successor, false_state, worklist, global_state)
-
+            self._propagate_conditional(
+                node, current_state, condition, analysis, worklist, global_state
+            )
         else:
-            # Regular propagation for non-conditional nodes
-            for successor in node.sons:
-                if successor.node_id == 5:
-                    print(f"Node 5 is successor of node {node.node_id}")
-                self._propagate_to_successor(
-                    node, successor, current_state.pre, worklist, global_state
-                )
+            self._propagate_regular(node, current_state, worklist, global_state)
+
+    def _has_converged(self, previous_state: "Domain", current_state: "Domain") -> bool:
+        """Check if the widening has converged by comparing states."""
+        # Simple convergence check: if states are equal, we've converged
+        return previous_state == current_state
 
 
 class Backward(Direction):

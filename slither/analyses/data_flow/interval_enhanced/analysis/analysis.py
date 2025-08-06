@@ -1,4 +1,5 @@
-from typing import List, Optional
+from decimal import Decimal
+from typing import Dict, List, Optional, Set
 
 from loguru import logger
 
@@ -12,6 +13,7 @@ from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
 from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
+from slither.analyses.data_flow.interval_enhanced.analysis.widening import Widening
 from slither.analyses.data_flow.interval_enhanced.handlers.handle_operation import OperationHandler
 from slither.analyses.data_flow.interval_enhanced.managers.condition_validity_checker_manager import (
     ConditionValidityCheckerManager,
@@ -45,6 +47,7 @@ class IntervalAnalysisEnhanced(Analysis):
         self._condition_validator = ConditionValidityCheckerManager(
             self._variable_manager, self._constraint_manager.operand_analyzer
         )
+        self._widening = Widening()
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -80,6 +83,14 @@ class IntervalAnalysisEnhanced(Analysis):
             self._analyze_operation_by_type(operation, domain, node, functions or [])
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node, functions or [])
+
+            # # Prevent discrete assignments to widened variables
+            # if operation and hasattr(operation, "lvalue"):
+            #     var_name = self._variable_manager.get_variable_name(operation.lvalue)
+            #     if var_name in domain.state.info:
+            #         self._widening.prevent_discrete_assignment(
+            #             var_name, domain.state.info[var_name]
+            #         )
 
     def apply_condition(
         self, domain: IntervalDomain, condition: Operation, branch_taken: bool
@@ -219,3 +230,9 @@ class IntervalAnalysisEnhanced(Analysis):
 
         # Check if variable has no initial value
         return not hasattr(var, "expression") or var.expression is None
+
+    def apply_widening(
+        self, current_state: IntervalDomain, previous_state: IntervalDomain, set_b: set
+    ) -> IntervalDomain:
+        """Apply widening operations to the current state."""
+        return self._widening.apply_widening(current_state, previous_state, set_b)

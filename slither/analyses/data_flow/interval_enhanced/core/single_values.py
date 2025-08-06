@@ -135,9 +135,13 @@ class SingleValues:
         # Format values (show as int if they're whole numbers)
         formatted_values = []
         for value in sorted_values:
-            if value == int(value):
-                formatted_values.append(str(int(value)))
-            else:
+            try:
+                if value == int(value):
+                    formatted_values.append(str(int(value)))
+                else:
+                    formatted_values.append(str(value))
+            except (ValueError, OverflowError):
+                # Handle infinity values
                 formatted_values.append(str(value))
 
         return "{" + ", ".join(formatted_values) + "}"

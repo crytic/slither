@@ -31,6 +31,10 @@ class Analysis(ABC):
         """Override this to handle branch filtering. Default: no-op"""
         return domain  # Analyses that don't implement this get no filtering
 
+    def apply_widening(self, current_state: Domain, previous_state: Domain, set_b: set) -> Domain:
+        """Override this to implement widening operations. Default: no-op"""
+        return current_state  # Analyses that don't implement this get no widening
+
 
 A = TypeVar("A", bound=Analysis)
 

@@ -63,16 +63,24 @@ class IntervalRange:
         return self.lower_bound <= value <= self.upper_bound
 
     def __str__(self):
-        lower_str = (
-            str(int(self.lower_bound))
-            if self.lower_bound == int(self.lower_bound)
-            else str(self.lower_bound)
-        )
-        upper_str = (
-            str(int(self.upper_bound))
-            if self.upper_bound == int(self.upper_bound)
-            else str(self.upper_bound)
-        )
+        try:
+            lower_str = (
+                str(int(self.lower_bound))
+                if self.lower_bound == int(self.lower_bound)
+                else str(self.lower_bound)
+            )
+        except (ValueError, OverflowError):
+            lower_str = str(self.lower_bound)
+            
+        try:
+            upper_str = (
+                str(int(self.upper_bound))
+                if self.upper_bound == int(self.upper_bound)
+                else str(self.upper_bound)
+            )
+        except (ValueError, OverflowError):
+            upper_str = str(self.upper_bound)
+            
         return f"[{lower_str}, {upper_str}]"
 
     @staticmethod

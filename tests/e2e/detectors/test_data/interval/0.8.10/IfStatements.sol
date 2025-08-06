@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 
 contract SimpleIf {
     
-    // // Test: Greater than
-    // function testGreaterThan(uint256 x) public pure {
-    //     if (x > 100) {
-    //         x = 5;
-    //     }
-    //     x += 0; // x should be [0, 100] and 5 should be in the valid values
-    // } // PASSED
+    // Test: Greater than
+    function testGreaterThan(uint256 x) public pure {
+        if (x > 100) {
+            x = 5;
+        }
+        x += 0; // x should be [0, 100] and 5 should be in the valid values
+    } // PASSED
     
     // // Test: Less than
     // function testLessThan(uint256 x) public pure {
