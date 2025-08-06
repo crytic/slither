@@ -458,21 +458,37 @@ def _handle_operation_with_lvalue(function: Function, node, is_protected, unset_
             add_dependency(ir.lvalue, function, ir, is_protected)
 
 
+def _add_param_dependency_for_variable(function: Function, v: LocalIRVariable, param_ssa, is_protected, unset_local_ir_vars):
+    """Add parameter dependency for a given variable and parameter."""
+    if v not in function.context[KEY_SSA]:
+        function.context[KEY_SSA][v] = set()
+    function.context[KEY_SSA][v].add(param_ssa)
+    
+    if not is_protected:
+        if v not in function.context[KEY_SSA_UNPROTECTED]:
+            function.context[KEY_SSA_UNPROTECTED][v] = set()
+        function.context[KEY_SSA_UNPROTECTED][v].add(param_ssa)
+        unset_local_ir_vars[param_ssa] = False
+
+
+def _find_matching_parameter(function: Function, v: LocalIRVariable):
+    """Find the parameter that matches the given variable's non-SSA version."""
+    for param_ssa in function.parameters_ssa:
+        if v.non_ssa_version == param_ssa.non_ssa_version:
+            return param_ssa
+    return None
+
+
 def _add_param_dependency_if_needed(function: Function, node, is_protected, unset_local_ir_vars):
     for ir in node.irs_ssa:
         for v in ir.used:
-            if isinstance(v, LocalIRVariable) and unset_local_ir_vars.get(v):
-                for param_ssa in function.parameters_ssa:
-                    if v.non_ssa_version == param_ssa.non_ssa_version:
-                        if v not in function.context[KEY_SSA]:
-                            function.context[KEY_SSA][v] = set()
-                        function.context[KEY_SSA][v].add(param_ssa)
-                        if not is_protected:
-                            if v not in function.context[KEY_SSA_UNPROTECTED]:
-                                function.context[KEY_SSA_UNPROTECTED][v] = set()
-                            function.context[KEY_SSA_UNPROTECTED][v].add(param_ssa)
-                            unset_local_ir_vars[param_ssa] = False
-                        break
+            if not (isinstance(v, LocalIRVariable) and unset_local_ir_vars.get(v)):
+                continue
+                
+            param_ssa = _find_matching_parameter(function, v)
+            if param_ssa:
+                _add_param_dependency_for_variable(function, v, param_ssa, is_protected, unset_local_ir_vars)
+                break
 
 
 def compute_dependency_function(function: Function) -> None:
