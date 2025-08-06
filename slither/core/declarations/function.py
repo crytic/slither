@@ -1295,7 +1295,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self, include_loop: bool = True
     ) -> List[SolidityVariable]:
         """
-        Return the Soldiity variables directly used in a condtion
+        Return the Solidity variables directly used in a condition
 
         Use of the IR to filter index access
         Assumption: the solidity vars are used directly in the conditional node
@@ -1337,7 +1337,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def all_solidity_variables_used_as_args(self) -> List[SolidityVariable]:
         """
-        Return the Soldiity variables directly used in a call
+        Return the Solidity variables directly used in a call
 
         Use of the IR to filter index access
         Used to catch check(msg.sender)
