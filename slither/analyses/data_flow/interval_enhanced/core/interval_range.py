@@ -1,6 +1,7 @@
 from decimal import Decimal, getcontext
 from typing import Callable, Dict, Optional, Union
 
+from loguru import logger
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import BinaryType
 
@@ -71,7 +72,7 @@ class IntervalRange:
             )
         except (ValueError, OverflowError):
             lower_str = str(self.lower_bound)
-            
+
         try:
             upper_str = (
                 str(int(self.upper_bound))
@@ -80,7 +81,7 @@ class IntervalRange:
             )
         except (ValueError, OverflowError):
             upper_str = str(self.upper_bound)
-            
+
         return f"[{lower_str}, {upper_str}]"
 
     @staticmethod

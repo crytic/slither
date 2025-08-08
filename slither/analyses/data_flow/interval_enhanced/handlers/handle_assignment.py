@@ -18,9 +18,10 @@ from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class AssignmentHandler:
-    def __init__(self, constraint_manager: ConstraintManager):
+    def __init__(self, constraint_manager: ConstraintManager, widening_manager):
         self.variable_manager = VariableManager()
         self.constraint_manager = constraint_manager
+        self.widening_manager = widening_manager
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
         if operation.lvalue is None:
@@ -81,9 +82,10 @@ class AssignmentHandler:
         value: Decimal = Decimal(str(constant.value))
         target_type: Optional[ElementaryType] = self.variable_manager.get_variable_type(target_var)
 
-        # For constants, create a StateInfo with the exact value as a valid value
+        # Check if this variable has been widened - if so, don't add valid values
         valid_values = SingleValues()
-        valid_values.add(value)
+        if not self.widening_manager.is_variable_widened(var_name):
+            valid_values.add(value)
 
         # Create empty interval ranges and invalid values
         interval_ranges = []
@@ -118,14 +120,6 @@ class AssignmentHandler:
                 valid_values=source_state_info.valid_values.deep_copy(),
                 invalid_values=source_state_info.invalid_values.deep_copy(),
                 var_type=target_type if target_type else ElementaryType("uint256"),
-            )
-        else:
-            # This should not happen - log and throw error
-            logger.error(
-                f"Source variable '{source_var_name}' not found in domain during assignment to '{var_name}'"
-            )
-            raise RuntimeError(
-                f"Source variable '{source_var_name}' not found in domain during assignment"
             )
 
         domain.state.info[var_name] = state_info

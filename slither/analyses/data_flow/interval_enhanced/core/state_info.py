@@ -5,6 +5,7 @@ from slither.analyses.data_flow.interval_enhanced.core.interval_range import Int
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 
 from slither.core.solidity_types.elementary_type import ElementaryType
+from loguru import logger
 
 
 class StateInfo:

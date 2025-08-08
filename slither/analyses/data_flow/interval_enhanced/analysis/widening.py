@@ -22,7 +22,6 @@ class Widening:
         self, current_state: IntervalDomain, previous_state: IntervalDomain, set_b: Set[int]
     ) -> IntervalDomain:
         """Apply widening operations to the current state."""
-        logger.info("🔄 Applying widening!")
 
         # Identify variables that have changed between iterations
         changed_variables: Dict[str, Dict[str, "StateInfo"]] = self._identify_changed_variables(
@@ -154,13 +153,13 @@ class Widening:
         """Apply lower bound widening rule."""
         # If l₁ ≤ l₂ (lower bound is stable/non-decreasing): keep l₃ = l₁
         if prev_lower <= curr_lower:
-            logger.info(f"🔄 Lower bound stable: {prev_lower} ≤ {curr_lower}, keeping {prev_lower}")
+            # logger.info(f"🔄 Lower bound stable: {prev_lower} ≤ {curr_lower}, keeping {prev_lower}")
             return prev_lower
         # If l₁ > l₂ (lower bound is unstable/decreasing): widen to l₃ = max{i ∈ B | i ≤ l₂}
         else:
-            logger.info(
-                f"🔄 Lower bound unstable: {prev_lower} > {curr_lower}, looking for candidates in set B: {set_b}"
-            )
+            # logger.info(
+            #     f"🔄 Lower bound unstable: {prev_lower} > {curr_lower}, looking for candidates in set B: {set_b}"
+            # )
             # Find the maximum value in set B that is less than or equal to curr_lower
             candidates = [i for i in set_b if i <= curr_lower]
             if candidates:
@@ -185,30 +184,30 @@ class Widening:
         """Apply upper bound widening rule."""
         # If h₂ ≤ h₁ (upper bound is stable/non-increasing): keep h₃ = h₁
         if curr_upper <= prev_upper:
-            logger.info(f"🔄 Upper bound stable: {curr_upper} ≤ {prev_upper}, keeping {prev_upper}")
+            # logger.info(f"🔄 Upper bound stable: {curr_upper} ≤ {prev_upper}, keeping {prev_upper}")
             return prev_upper
         # If h₂ > h₁ (upper bound is unstable/increasing): widen to h₃ = min{i ∈ B | h₂ ≤ i}
         else:
-            logger.info(
-                f"🔄 Upper bound unstable: {curr_upper} > {prev_upper}, looking for candidates in set B: {set_b}"
-            )
+            # logger.info(
+            #     f"🔄 Upper bound unstable: {curr_upper} > {prev_upper}, looking for candidates in set B: {set_b}"
+            # )
             # Find the minimum value in set B that is greater than or equal to curr_upper
             candidates = [i for i in set_b if i >= curr_upper]
             if candidates:
                 result = min(candidates)
-                logger.info(f"🔄 Found candidate in set B: {result}")
+                # logger.info(f"🔄 Found candidate in set B: {result}")
                 return result
             else:
                 # If no suitable value found, use the variable's type maximum
                 if var_type and hasattr(var_type, "max"):
                     result = Decimal(str(var_type.max))
-                    logger.info(f"🔄 No candidates in set B, using type max: {result}")
+                    # logger.info(f"🔄 No candidates in set B, using type max: {result}")
                     return result
                 else:
                     result = Decimal(
                         "115792089237316195423570985008687907853269984665640564039457584007913129639935"
                     )  # uint256 max
-                    logger.info(f"🔄 No candidates in set B, using default max: {result}")
+                    # logger.info(f"🔄 No candidates in set B, using default max: {result}")
                     return result
 
     def is_variable_widened(self, var_name: str) -> bool:

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Union
+from typing import List, Union
 
 from loguru import logger
 from slither.analyses.data_flow.interval_enhanced.analysis.domain import IntervalDomain
@@ -112,6 +112,7 @@ class ArithmeticHandler:
 
         # 3. Handle interval_ranges + valid_values (variable + constant)
         if left_info.interval_ranges and not right_info.valid_values.is_empty():
+
             for left_range in left_info.interval_ranges:
                 for right_val in right_info.valid_values:
                     try:
@@ -119,6 +120,7 @@ class ArithmeticHandler:
                         result_range = IntervalRange.calculate_arithmetic_bounds(
                             left_range, right_point, operation_type
                         )
+
                         result_interval_ranges.append(result_range)
                     except Exception as e:
                         logger.warning(f"Error in mixed arithmetic: {e}")
@@ -135,9 +137,22 @@ class ArithmeticHandler:
                     except Exception as e:
                         logger.warning(f"Error in interval arithmetic: {e}")
 
-        # If no results were computed, return TOP
+        # Consolidate overlapping or contained ranges
+        if len(result_interval_ranges) > 1:
+
+            result_interval_ranges = self._consolidate_ranges(result_interval_ranges)
+
+        # If no results were computed, handle the case where one operand has no information
         if result_valid_values.is_empty() and not result_interval_ranges:
-            result_interval_ranges.append(IntervalRange())
+            # If left operand has no information, return right operand
+            if not left_info.valid_values and not left_info.interval_ranges:
+                return right_info.deep_copy()
+            # If right operand has no information, return left operand
+            elif not right_info.valid_values and not right_info.interval_ranges:
+                return left_info.deep_copy()
+            # If both have no information, return TOP
+            else:
+                result_interval_ranges.append(IntervalRange())
 
         # Determine the appropriate type based on operands and result
         # Check if any operands are negative (indicating int256 context)
@@ -192,6 +207,36 @@ class ArithmeticHandler:
             var_type=result_type,
         )
 
+    def _consolidate_ranges(self, ranges: List[IntervalRange]) -> List[IntervalRange]:
+        """Consolidate overlapping or contained ranges into a minimal set."""
+        if len(ranges) <= 1:
+            return ranges
+
+        # Sort ranges by lower bound
+        sorted_ranges = sorted(ranges, key=lambda r: r.get_lower())
+        consolidated = []
+
+        current_range = sorted_ranges[0]
+
+        for next_range in sorted_ranges[1:]:
+
+            # Check if ranges overlap or are adjacent
+            if current_range.get_upper() >= next_range.get_lower() - 1:
+                # Merge the ranges
+                new_lower = min(current_range.get_lower(), next_range.get_lower())
+                new_upper = max(current_range.get_upper(), next_range.get_upper())
+                current_range = IntervalRange(lower_bound=new_lower, upper_bound=new_upper)
+
+            else:
+                # No overlap, add current range and move to next
+                consolidated.append(current_range)
+                current_range = next_range
+
+        # Add the last range
+        consolidated.append(current_range)
+
+        return consolidated
+
     def get_variable_info(
         self, domain: IntervalDomain, variable: Union[Variable, Constant, RVALUE, Function]
     ) -> StateInfo:
@@ -218,12 +263,13 @@ class ArithmeticHandler:
             )
         elif isinstance(variable, Variable):
             var_name: str = self.variable_manager.get_variable_name(variable)
+
             if var_name in domain.state.info:
                 return domain.state.info[var_name]
             else:
                 # Default state for unknown variables
                 return StateInfo(
-                    interval_ranges=[IntervalRange()],
+                    interval_ranges=[],  # Empty ranges instead of full type bounds
                     valid_values=SingleValues(),
                     invalid_values=SingleValues(),
                     var_type=ElementaryType("uint256"),
@@ -231,7 +277,7 @@ class ArithmeticHandler:
         else:
             # Default state for other types
             return StateInfo(
-                interval_ranges=[IntervalRange()],
+                interval_ranges=[],  # Empty ranges instead of full type bounds
                 valid_values=SingleValues(),
                 invalid_values=SingleValues(),
                 var_type=ElementaryType("uint256"),

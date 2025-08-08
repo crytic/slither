@@ -22,7 +22,7 @@ from slither.analyses.data_flow.interval_enhanced.managers.constraint_manager im
     ConstraintManager,
 )
 from slither.analyses.data_flow.interval_enhanced.managers.variable_manager import VariableManager
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
@@ -42,12 +42,12 @@ class IntervalAnalysisEnhanced(Analysis):
     def __init__(self) -> None:
         self._direction: Direction = Forward()
         self._constraint_manager = ConstraintManager()
-        self._operation_handler = OperationHandler(self._constraint_manager)
+        self._widening = Widening()
+        self._operation_handler = OperationHandler(self._constraint_manager, self._widening)
         self._variable_manager = VariableManager()
         self._condition_validator = ConditionValidityCheckerManager(
             self._variable_manager, self._constraint_manager.operand_analyzer
         )
-        self._widening = Widening()
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -84,13 +84,13 @@ class IntervalAnalysisEnhanced(Analysis):
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node, functions or [])
 
-            # # Prevent discrete assignments to widened variables
-            # if operation and hasattr(operation, "lvalue"):
-            #     var_name = self._variable_manager.get_variable_name(operation.lvalue)
-            #     if var_name in domain.state.info:
-            #         self._widening.prevent_discrete_assignment(
-            #             var_name, domain.state.info[var_name]
-            #         )
+            # Prevent discrete assignments to widened variables
+            if operation and hasattr(operation, "lvalue"):
+                var_name = self._variable_manager.get_variable_name(operation.lvalue)
+                if var_name in domain.state.info:
+                    self._widening.prevent_discrete_assignment(
+                        var_name, domain.state.info[var_name]
+                    )
 
     def apply_condition(
         self, domain: IntervalDomain, condition: Operation, branch_taken: bool

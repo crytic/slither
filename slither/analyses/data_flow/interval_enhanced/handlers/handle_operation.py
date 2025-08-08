@@ -36,8 +36,10 @@ if TYPE_CHECKING:
 
 
 class OperationHandler:
-    def __init__(self, constraint_manager: ConstraintManager):
-        self.assignment_handler = AssignmentHandler(constraint_manager=constraint_manager)
+    def __init__(self, constraint_manager: ConstraintManager, widening_manager):
+        self.assignment_handler = AssignmentHandler(
+            constraint_manager=constraint_manager, widening_manager=widening_manager
+        )
         self.arithmetic_handler = ArithmeticHandler(constraint_manager)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.comparison_handler = ComparisonHandler(constraint_manager)
