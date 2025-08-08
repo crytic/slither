@@ -1,6 +1,7 @@
 from typing import Union
 
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import VariableLocation
 from slither.vyper_parsing.ast.types import Arg, Name, AnnAssign, Subscript, Call, Tuple
 from slither.vyper_parsing.type_parsing import parse_type
 
@@ -24,7 +25,7 @@ class LocalVariableVyper:
 
         # Vyper does not have data locations or storage pointers.
         # If this was left as default, reference types would be considered storage by `LocalVariable.is_storage`
-        self._variable.set_location("memory")
+        self._variable.set_location(VariableLocation.MEMORY)
 
     @property
     def underlying_variable(self) -> LocalVariable:

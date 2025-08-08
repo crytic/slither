@@ -4,6 +4,7 @@ from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import VariableLocation
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 
@@ -103,8 +104,8 @@ class CustomErrorSolc(CallerContextExpression):
             local_var_parser.analyze(self)
 
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
-        if local_var.location == "default":
-            local_var.set_location("memory")
+        if local_var.location == VariableLocation.DEFAULT:
+            local_var.set_location(VariableLocation.MEMORY)
 
         return local_var_parser
 

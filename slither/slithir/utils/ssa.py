@@ -18,6 +18,7 @@ from slither.core.declarations.solidity_import_placeholder import SolidityImport
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import VariableLocation
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -166,7 +167,7 @@ def add_ssa_ir(
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
                 fake_variable.name = "STORAGE_" + fake_variable.name
-                fake_variable.set_location("reference_to_storage")
+                fake_variable.set_location(VariableLocation.REFERENCE_TO_STORAGE)
                 new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
             init_local_variables_instances[v.name] = new_var
@@ -178,7 +179,7 @@ def add_ssa_ir(
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
                 fake_variable.name = "STORAGE_" + fake_variable.name
-                fake_variable.set_location("reference_to_storage")
+                fake_variable.set_location(VariableLocation.REFERENCE_TO_STORAGE)
                 new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
             init_local_variables_instances[v.name] = new_var

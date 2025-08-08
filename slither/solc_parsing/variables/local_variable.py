@@ -1,5 +1,6 @@
 from typing import Dict
 
+from slither.core.variables.variable import VariableLocation
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.local_variable import LocalVariable
 
@@ -20,14 +21,14 @@ class LocalVariableSolc(VariableDeclarationSolc):
         Can be storage/memory or default
         """
         if "storageLocation" in attributes:
-            location = attributes["storageLocation"]
+            location = VariableLocation(attributes["storageLocation"])
             self.underlying_variable.set_location(location)
         else:
             if "memory" in attributes["type"]:
-                self.underlying_variable.set_location("memory")
+                self.underlying_variable.set_location(VariableLocation.MEMORY)
             elif "storage" in attributes["type"]:
-                self.underlying_variable.set_location("storage")
+                self.underlying_variable.set_location(VariableLocation.STORAGE)
             else:
-                self.underlying_variable.set_location("default")
+                self.underlying_variable.set_location(VariableLocation.DEFAULT)
 
         super()._analyze_variable_attributes(attributes)
