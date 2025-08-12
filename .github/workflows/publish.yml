@@ -38,7 +38,7 @@ jobs:
       - build-release
     steps:
       - name: fetch dists
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: slither-dists
           path: dist/
