@@ -583,7 +583,7 @@ def test_initial_version_exists_for_locals(slither_from_solidity_source):
 
         addition = get_ssa_of_type(f, Binary)[0]
         assert addition.type == BinaryType.ADDITION
-        assert isinstance(addition.variable_right, Constant)
+        assert isinstance(addition.variable_right, TemporaryVariableSSA)
         a_0 = addition.variable_left
         assert a_0.index == 0
         assert a_0.name == "a"
@@ -1156,7 +1156,7 @@ def test_issue_2210(slither_from_solidity_source):
         c = slither.get_contract_from_name("C")[0]
         f = c.functions[0]
         operations = f.slithir_operations
-        new_op = operations[6]
+        new_op = operations[8]
         assert isinstance(new_op, InitArray)
         lvalue = new_op.lvalue
         lvalue_type = lvalue.type
