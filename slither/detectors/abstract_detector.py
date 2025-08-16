@@ -88,7 +88,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
     ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
-        self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither
         # self.filename = slither.filename
         self.logger = logger
@@ -170,6 +169,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             raise IncorrectDetectorInitialization(
                 f"CONFIDENCE is not initialized {self.__class__.__name__}"
             )
+
+    @property
+    def contracts(self) -> List[Contract]:
+        """Direct accessor to the compilation unit contracts."""
+        return self.compilation_unit.contracts
 
     def _log(self, info: str) -> None:
         if self.logger:
