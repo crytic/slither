@@ -1,0 +1,3 @@
+GetCode.at(address) uses assembly
+	- INLINE ASM
+

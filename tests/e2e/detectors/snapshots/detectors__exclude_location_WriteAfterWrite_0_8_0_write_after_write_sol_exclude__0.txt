@@ -1,0 +1,12 @@
+Test.state is written in both
+	state = 10
+	state = 20
+
+Test.bugy_external_local().local is written in both
+	local = 10
+	local = 11
+
+Test.buggy_local().a is written in both
+	a = 10
+	a = 20
+

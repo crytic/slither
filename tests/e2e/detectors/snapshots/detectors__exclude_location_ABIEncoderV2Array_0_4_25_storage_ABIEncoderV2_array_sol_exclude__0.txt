@@ -1,0 +1,18 @@
+Function A.bad3() trigger an abi encoding bug:
+	- b = abi.encode(s)
+
+Function A.bad0() trigger an abi encoding bug:
+	- this.bad0_external(bad_arr)
+
+Function A.bad4() trigger an abi encoding bug:
+	- event1_bad(bad_arr)
+
+Function A.bad2() trigger an abi encoding bug:
+	- b = abi.encode(bad_arr)
+
+Function A.bad1(A.S[3]) trigger an abi encoding bug:
+	- this.bad1_external(s)
+
+Function A.bad5() trigger an abi encoding bug:
+	- event2_bad(s)
+

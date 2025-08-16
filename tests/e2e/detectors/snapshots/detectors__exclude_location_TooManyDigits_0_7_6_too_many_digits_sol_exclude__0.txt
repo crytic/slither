@@ -1,0 +1,15 @@
+C.f() uses literals with too many digits:
+	- x3 = 1000000000000000000
+
+C.f() uses literals with too many digits:
+	- x2 = 0x0000000000001
+
+C.f() uses literals with too many digits:
+	- x1 = 0x000001
+
+C.h() uses literals with too many digits:
+	- x2 = 100000
+
+C.f() uses literals with too many digits:
+	- x4 = 100000
+
