@@ -3,12 +3,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Deque, Dict, List, Optional, Set, Union
 
 if TYPE_CHECKING:
-
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.declarations import Contract
-
-
-from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
+    from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function

@@ -1,22 +1,21 @@
-interface Receiver{
-    function send_funds() payable external;
+interface Receiver {
+    function send_funds() external payable;
 }
 
-contract TestWithBug{
+contract TestWithBug {
     mapping(address => uint) balances;
 
-    function withdraw(uint amount) public{
-         require(amount <= balances[msg.sender]);
-         Receiver(msg.sender).send_funds{value: amount}();
-         balances[msg.sender] -= amount;
+    function withdraw(uint amount) public {
+        require(amount <= balances[msg.sender]);
+        Receiver(msg.sender).send_funds{value: amount}();
+        balances[msg.sender] -= amount;
     }
 
-    // slither-disable-start all
-    function withdrawFiltered(uint amount) public{
-         require(amount <= balances[msg.sender]);
-         Receiver(msg.sender).send_funds{value: amount}();
-         balances[msg.sender] -= amount;
-    }
-    // slither-disable-end all
+    //     // slither-disable-start all
+    //     function withdrawFiltered(uint amount) public {
+    //         require(amount <= balances[msg.sender]);
+    //         Receiver(msg.sender).send_funds{value: amount}();
+    //         balances[msg.sender] -= amount;
+    //     }
+    //     // slither-disable-end all
 }
-

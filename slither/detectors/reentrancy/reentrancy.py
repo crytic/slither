@@ -1,9 +1,10 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import defaultdict
 from typing import Set, Dict, List, Tuple, Optional
 
