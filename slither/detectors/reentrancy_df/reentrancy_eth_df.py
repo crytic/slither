@@ -96,50 +96,69 @@ class ReentrancyEthDF(AbstractDetector):
                     for send_node, send_destinations in state.send_eth.items():
                         function_send_eth.setdefault(send_node, set()).update(send_destinations)
 
-                    # Detect variables read before calls and written after
-                    if (
+                    # Skip if not all reentrancy conditions are met: ETH calls, state writes, and reads before calls
+                    if not (
                         (state.send_eth or state.safe_send_eth)
                         and state.written
                         and state.reads_prior_calls
                     ):
-                        for call_node, vars_read_before_call in state.reads_prior_calls.items():
-                            for var_canonical_name in vars_read_before_call:
-                                var = next(
-                                    (
-                                        sv
-                                        for sv in contract.state_variables
-                                        if sv.canonical_name == var_canonical_name
-                                    ),
-                                    None,
-                                )
-                                if not var or not isinstance(var, StateVariable):
-                                    continue
-                                if var_canonical_name in state.written:
-                                    writing_nodes = state.written[var_canonical_name]
-                                    non_entry_writing_nodes = {
-                                        n for n in writing_nodes if n != f.entry_point
-                                    }
-                                    if not non_entry_writing_nodes:
-                                        continue
+                        continue
 
-                                    if f.is_reentrant or var in variables_used_in_reentrancy:
-                                        cross_functions = variables_used_in_reentrancy.get(var, [])
-                                        if isinstance(cross_functions, set):
-                                            cross_functions = list(cross_functions)
-                                        main_node = min(
-                                            non_entry_writing_nodes, key=lambda x: x.node_id
-                                        )
-                                        finding_value = FindingValue(
-                                            var,
-                                            main_node,
-                                            tuple(
-                                                sorted(
-                                                    non_entry_writing_nodes, key=lambda x: x.node_id
-                                                )
-                                            ),
-                                            tuple(sorted(cross_functions, key=lambda x: str(x))),
-                                        )
-                                        vulnerable_findings.add(finding_value)
+                    # Iterate through all calls that have variables read before them
+                    for call_node, vars_read_before_call in state.reads_prior_calls.items():
+                        # Check each variable that was read before a call
+                        for var_canonical_name in vars_read_before_call:
+                            # Find the actual StateVariable object by canonical name
+                            var = next(
+                                (
+                                    sv
+                                    for sv in contract.state_variables
+                                    if sv.canonical_name == var_canonical_name
+                                ),
+                                None,
+                            )
+                            # Skip if variable not found or not a StateVariable
+                            if not var or not isinstance(var, StateVariable):
+                                continue
+
+                            # Only proceed if this variable is written somewhere
+                            if var_canonical_name not in state.written:
+                                continue
+
+                            writing_nodes = state.written[var_canonical_name]
+
+                            # Filter out entry point nodes to avoid false positives
+                            non_entry_writing_nodes = {
+                                n for n in writing_nodes if n != f.entry_point
+                            }
+
+                            # Skip if no non-entry writing nodes found
+                            if not non_entry_writing_nodes:
+                                continue
+
+                            # Only report if function is reentrant or variable used in cross-function reentrancy
+                            if not (f.is_reentrant or var in variables_used_in_reentrancy):
+                                continue
+
+                            cross_functions = variables_used_in_reentrancy.get(var, [])
+
+                            # Convert set to list if needed for consistent handling
+                            if isinstance(cross_functions, set):
+                                cross_functions = list(cross_functions)
+
+                            # Use the first writing node as the main node for reporting
+                            main_node = min(non_entry_writing_nodes, key=lambda x: x.node_id)
+
+                            # Create finding value with all relevant information
+                            finding_value = FindingValue(
+                                var,
+                                main_node,
+                                tuple(sorted(non_entry_writing_nodes, key=lambda x: x.node_id)),
+                                tuple(sorted(cross_functions, key=lambda x: str(x))),
+                            )
+
+                            # Add to vulnerable findings set
+                            vulnerable_findings.add(finding_value)
 
                 if vulnerable_findings:
                     finding_key = FindingKey(
