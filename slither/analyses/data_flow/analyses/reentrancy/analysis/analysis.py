@@ -51,13 +51,8 @@ class ReentrancyAnalysis(Analysis):
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
             domain.state = State()
-            self._analyze_operation_by_type(
-                operation, domain, node, functions, private_functions_seen
-            )
-        elif domain.variant == DomainVariant.STATE:
-            self._analyze_operation_by_type(
-                operation, domain, node, functions, private_functions_seen
-            )
+
+        self._analyze_operation_by_type(operation, domain, node, functions, private_functions_seen)
 
     def _analyze_operation_by_type(
         self,
@@ -78,19 +73,26 @@ class ReentrancyAnalysis(Analysis):
         self._update_writes_after_calls(domain, node)
 
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
+        # Track state reads
         for var in node.state_variables_read:
             if isinstance(var, StateVariable):
-                domain.state.reads[var.canonical_name].add(node)
+                domain.state.add_read(var, node)
+        # Track state writes
         for var in node.state_variables_written:
             if isinstance(var, StateVariable) and var.is_stored:
-                domain.state.written[var.canonical_name].add(node)
+                domain.state.add_written(var, node)
 
     def _update_writes_after_calls(self, domain: ReentrancyDomain, node: Node):
-        # Track state writes after external calls
+        # Writes after any external call
         if node in domain.state.calls:
             for var_name, write_nodes in domain.state.written.items():
-                if write_nodes:
-                    domain.state.writes_after_calls[var_name].update(write_nodes)
+                for wn in write_nodes:
+                    domain.state.add_write_after_call(var_name, wn)
+        # Writes after ETH-sending calls
+        if node in domain.state.send_eth:
+            for var_name, write_nodes in domain.state.written.items():
+                for wn in write_nodes:
+                    domain.state.add_write_after_call(var_name, wn)
 
     def _handle_internal_call_operation(
         self,
@@ -114,9 +116,9 @@ class ReentrancyAnalysis(Analysis):
                     [function],
                     private_functions_seen,
                 )
-        # Mark cross-function reentrancy
+        # Mark cross-function reentrancy for written variables
         for var_name in domain.state.written.keys():
-            domain.state.cross_function[var_name].add(function)
+            domain.state.add_cross_function(var_name, function)
 
     def _handle_abi_call_contract_operation(
         self,
@@ -124,20 +126,25 @@ class ReentrancyAnalysis(Analysis):
         domain: ReentrancyDomain,
         node: Node,
     ):
-        domain.state.calls[node].add(operation.node)
-        vars_read_before_call = set(domain.state.reads.keys())
-        domain.state.reads_prior_calls[node] = vars_read_before_call
+        # Track all external calls - avoid duplicates
+        if operation.node not in domain.state.calls.get(node, set()):
+            domain.state.add_call(node, operation.node)
 
+        # Track variables read prior to this call
+        for var_name in domain.state.reads.keys():
+            domain.state.add_reads_prior_calls(node, var_name)
+
+        # Track external calls that send ETH - avoid duplicates
         if operation.can_send_eth:
-            if isinstance(operation, (Send, Transfer)):
-                domain.state.safe_send_eth[node].add(operation.node)
-            else:
-                domain.state.send_eth[node].add(operation.node)
+            if operation.node not in domain.state.send_eth.get(node, set()):
+                domain.state.add_send_eth(node, operation.node)
 
     def _handle_event_call_operation(self, operation: EventCall, domain: ReentrancyDomain):
-        calls_before_events = set()
+        # Track events and propagate previous external calls
+        # Only propagate calls that haven't already been propagated to this event node
+        existing_calls = domain.state.calls.get(operation.node, set())
         for calls_set in domain.state.calls.values():
-            calls_before_events.update(calls_set)
-        domain.state.events[operation].add(operation.node)
-        for call_node in calls_before_events:
-            domain.state.calls[operation.node].add(call_node)
+            for call_node in calls_set:
+                if call_node not in existing_calls:
+                    domain.state.add_call(operation.node, call_node)
+        domain.state.add_event(operation, operation.node)

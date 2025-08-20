@@ -1,6 +1,6 @@
 from collections import defaultdict
 import copy
-from typing import Dict, Set
+from typing import Dict, Set, Union
 
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
@@ -17,11 +17,38 @@ class State:
         self._reads_prior_calls: Dict[Node, Set[str]] = defaultdict(set)
         self._events: Dict[EventCall, Set[Node]] = defaultdict(set)
         self._written: Dict[str, Set[Node]] = defaultdict(set)
-
-        # New attributes
         self.writes_after_calls: Dict[str, Set[Node]] = defaultdict(set)
         self.cross_function: Dict[StateVariable, Set[Function]] = defaultdict(set)
 
+    # -------------------- Add methods --------------------
+    def add_call(self, node: Node, call_node: Node):
+        self._calls[node].add(call_node)
+
+    def add_send_eth(self, node: Node, call_node: Node):
+        self._send_eth[node].add(call_node)
+
+    def add_safe_send_eth(self, node: Node, call_node: Node):
+        self._safe_send_eth[node].add(call_node)
+
+    def add_written(self, var: StateVariable, node: Node):
+        self._written[var.canonical_name].add(node)
+
+    def add_read(self, var: StateVariable, node: Node):
+        self._reads[var.canonical_name].add(node)
+
+    def add_reads_prior_calls(self, node: Node, var_name: str):
+        self._reads_prior_calls[node].add(var_name)
+
+    def add_write_after_call(self, var_name: str, node: Node):
+        self.writes_after_calls[var_name].add(node)
+
+    def add_cross_function(self, var: StateVariable, function: Function):
+        self.cross_function[var].add(function)
+
+    def add_event(self, event: EventCall, node: Node):
+        self._events[event].add(node)
+
+    # -------------------- Properties --------------------
     @property
     def send_eth(self) -> Dict[Node, Set[Node]]:
         return self._send_eth
@@ -59,6 +86,7 @@ class State:
     def events(self) -> Dict[EventCall, Set[Node]]:
         return self._events
 
+    # -------------------- Utilities --------------------
     def __eq__(self, other):
         if not isinstance(other, State):
             return False
@@ -105,14 +133,15 @@ class State:
         )
 
     def deep_copy(self) -> "State":
-        new_info = State()
-        new_info._send_eth = copy.deepcopy(self._send_eth)
-        new_info._safe_send_eth = copy.deepcopy(self._safe_send_eth)
-        new_info._calls = copy.deepcopy(self._calls)
-        new_info._reads = copy.deepcopy(self._reads)
-        new_info._reads_prior_calls = copy.deepcopy(self._reads_prior_calls)
-        new_info._events = copy.deepcopy(self._events)
-        new_info._written = copy.deepcopy(self._written)
-        new_info.writes_after_calls = copy.deepcopy(self.writes_after_calls)
-        new_info.cross_function = copy.deepcopy(self.cross_function)
-        return new_info
+        new_state = State()
+        new_state._send_eth = copy.deepcopy(self._send_eth)
+        new_state._safe_send_eth = copy.deepcopy(self._safe_send_eth)
+        new_state._calls = copy.deepcopy(self._calls)
+        new_state._reads = copy.deepcopy(self._reads)
+        new_state._reads_prior_calls = copy.deepcopy(self._reads_prior_calls)
+        new_state._events = copy.deepcopy(self._events)
+        new_state._written = copy.deepcopy(self._written)
+        new_state.writes_after_calls = copy.deepcopy(self.writes_after_calls)
+        new_state.cross_function = copy.deepcopy(self.cross_function)
+        return new_state
+
