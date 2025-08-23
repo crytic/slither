@@ -13,22 +13,23 @@ Slither allows printing contracts information through its printers.
 | 9   | `dominator`         | Export the dominator tree of each functions                                                                      |
 | 10  | `echidna`           | Export Echidna guiding information                                                                               |
 | 11  | `entry-points`      | Print all the state-changing entry point functions of the contracts                                              |
-| 12  | `evm`               | [Print the evm instructions of nodes in functions](#evm)                                                         |
-| 13  | `function-id`       | [Print the keccak256 signature of the functions](#function-id)                                                   |
-| 14  | `function-summary`  | [Print a summary of the functions](#function-summary)                                                            |
-| 15  | `halstead`          | Computes the Halstead complexity metrics for each contract                                                       |
-| 16  | `human-summary`     | [Print a human-readable summary of the contracts](#human-summary)                                                |
-| 17  | `inheritance`       | [Print the inheritance relations between contracts](#inheritance)                                                |
-| 18  | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](#inheritance-graph)                                |
-| 19  | `loc`               | Count the total number lines of code (LOC), source lines of code (SLOC)                                          |
-| 20  | `martin`            | Martin agile software metrics (Ca, Ce, I, A, D)                                                                  |
-| 21  | `modifiers`         | Print the modifiers called by each function                                                                      |
-| 22  | `not-pausable`      | Print functions that do not use whenNotPaused                                                                    |
-| 23  | `require`           | [Print the require and assert calls of each function](#require)                                                  |
-| 24  | `slithir`           | [Print the slithIR representation of the functions](#slithir)                                                    |
-| 25  | `slithir-ssa`       | [Print the slithIR representation of the functions](#slithir-ssa)                                                |
-| 26  | `variable-order`    | [Print the storage order of the state variables](#variable-order)                                                |
-| 27  | `vars-and-auth`     | [Print the state variables written and the authorization of the functions](#variables-written-and-authorization) |
+| 12  | `entry-points-vars` | Print all the state-changing entry point functions and their variables of the contracts                          |
+| 13  | `evm`               | [Print the evm instructions of nodes in functions](#evm)                                                         |
+| 14  | `function-id`       | [Print the keccak256 signature of the functions](#function-id)                                                   |
+| 15  | `function-summary`  | [Print a summary of the functions](#function-summary)                                                            |
+| 16  | `halstead`          | Computes the Halstead complexity metrics for each contract                                                       |
+| 17  | `human-summary`     | [Print a human-readable summary of the contracts](#human-summary)                                                |
+| 18  | `inheritance`       | [Print the inheritance relations between contracts](#inheritance)                                                |
+| 19  | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](#inheritance-graph)                                |
+| 20  | `loc`               | Count the total number lines of code (LOC), source lines of code (SLOC)                                          |
+| 21  | `martin`            | Martin agile software metrics (Ca, Ce, I, A, D)                                                                  |
+| 22  | `modifiers`         | Print the modifiers called by each function                                                                      |
+| 23  | `not-pausable`      | Print functions that do not use whenNotPaused                                                                    |
+| 24  | `require`           | [Print the require and assert calls of each function](#require)                                                  |
+| 25  | `slithir`           | [Print the slithIR representation of the functions](#slithir)                                                    |
+| 26  | `slithir-ssa`       | [Print the slithIR representation of the functions](#slithir-ssa)                                                |
+| 27  | `variable-order`    | [Print the storage order of the state variables](#variable-order)                                                |
+| 28  | `vars-and-auth`     | [Print the state variables written and the authorization of the functions](#variables-written-and-authorization) |
 
 Several printers require xdot installed for visualization:
 
