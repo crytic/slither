@@ -242,7 +242,7 @@ For more information, see
 * `inheritance-graph`: [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
 * `contract-summary`: [Print a summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary)
 * `loc`: [Count the total number lines of code (LOC), source lines of code (SLOC), and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), and test files (TEST).](https://github.com/trailofbits/slither/wiki/Printer-documentation#loc)
-* `entry-points`: [Print all the state-changing entry point functions of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#entry-points)
+* `entry-points`: [Print all the state-changing entry point functions and their variables of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#entry-points)
 
 ### In-Depth Review Printers
 

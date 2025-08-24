@@ -1,5 +1,5 @@
 """
-Module printing all the state-changing entry point functions of the contracts
+Module printing all the state-changing entry point functions and their variables of the contracts
 """
 
 from pathlib import Path
@@ -14,7 +14,7 @@ from slither.utils.tests_pattern import is_test_file
 class PrinterEntryPoints(AbstractPrinter):
 
     ARGUMENT = "entry-points"
-    HELP = "Print all the state-changing entry point functions of the contracts"
+    HELP = "Print all the state-changing entry point functions and their variables of the contracts"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#entry-points"
 
@@ -45,7 +45,6 @@ class PrinterEntryPoints(AbstractPrinter):
                 if (
                     f.visibility in ["public", "external"]
                     and isinstance(f, FunctionContract)
-                    and not f.is_constructor
                     and not f.view
                     and not f.pure
                     and not f.is_shadowed
@@ -55,36 +54,94 @@ class PrinterEntryPoints(AbstractPrinter):
             if not entry_points:
                 continue
 
-            table = MyPrettyTable(["Function", "Modifiers", "Inherited From"])
+            # Build inheritance chain
+            inheritance_chain = self._get_inheritance_chain(contract)
+            inheritance_str = f" is {' is '.join(inheritance_chain)}" if inheritance_chain else ""
+
             contract_info = [
-                f"\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}"
+                f"\n\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}{inheritance_str}"
                 f" ({contract.source_mapping})"
             ]
 
-            for f in sorted(
-                entry_points,
-                key=lambda x, contract=contract: (
-                    x.contract_declarer != contract,
-                    x.contract_declarer.name if x.contract_declarer != contract else "",
-                    x.source_mapping.start,
-                ),
-            ):
-                name_parts = f.full_name.split("(", 1)
-                inherited = f.contract_declarer.name if f.contract_declarer != contract else ""
-                modifiers = ", ".join(
-                    [m.name for m in f.modifiers] + (["payable"] if f.payable else [])
-                )
+            # Create variables table
+            variables_with_slots = self._get_variables_with_slots(contract)
+            if variables_with_slots:
+                var_table = MyPrettyTable(["Variables", "Types", "Storage Slots", "Inherited From"])
+                for var_name, var_type, slot, inherited_from in variables_with_slots:
+                    var_table.add_row(
+                        [
+                            f"{Colors.BOLD}{Colors.BLUE}{var_name}{Colors.END}",
+                            f"{Colors.GREEN}{var_type}{Colors.END}",
+                            f"{Colors.YELLOW}{slot}{Colors.END}",
+                            (
+                                f"{Colors.MAGENTA}{inherited_from}{Colors.END}"
+                                if inherited_from
+                                else ""
+                            ),
+                        ]
+                    )
+                contract_info.append(str(var_table))
 
-                table.add_row(
-                    [
-                        f"{Colors.BOLD}{Colors.RED}{name_parts[0]}{Colors.END}({name_parts[1]}",
-                        f"{Colors.GREEN}{modifiers}{Colors.END}" if modifiers else "",
-                        f"{Colors.MAGENTA}{inherited}{Colors.END}" if inherited else "",
-                    ]
-                )
+            # Create functions table
+            func_table = MyPrettyTable(["Functions", "Modifiers", "Inherited From"])
 
-            all_contracts.append("\n".join(contract_info + [str(table)]))
+            self._add_function_rows(func_table, entry_points, contract)
+
+            contract_info.append(str(func_table))
+            all_contracts.append("\n".join(contract_info))
 
         info = "\n".join(all_contracts) if all_contracts else ""
         self.info(info)
         return self.generate_output(info)
+
+    def _get_inheritance_chain(self, contract):
+        """Get the full inheritance chain for a contract"""
+        inheritance_chain = []
+        for base in contract.inheritance:
+            if not base.is_interface and not base.is_library:
+                inheritance_chain.append(base.name)
+        return inheritance_chain
+
+    def _get_variables_with_slots(self, contract):
+        """Get all state variables with their storage slots, types, and inheritance info"""
+        variables_info = []
+
+        for variable in contract.storage_variables_ordered:
+            slot, _ = contract.compilation_unit.storage_layout_of(contract, variable)
+            var_type = str(variable.type)
+            inherited_from = variable.contract.name if variable.contract != contract else ""
+            variables_info.append((variable.name, var_type, str(slot), inherited_from))
+
+        return variables_info
+
+    def _add_function_rows(self, func_table, entry_points, contract):
+        """Add function rows to the functions table"""
+        for f in sorted(
+            entry_points,
+            key=lambda x, contract=contract: (
+                x.contract_declarer != contract,
+                x.contract_declarer.name if x.contract_declarer != contract else "",
+                x.source_mapping.start,
+            ),
+        ):
+            name_parts = f.full_name.split("(", 1)
+            inherited = f.contract_declarer.name if f.contract_declarer != contract else ""
+            modifiers = ", ".join(
+                [m.name for m in f.modifiers] + (["payable"] if f.payable else [])
+            )
+
+            # Style special functions differently
+            if f.is_constructor or f.name in ["receive", "fallback"]:
+                function_color = f"{Colors.BOLD}{Colors.MAGENTA}"
+            else:
+                function_color = f"{Colors.BOLD}{Colors.RED}"
+
+            function_name = name_parts[0]
+
+            func_table.add_row(
+                [
+                    f"{function_color}{function_name}{Colors.END}({name_parts[1]}",
+                    f"{Colors.GREEN}{modifiers}{Colors.END}" if modifiers else "",
+                    f"{Colors.MAGENTA}{inherited}{Colors.END}" if inherited else "",
+                ]
+            )
