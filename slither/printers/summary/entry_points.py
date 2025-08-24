@@ -64,15 +64,14 @@ class PrinterEntryPoints(AbstractPrinter):
             ]
 
             # Create variables table
-            variables_with_slots = self._get_variables_with_slots(contract)
-            if variables_with_slots:
-                var_table = MyPrettyTable(["Variables", "Types", "Storage Slots", "Inherited From"])
-                for var_name, var_type, slot, inherited_from in variables_with_slots:
+            variables_info = self._get_variables_info(contract)
+            if variables_info:
+                var_table = MyPrettyTable(["Variables", "Types", "Inherited From"])
+                for var_name, var_type, inherited_from in variables_info:
                     var_table.add_row(
                         [
                             f"{Colors.BOLD}{Colors.BLUE}{var_name}{Colors.END}",
                             f"{Colors.GREEN}{var_type}{Colors.END}",
-                            f"{Colors.YELLOW}{slot}{Colors.END}",
                             (
                                 f"{Colors.MAGENTA}{inherited_from}{Colors.END}"
                                 if inherited_from
@@ -102,15 +101,14 @@ class PrinterEntryPoints(AbstractPrinter):
                 inheritance_chain.append(base.name)
         return inheritance_chain
 
-    def _get_variables_with_slots(self, contract):
-        """Get all state variables with their storage slots, types, and inheritance info"""
+    def _get_variables_info(self, contract):
+        """Get all state variables with their types and inheritance info"""
         variables_info = []
 
         for variable in contract.storage_variables_ordered:
-            slot, _ = contract.compilation_unit.storage_layout_of(contract, variable)
             var_type = str(variable.type)
             inherited_from = variable.contract.name if variable.contract != contract else ""
-            variables_info.append((variable.name, var_type, str(slot), inherited_from))
+            variables_info.append((variable.name, var_type, inherited_from))
 
         return variables_info
 
