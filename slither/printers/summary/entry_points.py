@@ -54,7 +54,6 @@ class PrinterEntryPoints(AbstractPrinter):
             if not entry_points:
                 continue
 
-            # Build inheritance chain
             inheritance_chain = self._get_inheritance_chain(contract)
             inheritance_str = f" is {' is '.join(inheritance_chain)}" if inheritance_chain else ""
 
@@ -63,7 +62,6 @@ class PrinterEntryPoints(AbstractPrinter):
                 f" ({contract.source_mapping})"
             ]
 
-            # Create variables table
             variables_info = self._get_variables_info(contract)
             if variables_info:
                 var_table = MyPrettyTable(["Variables", "Types", "Inherited From"])
@@ -81,7 +79,6 @@ class PrinterEntryPoints(AbstractPrinter):
                     )
                 contract_info.append(str(var_table))
 
-            # Create functions table
             func_table = MyPrettyTable(["Functions", "Modifiers", "Inherited From"])
 
             self._add_function_rows(func_table, entry_points, contract)
@@ -128,7 +125,6 @@ class PrinterEntryPoints(AbstractPrinter):
                 [m.name for m in f.modifiers] + (["payable"] if f.payable else [])
             )
 
-            # Style special functions differently
             if f.is_constructor or f.name in ["receive", "fallback"]:
                 function_color = f"{Colors.BOLD}{Colors.MAGENTA}"
             else:
