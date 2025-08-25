@@ -10,8 +10,6 @@ from slither.core.solidity_types import (
 )
 from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.identifier import Identifier
 
 
 def _convert_type_for_solidity_signature_to_string(
@@ -32,11 +30,7 @@ def _convert_type_for_solidity_signature_to_string(
 
             if types.length is None:
                 return underlying_type_str + "[]"
-            if isinstance(types.length, Literal):
-                return underlying_type_str + f"[{types.length}]"
-            # At this point it must be an Identifier and constant either a TopLevelVariable or a StateVariable
-            assert isinstance(types.length, Identifier) and types.length.value.is_constant
-            return underlying_type_str + f"[{types.length.value.expression}]"
+            return underlying_type_str + f"[{types.length_value}]"
 
         return str(types)
 
