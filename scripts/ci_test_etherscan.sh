@@ -18,4 +18,3 @@ if [ "$GITHUB_ETHERSCAN" = "" ]; then
 fi
 
 exit 0
-

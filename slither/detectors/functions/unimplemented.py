@@ -58,7 +58,7 @@ contract DerivedContract is BaseInterface, BaseInterface2 {
 }
 ```
 `DerivedContract` does not implement `BaseInterface.f2` or `BaseInterface2.f3`.
-As a result, the contract will not properly compile. 
+As a result, the contract will not properly compile.
 All unimplemented functions must be implemented on a contract that is meant to be used."""
     # endregion wiki_exploit_scenario
 

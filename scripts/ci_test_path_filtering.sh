@@ -10,6 +10,6 @@ then
   echo "Path filtering across POSIX and Windows failed"
   rm output.txt
   exit 5
-else 
+else
   rm output.txt
 fi

@@ -181,7 +181,7 @@ class IncorrectUsingFor(AbstractDetector):
     library L {
         function f(bool) public pure {}
     }
-    
+
     using L for uint;
     ```
     Such a code will compile despite the fact that `L` has no function with `uint` as its first argument."""

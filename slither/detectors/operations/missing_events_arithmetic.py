@@ -49,10 +49,10 @@ contract C {
 
     function buy() external {
      ... // buyPrice is used to determine the number of tokens purchased
-    }    
+    }
 }
 ```
-`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain. 
+`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain.
 """
     # endregion wiki_exploit_scenario
 

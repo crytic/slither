@@ -41,7 +41,7 @@ contract Buggy{
     function set_not_protected() public{
         owner = msg.sender;
     }
-}    
+}
 ```
 `owner` must be always written by function using `onlyOwner` (`write-protection="onlyOwner()"`), however anyone can call `set_not_protected`.
 """

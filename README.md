@@ -17,6 +17,7 @@
 * [Features](#features)
 * [Usage](#usage)
 * [How to install](#how-to-install)
+  * [Using uv](#using-uv)
   * [Using Pip](#using-pip)
   * [Using Git](#using-git)
   * [Using Docker](#using-docker)
@@ -70,13 +71,31 @@ slither tests/uninitialized.sol
 > Slither requires Python 3.8+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
+### Using uv (Recommended)
+
+[uv](https://github.com/astral-sh/uv) is a fast Python package manager that's 10-100x faster than pip.
+
+```console
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install slither
+uv pip install slither-analyzer
+```
+
+#### How to upgrade with uv
+
+```console
+uv pip install --upgrade slither-analyzer
+```
+
 ### Using Pip
 
 ```console
 python3 -m pip install slither-analyzer
 ```
 
-#### How to upgrade
+#### How to upgrade with pip
 
 ```console
 python3 -m pip install --upgrade slither-analyzer
@@ -92,6 +111,9 @@ brew install slither-analyzer
 
 ```bash
 git clone https://github.com/crytic/slither.git && cd slither
+# Using uv (recommended)
+uv pip install .
+# Or using pip
 python3 -m pip install .
 ```
 

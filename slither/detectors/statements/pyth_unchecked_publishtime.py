@@ -35,9 +35,9 @@ contract C {
         PythStructs.Price memory price = pyth.getEmaPriceUnsafe(id);
         // Use price
     }
-}    
+}
 ```
-The function `A` uses the price without checking its `publishTime` coming from the `getEmaPriceUnsafe` function. 
+The function `A` uses the price without checking its `publishTime` coming from the `getEmaPriceUnsafe` function.
 """
 
     PYTH_FUNCTIONS = [

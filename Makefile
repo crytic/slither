@@ -44,12 +44,21 @@ all:
 .PHONY: dev
 dev: $(VENV)/pyvenv.cfg
 
+.PHONY: dev-uv
+dev-uv:
+	# Fast development setup using uv
+	uv venv $(VENV) --python 3.11
+	uv pip install -e .[$(SLITHER_EXTRA)]
+
 .PHONY: run
 run: $(VENV)/pyvenv.cfg
 	@. $(VENV_BIN)/activate && slither $(ARGS)
 
 $(VENV)/pyvenv.cfg: pyproject.toml
 	# Create our Python 3 virtual environment
+	# Option 1: Using uv (recommended - 10-100x faster)
+	# uv venv env && uv pip install -e .[$(SLITHER_EXTRA)]
+	# Option 2: Using standard pip
 	python3 -m venv env
 	$(VENV_BIN)/python -m pip install --upgrade pip
 	$(VENV_BIN)/python -m pip install -e .[$(SLITHER_EXTRA)]
@@ -57,15 +66,14 @@ $(VENV)/pyvenv.cfg: pyproject.toml
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		black --check . && \
-		pylint $(PY_MODULE) $(TEST_MODULE) 
-		# ruff $(ALL_PY_SRCS) && \
-		# mypy $(PY_MODULE) && 
+		ruff check $(PY_MODULE) $(TEST_MODULE) && \
+		yamllint .github/
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		black .
+		ruff check --fix $(PY_MODULE) $(TEST_MODULE)
+		# ruff format $(PY_MODULE) $(TEST_MODULE)  # Disabled to avoid changes
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg
