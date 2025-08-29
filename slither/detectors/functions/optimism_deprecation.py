@@ -34,7 +34,7 @@ contract Test {
     GasPriceOracle constant OPT_GAS = GasPriceOracle(0x420000000000000000000000000000000000000F);
 
     function a() public {
-        OPT_GAS.scalar();    
+        OPT_GAS.scalar();
     }
 }
 ```

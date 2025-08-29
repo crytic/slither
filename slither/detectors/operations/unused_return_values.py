@@ -38,7 +38,7 @@ class UnusedReturnValues(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
-    using SafeMath for uint;   
+    using SafeMath for uint;
     function my_func(uint a, uint b) public{
         a.add(b);
     }

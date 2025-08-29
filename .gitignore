@@ -110,8 +110,8 @@ ENV/
 # Test results
 test_artifacts/
 
-# crytic export 
+# crytic export
 crytic-export/
 
-# slither.db.json 
+# slither.db.json
 slither.db.json

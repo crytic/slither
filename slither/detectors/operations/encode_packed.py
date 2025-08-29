@@ -80,7 +80,7 @@ Bob calls `get_hash_for_signature` with (`bob`, `This is the content`). The hash
 Eve creates a collision with the ID using (`bo`, `bThis is the content`) and compromises the system.
 """
     WIKI_RECOMMENDATION = """Do not use more than one dynamic type in `abi.encodePacked()`
-(see the [Solidity documentation](https://solidity.readthedocs.io/en/v0.5.10/abi-spec.html?highlight=abi.encodePacked#non-standard-packed-modeDynamic)). 
+(see the [Solidity documentation](https://solidity.readthedocs.io/en/v0.5.10/abi-spec.html?highlight=abi.encodePacked#non-standard-packed-modeDynamic)).
 Use `abi.encode()`, preferably."""
 
     def _detect(self):

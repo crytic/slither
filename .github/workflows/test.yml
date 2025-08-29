@@ -25,7 +25,9 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["unit", "integration", "tool"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+        python: >-
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]'))
+            || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
@@ -33,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: "pip"
-          cache-dependency-path: setup.py
+          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: |

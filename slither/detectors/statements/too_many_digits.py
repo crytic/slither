@@ -48,7 +48,7 @@ Literals with many digits are difficult to read and review. Use scientific notat
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyContract{
-    uint 1_ether = 10000000000000000000; 
+    uint 1_ether = 10000000000000000000;
 }
 ```
 

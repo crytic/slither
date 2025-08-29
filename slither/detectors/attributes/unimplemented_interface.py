@@ -41,7 +41,7 @@ contract Something {
     }
 }
 ```
-`Something` should inherit from `ISomething`. 
+`Something` should inherit from `ISomething`.
 """
     # endregion wiki_exploit_scenario
 

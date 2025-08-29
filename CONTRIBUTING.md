@@ -47,6 +47,18 @@ A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSl
 
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
+For fast development setup, we recommend using [uv](https://github.com/astral-sh/uv):
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Quick setup with uv
+make dev-uv  # Creates venv and installs all dependencies
+
+# Or traditional setup with pip
+make dev
+```
+
 To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`. The names of tests can be obtained with `pytest tests --collect-only`.
 
 ### Linters
@@ -63,7 +75,33 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use pylint `3.0.3`, black `22.3.0`.
+We use ruff `0.12.11` for linting and formatting, and yamllint `1.35.1` for YAML files.
+
+#### Pre-commit Hooks (Recommended)
+
+We recommend using pre-commit hooks to automatically check and fix code before committing:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+
+# Run on specific files
+pre-commit run --files slither/core/*.py
+
+# Update hook versions
+pre-commit autoupdate
+```
+
+The pre-commit hooks will automatically:
+- Fix linting issues with ruff
+- Check YAML syntax
+- Remove trailing whitespace
+- Fix end-of-file issues
+- Check for merge conflicts
+- Prevent large files from being committed
 
 ### Testing
 
@@ -111,9 +149,9 @@ For each new detector, at least one regression tests must be present.
 
 ### Synchronization with crytic-compile
 
-By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+By default, `slither` follows either the latest version of crytic-compile in PyPI, or `crytic-compile@master` (look for dependencies in [`pyproject.toml`](./pyproject.toml)). If crytic-compile development comes with breaking changes, the process to update `slither` is:
 
-- Update `slither/setup.py` to point to the related crytic-compile's branch
+- Update `slither/pyproject.toml` to point to the related crytic-compile's branch
 - Create a PR in `slither` and ensure it passes the CI
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
 
