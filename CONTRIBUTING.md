@@ -75,7 +75,7 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use ruff `0.12.11` for linting and formatting, and yamllint `1.35.1` for YAML files.
+We use ruff (latest 0.x version) for linting and formatting, and yamllint for YAML files.
 
 #### Pre-commit Hooks (Recommended)
 

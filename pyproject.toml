@@ -41,7 +41,7 @@ dependencies = [
 
 [project.optional-dependencies]
 lint = [
-    "ruff==0.12.11",
+    "ruff>=0.12.0,<1.0",  # Use latest ruff, but cap at 1.0 to avoid breaking changes
     "yamllint>=1.35.1",
 ]
 test = [
@@ -116,6 +116,8 @@ select = [
     "TCH",    # flake8-type-checking
     "RUF",    # Ruff-specific rules
 ]
+# NOTE: When updating ruff version range, also update .pre-commit-config.yaml
+# by running: pre-commit autoupdate
 # Ignore rules to match previous black + pylint configuration
 ignore = [
     # From pylint disabled rules
