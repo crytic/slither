@@ -1,4 +1,4 @@
-## Static analysis
+# Static analysis
 
 The capabilities and design of the Slither static analysis framework have been described in blog posts ([1](https://blog.trailofbits.com/2018/10/19/slither-a-solidity-static-analysis-framework/), [2](https://blog.trailofbits.com/2019/05/27/slither-the-leading-static-analyzer-for-smart-contracts/)) and an [academic paper](https://github.com/trailofbits/publications/blob/master/papers/wetseb19.pdf).
 
@@ -10,7 +10,7 @@ In this article, we will not provide an exhaustive review of static analysis tec
 - [Code analysis](#analysis)
 - [Intermediate representation](#intermediate-representation)
 
-### Code representation
+## Code representation
 
 Unlike dynamic analysis, which reasons about a single execution path, static analysis reasons about all paths at once. To do so, it relies on a different code representation. The two most common ones are the abstract syntax tree (AST) and the control flow graph (CFG).
 

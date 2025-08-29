@@ -1,3 +1,5 @@
+# slither-simil
+
 `slither-simil` uses state-of-the-art machine learning to detect similar (vulnerable) Solidity functions. We have provided a pretrained model from [etherscan_verified_contracts](https://github.com/thec00n/etherscan_verified_contracts) with 60,000 contracts and more than 850,000 functions to get you started quickly. We included the capability to easily train new models if you have access to larger or different datasets.
 
 `slither-simil` uses [FastText](https://github.com/facebookresearch/fastText), a vector embedding technique, to generate compact numerical representations of every function. We used FastText because it:
@@ -11,10 +13,10 @@
 
 Install the required packages before using `slither-simil`:
 
-```
-$ pip3 install pybind11 --user
-$ pip3 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip --user
-$ pip3 install sklearn matplotlib --user # for plot mode
+```sh
+pip3 install pybind11 --user
+pip3 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip --user
+pip3 install sklearn matplotlib --user # for plot mode
 ```
 
 Make sure that you are using `pip3.6` or later. If you are running from inside a [virtualenv](https://virtualenv.pypa.io/en/latest/), remove the `--user` parameter.
@@ -49,7 +51,7 @@ Use the cache to avoid long processing times to compile and vectorize the input 
 
 Here's an example that finds functions similar to `sendCoin` in `MetaCoin` (compiled with `solc-0.4.25`). Searching for similar functions among more than 800,000 functions takes only 20 seconds.
 
-```
+```sh
 $ slither-simil test etherscan_verified_contracts.bin --filename MetaCoin.sol --fname MetaCoin.sendCoin --input cache.npz --ntop 25 --solc solc-0.4.25
 INFO:Slither-simil:Reviewed 825062 functions, listing the 25 most similar ones:
 INFO:Slither-simil:filename                                                          contract             function             score
@@ -84,7 +86,7 @@ INFO:Slither-simil:0x5f9f2ae7150d0beef3bb50ac8d8f4b43e6a6cc57_NABC.sol          
 
 Train mode trains new models used to vectorize functions. You will need a large amount of contracts/functions if you plan to train a new model.
 
-```
+```sh
 $ slither-simil train model.bin --input contracts
 INFO:Slither-simil:Saving extracted data into last_data_train.txt
 INFO:Slither-simil:Starting training
@@ -106,7 +108,7 @@ Plot mode plots sets of functions to visually detect clusters of similar ones.
 
 Here's an example to plot all the functions named `add` from contracts named `SafeMath` sampling from 500 random contracts:
 
-```
+```sh
 $ slither-simil plot etherscan_verified_contracts.bin --fname SafeMath.add --input cache.npz --nsamples 500
 INFO:Slither-simil:Loading data..
 INFO:Slither-simil:Procesing data..
@@ -124,7 +126,7 @@ It can can be also used to plot sets of functions using only a name from any con
 
 This mode has two features. You can inspect the internal information about a pre-trained model. Info mode is typically used for debugging.
 
-```
+```sh
 $ slither-simil info etherscan_verified_contracts.bin
 INFO:Slither-simil:etherscan_verified_contracts.bin uses the following words:
 INFO:Slither-simil:</s>
@@ -142,7 +144,7 @@ INFO:Slither-simil:(local_solc_variable(default)):=(temporary_variable)
 
 ... or examine the internal representation of function:
 
-```
+```sh
 $ slither-simil info etherscan_verified_contracts.bin --filename MetaCoin.sol --fname MetaCoin.sendCoin --solc solc-0.4.25
 INFO:Slither-simil:Function sendCoin in contract MetaCoin is encoded as:
 INFO:Slither-simil:index(uint256) binary(<) condition(temporary_variable) return index(uint256) binary(-) index(uint256) binary(+) event return

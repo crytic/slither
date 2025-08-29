@@ -1,3 +1,5 @@
+# Adding New Utility
+
 Slither can be used as a library to create new utilities.
 Official utils are present in [tools](https://github.com/crytic/slither/tree/master/slither/tools)
 

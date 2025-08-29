@@ -1,4 +1,4 @@
-## Usage
+# Usage
 
 - [How to run Slither](#how-to-run-slither)
   - [Foundry/Hardhat](#foundryhardhat)
@@ -11,7 +11,7 @@
   - [Path Filtering](#path-filtering)
   - [Triage mode](#triage-mode)
   - [Configuration file](#configuration-file)
-- [IDE integrations](#ide-integration)
+- [IDE integrations](#ide-integrations)
 
 ## How to run Slither
 
@@ -21,7 +21,7 @@ All the [`crytic-compile`](https://github.com/crytic/crytic-compile/wiki/Configu
 
 To run Slither on a Foundry/hardhat directory:
 
-```
+```sh
 slither .
 ```
 
@@ -29,7 +29,7 @@ slither .
 
 To run Slither from a Solidity file:
 
-```
+```sh
 slither file.sol
 ```
 
@@ -37,11 +37,17 @@ slither file.sol
 
 To run Slither from a contract hosted on Etherscan, run
 
-```
+```sh
 slither 0x7F37f78cBD74481E593F9C737776F7113d76B315
 ```
 
+### AST File
+
+This section is work in progress
+
 We recommend installing [solc-select](https://github.com/crytic/solc-select/) so Slither can switch to the expected solc version automatically.
+
+## Options
 
 ### Detector selection
 
@@ -49,13 +55,13 @@ Slither runs all its detectors by default.
 
 To run only selected detectors, use `--detect detector1,detector2`. For example:
 
-```
+```sh
 slither file.sol --detect arbitrary-send,pragma
 ```
 
 To exclude detectors, use `--exclude detector1,detector2`. For example:
 
-```
+```sh
 slither file.sol --exclude naming-convention,unused-state,suicidal
 ```
 
@@ -69,7 +75,7 @@ By default, no printers are run.
 
 To run selected printers, use `--print printer1,printer2`. For example:
 
-```
+```sh
 slither file.sol --print inheritance-graph
 ```
 
@@ -81,19 +87,17 @@ slither file.sol --print inheritance-graph
 
 Examples:
 
-```
+```sh
 slither . --filter-paths "openzepellin"
 ```
 
 Filter all the results only related to openzepellin.
 
-```
+```sh
 slither . --filter-paths "Migrations.sol|ConvertLib.sol"
 ```
 
 Filter all the results only related to the file `SafeMath.sol` or `ConvertLib.sol`.
-
-### Triage mode
 
 Slither offers two ways to remove results:
 
@@ -108,7 +112,7 @@ Slither offers two ways to remove results:
 
 Examples:
 
-```
+```sh
 slither . --triage-mode
 [...]
 0: C.destination (test.sol#3) is never initialized. It is used in:
@@ -130,7 +134,7 @@ Options passed via the CLI have priority over options set in the configuration f
 
 The following flags are supported:
 
-```
+```sh
 {
     "detectors_to_run": "all",
     "printers_to_run": None,
@@ -168,3 +172,7 @@ The following flags are supported:
 ```
 
 For flags related to the compilation, see the [`crytic-compile` configuration](https://github.com/crytic/crytic-compile/blob/master/crytic_compile/cryticparser/defaults.py)
+
+## IDE integrations
+
+This section is work in progress

@@ -14,7 +14,7 @@ Use `solc-select install 0.5.0 && solc-select use 0.5.0` to switch to solc 0.5.0
 
 ## Proposed Algorithm
 
-```
+```text
 Get the Coin contract
     For each contract in the project:
         If Coin is in the list of inherited contracts:

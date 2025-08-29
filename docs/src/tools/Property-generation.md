@@ -1,3 +1,5 @@
+# slither-prop
+
 `slither-prop` generates code properties (e.g., invariants) that can be tested with unit tests or [Echidna](https://github.com/crytic/echidna/), entirely automatically. Once you have these properties in hand, use [Crytic](https://crytic.io/) to continuously test them with every commit.
 
 Note: `slither-prop` only supports Truffle for now. We'll be adding support for other frameworks soon!
@@ -13,7 +15,7 @@ There are four steps:
 
 ### Step 1. Generate the tests
 
-```
+```sh
 slither-prop . --contract ContractName
 ```
 
@@ -26,7 +28,7 @@ slither-prop . --contract ContractName
 
 For example on [examples/slither-prop](https://github.com/crytic/slither/tree/9623a2781faa4e7759f06d2e8c4adcd45078af69/examples/slither-prop).
 
-```
+```sh
 Write contracts/crytic/interfaces.sol
 Write contracts/crytic/PropertiesERC20BuggyTransferable.sol
 Write contracts/crytic/TestERC20BuggyTransferable.sol
@@ -74,7 +76,7 @@ On [examples/slither-prop/contracts](https://github.com/crytic/slither/tree/9623
 
 The first unit test file, named `InitializationX.js` will check that the constructor has been correctly initialized:
 
-```
+```sh
 $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
 [..]
   Contract: TestERC20BuggyTransferable
@@ -89,7 +91,7 @@ $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
 
 If all the unit tests passed, run the property tests:
 
-```
+```sh
 $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
   Contract: TestERC20BuggyTransferable
     ✓ The address 0x0 should not receive tokens.
@@ -113,8 +115,8 @@ As you can see, the unit tests detect some of the bugs.
 
 ### Step 4. Run the property tests with Echidna
 
-```
-$ echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
+```sh
+echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
 ```
 
 ## Scenarios
@@ -123,7 +125,7 @@ $ echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.y
 
 Here are the available scenarios:
 
-```
+```sh
 #################### ERC20 ####################
 Transferable - Test the correct tokens transfer
 Pausable - Test the pausable functionality
@@ -135,7 +137,7 @@ Burnable - Test the burn of tokens. Require the "burn(address) returns()" functi
 
 ## All properties
 
-```
+```sh
 +-----+-------------------------------------------------------------------------+------------------------+
 | Num |                               Description                               |        Scenario        |
 +-----+-------------------------------------------------------------------------+------------------------+
