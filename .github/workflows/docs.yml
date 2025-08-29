@@ -37,7 +37,7 @@ jobs:
       - run: pip install -e ".[doc]"
       - run: pdoc -o html/ slither '!slither.tools' #TODO fix import errors on pdoc run
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload the doc
           path: './html/'
