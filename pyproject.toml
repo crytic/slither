@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "slither-analyzer"
@@ -39,6 +39,8 @@ dependencies = [
     "eth-utils>=5.0.0",
 ]
 
+# Note: Using optional-dependencies for development tools until uv fully supports PEP 735
+# These are development dependencies, not optional features of the library
 [project.optional-dependencies]
 lint = [
     "ruff>=0.12.0,<1.0",  # Use latest ruff, but cap at 1.0 to avoid breaking changes
@@ -80,26 +82,18 @@ slither-doctor = "slither.tools.doctor.__main__:main"
 slither-documentation = "slither.tools.documentation.__main__:main"
 slither-interface = "slither.tools.interface.__main__:main"
 
-[tool.setuptools.packages.find]
-exclude = ["tests*", "docs*"]
+[tool.hatch.build.targets.wheel]
+packages = ["slither"]
 
 [tool.ruff]
 # Match black's line length
 line-length = 100
 # Target Python 3.8+ (minimum version required by project)
 target-version = "py38"
-# Exclude test files and documentation
-exclude = [
+# Additional exclusions beyond defaults and .gitignore
+extend-exclude = [
     "tests/",
     "docs/",
-    "build/",
-    "dist/",
-    ".git",
-    "__pycache__",
-    ".venv",
-    "env/",
-    "venv/",
-    "*.egg-info/",
 ]
 
 [tool.ruff.lint]

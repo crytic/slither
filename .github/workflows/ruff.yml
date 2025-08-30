@@ -16,9 +16,6 @@ on:
       - "**/*.yaml"
       - "pyproject.toml"
       - ".github/workflows/ruff.yml"
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,28 +30,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install lint dependencies
-        run: |
-          # Using pip for CI stability, but uv is recommended for local development
-          python -m pip install --upgrade pip
-          # Install latest ruff within 0.x range to get updates but avoid breaking changes
-          pip install "ruff>=0.12.0,<1.0" "yamllint>=1.35.1"
-
       - name: Run Ruff linter
-        run: |
-          echo "::group::Running Ruff checks"
-          ruff check slither/ tests/ scripts/ || RUFF_EXIT=$?
-          echo "::endgroup::"
-          if [ "${RUFF_EXIT:-0}" -ne 0 ]; then
-            echo "❌ Ruff check failed. Run 'make reformat' or 'ruff check --fix' locally to fix issues."
-            exit $RUFF_EXIT
-          fi
-          echo "✅ Ruff check passed"
+        uses: astral-sh/ruff-action@v1
+        with:
+          version: ">=0.12.0"
+          args: "check"
+          src: "slither/ tests/ scripts/"
 
       # Formatting check disabled to avoid changes to existing code
       # - name: Run Ruff formatter check
@@ -68,10 +49,19 @@ jobs:
       #     fi
       #     echo "✅ Formatting check passed"
 
-      - name: Run yamllint
+      - name: Set up Python for yamllint
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install and run yamllint
         run: |
+          # Use uv for fast installation
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          source $HOME/.local/bin/env
+          uv tool install yamllint
           echo "::group::Running yamllint"
-          yamllint .github/ || YAML_EXIT=$?
+          uvx yamllint .github/ || YAML_EXIT=$?
           echo "::endgroup::"
           if [ "${YAML_EXIT:-0}" -ne 0 ]; then
             echo "❌ YAML linting failed. Fix the YAML syntax errors shown above."

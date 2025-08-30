@@ -44,24 +44,14 @@ all:
 .PHONY: dev
 dev: $(VENV)/pyvenv.cfg
 
-.PHONY: dev-uv
-dev-uv:
-	# Fast development setup using uv
-	uv venv $(VENV) --python 3.11
-	uv pip install -e .[$(SLITHER_EXTRA)]
-
 .PHONY: run
 run: $(VENV)/pyvenv.cfg
 	@. $(VENV_BIN)/activate && slither $(ARGS)
 
 $(VENV)/pyvenv.cfg: pyproject.toml
-	# Create our Python 3 virtual environment
-	# Option 1: Using uv (recommended - 10-100x faster)
-	# uv venv env && uv pip install -e .[$(SLITHER_EXTRA)]
-	# Option 2: Using standard pip
-	python3 -m venv env
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/python -m pip install -e .[$(SLITHER_EXTRA)]
+	# Create virtual environment and install dependencies using uv
+	uv venv $(VENV) --python 3.11
+	uv pip install --python $(VENV_BIN)/python -e .[$(SLITHER_EXTRA)]
 
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
@@ -89,7 +79,7 @@ doc: $(VENV)/pyvenv.cfg
 .PHONY: package
 package: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		python3 -m build
+		uv build
 
 .PHONY: edit
 edit:
