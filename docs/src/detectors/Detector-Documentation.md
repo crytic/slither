@@ -1371,7 +1371,7 @@ Detects variables that are written but never read and written again.
         }
     }
     ```
-    `a` is first asigned to `b`, and then to `c`. As a result the first write does nothing.
+    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 

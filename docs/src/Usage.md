@@ -88,7 +88,7 @@ slither . --filter-paths "openzepellin"
 Filter all the results only related to openzepellin.
 
 ```
-slither . --filter-paths "Migrations.sol|ConvertLib.sol"
+slither . --filter-paths "SafeMath.sol|ConvertLib.sol"
 ```
 
 Filter all the results only related to the file `SafeMath.sol` or `ConvertLib.sol`.
