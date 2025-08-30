@@ -33,9 +33,7 @@ jobs:
       - name: Run Ruff linter
         uses: astral-sh/ruff-action@v1
         with:
-          version: ">=0.12.0"
-          args: "check"
-          src: "slither/ tests/ scripts/"
+          args: "check slither/ tests/ scripts/"
 
       # Formatting check disabled to avoid changes to existing code
       # - name: Run Ruff formatter check

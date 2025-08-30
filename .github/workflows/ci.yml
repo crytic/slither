@@ -27,7 +27,7 @@ jobs:
       matrix:
         os: >-
           ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]'))
-            || fromJSON('["ubuntu-latest", "windows-2022"]') }}
+            || fromJSON('["ubuntu-latest", "windows-2025"]') }}
         python: >-
           ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]'))
             || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
@@ -39,11 +39,14 @@ jobs:
             "printers","slither_config","upgradability", "cli", "dapp", "etherscan", "kspec",
             "simil", "truffle"]') }}
         exclude:
+          # Python 3.8 is not available on Windows Server 2025
+          - os: windows-2025
+            python: 3.8
           # Requires nix
-          - os: windows-2022
+          - os: windows-2025
             type: dapp
           # Requires nvm
-          - os: windows-2022
+          - os: windows-2025
             type: truffle
     steps:
       - uses: actions/checkout@v4
