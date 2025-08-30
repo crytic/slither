@@ -27,7 +27,10 @@ def _convert_type_for_solidity_signature_to_string(
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
                 underlying_type, seen
             )
-            return underlying_type_str + "[]"
+
+            if types.length is None:
+                return underlying_type_str + "[]"
+            return underlying_type_str + f"[{types.length_value}]"
 
         return str(types)
 
