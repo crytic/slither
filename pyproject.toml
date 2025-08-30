@@ -92,7 +92,6 @@ line-length = 100
 target-version = "py38"
 # Additional exclusions beyond defaults and .gitignore
 extend-exclude = [
-    "tests/",
     "docs/",
 ]
 
