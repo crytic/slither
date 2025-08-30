@@ -33,7 +33,7 @@ jobs:
           - os: windows-2025
             python: 3.8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python 3.8
         uses: actions/setup-python@v5
         with:
@@ -115,7 +115,7 @@ jobs:
       - run: pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: coverage-data-*
           merge-multiple: true
