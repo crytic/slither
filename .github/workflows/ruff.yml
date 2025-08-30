@@ -56,7 +56,7 @@ jobs:
         run: |
           # Use uv for fast installation
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.local/bin/env
+          export PATH="$HOME/.local/bin:$PATH"
           uv tool install yamllint
           echo "::group::Running yamllint"
           uvx yamllint .github/ || YAML_EXIT=$?
