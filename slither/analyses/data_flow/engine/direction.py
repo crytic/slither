@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import TYPE_CHECKING, Deque, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Deque, Dict, Optional, Set, Union
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations.function import Function
+
 from slither.slithir.operations.binary import Binary, BinaryType
 
 
@@ -26,7 +26,6 @@ class Direction(ABC):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         pass
 
@@ -46,13 +45,10 @@ class Forward(Direction):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         # Apply transfer function to current node
         for operation in node.irs or [None]:
-            analysis.transfer_function(
-                node=node, domain=current_state.pre, operation=operation, functions=functions
-            )
+            analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
 
         # Set post state
         global_state[node.node_id].post = current_state.pre
@@ -77,6 +73,5 @@ class Backward(Direction):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         raise NotImplementedError("Backward transfer function hasn't been developed yet")

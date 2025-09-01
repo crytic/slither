@@ -69,7 +69,7 @@ class ReentrancyEthDF(AbstractDetector):
             ]
 
             for f in functions:
-                engine = Engine.new(analysis=ReentrancyAnalysis(), functions=[f])
+                engine = Engine.new(analysis=ReentrancyAnalysis(), function=f)
                 engine.run_analysis()
                 engine_result = engine.result()
                 vulnerable_findings: Set[FindingValue] = set()

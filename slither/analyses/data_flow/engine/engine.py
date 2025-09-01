@@ -13,21 +13,21 @@ class Engine(Generic[A]):
         self.state: Dict[int, AnalysisState[A]] = {}
         self.nodes: List[Node] = []
         self.analysis: Analysis
-        self.functions: List[Function]
+        self.function: Function  # Single function being analyzed
 
     @classmethod
-    def new(cls, analysis: Analysis, functions: List[Function]):
+    def new(cls, analysis: Analysis, function: Function):
         engine = cls()
         engine.analysis = analysis
-        engine.functions = functions
+        engine.function = function  # Store single function
 
-        #  create state mapping using node.node_id directly
-        for function in functions:
-            for node in function.nodes:
-                engine.nodes.append(node)
-                engine.state[node.node_id] = AnalysisState(
-                    pre=analysis.bottom_value(), post=analysis.bottom_value()
-                )
+        # Create state mapping for nodes in this single function only
+        # Data flow analysis operates on one function's CFG at a time
+        for node in function.nodes:
+            engine.nodes.append(node)
+            engine.state[node.node_id] = AnalysisState(
+                pre=analysis.bottom_value(), post=analysis.bottom_value()
+            )
 
         return engine
 
@@ -52,7 +52,6 @@ class Engine(Generic[A]):
                 node=node,
                 worklist=worklist,
                 global_state=self.state,
-                functions=self.functions,
             )
 
     def result(self) -> Dict[Node, AnalysisState[A]]:

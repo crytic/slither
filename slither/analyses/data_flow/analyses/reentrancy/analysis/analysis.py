@@ -1,4 +1,4 @@
-from typing import List, Optional, Set, Union
+from typing import Optional, Set, Union
 from slither.analyses.data_flow.analyses.reentrancy.analysis.domain import (
     DomainVariant,
     ReentrancyDomain,
@@ -32,17 +32,14 @@ class ReentrancyAnalysis(Analysis):
     def bottom_value(self) -> Domain:
         return ReentrancyDomain.bottom()
 
-    def transfer_function(
-        self, node: Node, domain: ReentrancyDomain, operation: Operation, functions: List[Function]
-    ):
-        self.transfer_function_helper(node, domain, operation, functions)
+    def transfer_function(self, node: Node, domain: ReentrancyDomain, operation: Operation):
+        self.transfer_function_helper(node, domain, operation, private_functions_seen=set())
 
     def transfer_function_helper(
         self,
         node: Node,
         domain: ReentrancyDomain,
         operation: Operation,
-        functions: List[Function],
         private_functions_seen: Optional[Set[Function]] = None,
     ):
         if private_functions_seen is None:
@@ -52,14 +49,13 @@ class ReentrancyAnalysis(Analysis):
             domain.variant = DomainVariant.STATE
             domain.state = State()
 
-        self._analyze_operation_by_type(operation, domain, node, functions, private_functions_seen)
+        self._analyze_operation_by_type(operation, domain, node, private_functions_seen)
 
     def _analyze_operation_by_type(
         self,
         operation: Operation,
         domain: ReentrancyDomain,
         node: Node,
-        functions: List[Function],
         private_functions_seen: Set[Function],
     ):
         if isinstance(operation, EventCall):
@@ -113,7 +109,6 @@ class ReentrancyAnalysis(Analysis):
                     node,
                     domain,
                     internal_operation,
-                    [function],
                     private_functions_seen,
                 )
         # Mark cross-function reentrancy for written variables

@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 
 from slither.analyses.data_flow.engine.direction import Direction
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
-from slither.core.declarations.function import Function
+
 from slither.slithir.operations.operation import Operation
 
 
@@ -19,9 +19,7 @@ class Analysis(ABC):
         pass
 
     @abstractmethod
-    def transfer_function(
-        self, node: Node, domain: Domain, operation: Operation, functions: List[Function]
-    ):
+    def transfer_function(self, node: Node, domain: Domain, operation: Operation):
         pass
 
     @abstractmethod
