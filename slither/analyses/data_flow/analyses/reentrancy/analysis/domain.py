@@ -1,7 +1,8 @@
+from enum import Enum, auto
 from typing import Optional
+
 from slither.analyses.data_flow.analyses.reentrancy.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
-from enum import Enum, auto
 
 
 class DomainVariant(Enum):

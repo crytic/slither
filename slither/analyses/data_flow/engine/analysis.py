@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-
 from slither.analyses.data_flow.engine.direction import Direction
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
-
 from slither.slithir.operations.operation import Operation
 
 

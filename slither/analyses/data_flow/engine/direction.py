@@ -1,15 +1,10 @@
 from abc import ABC, abstractmethod
-from decimal import Decimal
-from typing import TYPE_CHECKING, Deque, Dict, Optional, Set, Union
+from typing import TYPE_CHECKING, Deque, Dict
 
 if TYPE_CHECKING:
-    from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.declarations import Contract
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
-from slither.analyses.data_flow.engine.domain import Domain
-from slither.core.cfg.node import Node, NodeType
 
-from slither.slithir.operations.binary import Binary, BinaryType
+from slither.core.cfg.node import Node
 
 
 class Direction(ABC):

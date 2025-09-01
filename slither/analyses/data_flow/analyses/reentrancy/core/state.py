@@ -1,6 +1,6 @@
-from collections import defaultdict
 import copy
-from typing import Dict, Set, Union
+from collections import defaultdict
+from typing import Dict, Set
 
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function

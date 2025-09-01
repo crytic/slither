@@ -1,4 +1,5 @@
 from typing import Optional, Set, Union
+
 from slither.analyses.data_flow.analyses.reentrancy.analysis.domain import (
     DomainVariant,
     ReentrancyDomain,
