@@ -72,7 +72,7 @@ class ReentrancyAnalysis(Analysis):
     def _handle_storage(self, domain: ReentrancyDomain, node: Node):
         # Track state reads
         for var in node.state_variables_read:
-            if isinstance(var, StateVariable):
+            if isinstance(var, StateVariable) and var.is_stored:
                 domain.state.add_read(var, node)
         # Track state writes
         for var in node.state_variables_written:
