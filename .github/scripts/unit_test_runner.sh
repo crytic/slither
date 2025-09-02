@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+# Use UV_RUN if set (for CI), otherwise run directly (for local dev)
+RUN="${UV_RUN:-}"
+
 # used to pass --cov=$path and --cov-append to pytest
 if [ "$1" != "" ]; then
-    pytest "$1" tests/unit/ -n auto
+    $RUN pytest "$1" tests/unit/ -n auto
     status_code=$?
-    python -m coverage report
+    $RUN python -m coverage report
 else
-    pytest tests/unit/ -n auto
+    $RUN pytest tests/unit/ -n auto
     status_code=$?
 fi
 

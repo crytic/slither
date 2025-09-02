@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
 shopt -s extglob
 
 ### Test slither-flat

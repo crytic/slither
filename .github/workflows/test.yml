@@ -43,8 +43,6 @@ jobs:
         run: |
           pip install uv
           uv sync --group dev
-          # Add venv to PATH so tests can find slither commands
-          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -91,7 +89,7 @@ jobs:
           elif [ ${{ matrix.os }} = "windows-2025" ]; then
             TEST_ARGS=()
           fi
-          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
+          UV_RUN="uv run" bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage

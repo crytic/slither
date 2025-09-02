@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 ### Test path filtering across POSIX and Windows
 
 solc-select use 0.8.0
