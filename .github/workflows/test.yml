@@ -26,12 +26,8 @@ jobs:
         os: ["ubuntu-latest", "windows-2025"]
         type: ["unit", "integration", "tool"]
         python: >-
-          ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]'))
-            || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
-        exclude:
-          # Python 3.8 is not available on Windows Server 2025
-          - os: windows-2025
-            python: 3.8
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
+            || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
     steps:
       - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python }}
@@ -96,7 +92,7 @@ jobs:
         uses: ./.github/actions/upload-coverage
         # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
         # coverage metadata.
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.8' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.9' }}
 
   coverage:
     needs:
@@ -106,10 +102,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - run: pip install coverage[toml]
 
