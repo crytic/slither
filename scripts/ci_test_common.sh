@@ -58,12 +58,12 @@ solc() {
     # If we're in CI with UV_RUN set, we need to ensure solc-select's bin is in PATH
     if [ -n "$UV_RUN" ]; then
         # Get the current solc version from solc-select
-        # Use command to avoid calling our wrapper function
-        SOLC_VERSION=$(command $RUN solc-select versions 2>/dev/null | grep "(current" | cut -d' ' -f1)
+        # Use the raw command, not the wrapper function
+        SOLC_VERSION=$($RUN solc-select versions 2>/dev/null | grep "(current" | cut -d' ' -f1)
         
         # Get the actual virtual environment path from uv
         # When uv run executes, it sets up a venv but VIRTUAL_ENV might not be set in our shell context
-        UV_VENV=$(command $RUN python -c "import sys; print(sys.prefix)" 2>/dev/null)
+        UV_VENV=$($RUN python -c "import sys; print(sys.prefix)" 2>/dev/null)
         
         # Determine where solc-select would have installed the binary
         if [ -n "$UV_VENV" ] && [ -d "$UV_VENV/.solc-select" ]; then
