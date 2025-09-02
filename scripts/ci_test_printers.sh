@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 ### Test printer
 
 cd tests/e2e/solc_parsing/test_data/compile/ || exit

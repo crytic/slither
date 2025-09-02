@@ -178,8 +178,8 @@ contract A {
     }
 }
 ```
-If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
-If `(oldSupply * interest / n)` was used, `coins` would have been `1`.   
+If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.
+If `(oldSupply * interest / n)` was used, `coins` would have been `1`.
 In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous."""
     # endregion wiki_exploit_scenario
 

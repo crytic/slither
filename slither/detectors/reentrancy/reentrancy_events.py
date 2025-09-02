@@ -63,7 +63,7 @@ contract NoReentrancyEvents is Counter {
 }
 ```
 
-If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` events will be incorrect (`Counter(2)`, `Counter(2)`) whereas `NoReentrancyEvents` will correctly emit 
+If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` events will be incorrect (`Counter(2)`, `Counter(2)`) whereas `NoReentrancyEvents` will correctly emit
 (`Counter(1)`, `Counter(2)`). This may cause issues for offchain components that rely on the values of events e.g. checking for the amount deposited to a bridge."""
     # endregion wiki_exploit_scenario
 

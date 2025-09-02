@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 DIR_TESTS="tests/check-kspec"
 
 solc-select use "0.5.0"

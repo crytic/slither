@@ -179,7 +179,7 @@ contract Contract{
 }
 
 ```
-`initialize` should have the `initializer` modifier to prevent someone from initializing the contract multiple times.  
+`initialize` should have the `initializer` modifier to prevent someone from initializing the contract multiple times.
 """
     # endregion wiki_exploit_scenario
 
@@ -246,7 +246,7 @@ contract Derived is Base{
 }
 
 ```
-`Derived.initialize` does not call `Base.initialize` leading the contract to not be correctly initialized.  
+`Derived.initialize` does not call `Base.initialize` leading the contract to not be correctly initialized.
 """
     # endregion wiki_exploit_scenario
 
@@ -368,7 +368,7 @@ class InitializeTarget(AbstractCheck):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Show the function that must be called at deployment. 
+Show the function that must be called at deployment.
 
 This finding does not have an immediate security impact and is informative.
 """

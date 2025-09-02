@@ -37,7 +37,7 @@ contract A {
         // Do price validation
         return uint256(price);
     }
-}    
+}
 ```
 If the contract is deployed on a different chain than Ethereum Mainnet the `getPrice` function will revert.
 """

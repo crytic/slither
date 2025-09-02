@@ -102,8 +102,8 @@ contract A {
 }
 ```
 Contract storage/state-variables are indexed by a 256-bit integer.
-The user can set the array length to `2**256-1` in order to index all storage slots. 
-In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired. 
+The user can set the array length to `2**256-1` in order to index all storage slots.
+In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired.
 Note that storage slots here are indexed via a hash of the indexers; nonetheless, all storage will still be accessible and could be controlled by the attacker."""
     # endregion wiki_exploit_scenario
 

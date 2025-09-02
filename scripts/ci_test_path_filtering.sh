@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 ### Test path filtering across POSIX and Windows
 
 solc-select use 0.8.0
@@ -10,6 +13,6 @@ then
   echo "Path filtering across POSIX and Windows failed"
   rm output.txt
   exit 5
-else 
+else
   rm output.txt
 fi

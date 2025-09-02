@@ -13,20 +13,7 @@ def path_is_relative_to(path: Path, relative_to: Path) -> bool:
 
     Compatibility wrapper for Path.is_relative_to
     """
-    if sys.version_info >= (3, 9, 0):
-        return path.is_relative_to(relative_to)
-
-    path_parts = path.resolve().parts
-    relative_to_parts = relative_to.resolve().parts
-
-    if len(path_parts) < len(relative_to_parts):
-        return False
-
-    for (a, b) in zip(path_parts, relative_to_parts):
-        if a != b:
-            return False
-
-    return True
+    return path.is_relative_to(relative_to)
 
 
 def check_path_config(name: str) -> Tuple[bool, Optional[Path], List[Path]]:

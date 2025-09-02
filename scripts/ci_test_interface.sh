@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 ### Test slither-interface
 
-DIR_TESTS="tests/tools/interface" 
+DIR_TESTS="tests/tools/interface"
 
 solc-select use 0.8.19 --always-install
 

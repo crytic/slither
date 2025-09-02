@@ -17,6 +17,7 @@
 * [Features](#features)
 * [Usage](#usage)
 * [How to install](#how-to-install)
+  * [Using uv](#using-uv)
   * [Using Pip](#using-pip)
   * [Using Git](#using-git)
   * [Using Docker](#using-docker)
@@ -67,19 +68,28 @@ slither tests/uninitialized.sol
 ## How to install
 
 > **Note** <br />
-> Slither requires Python 3.8+.
+> Slither requires Python 3.9+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
-### Using Pip
+### Using uv
+
+[uv](https://github.com/astral-sh/uv) is a fast Python package manager that's 10-100x faster than pip. Slither requires uv for installation.
 
 ```console
-python3 -m pip install slither-analyzer
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install slither as a tool (recommended)
+uv tool install slither-analyzer
+
+# Or run slither ephemerally without installation
+uvx --with slither-analyzer slither <args>
 ```
 
 #### How to upgrade
 
 ```console
-python3 -m pip install --upgrade slither-analyzer
+uv tool upgrade slither-analyzer
 ```
 
 ### Using Brew
@@ -88,14 +98,19 @@ python3 -m pip install --upgrade slither-analyzer
 brew install slither-analyzer
 ```
 
-### Using Git
+### Using Git (for development)
 
 ```bash
 git clone https://github.com/crytic/slither.git && cd slither
-python3 -m pip install .
+
+# Install as editable for development
+uv tool install -e .
+
+# Or use uv run for testing without installation
+uv run slither <args>
 ```
 
-We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/crytic/slither/wiki/Developer-installation), if you prefer to install Slither via git.
+The `-e` flag installs in editable mode, meaning changes to the source code are immediately reflected without reinstalling. The `uv run` command automatically creates a virtual environment and installs dependencies.
 
 ### Using Docker
 

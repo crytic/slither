@@ -65,8 +65,8 @@ contract Proxy{
     }
 }
 ```
-`Proxy.tgeo()` and `Contract.gsf()` have the same function id (0x67e43e43). 
-As a result, `Proxy.tgeo()` will shadow Contract.gsf()`.  
+`Proxy.tgeo()` and `Contract.gsf()` have the same function id (0x67e43e43).
+As a result, `Proxy.tgeo()` will shadow Contract.gsf()`.
 """
     # endregion wiki_exploit_scenario
 

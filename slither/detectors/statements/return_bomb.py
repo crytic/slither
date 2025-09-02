@@ -55,8 +55,8 @@ contract Mark {
 }
 
 ```
-After Mark calls BadGuy bytes are copied from returndata to memory, the memory expansion cost is paid. This means that when using a standard solidity call, the callee can "returnbomb" the caller, imposing an arbitrary gas cost. 
-Callee unexpectedly makes the caller OOG. 
+After Mark calls BadGuy bytes are copied from returndata to memory, the memory expansion cost is paid. This means that when using a standard solidity call, the callee can "returnbomb" the caller, imposing an arbitrary gas cost.
+Callee unexpectedly makes the caller OOG.
 """
 
     WIKI_RECOMMENDATION = "Avoid unlimited implicit decoding of returndata."

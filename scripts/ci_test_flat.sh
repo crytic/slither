@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
 shopt -s extglob
 
 ### Test slither-flat
@@ -10,7 +13,7 @@ if ! slither-flat b.sol; then
     echo "slither-flat failed"
     exit 1
 fi
- 
+
 SUFFIX="@(sol)"
 if ! solc "crytic-export/flattening/"*$SUFFIX; then
     echo "solc failed on flattened files"

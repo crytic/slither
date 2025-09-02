@@ -20,6 +20,6 @@ contract MyContract is Owner{
 
     function mint(uint value) onlyOwner public{
         balances[msg.sender] += value;
-    }    
+    }
 
 }
