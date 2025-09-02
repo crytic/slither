@@ -56,7 +56,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          pip install uv
+          uv sync --group dev
           solc-select use 0.4.25 --always-install
           solc-select use 0.8.0 --always-install
           solc-select use 0.5.1 --always-install

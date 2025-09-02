@@ -38,12 +38,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          pip install uv
+          uv sync --group dev
 
       - name: Setup node
         uses: actions/setup-node@v4

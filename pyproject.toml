@@ -39,14 +39,13 @@ dependencies = [
     "eth-utils>=5.0.0",
 ]
 
-# Note: Using optional-dependencies for development tools until uv fully supports PEP 735
-# These are development dependencies, not optional features of the library
-[project.optional-dependencies]
-lint = [
+# Development dependencies using PEP 735 dependency-groups
+[dependency-groups]
+dev = [
+    # Linting
     "ruff>=0.12.0,<1.0",  # Use latest ruff, but cap at 1.0 to avoid breaking changes
     "yamllint>=1.35.1",
-]
-test = [
+    # Testing
     "pytest",
     "pytest-cov",
     "pytest-xdist",
@@ -56,12 +55,9 @@ test = [
     "coverage[toml]",
     "filelock",
     "pytest-insta",
-]
-doc = [
+    # Documentation
     "pdoc",
-]
-dev = [
-    "slither-analyzer[lint,test,doc]",
+    # Development tools
     "openai",
     "pre-commit>=3.5.0",
 ]
