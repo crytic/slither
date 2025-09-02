@@ -45,6 +45,14 @@ solc-select() {
     $RUN solc-select "$@"
 }
 
+python() {
+    $RUN python "$@"
+}
+
+pip() {
+    $RUN pip "$@"
+}
+
 # Export the functions
 export -f slither
 export -f slither-check-upgradeability
@@ -56,3 +64,5 @@ export -f slither-interface
 export -f slither-find-paths
 export -f slither-prop
 export -f solc-select
+export -f python
+export -f pip
