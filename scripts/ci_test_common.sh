@@ -60,11 +60,38 @@ solc() {
         # Get the current solc version from solc-select
         # Use command to avoid calling our wrapper function
         SOLC_VERSION=$(command $RUN solc-select versions 2>/dev/null | grep "(current" | cut -d' ' -f1)
-        # Use the specific solc binary from solc-select's artifacts
-        if [ -f "$HOME/.solc-select/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" ]; then
+        
+        # When VIRTUAL_ENV is set, solc-select uses it as the base directory
+        # Otherwise it uses HOME
+        if [ -n "$VIRTUAL_ENV" ]; then
+            SOLC_BASE="$VIRTUAL_ENV/.solc-select"
+        else
+            SOLC_BASE="$HOME/.solc-select"
+        fi
+        
+        # Try multiple possible locations for the solc binary
+        # Different systems may have different structures
+        if [ -f "$SOLC_BASE/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" ]; then
+            # MacOS/local structure: artifacts/solc-X.Y.Z/solc-X.Y.Z
+            "$SOLC_BASE/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" "$@"
+        elif [ -f "$SOLC_BASE/artifacts/solc-$SOLC_VERSION" ]; then
+            # Linux/CI structure: artifacts/solc-X.Y.Z (binary directly)
+            "$SOLC_BASE/artifacts/solc-$SOLC_VERSION" "$@"
+        elif [ -f "$HOME/.solc-select/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" ]; then
+            # Fallback to HOME directory - MacOS/local structure
             "$HOME/.solc-select/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" "$@"
+        elif [ -f "$HOME/.solc-select/artifacts/solc-$SOLC_VERSION" ]; then
+            # Fallback to HOME directory - Linux/CI structure (binary directly)
+            "$HOME/.solc-select/artifacts/solc-$SOLC_VERSION" "$@"
         else
             echo "Error: solc-$SOLC_VERSION not found in solc-select artifacts" >&2
+            echo "VIRTUAL_ENV: ${VIRTUAL_ENV:-not set}" >&2
+            echo "HOME: $HOME" >&2
+            echo "Searched locations:" >&2
+            echo "  - $SOLC_BASE/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" >&2
+            echo "  - $SOLC_BASE/artifacts/solc-$SOLC_VERSION" >&2
+            echo "  - $HOME/.solc-select/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" >&2
+            echo "  - $HOME/.solc-select/artifacts/solc-$SOLC_VERSION" >&2
             return 1
         fi
     else
