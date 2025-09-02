@@ -37,6 +37,8 @@ jobs:
       - run: |
           pip install uv
           uv sync --group dev
+          # Add venv to PATH so pdoc can be found
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - run: pdoc -o html/ slither '!slither.tools'  # TODO fix import errors on pdoc run
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

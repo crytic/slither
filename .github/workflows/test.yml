@@ -43,6 +43,8 @@ jobs:
         run: |
           pip install uv
           uv sync --group dev
+          # Add venv to PATH so tests can find slither commands
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Setup node
         uses: actions/setup-node@v4

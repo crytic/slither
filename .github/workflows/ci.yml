@@ -58,9 +58,11 @@ jobs:
         run: |
           pip install uv
           uv sync --group dev
-          solc-select use 0.4.25 --always-install
-          solc-select use 0.8.0 --always-install
-          solc-select use 0.5.1 --always-install
+          # Add venv to PATH so scripts can find slither commands
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+          uv run solc-select use 0.4.25 --always-install
+          uv run solc-select use 0.8.0 --always-install
+          uv run solc-select use 0.5.1 --always-install
 
       - name: Set up nix
         if: matrix.type == 'dapp'
