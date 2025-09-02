@@ -61,11 +61,19 @@ solc() {
         # Use command to avoid calling our wrapper function
         SOLC_VERSION=$(command $RUN solc-select versions 2>/dev/null | grep "(current" | cut -d' ' -f1)
         
-        # When VIRTUAL_ENV is set, solc-select uses it as the base directory
-        # Otherwise it uses HOME
-        if [ -n "$VIRTUAL_ENV" ]; then
+        # Get the actual virtual environment path from uv
+        # When uv run executes, it sets up a venv but VIRTUAL_ENV might not be set in our shell context
+        UV_VENV=$(command $RUN python -c "import sys; print(sys.prefix)" 2>/dev/null)
+        
+        # Determine where solc-select would have installed the binary
+        if [ -n "$UV_VENV" ] && [ -d "$UV_VENV/.solc-select" ]; then
+            # uv virtual environment exists and has solc-select
+            SOLC_BASE="$UV_VENV/.solc-select"
+        elif [ -n "$VIRTUAL_ENV" ]; then
+            # VIRTUAL_ENV is set in the environment
             SOLC_BASE="$VIRTUAL_ENV/.solc-select"
         else
+            # Fall back to HOME directory
             SOLC_BASE="$HOME/.solc-select"
         fi
         
@@ -86,7 +94,9 @@ solc() {
         else
             echo "Error: solc-$SOLC_VERSION not found in solc-select artifacts" >&2
             echo "VIRTUAL_ENV: ${VIRTUAL_ENV:-not set}" >&2
+            echo "UV_VENV: ${UV_VENV:-not found}" >&2
             echo "HOME: $HOME" >&2
+            echo "SOLC_BASE: $SOLC_BASE" >&2
             echo "Searched locations:" >&2
             echo "  - $SOLC_BASE/artifacts/solc-$SOLC_VERSION/solc-$SOLC_VERSION" >&2
             echo "  - $SOLC_BASE/artifacts/solc-$SOLC_VERSION" >&2
