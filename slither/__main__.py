@@ -166,12 +166,23 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    if sys.version_info >= (3, 10):
+    # In Python 3.10+, entry_points() accepts a group parameter directly
+    # In Python 3.8-3.9, we need to use select() or dict lookup
+    try:
+        # Try the Python 3.10+ API with group parameter
         entry_points = metadata.entry_points(group="slither_analyzer.plugin")
-    else:
-        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
-
-        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+    except TypeError:
+        # Fall back to Python 3.8-3.9 API
+        eps = metadata.entry_points()
+        if hasattr(eps, 'select'):
+            # Python 3.9+ with select method
+            entry_points = eps.select(group="slither_analyzer.plugin")
+        elif isinstance(eps, dict):
+            # Python 3.8 returns a dict
+            entry_points = eps.get("slither_analyzer.plugin", [])
+        else:
+            # Fallback
+            entry_points = []
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
