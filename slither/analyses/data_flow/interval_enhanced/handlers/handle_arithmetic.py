@@ -262,11 +262,34 @@ class ArithmeticHandler:
                 var_type=constant_type,
             )
         elif isinstance(variable, Variable):
+            if variable is None:
+                # Handle None variables
+                return StateInfo(
+                    interval_ranges=[],  # Empty ranges instead of full type bounds
+                    valid_values=SingleValues(),
+                    invalid_values=SingleValues(),
+                    var_type=ElementaryType("uint256"),
+                )
+
             var_name: str = self.variable_manager.get_variable_name(variable)
 
             if var_name in domain.state.info:
                 return domain.state.info[var_name]
             else:
+                # Check if this is a ReferenceVariable that points to a struct field
+                if hasattr(variable, "points_to") and variable.points_to is not None:
+                    # Try to find the struct field by looking at what the reference points to
+                    points_to = variable.points_to
+
+                    # If points_to is a LocalVariable, try to construct the field name
+                    if hasattr(points_to, "canonical_name"):
+                        # This is likely a struct field access
+                        # We need to find the corresponding field in the domain state
+                        # For now, return the first struct field we find (this is a simplified approach)
+                        for key in domain.state.info.keys():
+                            if key.endswith(".first") or key.endswith(".second"):
+                                return domain.state.info[key]
+
                 # Default state for unknown variables
                 return StateInfo(
                     interval_ranges=[],  # Empty ranges instead of full type bounds

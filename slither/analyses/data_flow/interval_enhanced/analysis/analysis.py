@@ -10,6 +10,7 @@ from slither.analyses.data_flow.interval_enhanced.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from decimal import Decimal
 from slither.analyses.data_flow.interval_enhanced.core.interval_range import IntervalRange
 from slither.analyses.data_flow.interval_enhanced.core.single_values import SingleValues
 from slither.analyses.data_flow.interval_enhanced.core.state_info import StateInfo
@@ -85,7 +86,7 @@ class IntervalAnalysisEnhanced(Analysis):
             self._analyze_operation_by_type(operation, domain, node, functions or [])
 
             # Prevent discrete assignments to widened variables
-            if operation and hasattr(operation, "lvalue"):
+            if operation and hasattr(operation, "lvalue") and operation.lvalue is not None:
                 var_name = self._variable_manager.get_variable_name(operation.lvalue)
                 if var_name in domain.state.info:
                     self._widening.prevent_discrete_assignment(
@@ -162,8 +163,9 @@ class IntervalAnalysisEnhanced(Analysis):
             return IntervalDomain.bottom()  # Return BOTTOM to signal unreachable branch
 
         # Store the negated operation as a constraint for the original variable
-        var_name = self._variable_manager.get_variable_name(operation.lvalue)
-        self._constraint_manager.add_constraint(var_name, negated_operation)
+        if operation.lvalue is not None:
+            var_name = self._variable_manager.get_variable_name(operation.lvalue)
+            self._constraint_manager.add_constraint(var_name, negated_operation)
 
         # Apply the constraint
         self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
@@ -189,6 +191,54 @@ class IntervalAnalysisEnhanced(Analysis):
                     var_type=parameter.type,
                 )
                 domain.state.info[parameter.canonical_name] = state_info
+            elif hasattr(parameter.type, "type") and hasattr(parameter.type.type, "elems"):
+                # Handle custom struct types by initializing their fields
+                self._initialize_struct_fields(parameter, domain)
+
+    def _initialize_struct_fields(self, parameter, domain: IntervalDomain) -> None:
+        """Initialize struct fields with appropriate ranges."""
+        try:
+            # Get the struct type
+            struct_type = parameter.type.type
+
+            # Initialize each field of the struct
+            for field_name, field in struct_type.elems.items():
+                full_field_name = f"{parameter.canonical_name}.{field_name}"
+
+                # Check if the field is numeric
+                if isinstance(
+                    field.type, ElementaryType
+                ) and self._variable_manager.is_type_numeric(field.type):
+                    interval_range = IntervalRange(
+                        lower_bound=field.type.min,
+                        upper_bound=field.type.max,
+                    )
+                    state_info = StateInfo(
+                        interval_ranges=[interval_range],
+                        valid_values=SingleValues(),
+                        invalid_values=SingleValues(),
+                        var_type=field.type,
+                    )
+                    domain.state.info[full_field_name] = state_info
+                else:
+                    # For non-numeric fields, use default range
+                    interval_range = IntervalRange(
+                        lower_bound=0,
+                        upper_bound=Decimal(
+                            "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                        ),
+                    )
+                    state_info = StateInfo(
+                        interval_ranges=[interval_range],
+                        valid_values=SingleValues(),
+                        invalid_values=SingleValues(),
+                        var_type=field.type if hasattr(field, "type") else None,
+                    )
+                    domain.state.info[full_field_name] = state_info
+        except Exception as e:
+            logger.warning(
+                f"Could not initialize struct fields for {parameter.canonical_name}: {e}"
+            )
 
     def _analyze_operation_by_type(
         self,
@@ -200,12 +250,14 @@ class IntervalAnalysisEnhanced(Analysis):
         """Route operation to appropriate handler based on type."""
 
         if self.has_uninitialized_variable(node) and operation is None:
+
             self._operation_handler.handle_uninitialized_variable(node, domain)
 
         if isinstance(operation, Assignment):
             self._operation_handler.handle_assignment(node, domain, operation)
 
         if isinstance(operation, Binary):
+
             if operation.type in self._constraint_manager.ARITHMETIC_OPERATORS:
                 self._operation_handler.handle_arithmetic(node, domain, operation)
             elif (
@@ -215,8 +267,10 @@ class IntervalAnalysisEnhanced(Analysis):
                 self._operation_handler.handle_comparison(node, domain, operation)
 
         if isinstance(operation, SolidityCall):
+
             self._operation_handler.handle_solidity_call(node, domain, operation)
         if isinstance(operation, InternalCall):
+
             self._operation_handler.handle_internal_call(node, domain, operation, self)
 
     def has_uninitialized_variable(self, node: Node):  # type: ignore

@@ -357,8 +357,23 @@ class IntervalAnalyzer:
 
             # Run analysis
             slither = Slither(file_path)
-            functions = [f for c in slither.contracts for f in c.functions if f.is_implemented]
+            # functions = [f for c in slither.contracts for f in c.functions if f.is_implemented]
 
+            # for contract in slither.contracts:
+            #     if "Settlement" == contract.name:
+            #         settlement_contract = contract
+
+            # functions = (
+            #     [
+            #         f
+            #         for f in settlement_contract.functions
+            #         if f.name == "_settleOrder" and f.is_implemented
+            #     ]
+            #     if settlement_contract
+            #     else []
+            # )
+
+            functions = [f for c in slither.contracts for f in c.functions if f.is_implemented]
             # Collect results
             function_results = []
 
@@ -401,6 +416,8 @@ class IntervalAnalyzer:
                     variable_results = []
 
                     for var_name, var_info in state.info.items():
+                        if "TMP" in var_name:
+                            continue
                         print(f"\t\t📊 Variable: {var_name}")
 
                         # Optimize the state info

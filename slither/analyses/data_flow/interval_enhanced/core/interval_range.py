@@ -12,9 +12,17 @@ getcontext().prec = 100
 class IntervalRange:
     def __init__(
         self,
-        upper_bound: Union[int, Decimal] = ElementaryType("uint256").max,
-        lower_bound: Union[int, Decimal] = ElementaryType("uint256").min,
+        upper_bound: Union[int, Decimal] = None,
+        lower_bound: Union[int, Decimal] = None,
     ):
+        # Set default values if None
+        if upper_bound is None:
+            upper_bound = Decimal(
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            )
+        if lower_bound is None:
+            lower_bound = Decimal("0")
+
         # Convert to Decimal to maintain precision
         if isinstance(upper_bound, (int, float)):
             self.upper_bound = Decimal(str(upper_bound))

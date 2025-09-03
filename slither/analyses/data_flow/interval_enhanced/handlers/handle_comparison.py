@@ -14,6 +14,6 @@ class ComparisonHandler:
 
     def handle_comparison(self, node: Node, domain: IntervalDomain, operation: Binary) -> None:
         """Handle comparison operations by adding constraints to shared manager"""
-        if hasattr(operation, "lvalue") and operation.lvalue:
+        if hasattr(operation, "lvalue") and operation.lvalue is not None:
             var_name: str = self.variable_manager.get_variable_name(operation.lvalue)
             self.constraint_manager.add_constraint(var_name, operation)

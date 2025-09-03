@@ -193,7 +193,16 @@ class StateInfo:
 
     def __str__(self) -> str:
         """String representation of StateInfo for debugging"""
-        type_name = self.var_type.name if self.var_type else "unknown"
+        try:
+            type_name = (
+                self.var_type.name
+                if self.var_type
+                and hasattr(self.var_type, "name")
+                and self.var_type.name is not None
+                else "unknown"
+            )
+        except Exception:
+            type_name = "unknown"
 
         parts = [
             f"type:{type_name}",

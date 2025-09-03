@@ -121,5 +121,13 @@ class AssignmentHandler:
                 invalid_values=source_state_info.invalid_values.deep_copy(),
                 var_type=target_type if target_type else ElementaryType("uint256"),
             )
+        else:
+            # Create default state info if source variable not found
+            state_info = StateInfo(
+                interval_ranges=[],
+                valid_values=SingleValues(),
+                invalid_values=SingleValues(),
+                var_type=target_type if target_type else ElementaryType("uint256"),
+            )
 
         domain.state.info[var_name] = state_info
