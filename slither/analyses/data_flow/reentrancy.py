@@ -119,13 +119,18 @@ class ReentrancyInfo:
     def deep_copy(self) -> "ReentrancyInfo":
         """Create a deep copy of this ReentrancyInfo object"""
         new_info = ReentrancyInfo()
-        new_info._send_eth = copy.deepcopy(self._send_eth)
-        new_info._safe_send_eth = copy.deepcopy(self._safe_send_eth)
-        new_info._calls = copy.deepcopy(self._calls)
-        new_info._reads = copy.deepcopy(self._reads)
-        new_info._reads_prior_calls = copy.deepcopy(self._reads_prior_calls)
-        new_info._events = copy.deepcopy(self._events)
-        new_info._written = copy.deepcopy(self._written)
+        # Copy dictionaries with shallow copy for Node objects to avoid circular reference issues
+        new_info._send_eth = defaultdict(set, {k: v.copy() for k, v in self._send_eth.items()})
+        new_info._safe_send_eth = defaultdict(
+            set, {k: v.copy() for k, v in self._safe_send_eth.items()}
+        )
+        new_info._calls = defaultdict(set, {k: v.copy() for k, v in self._calls.items()})
+        new_info._reads = defaultdict(set, {k: v.copy() for k, v in self._reads.items()})
+        new_info._reads_prior_calls = defaultdict(
+            set, {k: v.copy() for k, v in self._reads_prior_calls.items()}
+        )
+        new_info._events = defaultdict(set, {k: v.copy() for k, v in self._events.items()})
+        new_info._written = defaultdict(set, {k: v.copy() for k, v in self._written.items()})
         return new_info
 
 
@@ -152,6 +157,23 @@ class ReentrancyDomain(Domain):
     def with_state(cls, info: ReentrancyInfo) -> "ReentrancyDomain":
         return cls(DomainVariant.STATE, info)
 
+    def deep_copy(self) -> "ReentrancyDomain":
+        """Create a deep copy of this ReentrancyDomain object"""
+        if self.variant == DomainVariant.BOTTOM:
+            return ReentrancyDomain.bottom()
+        elif self.variant == DomainVariant.TOP:
+            return ReentrancyDomain.top()
+        elif self.variant == DomainVariant.STATE:
+            # Create a new domain with a deep copy of the state
+            if self.state is not None:
+                new_state = self.state.deep_copy()
+            else:
+                new_state = ReentrancyInfo()
+            return ReentrancyDomain.with_state(new_state)
+        else:
+            # Fallback case
+            return ReentrancyDomain.bottom()
+
     def join(self, other: "ReentrancyDomain") -> bool:
         # TOP || BOTTOM
         if self.variant == DomainVariant.TOP or other.variant == DomainVariant.BOTTOM:
@@ -160,7 +182,11 @@ class ReentrancyDomain(Domain):
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
 
             self.variant = DomainVariant.STATE
-            self.state = other.state.deep_copy()
+            # Ensure other.state exists before calling deep_copy
+            if other.state is not None:
+                self.state = other.state.deep_copy()
+            else:
+                self.state = ReentrancyInfo()
             self.state.written.clear()
             self.state.events.clear()
 
@@ -170,11 +196,13 @@ class ReentrancyDomain(Domain):
             if self.state == other.state:
                 return False
 
-            self.state.send_eth.update(other.state.send_eth)
-            self.state.calls.update(other.state.calls)
-            self.state.reads.update(other.state.reads)
-            self.state.reads_prior_calls.update(other.state.reads_prior_calls)
-            self.state.safe_send_eth.update(other.state.safe_send_eth)
+            # Ensure both states exist before updating
+            if self.state is not None and other.state is not None:
+                self.state.send_eth.update(other.state.send_eth)
+                self.state.calls.update(other.state.calls)
+                self.state.reads.update(other.state.reads)
+                self.state.reads_prior_calls.update(other.state.reads_prior_calls)
+                self.state.safe_send_eth.update(other.state.safe_send_eth)
 
             return True
 

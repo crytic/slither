@@ -169,17 +169,18 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     vulnerable_findings.add(finding_value)
 
                 if vulnerable_findings:
+                    # Log debug information about vulnerable findings
                     for finding in vulnerable_findings:
-                        print(f"Variable: {finding.variable.name}")
-                        print(f"Node: {finding.node.node_id}")
-                        print(f"Nodes: {len(finding.nodes)}")
+                        logger.debug(f"Variable: {finding.variable.name}")
+                        logger.debug(f"Node: {finding.node.node_id}")
+                        logger.debug(f"Nodes: {len(finding.nodes)}")
                         for node in finding.nodes:
-                            print(f"\t{node.node_id}")
-                        print(f"Cross functions: {len(finding.cross_functions)}")
+                            logger.debug(f"\t{node.node_id}")
+                        logger.debug(f"Cross functions: {len(finding.cross_functions)}")
                         for cross_function in finding.cross_functions:
-                            print(f"\t{cross_function.name}")
+                            logger.debug(f"\t{cross_function.name}")
 
-                    print("--------------------------------")
+                    logger.debug("--------------------------------")
 
                     finding_key = FindingKey(
                         function=f,
@@ -202,8 +203,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
         varsWritten: List[FindingValue]
         varsWrittenSet: Set[FindingValue]
         for (func, calls, send_eth), varsWrittenSet in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            # calls and send_eth are already tuples from to_hashable function
+            # No need to convert them to sets and back to lists
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
