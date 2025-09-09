@@ -19,8 +19,7 @@ from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 from .reentrancy_df.reentrancy_eth_df import ReentrancyEthDF
-
-
+from .interval_analysis.interval_analysis_df import IntervalAnalysisDF
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.could_be_constant import CouldBeConstant
 from .variables.could_be_immutable import CouldBeImmutable
