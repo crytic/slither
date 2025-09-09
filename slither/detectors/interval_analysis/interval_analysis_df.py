@@ -2,10 +2,9 @@
 Interval analysis detection
 """
 
-from ast import Dict, Set
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Set
 from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.engine.engine import Engine
