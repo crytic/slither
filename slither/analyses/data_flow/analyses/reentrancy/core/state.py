@@ -31,10 +31,20 @@ class State:
         self._safe_send_eth[node].add(call_node)
 
     def add_written(self, var: StateVariable, node: Node):
-        self._written[var.canonical_name].add(node)
+        # Ensure the canonical name exists and is not None
+        if var.canonical_name is not None:
+            # Ensure the key exists in the defaultdict
+            if var.canonical_name not in self._written:
+                self._written[var.canonical_name] = set()
+            self._written[var.canonical_name].add(node)
 
     def add_read(self, var: StateVariable, node: Node):
-        self._reads[var.canonical_name].add(node)
+        # Ensure the canonical name exists and is not None
+        if var.canonical_name is not None:
+            # Ensure the key exists in the defaultdict
+            if var.canonical_name not in self._reads:
+                self._reads[var.canonical_name] = set()
+            self._reads[var.canonical_name].add(node)
 
     def add_reads_prior_calls(self, node: Node, var_name: str):
         self._reads_prior_calls[node].add(var_name)
@@ -134,14 +144,19 @@ class State:
 
     def deep_copy(self) -> "State":
         new_state = State()
-        new_state._send_eth = copy.deepcopy(self._send_eth)
-        new_state._safe_send_eth = copy.deepcopy(self._safe_send_eth)
-        new_state._calls = copy.deepcopy(self._calls)
-        new_state._reads = copy.deepcopy(self._reads)
-        new_state._reads_prior_calls = copy.deepcopy(self._reads_prior_calls)
-        new_state._events = copy.deepcopy(self._events)
-        new_state._written = copy.deepcopy(self._written)
-        new_state.writes_after_calls = copy.deepcopy(self.writes_after_calls)
-        new_state.cross_function = copy.deepcopy(self.cross_function)
-        return new_state
+        # Use shallow copy for Node objects to avoid circular reference issues
 
+        new_state._send_eth.update({k: v.copy() for k, v in self._send_eth.items()})
+        new_state._safe_send_eth.update({k: v.copy() for k, v in self._safe_send_eth.items()})
+        new_state._calls.update({k: v.copy() for k, v in self._calls.items()})
+        new_state._reads.update({k: v.copy() for k, v in self._reads.items()})
+        new_state._reads_prior_calls.update(
+            {k: v.copy() for k, v in self._reads_prior_calls.items()}
+        )
+        new_state._events.update({k: v.copy() for k, v in self._events.items()})
+        new_state._written.update({k: v.copy() for k, v in self._written.items()})
+        new_state.writes_after_calls.update(
+            {k: v.copy() for k, v in self.writes_after_calls.items()}
+        )
+        new_state.cross_function.update({k: v.copy() for k, v in self.cross_function.items()})
+        return new_state

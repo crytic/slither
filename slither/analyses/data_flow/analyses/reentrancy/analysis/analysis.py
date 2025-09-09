@@ -139,8 +139,16 @@ class ReentrancyAnalysis(Analysis):
         # Track events and propagate previous external calls
         # Only propagate calls that haven't already been propagated to this event node
         existing_calls = domain.state.calls.get(operation.node, set())
+
+        # Collect all calls to add before modifying the dictionary
+        calls_to_add = []
         for calls_set in domain.state.calls.values():
             for call_node in calls_set:
                 if call_node not in existing_calls:
-                    domain.state.add_call(operation.node, call_node)
+                    calls_to_add.append(call_node)
+
+        # Add all collected calls
+        for call_node in calls_to_add:
+            domain.state.add_call(operation.node, call_node)
+
         domain.state.add_event(operation, operation.node)
