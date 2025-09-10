@@ -1,6 +1,5 @@
 from typing import Optional
 
-
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
@@ -57,4 +56,3 @@ class IntervalAnalysis(Analysis):
         node: Node,
     ) -> None:
         """Route operation to appropriate handler based on type."""
-        print("needs implementing")

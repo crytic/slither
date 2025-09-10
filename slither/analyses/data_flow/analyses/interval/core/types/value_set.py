@@ -1,5 +1,6 @@
 from decimal import Decimal, getcontext
 from typing import Callable, Iterator, Set, Union
+
 from loguru import logger
 
 getcontext().prec = 100  # Set high precision for Decimal operations

@@ -1,10 +1,13 @@
 from decimal import Decimal
-from typing import List, Tuple, Callable
+from typing import Callable, List, Tuple
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.core.solidity_types.elementary_type import ElementaryType
 from loguru import logger
+
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
+    ValueSet
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class RangeVariable:
