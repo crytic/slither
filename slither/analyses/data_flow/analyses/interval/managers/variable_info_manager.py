@@ -1,19 +1,18 @@
-from decimal import Decimal
-from typing import Optional, Set, Union
+from typing import Union
 
+from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables import Variable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
-from loguru import logger
 
 
 class VariableInfoManager:
     def __init__(self):
         """Initialize the variable manager"""
-        pass
 
     def get_variable_name(self, variable: Variable | None) -> str:
         """Get canonical variable name."""

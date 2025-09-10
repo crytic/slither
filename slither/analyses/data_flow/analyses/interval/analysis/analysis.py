@@ -1,17 +1,16 @@
 from typing import Optional
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
-    DomainVariant,
-    IntervalDomain,
-)
-from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import OperationHandler
+    DomainVariant, IntervalDomain)
+from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import \
+    OperationHandler
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
+from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
-from slither.slithir.operations.assignment import Assignment
 
 
 class IntervalAnalysis(Analysis):

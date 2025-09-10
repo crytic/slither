@@ -1,10 +1,9 @@
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import (
-    ArithmeticHandler,
-)
-from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler import (
-    AssignmentHandler,
-)
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import \
+    ArithmeticHandler
+from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler import \
+    AssignmentHandler
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary

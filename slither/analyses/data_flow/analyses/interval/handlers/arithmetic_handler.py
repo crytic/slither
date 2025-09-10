@@ -1,20 +1,15 @@
-from decimal import Decimal
-from typing import Union
 
 from loguru import logger
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.cfg.node import Node
-from slither.core.declarations.function import Function
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
-from slither.slithir.operations.binary import Binary, BinaryType
-from slither.slithir.utils.utils import RVALUE
-from slither.slithir.variables.constant import Constant
+from slither.slithir.operations.binary import Binary
 
 
 class ArithmeticHandler:

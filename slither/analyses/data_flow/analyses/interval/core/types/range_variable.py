@@ -1,14 +1,14 @@
 from decimal import Decimal
-from typing import Callable, List, Tuple, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
-from slither.core.cfg.node import Node
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
+    ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
@@ -17,7 +17,8 @@ from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+        IntervalDomain
 
 
 class RangeVariable:
