@@ -11,7 +11,9 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
+from slither.core.cfg.node import Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -72,7 +74,7 @@ class IntervalAnalysisDF(AbstractDetector):
         return result
 
     def _extract_variable_ranges(
-        self, function_name: str, analysis_results
+        self, function_name: str, analysis_results: Dict[Node, AnalysisState[IntervalDomain]]
     ) -> Dict[FindingKey, List[FindingValue]]:
         """Extract variable ranges from analysis results."""
         findings: Dict[FindingKey, List[FindingValue]] = {}
@@ -86,13 +88,17 @@ class IntervalAnalysisDF(AbstractDetector):
 
             state = analysis.post.state
 
+            # Print node information
+
+            print(f"Node {node.node_id}:", str(node.expression))
+
             # Get range variables from state
             for var_name, range_var in state.get_range_variables().items():
                 if "TMP" in var_name:  # Skip temporary variables
                     continue
 
                 # Extract interval ranges
-                interval_ranges = []
+                interval_ranges: List[Dict[str, str]] = []
                 for interval_range in range_var.get_interval_ranges():
                     interval_ranges.append(
                         {
@@ -102,12 +108,12 @@ class IntervalAnalysisDF(AbstractDetector):
                     )
 
                 # Extract valid and invalid values
-                valid_values = [str(v) for v in range_var.get_valid_values()]
-                invalid_values = [str(v) for v in range_var.get_invalid_values()]
+                valid_values: List[str] = [str(v) for v in range_var.get_valid_values()]
+                invalid_values: List[str] = [str(v) for v in range_var.get_invalid_values()]
 
                 # Check for overflow/underflow
-                has_overflow = range_var.has_overflow()
-                has_underflow = range_var.has_underflow()
+                has_overflow: bool = range_var.has_overflow()
+                has_underflow: bool = range_var.has_underflow()
 
                 # Create finding key and value
                 finding_key = FindingKey(
