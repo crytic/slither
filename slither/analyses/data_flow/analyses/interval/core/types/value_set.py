@@ -90,14 +90,24 @@ class ValueSet:
     def compute_arithmetic_with_scalar(
         self, scalar: Union[int, Decimal], operation_type: BinaryType
     ) -> "ValueSet":
-        """Compute the result of applying a scalar operation to all values in this ValueSet."""
+        """Compute the result of applying a scalar operation to all values in this ValueSet.
+
+        For subtraction: computes scalar - value (e.g., 100 - 30 = 70)
+        For addition: computes scalar + value
+        For multiplication: computes scalar * value
+        For division: computes scalar / value
+        """
         result_values = ValueSet(set())
         decimal_scalar = self._to_decimal(scalar)
 
         # Apply operation to each value in the set
         for value in self._values:
             try:
-                result_val = ValueSet._apply_scalar_op(value, decimal_scalar, operation_type)
+                # For subtraction and division, we want scalar op value, not value op scalar
+                if operation_type in [BinaryType.SUBTRACTION, BinaryType.DIVISION]:
+                    result_val = ValueSet._apply_scalar_op(decimal_scalar, value, operation_type)
+                else:
+                    result_val = ValueSet._apply_scalar_op(value, decimal_scalar, operation_type)
                 result_values.add(result_val)
             except Exception as e:
                 logger.warning(f"Error in scalar arithmetic: {e}")
