@@ -59,8 +59,8 @@ class ValueSet:
     def size(self) -> int:
         return len(self._values)
 
-    # Copy
-    def copy(self) -> "ValueSet":
+    def deep_copy(self) -> "ValueSet":
+        """Create a deep copy of this ValueSet."""
         return ValueSet(self._values.copy())
 
     def join(self, other: "ValueSet") -> "ValueSet":

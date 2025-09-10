@@ -3,10 +3,8 @@ from typing import Callable, List, Tuple
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.core.solidity_types.elementary_type import ElementaryType
 
 
@@ -120,11 +118,11 @@ class RangeVariable:
         self.interval_ranges = [range_obj.copy() for range_obj in self.interval_ranges]
 
     # ---------- Copy ----------
-    def copy(self) -> "RangeVariable":
-        """Create a copy of the RangeVariable"""
+    def deep_copy(self) -> "RangeVariable":
+        """Create a deep copy of the RangeVariable"""
         return RangeVariable(
-            interval_ranges=[interval_range.copy() for interval_range in self.interval_ranges],
-            valid_values=self.valid_values.copy(),
-            invalid_values=self.invalid_values.copy(),
+            interval_ranges=[interval_range.deep_copy() for interval_range in self.interval_ranges],
+            valid_values=self.valid_values.deep_copy(),
+            invalid_values=self.invalid_values.deep_copy(),
             var_type=self.var_type,
         )

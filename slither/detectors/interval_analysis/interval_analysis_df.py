@@ -16,7 +16,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.utils.output import Output
 
 
-@dataclass
+@dataclass(frozen=True)
 class FindingKey:
     """Key for interval analysis findings."""
 
@@ -49,9 +49,9 @@ class IntervalAnalysisDF(AbstractDetector):
     WIKI_RECOMMENDATION = "tbd"
     STANDARD_JSON = False
 
-    def find_intervals(self) -> Dict[FindingKey, Set[FindingValue]]:
+    def find_intervals(self) -> Dict[FindingKey, List[FindingValue]]:
         """Find intervals for all functions and return variable ranges."""
-        result: Dict[FindingKey, Set[FindingValue]] = {}
+        result: Dict[FindingKey, List[FindingValue]] = {}
 
         for contract in self.contracts:
             for function in contract.functions_and_modifiers_declared:
@@ -73,9 +73,9 @@ class IntervalAnalysisDF(AbstractDetector):
 
     def _extract_variable_ranges(
         self, function_name: str, analysis_results
-    ) -> Dict[FindingKey, Set[FindingValue]]:
+    ) -> Dict[FindingKey, List[FindingValue]]:
         """Extract variable ranges from analysis results."""
-        findings: Dict[FindingKey, Set[FindingValue]] = {}
+        findings: Dict[FindingKey, List[FindingValue]] = {}
 
         for node, analysis in analysis_results.items():
             if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
@@ -127,14 +127,40 @@ class IntervalAnalysisDF(AbstractDetector):
 
                 # Add to findings
                 if finding_key not in findings:
-                    findings[finding_key] = set()
-                findings[finding_key].add(finding_value)
+                    findings[finding_key] = []
+                findings[finding_key].append(finding_value)
 
-                print(f"  Variable {var_name}: {interval_ranges}")
+                # Print variable information
+                print(f"  Variable: {var_name}")
+                print(f"    Type: {range_var.get_var_type()}")
+
+                # Print interval ranges
+                if interval_ranges:
+                    print(f"    Interval Ranges:")
+                    for i, interval in enumerate(interval_ranges):
+                        print(f"      [{i}] {interval['lower']} to {interval['upper']}")
+                else:
+                    print(f"    Interval Ranges: None")
+
+                # Print valid values
+                if valid_values:
+                    print(f"    Valid Values: {', '.join(valid_values)}")
+                else:
+                    print(f"    Valid Values: None")
+
+                # Print invalid values
+                if invalid_values:
+                    print(f"    Invalid Values: {', '.join(invalid_values)}")
+                else:
+                    print(f"    Invalid Values: None")
+
+                # Print overflow/underflow warnings
                 if has_overflow:
                     print(f"    ⚠️ OVERFLOW detected")
                 if has_underflow:
                     print(f"    ⚠️ UNDERFLOW detected")
+
+                print()  # Empty line for readability
 
         return findings
 

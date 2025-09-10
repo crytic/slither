@@ -40,6 +40,10 @@ class IntervalRange:
     def copy(self) -> "IntervalRange":
         return IntervalRange(self.lower_bound, self.upper_bound)
 
+    def deep_copy(self) -> "IntervalRange":
+        """Create a deep copy of this IntervalRange."""
+        return IntervalRange(self.lower_bound, self.upper_bound)
+
     def join(self, other: "IntervalRange") -> None:
         self.lower_bound = min(self.lower_bound, other.lower_bound)
         self.upper_bound = max(self.upper_bound, other.upper_bound)
