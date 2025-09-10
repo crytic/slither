@@ -9,12 +9,20 @@ from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.assignment import Assignment
 
 
 class IntervalAnalysis(Analysis):
     """Interval analysis for data flow analysis."""
+
+    ARITHMETIC_OPERATORS: set[BinaryType] = {
+        BinaryType.ADDITION,
+        BinaryType.SUBTRACTION,
+        BinaryType.MULTIPLICATION,
+        BinaryType.DIVISION,
+    }
 
     def __init__(self) -> None:
         self._direction: Direction = Forward()
@@ -61,3 +69,7 @@ class IntervalAnalysis(Analysis):
         """Route operation to appropriate handler based on type."""
         if isinstance(operation, Assignment):
             self._operation_handler.handle_assignment(node, domain, operation)
+
+        if isinstance(operation, Binary):
+            if operation.type in self.ARITHMETIC_OPERATORS:
+                self._operation_handler.handle_arithmetic(node, domain, operation)

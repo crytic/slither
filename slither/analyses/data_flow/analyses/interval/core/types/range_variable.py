@@ -1,11 +1,23 @@
 from decimal import Decimal
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union, TYPE_CHECKING
 
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
+from slither.core.cfg.node import Node
+from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.variables.variable import Variable
+from slither.slithir.operations.binary import BinaryType
+from slither.slithir.utils.utils import RVALUE
+from slither.slithir.variables.constant import Constant
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
 
 class RangeVariable:
@@ -126,3 +138,134 @@ class RangeVariable:
             invalid_values=self.invalid_values.deep_copy(),
             var_type=self.var_type,
         )
+
+    # ---------- Arithmetic ----------
+    @staticmethod
+    def compute_arithmetic_range_variable(
+        left: "RangeVariable",
+        right: "RangeVariable",
+        operation_type: BinaryType,
+    ) -> "RangeVariable":
+        """Compute the arithmetic result between two RangeVariables."""
+
+        # Handle None inputs
+        if left is None or right is None:
+            logger.error(f"One or both operands are None: left={left}, right={right}")
+            raise ValueError("Cannot perform arithmetic with None operands")
+
+        result_valid_values = ValueSet(set())
+        result_interval_ranges: List[IntervalRange] = []
+
+        # Case 1: constant + constant (e.g., 3 + 5)
+        if not left.valid_values.is_empty() and not right.valid_values.is_empty():
+            for left_val in left.valid_values:
+                result_valid_values = result_valid_values.join(
+                    right.valid_values.compute_arithmetic_with_scalar(left_val, operation_type)
+                )
+
+        # Case 2: constant + interval (e.g., 3 + [1, 5])
+        if not left.valid_values.is_empty() and right.interval_ranges:
+            for left_val in left.valid_values:
+                for right_range in right.interval_ranges:
+                    try:
+                        left_point = IntervalRange(left_val, left_val)
+                        result_range = IntervalRange.compute_arithmetic_interval(
+                            left_point, right_range, operation_type
+                        )
+                        result_interval_ranges.append(result_range)
+                    except Exception as e:
+                        logger.error(f"Error in mixed arithmetic: {e}")
+
+        # Case 3: interval + constant (e.g., [2, 4] + 7)
+        if left.interval_ranges and not right.valid_values.is_empty():
+            for left_range in left.interval_ranges:
+                for right_val in right.valid_values:
+                    try:
+                        right_point = IntervalRange(right_val, right_val)
+                        result_range = IntervalRange.compute_arithmetic_interval(
+                            left_range, right_point, operation_type
+                        )
+                        result_interval_ranges.append(result_range)
+                    except Exception as e:
+                        logger.error(f"Error in mixed arithmetic: {e}")
+
+        # Case 4: interval + interval (e.g., [1, 3] + [4, 6])
+        if left.interval_ranges and right.interval_ranges:
+            for left_range in left.interval_ranges:
+                for right_range in right.interval_ranges:
+                    try:
+                        result_range = IntervalRange.compute_arithmetic_interval(
+                            left_range, right_range, operation_type
+                        )
+                        result_interval_ranges.append(result_range)
+                    except Exception as e:
+                        logger.error(f"Error in interval arithmetic: {e}")
+
+        # Case 5: no results -> fallback (e.g., both operands empty)
+        if result_valid_values.is_empty() and not result_interval_ranges:
+            if left.valid_values.is_empty() and not left.interval_ranges:
+                return left.deep_copy()  # fallback to left
+            elif right.valid_values.is_empty() and not right.interval_ranges:
+                return right.deep_copy()  # fallback to right
+            else:
+                # return TOP (unbounded range)
+                result_interval_ranges.append(
+                    IntervalRange(Decimal("-Infinity"), Decimal("Infinity"))
+                )
+
+        return RangeVariable(
+            interval_ranges=result_interval_ranges,
+            valid_values=result_valid_values,
+            invalid_values=ValueSet(set()),  # conservative choice: reset invalids
+            var_type=left.var_type,  # TODO: replace with proper type inference
+        )
+
+    @staticmethod
+    def get_variable_info(
+        domain: "IntervalDomain", variable: Union[Variable, Constant, RVALUE, Function]
+    ) -> "RangeVariable":
+        """Retrieve state information for a variable or constant."""
+        variable_info_manager = VariableInfoManager()
+
+        if isinstance(variable, Constant):
+            value: Decimal = Decimal(str(variable.value))
+            valid_values = ValueSet({value})
+
+            # Determine the appropriate type for the constant
+            if value < 0:
+                # Negative constants should use int256
+                constant_type = ElementaryType("int256")
+            else:
+                # Non-negative constants can use uint256
+                constant_type = ElementaryType("uint256")
+
+            # For constants, use valid_values instead of interval ranges
+            return RangeVariable(
+                interval_ranges=[],  # No interval ranges for constants
+                valid_values=valid_values,
+                invalid_values=ValueSet(set()),
+                var_type=constant_type,
+            )
+
+        var_name: str = variable_info_manager.get_variable_name(variable)
+
+        range_var = domain.state.get_range_variable(var_name)
+        if range_var is not None:
+            return range_var
+
+        # Check if this is a ReferenceVariable that points to a struct field
+        if hasattr(variable, "points_to") and variable.points_to is not None:
+            # Try to find the struct field by looking at what the reference points to
+            points_to = variable.points_to
+
+            # If points_to is a LocalVariable, try to construct the field name
+            if hasattr(points_to, "canonical_name"):
+                # This is likely a struct field access
+                # We need to find the corresponding field in the domain state
+                # For now, return the first struct field we find (this is a simplified approach)
+                for key in domain.state._variables.keys():
+                    if key.endswith(".first") or key.endswith(".second"):
+                        return domain.state.get_range_variable(key)
+
+        logger.error(f"Variable {var_name} not found in state")
+        raise ValueError(f"Variable {var_name} not found in state")

@@ -3,6 +3,8 @@ from typing import Callable, Iterator, Set, Union
 
 from loguru import logger
 
+from slither.slithir.operations.binary import BinaryType
+
 getcontext().prec = 100  # Set high precision for Decimal operations
 
 
@@ -84,6 +86,40 @@ class ValueSet:
             except Exception as e:
                 logger.warning(f"Error applying operation {value} op {decimal_operand}: {e}")
         return result
+
+    def compute_arithmetic_with_scalar(
+        self, scalar: Union[int, Decimal], operation_type: BinaryType
+    ) -> "ValueSet":
+        """Compute the result of applying a scalar operation to all values in this ValueSet."""
+        result_values = ValueSet(set())
+        decimal_scalar = self._to_decimal(scalar)
+
+        # Apply operation to each value in the set
+        for value in self._values:
+            try:
+                result_val = ValueSet._apply_scalar_op(value, decimal_scalar, operation_type)
+                result_values.add(result_val)
+            except Exception as e:
+                logger.warning(f"Error in scalar arithmetic: {e}")
+
+        return result_values
+
+    @staticmethod
+    def _apply_scalar_op(left: Decimal, right: Decimal, operation: BinaryType) -> Decimal:
+        """Apply a binary arithmetic operation to two scalar Decimal values."""
+        if operation == BinaryType.ADDITION:
+            return (left + right).to_integral_value()
+        elif operation == BinaryType.SUBTRACTION:
+            return (left - right).to_integral_value()
+        elif operation == BinaryType.MULTIPLICATION:
+            return (left * right).to_integral_value()
+        elif operation == BinaryType.DIVISION:
+            # Check for division by zero before performing operation
+            if right == 0:
+                raise ZeroDivisionError(f"Division by zero: {left} / {right}")
+            return (left / right).to_integral_value()
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
 
     # Magic methods
     def __eq__(self, other):
