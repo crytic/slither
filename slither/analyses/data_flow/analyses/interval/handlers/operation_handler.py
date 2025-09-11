@@ -14,6 +14,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler
 from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import (
     UninitializedVariableHandler,
 )
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
+    ComparisonConstraintStorage,
+)
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
@@ -22,11 +25,14 @@ from slither.slithir.operations.solidity_call import SolidityCall
 
 class OperationHandler:
     def __init__(self):
+        # Create a shared constraint storage for all handlers
+        self.shared_constraint_storage = ComparisonConstraintStorage()
+
         self.assignment_handler = AssignmentHandler()
         self.arithmetic_handler = ArithmeticHandler()
-        self.comparison_handler = ComparisonHandler()
+        self.comparison_handler = ComparisonHandler(self.shared_constraint_storage)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
-        self.solidity_call_handler = SolidityCallHandler()
+        self.solidity_call_handler = SolidityCallHandler(self.shared_constraint_storage)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)

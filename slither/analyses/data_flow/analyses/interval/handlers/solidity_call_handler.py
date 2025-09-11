@@ -12,9 +12,12 @@ from loguru import logger
 class SolidityCallHandler:
     """Handler for Solidity call operations, specifically require/assert functions."""
 
-    def __init__(self):
-        # Initialize storage for comparison and require function constraints
-        self.constraint_storage = ComparisonConstraintStorage()
+    def __init__(self, constraint_storage: ComparisonConstraintStorage = None):
+        # Use provided constraint storage or create a new one
+        if constraint_storage is not None:
+            self.constraint_storage = constraint_storage
+        else:
+            self.constraint_storage = ComparisonConstraintStorage()
 
     def handle_solidity_call(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
@@ -35,7 +38,6 @@ class SolidityCallHandler:
             raise ValueError(
                 f"Operation function name is not a require/assert function: {operation.function.name}"
             )
-            return
 
         if not operation.arguments:
             logger.error("Operation arguments are empty")

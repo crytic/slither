@@ -11,9 +11,12 @@ from loguru import logger
 class ComparisonHandler:
     """Handler for comparison operations in interval analysis."""
 
-    def __init__(self):
-        # Initialize storage for comparison constraints
-        self.constraint_storage = ComparisonConstraintStorage()
+    def __init__(self, constraint_storage: ComparisonConstraintStorage = None):
+        # Use provided constraint storage or create a new one
+        if constraint_storage is not None:
+            self.constraint_storage = constraint_storage
+        else:
+            self.constraint_storage = ComparisonConstraintStorage()
 
     def handle_comparison(self, node: Node, domain: IntervalDomain, operation: Binary):
         # Check if this is a valid comparison operation
