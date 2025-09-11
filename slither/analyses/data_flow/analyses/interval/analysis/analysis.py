@@ -12,6 +12,7 @@ from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.operation import Operation
+from slither.slithir.operations.solidity_call import SolidityCall
 
 
 class IntervalAnalysis(Analysis):
@@ -89,6 +90,9 @@ class IntervalAnalysis(Analysis):
                 self._operation_handler.handle_arithmetic(node, domain, operation)
             elif operation.type in self.COMPARISON_OPERATORS:
                 self._operation_handler.handle_comparison(node, domain, operation)
+
+        if isinstance(operation, SolidityCall):
+            self._operation_handler.handle_solidity_call(node, domain, operation)
 
     def node_declares_variable_without_initial_value(self, node: Node) -> bool:
         """Check if the node has an uninitialized variable."""
