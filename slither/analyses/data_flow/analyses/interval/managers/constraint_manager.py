@@ -67,42 +67,42 @@ class ComparisonConstraintStorage:
     ) -> None:
         """Apply a constraint from a condition variable (used by require/assert functions)"""
         try:
-            var_name = self.variable_manager.get_variable_name(condition_variable)
+            condition_variable_name = self.variable_manager.get_variable_name(condition_variable)
 
-            # Check if we have a stored constraint for this variable
-            if not self.has_variable_constraint(var_name):
-                logger.error(f"No stored constraint found for variable '{var_name}'")
-                raise ValueError(f"No stored constraint found for variable '{var_name}'")
+            # Check if variable exists in domain state
+            if not domain.state.has_range_variable(condition_variable_name):
+                logger.error(f"Variable '{condition_variable_name}' not found in domain state")
+                raise ValueError(f"Variable '{condition_variable_name}' not found in domain state")
 
-            # Get the stored comparison operation
-            stored_constraint = self.get_variable_constraint(var_name)
-
-            # The stored constraint should be a Binary operation (comparison)
-            if isinstance(stored_constraint, Binary):
-                # Extract the actual comparison operation from the stored constraint
-                comparison_operation = stored_constraint
-                logger.debug(f"Applying comparison operation: {comparison_operation.type}")
-
-                # Apply the comparison operation to the domain
-                left_operand = comparison_operation.variable_left
-                right_operand = comparison_operation.variable_right
-                operation_type = comparison_operation.type
-
-                # Apply the constraint to the domain state
-                self._apply_comparison_to_domain(
-                    left_operand, right_operand, operation_type, domain
-                )
-            else:
-                logger.error(
-                    f"Stored constraint is not a Binary operation: {type(stored_constraint)}"
-                )
+            # Check if variable was assigned from a temporary variable
+            temp_var_name = domain.state.get_temp_var_for_local(condition_variable_name)
+            if temp_var_name is None:
+                logger.error(f"Variable '{condition_variable_name}' not found in temp_var_mapping")
                 raise ValueError(
-                    f"Stored constraint is not a Binary operation: {type(stored_constraint)}"
+                    f"Variable '{condition_variable_name}' not found in temp_var_mapping"
                 )
+
+            stored_constraint = self.get_variable_constraint(temp_var_name)
+
+            self._apply_comparison_constraint(stored_constraint, domain)
 
         except Exception as e:
             logger.error(f"Error applying constraint from variable: {e}")
             raise ValueError(f"Error applying constraint from variable: {e}")
+
+    def _apply_comparison_constraint(
+        self, comparison_operation: Binary, domain: IntervalDomain
+    ) -> None:
+        """Apply a comparison constraint to the domain."""
+        logger.debug(f"Applying comparison constraint: {comparison_operation.type}")
+
+        # Apply the comparison operation to the domain
+        left_operand = comparison_operation.variable_left
+        right_operand = comparison_operation.variable_right
+        operation_type = comparison_operation.type
+
+        # Apply the constraint to the domain state
+        self._apply_comparison_to_domain(left_operand, right_operand, operation_type, domain)
 
     def _apply_comparison_to_domain(
         self,

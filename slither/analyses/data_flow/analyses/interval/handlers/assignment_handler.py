@@ -2,14 +2,12 @@ from decimal import Decimal
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -47,12 +45,23 @@ class AssignmentHandler:
         # copy the temporary variable to the target variable
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 
+        if source_range_variable is None:
+            logger.error(f"Source variable {source_variable_name} does not exist in domain state")
+            raise ValueError(
+                f"Source variable {source_variable_name} does not exist in domain state"
+            )
+
+        # Create range variable by copying from source
         range_variable = RangeVariable(
             interval_ranges=[ir.deep_copy() for ir in source_range_variable.get_interval_ranges()],
             valid_values=source_range_variable.get_valid_values().deep_copy(),
             invalid_values=source_range_variable.get_invalid_values().deep_copy(),
             var_type=written_variable_type,
         )
+
+        # Store the relationship: local variable -> temporary variable
+        domain.state.add_temp_var_mapping(written_variable_name, source_variable_name)
+
         domain.state.set_range_variable(written_variable_name, range_variable)
 
     def _handle_constant_assignment(
@@ -81,8 +90,10 @@ class AssignmentHandler:
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
-            logger.warning(f"Assignment from unknown variable: {source_variable_name}")
-            return
+            logger.error(f"Assignment from unknown variable: {source_variable_name}")
+            raise ValueError(
+                f"Source variable {source_variable_name} does not exist in domain state"
+            )
 
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 

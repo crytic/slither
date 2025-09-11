@@ -1,7 +1,6 @@
 from typing import Dict, Mapping, Optional
 
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 
 
 class State:
@@ -9,6 +8,7 @@ class State:
 
     def __init__(self, range_variables: Mapping[str, RangeVariable]):
         self.range_variables: Dict[str, RangeVariable] = dict(range_variables)  # Make mutable copy
+        self._temp_var_mapping: Dict[str, str] = {}
 
     def get_range_variable(self, name: str) -> Optional[RangeVariable]:
         """Get a range variable by name, returns None if not found."""
@@ -41,6 +41,22 @@ class State:
         """Clear all range variables from the state."""
         self.range_variables.clear()
 
+    def get_temp_var_mapping(self) -> Dict[str, str]:
+        """Get the temporary variable mapping."""
+        return self._temp_var_mapping
+
+    def set_temp_var_mapping(self, mapping: Dict[str, str]) -> None:
+        """Set the temporary variable mapping."""
+        self._temp_var_mapping = mapping
+
+    def add_temp_var_mapping(self, local_var: str, temp_var: str) -> None:
+        """Add a mapping from local variable to temporary variable."""
+        self._temp_var_mapping[local_var] = temp_var
+
+    def get_temp_var_for_local(self, local_var: str) -> Optional[str]:
+        """Get the temporary variable name for a local variable."""
+        return self._temp_var_mapping.get(local_var)
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, State):
             return False
@@ -53,4 +69,7 @@ class State:
     def deep_copy(self) -> "State":
         """Create a deep copy of the state"""
         copied_vars = {name: var.deep_copy() for name, var in self.range_variables.items()}
-        return State(copied_vars)
+        new_state = State(copied_vars)
+        # Copy the temp_var_mapping
+        new_state.set_temp_var_mapping(self.get_temp_var_mapping().copy())
+        return new_state

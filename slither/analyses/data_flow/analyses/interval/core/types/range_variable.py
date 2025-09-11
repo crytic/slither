@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING, List, Tuple, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
@@ -17,8 +16,7 @@ from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-        IntervalDomain
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
 
 class RangeVariable:
@@ -50,8 +48,12 @@ class RangeVariable:
         return self.var_type
 
     def get_type_bounds(self) -> Tuple[Decimal, Decimal]:
-        if self.var_type and hasattr(self.var_type, "min") and hasattr(self.var_type, "max"):
-            return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
+        if self.var_type and self.var_type.name not in ["bool"]:
+            try:
+                return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
+            except Exception:
+                # Handle types that don't have min/max
+                return None, None
         return None, None
 
     # ---------- Adders ----------
