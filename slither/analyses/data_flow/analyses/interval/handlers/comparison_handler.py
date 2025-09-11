@@ -15,17 +15,17 @@ class ComparisonHandler:
         pass
 
     def handle_comparison(self, node: Node, domain: IntervalDomain, operation: Binary):
-        if not isinstance(
-            operation.type,
-            Union[
-                BinaryType.GREATER,
-                BinaryType.LESS,
-                BinaryType.GREATER_EQUAL,
-                BinaryType.LESS_EQUAL,
-                BinaryType.EQUAL,
-                BinaryType.NOT_EQUAL,
-            ],
-        ):
+        # Check if this is a valid comparison operation
+        valid_comparison_types = {
+            BinaryType.GREATER,
+            BinaryType.LESS,
+            BinaryType.GREATER_EQUAL,
+            BinaryType.LESS_EQUAL,
+            BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL,
+        }
+
+        if operation.type not in valid_comparison_types:
             logger.error("Comparison operation type is not a valid comparison type")
             raise ValueError("Comparison operation type is not a valid comparison type")
 

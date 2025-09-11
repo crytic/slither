@@ -77,6 +77,10 @@ class IntervalAnalysis(Analysis):
         node: Node,
     ) -> None:
         """Route operation to appropriate handler based on type."""
+
+        if self.node_declares_variable_without_initial_value(node):
+            self._operation_handler.handle_uninitialized_variable(node, domain)
+
         if isinstance(operation, Assignment):
             self._operation_handler.handle_assignment(node, domain, operation)
 
@@ -85,3 +89,15 @@ class IntervalAnalysis(Analysis):
                 self._operation_handler.handle_arithmetic(node, domain, operation)
             elif operation.type in self.COMPARISON_OPERATORS:
                 self._operation_handler.handle_comparison(node, domain, operation)
+
+    def node_declares_variable_without_initial_value(self, node: Node) -> bool:
+        """Check if the node has an uninitialized variable."""
+        if not hasattr(node, "variable_declaration"):
+            return False
+
+        var = node.variable_declaration
+        if var is None:
+            return False
+
+        # Check if variable has no initial value
+        return not hasattr(var, "expression") or var.expression is None

@@ -8,6 +8,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler im
 from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler import (
     ComparisonHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import (
+    UninitializedVariableHandler,
+)
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
@@ -18,6 +21,7 @@ class OperationHandler:
         self.assignment_handler = AssignmentHandler()
         self.arithmetic_handler = ArithmeticHandler()
         self.comparison_handler = ComparisonHandler()
+        self.uninitialized_variable_handler = UninitializedVariableHandler()
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -27,3 +31,6 @@ class OperationHandler:
 
     def handle_comparison(self, node: Node, domain: IntervalDomain, operation: Binary):
         self.comparison_handler.handle_comparison(node, domain, operation)
+
+    def handle_uninitialized_variable(self, node: Node, domain: IntervalDomain):
+        self.uninitialized_variable_handler.handle_uninitialized_variable(node, domain)
