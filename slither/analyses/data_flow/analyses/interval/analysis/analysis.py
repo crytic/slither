@@ -1,9 +1,10 @@
 from typing import Optional
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
-    DomainVariant, IntervalDomain)
-from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import \
-    OperationHandler
+    DomainVariant,
+    IntervalDomain,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import OperationHandler
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
@@ -21,6 +22,16 @@ class IntervalAnalysis(Analysis):
         BinaryType.SUBTRACTION,
         BinaryType.MULTIPLICATION,
         BinaryType.DIVISION,
+    }
+
+    # Comparison operators
+    COMPARISON_OPERATORS: set[BinaryType] = {
+        BinaryType.GREATER,
+        BinaryType.LESS,
+        BinaryType.GREATER_EQUAL,
+        BinaryType.LESS_EQUAL,
+        BinaryType.EQUAL,
+        BinaryType.NOT_EQUAL,
     }
 
     def __init__(self) -> None:
@@ -72,3 +83,5 @@ class IntervalAnalysis(Analysis):
         if isinstance(operation, Binary):
             if operation.type in self.ARITHMETIC_OPERATORS:
                 self._operation_handler.handle_arithmetic(node, domain, operation)
+            elif operation.type in self.COMPARISON_OPERATORS:
+                self._operation_handler.handle_comparison(node, domain, operation)
