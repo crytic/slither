@@ -14,6 +14,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -95,6 +96,10 @@ class IntervalAnalysisDF(AbstractDetector):
             # Get range variables from state
             for var_name, range_var in state.get_range_variables().items():
                 if "TMP" in var_name:  # Skip temporary variables
+                    continue
+
+                # Skip boolean variables
+                if range_var.get_var_type() == ElementaryType("bool"):
                     continue
 
                 # Extract interval ranges
