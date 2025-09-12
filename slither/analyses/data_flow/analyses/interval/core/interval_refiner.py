@@ -3,10 +3,8 @@ from typing import List, Optional, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 from slither.slithir.operations.binary import BinaryType
 
 
@@ -97,7 +95,7 @@ class IntervalRefiner:
 
             if operation_type == BinaryType.LESS:
                 # x < constant: refine upper bound
-                if upper > constant_value:
+                if upper >= constant_value:
                     new_upper = constant_value - 1  # One less than constant (integer)
                     if new_upper >= lower:
                         return IntervalRange(lower, new_upper)
@@ -114,7 +112,7 @@ class IntervalRefiner:
 
             elif operation_type == BinaryType.GREATER:
                 # x > constant: refine lower bound
-                if lower < constant_value:
+                if lower <= constant_value:
                     new_lower = constant_value + 1  # One more than constant (integer)
                     if new_lower <= upper:
                         return IntervalRange(new_lower, upper)
@@ -158,3 +156,16 @@ class IntervalRefiner:
         except Exception as e:
             logger.error(f"Error refining interval: {e}")
             raise
+
+    @staticmethod
+    def flip_comparison_operator(comparison_operator: BinaryType) -> BinaryType:
+        """Flip a comparison operator (e.g., < becomes >, > becomes <)."""
+        operator_flip_map = {
+            BinaryType.GREATER: BinaryType.LESS,
+            BinaryType.LESS: BinaryType.GREATER,
+            BinaryType.GREATER_EQUAL: BinaryType.LESS_EQUAL,
+            BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
+            BinaryType.EQUAL: BinaryType.EQUAL,  # Equal stays the same
+            BinaryType.NOT_EQUAL: BinaryType.NOT_EQUAL,  # Not equal stays the same
+        }
+        return operator_flip_map.get(comparison_operator, comparison_operator)

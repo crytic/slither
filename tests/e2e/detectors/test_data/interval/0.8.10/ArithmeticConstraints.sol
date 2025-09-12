@@ -7,9 +7,9 @@ pragma solidity ^0.8.10;
  * Tests the improved constraint manager implementation
  */
 contract ArithmeticConstraintTests {
-    // ========================================
-    // ADDITION CONSTRAINT TESTS
-    // ========================================
+    // // // ========================================
+    // // // ADDITION CONSTRAINT TESTS
+    // // // ========================================
 
     /**
      * @dev Test: x + constant > value
@@ -48,9 +48,9 @@ contract ArithmeticConstraintTests {
     //     return x;
     // }
 
-    // // // ========================================
-    // // // SUBTRACTION CONSTRAINT TESTS
-    // // // ========================================
+    // // // // // ========================================
+    // // // // // SUBTRACTION CONSTRAINT TESTS
+    // // // // // ========================================
 
     // /**
     //  * @dev Test: x - constant > value
@@ -88,9 +88,9 @@ contract ArithmeticConstraintTests {
     //     return x;
     // }
 
-    // // // ========================================
-    // // // MULTIPLICATION CONSTRAINT TESTS
-    // // // ========================================
+    // // // // // ========================================
+    // // // // // MULTIPLICATION CONSTRAINT TESTS
+    // // // // // ========================================
 
     // /**
     //  * @dev Test: x * constant > value
@@ -136,16 +136,16 @@ contract ArithmeticConstraintTests {
     //     return x;
     // }
 
-    // /**
-    //  * @dev Test: x * constant < value (edge case with fractional division)
-    //  * Expected: x * 2 < 25 => x < 12.5 => x ∈ [0, 12]
-    //  */
-    // function testMultiplicationConstraint5(
-    //     uint8 x
-    // ) public pure returns (uint8) {
-    //     require(x * 2 < 25);
-    //     return x;
-    // }
+    /**
+     * @dev Test: x * constant < value (edge case with fractional division)
+     * Expected: x * 2 < 25 => x < 12.5 => x ∈ [0, 12]
+     */
+    function testMultiplicationConstraint5(
+        uint8 x
+    ) public pure returns (uint8) {
+        require(x * 2 < 25);
+        return x;
+    }
 
     // /**
     //  * @dev Test: x * (-2) > -100
@@ -189,9 +189,9 @@ contract ArithmeticConstraintTests {
     //     return x;
     // }
 
-    // // // ========================================
-    // // // DIVISION CONSTRAINT TESTS
-    // // // ========================================
+    // // // // ========================================
+    // // // // DIVISION CONSTRAINT TESTS
+    // // // // ========================================
 
     // /**
     //  * @dev Test: x / constant > value
@@ -220,113 +220,113 @@ contract ArithmeticConstraintTests {
     //     return x;
     // }
 
-    // /**
-    //  * @dev Test: constant / x > value
-    //  * Expected: 100 / x > 4 => x < 25 => x ∈ [1, 24] (x cannot be 0)
-    //  */
-    // function testDivisionConstraint4(uint8 x) public pure returns (uint8) {
-    //     require(x > 0); // Prevent division by zero
-    //     require(100 / x > 4);
-    //     return x;
-    // }
+    /**
+     * @dev Test: constant / x > value
+     * Expected: 100 / x > 4 => x < 25 => x ∈ [1, 24] (x cannot be 0)
+     */
+    function testDivisionConstraint4(uint8 x) public pure returns (uint8) {
+        require(x > 0); // Prevent division by zero
+        require(100 / x > 4);
+        return x;
+    }
 
-    // /**
-    //  * @dev Test: constant / x <= value
-    //  * Expected: 200 / x <= 10 => x >= 20 => x ∈ [20, 255]
-    //  */
-    // function testDivisionConstraint5(uint8 x) public pure returns (uint8) {
-    //     require(x > 0); // Prevent division by zero
-    //     require(200 / x <= 10);
-    //     return x;
-    // }
+    /**
+     * @dev Test: constant / x <= value
+     * Expected: 200 / x <= 10 => x >= 20 => x ∈ [20, 255]
+     */
+    function testDivisionConstraint5(uint8 x) public pure returns (uint8) {
+        require(x > 0); // Prevent division by zero
+        require(200 / x <= 10);
+        return x;
+    }
 
     // // // ========================================
     // // // COMPLEX ARITHMETIC CONSTRAINT TESTS
     // // // ========================================
 
-    // /**
-    //  * @dev Test: Multiple arithmetic constraints
-    //  * Expected: x + 10 > 50 AND x * 2 < 140 => x > 40 AND x < 70 => x ∈ [41, 69]
-    //  */
-    // function testMultipleArithmeticConstraints(
-    //     uint8 x
-    // ) public pure returns (uint8) {
-    //     require(x + 10 > 50);
-    //     require(x * 2 < 140);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Multiple arithmetic constraints
+     * Expected: x + 10 > 50 AND x * 2 < 140 => x > 40 AND x < 70 => x ∈ [41, 69]
+     */
+    function testMultipleArithmeticConstraints(
+        uint8 x
+    ) public pure returns (uint8) {
+        require(x + 10 > 50);
+        require(x * 2 < 140);
+        return x;
+    }
 
-    // /**
-    //  * @dev Test: Mixed arithmetic and direct constraints
-    //  * Expected: x > 20 AND x - 5 < 80 => x > 20 AND x < 85 => x ∈ [21, 84]
-    //  */
-    // function testMixedConstraints(uint8 x) public pure returns (uint8) {
-    //     require(x > 20);
-    //     require(x - 5 < 80);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Mixed arithmetic and direct constraints
+     * Expected: x > 20 AND x - 5 < 80 => x > 20 AND x < 85 => x ∈ [21, 84]
+     */
+    function testMixedConstraints(uint8 x) public pure returns (uint8) {
+        require(x > 20);
+        require(x - 5 < 80);
+        return x;
+    }
 
-    // /**
-    //  * @dev Test: Chained arithmetic constraints
-    //  * Expected: x + 5 > 30 AND (x + 5) * 2 < 120 => x > 25
-    //  */
-    // function testChainedConstraints(uint8 x) public pure returns (uint8) {
-    //     uint8 temp = x + 5;
-    //     require(temp > 30);
-    //     require(temp * 2 < 120);
-    //     return x;
-    // } // FAILED
+    /**
+     * @dev Test: Chained arithmetic constraints
+     * Expected: x + 5 > 30 AND (x + 5) * 2 < 120 => x > 25
+     */
+    function testChainedConstraints(uint8 x) public pure returns (uint8) {
+        uint8 temp = x + 5;
+        require(temp > 30);
+        require(temp * 2 < 120);
+        return x;
+    } // FAILED
 
     // // ========================================
     // // EDGE CASE TESTS
     // // ========================================
 
-    // /**
-    //  * @dev Test: Constraint at type boundary
-    //  * Expected: x * 2 > 510 => impossible for uint8 (max 255) => unreachable
-    //  */
-    // function testBoundaryConstraint1(uint8 x) public pure returns (uint8) {
-    //     require(x * 2 > 510); // This should make the function unreachable
-    //     return x;
-    // }
+    /**
+     * @dev Test: Constraint at type boundary
+     * Expected: x * 2 > 510 => impossible for uint8 (max 255) => unreachable
+     */
+    function testBoundaryConstraint1(uint8 x) public pure returns (uint8) {
+        require(x * 2 > 510); // This should make the function unreachable
+        return x;
+    }
 
-    // /**
-    //  * @dev Test: Constraint exactly at type boundary
-    //  * Expected: x + 1 > 255 => x > 254 => x ∈ [255, 255]
-    //  */
-    // function testBoundaryConstraint2(uint8 x) public pure returns (uint8) {
-    //     require(x + 1 > 255);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Constraint exactly at type boundary
+     * Expected: x + 1 > 255 => x > 254 => x ∈ [255, 255]
+     */
+    function testBoundaryConstraint2(uint8 x) public pure returns (uint8) {
+        require(x + 1 > 255);
+        return x;
+    } // PASSED
 
-    // /**
-    //  * @dev Test: Division with remainder handling
-    //  * Expected: x / 3 > 21 => x > 63 => x ∈ [64, 255]
-    //  */
-    // function testDivisionWithRemainder(uint8 x) public pure returns (uint8) {
-    //     require(x / 3 > 21);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Division with remainder handling
+     * Expected: x / 3 > 21 => x > 63 => x ∈ [64, 255]
+     */
+    function testDivisionWithRemainder(uint8 x) public pure returns (uint8) {
+        require(x / 3 > 21);
+        return x;
+    }
 
     // // ========================================
     // // NEGATIVE CONSTANT TESTS (for signed types)
     // // ========================================
 
-    // /**
-    //  * @dev Test: Multiplication with negative constant
-    //  * Expected: x * (-2) > -100 => x < 50 => x ∈ [-128, 49]
-    //  */
-    // function testNegativeMultiplication(int8 x) public pure returns (int8) {
-    //     require(x * -2 > -100);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Multiplication with negative constant
+     * Expected: x * (-2) > -100 => x < 50 => x ∈ [-128, 49]
+     */
+    function testNegativeMultiplication(int8 x) public pure returns (int8) {
+        require(x * -2 > -100);
+        return x;
+    }
 
-    // /**
-    //  * @dev Test: Division with negative constant
-    //  * Expected: x / (-2) > -25 => x < 50 => x ∈ [-128, 49]
-    //  */
-    // function testNegativeDivision(int8 x) public pure returns (int8) {
-    //     require(x / (-2) > -25);
-    //     return x;
-    // }
+    /**
+     * @dev Test: Division with negative constant
+     * Expected: x / (-2) > -25 => x < 50 => x ∈ [-128, 49]
+     */
+    function testNegativeDivision(int8 x) public pure returns (int8) {
+        require(x / (-2) > -25);
+        return x;
+    }
 }

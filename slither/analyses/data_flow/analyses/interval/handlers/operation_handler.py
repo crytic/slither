@@ -1,17 +1,22 @@
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import \
-    ArithmeticHandler
-from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler import \
-    AssignmentHandler
-from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler import \
-    ComparisonHandler
-from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler import \
-    SolidityCallHandler
-from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import \
-    UninitializedVariableHandler
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
-    ConstraintManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import (
+    ArithmeticHandler,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler import (
+    AssignmentHandler,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler import (
+    ComparisonHandler,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler import (
+    SolidityCallHandler,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import (
+    UninitializedVariableHandler,
+)
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
+    ConstraintManager,
+)
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
@@ -24,7 +29,7 @@ class OperationHandler:
         self.shared_constraint_storage = ConstraintManager()
 
         self.assignment_handler = AssignmentHandler()
-        self.arithmetic_handler = ArithmeticHandler()
+        self.arithmetic_handler = ArithmeticHandler(self.shared_constraint_storage)
         self.comparison_handler = ComparisonHandler(self.shared_constraint_storage)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.solidity_call_handler = SolidityCallHandler(self.shared_constraint_storage)
