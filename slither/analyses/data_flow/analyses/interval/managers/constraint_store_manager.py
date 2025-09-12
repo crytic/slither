@@ -9,9 +9,8 @@ from typing import Dict, Optional, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary
 

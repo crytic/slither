@@ -1,6 +1,7 @@
 from typing import Dict, Mapping, Optional
 
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
 
 
 class State:

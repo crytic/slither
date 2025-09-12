@@ -13,12 +13,7 @@ from slither.slithir.operations.binary import Binary
 
 class ConstraintManager:
     """
-    Facade for constraint management using modular architecture.
-
-    This class combines three specialized components:
-    - ConstraintStoreManager: manages constraint storage and retrieval
-    - ConstraintApplierHandler: handles applying constraints to domain
-    - IntervalRefiner: provides pure interval refinement logic
+    Constraint management using modular architecture.
     """
 
     def __init__(self):

@@ -1,12 +1,13 @@
 from typing import List
-from slither.core.cfg.node import Node
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ConstraintManager,
-)
 
 from loguru import logger
+
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
+    ConstraintManager
+from slither.core.cfg.node import Node
+from slither.slithir.operations.solidity_call import SolidityCall
 
 
 class SolidityCallHandler:

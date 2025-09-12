@@ -1,17 +1,18 @@
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ConstraintManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+from loguru import logger
+
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
+    ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
+    ConstraintManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
-
-from loguru import logger
 
 
 class ComparisonHandler:

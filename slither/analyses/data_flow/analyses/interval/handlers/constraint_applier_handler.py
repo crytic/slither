@@ -2,14 +2,14 @@ from typing import Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.interval_refiner import IntervalRefiner
-from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import (
-    ConstraintStoreManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.interval_refiner import \
+    IntervalRefiner
+from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import \
+    ConstraintStoreManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
