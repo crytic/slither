@@ -41,21 +41,22 @@ contract ConstraintApplicationTest {
         require(comparison1); // Expected: x becomes [6, 255]
         return x; // Expected: x is [6, 255]
     }
-    // // // // ========================================
-    // // // // VARIABLE ASSIGNMENT TESTS
-    // // // // ========================================
-    // /**
-    //  * @dev Test constraint application for variable assigned comparison
-    //  */
-    // function testVariableAssignedComparison(
-    //     uint8 x
-    // ) public pure returns (uint8) {
-    //     // x starts with bounds [0, 255]
-    //     bool condition = x >= 25; // Expected: x remains [0, 255]
-    //     require(condition); // Expected: x becomes [25, 255]
-    //     return x; // Expected: x is [25, 255]
-    // } // PASSED
-    // /**
+
+    // // // ========================================
+    // // // VARIABLE ASSIGNMENT TESTS
+    // // // ========================================
+    /**
+     * @dev Test constraint application for variable assigned comparison
+     */
+    function testVariableAssignedComparison(
+        uint8 x
+    ) public pure returns (uint8) {
+        // x starts with bounds [0, 255]
+        bool condition = x >= 25; // Expected: x remains [0, 255]
+        require(condition); // Expected: x becomes [25, 255]
+        return x; // Expected: x is [25, 255]
+    } // PASSED
+    /**
     //  * @dev Test multiple variables with different constraints
     //  */
     // function testMultipleVariables(
