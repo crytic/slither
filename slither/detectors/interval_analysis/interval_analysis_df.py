@@ -15,6 +15,7 @@ from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.declarations.function import Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -23,7 +24,7 @@ from slither.utils.output import Output
 class FindingKey:
     """Key for interval analysis findings."""
 
-    function_name: str
+    function: Function
     variable_name: str
     node_id: Optional[int] = None
 
@@ -38,6 +39,7 @@ class FindingValue:
     has_overflow: bool
     has_underflow: bool
     var_type: Optional[str] = None
+    variable_name: Optional[str] = None
 
 
 class IntervalAnalysisDF(AbstractDetector):
@@ -58,24 +60,22 @@ class IntervalAnalysisDF(AbstractDetector):
 
         for contract in self.contracts:
             for function in contract.functions_and_modifiers_declared:
-                if function.is_implemented:
-                    logger.info(f"Analyzing function: {function.name}")
+                if not function.is_implemented or function.is_constructor:
+                    continue
 
-                    # Run interval analysis
-                    engine = Engine.new(analysis=IntervalAnalysis(), function=function)
-                    engine.run_analysis()
-                    analysis_results = engine.result()
+                # Run interval analysis
+                engine = Engine.new(analysis=IntervalAnalysis(), function=function)
+                engine.run_analysis()
+                analysis_results = engine.result()
 
-                    # Extract variable ranges from analysis results
-                    function_findings = self._extract_variable_ranges(
-                        function.name, analysis_results
-                    )
-                    result.update(function_findings)
+                # Extract variable ranges from analysis results
+                function_findings = self._extract_variable_ranges(function, analysis_results)
+                result.update(function_findings)
 
         return result
 
     def _extract_variable_ranges(
-        self, function_name: str, analysis_results: Dict[Node, AnalysisState[IntervalDomain]]
+        self, function, analysis_results: Dict[Node, AnalysisState[IntervalDomain]]
     ) -> Dict[FindingKey, List[FindingValue]]:
         """Extract variable ranges from analysis results."""
         findings: Dict[FindingKey, List[FindingValue]] = {}
@@ -88,10 +88,6 @@ class IntervalAnalysisDF(AbstractDetector):
                 continue
 
             state = analysis.post.state
-
-            # Print node information
-
-            print(f"Node {node.node_id}:", str(node.expression))
 
             # Get range variables from state
             for var_name, range_var in state.get_range_variables().items():
@@ -122,9 +118,9 @@ class IntervalAnalysisDF(AbstractDetector):
 
                 # Create finding key and value
                 finding_key = FindingKey(
-                    function_name=function_name,
+                    function=function,
                     variable_name=var_name,
-                    node_id=getattr(node, "node_id", None),
+                    node_id=node.node_id,
                 )
 
                 finding_value = FindingValue(
@@ -134,6 +130,7 @@ class IntervalAnalysisDF(AbstractDetector):
                     has_overflow=has_overflow,
                     has_underflow=has_underflow,
                     var_type=str(range_var.get_var_type()) if range_var.get_var_type() else None,
+                    variable_name=var_name,
                 )
 
                 # Add to findings
@@ -141,47 +138,100 @@ class IntervalAnalysisDF(AbstractDetector):
                     findings[finding_key] = []
                 findings[finding_key].append(finding_value)
 
-                # Print variable information
-                print(f"  Variable: {var_name}")
-                print(f"    Type: {range_var.get_var_type()}")
-
-                # Print interval ranges
-                if interval_ranges:
-                    print(f"    Interval Ranges:")
-                    for i, interval in enumerate(interval_ranges):
-                        print(f"      [{i}] {interval['lower']} to {interval['upper']}")
-                else:
-                    print(f"    Interval Ranges: None")
-
-                # Print valid values
-                if valid_values:
-                    print(f"    Valid Values: {', '.join(valid_values)}")
-                else:
-                    print(f"    Valid Values: None")
-
-                # Print invalid values
-                if invalid_values:
-                    print(f"    Invalid Values: {', '.join(invalid_values)}")
-                else:
-                    print(f"    Invalid Values: None")
-
-                # Print overflow/underflow warnings
-                if has_overflow:
-                    print(f"    ⚠️ OVERFLOW detected")
-                if has_underflow:
-                    print(f"    ⚠️ UNDERFLOW detected")
-
-                print()  # Empty line for readability
-
         return findings
 
     def _detect(self) -> List[Output]:
         """Main detection method."""
         super()._detect()
-
-        # Run interval analysis to see the logs
         intervals = self.find_intervals()
-
-        # For now, just return empty results
         results: List[Output] = []
+
+        # Sort findings by function name for consistent output
+        result_sorted = sorted(list(intervals.items()), key=lambda x: x[0].function.name)
+
+        for finding_key, finding_values in result_sorted:
+            # Build info string for this finding
+            info = [
+                f"Interval analysis for variable '{finding_key.variable_name}' in function '{finding_key.function.name}':\n"
+            ]
+
+            for finding_value in finding_values:
+                # Add node information
+                if finding_key.node_id is not None:
+                    info += [f"\tNode {finding_key.node_id}"]
+                    # Find the node to get its expression
+                    node = next(
+                        (n for n in finding_key.function.nodes if n.node_id == finding_key.node_id),
+                        None,
+                    )
+                    if node and hasattr(node, "expression") and node.expression:
+                        info += [f": {node.expression}\n"]
+                    else:
+                        info += ["\n"]
+                # Add variable type information first
+                if finding_value.var_type:
+                    info += [f"\tType: {finding_value.var_type}\n"]
+
+                # Add overflow/underflow warnings prominently
+                warnings = []
+                if finding_value.has_overflow:
+                    warnings.append("OVERFLOW")
+                if finding_value.has_underflow:
+                    warnings.append("UNDERFLOW")
+
+                if warnings:
+                    info += [f"\t⚠️  WARNINGS: {', '.join(warnings)}\n"]
+
+                # Add interval ranges information
+                if finding_value.interval_ranges:
+                    info += ["\tRanges: "]
+                    range_strs = []
+                    for interval in finding_value.interval_ranges:
+                        range_strs.append(f"[{interval['lower']}, {interval['upper']}]")
+                    info += [f"{', '.join(range_strs)}\n"]
+                else:
+                    info += ["\tRanges: None\n"]
+
+                # Add valid values information
+                if finding_value.valid_values:
+                    info += [f"\tValid: {', '.join(finding_value.valid_values)}\n"]
+                else:
+                    info += ["\tValid: None\n"]
+
+                # Add invalid values information
+                if finding_value.invalid_values:
+                    info += [f"\tInvalid: {', '.join(finding_value.invalid_values)}\n"]
+                else:
+                    info += ["\tInvalid: None\n"]
+
+            # Generate result and add nodes
+            res = self.generate_result(info)
+
+            # Add the function to the result
+            res.add(finding_key.function)
+
+            # Add nodes with metadata
+            for finding_value in finding_values:
+                # Find the node by node_id
+                node = None
+                if finding_key.node_id is not None:
+                    node = next(
+                        (n for n in finding_key.function.nodes if n.node_id == finding_key.node_id),
+                        None,
+                    )
+
+                if node:
+                    res.add(
+                        node,
+                        {
+                            "underlying_type": "interval_analysis",
+                            "variable_name": finding_value.variable_name,
+                            "has_overflow": finding_value.has_overflow,
+                            "has_underflow": finding_value.has_underflow,
+                            "var_type": finding_value.var_type,
+                        },
+                    )
+
+            results.append(res)
+
         return results
