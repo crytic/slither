@@ -44,9 +44,9 @@ contract ComprarisonApplicationTest {
         return x; // Expected: x is [6, 255]
     }
 
-    // // // ========================================
-    // // // VARIABLE ASSIGNMENT TESTS
-    // // // ========================================
+    // // // // ========================================
+    // // // // VARIABLE ASSIGNMENT TESTS
+    // // // // ========================================
     /**
      * @dev Test constraint application for variable assigned comparison
      */
@@ -74,9 +74,9 @@ contract ComprarisonApplicationTest {
         return x + y; // Expected: x is [51, 255], y is [0, 199]
     } // PASSED
 
-    // // // // ========================================
-    // // // // COMPARISON OPERATOR TESTS
-    // // // // ========================================
+    // // // // // ========================================
+    // // // // // COMPARISON OPERATOR TESTS
+    // // // // // ========================================
     /**
      * @dev Test all comparison operators
      */

@@ -3,7 +3,7 @@ from slither.core.cfg.node import Node
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ComparisonConstraintStorage,
+    ConstraintManager,
 )
 
 from loguru import logger
@@ -12,12 +12,12 @@ from loguru import logger
 class SolidityCallHandler:
     """Handler for Solidity call operations, specifically require/assert functions."""
 
-    def __init__(self, constraint_storage: ComparisonConstraintStorage = None):
+    def __init__(self, constraint_storage: ConstraintManager = None):
         # Use provided constraint storage or create a new one
         if constraint_storage is not None:
             self.constraint_storage = constraint_storage
         else:
-            self.constraint_storage = ComparisonConstraintStorage()
+            self.constraint_storage = ConstraintManager()
 
     def handle_solidity_call(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall

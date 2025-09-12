@@ -2,7 +2,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import Interva
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ComparisonConstraintStorage,
+    ConstraintManager,
 )
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
@@ -17,12 +17,12 @@ from loguru import logger
 class ComparisonHandler:
     """Handler for comparison operations in interval analysis."""
 
-    def __init__(self, constraint_storage: ComparisonConstraintStorage = None):
+    def __init__(self, constraint_storage: ConstraintManager = None):
         # Use provided constraint storage or create a new one
         if constraint_storage is not None:
             self.constraint_storage = constraint_storage
         else:
-            self.constraint_storage = ComparisonConstraintStorage()
+            self.constraint_storage = ConstraintManager()
         self.variable_info_manager = VariableInfoManager()
 
     def handle_comparison(self, node: Node, domain: IntervalDomain, operation: Binary):
