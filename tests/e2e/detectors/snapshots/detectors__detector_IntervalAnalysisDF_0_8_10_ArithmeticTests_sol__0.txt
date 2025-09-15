@@ -1,0 +1,672 @@
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().b' in function 'multiplyNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().divisor' in function 'divideNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().a' in function 'addNumbers':
+	Node 1: a = 15
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().x' in function 'subtractNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 100
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.incrementAndMultiply().value' in function 'incrementAndMultiply':
+	Node 1: value = 7
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().result' in function 'simpleInterest':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 1050
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().length' in function 'rectangleArea':
+	Node 3: result = length * width
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().result' in function 'addNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 40
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().y' in function 'subtractNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().percentage' in function 'calculatePercentage':
+	Node 3: result = (total * percentage) / 100
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().total' in function 'calculatePercentage':
+	Node 1: total = 200
+	Type: uint256
+	Ranges: None
+	Valid: 200
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().result' in function 'calculatePercentage':
+	Node 3: result = (total * percentage) / 100
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().y' in function 'complexCalculation':
+	Node 3: result = (x + y) * (x - y)
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().b' in function 'multiplyNumbers':
+	Node 2: b = 7
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().y' in function 'complexCalculation':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().width' in function 'rectangleArea':
+	Node 2: width = 8
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().result' in function 'averageNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 25
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().x' in function 'subtractNumbers':
+	Node 1: x = 100
+	Type: uint256
+	Ranges: None
+	Valid: 100
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.cubedNumber().base' in function 'cubedNumber':
+	Node 1: base = 4
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().second' in function 'averageNumbers':
+	Node 2: second = 30
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().a' in function 'multiplyNumbers':
+	Node 3: result = a * b
+	Type: uint256
+	Ranges: None
+	Valid: 9
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().first' in function 'averageNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().result' in function 'addNumbers':
+	Node 3: result = a + b
+	Type: uint256
+	Ranges: None
+	Valid: 40
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().length' in function 'rectangleArea':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().result' in function 'calculatePercentage':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.squareNumber().result' in function 'squareNumber':
+	Node 2: result = num * num
+	Type: uint256
+	Ranges: None
+	Valid: 64
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().first' in function 'averageNumbers':
+	Node 1: first = 20
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().percentage' in function 'calculatePercentage':
+	Node 2: percentage = 15
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().total' in function 'calculatePercentage':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 200
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().result' in function 'subtractNumbers':
+	Node 3: result = x - y
+	Type: uint256
+	Ranges: None
+	Valid: 70
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().result' in function 'divideNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.cubedNumber().result' in function 'cubedNumber':
+	Node 2: result = base * base * base
+	Type: uint256
+	Ranges: None
+	Valid: 64
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().result' in function 'multiplyNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 63
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().result' in function 'averageNumbers':
+	Node 3: result = (first + second) / 2
+	Type: uint256
+	Ranges: None
+	Valid: 25
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.cubedNumber().base' in function 'cubedNumber':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().a' in function 'addNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().a' in function 'addNumbers':
+	Node 3: result = a + b
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().percentage' in function 'calculatePercentage':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.incrementAndMultiply().value' in function 'incrementAndMultiply':
+	Node 2: result = (value + 1) * 3
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().first' in function 'averageNumbers':
+	Node 3: result = (first + second) / 2
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().result' in function 'divideNumbers':
+	Node 3: result = dividend / divisor
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().rate' in function 'simpleInterest':
+	Node 2: rate = 5
+	Type: uint256
+	Ranges: None
+	Valid: 5
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().width' in function 'rectangleArea':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().a' in function 'multiplyNumbers':
+	Node 1: a = 9
+	Type: uint256
+	Ranges: None
+	Valid: 9
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().principal' in function 'simpleInterest':
+	Node 2: rate = 5
+	Type: uint256
+	Ranges: None
+	Valid: 1000
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().principal' in function 'simpleInterest':
+	Node 1: principal = 1000
+	Type: uint256
+	Ranges: None
+	Valid: 1000
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().result' in function 'subtractNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 70
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().length' in function 'rectangleArea':
+	Node 2: width = 8
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().y' in function 'complexCalculation':
+	Node 2: y = 4
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().principal' in function 'simpleInterest':
+	Node 3: result = principal + ((principal * rate) / 100)
+	Type: uint256
+	Ranges: None
+	Valid: 1000
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().y' in function 'subtractNumbers':
+	Node 2: y = 30
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().width' in function 'rectangleArea':
+	Node 3: result = length * width
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().x' in function 'subtractNumbers':
+	Node 3: result = x - y
+	Type: uint256
+	Ranges: None
+	Valid: 100
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().dividend' in function 'divideNumbers':
+	Node 2: divisor = 12
+	Type: uint256
+	Ranges: None
+	Valid: 144
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().length' in function 'rectangleArea':
+	Node 1: length = 12
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.squareNumber().num' in function 'squareNumber':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().first' in function 'averageNumbers':
+	Node 2: second = 30
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().second' in function 'averageNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().result' in function 'complexCalculation':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.squareNumber().num' in function 'squareNumber':
+	Node 1: num = 8
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().dividend' in function 'divideNumbers':
+	Node 3: result = dividend / divisor
+	Type: uint256
+	Ranges: None
+	Valid: 144
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().principal' in function 'simpleInterest':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 1000
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().result' in function 'simpleInterest':
+	Node 3: result = principal + ((principal * rate) / 100)
+	Type: uint256
+	Ranges: None
+	Valid: 1050
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().b' in function 'addNumbers':
+	Node 3: result = a + b
+	Type: uint256
+	Ranges: None
+	Valid: 25
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().y' in function 'subtractNumbers':
+	Node 3: result = x - y
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().x' in function 'complexCalculation':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 6
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.incrementAndMultiply().value' in function 'incrementAndMultiply':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().rate' in function 'simpleInterest':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 5
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().x' in function 'complexCalculation':
+	Node 1: x = 6
+	Type: uint256
+	Ranges: None
+	Valid: 6
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().x' in function 'complexCalculation':
+	Node 2: y = 4
+	Type: uint256
+	Ranges: None
+	Valid: 6
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().a' in function 'addNumbers':
+	Node 2: b = 25
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.squareNumber().num' in function 'squareNumber':
+	Node 2: result = num * num
+	Type: uint256
+	Ranges: None
+	Valid: 8
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().b' in function 'addNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 25
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().dividend' in function 'divideNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 144
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().result' in function 'complexCalculation':
+	Node 3: result = (x + y) * (x - y)
+	Type: uint256
+	Ranges: None
+	Valid: 20
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().dividend' in function 'divideNumbers':
+	Node 1: dividend = 144
+	Type: uint256
+	Ranges: None
+	Valid: 144
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.incrementAndMultiply().result' in function 'incrementAndMultiply':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 24
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.cubedNumber().base' in function 'cubedNumber':
+	Node 2: result = base * base * base
+	Type: uint256
+	Ranges: None
+	Valid: 4
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().divisor' in function 'divideNumbers':
+	Node 3: result = dividend / divisor
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.squareNumber().result' in function 'squareNumber':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 64
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().result' in function 'multiplyNumbers':
+	Node 3: result = a * b
+	Type: uint256
+	Ranges: None
+	Valid: 63
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().a' in function 'multiplyNumbers':
+	Node 2: b = 7
+	Type: uint256
+	Ranges: None
+	Valid: 9
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.subtractNumbers().x' in function 'subtractNumbers':
+	Node 2: y = 30
+	Type: uint256
+	Ranges: None
+	Valid: 100
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().a' in function 'multiplyNumbers':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 9
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.incrementAndMultiply().result' in function 'incrementAndMultiply':
+	Node 2: result = (value + 1) * 3
+	Type: uint256
+	Ranges: None
+	Valid: 24
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.complexCalculation().x' in function 'complexCalculation':
+	Node 3: result = (x + y) * (x - y)
+	Type: uint256
+	Ranges: None
+	Valid: 6
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.addNumbers().b' in function 'addNumbers':
+	Node 2: b = 25
+	Type: uint256
+	Ranges: None
+	Valid: 25
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.multiplyNumbers().b' in function 'multiplyNumbers':
+	Node 3: result = a * b
+	Type: uint256
+	Ranges: None
+	Valid: 7
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().total' in function 'calculatePercentage':
+	Node 3: result = (total * percentage) / 100
+	Type: uint256
+	Ranges: None
+	Valid: 200
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.simpleInterest().rate' in function 'simpleInterest':
+	Node 3: result = principal + ((principal * rate) / 100)
+	Type: uint256
+	Ranges: None
+	Valid: 5
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.averageNumbers().second' in function 'averageNumbers':
+	Node 3: result = (first + second) / 2
+	Type: uint256
+	Ranges: None
+	Valid: 30
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().result' in function 'rectangleArea':
+	Node 4: result
+	Type: uint256
+	Ranges: None
+	Valid: 96
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.cubedNumber().result' in function 'cubedNumber':
+	Node 3: result
+	Type: uint256
+	Ranges: None
+	Valid: 64
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.calculatePercentage().total' in function 'calculatePercentage':
+	Node 2: percentage = 15
+	Type: uint256
+	Ranges: None
+	Valid: 200
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.rectangleArea().result' in function 'rectangleArea':
+	Node 3: result = length * width
+	Type: uint256
+	Ranges: None
+	Valid: 96
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticTests.divideNumbers().divisor' in function 'divideNumbers':
+	Node 2: divisor = 12
+	Type: uint256
+	Ranges: None
+	Valid: 12
+	Invalid: None
+

@@ -1984,7 +1984,22 @@ ALL_TESTS = [
     #     all_detectors.UnusedImport,
     #     "C.sol",
     #     "0.8.16",
-    # ),
+    #     # Interval Analysis DF tests
+    Test(
+        all_detectors.IntervalAnalysisDF,
+        "ArithmeticTests.sol",
+        "0.8.10",
+    ),
+    Test(
+        all_detectors.IntervalAnalysisDF,
+        "ArithmeticConstraints.sol",
+        "0.8.10",
+    ),
+    Test(
+        all_detectors.IntervalAnalysisDF,
+        "ComparisonTests.sol",
+        "0.8.10",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

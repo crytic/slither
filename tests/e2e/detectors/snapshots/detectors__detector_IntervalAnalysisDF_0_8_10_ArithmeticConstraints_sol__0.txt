@@ -1,0 +1,331 @@
+Interval analysis for variable 'ArithmeticConstraintTests.testMixedConstraints(uint8).x' in function 'testMixedConstraints':
+	Node 2: require(bool)(x - 5 < 80)
+	Type: uint8
+	Ranges: [21, 84]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint4(uint8).x' in function 'testDivisionConstraint4':
+	Node 2: require(bool)(100 / x > 4)
+	Type: uint8
+	Ranges: [1, 24]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint5(uint8).x' in function 'testDivisionConstraint5':
+	Node 2: require(bool)(200 / x <= 10)
+	Type: uint8
+	Ranges: [20, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeMultiplication(int8).x' in function 'testNegativeMultiplication':
+	Node 1: require(bool)(x * - 2 > - 100)
+	Type: int8
+	Ranges: [-128, 49]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).temp' in function 'testChainedConstraints':
+	Node 2: require(bool)(temp > 30)
+	Type: uint8
+	⚠️  WARNINGS: OVERFLOW
+	Ranges: [31, 260]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint1(uint8).x' in function 'testBoundaryConstraint1':
+	Node 2: x
+	Type: uint8
+	Ranges: None
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint2(uint8).x' in function 'testBoundaryConstraint2':
+	Node 1: require(bool)(x + 1 > 255)
+	Type: uint8
+	Ranges: [255, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).x' in function 'testChainedConstraints':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).x' in function 'testChainedConstraints':
+	Node 2: require(bool)(temp > 30)
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint5(uint8).x' in function 'testDivisionConstraint5':
+	Node 3: x
+	Type: uint8
+	Ranges: [20, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultipleArithmeticConstraints(uint8).x' in function 'testMultipleArithmeticConstraints':
+	Node 1: require(bool)(x + 10 > 50)
+	Type: uint8
+	Ranges: [41, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).temp' in function 'testChainedConstraints':
+	Node 1: temp = x + 5
+	Type: uint8
+	⚠️  WARNINGS: OVERFLOW
+	Ranges: [5, 260]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeMultiplication(int8).x' in function 'testNegativeMultiplication':
+	Node 0
+	Type: int8
+	Ranges: [-128, 127]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint1(uint8).x' in function 'testBoundaryConstraint1':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint1(uint8).x' in function 'testBoundaryConstraint1':
+	Node 1: require(bool)(x * 2 > 510)
+	Type: uint8
+	Ranges: None
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultiplicationConstraint5(uint8).x' in function 'testMultiplicationConstraint5':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint2(uint8).x' in function 'testBoundaryConstraint2':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testBoundaryConstraint2(uint8).x' in function 'testBoundaryConstraint2':
+	Node 2: x
+	Type: uint8
+	Ranges: [255, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionWithRemainder(uint8).x' in function 'testDivisionWithRemainder':
+	Node 2: x
+	Type: uint8
+	Ranges: [64, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionWithRemainder(uint8).x' in function 'testDivisionWithRemainder':
+	Node 1: require(bool)(x / 3 > 21)
+	Type: uint8
+	Ranges: [64, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMixedConstraints(uint8).x' in function 'testMixedConstraints':
+	Node 3: x
+	Type: uint8
+	Ranges: [21, 84]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testAdditionConstraint1(uint8).x' in function 'testAdditionConstraint1':
+	Node 2: x += 0
+	Type: uint8
+	Ranges: [41, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testAdditionConstraint1(uint8).x' in function 'testAdditionConstraint1':
+	Node 3: x
+	Type: uint8
+	Ranges: [41, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).x' in function 'testChainedConstraints':
+	Node 1: temp = x + 5
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultiplicationConstraint5(uint8).x' in function 'testMultiplicationConstraint5':
+	Node 1: require(bool)(x * 2 < 25)
+	Type: uint8
+	Ranges: [0, 12]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint4(uint8).x' in function 'testDivisionConstraint4':
+	Node 1: require(bool)(x > 0)
+	Type: uint8
+	Ranges: [1, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMixedConstraints(uint8).x' in function 'testMixedConstraints':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint5(uint8).x' in function 'testDivisionConstraint5':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultiplicationConstraint5(uint8).x' in function 'testMultiplicationConstraint5':
+	Node 2: x
+	Type: uint8
+	Ranges: [0, 12]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultipleArithmeticConstraints(uint8).x' in function 'testMultipleArithmeticConstraints':
+	Node 3: x
+	Type: uint8
+	Ranges: [41, 69]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint4(uint8).x' in function 'testDivisionConstraint4':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeDivision(int8).x' in function 'testNegativeDivision':
+	Node 0
+	Type: int8
+	Ranges: [-128, 127]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeDivision(int8).x' in function 'testNegativeDivision':
+	Node 1: require(bool)(x / (- 2) > - 25)
+	Type: int8
+	Ranges: [-128, 49]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testAdditionConstraint1(uint8).x' in function 'testAdditionConstraint1':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testAdditionConstraint1(uint8).x' in function 'testAdditionConstraint1':
+	Node 1: require(bool)(x + 10 > 50)
+	Type: uint8
+	Ranges: [41, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultipleArithmeticConstraints(uint8).x' in function 'testMultipleArithmeticConstraints':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).x' in function 'testChainedConstraints':
+	Node 3: require(bool)(temp * 2 < 120)
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).temp' in function 'testChainedConstraints':
+	Node 4: x
+	Type: uint8
+	Ranges: [31, 59]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint4(uint8).x' in function 'testDivisionConstraint4':
+	Node 3: x
+	Type: uint8
+	Ranges: [1, 24]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeDivision(int8).x' in function 'testNegativeDivision':
+	Node 2: x
+	Type: int8
+	Ranges: [-128, 49]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMixedConstraints(uint8).x' in function 'testMixedConstraints':
+	Node 1: require(bool)(x > 20)
+	Type: uint8
+	Ranges: [21, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).temp' in function 'testChainedConstraints':
+	Node 3: require(bool)(temp * 2 < 120)
+	Type: uint8
+	Ranges: [31, 59]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionConstraint5(uint8).x' in function 'testDivisionConstraint5':
+	Node 1: require(bool)(x > 0)
+	Type: uint8
+	Ranges: [1, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testMultipleArithmeticConstraints(uint8).x' in function 'testMultipleArithmeticConstraints':
+	Node 2: require(bool)(x * 2 < 140)
+	Type: uint8
+	Ranges: [41, 69]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testDivisionWithRemainder(uint8).x' in function 'testDivisionWithRemainder':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testNegativeMultiplication(int8).x' in function 'testNegativeMultiplication':
+	Node 2: x
+	Type: int8
+	Ranges: [-128, 49]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ArithmeticConstraintTests.testChainedConstraints(uint8).x' in function 'testChainedConstraints':
+	Node 4: x
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+

@@ -1,0 +1,315 @@
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInAssert(uint8).x' in function 'testDirectComparisonInAssert':
+	Node 1: assert(bool)(x < 200)
+	Type: uint8
+	Ranges: [0, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 1: greaterThan = x > 25
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 2: condition2 = x < 100
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInAssert(uint8).x' in function 'testDirectComparisonInAssert':
+	Node 2: x
+	Type: uint8
+	Ranges: [0, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 5: x
+	Type: uint8
+	Ranges: [6, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testVariableAssignedComparison(uint8).x' in function 'testVariableAssignedComparison':
+	Node 1: condition = x >= 25
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 4: lessEqual = x <= 150
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 5: equal = x == 100
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 7: require(bool)(greaterThan)
+	Type: uint8
+	Ranges: [26, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 1: xCondition = x > 50
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 5: require(bool)(condition2)
+	Type: uint8
+	Ranges: [11, 99]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 3: condition3 = 50 == x
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 2: yCondition = y < 200
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 4: require(bool)(yCondition)
+	Type: uint8
+	Ranges: [0, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 8: require(bool)(lessThan)
+	Type: uint8
+	Ranges: [26, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 6: notEqual = x != 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInAssert(uint8).x' in function 'testDirectComparisonInAssert':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 3: require(bool)(xCondition)
+	Type: uint8
+	Ranges: [51, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 3: comparison3 = x == 50
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInRequire(uint8).x' in function 'testDirectComparisonInRequire':
+	Node 2: x
+	Type: uint8
+	Ranges: [51, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 5: x + y
+	Type: uint8
+	Ranges: [51, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 4: require(bool)(yCondition)
+	Type: uint8
+	Ranges: [51, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testVariableAssignedComparison(uint8).x' in function 'testVariableAssignedComparison':
+	Node 2: require(bool)(condition)
+	Type: uint8
+	Ranges: [25, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInRequire(uint8).x' in function 'testDirectComparisonInRequire':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 1: condition1 = 10 < x
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 2: greaterEqual = x >= 50
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 1: xCondition = x > 50
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).x' in function 'testMultipleVariables':
+	Node 2: yCondition = y < 200
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 2: comparison2 = x < 100
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 9: x
+	Type: uint8
+	Ranges: [26, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 4: require(bool)(comparison1)
+	Type: uint8
+	Ranges: [6, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testVariableAssignedComparison(uint8).x' in function 'testVariableAssignedComparison':
+	Node 3: x
+	Type: uint8
+	Ranges: [25, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 3: lessThan = x < 200
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 6: x
+	Type: uint8
+	Ranges: [11, 99]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testAllComparisonOperators(uint8).x' in function 'testAllComparisonOperators':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 3: require(bool)(xCondition)
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testMultipleVariables(uint8,uint8).y' in function 'testMultipleVariables':
+	Node 5: x + y
+	Type: uint8
+	Ranges: [0, 199]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testDirectComparisonInRequire(uint8).x' in function 'testDirectComparisonInRequire':
+	Node 1: require(bool)(x > 50)
+	Type: uint8
+	Ranges: [51, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testVariableAssignedComparison(uint8).x' in function 'testVariableAssignedComparison':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 1: comparison1 = x > 5
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 4: require(bool)(condition1)
+	Type: uint8
+	Ranges: [11, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testBareComparisonNoConstraint(uint8).x' in function 'testBareComparisonNoConstraint':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'ComprarisonApplicationTest.testConstantComparisons(uint8).x' in function 'testConstantComparisons':
+	Node 0
+	Type: uint8
+	Ranges: [0, 255]
+	Valid: None
+	Invalid: None
+
