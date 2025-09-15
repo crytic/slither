@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import (
     ArithmeticHandler,
@@ -7,6 +9,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler im
 )
 from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler import (
     ComparisonHandler,
+)
+from slither.analyses.data_flow.analyses.interval.handlers.internal_call_handler import (
+    InternalCallHandler,
 )
 from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler import (
     SolidityCallHandler,
@@ -20,7 +25,13 @@ from slither.analyses.data_flow.analyses.interval.managers.constraint_manager im
 from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.solidity_call import SolidityCall
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.analysis.analysis import (
+        IntervalAnalysis,
+    )
 
 
 class OperationHandler:
@@ -33,6 +44,7 @@ class OperationHandler:
         self.comparison_handler = ComparisonHandler(self.shared_constraint_storage)
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.solidity_call_handler = SolidityCallHandler(self.shared_constraint_storage)
+        self.internal_call_handler = InternalCallHandler(self.shared_constraint_storage)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -48,3 +60,12 @@ class OperationHandler:
 
     def handle_solidity_call(self, node: Node, domain: IntervalDomain, operation: SolidityCall):
         self.solidity_call_handler.handle_solidity_call(node, domain, operation)
+
+    def handle_internal_call(
+        self,
+        node: Node,
+        domain: IntervalDomain,
+        operation: InternalCall,
+        analysis_instance: "IntervalAnalysis",
+    ):
+        self.internal_call_handler.handle_internal_call(node, domain, operation, analysis_instance)
