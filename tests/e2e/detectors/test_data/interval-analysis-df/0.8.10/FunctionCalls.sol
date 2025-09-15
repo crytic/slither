@@ -2,31 +2,31 @@
 pragma solidity ^0.8.10;
 
 contract FunctionCalls {
-    // Test 1: Basic function call with return value constraint
-    function validateNumber(uint256 value) public pure {
-        require(value == 5, "Value must be equal to 5");
-        // return value;
-    }
-
-    function processValue(uint256 input) public pure returns (uint256) {
-        validateNumber(input);
-
-        // input should also be constrained to {5} due to require
-        return input;
-    }
-
-    // // Test 2: Function with arithmetic operations and constraints
-    // function doubleValue(uint256 x) public pure returns (uint256) {
-    //     require(x <= 100, "Value too large");
-    //     uint256 doubled = x * 2;
-    //     return doubled;
+    // // Test 1: Basic function call with return value constraint
+    // function validateNumber(uint256 value) public pure {
+    //     require(value == 5, "Value must be equal to 5");
+    //     // return value;
     // }
 
-    // function processDouble(uint256 input) public pure returns (uint256) {
-    //     uint256 result = doubleValue(input);
-    //     // result should be constrained to [0, 200] (input * 2 where input <= 100)
-    //     return result;
+    // function processValue(uint256 input) public pure returns (uint256) {
+    //     validateNumber(input);
+
+    //     // input should also be constrained to {5} due to require
+    //     return input;
     // }
+
+    // Test 2: Function with arithmetic operations and constraints
+    function doubleValue(uint256 x) public pure returns (uint256) {
+        require(x <= 100, "Value too large");
+        uint256 doubled = x * 2;
+        return doubled;
+    }
+
+    function processDouble(uint256 input) public pure returns (uint256) {
+        uint256 result = doubleValue(input);
+        // result should be constrained to [0, 200] (input * 2 where input <= 100)
+        return result;
+    }
 
     // // Test 3: Function with multiple constraints
     // function validateRange(uint256 value) public pure returns (uint256) {

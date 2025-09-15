@@ -2,14 +2,12 @@ from decimal import Decimal
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment

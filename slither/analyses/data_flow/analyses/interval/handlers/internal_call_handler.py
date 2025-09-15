@@ -83,10 +83,45 @@ class InternalCallHandler:
                         callee_function_node, domain, ir_operation
                     )
 
-            # TODO: Propagate constraints back from callee to caller arguments
-            # This would require implementing propagate_constraints_from_callee_to_caller in ConstraintManager
+            # Copy callee parameter constraints back to caller arguments
+            self.constraint_manager.copy_callee_parameter_constraints_back_to_caller_arguments(
+                internal_call_operation.arguments, callee_function.parameters, domain
+            )
 
-            # TODO: Apply return value constraints if the function has a return value
+            # Apply return value constraints if the function has a return value
+            self._apply_return_value_constraints(internal_call_operation, domain, callee_function)
 
         finally:
             self.unmark_function_seen(callee_function)
+
+    def _apply_return_value_constraints(
+        self, operation: InternalCall, domain: IntervalDomain, called_function: Function
+    ) -> None:
+        """Apply return value constraints using constraint manager."""
+        # Early return if no return value expected
+        if not operation.lvalue:
+            return
+
+        # Early return if function has no return type
+        if not called_function.return_type or len(called_function.return_type) == 0:
+            return
+
+        # Look for return statements and extract constraints
+        for node in called_function.nodes:
+            for ir in node.irs:
+                # Skip non-return operations
+                if not isinstance(ir, Return):
+                    continue
+
+                # Skip return statements without values
+                if not ir.values:
+                    continue
+
+                # Skip if return value count doesn't match expected count
+                if len(ir.values) != len(called_function.return_type):
+                    continue
+
+                # Copy callee return constraints to caller variable and exit
+                self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
+                    operation.lvalue, ir.values, called_function.return_type, domain
+                )
