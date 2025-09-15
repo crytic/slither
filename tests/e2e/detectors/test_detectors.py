@@ -2000,6 +2000,11 @@ ALL_TESTS = [
         "ComparisonTests.sol",
         "0.8.10",
     ),
+    Test(
+        all_detectors.IntervalAnalysisDF,
+        "FunctionCalls.sol",
+        "0.8.10",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
