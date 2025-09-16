@@ -6,6 +6,9 @@ if TYPE_CHECKING:
 
 from slither.core.cfg.node import Node
 
+from slither.analyses.data_flow.engine.node_analyzer import NodeAnalyzer
+from slither.analyses.data_flow.engine.propagation_manager import PropagationManager
+
 
 class Direction(ABC):
     @property
@@ -48,12 +51,14 @@ class Forward(Direction):
         # Set post state
         global_state[node.node_id].post = current_state.pre
 
-        # Propagate to all successors
-        for successor in node.sons:
-            if successor and successor.node_id in global_state:
-                son_state = global_state[successor.node_id]
-                if son_state.pre.join(current_state.pre) and successor not in worklist:
-                    worklist.append(successor)
+        # Handle propagation based on node type
+        condition = NodeAnalyzer.extract_condition(node)
+        if condition and NodeAnalyzer.is_conditional_node(node):
+            PropagationManager.propagate_conditional(
+                node, current_state, condition, analysis, worklist, global_state
+            )
+        else:
+            PropagationManager.propagate_unconditional(node, current_state, worklist, global_state)
 
 
 class Backward(Direction):
