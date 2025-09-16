@@ -51,8 +51,12 @@ class Forward(Direction):
             logger.info(f"   Node type: {node.type}")
             logger.info(f"   Node IRs: {node.irs}")
             logger.info(f"   Current domain variant: {current_state.pre.variant}")
-            logger.info(f"   Current domain state: {current_state.pre.state if hasattr(current_state.pre, 'state') else 'No state'}")
-            logger.info(f"   Domain is BOTTOM: {current_state.pre.is_bottom() if hasattr(current_state.pre, 'is_bottom') else 'Unknown'}")
+            logger.info(
+                f"   Current domain state: {current_state.pre.state if hasattr(current_state.pre, 'state') else 'No state'}"
+            )
+            logger.info(
+                f"   Domain is BOTTOM: {current_state.pre.is_bottom() if hasattr(current_state.pre, 'is_bottom') else 'Unknown'}"
+            )
 
         # Check condition validity first for conditional nodes
         condition = NodeAnalyzer.extract_condition(node)
@@ -63,9 +67,9 @@ class Forward(Direction):
                 logger.info(f"🔍 NODE 4: Processing operation: {operation}")
                 logger.info(f"   Operation type: {type(operation)}")
                 logger.info(f"   Domain before transfer: {current_state.pre.variant}")
-            
+
             analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
-            
+
             if node.node_id == 4:
                 logger.info(f"🔍 NODE 4: Domain after transfer: {current_state.pre.variant}")
 
