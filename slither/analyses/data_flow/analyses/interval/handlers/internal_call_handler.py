@@ -1,9 +1,16 @@
-from typing import List, Union, TYPE_CHECKING
+from decimal import Decimal
+from typing import TYPE_CHECKING, List, Union
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ConstraintManager,
-)
+from loguru import logger
+
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
+    ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
+    ConstraintManager
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
@@ -11,23 +18,13 @@ from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.return_operation import Return
-from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.constant import Constant
 from slither.slithir.operations.solidity_call import SolidityCall
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
-    RangeVariable,
-)
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import (
-    ValueSet,
-)
-from decimal import Decimal
-
-from loguru import logger
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.analysis.analysis import (
-        IntervalAnalysis,
-    )
+    from slither.analyses.data_flow.analyses.interval.analysis.analysis import \
+        IntervalAnalysis
 
 
 class InternalCallHandler:

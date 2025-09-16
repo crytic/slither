@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Deque, Dict
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
-from loguru import logger
 from slither.core.cfg.node import Node
 
 from slither.analyses.data_flow.engine.node_analyzer import NodeAnalyzer

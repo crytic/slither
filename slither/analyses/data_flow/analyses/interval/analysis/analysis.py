@@ -1,27 +1,23 @@
-from decimal import Decimal
 from typing import Optional
 
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
-    DomainVariant,
-    IntervalDomain,
-)
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import OperationHandler
-from slither.analyses.data_flow.analyses.interval.managers.condition_validity_checker_manager import (
-    ConditionValidityChecker,
-)
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
-    ConstraintManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import (
-    OperandAnalysisManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+    DomainVariant, IntervalDomain)
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import \
+    OperationHandler
+from slither.analyses.data_flow.analyses.interval.managers.condition_validity_checker_manager import \
+    ConditionValidityChecker
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
+    ConstraintManager
+from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import \
+    OperandAnalysisManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
@@ -32,9 +28,7 @@ from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.variable import Variable
 
 
 class IntervalAnalysis(Analysis):

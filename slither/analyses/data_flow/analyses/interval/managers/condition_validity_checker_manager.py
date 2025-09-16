@@ -3,15 +3,16 @@ from typing import Optional, Set, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import (
-    OperandAnalysisManager,
-)
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import \
+    OperandAnalysisManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant

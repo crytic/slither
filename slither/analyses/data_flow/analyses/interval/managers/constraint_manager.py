@@ -1,23 +1,20 @@
-from typing import Union, List
+from typing import List, Union
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.handlers.constraint_applier_handler import (
-    ConstraintApplierHandler,
-)
-from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import (
-    ConstraintStoreManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
-from slither.core.variables.variable import Variable
-from slither.core.variables.local_variable import LocalVariable
+from loguru import logger
+
+from slither.analyses.data_flow.analyses.interval.analysis.domain import \
+    IntervalDomain
+from slither.analyses.data_flow.analyses.interval.handlers.constraint_applier_handler import \
+    ConstraintApplierHandler
+from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import \
+    ConstraintStoreManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables.constant import Constant
-from loguru import logger
 
 
 class ConstraintManager:

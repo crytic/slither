@@ -4,25 +4,21 @@ from typing import Union
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
-    DomainVariant,
-    IntervalDomain,
-)
-from slither.analyses.data_flow.analyses.interval.core.interval_refiner import IntervalRefiner
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.arithmetic_solver_manager import (
-    ArithmeticSolverManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import (
-    ConstraintStoreManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import (
-    OperandAnalysisManager,
-)
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
+    DomainVariant, IntervalDomain)
+from slither.analyses.data_flow.analyses.interval.core.interval_refiner import \
+    IntervalRefiner
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
+    ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.arithmetic_solver_manager import \
+    ArithmeticSolverManager
+from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import \
+    ConstraintStoreManager
+from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import \
+    OperandAnalysisManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
+    VariableInfoManager
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType

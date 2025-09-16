@@ -3,8 +3,10 @@ from typing import List, Optional, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
+    IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
+    RangeVariable
 from slither.slithir.operations.binary import BinaryType
 
 
