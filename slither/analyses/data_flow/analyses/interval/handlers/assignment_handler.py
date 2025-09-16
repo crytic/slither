@@ -31,6 +31,8 @@ class AssignmentHandler:
             self._handle_temporary_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Constant):
             self._handle_constant_assignment(written_variable, right_value, domain)
+        elif isinstance(right_value, Variable):
+            self._handle_variable_assignment(written_variable, right_value, domain)
 
     def _handle_temporary_assignment(
         self,

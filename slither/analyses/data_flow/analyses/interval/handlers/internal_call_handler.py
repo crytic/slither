@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING
+from typing import List, Union, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
@@ -6,11 +6,21 @@ from slither.analyses.data_flow.analyses.interval.managers.constraint_manager im
 )
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.return_operation import Return
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.constant import Constant
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+    RangeVariable,
+)
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import (
+    ValueSet,
+)
+from decimal import Decimal
 
 from loguru import logger
 
@@ -121,7 +131,49 @@ class InternalCallHandler:
                 if len(ir.values) != len(called_function.return_type):
                     continue
 
+                # Create temporary variable for the return value if it's a constant
+                self._create_return_temporary_variables(operation.lvalue, ir.values, domain)
+
                 # Copy callee return constraints to caller variable and exit
                 self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
                     operation.lvalue, ir.values, called_function.return_type, domain
                 )
+
+    def _create_return_temporary_variables(
+        self, caller_lvalue: Variable, return_values: List[Variable], domain: IntervalDomain
+    ) -> None:
+        """Create temporary variables for return values if they are constants."""
+        if not caller_lvalue:
+            return
+
+        caller_lvalue_name = self.constraint_manager.variable_manager.get_variable_name(
+            caller_lvalue
+        )
+
+        # Check if the caller lvalue is a temporary variable (like TMP_0)
+        if isinstance(caller_lvalue, TemporaryVariable):
+            # Process each return value
+            for i, return_value in enumerate(return_values):
+                if isinstance(return_value, Constant):
+                    # Handle constant return values
+                    value = Decimal(str(return_value.value))
+                    var_type = self.constraint_manager.variable_manager.get_variable_type(
+                        return_value
+                    )
+
+                    if not self.constraint_manager.variable_manager.is_type_numeric(var_type):
+                        continue
+
+                    range_variable = RangeVariable(
+                        interval_ranges=None,
+                        valid_values=ValueSet([value]),
+                        invalid_values=None,
+                        var_type=var_type,
+                    )
+
+                    # Store the temporary variable in domain state
+                    domain.state.set_range_variable(caller_lvalue_name, range_variable)
+                    logger.debug(
+                        f"Created temporary variable {caller_lvalue_name} for constant return value {value}"
+                    )
+                    break  # Only process the first return value for now

@@ -1,7 +1,274 @@
-Interval analysis for variable 'FunctionCalls.processValue(uint256).input' in function 'processValue':
-	Node 1: validateNumber(input)
+Interval analysis for variable 'FunctionCalls.processComparisonChain(uint256).result' in function 'processComparisonChain':
+	Node 1: result = comparisonChain(input)
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.processVariableAssignment(uint256).input' in function 'processVariableAssignment':
+	Node 0
 	Type: uint256
 	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'validateVariable':
+	Node 4: temp
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.voidFunction(uint256).value' in function 'processVoid':
+	Node 1: voidFunction(input)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComplex(uint256).result' in function 'processComplex':
+	Node 1: result = complexValidate(input)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNoConstraints(uint256).input' in function 'processNoConstraints':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'variableAssignment':
+	Node 5: temp3 = temp2 + 5
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'outerValidate':
+	Node 3: innerValidate(value)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.voidFunction(uint256).value' in function 'voidFunction':
+	Node 2: require(bool,string)(value <= 10,Value must be <= 10)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'validateVariable':
+	Node 3: require(bool,string)(temp <= 10,Value must be <= 10)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComparisonChain(uint256).input' in function 'processComparisonChain':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'processAssert':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).doubled' in function 'doubleValue':
+	Node 2: doubled = x * 2
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processRange(uint256).result' in function 'processRange':
+	Node 1: result = validateRange(input)
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'outerValidate':
+	Node 3: innerValidate(value)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'validateVariable':
+	Node 4: temp
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'mixedValidation':
+	Node 3: value
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processMixed(uint256).input' in function 'processMixed':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 2: squared = value * value
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'mixedValidation':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.voidFunction(uint256).value' in function 'processVoid':
+	Node 2: input
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processArithmeticConstraint(uint256).input' in function 'processArithmeticConstraint':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processArithmeticConstraint(uint256).input' in function 'processArithmeticConstraint':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).doubled' in function 'complexValidate':
+	Node 6: value
+	Type: uint256
+	Ranges: [2, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'variableAssignment':
+	Node 3: temp2 = temp1 * 2
+	Type: uint256
+	⚠️  WARNINGS: OVERFLOW
+	Ranges: [20, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 1: temp1 = value
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'outerValidate':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 7: temp3
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'processComplex':
+	Node 1: result = complexValidate(input)
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'arithmeticConstraint':
+	Node 1: require(bool,string)(value + 5 <= 20,Value + 5 must be <= 20)
+	Type: uint256
+	Ranges: [0, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'processDouble':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'complexValidate':
+	Node 4: doubled = value * 2
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 3: temp2 = temp1 * 2
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processMixed(uint256).input' in function 'processMixed':
+	Node 1: result = mixedValidation(input)
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 5: temp3 = temp2 + 5
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNested(uint256).input' in function 'processNested':
+	Node 1: result = outerValidate(input)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'validateVariable':
+	Node 2: require(bool,string)(temp >= 1,Value must be >= 1)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 1: require(bool,string)(value > 0,Value must be positive)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
 	Valid: None
 	Invalid: None
 
@@ -12,17 +279,957 @@ Interval analysis for variable 'FunctionCalls.processValue(uint256).input' in fu
 	Valid: None
 	Invalid: None
 
-Interval analysis for variable 'FunctionCalls.validateNumber(uint256).value' in function 'validateNumber':
-	Node 1: require(bool,string)(value == 5,Value must be equal to 5)
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'processComplex':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp3' in function 'variableAssignment':
+	Node 5: temp3 = temp2 + 5
+	Type: uint256
+	Ranges: [25, 105]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'doubleValue':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.useConstant().constValue' in function 'useConstant':
+	Node 1: constValue = getConstant()
 	Type: uint256
 	Ranges: None
-	Valid: 5
+	Valid: 123
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComplex(uint256).result' in function 'processComplex':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariable(uint256).result' in function 'processVariable':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariable(uint256).input' in function 'processVariable':
+	Node 1: result = validateVariable(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'complexValidate':
+	Node 5: require(bool,string)(doubled <= 200,Doubled value too large)
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComplex(uint256).input' in function 'processComplex':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
 	Invalid: None
 
 Interval analysis for variable 'FunctionCalls.processValue(uint256).input' in function 'processValue':
 	Node 2: input
 	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processMixed(uint256).result' in function 'processMixed':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'innerValidate':
+	Node 0
+	Type: uint256
 	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processAssert(uint256).input' in function 'processAssert':
+	Node 1: result = assertValidate(input)
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariableAssignment(uint256).result' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'processArithmeticConstraint':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processArithmeticConstraint(uint256).input' in function 'processArithmeticConstraint':
+	Node 1: result = arithmeticConstraint(input)
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'variableAssignment':
+	Node 6: require(bool,string)(temp3 <= 50,Final value must be <= 50)
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComparisonChain(uint256).input' in function 'processComparisonChain':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'processVariable':
+	Node 1: result = validateVariable(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'processComplex':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'validateVariable':
+	Node 2: require(bool,string)(temp >= 1,Value must be >= 1)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'processMixed':
+	Node 1: result = mixedValidation(input)
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 3: require(bool,string)(value != 25,Value cannot be 25)
+	Type: uint256
+	Ranges: [10, 24], [26, 50]
+	Valid: None
+	Invalid: 25
+
+Interval analysis for variable 'FunctionCalls.validateNumber(uint256).value' in function 'processValue':
+	Node 2: input
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 4: require(bool,string)(value != 30,Value cannot be 30)
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.processVoid(uint256).input' in function 'processVoid':
+	Node 1: voidFunction(input)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNoConstraints(uint256).input' in function 'processNoConstraints':
+	Node 1: result = noConstraints(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'processNested':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 6: value
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNoConstraints(uint256).result' in function 'processNoConstraints':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'innerValidate':
+	Node 3: value
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processDouble(uint256).result' in function 'processDouble':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'innerValidate':
+	Node 2: require(bool,string)(value <= 10,Value must be <= 10)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 3: require(bool,string)(squared <= 10000,Squared value too large)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'processRange':
+	Node 1: result = validateRange(input)
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComparisonChain(uint256).result' in function 'processComparisonChain':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.processRange(uint256).input' in function 'processRange':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processAssert(uint256).input' in function 'processAssert':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'assertValidate':
+	Node 1: assert(bool)(value > 0)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).doubled' in function 'processDouble':
+	Node 1: result = doubleValue(input)
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processMixed(uint256).input' in function 'processMixed':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.noConstraints(uint256).value' in function 'processNoConstraints':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNested(uint256).result' in function 'processNested':
+	Node 1: result = outerValidate(input)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'validateVariable':
+	Node 1: temp = value
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 5: require(bool,string)(doubled <= 200,Doubled value too large)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 2: require(bool,string)(temp1 >= 10,Value must be >= 10)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.noConstraints(uint256).value' in function 'noConstraints':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'assertValidate':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariable(uint256).input' in function 'processVariable':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'variableAssignment':
+	Node 4: require(bool,string)(temp2 <= 100,Doubled value must be <= 100)
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.noConstraints(uint256).value' in function 'processNoConstraints':
+	Node 1: result = noConstraints(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'validateRange':
+	Node 2: require(bool,string)(value <= 50,Value too large)
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'outerValidate':
+	Node 1: require(bool,string)(value >= 5,Value must be >= 5)
+	Type: uint256
+	Ranges: [5, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariableAssignment(uint256).input' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'outerValidate':
+	Node 2: require(bool,string)(value <= 20,Value must be <= 20)
+	Type: uint256
+	Ranges: [5, 20]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 5: value
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 1: temp1 = value
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVoid(uint256).input' in function 'processVoid':
+	Node 2: input
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).doubled' in function 'complexValidate':
+	Node 4: doubled = value * 2
+	Type: uint256
+	⚠️  WARNINGS: OVERFLOW
+	Ranges: [2, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 7: temp3
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'validateVariable':
+	Node 3: require(bool,string)(temp <= 10,Value must be <= 10)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'mixedValidation':
+	Node 2: assert(bool)(value <= 50)
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp3' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'processArithmeticConstraint':
+	Node 1: result = arithmeticConstraint(input)
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 2: require(bool,string)(value <= 50,Value must be <= 50)
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processRange(uint256).result' in function 'processRange':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'doubleValue':
+	Node 1: require(bool,string)(x <= 100,Value too large)
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'doubleValue':
+	Node 3: doubled
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'complexValidate':
+	Node 2: squared = value * value
+	Type: uint256
+	⚠️  WARNINGS: OVERFLOW
+	Ranges: [1, 1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'processVariableAssignment':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.useConstant().constValue' in function 'useConstant':
+	Node 2: constValue
+	Type: uint256
+	Ranges: None
+	Valid: 123
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).doubled' in function 'doubleValue':
+	Node 3: doubled
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'processVariable':
+	Node 1: result = validateVariable(input)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).temp' in function 'processVariable':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariableAssignment(uint256).result' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'arithmeticConstraint':
+	Node 3: value
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'arithmeticConstraint':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).doubled' in function 'processComplex':
+	Node 2: result
+	Type: uint256
+	Ranges: [2, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 2: require(bool,string)(temp1 >= 10,Value must be >= 10)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processAssert(uint256).result' in function 'processAssert':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.noConstraints(uint256).value' in function 'noConstraints':
+	Node 1: value
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 4: require(bool,string)(temp2 <= 100,Doubled value must be <= 100)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 4: require(bool,string)(temp2 <= 100,Doubled value must be <= 100)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).doubled' in function 'processComplex':
+	Node 1: result = complexValidate(input)
+	Type: uint256
+	Ranges: [2, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processDouble(uint256).input' in function 'processDouble':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'innerValidate':
+	Node 1: require(bool,string)(value >= 1,Value must be >= 1)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'processComplex':
+	Node 1: result = complexValidate(input)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'validateVariable':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processDouble(uint256).input' in function 'processDouble':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processAssert(uint256).input' in function 'processAssert':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.outerValidate(uint256).value' in function 'processNested':
+	Node 1: result = outerValidate(input)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processArithmeticConstraint(uint256).result' in function 'processArithmeticConstraint':
+	Node 1: result = arithmeticConstraint(input)
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processArithmeticConstraint(uint256).result' in function 'processArithmeticConstraint':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processAssert(uint256).result' in function 'processAssert':
+	Node 1: result = assertValidate(input)
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariable(uint256).result' in function 'processVariable':
+	Node 1: result = validateVariable(input)
+	Type: uint256
+	Ranges: [1, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateNumber(uint256).value' in function 'validateNumber':
+	Node 1: require(bool,string)(value == 15,Value must be equal to 5)
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.arithmeticConstraint(uint256).value' in function 'arithmeticConstraint':
+	Node 2: require(bool,string)(value * 2 >= 10,Value * 2 must be >= 10)
+	Type: uint256
+	Ranges: [5, 15]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'complexValidate':
+	Node 6: value
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 5: temp3 = temp2 + 5
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVoid(uint256).input' in function 'processVoid':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processMixed(uint256).result' in function 'processMixed':
+	Node 1: result = mixedValidation(input)
+	Type: uint256
+	Ranges: [1, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).value' in function 'variableAssignment':
+	Node 6: require(bool,string)(temp3 <= 50,Final value must be <= 50)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'processComparisonChain':
+	Node 1: result = comparisonChain(input)
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.processVariable(uint256).input' in function 'processVariable':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComparisonChain(uint256).input' in function 'processComparisonChain':
+	Node 1: result = comparisonChain(input)
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.validateNumber(uint256).value' in function 'processValue':
+	Node 1: validateNumber(input)
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'processNested':
+	Node 1: result = outerValidate(input)
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComplex(uint256).input' in function 'processComplex':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp2' in function 'variableAssignment':
+	Node 7: temp3
+	Type: uint256
+	Ranges: [20, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 6: require(bool,string)(temp3 <= 50,Final value must be <= 50)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'processVariable':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.innerValidate(uint256).value' in function 'processNested':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateVariable(uint256).value' in function 'validateVariable':
+	Node 1: temp = value
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'processRange':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.voidFunction(uint256).value' in function 'voidFunction':
+	Node 1: require(bool,string)(value >= 1,Value must be >= 1)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'assertValidate':
+	Node 3: value
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'processComparisonChain':
+	Node 2: result
+	Type: uint256
+	Ranges: [10, 24], [26, 29], [31, 50]
+	Valid: None
+	Invalid: 25, 30
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).doubled' in function 'processDouble':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp3' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'mixedValidation':
+	Node 1: require(bool,string)(value >= 1,Value must be >= 1)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).squared' in function 'complexValidate':
+	Node 3: require(bool,string)(squared <= 10000,Squared value too large)
+	Type: uint256
+	Ranges: [1, 10000]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).value' in function 'complexValidate':
+	Node 4: doubled = value * 2
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNested(uint256).input' in function 'processNested':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'doubleValue':
+	Node 2: doubled = x * 2
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp1' in function 'variableAssignment':
+	Node 3: temp2 = temp1 * 2
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processValue(uint256).input' in function 'processValue':
+	Node 1: validateNumber(input)
+	Type: uint256
+	Ranges: None
+	Valid: 15
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processRange(uint256).input' in function 'processRange':
+	Node 1: result = validateRange(input)
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processVariableAssignment(uint256).input' in function 'processVariableAssignment':
+	Node 1: result = variableAssignment(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.mixedValidation(uint256).value' in function 'processMixed':
+	Node 2: result
+	Type: uint256
+	Ranges: [1, 50]
 	Valid: None
 	Invalid: None
 
@@ -30,6 +1237,139 @@ Interval analysis for variable 'FunctionCalls.validateNumber(uint256).value' in 
 	Node 0
 	Type: uint256
 	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp3' in function 'variableAssignment':
+	Node 7: temp3
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processDouble(uint256).result' in function 'processDouble':
+	Node 1: result = doubleValue(input)
+	Type: uint256
+	Ranges: [0, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'validateRange':
+	Node 3: value
+	Type: uint256
+	Ranges: [10, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.doubleValue(uint256).x' in function 'processDouble':
+	Node 1: result = doubleValue(input)
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'validateRange':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.voidFunction(uint256).value' in function 'voidFunction':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processRange(uint256).input' in function 'processRange':
+	Node 0
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'assertValidate':
+	Node 2: assert(bool)(value <= 100)
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.complexValidate(uint256).doubled' in function 'complexValidate':
+	Node 5: require(bool,string)(doubled <= 200,Doubled value too large)
+	Type: uint256
+	Ranges: [2, 200]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNoConstraints(uint256).result' in function 'processNoConstraints':
+	Node 1: result = noConstraints(input)
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.assertValidate(uint256).value' in function 'processAssert':
+	Node 1: result = assertValidate(input)
+	Type: uint256
+	Ranges: [1, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNoConstraints(uint256).input' in function 'processNoConstraints':
+	Node 2: result
+	Type: uint256
+	Ranges: [0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.variableAssignment(uint256).temp3' in function 'variableAssignment':
+	Node 6: require(bool,string)(temp3 <= 50,Final value must be <= 50)
+	Type: uint256
+	Ranges: [25, 50]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processDouble(uint256).input' in function 'processDouble':
+	Node 1: result = doubleValue(input)
+	Type: uint256
+	Ranges: [0, 100]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.validateRange(uint256).value' in function 'validateRange':
+	Node 1: require(bool,string)(value >= 10,Value too small)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.comparisonChain(uint256).value' in function 'comparisonChain':
+	Node 1: require(bool,string)(value >= 10,Value must be >= 10)
+	Type: uint256
+	Ranges: [10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNested(uint256).input' in function 'processNested':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processNested(uint256).result' in function 'processNested':
+	Node 2: result
+	Type: uint256
+	Ranges: [5, 10]
+	Valid: None
+	Invalid: None
+
+Interval analysis for variable 'FunctionCalls.processComplex(uint256).input' in function 'processComplex':
+	Node 1: result = complexValidate(input)
+	Type: uint256
+	Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
 	Valid: None
 	Invalid: None
 
