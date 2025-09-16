@@ -9,8 +9,8 @@ class NodeAnalyzer:
 
     @staticmethod
     def extract_condition(node: Node) -> Optional[Binary]:
-        """Extract comparison condition from IF node."""
-        if node.type != NodeType.IF:
+        """Extract comparison condition from IF or IFLOOP node."""
+        if node.type not in [NodeType.IF, NodeType.IFLOOP]:
             return None
 
         for operation in node.irs or []:
@@ -28,4 +28,4 @@ class NodeAnalyzer:
     @staticmethod
     def is_conditional_node(node: Node) -> bool:
         """Check if node represents a conditional branch."""
-        return node.type == NodeType.IF and len(node.sons) >= 2
+        return node.type in [NodeType.IF, NodeType.IFLOOP] and len(node.sons) >= 2
