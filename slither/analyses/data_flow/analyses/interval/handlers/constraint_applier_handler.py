@@ -3,7 +3,10 @@ from typing import Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.analysis.domain import (
+    DomainVariant,
+    IntervalDomain,
+)
 from slither.analyses.data_flow.analyses.interval.core.interval_refiner import IntervalRefiner
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
@@ -83,6 +86,9 @@ class ConstraintApplierHandler:
         else:
             # Apply simple comparison constraint (e.g., x > 50)
             self._apply_comparison_to_domain(left_operand, right_operand, operation_type, domain)
+
+        # Check if domain should become BOTTOM after constraint application
+        self._check_and_convert_to_bottom_if_empty(domain)
 
     def _apply_comparison_to_domain(
         self,
@@ -302,3 +308,20 @@ class ConstraintApplierHandler:
 
         # Set the constant range variable in domain state
         domain.state.set_range_variable(target_variable_name, constant_range_variable)
+
+    def _check_and_convert_to_bottom_if_empty(self, domain: IntervalDomain) -> None:
+        """Check if domain has any valid intervals and convert to BOTTOM if empty."""
+        if domain.variant != DomainVariant.STATE:
+            return  # Only check STATE domains
+
+        # Check if any variable has valid intervals or values
+        has_valid_content = False
+        for var_name, range_var in domain.state.get_range_variables().items():
+            if range_var.interval_ranges or range_var.valid_values:
+                has_valid_content = True
+                break
+
+        # Convert to BOTTOM if no valid content remains
+        if not has_valid_content:
+            logger.info(f"🚫 Converting domain to BOTTOM - no valid intervals remain")
+            domain.variant = DomainVariant.BOTTOM
