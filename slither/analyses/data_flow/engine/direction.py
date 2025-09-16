@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Deque, Dict, List
+from typing import TYPE_CHECKING, Deque, Dict
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
 from slither.core.cfg.node import Node
-from slither.core.declarations.function import Function
 
 from slither.analyses.data_flow.engine.node_analyzer import NodeAnalyzer
 from slither.analyses.data_flow.engine.propagation_manager import PropagationManager
@@ -26,7 +25,6 @@ class Direction(ABC):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         pass
 
@@ -46,20 +44,17 @@ class Forward(Direction):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         # Apply transfer function to current node
         for operation in node.irs or [None]:
-            analysis.transfer_function(
-                node=node, domain=current_state.pre, operation=operation, functions=functions
-            )
+            analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
 
         # Set post state
         global_state[node.node_id].post = current_state.pre
 
         # Handle IFLOOP nodes specially using LoopManager
         if self._loop_manager.handle_loop_node(
-            node, current_state, worklist, global_state, analysis, functions
+            node, current_state, worklist, global_state, analysis
         ):
             return
 
@@ -85,6 +80,5 @@ class Backward(Direction):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-        functions: List[Function],
     ):
         raise NotImplementedError("Backward transfer function hasn't been developed yet")

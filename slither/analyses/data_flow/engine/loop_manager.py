@@ -1,15 +1,11 @@
-from typing import TYPE_CHECKING, Deque, Dict, List, Set
+from typing import TYPE_CHECKING, Deque, Dict, Set
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
 from loguru import logger
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations.function import Function
 from slither.analyses.data_flow.engine.domain import Domain
-from slither.analyses.data_flow.engine.widening_literal_extractor import (
-    extract_numeric_literals_for_function,
-)
 from slither.analyses.data_flow.engine.propagation_manager import PropagationManager
 
 
@@ -30,14 +26,13 @@ class LoopManager:
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
         analysis: "Analysis",
-        functions: List[Function],
     ) -> bool:
         """Handle IFLOOP nodes with iteration limiting and widening operations."""
         if node.type != NodeType.IFLOOP:
             return False
 
         # Ensure widening literals are extracted for this analysis
-        self._ensure_widening_literals_extracted(functions)
+        self._ensure_widening_literals_extracted()
 
         loop_node_id = node.node_id
         current_iteration_count = self._loop_iteration_counts.setdefault(loop_node_id, 0)
@@ -111,18 +106,15 @@ class LoopManager:
                 node, node.sons[0], state, worklist, global_state
             )
 
-    def _ensure_widening_literals_extracted(self, functions: List[Function]) -> None:
+    def _ensure_widening_literals_extracted(self) -> None:
         """Extract widening literals once at the beginning of analysis."""
         if self._widening_literals_extracted:
             return
 
         try:
-            if functions and len(functions) > 0:
-                # Extract function-specific numeric literals for widening
-                function = functions[0]  # Use the first function being analyzed
-                self._widening_literals, self._widening_literals_count = (
-                    extract_numeric_literals_for_function(function)
-                )
+            # Use default widening literals since we don't have access to the function
+            self._widening_literals = {0, 1, -1, 2, 10, 100, 1000}
+            self._widening_literals_count = len(self._widening_literals)
 
         except Exception as e:
             logger.warning(f"Failed to extract widening literals: {e}")
