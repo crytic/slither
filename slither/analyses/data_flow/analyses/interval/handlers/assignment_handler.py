@@ -20,15 +20,6 @@ class AssignmentHandler:
         self.variable_info_manager = VariableInfoManager()
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment) -> None:
-        # Debug Node 4 assignment
-        if node.node_id == 4:
-            logger.info(f"🔍 NODE 4 ASSIGNMENT HANDLER:")
-            logger.info(f"   Assignment operation: {operation}")
-            logger.info(f"   Lvalue: {operation.lvalue}")
-            logger.info(f"   Rvalue: {operation.rvalue}")
-            logger.info(f"   Rvalue type: {type(operation.rvalue)}")
-            logger.info(f"   Domain variant: {domain.variant}")
-            logger.info(f"   Domain is BOTTOM: {domain.is_bottom()}")
 
         if operation.lvalue is None:
             logger.error("Assignment lvalue is None")
@@ -38,16 +29,10 @@ class AssignmentHandler:
         right_value = operation.rvalue
 
         if isinstance(right_value, TemporaryVariable):
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Handling temporary assignment")
             self._handle_temporary_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Constant):
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Handling constant assignment: {right_value.value}")
             self._handle_constant_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Variable):
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Handling variable assignment")
             self._handle_variable_assignment(written_variable, right_value, domain)
 
     def _handle_temporary_assignment(
@@ -89,14 +74,6 @@ class AssignmentHandler:
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
 
-        # Debug Node 4 constant assignment
-        logger.info(f"🔍 CONSTANT ASSIGNMENT DEBUG:")
-        logger.info(f"   Written variable name: {written_variable_name}")
-        logger.info(f"   Written variable type: {written_variable_type}")
-        logger.info(f"   Source constant value: {source_constant.value}")
-        logger.info(f"   Decimal value: {value}")
-        logger.info(f"   Domain state before: {domain.state.get_range_variables()}")
-
         if not self.variable_info_manager.is_type_numeric(written_variable_type):
             logger.warning(f"Assignment to non-numeric variable: {written_variable_name}")
             return
@@ -109,10 +86,6 @@ class AssignmentHandler:
         )
 
         domain.state.set_range_variable(written_variable_name, range_variable)
-
-        logger.info(
-            f"🔍 CONSTANT ASSIGNMENT: Domain state after: {domain.state.get_range_variables()}"
-        )
 
     def _handle_variable_assignment(
         self, written_variable: Variable, source_variable: Variable, domain: IntervalDomain

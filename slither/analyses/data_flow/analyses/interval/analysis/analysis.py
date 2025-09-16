@@ -89,7 +89,6 @@ class IntervalAnalysis(Analysis):
         - branch_taken=True: applies constraint x > 100 (then branch)
         - branch_taken=False: applies constraint x <= 100 (else branch)
         """
-        logger.info(f"🔄 APPLYING CONDITION: {condition} (branch_taken={branch_taken})")
 
         if not isinstance(condition, Binary):
             return domain
@@ -108,7 +107,6 @@ class IntervalAnalysis(Analysis):
         """Apply the condition when the then branch is taken."""
         # Verify condition validity first - if invalid, return TOP (unreachable)
         if not self._condition_validity_checker.is_condition_valid(operation, domain):
-            logger.info(f"⚠️ Pruning invalid then branch: {operation}")
             return IntervalDomain.top()
 
         # Apply constraint if condition is valid
@@ -158,7 +156,6 @@ class IntervalAnalysis(Analysis):
 
         # Verify the negated condition validity first
         if not self._condition_validity_checker.is_condition_valid(negated_comparison, domain):
-            logger.info(f"⚠️ Pruning invalid else branch: negated {operation}")
             return IntervalDomain.top()
 
         # Store the negated operation as a constraint for the original variable
@@ -196,27 +193,14 @@ class IntervalAnalysis(Analysis):
         domain: IntervalDomain,
         operation: Operation,
     ) -> None:
-        # Debug Node 4 transfer function
-        if node.node_id == 4:
-            logger.info(f"🔍 NODE 4 TRANSFER FUNCTION:")
-            logger.info(f"   Domain variant: {domain.variant}")
-            logger.info(f"   Domain is BOTTOM: {domain.is_bottom()}")
-            logger.info(f"   Operation: {operation}")
-            logger.info(f"   Operation type: {type(operation)}")
 
         if domain.variant == DomainVariant.TOP:
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Domain is TOP (unreachable), returning early")
             return
         elif domain.variant == DomainVariant.BOTTOM:
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Domain is BOTTOM, initializing from bottom")
             # Initialize domain from bottom with function parameters
             self._initialize_domain_from_bottom(node, domain)
             self._analyze_operation_by_type(operation, domain, node)
         elif domain.variant == DomainVariant.STATE:
-            if node.node_id == 4:
-                logger.info(f"🔍 NODE 4: Domain is STATE, analyzing operation")
             self._analyze_operation_by_type(operation, domain, node)
 
     def _analyze_operation_by_type(
