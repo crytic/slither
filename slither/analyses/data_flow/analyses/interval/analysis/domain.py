@@ -52,7 +52,7 @@ class IntervalDomain(Domain):
 
                 if existing_range is not None:
                     # Variable exists, join with the incoming range
-                    range_before_join = existing_range.copy()
+                    range_before_join = existing_range.deep_copy()
                     existing_range.join(incoming_range)
 
                     # Check if any component changed after join
@@ -64,7 +64,7 @@ class IntervalDomain(Domain):
                         changed = True
                 else:
                     # Add new variable from other state
-                    self.state.add_range_variable(var_name, incoming_range.copy())
+                    self.state.add_range_variable(var_name, incoming_range.deep_copy())
                     changed = True
 
             return changed
