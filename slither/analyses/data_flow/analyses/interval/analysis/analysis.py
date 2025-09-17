@@ -21,6 +21,7 @@ from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_mana
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.analysis.widening import Widening
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
@@ -63,6 +64,7 @@ class IntervalAnalysis(Analysis):
         self._condition_validity_checker = ConditionValidityChecker(
             self._variable_info_manager, self._operand_analyzer
         )
+        self._widening = Widening()
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -264,3 +266,9 @@ class IntervalAnalysis(Analysis):
             elif hasattr(parameter.type, "type") and hasattr(parameter.type.type, "elems"):
                 # Struct types are not implemented yet
                 raise NotImplementedError("Struct parameter types are not implemented yet")
+
+    def apply_widening(
+        self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set
+    ) -> IntervalDomain:
+        """Apply widening operations to the current state."""
+        return self._widening.apply_widening(current_state, previous_state, widening_literals)

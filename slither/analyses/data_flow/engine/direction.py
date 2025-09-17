@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
 from slither.core.cfg.node import Node
+from slither.slithir.operations.binary import Binary
 
 from slither.analyses.data_flow.engine.node_analyzer import NodeAnalyzer
 from slither.analyses.data_flow.engine.propagation_manager import PropagationManager

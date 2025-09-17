@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING, List, Tuple, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
@@ -17,8 +16,7 @@ from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-        IntervalDomain
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
 
 class RangeVariable:
@@ -118,12 +116,117 @@ class RangeVariable:
     def clear_invalid_values(self) -> None:
         self.invalid_values = ValueSet(set())
 
+    # ---------- Consolidation ----------
+    def consolidate_ranges(self) -> None:
+        """Consolidate overlapping and duplicate ranges for efficiency."""
+        if not self.interval_ranges:
+            return
+
+        # Log original ranges for debugging
+        logger.debug(f"🔧 Consolidating ranges: {[str(r) for r in self.interval_ranges]}")
+
+        # Remove duplicates by converting to set and back
+        unique_ranges = list(set(self.interval_ranges))
+
+        # Sort ranges by lower bound
+        unique_ranges.sort(key=lambda r: r.get_lower())
+
+        # Merge overlapping ranges
+        consolidated = []
+        for current_range in unique_ranges:
+            if not consolidated:
+                consolidated.append(current_range)
+            else:
+                last_range = consolidated[-1]
+
+                # Check if ranges overlap or are adjacent
+                if (
+                    current_range.get_lower() <= last_range.get_upper() + 1
+                    or last_range.get_lower() <= current_range.get_upper() + 1
+                ):
+                    # Merge ranges
+                    merged_lower = min(last_range.get_lower(), current_range.get_lower())
+                    merged_upper = max(last_range.get_upper(), current_range.get_upper())
+                    consolidated[-1] = IntervalRange(merged_lower, merged_upper)
+                    logger.debug(
+                        f"🔧 Merged {str(last_range)} and {str(current_range)} -> {str(consolidated[-1])}"
+                    )
+                else:
+                    # No overlap, add as new range
+                    consolidated.append(current_range)
+
+        # Update the interval ranges
+        self.interval_ranges = consolidated
+        logger.debug(f"🔧 Final consolidated ranges: {[str(r) for r in self.interval_ranges]}")
+
+    def convert_consecutive_values_to_ranges(self) -> None:
+        """Convert consecutive valid values to interval ranges."""
+        if not self.valid_values or len(self.valid_values) < 2:
+            return
+
+        # Get sorted valid values
+        sorted_values = sorted(self.valid_values)
+
+        # Check if values are consecutive
+        consecutive_ranges = []
+        start = sorted_values[0]
+        end = start
+
+        for i in range(1, len(sorted_values)):
+            if sorted_values[i] == end + Decimal("1"):
+                # Consecutive, extend the range
+                end = sorted_values[i]
+            else:
+                # Not consecutive, save the current range
+                if start == end:
+                    # Single value, keep as discrete value
+                    pass
+                else:
+                    # Multiple consecutive values, convert to range
+                    consecutive_ranges.append(IntervalRange(start, end))
+
+                # Start new range
+                start = sorted_values[i]
+                end = start
+
+        # Handle the last range
+        if start == end:
+            # Single value, keep as discrete value
+            pass
+        else:
+            # Multiple consecutive values, convert to range
+            consecutive_ranges.append(IntervalRange(start, end))
+
+        # If we found consecutive ranges, convert them
+        if consecutive_ranges:
+            logger.debug(
+                f"🔄 Converting consecutive values {sorted_values} to ranges: {[str(r) for r in consecutive_ranges]}"
+            )
+
+            # Add the new ranges
+            self.interval_ranges.extend(consecutive_ranges)
+
+            # Remove the consecutive values from valid_values
+            for range_obj in consecutive_ranges:
+                lower = int(range_obj.get_lower())
+                upper = int(range_obj.get_upper())
+                for val in range(lower, upper + 1):
+                    decimal_val = Decimal(str(val))
+                    if decimal_val in self.valid_values:
+                        self.valid_values.remove(decimal_val)
+
+            # Consolidate the ranges
+            self.consolidate_ranges()
+
     # ---------- Join ----------
     def join(self, other: "RangeVariable") -> None:
         """Join this RangeVariable with another RangeVariable"""
         # Join valid and invalid values
         self.valid_values = self.valid_values.join(other.valid_values)
         self.invalid_values = self.invalid_values.join(other.invalid_values)
+
+        # Convert consecutive valid values to ranges
+        self.convert_consecutive_values_to_ranges()
 
         # Remove any valid values that are also in invalid values
         for invalid_value in self.invalid_values:
@@ -133,6 +236,9 @@ class RangeVariable:
         self.interval_ranges.extend(range_obj.deep_copy() for range_obj in other.interval_ranges)
         # Deep copy existing ranges to maintain consistency
         self.interval_ranges = [range_obj.deep_copy() for range_obj in self.interval_ranges]
+
+        # Consolidate ranges after joining to remove duplicates and overlaps
+        self.consolidate_ranges()
 
     # ---------- Copy ----------
     def deep_copy(self) -> "RangeVariable":
@@ -218,12 +324,20 @@ class RangeVariable:
                     IntervalRange(Decimal("-Infinity"), Decimal("Infinity"))
                 )
 
-        return RangeVariable(
+        result = RangeVariable(
             interval_ranges=result_interval_ranges,
             valid_values=result_valid_values,
             invalid_values=ValueSet(set()),  # conservative choice: reset invalids
             var_type=left.var_type,  # TODO: replace with proper type inference
         )
+
+        # Convert consecutive valid values to ranges
+        result.convert_consecutive_values_to_ranges()
+
+        # Consolidate ranges to remove duplicates and overlaps
+        result.consolidate_ranges()
+
+        return result
 
     @staticmethod
     def get_variable_info(
