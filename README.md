@@ -3,7 +3,7 @@
 <img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Slither Static Analysis Framework Logo" width="500" />
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
-![PyPI](https://img.shields.io/pypi/v/slither-analyzer?logo=python&logoColor=white&label=slither-analyzer)
+[![PyPI](https://img.shields.io/pypi/v/slither-analyzer?logo=python&logoColor=white&label=slither-analyzer)](https://pypi.org/project/slither-analyzer/)
 [![Slither - Read the Docs](https://img.shields.io/badge/Slither-Read_the_Docs-2ea44f)](https://crytic.github.io/slither/slither.html)
 [![Slither - Wiki](https://img.shields.io/badge/Slither-Wiki-2ea44f)](https://github.com/crytic/slither/wiki/SlithIR)
 
