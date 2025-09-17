@@ -106,3 +106,5 @@ from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
 
 # from .statements.unused_import import UnusedImport
+from .proxy.proxy_standards import ProxyStandards, ProxyFeatures
+from .proxy.proxy_patterns import ProxyPatterns

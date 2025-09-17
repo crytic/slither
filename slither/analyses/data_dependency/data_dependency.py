@@ -30,6 +30,14 @@ from slither.slithir.variables import (
     TemporaryVariableSSA,
     TupleVariableSSA,
 )
+
+from slither.core.expressions import (
+    CallExpression,
+    MemberAccess,
+    Identifier,
+    IndexAccess
+)
+
 from slither.slithir.variables.variable import SlithIRVariable
 
 if TYPE_CHECKING:
@@ -223,6 +231,107 @@ def get_dependencies(
         return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, set())
     return context.context[KEY_NON_SSA].get(variable, set())
 
+def get_dependencies_recursive(
+    variable: Variable,
+    context: Union[Contract, Function],
+    only_unprotected: bool = False,
+) -> Set[Variable]:
+    """
+        Return the variables for which `variable` depends on, including those from other contexts,
+        i.e., by following function calls and getting the dependencies for the return variables.
+
+        :param variable: The target
+        :param context: Either a function (interprocedural) or a contract (inter transactional)
+        :param only_unprotected: True if consider only protected functions
+        :return: set(Variable)
+        """
+    assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
+    if only_unprotected:
+        key = KEY_NON_SSA_UNPROTECTED
+    else:
+        key = KEY_NON_SSA
+    # print(f"get_dependencies_recursive: for {variable}")
+    """
+    explored and to_explore are lists of Variable objects, including temporary variables.
+    """
+    explored = [variable]
+    to_explore = list(context.context[key].get(variable, set()))
+    while to_explore:
+        # print(f"get_dependencies_recursive: still to explore {[str(v) for v in to_explore]}")
+        var: Variable = to_explore[0]
+        to_explore = to_explore[1:]
+        if var in explored or isinstance(var, SolidityVariable):
+            continue
+        # print(f"Exploring {var}")
+        explored.append(var)
+
+        """
+        Thanks to a small modification in /visitors/slithir/expression_to_slithir, now all
+        TemporaryVariable objects representing the result of an Expression (for example, 
+        a CallExpression) will have that expression stored in TemporaryVariable.expression.
+        Therefore, we can use these to find function calls that lead to other dependencies.
+        """
+        if isinstance(var, Variable) and var.expression is not None:
+            exp = var.expression
+            # print(f"Expression: {exp}")
+            """ For now, we are only interested in tracing CallExpressions """
+            if isinstance(exp, CallExpression):
+                called = exp.called
+                call_val = None
+                if isinstance(called, Identifier):
+                    """ Indicates a simple function call within the current context """
+                    call_val = called.value
+                elif isinstance(called, MemberAccess) and isinstance(called.expression, Identifier):
+                    """ Indicates a function call to another contract """
+                    value = called.expression.value
+                    c_type = None
+                    if isinstance(value, Variable):
+                        c_type = value.type
+                    elif isinstance(value, Contract):
+                        c_type = value
+                    if isinstance(c_type, UserDefinedType):
+                        c_type = c_type.type
+                    if isinstance(c_type, Contract):
+                        if c_type.is_interface:
+                            for c in context.compilation_unit.contracts:
+                                if c_type in c.inheritance:
+                                    c_type = c
+                        # print(f"MemberAccess.expression.value = {value}, type = {c_type}")
+                        call_val = c_type.get_function_from_name(called.member_name)
+                        if not call_val.is_implemented:
+                            for f in c_type.functions_declared:
+                                if f.name == call_val.name:
+                                    call_val = f
+                        # print(f"call_val: {call_val}")
+                else:
+                    continue
+                if isinstance(call_val, FunctionContract) and len(call_val.returns) > 0:
+                    returns = call_val.returns
+                    # print(f"{call_val} returns: {[str(r.type) + ' ' + r.name for r in returns]}")
+                    # print(f"{call_val} return node: {call_val.return_node()}")
+                    if call_val.return_nodes() is not None and len(call_val.return_nodes()) > 0:
+                        for ret_node in call_val.return_nodes():
+                            ret_exp = ret_node.expression
+
+                            if isinstance(ret_exp, IndexAccess):
+                                right = ret_exp.expression_right
+                                ret_exp = ret_exp.expression_left
+                                if isinstance(right, Identifier):
+                                    to_explore.append(right.value)
+                            if isinstance(ret_exp, Identifier):
+                                to_explore.append(ret_exp.value)
+                    for ret in call_val.returns:
+                        to_explore.append(ret)
+                        if isinstance(context, Contract):
+                            new_context = call_val.contract
+                        else:
+                            new_context = call_val
+                        to_explore += [
+                            v for v in list(new_context.context[key].get(ret, set()))
+                            if v not in to_explore and v not in explored
+                        ]
+    return set(explored[1:])
 
 def get_all_dependencies(
     context: Context_types_API, only_unprotected: bool = False

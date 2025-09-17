@@ -19,6 +19,7 @@ from slither.core.expressions import (
     IndexAccess,
     MemberAccess,
     UnaryOperation,
+    CallExpression,
 )
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -159,6 +160,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._expression_vars_read: List["Expression"] = []
         self._expression_vars_written: List["Expression"] = []
         self._expression_calls: List["Expression"] = []
+        self._expression_modifier_calls: List["CallExpression"] = None
         # self._expression_modifiers: List["Expression"] = []
         self._modifiers: List[ModifierStatements] = []
         self._explicit_base_constructor_calls: List[ModifierStatements] = []
@@ -713,6 +715,28 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def add_return_ssa(self, var: "LocalIRVariable") -> None:
         self._returns_ssa.append(var)
 
+    def return_node(self) -> Optional["Node"]:
+        from slither.core.cfg.node import NodeType
+        n = None
+        for node in self.all_nodes():
+            if node.type == NodeType.RETURN and node.function == self:
+                n = node
+                break
+        return n
+
+    def return_nodes(self) -> List["Node"]:
+        """
+        list(Node): List of return nodes (some functions have more than one)
+        """
+        from slither.core.cfg.node import NodeType
+        nodes = None
+        for node in self.nodes:
+            if node.type == NodeType.RETURN and node.function == self:
+                if nodes is None:
+                    nodes = []
+                nodes.append(node)
+        return nodes
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -738,6 +762,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         list(ModifierCall): List of the modifiers call (include expression and irs)
         """
         return list(self._modifiers)
+
+    @property
+    def modifier_calls_as_expressions(self) -> List[CallExpression]:
+        """
+        list(ModifierCallExpression): List of the modifiers as CallExpressions, exposing variables passed as arguments
+        """
+        if self._expression_modifier_calls is None:
+            self._expression_modifier_calls = [exp for exp in self._expression_calls
+                                               if isinstance(exp, CallExpression)
+                                               and isinstance(exp.called, Identifier)
+                                               and exp.called.value in self.modifiers]
+        return self._expression_modifier_calls
 
     @property
     def explicit_base_constructor_calls(self) -> List["Function"]:
