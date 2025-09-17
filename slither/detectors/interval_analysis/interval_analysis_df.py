@@ -91,11 +91,16 @@ class IntervalAnalysisDF(AbstractDetector):
 
             # Get range variables from state
             for var_name, range_var in state.get_range_variables().items():
-                if "TMP" in var_name:  # Skip temporary variables
-                    continue
-
                 # Skip boolean variables
                 if range_var.get_var_type() == ElementaryType("bool"):
+                    continue
+
+                # Check for overflow/underflow first
+                has_overflow: bool = range_var.has_overflow()
+                has_underflow: bool = range_var.has_underflow()
+
+                # Only include variables that have overflow/underflow issues
+                if not (has_overflow or has_underflow):
                     continue
 
                 # Extract interval ranges
@@ -111,10 +116,6 @@ class IntervalAnalysisDF(AbstractDetector):
                 # Extract valid and invalid values
                 valid_values: List[str] = [str(v) for v in range_var.get_valid_values()]
                 invalid_values: List[str] = [str(v) for v in range_var.get_invalid_values()]
-
-                # Check for overflow/underflow
-                has_overflow: bool = range_var.has_overflow()
-                has_underflow: bool = range_var.has_underflow()
 
                 # Create finding key and value
                 finding_key = FindingKey(
