@@ -2,14 +2,12 @@ from decimal import Decimal
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -47,6 +45,16 @@ class AssignmentHandler:
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
 
+        # Handle bytes variables by creating offset and length variables
+        if self.variable_info_manager.is_type_bytes(written_variable_type):
+            self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name, domain
+            )
+            logger.debug(
+                f"Created bytes variable {written_variable_name} with offset and length from temporary"
+            )
+            return
+
         # copy the temporary variable to the target variable
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 
@@ -76,22 +84,40 @@ class AssignmentHandler:
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
 
-        if not self.variable_info_manager.is_type_numeric(written_variable_type):
-            logger.warning(f"Assignment to non-numeric variable: {written_variable_name}")
-            return
-
-        range_variable = RangeVariable(
-            interval_ranges=None,
-            valid_values=ValueSet([value]),
-            invalid_values=None,
-            var_type=written_variable_type,
-        )
-
-        domain.state.set_range_variable(written_variable_name, range_variable)
+        # Handle bytes variables by creating offset and length variables
+        if self.variable_info_manager.is_type_bytes(written_variable_type):
+            self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name, domain
+            )
+            logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
+        elif self.variable_info_manager.is_type_numeric(written_variable_type):
+            range_variable = RangeVariable(
+                interval_ranges=None,
+                valid_values=ValueSet([value]),
+                invalid_values=None,
+                var_type=written_variable_type,
+            )
+            domain.state.set_range_variable(written_variable_name, range_variable)
+        else:
+            logger.warning(
+                f"Assignment to unsupported variable type: {written_variable_name} ({written_variable_type.name})"
+            )
 
     def _handle_variable_assignment(
         self, written_variable: Variable, source_variable: Variable, domain: IntervalDomain
     ) -> None:
+        written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
+        written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
+
+        # Handle bytes variables by creating offset and length variables
+        if self.variable_info_manager.is_type_bytes(written_variable_type):
+            self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name, domain
+            )
+            logger.debug(
+                f"Created bytes variable {written_variable_name} with offset and length from variable"
+            )
+            return
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
@@ -101,9 +127,6 @@ class AssignmentHandler:
             )
 
         source_range_variable = domain.state.get_range_variable(source_variable_name)
-
-        written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
-        written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
 
         range_variable = RangeVariable(
             interval_ranges=[ir.deep_copy() for ir in source_range_variable.get_interval_ranges()],

@@ -144,13 +144,39 @@ class RangeVariable:
                     current_range.get_lower() <= last_range.get_upper() + 1
                     or last_range.get_lower() <= current_range.get_upper() + 1
                 ):
-                    # Merge ranges
-                    merged_lower = min(last_range.get_lower(), current_range.get_lower())
-                    merged_upper = max(last_range.get_upper(), current_range.get_upper())
-                    consolidated[-1] = IntervalRange(merged_lower, merged_upper)
-                    logger.debug(
-                        f"🔧 Merged {str(last_range)} and {str(current_range)} -> {str(consolidated[-1])}"
+                    # Special case: if one range is a constraint (small upper bound) and the other
+                    # is unconstrained (very large upper bound), preserve the constraint
+                    max_uint256 = Decimal(
+                        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
                     )
+
+                    # Check if this is a constraint vs unconstrained case
+                    if (
+                        last_range.get_upper() < max_uint256 / 2
+                        and current_range.get_upper() >= max_uint256 / 2
+                    ):
+                        # Keep the constrained range, don't merge with unconstrained
+                        logger.debug(
+                            f"🔧 Preserving constraint {str(last_range)} vs unconstrained {str(current_range)}"
+                        )
+                        consolidated.append(current_range)
+                    elif (
+                        current_range.get_upper() < max_uint256 / 2
+                        and last_range.get_upper() >= max_uint256 / 2
+                    ):
+                        # Replace unconstrained with constrained
+                        logger.debug(
+                            f"🔧 Replacing unconstrained {str(last_range)} with constraint {str(current_range)}"
+                        )
+                        consolidated[-1] = current_range
+                    else:
+                        # Normal merge for similar ranges
+                        merged_lower = min(last_range.get_lower(), current_range.get_lower())
+                        merged_upper = max(last_range.get_upper(), current_range.get_upper())
+                        consolidated[-1] = IntervalRange(merged_lower, merged_upper)
+                        logger.debug(
+                            f"🔧 Merged {str(last_range)} and {str(current_range)} -> {str(consolidated[-1])}"
+                        )
                 else:
                     # No overlap, add as new range
                     consolidated.append(current_range)
@@ -381,9 +407,15 @@ class RangeVariable:
             if hasattr(points_to, "canonical_name"):
                 # This is likely a struct field access
                 # We need to find the corresponding field in the domain state
-                # For now, return the first struct field we find (this is a simplified approach)
-                for key in domain.state._variables.keys():
-                    if key.endswith(".first") or key.endswith(".second"):
+                base_name = points_to.canonical_name
+
+                # Look for the specific field in the domain state
+                # We need to find the exact field that this reference points to
+                for key in domain.state.range_variables.keys():
+                    if key.startswith(base_name + "."):
+                        # For now, return the first matching field
+                        # TODO: In the future, we could be more specific by checking
+                        # which exact field the reference points to based on the member operation
                         return domain.state.get_range_variable(key)
 
         logger.error(f"Variable {var_name} not found in state")
