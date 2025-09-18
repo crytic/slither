@@ -112,7 +112,9 @@ class VariableInfoManager:
         self, var_name: str, domain: "IntervalDomain"
     ) -> None:
         """Create offset and length variables for bytes variables."""
-        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
         from slither.core.solidity_types.elementary_type import ElementaryType
 
         # Create a base variable for the bytes parameter itself

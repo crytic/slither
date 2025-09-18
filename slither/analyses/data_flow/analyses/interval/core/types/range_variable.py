@@ -125,64 +125,46 @@ class RangeVariable:
         # Log original ranges for debugging
         logger.debug(f"🔧 Consolidating ranges: {[str(r) for r in self.interval_ranges]}")
 
-        # Remove duplicates by converting to set and back
-        unique_ranges = list(set(self.interval_ranges))
+        # Remove duplicates by converting to set and back to list
 
-        # Sort ranges by lower bound
-        unique_ranges.sort(key=lambda r: r.get_lower())
+        deduplicated_ranges = list(set(self.interval_ranges))
 
-        # Merge overlapping ranges
-        consolidated = []
-        for current_range in unique_ranges:
-            if not consolidated:
-                consolidated.append(current_range)
+        # Sort ranges by lower bound to enable efficient merging
+        deduplicated_ranges.sort(key=lambda range_obj: range_obj.get_lower())
+
+        # Merge overlapping and adjacent ranges
+        merged_ranges = []
+        for candidate_range in deduplicated_ranges:
+            if not merged_ranges:
+                # First range, just add it
+                merged_ranges.append(candidate_range)
             else:
-                last_range = consolidated[-1]
+                previous_range = merged_ranges[-1]
 
-                # Check if ranges overlap or are adjacent
-                if (
-                    current_range.get_lower() <= last_range.get_upper() + 1
-                    or last_range.get_lower() <= current_range.get_upper() + 1
-                ):
-                    # Special case: if one range is a constraint (small upper bound) and the other
-                    # is unconstrained (very large upper bound), preserve the constraint
-                    max_uint256 = Decimal(
-                        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                # Check if ranges overlap or are adjacent (within 1 unit)
+                ranges_overlap = (
+                    candidate_range.get_lower() <= previous_range.get_upper() + 1
+                    or previous_range.get_lower() <= candidate_range.get_upper() + 1
+                )
+
+                if ranges_overlap:
+                    # Merge overlapping ranges into a single range
+                    combined_lower_bound = min(
+                        previous_range.get_lower(), candidate_range.get_lower()
                     )
-
-                    # Check if this is a constraint vs unconstrained case
-                    if (
-                        last_range.get_upper() < max_uint256 / 2
-                        and current_range.get_upper() >= max_uint256 / 2
-                    ):
-                        # Keep the constrained range, don't merge with unconstrained
-                        logger.debug(
-                            f"🔧 Preserving constraint {str(last_range)} vs unconstrained {str(current_range)}"
-                        )
-                        consolidated.append(current_range)
-                    elif (
-                        current_range.get_upper() < max_uint256 / 2
-                        and last_range.get_upper() >= max_uint256 / 2
-                    ):
-                        # Replace unconstrained with constrained
-                        logger.debug(
-                            f"🔧 Replacing unconstrained {str(last_range)} with constraint {str(current_range)}"
-                        )
-                        consolidated[-1] = current_range
-                    else:
-                        # Normal merge for similar ranges
-                        merged_lower = min(last_range.get_lower(), current_range.get_lower())
-                        merged_upper = max(last_range.get_upper(), current_range.get_upper())
-                        consolidated[-1] = IntervalRange(merged_lower, merged_upper)
-                        logger.debug(
-                            f"🔧 Merged {str(last_range)} and {str(current_range)} -> {str(consolidated[-1])}"
-                        )
+                    combined_upper_bound = max(
+                        previous_range.get_upper(), candidate_range.get_upper()
+                    )
+                    merged_ranges[-1] = IntervalRange(combined_lower_bound, combined_upper_bound)
+                    logger.debug(
+                        f"🔧 Merged {str(previous_range)} and {str(candidate_range)} -> {str(merged_ranges[-1])}"
+                    )
                 else:
-                    # No overlap, add as new range
-                    consolidated.append(current_range)
+                    # No overlap, add as separate range
+                    merged_ranges.append(candidate_range)
 
-        # Update the interval ranges
-        self.interval_ranges = consolidated
+        # Update the interval ranges with consolidated results
+        self.interval_ranges = merged_ranges
         logger.debug(f"🔧 Final consolidated ranges: {[str(r) for r in self.interval_ranges]}")
 
     def convert_consecutive_values_to_ranges(self) -> None:
