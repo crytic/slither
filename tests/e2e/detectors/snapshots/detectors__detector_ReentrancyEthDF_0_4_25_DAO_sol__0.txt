@@ -1,0 +1,72 @@
+Reentrancy in TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332):
+	External calls:
+	- extraBalance.balance >= extraBalance.accumulatedInput() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#321)
+	- extraBalance.payOut(address(this),extraBalance.accumulatedInput()) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#322)
+	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
+	External calls sending eth:
+	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
+	State variables written after the call(s):
+	- weiGiven[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#329)
+	TokenCreationInterface.weiGiven (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#251) can be used in cross function reentrancies:
+	- TokenCreation.createTokenProxy(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#299-316)
+	- TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332)
+
+Reentrancy in DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937):
+	External calls:
+	- ! isRecipientAllowed(p.recipient) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#881)
+		- allowedRecipients[_recipient] || (_recipient == address(extraBalance) && totalRewardToken > extraBalance.accumulatedInput()) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1159-1163)
+	- ! p.recipient.call.value(p.amount)(_transactionData) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#915)
+	External calls sending eth:
+	- ! p.creator.send(p.proposalDeposit) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#904)
+	- ! p.recipient.call.value(p.amount)(_transactionData) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#915)
+	State variables written after the call(s):
+	- p.proposalPassed = true (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#918)
+	DAOInterface.proposals (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#394) can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#702-726)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#809-817)
+	- DAO.closeProposal(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#940-945)
+	- DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937)
+	- DAO.getNewDAOAddress(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1204-1206)
+	- DAO.isBlocked(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1208-1218)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#741-806)
+	- DAO.numberOfProposals() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1199-1202)
+	- DAOInterface.proposals (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#394)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#947-1020)
+	- DAO.vote(uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#820-850)
+	- closeProposal(_proposalID) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#933)
+		- p.open = false (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#944)
+	DAOInterface.proposals (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#394) can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#702-726)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#809-817)
+	- DAO.closeProposal(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#940-945)
+	- DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937)
+	- DAO.getNewDAOAddress(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1204-1206)
+	- DAO.isBlocked(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1208-1218)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#741-806)
+	- DAO.numberOfProposals() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1199-1202)
+	- DAOInterface.proposals (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#394)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#947-1020)
+	- DAO.vote(uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#820-850)
+	- rewardToken[address(this)] += p.amount (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#928)
+	DAOInterface.rewardToken (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#410) can be used in cross function reentrancies:
+	- DAO.changeProposalDeposit(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1139-1146)
+	- DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937)
+	- DAO.minQuorum(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1174-1178)
+	- DAO.newContract(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1022-1034)
+	- DAO.retrieveDAOReward(bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1037-1057)
+	- DAOInterface.rewardToken (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#410)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#947-1020)
+	- closeProposal(_proposalID) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#933)
+		- sumOfProposalDeposits -= p.proposalDeposit (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#943)
+	DAOInterface.sumOfProposalDeposits (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#436) can be used in cross function reentrancies:
+	- DAO.actualBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1169-1171)
+	- DAO.closeProposal(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#940-945)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#741-806)
+	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#947-1020)
+	- totalRewardToken += p.amount (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#929)
+	DAOInterface.totalRewardToken (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#412) can be used in cross function reentrancies:
+	- DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937)
+	- DAO.isRecipientAllowed(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1158-1167)
+	- DAO.retrieveDAOReward(bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1037-1057)
+	- DAOInterface.totalRewardToken (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#412)
+

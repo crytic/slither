@@ -1,0 +1,32 @@
+Reentrancy in TestWithBugInternal.withdraw_internal(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#62-66):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#64)
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#65)
+	TestWithBugInternal.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#52) can be used in cross function reentrancies:
+	- TestWithBugInternal.withdraw_all_internal() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#72-76)
+
+Reentrancy in TestWithBug.withdraw(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#13-17):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#15)
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#16)
+	TestWithBug.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#7) can be used in cross function reentrancies:
+	- TestWithBug.withdraw_all() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#19-23)
+
+Reentrancy in TestBugWithPublicVariable.withdraw_internal(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#122-126):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#124)
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#125)
+	TestBugWithPublicVariable.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#112) can be used in cross function reentrancies:
+	- TestBugWithPublicVariable.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#112)
+
+Reentrancy in TestWithBugNonReentrantRead.withdraw(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#138-142):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#140)
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#141)
+	TestWithBugNonReentrantRead.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#132) can be used in cross function reentrancies:
+	- TestWithBugNonReentrantRead.read() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#146-149)
+
