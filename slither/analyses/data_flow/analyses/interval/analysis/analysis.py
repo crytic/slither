@@ -267,9 +267,14 @@ class IntervalAnalysis(Analysis):
                 parameter.type, ElementaryType
             ) and self._variable_info_manager.is_type_bytes(parameter.type):
                 # Handle bytes calldata parameters by creating offset and length variables
-                self._variable_info_manager.create_bytes_offset_and_length_variables(
-                    parameter.canonical_name, domain
+                range_variables = (
+                    self._variable_info_manager.create_bytes_offset_and_length_variables(
+                        parameter.canonical_name
+                    )
                 )
+                # Add all created range variables to the domain state
+                for var_name, range_variable in range_variables.items():
+                    domain.state.add_range_variable(var_name, range_variable)
             elif hasattr(parameter.type, "type") and hasattr(parameter.type.type, "elems"):
                 # Struct types are not implemented yet
                 raise NotImplementedError("Struct parameter types are not implemented yet")

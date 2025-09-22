@@ -108,14 +108,18 @@ class VariableInfoManager:
             logger.warning(f"Error checking if type {elementary_type} is dynamic: {e}")
             return False
 
-    def create_bytes_offset_and_length_variables(
-        self, var_name: str, domain: "IntervalDomain"
-    ) -> None:
-        """Create offset and length variables for bytes variables."""
+    def create_bytes_offset_and_length_variables(self, var_name: str) -> dict[str, "RangeVariable"]:
+        """Create offset and length variables for bytes variables.
+
+        Returns:
+            Dictionary mapping variable names to their corresponding RangeVariable objects.
+        """
         from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
             RangeVariable,
         )
         from slither.core.solidity_types.elementary_type import ElementaryType
+
+        range_variables = {}
 
         # Create a base variable for the bytes parameter itself
         # This represents the bytes parameter as a whole
@@ -130,7 +134,7 @@ class VariableInfoManager:
             invalid_values=None,
             var_type=base_type,
         )
-        domain.state.add_range_variable(var_name, base_range_variable)
+        range_variables[var_name] = base_range_variable
 
         # Create offset variable (uint256 type)
         offset_var_name = f"{var_name}.offset"
@@ -145,7 +149,7 @@ class VariableInfoManager:
             invalid_values=None,
             var_type=offset_type,
         )
-        domain.state.add_range_variable(offset_var_name, offset_range_variable)
+        range_variables[offset_var_name] = offset_range_variable
 
         # Create length variable (uint256 type)
         length_var_name = f"{var_name}.length"
@@ -160,4 +164,6 @@ class VariableInfoManager:
             invalid_values=None,
             var_type=length_type,
         )
-        domain.state.add_range_variable(length_var_name, length_range_variable)
+        range_variables[length_var_name] = length_range_variable
+
+        return range_variables

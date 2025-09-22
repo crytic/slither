@@ -32,7 +32,12 @@ class UninitializedVariableHandler:
 
             # Handle bytes variables specially by creating offset and length variables
             if self.variable_manager.is_type_bytes(var_type):
-                self.variable_manager.create_bytes_offset_and_length_variables(var_name, domain)
+                range_variables = self.variable_manager.create_bytes_offset_and_length_variables(
+                    var_name
+                )
+                # Add all created range variables to the domain state
+                for var_name, range_variable in range_variables.items():
+                    domain.state.add_range_variable(var_name, range_variable)
                 logger.debug(
                     f"Added bytes variable {var_name} with offset and length to domain state"
                 )

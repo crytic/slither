@@ -47,9 +47,12 @@ class AssignmentHandler:
 
         # Handle bytes variables by creating offset and length variables
         if self.variable_info_manager.is_type_bytes(written_variable_type):
-            self.variable_info_manager.create_bytes_offset_and_length_variables(
-                written_variable_name, domain
+            range_variables = self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name
             )
+            # Add all created range variables to the domain state
+            for var_name, range_variable in range_variables.items():
+                domain.state.add_range_variable(var_name, range_variable)
             logger.debug(
                 f"Created bytes variable {written_variable_name} with offset and length from temporary"
             )
@@ -86,9 +89,12 @@ class AssignmentHandler:
 
         # Handle bytes variables by creating offset and length variables
         if self.variable_info_manager.is_type_bytes(written_variable_type):
-            self.variable_info_manager.create_bytes_offset_and_length_variables(
-                written_variable_name, domain
+            range_variables = self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name
             )
+            # Add all created range variables to the domain state
+            for var_name, range_variable in range_variables.items():
+                domain.state.add_range_variable(var_name, range_variable)
             logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
         elif self.variable_info_manager.is_type_numeric(written_variable_type):
             range_variable = RangeVariable(
@@ -111,9 +117,12 @@ class AssignmentHandler:
 
         # Handle bytes variables by creating offset and length variables
         if self.variable_info_manager.is_type_bytes(written_variable_type):
-            self.variable_info_manager.create_bytes_offset_and_length_variables(
-                written_variable_name, domain
+            range_variables = self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name
             )
+            # Add all created range variables to the domain state
+            for var_name, range_variable in range_variables.items():
+                domain.state.add_range_variable(var_name, range_variable)
             logger.debug(
                 f"Created bytes variable {written_variable_name} with offset and length from variable"
             )
