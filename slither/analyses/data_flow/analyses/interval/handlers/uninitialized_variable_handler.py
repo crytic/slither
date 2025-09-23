@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
@@ -6,6 +8,9 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
     VariableInfoManager,
 )
 from slither.core.cfg.node import Node
+
+
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 
 class UninitializedVariableHandler:
@@ -48,8 +53,8 @@ class UninitializedVariableHandler:
                 # Create RangeVariable with the type bounds interval
                 range_variable = RangeVariable(
                     interval_ranges=[interval_range],
-                    valid_values=None,  # Will be initialized as empty ValueSet by RangeVariable
-                    invalid_values=None,  # Will be initialized as empty ValueSet by RangeVariable
+                    valid_values=None,
+                    invalid_values=None,
                     var_type=var_type,
                 )
 
@@ -57,7 +62,15 @@ class UninitializedVariableHandler:
                 domain.state.add_range_variable(var_name, range_variable)
                 logger.debug(f"Added uninitialized variable {var_name} to domain state")
             else:
-                logger.warning(f"Variable {var_name} has unsupported type {var_type.name}")
+                # Handle UserDefinedType and other unsupported types
+
+                if isinstance(var_type, UserDefinedType):
+                    self.variable_manager.create_struct_field_variables_for_domain(
+                        domain, var_name, var_type
+                    )
+                else:
+                    logger.error(f"Variable {var_name} has unsupported type {var_type}")
+                    raise ValueError(f"Variable {var_name} has unsupported type {var_type}")
 
         except Exception as e:
             logger.error(f"Error handling uninitialized variable: {e}")

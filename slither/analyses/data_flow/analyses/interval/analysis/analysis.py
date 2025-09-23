@@ -27,12 +27,14 @@ from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.operations.member import Member
 
 
 class IntervalAnalysis(Analysis):
@@ -228,6 +230,9 @@ class IntervalAnalysis(Analysis):
         if isinstance(operation, InternalCall):
             self._operation_handler.handle_internal_call(node, domain, operation, self)
 
+        if isinstance(operation, Member):
+            self._operation_handler.handle_member(node, domain, operation)
+
     def node_declares_variable_without_initial_value(self, node: Node) -> bool:
         """Check if the node has an uninitialized variable."""
         if not hasattr(node, "variable_declaration"):
@@ -241,43 +246,45 @@ class IntervalAnalysis(Analysis):
         return not hasattr(var, "expression") or var.expression is None
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
-        """Initialize domain state from bottom variant with function parameters."""
+        """Initialize domain state from bottom variant with function parameters, state variables, and constants."""
         domain.variant = DomainVariant.STATE
 
         # Initialize function parameters
         for parameter in node.function.parameters:
-            if isinstance(
-                parameter.type, ElementaryType
-            ) and self._variable_info_manager.is_type_numeric(parameter.type):
-                # Create interval range with type bounds
-                interval_range = IntervalRange(
-                    lower_bound=parameter.type.min,
-                    upper_bound=parameter.type.max,
-                )
-                # Create range variable for the parameter
-                range_variable = RangeVariable(
-                    interval_ranges=[interval_range],
-                    valid_values=None,
-                    invalid_values=None,
-                    var_type=parameter.type,
-                )
-                # Add to domain state
-                domain.state.add_range_variable(parameter.canonical_name, range_variable)
-            elif isinstance(
-                parameter.type, ElementaryType
-            ) and self._variable_info_manager.is_type_bytes(parameter.type):
-                # Handle bytes calldata parameters by creating offset and length variables
-                range_variables = (
-                    self._variable_info_manager.create_bytes_offset_and_length_variables(
-                        parameter.canonical_name
+            if isinstance(parameter.type, ElementaryType):
+                if self._variable_info_manager.is_type_numeric(parameter.type):
+                    # Create interval range with type bounds
+                    interval_range = IntervalRange(
+                        lower_bound=parameter.type.min,
+                        upper_bound=parameter.type.max,
                     )
+                    # Create range variable for the parameter
+                    range_variable = RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=None,
+                        invalid_values=None,
+                        var_type=parameter.type,
+                    )
+                    # Add to domain state
+                    domain.state.add_range_variable(parameter.canonical_name, range_variable)
+                if self._variable_info_manager.is_type_bytes(parameter.type):
+                    # Handle bytes calldata parameters by creating offset and length variables
+                    range_variables = (
+                        self._variable_info_manager.create_bytes_offset_and_length_variables(
+                            parameter.canonical_name
+                        )
+                    )
+                    # Add all created range variables to the domain state
+                    for var_name, range_variable in range_variables.items():
+                        domain.state.add_range_variable(var_name, range_variable)
+            elif isinstance(parameter.type, UserDefinedType):
+                # Handle struct parameters by creating field variables
+                range_variables = self._variable_info_manager.create_struct_field_variables(
+                    parameter
                 )
                 # Add all created range variables to the domain state
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
-            elif hasattr(parameter.type, "type") and hasattr(parameter.type.type, "elems"):
-                # Struct types are not implemented yet
-                raise NotImplementedError("Struct parameter types are not implemented yet")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set

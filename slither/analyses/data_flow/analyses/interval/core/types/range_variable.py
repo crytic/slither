@@ -18,6 +18,7 @@ from slither.slithir.variables.constant import Constant
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
+from IPython import embed
 
 class RangeVariable:
     """Represents a variable for range analysis with intervals, discrete values, and type."""
@@ -48,7 +49,16 @@ class RangeVariable:
         return self.var_type
 
     def get_type_bounds(self) -> Tuple[Decimal, Decimal]:
-        if self.var_type and self.var_type.name not in ["bool"]:
+        if not self.var_type:
+            return None, None
+
+        # Handle UserDefinedType (structs) - they don't have numeric bounds
+        from slither.core.solidity_types.user_defined_type import UserDefinedType
+
+        if isinstance(self.var_type, UserDefinedType):
+            return None, None
+
+        if self.var_type.name not in ["bool"]:
             try:
                 return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
             except Exception:
@@ -401,4 +411,27 @@ class RangeVariable:
                         return domain.state.get_range_variable(key)
 
         logger.error(f"Variable {var_name} not found in state")
+        embed()
         raise ValueError(f"Variable {var_name} not found in state")
+
+    def apply_constraint_from_reference(self, ref_range_var: "RangeVariable") -> None:
+        """Apply constraint from a reference variable by intersecting ranges and values."""
+        # Intersect interval ranges
+        if ref_range_var.interval_ranges:
+            # If reference has specific ranges, intersect with target
+            self.interval_ranges = IntervalRange.compute_list_intersection(
+                self.interval_ranges, ref_range_var.interval_ranges
+            )
+
+        # Intersect valid values
+        if not ref_range_var.valid_values.is_empty():
+            if self.valid_values.is_empty():
+                # Target has no valid values, use reference's valid values
+                self.valid_values = ref_range_var.valid_values.deep_copy()
+            else:
+                # Intersect valid values
+                self.valid_values = self.valid_values.intersection(ref_range_var.valid_values)
+
+        # Union invalid values (if reference says something is invalid, it should be invalid)
+        if not ref_range_var.invalid_values.is_empty():
+            self.invalid_values = self.invalid_values.union(ref_range_var.invalid_values)

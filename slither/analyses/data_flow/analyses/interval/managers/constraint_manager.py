@@ -1,15 +1,20 @@
-from typing import List, Union
+from typing import List, Union, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.handlers.member_handler import MemberHandler
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.handlers.constraint_applier_handler import \
-    ConstraintApplierHandler
-from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import \
-    ConstraintStoreManager
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.handlers.constraint_applier_handler import (
+    ConstraintApplierHandler,
+)
+from slither.analyses.data_flow.analyses.interval.managers.constraint_store_manager import (
+    ConstraintStoreManager,
+)
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
@@ -22,10 +27,10 @@ class ConstraintManager:
     Constraint management using modular architecture.
     """
 
-    def __init__(self):
+    def __init__(self, member_handler: Optional["MemberHandler"] = None) -> None:
         # Initialize the three specialized components
         self.constraint_store = ConstraintStoreManager()
-        self.constraint_applier = ConstraintApplierHandler(self.constraint_store)
+        self.constraint_applier = ConstraintApplierHandler(self.constraint_store, member_handler)
         self.variable_manager = VariableInfoManager()
 
     # Delegate storage methods to ConstraintStoreManager
@@ -91,12 +96,8 @@ class ConstraintManager:
                     f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                 )
 
-            caller_arg_range_variable = domain.state.get_range_variable(caller_arg_name)
-
-            # Copy caller argument constraints to callee parameter
-            domain.state.set_range_variable(
-                callee_param_name, caller_arg_range_variable.deep_copy()
-            )
+            # Copy constraints using the reusable method
+            self._copy_constraints_between_variables(caller_arg_name, callee_param_name, domain)
 
     def copy_callee_parameter_constraints_back_to_caller_arguments(
         self,
@@ -119,11 +120,30 @@ class ConstraintManager:
             if not domain.state.has_range_variable(callee_parameter_name):
                 continue
 
-            callee_parameter_range_variable = domain.state.get_range_variable(callee_parameter_name)
-
-            domain.state.set_range_variable(
-                caller_argument_name, callee_parameter_range_variable.deep_copy()
+            # Copy constraints using the reusable method
+            self._copy_constraints_between_variables(
+                callee_parameter_name, caller_argument_name, domain
             )
+
+    def _copy_constraints_between_variables(
+        self, source_var_name: str, target_var_name: str, domain: IntervalDomain
+    ) -> None:
+        """Reusable method to copy constraints between two variables."""
+        try:
+            source_range_variable = domain.state.get_range_variable(source_var_name)
+            if not source_range_variable:
+                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
+                return
+
+            # Copy constraints to target variable
+            domain.state.set_range_variable(target_var_name, source_range_variable.deep_copy())
+            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
+
+        except Exception as e:
+            logger.error(
+                f"Error copying constraints from {source_var_name} to {target_var_name}: {e}"
+            )
+            raise
 
     def copy_callee_return_constraints_to_caller_variable(
         self,
@@ -139,44 +159,47 @@ class ConstraintManager:
 
         # Handle single return value
         if len(callee_return_values) == 1 and len(callee_return_types) == 1:
-            return_type = callee_return_types[0]
-            if isinstance(return_type, ElementaryType) and self.variable_manager.is_type_numeric(
-                return_type
-            ):
-                callee_return_value = callee_return_values[0]
-                caller_return_var_name = self.variable_manager.get_variable_name(
-                    caller_return_variable
-                )
-
-                if isinstance(callee_return_value, Variable):
-                    callee_return_value_name = self.variable_manager.get_variable_name(
-                        callee_return_value
-                    )
-                    # Look for the return value identifier created by OperationHandler
-                    return_identifier = f"return_{callee_return_value_name}"
-                    if domain.state.has_range_variable(return_identifier):
-                        callee_return_range = domain.state.get_range_variable(return_identifier)
-                        domain.state.set_range_variable(
-                            caller_return_var_name, callee_return_range.deep_copy()
-                        )
-                    elif domain.state.has_range_variable(callee_return_value_name):
-                        # Fallback to original variable name
-                        callee_return_range = domain.state.get_range_variable(
-                            callee_return_value_name
-                        )
-                        domain.state.set_range_variable(
-                            caller_return_var_name, callee_return_range.deep_copy()
-                        )
-                elif isinstance(callee_return_value, Constant):
-                    # Use constraint application manager to create constant value range variable
-                    self.constraint_applier.create_constant_value_range_variable(
-                        caller_return_var_name, callee_return_value, return_type, domain
-                    )
-
+            self._handle_single_return_value(
+                caller_return_variable, callee_return_values[0], callee_return_types[0], domain
+            )
         # Handle multiple return values
         elif len(callee_return_values) > 1 and len(callee_return_types) > 1:
             self._process_multiple_return_values(
                 caller_return_variable, callee_return_values, callee_return_types, domain
+            )
+
+    def _handle_single_return_value(
+        self,
+        caller_return_variable: Variable,
+        callee_return_value: Variable,
+        return_type: ElementaryType,
+        domain: IntervalDomain,
+    ) -> None:
+        """Handle copying constraints for a single return value."""
+        if not isinstance(return_type, ElementaryType) or not self.variable_manager.is_type_numeric(
+            return_type
+        ):
+            return
+
+        caller_return_var_name = self.variable_manager.get_variable_name(caller_return_variable)
+
+        if isinstance(callee_return_value, Variable):
+            callee_return_value_name = self.variable_manager.get_variable_name(callee_return_value)
+            # Look for the return value identifier created by OperationHandler
+            return_identifier = f"return_{callee_return_value_name}"
+            if domain.state.has_range_variable(return_identifier):
+                self._copy_constraints_between_variables(
+                    return_identifier, caller_return_var_name, domain
+                )
+            elif domain.state.has_range_variable(callee_return_value_name):
+                # Fallback to original variable name
+                self._copy_constraints_between_variables(
+                    callee_return_value_name, caller_return_var_name, domain
+                )
+        elif isinstance(callee_return_value, Constant):
+            # Use constraint application manager to create constant value range variable
+            self.constraint_applier.create_constant_value_range_variable(
+                caller_return_var_name, callee_return_value, return_type, domain
             )
 
     def _process_multiple_return_values(
@@ -215,10 +238,9 @@ class ConstraintManager:
                     return_var_name, callee_return_value, callee_return_type, domain
                 )
             elif isinstance(callee_return_value, Variable):
-                # Return value is a variable
+                # Return value is a variable - copy constraints
                 callee_var_name = self.variable_manager.get_variable_name(callee_return_value)
                 if domain.state.has_range_variable(callee_var_name):
-                    callee_range_variable = domain.state.get_range_variable(callee_var_name)
-                    domain.state.set_range_variable(
-                        return_var_name, callee_range_variable.deep_copy()
+                    self._copy_constraints_between_variables(
+                        callee_var_name, return_var_name, domain
                     )

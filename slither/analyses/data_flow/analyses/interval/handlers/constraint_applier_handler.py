@@ -1,5 +1,8 @@
 from decimal import Decimal
-from typing import Union
+from typing import Union, List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.handlers.member_handler import MemberHandler
 
 from loguru import logger
 
@@ -10,6 +13,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.analyses.interval.core.interval_refiner import IntervalRefiner
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.managers.arithmetic_solver_manager import (
     ArithmeticSolverManager,
 )
@@ -31,11 +35,16 @@ from slither.slithir.variables.constant import Constant
 class ConstraintApplierHandler:
     """Handles applying comparison constraints to the domain."""
 
-    def __init__(self, constraint_store: ConstraintStoreManager):
+    def __init__(
+        self,
+        constraint_store: ConstraintStoreManager,
+        member_handler: Optional["MemberHandler"] = None,
+    ) -> None:
         self.constraint_store = constraint_store
         self.variable_manager = VariableInfoManager()
         self.operand_analyzer = OperandAnalysisManager()
         self.arithmetic_solver = ArithmeticSolverManager()
+        self.member_handler = member_handler
 
     def apply_constraint_from_variable(
         self, condition_variable: Variable, domain: IntervalDomain
@@ -162,6 +171,9 @@ class ConstraintApplierHandler:
 
             # Apply the constraint by modifying the range variable's intervals
             IntervalRefiner.refine_variable_range(range_var, constant_value, operation_type)
+
+            # Propagate constraints from reference variables to their targets
+            self._propagate_constraints_from_reference_to_target(variable_operand, domain)
 
         except Exception as e:
             logger.error(f"Error applying variable-constant constraint: {e}")
@@ -303,6 +315,50 @@ class ConstraintApplierHandler:
 
         # Set the constant range variable in domain state
         domain.state.set_range_variable(target_variable_name, constant_range_variable)
+
+    def _propagate_constraints_from_reference_to_target(
+        self, variable_operand: Variable, domain: IntervalDomain
+    ) -> None:
+        # Propagate constraints from reference variables to their targets
+        try:
+            var_name = self.variable_manager.get_variable_name(variable_operand)
+
+            # Use the member handler to get target mapping
+            if not self.member_handler:
+                logger.error(
+                    f"Member handler not available for constraint propagation from {var_name}"
+                )
+                raise ValueError(
+                    f"Member handler not available for constraint propagation from {var_name}"
+                )
+
+            target_var_name = self.member_handler.get_target_for_reference(var_name)
+            if not target_var_name:
+                logger.error(f"No target mapping found for reference variable {var_name}")
+                raise ValueError(f"No target mapping found for reference variable {var_name}")
+
+            # Apply constraint propagation from reference to target
+            ref_range_var = domain.state.get_range_variable(var_name)
+            if not ref_range_var:
+                return
+
+            target_range_var = domain.state.get_range_variable(target_var_name)
+            if not target_range_var:
+                logger.error(
+                    f"Target variable '{target_var_name}' not found in domain state for constraint propagation"
+                )
+                raise ValueError(
+                    f"Target variable '{target_var_name}' not found in domain state for constraint propagation"
+                )
+
+            # Apply constraint by intersecting the target's range with the reference's constrained range
+            target_range_var.apply_constraint_from_reference(ref_range_var)
+
+            logger.debug(f"Propagated constraints from {var_name} to {target_var_name}")
+
+        except Exception as e:
+            logger.error(f"Could not propagate constraints from reference {var_name}: {e}")
+            raise
 
     def _check_and_convert_to_bottom_if_empty(self, domain: IntervalDomain) -> None:
         """Check if domain has any valid intervals and convert to BOTTOM if empty."""

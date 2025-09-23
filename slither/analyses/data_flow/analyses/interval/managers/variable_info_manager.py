@@ -1,23 +1,24 @@
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from loguru import logger
-
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
-from slither.core.solidity_types.elementary_type import (
-    ElementaryType,
-    Int,
-    Uint,
-    Byte,
-    Fixed,
-    Ufixed,
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import (
+    IntervalRange,
 )
+from slither.core.solidity_types.elementary_type import (
+    Byte,
+    ElementaryType,
+    Fixed,
+    Int,
+    Ufixed,
+    Uint,
+)
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables import Variable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-    from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 
 
 class VariableInfoManager:
@@ -58,12 +59,16 @@ class VariableInfoManager:
             raise ValueError(f"Could not get bounds for type {var_type}: {e}")
 
     def is_type_numeric(self, elementary_type: ElementaryType) -> bool:
-        """Check if type is numeric using ElementaryType properties."""
+        # Check if type is numeric using ElementaryType properties
         if not elementary_type:
             logger.warning(f"Type {elementary_type} is None")
             return False
 
         try:
+            # Handle UserDefinedType (structs) - they are not numeric
+            if isinstance(elementary_type, UserDefinedType):
+                return False
+
             type_name = elementary_type.name
             # Use the predefined lists from ElementaryType
             is_numeric = (
@@ -77,12 +82,16 @@ class VariableInfoManager:
             return False
 
     def is_type_bytes(self, elementary_type: ElementaryType) -> bool:
-        """Check if type is bytes using ElementaryType properties."""
+        # Check if type is bytes using ElementaryType properties
         if not elementary_type:
             logger.warning(f"Type {elementary_type} is None")
             return False
 
         try:
+            # Handle UserDefinedType (structs) - they are not bytes
+            if isinstance(elementary_type, UserDefinedType):
+                return False
+
             type_name = elementary_type.name
             # Use the predefined Byte list from ElementaryType
             is_bytes = type_name in Byte
@@ -165,5 +174,223 @@ class VariableInfoManager:
             var_type=length_type,
         )
         range_variables[length_var_name] = length_range_variable
+
+        return range_variables
+
+    def create_struct_field_variables(self, parameter: "Variable") -> dict[str, "RangeVariable"]:
+        """Create range variables for struct field variables.
+
+        Args:
+            parameter: The struct parameter variable
+
+        Returns:
+            Dictionary mapping field variable names to their corresponding RangeVariable objects.
+        """
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
+        from slither.core.solidity_types.elementary_type import ElementaryType
+        from slither.core.solidity_types.user_defined_type import UserDefinedType
+
+        range_variables = {}
+
+        if not isinstance(parameter.type, UserDefinedType):
+            logger.error(f"Parameter {parameter.name} is not a UserDefinedType")
+            raise ValueError(f"Parameter {parameter.name} is not a UserDefinedType")
+
+        struct_def = parameter.type.type  # This is the Struct object
+        logger.debug(f"Creating struct field variables for: {struct_def.name}")
+
+        # Create range variables for each struct field
+        for field_var in struct_def.elems_ordered:
+            field_name = f"{parameter.canonical_name}.{field_var.name}"
+            field_type = field_var.type
+
+            # Handle different field types
+            if isinstance(field_type, ElementaryType):
+                if self.is_type_numeric(field_type):
+                    # Create interval range with type bounds for numeric fields
+                    interval_range = IntervalRange(
+                        lower_bound=field_type.min,
+                        upper_bound=field_type.max,
+                    )
+                    range_variable = RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=None,
+                        invalid_values=None,
+                        var_type=field_type,
+                    )
+                    range_variables[field_name] = range_variable
+                    logger.debug(f"Created numeric field variable: {field_name} -> {field_type}")
+
+                elif self.is_type_bytes(field_type):
+                    # For bytes fields, create offset and length variables like we do for bytes parameters
+                    bytes_range_variables = self.create_bytes_offset_and_length_variables(
+                        field_name
+                    )
+                    range_variables.update(bytes_range_variables)
+                    logger.debug(f"Created bytes field variables for: {field_name}")
+
+                else:
+                    logger.warning(
+                        f"Unsupported field type {field_type} for struct field {field_name}"
+                    )
+
+            elif isinstance(field_type, UserDefinedType):
+                # Handle nested structs recursively
+                logger.debug(f"Processing nested struct field: {field_name}")
+                # Create a temporary variable object for the nested struct field
+                from slither.core.variables.local_variable import LocalVariable
+
+                nested_struct_var = LocalVariable()
+                nested_struct_var.name = field_name
+                # canonical_name is a read-only property, so we can't set it directly
+                # We'll pass the field_name directly to the recursive call
+                nested_struct_var.type = field_type
+
+                # Recursively create range variables for the nested struct
+                # We need to create a modified version that uses the field_name as the base
+                nested_range_variables = self._create_nested_struct_field_variables(
+                    field_name, field_type
+                )
+                range_variables.update(nested_range_variables)
+                logger.debug(f"Created nested struct field variables for: {field_name}")
+
+            else:
+                logger.warning(
+                    f"Non-elementary, non-struct field type {field_type} for struct field {field_name} - skipping"
+                )
+
+        return range_variables
+
+    def create_struct_field_variables_for_domain(
+        self, domain: "IntervalDomain", var_name: str, var_type: UserDefinedType
+    ) -> None:
+        """Create and add struct field variables directly to domain state.
+
+        This is a convenience method for handlers that need to create struct field
+        variables and add them to the domain state in one operation.
+        """
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
+
+        if not hasattr(var_type.type, "elems"):
+            logger.debug(f"Struct type {var_type} has no elements")
+            return
+
+        for field_name, field_type in var_type.type.elems.items():
+            field_var_name = f"{var_name}.{field_name}"
+
+            # Skip if field variable already exists
+            if domain.state.has_range_variable(field_var_name):
+                logger.debug(f"Field variable {field_var_name} already exists")
+                continue
+
+            # Get the actual field type from the struct definition
+            actual_field_type = field_type.type if hasattr(field_type, "type") else field_type
+
+            # Recursively handle nested structs
+            if isinstance(actual_field_type, UserDefinedType):
+                self.create_struct_field_variables_for_domain(
+                    domain, field_var_name, actual_field_type
+                )
+            elif self.is_type_numeric(actual_field_type):
+                # Create numeric range variable
+                interval_range = IntervalRange(
+                    lower_bound=actual_field_type.min,
+                    upper_bound=actual_field_type.max,
+                )
+                range_variable = RangeVariable(
+                    interval_ranges=[interval_range],
+                    valid_values=None,
+                    invalid_values=None,
+                    var_type=actual_field_type,
+                )
+                domain.state.add_range_variable(field_var_name, range_variable)
+                logger.debug(f"Created numeric field variable {field_var_name}")
+            elif self.is_type_bytes(actual_field_type):
+                # Create bytes range variables
+                range_variables = self.create_bytes_offset_and_length_variables(field_var_name)
+                for var_name_bytes, range_variable in range_variables.items():
+                    domain.state.add_range_variable(var_name_bytes, range_variable)
+                logger.debug(f"Created bytes field variable {field_var_name}")
+            else:
+                logger.debug(
+                    f"Skipping unsupported field type {actual_field_type} for {field_var_name}"
+                )
+
+        logger.debug(f"Created struct field variables for {var_name}")
+
+    def _create_nested_struct_field_variables(
+        self, base_name: str, field_type: "UserDefinedType"
+    ) -> dict[str, "RangeVariable"]:
+        """Create range variables for nested struct fields.
+
+        Args:
+            base_name: The base name for the nested struct field
+            field_type: The UserDefinedType for the nested struct
+
+        Returns:
+            Dictionary mapping field variable names to their corresponding RangeVariable objects.
+        """
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
+        from slither.core.solidity_types.elementary_type import ElementaryType
+
+        range_variables = {}
+        struct_def = field_type.type  # This is the Struct object
+
+        # Create range variables for each struct field
+        for field_var in struct_def.elems_ordered:
+            field_name = f"{base_name}.{field_var.name}"
+            field_type = field_var.type
+
+            # Handle different field types
+            if isinstance(field_type, ElementaryType):
+                if self.is_type_numeric(field_type):
+                    # Create interval range with type bounds for numeric fields
+                    interval_range = IntervalRange(
+                        lower_bound=field_type.min,
+                        upper_bound=field_type.max,
+                    )
+                    range_variable = RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=None,
+                        invalid_values=None,
+                        var_type=field_type,
+                    )
+                    range_variables[field_name] = range_variable
+                    logger.debug(
+                        f"Created nested numeric field variable: {field_name} -> {field_type}"
+                    )
+
+                elif self.is_type_bytes(field_type):
+                    # For bytes fields, create offset and length variables like we do for bytes parameters
+                    bytes_range_variables = self.create_bytes_offset_and_length_variables(
+                        field_name
+                    )
+                    range_variables.update(bytes_range_variables)
+                    logger.debug(f"Created nested bytes field variables for: {field_name}")
+
+                else:
+                    logger.warning(
+                        f"Unsupported nested field type {field_type} for struct field {field_name}"
+                    )
+
+            elif isinstance(field_type, UserDefinedType):
+                # Handle deeply nested structs recursively
+                logger.debug(f"Processing deeply nested struct field: {field_name}")
+                nested_range_variables = self._create_nested_struct_field_variables(
+                    field_name, field_type
+                )
+                range_variables.update(nested_range_variables)
+                logger.debug(f"Created deeply nested struct field variables for: {field_name}")
+
+            else:
+                logger.warning(
+                    f"Non-elementary, non-struct nested field type {field_type} for struct field {field_name} - skipping"
+                )
 
         return range_variables

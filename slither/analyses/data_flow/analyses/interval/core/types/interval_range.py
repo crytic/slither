@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from loguru import logger
 
@@ -108,3 +108,23 @@ class IntervalRange:
             return (left / right).to_integral_value()
         else:
             raise ValueError(f"Unsupported operation: {operation}")
+
+    @staticmethod
+    def compute_list_intersection(
+        target_ranges: List["IntervalRange"], ref_ranges: List["IntervalRange"]
+    ) -> List["IntervalRange"]:
+        """Compute the intersection of two lists of interval ranges."""
+        intersected_ranges: List["IntervalRange"] = []
+
+        for target_range in target_ranges:
+            for ref_range in ref_ranges:
+                # Calculate intersection of two ranges
+                lower_bound = max(target_range.get_lower(), ref_range.get_lower())
+                upper_bound = min(target_range.get_upper(), ref_range.get_upper())
+
+                # Only add if intersection is valid (lower <= upper)
+                if lower_bound <= upper_bound:
+                    intersected_range = IntervalRange(lower_bound, upper_bound)
+                    intersected_ranges.append(intersected_range)
+
+        return intersected_ranges
