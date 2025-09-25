@@ -71,6 +71,10 @@ class SolidityCallHandler:
         if "revert" in operation.function.name:
             self._handle_revert(node, domain, operation)
             return
+        
+        if "byte" in operation.function.name:
+            self._handle_byte(node, domain, operation)
+            return
 
         # For other Solidity functions, log and continue without error
         logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
@@ -133,6 +137,48 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled mload operation, created variable: {result_var_name}")
+
+    def _handle_byte(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle byte(n, x) operation - extracts the nth byte from x."""
+        # byte(n, x) returns the nth byte of x, where the most significant byte is the 0th byte
+        # The result is always a uint8 (0-255)
+        
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.error(f"byte operation requires exactly 2 arguments, got {len(operation.arguments) if operation.arguments else 0}")
+            raise ValueError(f"byte operation requires exactly 2 arguments")
+        
+        if not operation.lvalue:
+            logger.error("byte operation has no lvalue")
+            raise ValueError("byte operation has no lvalue")
+        
+        # Get the arguments: n (byte index) and x (source value)
+        byte_index_arg = operation.arguments[0]
+        source_value_arg = operation.arguments[1]
+        
+        # Get the range information for the source value
+        source_range = RangeVariable.get_variable_info(domain, source_value_arg)
+        
+        # The result is always a uint8 (0-255)
+        result_type = ElementaryType("uint8")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,  # 0
+            upper_bound=result_type.max,  # 255
+        )
+        
+        # Create range variable for the result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+        
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        
+        logger.debug(f"Handled byte operation: byte({byte_index_arg}, {source_value_arg}) -> {result_var_name} (uint8)")
 
     def _handle_revert(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle revert operation by marking the branch as unreachable."""

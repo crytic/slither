@@ -13,6 +13,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler im
 from slither.analyses.data_flow.analyses.interval.handlers.internal_call_handler import (
     InternalCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.library_call_handler import (
+    LibraryCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler import (
     SolidityCallHandler,
 )
@@ -29,6 +32,7 @@ from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.solidity_call import SolidityCall
 
@@ -47,6 +51,7 @@ class OperationHandler:
         self.uninitialized_variable_handler = UninitializedVariableHandler()
         self.solidity_call_handler = SolidityCallHandler(self.shared_constraint_storage)
         self.internal_call_handler = InternalCallHandler(self.shared_constraint_storage)
+        self.library_call_handler = LibraryCallHandler(self.shared_constraint_storage)
         self.member_handler = MemberHandler()
 
         # Update constraint manager with member handler for constraint propagation
@@ -78,3 +83,12 @@ class OperationHandler:
 
     def handle_member(self, node: Node, domain: IntervalDomain, operation: Member):
         self.member_handler.handle_member(node, domain, operation)
+
+    def handle_library_call(
+        self,
+        node: Node,
+        domain: IntervalDomain,
+        operation: LibraryCall,
+        analysis_instance: "IntervalAnalysis",
+    ):
+        self.library_call_handler.handle_library_call(node, domain, operation, analysis_instance)

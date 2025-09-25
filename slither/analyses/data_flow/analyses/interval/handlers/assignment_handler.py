@@ -13,6 +13,7 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
+from IPython import embed
 
 
 class AssignmentHandler:
@@ -63,6 +64,7 @@ class AssignmentHandler:
 
         if source_range_variable is None:
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
+            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
