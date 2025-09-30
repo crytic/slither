@@ -290,6 +290,44 @@ class IntervalAnalysis(Analysis):
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
 
+        # Initialize state variables
+        contract = node.function.contract
+        for state_variable in contract.state_variables:
+            if isinstance(state_variable.type, ElementaryType):
+                if self._variable_info_manager.is_type_numeric(state_variable.type):
+                    # Create interval range with type bounds
+                    interval_range = IntervalRange(
+                        lower_bound=state_variable.type.min,
+                        upper_bound=state_variable.type.max,
+                    )
+                    # Create range variable for the state variable
+                    range_variable = RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=None,
+                        invalid_values=None,
+                        var_type=state_variable.type,
+                    )
+                    # Add to domain state
+                    domain.state.add_range_variable(state_variable.canonical_name, range_variable)
+                if self._variable_info_manager.is_type_bytes(state_variable.type):
+                    # Handle bytes state variables by creating offset and length variables
+                    range_variables = (
+                        self._variable_info_manager.create_bytes_offset_and_length_variables(
+                            state_variable.canonical_name
+                        )
+                    )
+                    # Add all created range variables to the domain state
+                    for var_name, range_variable in range_variables.items():
+                        domain.state.add_range_variable(var_name, range_variable)
+            elif isinstance(state_variable.type, UserDefinedType):
+                # Handle struct state variables by creating field variables
+                range_variables = self._variable_info_manager.create_struct_field_variables(
+                    state_variable
+                )
+                # Add all created range variables to the domain state
+                for var_name, range_variable in range_variables.items():
+                    domain.state.add_range_variable(var_name, range_variable)
+
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set
     ) -> IntervalDomain:
