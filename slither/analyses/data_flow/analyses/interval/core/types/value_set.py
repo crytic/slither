@@ -136,6 +136,15 @@ class ValueSet:
             if right < 0:
                 raise ValueError(f"Right shift by negative amount: {right}")
             return (left / (Decimal(2) ** right)).to_integral_value()
+        elif operation == BinaryType.AND:
+            # Bitwise AND: x & y
+            return Decimal(int(left) & int(right))
+        elif operation == BinaryType.OR:
+            # Bitwise OR: x | y
+            return Decimal(int(left) | int(right))
+        elif operation == BinaryType.CARET:
+            # Bitwise XOR: x ^ y
+            return Decimal(int(left) ^ int(right))
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 

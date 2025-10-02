@@ -51,6 +51,9 @@ class IntervalAnalysis(Analysis):
         BinaryType.DIVISION,
         BinaryType.LEFT_SHIFT,
         BinaryType.RIGHT_SHIFT,
+        BinaryType.AND,
+        BinaryType.OR,
+        BinaryType.CARET,
     }
 
     # Comparison operators
