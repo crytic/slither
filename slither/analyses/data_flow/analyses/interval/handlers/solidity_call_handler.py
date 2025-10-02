@@ -180,6 +180,99 @@ class SolidityCallHandler:
         
         logger.debug(f"Handled byte operation: byte({byte_index_arg}, {source_value_arg}) -> {result_var_name} (uint8)")
 
+    def _handle_and(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle and(x, y) operation - bitwise AND of x and y."""
+        # and(x, y) returns the bitwise AND of x and y
+        # The result has the same type as the operands
+        
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.error(f"and operation requires exactly 2 arguments, got {len(operation.arguments) if operation.arguments else 0}")
+            raise ValueError(f"and operation requires exactly 2 arguments")
+        
+        if not operation.lvalue:
+            logger.error("and operation has no lvalue")
+            raise ValueError("and operation has no lvalue")
+        
+        # Get the arguments: x and y
+        x_arg = operation.arguments[0]
+        y_arg = operation.arguments[1]
+        
+        # Get the range information for both operands
+        x_range = RangeVariable.get_variable_info(domain, x_arg)
+        y_range = RangeVariable.get_variable_info(domain, y_arg)
+        
+        # Compute the bitwise AND result
+        result_range_variable = self._compute_bitwise_and(x_range, y_range)
+        
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        
+        logger.debug(f"Handled and operation: and({x_arg}, {y_arg}) -> {result_var_name}")
+
+    def _compute_bitwise_and(self, x_range: RangeVariable, y_range: RangeVariable) -> RangeVariable:
+        """Compute the bitwise AND of two range variables."""
+        # For bitwise AND, we need to consider the intersection of bits
+        # The result can be at most the minimum of the two operands
+        # and at least 0
+        
+        result_interval_ranges = []
+        
+        # Handle case where both operands have interval ranges
+        if x_range.interval_ranges and y_range.interval_ranges:
+            for x_interval in x_range.interval_ranges:
+                for y_interval in y_range.interval_ranges:
+                    # For bitwise AND: result <= min(x, y) and result >= 0
+                    min_upper = min(x_interval.get_upper(), y_interval.get_upper())
+                    result_interval = IntervalRange(0, min_upper)
+                    result_interval_ranges.append(result_interval)
+        
+        # Handle case where one operand has valid values and the other has intervals
+        if x_range.valid_values and not x_range.valid_values.is_empty() and y_range.interval_ranges:
+            for x_val in x_range.valid_values:
+                for y_interval in y_range.interval_ranges:
+                    min_upper = min(x_val, y_interval.get_upper())
+                    result_interval = IntervalRange(0, min_upper)
+                    result_interval_ranges.append(result_interval)
+        
+        if y_range.valid_values and not y_range.valid_values.is_empty() and x_range.interval_ranges:
+            for y_val in y_range.valid_values:
+                for x_interval in x_range.interval_ranges:
+                    min_upper = min(y_val, x_interval.get_upper())
+                    result_interval = IntervalRange(0, min_upper)
+                    result_interval_ranges.append(result_interval)
+        
+        # Handle case where both operands have valid values
+        if (x_range.valid_values and not x_range.valid_values.is_empty() and 
+            y_range.valid_values and not y_range.valid_values.is_empty()):
+            result_valid_values = set()
+            for x_val in x_range.valid_values:
+                for y_val in y_range.valid_values:
+                    # Convert to int for bitwise operation, then back to Decimal
+                    from decimal import Decimal
+                    result_val = int(x_val) & int(y_val)
+                    result_valid_values.add(Decimal(result_val))
+            
+            # Create result with valid values
+            from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+            result_valid_set = ValueSet(result_valid_values)
+            
+            return RangeVariable(
+                interval_ranges=result_interval_ranges,
+                valid_values=result_valid_set,
+                invalid_values=None,
+                var_type=x_range.var_type,  # Use the type of the first operand
+            )
+        
+        # If no valid values, return with just interval ranges
+        return RangeVariable(
+            interval_ranges=result_interval_ranges,
+            valid_values=None,
+            invalid_values=None,
+            var_type=x_range.var_type,  # Use the type of the first operand
+        )
+
     def _handle_revert(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle revert operation by marking the branch as unreachable."""
         # Mark the domain as unreachable (TOP) to indicate this branch should not continue

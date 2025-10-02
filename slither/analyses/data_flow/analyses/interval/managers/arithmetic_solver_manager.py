@@ -69,6 +69,14 @@ class ArithmeticSolverManager:
             self._solve_division_constraint(
                 target_variable, arithmetic_operation, constraint_value, comparison_operator, domain
             )
+        elif arithmetic_operation.type == BinaryType.LEFT_SHIFT:
+            self._solve_left_shift_constraint(
+                target_variable, arithmetic_operation, constraint_value, comparison_operator, domain
+            )
+        elif arithmetic_operation.type == BinaryType.RIGHT_SHIFT:
+            self._solve_right_shift_constraint(
+                target_variable, arithmetic_operation, constraint_value, comparison_operator, domain
+            )
 
     def _solve_addition_constraint(
         self,
@@ -264,3 +272,67 @@ class ArithmeticSolverManager:
                 return Decimal(int(constraint_value) + 1), BinaryType.GREATER_EQUAL
 
         return constraint_value, comparison_operator
+
+    def _solve_left_shift_constraint(
+        self,
+        target_variable: Variable,
+        arithmetic_operation: Binary,
+        constraint_value: Decimal,
+        comparison_operator: BinaryType,
+        domain: IntervalDomain,
+    ) -> None:
+        """Solve constraint like x << constant > value for x."""
+        constant_value = self.operand_analyzer.extract_constant_from_arithmetic(
+            target_variable, arithmetic_operation, domain
+        )
+        if constant_value is None or constant_value < 0:
+            return  # Skip negative or invalid shift amounts
+
+        # x << y is equivalent to x * 2**y
+        # So x << constant > value => x > value / (2**constant)
+        solved_constraint_value = constraint_value / (Decimal(2) ** constant_value)
+        solved_comparison_operator = comparison_operator  # Keep the same operator
+
+        # Apply the solved constraint to the target variable
+        var_name = self.operand_analyzer.variable_manager.get_variable_name(target_variable)
+        range_var = domain.state.get_range_variable(var_name)
+        if range_var is not None:
+            # Adjust constraint for integer types
+            adjusted_constraint_value, adjusted_operator = self._adjust_constraint_for_integer_type(
+                target_variable, solved_constraint_value, solved_comparison_operator
+            )
+            IntervalRefiner.refine_variable_range(
+                range_var, adjusted_constraint_value, adjusted_operator
+            )
+
+    def _solve_right_shift_constraint(
+        self,
+        target_variable: Variable,
+        arithmetic_operation: Binary,
+        constraint_value: Decimal,
+        comparison_operator: BinaryType,
+        domain: IntervalDomain,
+    ) -> None:
+        """Solve constraint like x >> constant > value for x."""
+        constant_value = self.operand_analyzer.extract_constant_from_arithmetic(
+            target_variable, arithmetic_operation, domain
+        )
+        if constant_value is None or constant_value < 0:
+            return  # Skip negative or invalid shift amounts
+
+        # x >> y is equivalent to x / 2**y
+        # So x >> constant > value => x > value * (2**constant)
+        solved_constraint_value = constraint_value * (Decimal(2) ** constant_value)
+        solved_comparison_operator = comparison_operator  # Keep the same operator
+
+        # Apply the solved constraint to the target variable
+        var_name = self.operand_analyzer.variable_manager.get_variable_name(target_variable)
+        range_var = domain.state.get_range_variable(var_name)
+        if range_var is not None:
+            # Adjust constraint for integer types
+            adjusted_constraint_value, adjusted_operator = self._adjust_constraint_for_integer_type(
+                target_variable, solved_constraint_value, solved_comparison_operator
+            )
+            IntervalRefiner.refine_variable_range(
+                range_var, adjusted_constraint_value, adjusted_operator
+            )

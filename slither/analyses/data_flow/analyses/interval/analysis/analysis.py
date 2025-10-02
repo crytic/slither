@@ -49,6 +49,8 @@ class IntervalAnalysis(Analysis):
         BinaryType.SUBTRACTION,
         BinaryType.MULTIPLICATION,
         BinaryType.DIVISION,
+        BinaryType.LEFT_SHIFT,
+        BinaryType.RIGHT_SHIFT,
     }
 
     # Comparison operators

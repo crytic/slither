@@ -106,6 +106,14 @@ class IntervalRange:
             if right == 0:
                 raise ZeroDivisionError(f"Division by zero: {left} / {right}")
             return (left / right).to_integral_value()
+        elif operation == BinaryType.LEFT_SHIFT:
+            # x << y is equivalent to x * 2**y
+            return (left * (Decimal(2) ** right)).to_integral_value()
+        elif operation == BinaryType.RIGHT_SHIFT:
+            # x >> y is equivalent to x / 2**y, rounded towards negative infinity
+            if right < 0:
+                raise ValueError(f"Right shift by negative amount: {right}")
+            return (left / (Decimal(2) ** right)).to_integral_value()
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 
