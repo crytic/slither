@@ -8,6 +8,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 )
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.analyses.data_flow.analyses.interval.handlers.operation_handler import OperationHandler
 from slither.analyses.data_flow.analyses.interval.managers.condition_validity_checker_manager import (
     ConditionValidityChecker,
@@ -26,6 +27,8 @@ from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.assignment import Assignment
@@ -290,8 +293,15 @@ class IntervalAnalysis(Analysis):
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
 
+        if isinstance(node.function, FunctionContract):
+            contract = node.function.contract
+
+        if not isinstance(contract, Contract):
+            logger.error(f"Contract {contract.name} is not a valid contract")
+            raise ValueError(f"Contract {contract.name} is not a valid contract")
+
         # Initialize state variables
-        contract = node.function.contract
+
         for state_variable in contract.state_variables:
             if isinstance(state_variable.type, ElementaryType):
                 if self._variable_info_manager.is_type_numeric(state_variable.type):
@@ -327,6 +337,109 @@ class IntervalAnalysis(Analysis):
                 # Add all created range variables to the domain state
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
+
+        # Initialize library constants for all libraries called by this function
+        logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
+        
+        # Get all libraries called by this function
+        all_libraries = set()
+        
+        # Add the current contract if it's a library
+        if contract.is_library:
+            all_libraries.add(contract)
+        
+        # Find all libraries called by this function
+        for library_call in node.function.all_library_calls():
+            if hasattr(library_call, 'destination') and library_call.destination.is_library:
+                all_libraries.add(library_call.destination)
+                logger.debug(f"Found library call to {library_call.destination.name}")
+        
+        logger.debug(f"Found {len(all_libraries)} libraries to initialize constants for")
+        
+        # Initialize constants for all libraries
+        total_constants_found = 0
+        for lib_contract in all_libraries:
+            logger.debug(f"Initializing constants for library {lib_contract.name}")
+            logger.debug(f"Library {lib_contract.name} - variables_as_dict keys: {list(lib_contract.variables_as_dict.keys())}")
+            
+            constants_found = 0
+            for var_name, state_variable in lib_contract.variables_as_dict.items():
+                logger.debug(f"Checking variable {var_name} - is_constant: {state_variable.is_constant}, type: {state_variable.type}")
+                if state_variable.is_constant and isinstance(state_variable.type, ElementaryType):
+                    constants_found += 1
+                    total_constants_found += 1
+                    logger.debug(f"Processing constant {var_name} with type {state_variable.type}")
+                    if self._variable_info_manager.is_type_numeric(state_variable.type):
+                        # For constants, we know their exact value, so we create a range variable
+                        # with the exact value in valid_values instead of a range
+                        constant_value = None
+                        if state_variable.expression:
+                            # Handle different types of constant expressions
+                            from slither.core.expressions.literal import Literal
+                            from slither.core.expressions.unary_operation import UnaryOperation
+                            from slither.utils.integer_conversion import convert_string_to_int
+                            
+                            if isinstance(state_variable.expression, Literal):
+                                constant_value = convert_string_to_int(
+                                    state_variable.expression.converted_value
+                                )
+                                logger.debug(f"Constant {var_name} has literal value: {constant_value}")
+                            elif isinstance(state_variable.expression, UnaryOperation):
+                                constant_value = convert_string_to_int(
+                                    str(state_variable.expression).replace(" ", "")
+                                )
+                                logger.debug(f"Constant {var_name} has unary operation value: {constant_value}")
+                            else:
+                                # For other expression types, try to convert to int
+                                try:
+                                    constant_value = convert_string_to_int(str(state_variable.expression))
+                                    logger.debug(f"Constant {var_name} has converted value: {constant_value}")
+                                except:
+                                    # If conversion fails, use the type bounds
+                                    constant_value = None
+                                    logger.debug(f"Could not convert constant {var_name} value, using type bounds")
+                        
+                        if constant_value is not None:
+                            # Create range variable with exact constant value
+                            range_variable = RangeVariable(
+                                interval_ranges=[],
+                                valid_values=ValueSet([constant_value]),
+                                invalid_values=None,
+                                var_type=state_variable.type,
+                            )
+                            logger.debug(f"Created range variable for constant {var_name} with exact value {constant_value}")
+                        else:
+                            # Fallback to type bounds if we can't determine the exact value
+                            interval_range = IntervalRange(
+                                lower_bound=state_variable.type.min,
+                                upper_bound=state_variable.type.max,
+                            )
+                            range_variable = RangeVariable(
+                                interval_ranges=[interval_range],
+                                valid_values=None,
+                                invalid_values=None,
+                                var_type=state_variable.type,
+                            )
+                            logger.debug(f"Created range variable for constant {var_name} with type bounds")
+                        
+                        # Add to domain state
+                        domain.state.add_range_variable(state_variable.canonical_name, range_variable)
+                        logger.debug(f"Added constant {state_variable.canonical_name} to domain state")
+                    elif self._variable_info_manager.is_type_bytes(state_variable.type):
+                        # Handle bytes constants by creating offset and length variables
+                        range_variables = (
+                            self._variable_info_manager.create_bytes_offset_and_length_variables(
+                                state_variable.canonical_name
+                            )
+                        )
+                        # Add all created range variables to the domain state
+                        for var_name_bytes, range_variable in range_variables.items():
+                            domain.state.add_range_variable(var_name_bytes, range_variable)
+                        logger.debug(f"Added bytes constant {state_variable.canonical_name} to domain state")
+            
+            logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
+        
+        logger.debug(f"Total constants initialized: {total_constants_found}")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set

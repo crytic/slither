@@ -5,9 +5,6 @@ from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
-    VariableInfoManager,
-)
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
@@ -362,6 +359,9 @@ class RangeVariable:
         domain: "IntervalDomain", variable: Union[Variable, Constant, RVALUE, Function]
     ) -> "RangeVariable":
         """Retrieve state information for a variable or constant."""
+        from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+            VariableInfoManager,
+        )
         variable_info_manager = VariableInfoManager()
 
         if isinstance(variable, Constant):
