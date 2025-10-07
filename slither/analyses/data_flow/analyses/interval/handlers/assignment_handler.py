@@ -85,9 +85,9 @@ class AssignmentHandler:
     def _handle_constant_assignment(
         self, written_variable: Variable, source_constant: Constant, domain: IntervalDomain
     ) -> None:
-        value: Decimal = Decimal(str(source_constant.value))
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
+        constant_val = source_constant.value
 
         # Handle bytes variables by creating offset and length variables
         if self.variable_info_manager.is_type_bytes(written_variable_type):
@@ -98,7 +98,31 @@ class AssignmentHandler:
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
             logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
+            return
         elif self.variable_info_manager.is_type_numeric(written_variable_type):
+            # Convert constant to Decimal only for numeric targets
+            if isinstance(constant_val, bool):
+                value: Decimal = Decimal(1) if constant_val else Decimal(0)
+            elif isinstance(constant_val, (bytes, bytearray)):
+                # Treat as big-endian bytes to int
+                value = Decimal(int.from_bytes(constant_val, byteorder="big"))
+            elif isinstance(constant_val, str):
+                s = constant_val
+                if s.startswith("0x") or s.startswith("0X"):
+                    value = Decimal(int(s, 16))
+                else:
+                    # If it looks like hex bytecode (only hex chars, even length), parse as hex
+                    hs = s.strip()
+                    if len(hs) % 2 == 0 and all(c in "0123456789abcdefABCDEF" for c in hs):
+                        try:
+                            value = Decimal(int(hs, 16))
+                        except Exception:
+                            value = Decimal(0)
+                    else:
+                        value = Decimal(str(s))
+            else:
+                value = Decimal(str(constant_val))
+
             range_variable = RangeVariable(
                 interval_ranges=None,
                 valid_values=ValueSet([value]),
