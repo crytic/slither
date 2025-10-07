@@ -156,7 +156,7 @@ class AssignmentHandler:
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
-            # embed()
+            embed()
             logger.error(f"Assignment from unknown variable: {source_variable_name}")
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
