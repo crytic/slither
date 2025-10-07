@@ -76,6 +76,22 @@ class SolidityCallHandler:
             self._handle_byte(node, domain, operation)
             return
 
+        # Handle keccak256 hashing
+        if operation.function.name.startswith("keccak256"):
+            self._handle_keccak256(node, domain, operation)
+            return
+
+        # Handle abi.encode / abi.encodePacked family -> returns bytes
+        if "encodePacked" in operation.function.name or "abi.encode" in operation.function.name:
+            self._handle_abi_encode(node, domain, operation)
+            return
+
+        # General handling for solidity's type(...) expressions.
+        # Model any type(...) derived value as opaque bytes, since its content is not used numerically.
+        if "type(" in operation.function.name:
+            self._handle_type_code(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
         logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
         return
@@ -185,3 +201,62 @@ class SolidityCallHandler:
         # Mark the domain as unreachable (TOP) to indicate this branch should not continue
         # to the final analysis
         domain.variant = DomainVariant.TOP
+
+    def _handle_keccak256(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle keccak256(...) returning bytes32."""
+        if not operation.lvalue:
+            logger.error("keccak256 operation has no lvalue")
+            raise ValueError("keccak256 operation has no lvalue")
+
+        result_type = ElementaryType("bytes32")
+        # Hash output is opaque; we model as unconstrained bytes32 (no numeric intervals)
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled keccak256 call, created variable: {result_var_name} (bytes32)")
+
+    def _handle_abi_encode(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle abi.encode / abi.encodePacked returning bytes memory."""
+        if not operation.lvalue:
+            logger.error("abi.encode operation has no lvalue")
+            raise ValueError("abi.encode operation has no lvalue")
+
+        result_type = ElementaryType("bytes")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
+
+    def _handle_type_code(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle solidity type(...) expressions conservatively as bytes memory."""
+        if not operation.lvalue:
+            logger.error("type(...) operation has no lvalue")
+            raise ValueError("type(...) operation has no lvalue")
+
+        result_type = ElementaryType("bytes")
+        # Treat as dynamic bytes with unknown contents/length
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
