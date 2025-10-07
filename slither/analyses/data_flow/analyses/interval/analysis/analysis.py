@@ -39,6 +39,7 @@ from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.operations.member import Member
+from slither.slithir.operations.length import Length
 
 
 class IntervalAnalysis(Analysis):
@@ -244,6 +245,9 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation, Member):
             self._operation_handler.handle_member(node, domain, operation)
+
+        if isinstance(operation, Length):
+            self._operation_handler.handle_length(node, domain, operation)
 
     def node_declares_variable_without_initial_value(self, node: Node) -> bool:
         """Check if the node has an uninitialized variable."""

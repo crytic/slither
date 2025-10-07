@@ -25,6 +25,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variabl
 from slither.analyses.data_flow.analyses.interval.handlers.member_handler import (
     MemberHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.length_handler import (
+    LengthHandler,
+)
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -32,6 +35,7 @@ from slither.core.cfg.node import Node
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.solidity_call import SolidityCall
@@ -53,6 +57,7 @@ class OperationHandler:
         self.internal_call_handler = InternalCallHandler(self.shared_constraint_storage)
         self.library_call_handler = LibraryCallHandler(self.shared_constraint_storage)
         self.member_handler = MemberHandler()
+        self.length_handler = LengthHandler()
 
         # Update constraint manager with member handler for constraint propagation
         self.shared_constraint_storage.constraint_applier.member_handler = self.member_handler
@@ -92,3 +97,6 @@ class OperationHandler:
         analysis_instance: "IntervalAnalysis",
     ):
         self.library_call_handler.handle_library_call(node, domain, operation, analysis_instance)
+
+    def handle_length(self, node: Node, domain: IntervalDomain, operation: Length):
+        self.length_handler.handle_length(node, domain, operation)
