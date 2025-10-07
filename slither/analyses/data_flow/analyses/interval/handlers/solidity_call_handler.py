@@ -21,7 +21,7 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.solidity_call import SolidityCall
-
+from IPython import embed
 
 class SolidityCallHandler:
     """Handler for Solidity call operations, specifically require/assert functions."""
@@ -71,10 +71,7 @@ class SolidityCallHandler:
         if "revert" in operation.function.name:
             self._handle_revert(node, domain, operation)
             return
-        
-        if "byte" in operation.function.name:
-            self._handle_byte(node, domain, operation)
-            return
+
 
         # Handle keccak256 hashing
         if operation.function.name.startswith("keccak256"):
@@ -90,6 +87,10 @@ class SolidityCallHandler:
         # Model any type(...) derived value as opaque bytes, since its content is not used numerically.
         if "type(" in operation.function.name:
             self._handle_type_code(node, domain, operation)
+            return
+        
+        if "byte" in operation.function.name:
+            self._handle_byte(node, domain, operation)
             return
 
         # For other Solidity functions, log and continue without error
