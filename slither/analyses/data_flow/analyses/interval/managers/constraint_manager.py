@@ -74,30 +74,44 @@ class ConstraintManager:
     ) -> None:
         """Copy constraints from caller arguments to callee parameters for interprocedural analysis."""
         for caller_arg, callee_param in zip(caller_arguments, callee_parameters):
-            # Skip non-numeric parameters as they don't have interval constraints
-            if not (
+            callee_param_name = self.variable_manager.get_variable_name(callee_param)
+            
+            # Handle numeric parameters - copy constraints
+            if (
                 isinstance(callee_param.type, ElementaryType)
                 and self.variable_manager.is_type_numeric(callee_param.type)
             ):
+                caller_arg_name = self.variable_manager.get_variable_name(caller_arg)
+
+                # Ensure the caller argument exists in the domain state
+                if not domain.state.has_range_variable(caller_arg_name):
+                    logger.error(
+                        f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
+                    )
+                    raise ValueError(
+                        f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
+                    )
+
+                # Copy constraints using the reusable method
+                self._copy_constraints_between_variables(caller_arg_name, callee_param_name, domain)
+            # Handle non-numeric parameters - create placeholder range variables
+            elif isinstance(callee_param.type, ElementaryType) and callee_param.type.name in ["address", "bool", "string"]:
+                from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+                from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+                
+                # Create placeholder range variable for non-numeric parameter
+                placeholder = RangeVariable(
+                    interval_ranges=[],
+                    valid_values=ValueSet(set()),
+                    invalid_values=ValueSet(set()),
+                    var_type=callee_param.type,
+                )
+                domain.state.add_range_variable(callee_param_name, placeholder)
+                logger.debug(f"Created placeholder for callee parameter {callee_param_name} ({callee_param.type.name})")
+            else:
                 logger.debug(
-                    f"Skipping non-numeric parameter: {callee_param.name} of type {callee_param.type}"
+                    f"Skipping unsupported parameter: {callee_param.name} of type {callee_param.type}"
                 )
-                continue
-
-            caller_arg_name = self.variable_manager.get_variable_name(caller_arg)
-            callee_param_name = self.variable_manager.get_variable_name(callee_param)
-
-            # Ensure the caller argument exists in the domain state
-            if not domain.state.has_range_variable(caller_arg_name):
-                logger.error(
-                    f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
-                )
-                raise ValueError(
-                    f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
-                )
-
-            # Copy constraints using the reusable method
-            self._copy_constraints_between_variables(caller_arg_name, callee_param_name, domain)
 
     def copy_callee_parameter_constraints_back_to_caller_arguments(
         self,

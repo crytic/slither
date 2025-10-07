@@ -9,6 +9,7 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
     VariableInfoManager,
 )
 from slither.core.cfg.node import Node
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
@@ -27,6 +28,17 @@ class AssignmentHandler:
             raise ValueError("Assignment lvalue is None")
 
         written_variable: Variable = operation.lvalue
+        written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
+        
+        # Skip assignments to non-numeric variables (address, bool, string, etc.)
+        if not (
+            isinstance(written_variable_type, ElementaryType) and 
+            (self.variable_info_manager.is_type_numeric(written_variable_type) or 
+             self.variable_info_manager.is_type_bytes(written_variable_type))
+        ):
+            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
+            return
+
         right_value = operation.rvalue
 
         if isinstance(right_value, TemporaryVariable):
@@ -34,7 +46,7 @@ class AssignmentHandler:
         elif isinstance(right_value, Constant):
             self._handle_constant_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Variable):
-            self._handle_variable_assignment(written_variable, right_value, domain)
+            self._handle_variable_assignment(written_variable, right_value, domain, operation)
 
     def _handle_temporary_assignment(
         self,
@@ -136,7 +148,7 @@ class AssignmentHandler:
             )
 
     def _handle_variable_assignment(
-        self, written_variable: Variable, source_variable: Variable, domain: IntervalDomain
+        self, written_variable: Variable, source_variable: Variable, domain: IntervalDomain, operation: Assignment
     ) -> None:
         written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
@@ -156,8 +168,9 @@ class AssignmentHandler:
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
+            
+            logger.error(f"Source variable {source_variable_name} does not exist in domain state")
             embed()
-            logger.error(f"Assignment from unknown variable: {source_variable_name}")
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
