@@ -83,14 +83,21 @@ class SolidityCallHandler:
             self._handle_abi_encode(node, domain, operation)
             return
 
+        # Handle CREATE2 opcode exposed via solidity call wrappers
+        if "create2" in operation.function.name or (
+            hasattr(operation.function, "full_name") and "create2(" in operation.function.full_name
+        ):
+            self._handle_create2(node, domain, operation)
+            return
+
+        if "byte" in operation.function.name:
+            self._handle_byte(node, domain, operation)
+            return
+
         # General handling for solidity's type(...) expressions.
         # Model any type(...) derived value as opaque bytes, since its content is not used numerically.
         if "type(" in operation.function.name:
             self._handle_type_code(node, domain, operation)
-            return
-        
-        if "byte" in operation.function.name:
-            self._handle_byte(node, domain, operation)
             return
 
         # For other Solidity functions, log and continue without error
@@ -261,3 +268,23 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
+
+    def _handle_create2(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle create2(v, p, n, s) returning the new contract address or 0 on error.
+        """
+        if not operation.lvalue:
+            logger.error("create2 operation has no lvalue")
+            raise ValueError("create2 operation has no lvalue")
+
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled create2 call -> {result_var_name} (address)")
