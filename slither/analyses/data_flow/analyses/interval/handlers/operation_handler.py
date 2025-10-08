@@ -1,6 +1,11 @@
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from loguru import logger
+
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.analyses.data_flow.analyses.interval.handlers.arithmetic_handler import (
     ArithmeticHandler,
 )
@@ -31,7 +36,11 @@ from slither.analyses.data_flow.analyses.interval.handlers.length_handler import
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
@@ -48,6 +57,7 @@ class OperationHandler:
     def __init__(self):
         # Create a shared constraint storage for all handlers
         self.shared_constraint_storage = ConstraintManager()
+        self.variable_info_manager = VariableInfoManager()
 
         self.assignment_handler = AssignmentHandler()
         self.arithmetic_handler = ArithmeticHandler(self.shared_constraint_storage)
@@ -100,3 +110,25 @@ class OperationHandler:
 
     def handle_length(self, node: Node, domain: IntervalDomain, operation: Length):
         self.length_handler.handle_length(node, domain, operation)
+
+    def handle_boolean(self, node: Node, domain: IntervalDomain, operation: Binary):
+        """Handle boolean operations by creating a temporary variable for the result."""
+        if operation.lvalue is None:
+            logger.error("Boolean operation lvalue is None")
+            raise ValueError("Boolean operation lvalue is None")
+
+        # Store the boolean operation constraint for future use
+        self.shared_constraint_storage.store_comparison_operation_constraint(operation, domain)
+
+        # Create a range variable for the boolean result (0 or 1)
+        temp_var_name = self.variable_info_manager.get_variable_name(operation.lvalue)
+        
+        range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=ValueSet({Decimal(0), Decimal(1)}),  # Boolean can be 0 or 1
+            invalid_values=ValueSet(set()),
+            var_type=ElementaryType("bool"),
+        )
+        domain.state.set_range_variable(temp_var_name, range_variable)
+        
+        logger.debug(f"Created boolean temporary variable: {temp_var_name}")

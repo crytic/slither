@@ -67,6 +67,11 @@ class IntervalAnalysis(Analysis):
         BinaryType.NOT_EQUAL,
     }
 
+    BOOLEAN_OPERATORS: set[BinaryType] = {
+        BinaryType.ANDAND,
+        BinaryType.OROR,
+    }
+
     def __init__(self) -> None:
         self._direction: Direction = Forward()
         self._operation_handler = OperationHandler()
@@ -233,6 +238,8 @@ class IntervalAnalysis(Analysis):
                 self._operation_handler.handle_arithmetic(node, domain, operation)
             elif operation.type in self.COMPARISON_OPERATORS:
                 self._operation_handler.handle_comparison(node, domain, operation)
+            elif operation.type in self.BOOLEAN_OPERATORS:
+                self._operation_handler.handle_boolean(node, domain, operation)
 
         if isinstance(operation, SolidityCall):
             self._operation_handler.handle_solidity_call(node, domain, operation)
