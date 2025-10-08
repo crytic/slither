@@ -76,7 +76,7 @@ class InternalCallHandler:
                 internal_call_operation.arguments, callee_function.parameters, domain
             )
 
-            logger.debug(f"Processing internal call to function: {callee_function.name}")
+#            logger.debug(f"Processing internal call to function: {callee_function.name}")
 
             # Process all operations in the called function
             for callee_function_node in callee_function.nodes:
@@ -170,7 +170,7 @@ class InternalCallHandler:
 
                     # Store the temporary variable in domain state
                     domain.state.set_range_variable(caller_lvalue_name, range_variable)
-                    logger.debug(
-                        f"Created temporary variable {caller_lvalue_name} for constant return value {value}"
-                    )
+#                    logger.debug(
+                    #     f"Created temporary variable {caller_lvalue_name} for constant return value {value}"
+                    # )
                     break  # Only process the first return value for now

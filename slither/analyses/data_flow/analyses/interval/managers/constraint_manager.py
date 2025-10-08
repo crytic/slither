@@ -107,11 +107,11 @@ class ConstraintManager:
                     var_type=callee_param.type,
                 )
                 domain.state.add_range_variable(callee_param_name, placeholder)
-                logger.debug(f"Created placeholder for callee parameter {callee_param_name} ({callee_param.type.name})")
-            else:
-                logger.debug(
-                    f"Skipping unsupported parameter: {callee_param.name} of type {callee_param.type}"
-                )
+#                logger.debug(f"Created placeholder for callee parameter {callee_param_name} ({callee_param.type.name})")
+#             else:
+# #                logger.debug(
+#                     f"Skipping unsupported parameter: {callee_param.name} of type {callee_param.type}"
+#                 )
 
     def copy_callee_parameter_constraints_back_to_caller_arguments(
         self,
@@ -146,12 +146,12 @@ class ConstraintManager:
         try:
             source_range_variable = domain.state.get_range_variable(source_var_name)
             if not source_range_variable:
-                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
+#                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
                 return
 
             # Copy constraints to target variable
             domain.state.set_range_variable(target_var_name, source_range_variable.deep_copy())
-            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
+#            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
 
         except Exception as e:
             logger.error(

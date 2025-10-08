@@ -46,9 +46,9 @@ class UninitializedVariableHandler:
                 # Add all created range variables to the domain state
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
-                logger.debug(
-                    f"Added bytes variable {var_name} with offset and length to domain state"
-                )
+#                logger.debug(
+                #     f"Added bytes variable {var_name} with offset and length to domain state"
+                # )
             elif self.variable_manager.is_type_numeric(var_type):
                 # Get the type bounds for numeric variables
                 interval_range = self.variable_manager.get_type_bounds(var_type)
@@ -63,7 +63,7 @@ class UninitializedVariableHandler:
 
                 # Add to domain state
                 domain.state.add_range_variable(var_name, range_variable)
-                logger.debug(f"Added uninitialized variable {var_name} to domain state")
+#                logger.debug(f"Added uninitialized variable {var_name} to domain state")
             else:
                 # Gracefully handle common non-numeric types used in control flow
                 if isinstance(var_type, UserDefinedType):
@@ -83,9 +83,9 @@ class UninitializedVariableHandler:
                         var_type=var_type,
                     )
                     domain.state.add_range_variable(var_name, placeholder)
-                    logger.debug(
-                        f"Added placeholder for uninitialized non-numeric {var_type.name} variable {var_name}"
-                    )
+#                    logger.debug(
+                    #     f"Added placeholder for uninitialized non-numeric {var_type.name} variable {var_name}"
+                    # )
                 else:
                     logger.error(f"Variable {var_name} has unsupported type {var_type}")
                     raise ValueError(f"Variable {var_name} has unsupported type {var_type}")

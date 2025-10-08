@@ -46,4 +46,4 @@ class LengthHandler:
         result_var_name = self.variable_info_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         
-        logger.debug(f"Handled length operation: {operation.value}.length -> {result_var_name} (uint256)")
+#        logger.debug(f"Handled length operation: {operation.value}.length -> {result_var_name} (uint256)")

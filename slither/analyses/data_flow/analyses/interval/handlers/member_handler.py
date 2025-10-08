@@ -42,7 +42,7 @@ class MemberHandler:
         """Create and add a range variable to the domain state."""
         # Check if variable already exists
         if domain.state.has_range_variable(var_name):
-            logger.debug(f"Variable {var_name} already exists in state")
+#            logger.debug(f"Variable {var_name} already exists in state")
             return
 
         # Handle struct types - recursively create range variables for their fields
@@ -78,7 +78,7 @@ class MemberHandler:
             # Inherit constraints from the target variable
             target_range_var = domain.state.get_range_variable(target_var_name)
             range_variable = target_range_var.deep_copy()
-            logger.debug(f"Inherited constraints from {target_var_name} for {var_name}")
+#            logger.debug(f"Inherited constraints from {target_var_name} for {var_name}")
         else:
             # Create new range variable with type bounds
             interval_range = IntervalRange(
@@ -93,7 +93,7 @@ class MemberHandler:
             )
 
         domain.state.add_range_variable(var_name, range_variable)
-        logger.debug(f"Created numeric variable {var_name} with type {var_type}")
+#        logger.debug(f"Created numeric variable {var_name} with type {var_type}")
 
     def _create_bytes_variable(
         self, domain: IntervalDomain, var_name: str, var_type: ElementaryType
@@ -105,7 +105,7 @@ class MemberHandler:
         # Add all created range variables to the domain state
         for var_name_bytes, range_variable in range_variables.items():
             domain.state.add_range_variable(var_name_bytes, range_variable)
-        logger.debug(f"Created bytes variable {var_name} with type {var_type}")
+#        logger.debug(f"Created bytes variable {var_name} with type {var_type}")
 
     def _track_reference_mapping(self, operation: Member, result_var_name: str) -> None:
         """Track reference-to-target mapping for constraint propagation."""
@@ -123,7 +123,7 @@ class MemberHandler:
 
         # Store the mapping: reference -> target
         self._reference_mappings[result_var_name] = target_field_name
-        logger.debug(f"Tracked reference mapping: {result_var_name} -> {target_field_name}")
+#        logger.debug(f"Tracked reference mapping: {result_var_name} -> {target_field_name}")
 
     def _should_add_to_state(self, var_type: ElementaryType) -> bool:
         """Check if a variable type should be added to the interval analysis state."""

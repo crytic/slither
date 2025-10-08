@@ -52,9 +52,9 @@ class SolidityCallHandler:
 
             condition_variable = operation.arguments[0]
             self.constraint_storage.apply_constraint_from_variable(condition_variable, domain)
-            logger.debug(
-                f"Require/assert function encountered: {operation.function.name} with condition: {condition_variable}"
-            )
+            # logger.debug(
+            #     f"Require/assert function encountered: {operation.function.name} with condition: {condition_variable}"
+            # )
             return
 
         # Handle calldataload function
@@ -101,7 +101,7 @@ class SolidityCallHandler:
             return
 
         # For other Solidity functions, log and continue without error
-        logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
+        # logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
         return
 
     def _handle_calldataload(
@@ -131,7 +131,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled calldataload operation, created variable: {result_var_name}")
+        # logger.debug(f"Handled calldataload operation, created variable: {result_var_name}")
 
     def _handle_mload(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle mload operation by creating a variable with appropriate range."""
@@ -160,7 +160,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled mload operation, created variable: {result_var_name}")
+        # logger.debug(f"Handled mload operation, created variable: {result_var_name}")
 
     def _handle_byte(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle byte(n, x) operation - extracts the nth byte from x."""
@@ -202,7 +202,7 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         
-        logger.debug(f"Handled byte operation: byte({byte_index_arg}, {source_value_arg}) -> {result_var_name} (uint8)")
+        # logger.debug(f"Handled byte operation: byte({byte_index_arg}, {source_value_arg}) -> {result_var_name} (uint8)")
 
     def _handle_revert(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle revert operation by marking the branch as unreachable."""
@@ -228,7 +228,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled keccak256 call, created variable: {result_var_name} (bytes32)")
+        # logger.debug(f"Handled keccak256 call, created variable: {result_var_name} (bytes32)")
 
     def _handle_abi_encode(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle abi.encode / abi.encodePacked returning bytes memory."""
@@ -247,7 +247,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
+#        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
 
     def _handle_type_code(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle solidity type(...) expressions conservatively as bytes memory."""
@@ -267,7 +267,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
+#        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
 
     def _handle_create2(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle create2(v, p, n, s) returning the new contract address or 0 on error.
@@ -287,4 +287,4 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled create2 call -> {result_var_name} (address)")
+#        logger.debug(f"Handled create2 call -> {result_var_name} (address)")

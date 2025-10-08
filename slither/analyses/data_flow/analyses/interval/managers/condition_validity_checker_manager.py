@@ -63,8 +63,8 @@ class ConditionValidityChecker:
             raise ValueError(f"Cannot determine validity for condition: {condition}")
 
         except Exception as e:
-            logger.warning(f"Error validating condition {condition}: {e}")
-            return True  # Fail-safe: assume valid
+            logger.error(f"Error validating condition {condition}: {e}")
+            raise  # Re-raise the exception to stop execution
 
     def _are_both_operands_constants(
         self,
@@ -119,8 +119,8 @@ class ConditionValidityChecker:
             return self._evaluate_comparison(left_value, right_value, operator_type)
 
         except Exception as e:
-            logger.warning(f"Error evaluating constant-constant condition: {e}")
-            return True
+            logger.error(f"Error evaluating constant-constant condition: {e}")
+            raise  # Re-raise the exception to stop execution
 
     def _evaluate_variable_constant_condition(
         self,
@@ -159,8 +159,8 @@ class ConditionValidityChecker:
             )
 
         except Exception as e:
-            logger.warning(f"Error evaluating variable-constant condition: {e}")
-            return True
+            logger.error(f"Error evaluating variable-constant condition: {e}")
+            raise  # Re-raise the exception to stop execution
 
     def _can_variable_satisfy_condition(
         self, variable_state: RangeVariable, constant_value: Decimal, operator_type: BinaryType
@@ -229,8 +229,8 @@ class ConditionValidityChecker:
             )
 
         except Exception as e:
-            logger.warning(f"Error evaluating variable-variable condition: {e}")
-            return True
+            logger.error(f"Error evaluating variable-variable condition: {e}")
+            raise  # Re-raise the exception to stop execution
 
     def _extract_constant_value(
         self, operand: Union[Variable, Constant], domain: IntervalDomain

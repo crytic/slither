@@ -45,11 +45,11 @@ class AssignmentHandler:
             if isinstance(right_value, TemporaryVariable):
                 # This is likely a boolean result from a comparison operation
                 # We should handle it to track the comparison result
-                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
+#                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
                 should_skip = False
         
         if should_skip:
-            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
+#            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
             return
 
         if isinstance(right_value, TemporaryVariable):
@@ -77,9 +77,9 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-            logger.debug(
-                f"Created bytes variable {written_variable_name} with offset and length from temporary"
-            )
+#            logger.debug(
+            #     f"Created bytes variable {written_variable_name} with offset and length from temporary"
+            # )
             return
 
         # Handle boolean variables specially
@@ -92,7 +92,7 @@ class AssignmentHandler:
                 var_type=written_variable_type,
             )
             domain.state.set_range_variable(written_variable_name, range_variable)
-            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
+#            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
             return
 
         # copy the temporary variable to the target variable
@@ -100,7 +100,6 @@ class AssignmentHandler:
 
         if source_range_variable is None:
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
-            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
@@ -133,7 +132,7 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-            logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
+#            logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
             return
         elif self.variable_info_manager.is_type_numeric(written_variable_type):
             # Convert constant to Decimal only for numeric targets
@@ -185,16 +184,15 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-            logger.debug(
-                f"Created bytes variable {written_variable_name} with offset and length from variable"
-            )
+#            logger.debug(
+            #     f"Created bytes variable {written_variable_name} with offset and length from variable"
+            # )
             return
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
             
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
-            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )

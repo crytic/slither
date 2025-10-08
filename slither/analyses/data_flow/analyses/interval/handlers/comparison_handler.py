@@ -60,4 +60,3 @@ class ComparisonHandler:
         )
         domain.state.set_range_variable(temp_var_name, range_variable)
 
-        logger.debug(f"Stored comparison operation: {operation.type} at node {node}")

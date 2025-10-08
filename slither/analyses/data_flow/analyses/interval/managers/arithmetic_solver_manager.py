@@ -80,7 +80,7 @@ class ArithmeticSolverManager:
         elif arithmetic_operation.type in [BinaryType.AND, BinaryType.OR, BinaryType.CARET]:
             # Bitwise operations are non-linear and complex to solve constraints for
             # For now, we'll skip constraint solving for bitwise operations
-            logger.debug(f"Skipping constraint solving for bitwise operation: {arithmetic_operation.type}")
+#            logger.debug(f"Skipping constraint solving for bitwise operation: {arithmetic_operation.type}")
             return
 
     def _solve_addition_constraint(

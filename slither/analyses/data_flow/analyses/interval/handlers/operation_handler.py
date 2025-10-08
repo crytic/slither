@@ -42,7 +42,7 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
@@ -113,6 +113,13 @@ class OperationHandler:
 
     def handle_boolean(self, node: Node, domain: IntervalDomain, operation: Binary):
         """Handle boolean operations by creating a temporary variable for the result."""
+        valid_boolean_types = {
+            BinaryType.ANDAND,
+            BinaryType.OROR,
+        }
+
+        if operation.type not in valid_boolean_types:
+            logger.error("Boolean operation type is not a valid boolean type")
         if operation.lvalue is None:
             logger.error("Boolean operation lvalue is None")
             raise ValueError("Boolean operation lvalue is None")
@@ -122,6 +129,8 @@ class OperationHandler:
 
         # Create a range variable for the boolean result (0 or 1)
         temp_var_name = self.variable_info_manager.get_variable_name(operation.lvalue)
+
+        logger.info(f"Created boolean temporary variable: {temp_var_name}")
         
         range_variable = RangeVariable(
             interval_ranges=[],
@@ -131,4 +140,3 @@ class OperationHandler:
         )
         domain.state.set_range_variable(temp_var_name, range_variable)
         
-        logger.debug(f"Created boolean temporary variable: {temp_var_name}")

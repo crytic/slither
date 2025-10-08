@@ -57,7 +57,6 @@ class ConstraintApplierHandler:
             # Check if variable exists in domain state
             if not domain.state.has_range_variable(condition_variable_name):
                 logger.error(f"Variable '{condition_variable_name}' not found in domain state")
-                embed()
                 raise ValueError(f"Variable '{condition_variable_name}' not found in domain state")
 
             # Check if it was assigned from a temporary variable (bool r=x>50; require(r))
@@ -70,21 +69,20 @@ class ConstraintApplierHandler:
             stored_constraint = self.constraint_store.get_variable_constraint(temp_var_name)
 
             if stored_constraint is None:
-                logger.debug(f"No constraint found for variable {temp_var_name}, skipping constraint application")
+                # logger.debug(f"No constraint found for variable {temp_var_name}, skipping constraint application")
                 return
 
             self._apply_comparison_constraint(stored_constraint, domain)
 
         except Exception as e:
             logger.error(f"Error applying constraint from variable: {e}")
-            embed()
             raise ValueError(f"Error applying constraint from variable: {e}")
 
     def _apply_comparison_constraint(
         self, comparison_operation: Binary, domain: IntervalDomain
     ) -> None:
         """Apply a comparison constraint to the domain."""
-        logger.debug(f"Applying comparison constraint: {comparison_operation.type}")
+        # logger.debug(f"Applying comparison constraint: {comparison_operation.type}")
 
         # Apply the comparison operation to the domain
         left_operand = comparison_operation.variable_left
@@ -143,11 +141,11 @@ class ConstraintApplierHandler:
                     left_operand, right_operand, operation_type, domain
                 )
 
-            elif constant_compared_to_constant:
-                # Case: constant op constant - no variables to constrain
-                logger.debug(
-                    f"Constant comparison: {left_operand} {operation_type} {right_operand}"
-                )
+            # elif constant_compared_to_constant:
+            #     # Case: constant op constant - no variables to constrain
+            #     # logger.debug(
+            #     #     f"Constant comparison: {left_operand} {operation_type} {right_operand}"
+            #     # )
 
         except Exception as e:
             logger.error(f"Error applying comparison to domain: {e}")
@@ -173,7 +171,7 @@ class ConstraintApplierHandler:
             if hasattr(constant_operand, "value"):
                 constant_value = constant_operand.value
             else:
-                logger.debug(f"Could not extract constant value from {constant_operand}")
+                # logger.debug(f"Could not extract constant value from {constant_operand}")
                 return
 
             # Apply the constraint by modifying the range variable's intervals
@@ -202,14 +200,14 @@ class ConstraintApplierHandler:
             right_range_var = domain.state.get_range_variable(right_var_name)
 
             if left_range_var is None or right_range_var is None:
-                logger.debug(
-                    f"Missing range variables for variable-variable constraint: {left_var_name} {operation_type} {right_var_name}"
-                )
+                # logger.debug(
+                #     f"Missing range variables for variable-variable constraint: {left_var_name} {operation_type} {right_var_name}"
+                # )
                 return
 
             # For now, just log - variable-variable constraints are more complex
             # and would require intersection of ranges
-            logger.debug(f"Variable-variable constraint application - implementation needed")
+            # logger.debug(f"Variable-variable constraint application - implementation needed")
 
         except Exception as e:
             logger.error(f"Error applying variable-variable constraint: {e}")
@@ -257,7 +255,7 @@ class ConstraintApplierHandler:
                 operation_type = IntervalRefiner.flip_comparison_operator(operation_type)
 
             if arithmetic_operand is None or constant_operand is None:
-                logger.debug("Could not identify arithmetic operand in constraint")
+                # logger.debug("Could not identify arithmetic operand in constraint")
                 return
 
             # Get the stored arithmetic operation
@@ -265,7 +263,7 @@ class ConstraintApplierHandler:
             stored_constraint = self.constraint_store.get_variable_constraint(var_name)
 
             if not isinstance(stored_constraint, Binary):
-                logger.debug("Stored constraint is not a binary operation")
+                # logger.debug("Stored constraint is not a binary operation")
                 return
 
             # Extract constant value from the comparison
@@ -274,23 +272,23 @@ class ConstraintApplierHandler:
             elif isinstance(constant_operand, Variable):
                 # Check if this variable is effectively a constant (single value)
                 if not self.operand_analyzer.is_operand_constant(constant_operand, domain):
-                    logger.debug("Variable operand is not effectively a constant")
+                    # logger.debug("Variable operand is not effectively a constant")
                     return
 
                 constant_var_name = self.variable_manager.get_variable_name(constant_operand)
                 if not domain.state.has_range_variable(constant_var_name):
-                    logger.debug("Constant variable not found in domain state")
+                    # logger.debug("Constant variable not found in domain state")
                     return
 
                 constant_range_var = domain.state.get_range_variable(constant_var_name)
                 valid_values = constant_range_var.get_valid_values()
                 if not valid_values:
-                    logger.debug("Constant variable has no valid values")
+                    # logger.debug("Constant variable has no valid values")
                     return
 
                 constraint_value = list(valid_values)[0]
             else:
-                logger.debug("Constant operand is neither Constant nor Variable type")
+                # logger.debug("Constant operand is neither Constant nor Variable type")
                 return
 
             # Use arithmetic solver to solve the constraint
@@ -361,7 +359,7 @@ class ConstraintApplierHandler:
             # Apply constraint by intersecting the target's range with the reference's constrained range
             target_range_var.apply_constraint_from_reference(ref_range_var)
 
-            logger.debug(f"Propagated constraints from {var_name} to {target_var_name}")
+            # logger.debug(f"Propagated constraints from {var_name} to {target_var_name}")
 
         except Exception as e:
             logger.error(f"Could not propagate constraints from reference {var_name}: {e}")

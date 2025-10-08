@@ -80,7 +80,7 @@ class VariableInfoManager:
                 type_name in Int or type_name in Uint or type_name in Fixed or type_name in Ufixed
             )
 
-            logger.debug(f"Type {type_name} is numeric: {is_numeric}")
+            # # logger.debug(f"Type {type_name} is numeric: {is_numeric}")
             return is_numeric
         except Exception as e:
             logger.warning(f"Error checking if type {elementary_type} is numeric: {e}")
@@ -101,7 +101,7 @@ class VariableInfoManager:
             # Use the predefined Byte list from ElementaryType
             is_bytes = type_name in Byte
 
-            logger.debug(f"Type {type_name} is bytes: {is_bytes}")
+            # # logger.debug(f"Type {type_name} is bytes: {is_bytes}")
             return is_bytes
         except Exception as e:
             logger.warning(f"Error checking if type {elementary_type} is bytes: {e}")
@@ -116,7 +116,7 @@ class VariableInfoManager:
         try:
             # Use the is_dynamic property from ElementaryType
             is_dynamic = elementary_type.is_dynamic
-            logger.debug(f"Type {elementary_type.name} is dynamic: {is_dynamic}")
+            # logger.debug(f"Type {elementary_type.name} is dynamic: {is_dynamic}")
             return is_dynamic
         except Exception as e:
             logger.warning(f"Error checking if type {elementary_type} is dynamic: {e}")
@@ -195,7 +195,7 @@ class VariableInfoManager:
             raise ValueError(f"Parameter {parameter.name} is not a UserDefinedType")
 
         type_def = parameter.type.type  # This could be Struct, Contract, or Enum
-        logger.debug(f"Creating field variables for: {type_def.name}")
+        # logger.debug(f"Creating field variables for: {type_def.name}")
 
         # Handle different types of UserDefinedType
 
@@ -214,7 +214,7 @@ class VariableInfoManager:
 
                 elif isinstance(field_type, UserDefinedType):
                     # Handle nested structs recursively
-                    logger.debug(f"Processing nested struct field: {field_name}")
+                    # logger.debug(f"Processing nested struct field: {field_name}")
                     # Create a temporary variable object for the nested struct field
 
                     nested_struct_var = LocalVariable()
@@ -229,7 +229,7 @@ class VariableInfoManager:
                         field_name, field_type
                     )
                     range_variables.update(nested_range_variables)
-                    logger.debug(f"Created nested struct field variables for: {field_name}")
+                    # logger.debug(f"Created nested struct field variables for: {field_name}")
 
                 else:
                     logger.warning(
@@ -239,7 +239,7 @@ class VariableInfoManager:
         elif isinstance(type_def, Contract):
             # For contract types, create range variables for the contract's state variables
             # This allows us to track the state of the contract instance
-            logger.debug(f"Creating contract state variables for: {type_def.name}")
+            # logger.debug(f"Creating contract state variables for: {type_def.name}")
             
             for state_var in type_def.state_variables:
                 # Create field variables for each state variable in the contract
@@ -255,12 +255,12 @@ class VariableInfoManager:
                 
                 elif isinstance(field_type, UserDefinedType):
                     # Handle nested structs/enums/contracts in state variables
-                    logger.debug(f"Processing nested type in contract state variable: {field_name}")
+                    # logger.debug(f"Processing nested type in contract state variable: {field_name}")
                     nested_range_variables = self._create_nested_struct_field_variables(
                         field_name, field_type
                     )
                     range_variables.update(nested_range_variables)
-                    logger.debug(f"Created nested type variables for contract state: {field_name}")
+                    # logger.debug(f"Created nested type variables for contract state: {field_name}")
                 
                 else:
                     logger.warning(
@@ -283,7 +283,7 @@ class VariableInfoManager:
         """
 
         if not hasattr(var_type.type, "elems"):
-            logger.debug(f"Struct type {var_type} has no elements")
+            # logger.debug(f"Struct type {var_type} has no elements")
             return
 
         for field_name, field_type in var_type.type.elems.items():
@@ -291,7 +291,7 @@ class VariableInfoManager:
 
             # Skip if field variable already exists
             if domain.state.has_range_variable(field_var_name):
-                logger.debug(f"Field variable {field_var_name} already exists")
+                # logger.debug(f"Field variable {field_var_name} already exists")
                 continue
 
             # Get the actual field type from the struct definition
@@ -315,19 +315,19 @@ class VariableInfoManager:
                     var_type=actual_field_type,
                 )
                 domain.state.add_range_variable(field_var_name, range_variable)
-                logger.debug(f"Created numeric field variable {field_var_name}")
+                # logger.debug(f"Created numeric field variable {field_var_name}")
             elif self.is_type_bytes(actual_field_type):
                 # Create bytes range variables
                 range_variables = self.create_bytes_offset_and_length_variables(field_var_name)
                 for var_name_bytes, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name_bytes, range_variable)
-                logger.debug(f"Created bytes field variable {field_var_name}")
-            else:
-                logger.debug(
-                    f"Skipping unsupported field type {actual_field_type} for {field_var_name}"
-                )
+                # logger.debug(f"Created bytes field variable {field_var_name}")
+            # else:
+            #     # logger.debug(
+            #         f"Skipping unsupported field type {actual_field_type} for {field_var_name}"
+            #     )
 
-        logger.debug(f"Created struct field variables for {var_name}")
+        # logger.debug(f"Created struct field variables for {var_name}")
 
     def _create_elementary_type_range_variable(
         self, field_name: str, field_type: ElementaryType
@@ -356,7 +356,7 @@ class VariableInfoManager:
                 var_type=field_type,
             )
             range_variables[field_name] = range_variable
-            logger.debug(f"Created numeric field variable: {field_name} -> {field_type}")
+            # logger.debug(f"Created numeric field variable: {field_name} -> {field_type}")
 
         elif self.is_type_bytes(field_type):
             # For bytes fields, create offset and length variables
@@ -364,7 +364,7 @@ class VariableInfoManager:
                 field_name
             )
             range_variables.update(bytes_range_variables)
-            logger.debug(f"Created bytes field variables for: {field_name}")
+            # logger.debug(f"Created bytes field variables for: {field_name}")
 
         else:
             logger.warning(
@@ -403,12 +403,12 @@ class VariableInfoManager:
 
             elif isinstance(field_type, UserDefinedType):
                 # Handle deeply nested structs recursively
-                logger.debug(f"Processing deeply nested struct field: {field_name}")
+                # logger.debug(f"Processing deeply nested struct field: {field_name}")
                 nested_range_variables = self._create_nested_struct_field_variables(
                     field_name, field_type
                 )
                 range_variables.update(nested_range_variables)
-                logger.debug(f"Created deeply nested struct field variables for: {field_name}")
+                # logger.debug(f"Created deeply nested struct field variables for: {field_name}")
 
             else:
                 logger.warning(

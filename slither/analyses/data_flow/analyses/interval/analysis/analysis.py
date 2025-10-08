@@ -309,7 +309,7 @@ class IntervalAnalysis(Analysis):
                         var_type=parameter.type,
                     )
                     domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                    logger.debug(f"Added placeholder for parameter {parameter.canonical_name} ({parameter.type.name})")
+
             elif isinstance(parameter.type, UserDefinedType):
                 # Handle struct parameters by creating field variables
                 range_variables = self._variable_info_manager.create_struct_field_variables(
@@ -365,7 +365,7 @@ class IntervalAnalysis(Analysis):
                     domain.state.add_range_variable(var_name, range_variable)
 
         # Initialize library constants for all libraries called by this function
-        logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
+        # logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
         
         # Get all libraries called by this function
         all_libraries = set()
@@ -378,23 +378,23 @@ class IntervalAnalysis(Analysis):
         for library_call in node.function.all_library_calls():
             if hasattr(library_call, 'destination') and library_call.destination.is_library:
                 all_libraries.add(library_call.destination)
-                logger.debug(f"Found library call to {library_call.destination.name}")
+                # logger.debug(f"Found library call to {library_call.destination.name}")
         
-        logger.debug(f"Found {len(all_libraries)} libraries to initialize constants for")
+        # logger.debug(f"Found {len(all_libraries)} libraries to initialize constants for")
         
         # Initialize constants for all libraries
         total_constants_found = 0
         for lib_contract in all_libraries:
-            logger.debug(f"Initializing constants for library {lib_contract.name}")
-            logger.debug(f"Library {lib_contract.name} - variables_as_dict keys: {list(lib_contract.variables_as_dict.keys())}")
+            # logger.debug(f"Initializing constants for library {lib_contract.name}")
+            # logger.debug(f"Library {lib_contract.name} - variables_as_dict keys: {list(lib_contract.variables_as_dict.keys())}")
             
             constants_found = 0
             for var_name, state_variable in lib_contract.variables_as_dict.items():
-                logger.debug(f"Checking variable {var_name} - is_constant: {state_variable.is_constant}, type: {state_variable.type}")
+                # logger.debug(f"Checking variable {var_name} - is_constant: {state_variable.is_constant}, type: {state_variable.type}")
                 if state_variable.is_constant and isinstance(state_variable.type, ElementaryType):
                     constants_found += 1
                     total_constants_found += 1
-                    logger.debug(f"Processing constant {var_name} with type {state_variable.type}")
+                    # logger.debug(f"Processing constant {var_name} with type {state_variable.type}")
                     if self._variable_info_manager.is_type_numeric(state_variable.type):
                         # For constants, we know their exact value, so we create a range variable
                         # with the exact value in valid_values instead of a range
@@ -409,21 +409,21 @@ class IntervalAnalysis(Analysis):
                                 constant_value = convert_string_to_int(
                                     state_variable.expression.converted_value
                                 )
-                                logger.debug(f"Constant {var_name} has literal value: {constant_value}")
+                                # logger.debug(f"Constant {var_name} has literal value: {constant_value}")
                             elif isinstance(state_variable.expression, UnaryOperation):
                                 constant_value = convert_string_to_int(
                                     str(state_variable.expression).replace(" ", "")
                                 )
-                                logger.debug(f"Constant {var_name} has unary operation value: {constant_value}")
+                                # logger.debug(f"Constant {var_name} has unary operation value: {constant_value}")
                             else:
                                 # For other expression types, try to convert to int
                                 try:
                                     constant_value = convert_string_to_int(str(state_variable.expression))
-                                    logger.debug(f"Constant {var_name} has converted value: {constant_value}")
+                                    # logger.debug(f"Constant {var_name} has converted value: {constant_value}")
                                 except:
                                     # If conversion fails, use the type bounds
                                     constant_value = None
-                                    logger.debug(f"Could not convert constant {var_name} value, using type bounds")
+                                    # logger.debug(f"Could not convert constant {var_name} value, using type bounds")
                         
                         if constant_value is not None:
                             # Create range variable with exact constant value
@@ -433,7 +433,7 @@ class IntervalAnalysis(Analysis):
                                 invalid_values=None,
                                 var_type=state_variable.type,
                             )
-                            logger.debug(f"Created range variable for constant {var_name} with exact value {constant_value}")
+                            # logger.debug(f"Created range variable for constant {var_name} with exact value {constant_value}")
                         else:
                             # Fallback to type bounds if we can't determine the exact value
                             interval_range = IntervalRange(
@@ -446,11 +446,11 @@ class IntervalAnalysis(Analysis):
                                 invalid_values=None,
                                 var_type=state_variable.type,
                             )
-                            logger.debug(f"Created range variable for constant {var_name} with type bounds")
+                            # logger.debug(f"Created range variable for constant {var_name} with type bounds")
                         
                         # Add to domain state
                         domain.state.add_range_variable(state_variable.canonical_name, range_variable)
-                        logger.debug(f"Added constant {state_variable.canonical_name} to domain state")
+                        # logger.debug(f"Added constant {state_variable.canonical_name} to domain state")
                     elif self._variable_info_manager.is_type_bytes(state_variable.type):
                         # Handle bytes constants by creating offset and length variables
                         range_variables = (
@@ -461,11 +461,11 @@ class IntervalAnalysis(Analysis):
                         # Add all created range variables to the domain state
                         for var_name_bytes, range_variable in range_variables.items():
                             domain.state.add_range_variable(var_name_bytes, range_variable)
-                        logger.debug(f"Added bytes constant {state_variable.canonical_name} to domain state")
+                        # logger.debug(f"Added bytes constant {state_variable.canonical_name} to domain state")
             
-            logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
+            # logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
         
-        logger.debug(f"Total constants initialized: {total_constants_found}")
+        # logger.debug(f"Total constants initialized: {total_constants_found}")
         
         # Initialize msg.value for payable functions
         if node.function.payable:
@@ -481,7 +481,7 @@ class IntervalAnalysis(Analysis):
                 var_type=msg_value_type,
             )
             domain.state.add_range_variable("msg.value", msg_value_range_variable)
-            logger.debug("Added msg.value to domain state for payable function")
+            # logger.debug("Added msg.value to domain state for payable function")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set

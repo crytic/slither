@@ -27,7 +27,7 @@ class ConstraintStoreManager:
     def store_variable_constraint(self, var_name: str, constraint: Union[Binary, Variable]) -> None:
         """Store a constraint that applies to a specific variable."""
         self._comparison_constraints[var_name] = constraint
-        logger.debug(f"Stored constraint for variable '{var_name}': {constraint}")
+#        logger.debug(f"Stored constraint for variable '{var_name}': {constraint}")
 
     def get_variable_constraint(self, var_name: str) -> Optional[Union[Binary, Variable]]:
         """Retrieve the constraint stored for a specific variable."""
@@ -40,7 +40,7 @@ class ConstraintStoreManager:
     def clear_all_constraints(self) -> None:
         """Clear all stored comparison constraints."""
         self._comparison_constraints.clear()
-        logger.debug("Cleared all comparison constraints")
+#        logger.debug("Cleared all comparison constraints")
 
     def get_total_constraint_count(self) -> int:
         """Get the total number of stored constraints."""
