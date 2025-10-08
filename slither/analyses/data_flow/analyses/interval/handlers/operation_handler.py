@@ -33,6 +33,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.member_handler import
 from slither.analyses.data_flow.analyses.interval.handlers.length_handler import (
     LengthHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.type_conversion_handler import (
+    TypeConversionHandler,
+)
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -48,6 +51,7 @@ from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.operations.type_conversion import TypeConversion
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
@@ -68,6 +72,7 @@ class OperationHandler:
         self.library_call_handler = LibraryCallHandler(self.shared_constraint_storage)
         self.member_handler = MemberHandler()
         self.length_handler = LengthHandler()
+        self.type_conversion_handler = TypeConversionHandler()
 
         # Update constraint manager with member handler for constraint propagation
         self.shared_constraint_storage.constraint_applier.member_handler = self.member_handler
@@ -110,6 +115,9 @@ class OperationHandler:
 
     def handle_length(self, node: Node, domain: IntervalDomain, operation: Length):
         self.length_handler.handle_length(node, domain, operation)
+
+    def handle_type_conversion(self, node: Node, domain: IntervalDomain, operation: TypeConversion):
+        self.type_conversion_handler.handle_type_conversion(node, domain, operation)
 
     def handle_boolean(self, node: Node, domain: IntervalDomain, operation: Binary):
         """Handle boolean operations by creating a temporary variable for the result."""

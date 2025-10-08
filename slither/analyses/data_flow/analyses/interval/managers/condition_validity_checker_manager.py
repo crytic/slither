@@ -17,7 +17,6 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
 
-
 class ConditionValidityChecker:
     """
     Validates whether a condition can be satisfied given current domain constraints.
@@ -274,6 +273,13 @@ class ConditionValidityChecker:
         """Get all possible value ranges for a variable state."""
         value_ranges: Set[IntervalRange] = set()
 
+        # If the variable type is not numeric, return empty set (no range analysis)
+        if not self._variable_manager.is_type_numeric(variable_state.var_type):
+            logger.debug(
+                f"Skipping range analysis for non-numeric variable type: {variable_state.var_type}"
+            )
+            return value_ranges  # Return empty set
+
         # Add valid values as point ranges
         for value in variable_state.valid_values:
             value_ranges.add(IntervalRange(value, value))
@@ -288,10 +294,10 @@ class ConditionValidityChecker:
             type_minimum, type_maximum = variable_state.get_type_bounds()
             if type_minimum is None or type_maximum is None:
                 logger.error(
-                    f"Cannot retrieve type bounds for variable with type: {variable_state.var_type}"
+                    f"Cannot retrieve type bounds for numeric variable with type: {variable_state.var_type}"
                 )
                 raise ValueError(
-                    f"Cannot retrieve type bounds for variable with type: {variable_state.var_type}"
+                    f"Cannot retrieve type bounds for numeric variable with type: {variable_state.var_type}"
                 )
 
             value_ranges.add(IntervalRange(type_minimum, type_maximum))
@@ -305,6 +311,13 @@ class ConditionValidityChecker:
         operator_type: BinaryType,
     ) -> bool:
         """Check if variable-variable condition can be satisfied."""
+        # If either variable has no ranges (non-numeric), we can't determine validity
+        if not left_value_ranges or not right_value_ranges:
+            logger.debug(
+                f"Cannot determine condition validity: left_ranges={len(left_value_ranges)}, right_ranges={len(right_value_ranges)}"
+            )
+            return True  # Assume valid when we can't determine
+        
         for left_range in left_value_ranges:
             for right_range in right_value_ranges:
                 if self._can_ranges_satisfy_condition(left_range, right_range, operator_type):
