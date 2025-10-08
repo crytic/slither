@@ -459,6 +459,22 @@ class IntervalAnalysis(Analysis):
             logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
         
         logger.debug(f"Total constants initialized: {total_constants_found}")
+        
+        # Initialize msg.value for payable functions
+        if node.function.payable:
+            msg_value_type = ElementaryType("uint256")
+            interval_range = IntervalRange(
+                lower_bound=msg_value_type.min,
+                upper_bound=msg_value_type.max,
+            )
+            msg_value_range_variable = RangeVariable(
+                interval_ranges=[interval_range],
+                valid_values=None,
+                invalid_values=None,
+                var_type=msg_value_type,
+            )
+            domain.state.add_range_variable("msg.value", msg_value_range_variable)
+            logger.debug("Added msg.value to domain state for payable function")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set

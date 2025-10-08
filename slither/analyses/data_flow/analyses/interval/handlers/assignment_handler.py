@@ -29,17 +29,28 @@ class AssignmentHandler:
 
         written_variable: Variable = operation.lvalue
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
+        right_value = operation.rvalue
         
         # Skip assignments to non-numeric variables (address, bool, string, etc.)
-        if not (
+        # Exception: Don't skip boolean assignments that come from integer comparisons
+        should_skip = not (
             isinstance(written_variable_type, ElementaryType) and 
             (self.variable_info_manager.is_type_numeric(written_variable_type) or 
              self.variable_info_manager.is_type_bytes(written_variable_type))
-        ):
+        )
+        
+        # Check if this is a boolean assignment from a comparison operation
+        if should_skip and isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
+            # Check if the rvalue is a temporary variable from a comparison
+            if isinstance(right_value, TemporaryVariable):
+                # This is likely a boolean result from a comparison operation
+                # We should handle it to track the comparison result
+                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
+                should_skip = False
+        
+        if should_skip:
             logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
             return
-
-        right_value = operation.rvalue
 
         if isinstance(right_value, TemporaryVariable):
             self._handle_temporary_assignment(written_variable, right_value, domain)
@@ -69,6 +80,19 @@ class AssignmentHandler:
             logger.debug(
                 f"Created bytes variable {written_variable_name} with offset and length from temporary"
             )
+            return
+
+        # Handle boolean variables specially
+        if isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
+            # For boolean assignments from comparisons, create a boolean range variable
+            range_variable = RangeVariable(
+                interval_ranges=[],
+                valid_values=ValueSet({Decimal(0), Decimal(1)}),  # Boolean can be 0 or 1
+                invalid_values=ValueSet(set()),
+                var_type=written_variable_type,
+            )
+            domain.state.set_range_variable(written_variable_name, range_variable)
+            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
             return
 
         # copy the temporary variable to the target variable
