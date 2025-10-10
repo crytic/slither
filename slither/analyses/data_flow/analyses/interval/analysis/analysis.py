@@ -33,6 +33,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.operation import Operation
@@ -251,6 +252,9 @@ class IntervalAnalysis(Analysis):
         
         if isinstance(operation, LibraryCall):
             self._operation_handler.handle_library_call(node, domain, operation, self)
+
+        if isinstance(operation, HighLevelCall):
+            self._operation_handler.handle_high_level_call(node, domain, operation)
 
         if isinstance(operation, Member):
             self._operation_handler.handle_member(node, domain, operation)

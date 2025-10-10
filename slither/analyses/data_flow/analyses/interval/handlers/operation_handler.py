@@ -15,6 +15,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.assignment_handler im
 from slither.analyses.data_flow.analyses.interval.handlers.comparison_handler import (
     ComparisonHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.high_level_call_handler import (
+    HighLevelCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.handlers.internal_call_handler import (
     InternalCallHandler,
 )
@@ -46,6 +49,7 @@ from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
@@ -70,6 +74,7 @@ class OperationHandler:
         self.solidity_call_handler = SolidityCallHandler(self.shared_constraint_storage)
         self.internal_call_handler = InternalCallHandler(self.shared_constraint_storage)
         self.library_call_handler = LibraryCallHandler(self.shared_constraint_storage)
+        self.high_level_call_handler = HighLevelCallHandler()
         self.member_handler = MemberHandler()
         self.length_handler = LengthHandler()
         self.type_conversion_handler = TypeConversionHandler()
@@ -112,6 +117,9 @@ class OperationHandler:
         analysis_instance: "IntervalAnalysis",
     ):
         self.library_call_handler.handle_library_call(node, domain, operation, analysis_instance)
+
+    def handle_high_level_call(self, node: Node, domain: IntervalDomain, operation: HighLevelCall):
+        self.high_level_call_handler.handle_high_level_call(node, domain, operation)
 
     def handle_length(self, node: Node, domain: IntervalDomain, operation: Length):
         self.length_handler.handle_length(node, domain, operation)
