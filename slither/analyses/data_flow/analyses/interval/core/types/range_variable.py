@@ -6,6 +6,7 @@ from loguru import logger
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.core.declarations.function import Function
+from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import BinaryType
@@ -383,6 +384,31 @@ class RangeVariable:
                 invalid_values=ValueSet(set()),
                 var_type=constant_type,
             )
+
+        # Handle SolidityVariable (like 'this', 'msg', 'block', etc.)
+        if isinstance(variable, SolidityVariable):
+            # For SolidityVariable, we need to create a range variable with the appropriate type
+            # and no specific values since these are runtime variables
+            solidity_type = variable.type
+            
+            # Create a range variable that represents the full range of the SolidityVariable type
+            if solidity_type.name == "address":
+                # For address type, we can't determine specific values, so we use empty ranges
+                # and let the analysis handle it as an unknown address
+                return RangeVariable(
+                    interval_ranges=[],  # No specific intervals for address
+                    valid_values=ValueSet(set()),  # No specific valid values
+                    invalid_values=ValueSet(set()),  # No specific invalid values
+                    var_type=solidity_type,
+                )
+            else:
+                # For other types, create appropriate range variables
+                return RangeVariable(
+                    interval_ranges=[],
+                    valid_values=ValueSet(set()),
+                    invalid_values=ValueSet(set()),
+                    var_type=solidity_type,
+                )
 
         var_name: str = variable_info_manager.get_variable_name(variable)
 
