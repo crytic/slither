@@ -12,6 +12,9 @@ from slither.analyses.data_flow.analyses.interval.core.types.interval_range impo
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
     RangeVariable,
 )
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import (
+    ValueSet,
+)
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -37,6 +40,8 @@ class SolidityCallHandler:
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
     ) -> None:
         """Handle Solidity call operations including require/assert and calldataload"""
+
+        logger.info(f"Handling solidity call: {operation.function.full_name}")
         require_assert_functions: List[str] = [
             "require(bool)",
             "assert(bool)",
@@ -98,6 +103,10 @@ class SolidityCallHandler:
         # Model any type(...) derived value as opaque bytes, since its content is not used numerically.
         if "type(" in operation.function.name:
             self._handle_type_code(node, domain, operation)
+            return
+
+        if "balance(address)" == operation.function.full_name:
+            self._handle_balance(node, domain, operation)
             return
 
         # For other Solidity functions, log and continue without error
@@ -288,3 +297,26 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
 #        logger.debug(f"Handled create2 call -> {result_var_name} (address)")
+
+    def _handle_balance(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle balance(address) operation returning uint256."""
+        if not operation.lvalue:
+            logger.error("balance(address) operation has no lvalue")
+            raise ValueError("balance(address) operation has no lvalue")
+
+        result_type = ElementaryType("uint256")
+        
+        # Get the full range for uint256 type
+        variable_manager = VariableInfoManager()
+        type_bounds = variable_manager.get_type_bounds(result_type)
+        
+        result_range_variable = RangeVariable(
+            interval_ranges=[type_bounds], 
+            valid_values=ValueSet(set()), 
+            invalid_values=ValueSet(set()), 
+            var_type=result_type,
+        )
+
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled balance(address) call -> {result_var_name} (uint256)")
