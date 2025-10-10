@@ -52,6 +52,8 @@ class IntervalAnalysis(Analysis):
         BinaryType.SUBTRACTION,
         BinaryType.MULTIPLICATION,
         BinaryType.DIVISION,
+        BinaryType.MODULO,
+        BinaryType.POWER,
         BinaryType.LEFT_SHIFT,
         BinaryType.RIGHT_SHIFT,
         BinaryType.AND,
@@ -233,7 +235,13 @@ class IntervalAnalysis(Analysis):
         if self.node_declares_variable_without_initial_value(node):
             self._operation_handler.handle_uninitialized_variable(node, domain)
 
+        # Handle HighLevelCall first to create variables before they're used in assignments
+        if isinstance(operation, HighLevelCall):
+            logger.debug(f"Processing HighLevelCall: {operation}")
+            self._operation_handler.handle_high_level_call(node, domain, operation)
+
         if isinstance(operation, Assignment):
+            logger.debug(f"Processing Assignment: {operation}")
             self._operation_handler.handle_assignment(node, domain, operation)
 
         if isinstance(operation, Binary):
@@ -252,9 +260,6 @@ class IntervalAnalysis(Analysis):
         
         if isinstance(operation, LibraryCall):
             self._operation_handler.handle_library_call(node, domain, operation, self)
-
-        if isinstance(operation, HighLevelCall):
-            self._operation_handler.handle_high_level_call(node, domain, operation)
 
         if isinstance(operation, Member):
             self._operation_handler.handle_member(node, domain, operation)

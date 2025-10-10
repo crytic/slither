@@ -16,6 +16,7 @@ from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
@@ -87,7 +88,7 @@ class InternalCallHandler:
                 
                 for ir_operation in callee_function_node.irs:
                     if not isinstance(
-                        ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return]
+                        ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return, HighLevelCall]
                     ):
                         continue
 

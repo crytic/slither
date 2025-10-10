@@ -96,6 +96,8 @@ class ValueSet:
         For addition: computes scalar + value
         For multiplication: computes scalar * value
         For division: computes scalar / value
+        For modulo: computes scalar % value
+        For power: computes scalar ** value
         """
         result_values = ValueSet(set())
         decimal_scalar = self._to_decimal(scalar)
@@ -103,8 +105,8 @@ class ValueSet:
         # Apply operation to each value in the set
         for value in self._values:
             try:
-                # For subtraction and division, we want scalar op value, not value op scalar
-                if operation_type in [BinaryType.SUBTRACTION, BinaryType.DIVISION]:
+                # For subtraction, division, and modulo, we want scalar op value, not value op scalar
+                if operation_type in [BinaryType.SUBTRACTION, BinaryType.DIVISION, BinaryType.MODULO]:
                     result_val = ValueSet._apply_scalar_op(decimal_scalar, value, operation_type)
                 else:
                     result_val = ValueSet._apply_scalar_op(value, decimal_scalar, operation_type)
@@ -145,6 +147,19 @@ class ValueSet:
         elif operation == BinaryType.CARET:
             # Bitwise XOR: x ^ y
             return Decimal(int(left) ^ int(right))
+        elif operation == BinaryType.MODULO:
+            # Modulo: x % y
+            if right == 0:
+                raise ZeroDivisionError(f"Modulo by zero: {left} % {right}")
+            return Decimal(int(left) % int(right))
+        elif operation == BinaryType.POWER:
+            # Exponentiation: x ** y
+            try:
+                return Decimal(int(left) ** int(right))
+            except OverflowError:
+                logger.warning(f"Exponentiation overflow: {left} ** {right}")
+                # Return a large value to represent overflow
+                return Decimal("999999999999999999999999999999999999999999999999999999999999999999999999999999999")
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 

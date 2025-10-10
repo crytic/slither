@@ -96,6 +96,8 @@ class AssignmentHandler:
             return
 
         # copy the temporary variable to the target variable
+        logger.debug(f"Looking for source variable: {source_variable_name}")
+        logger.debug(f"Available variables in domain: {list(domain.state.get_range_variables().keys())}")
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 
         if source_range_variable is None:

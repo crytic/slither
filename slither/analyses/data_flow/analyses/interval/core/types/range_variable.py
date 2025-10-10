@@ -52,11 +52,13 @@ class RangeVariable:
 
         # Handle UserDefinedType (structs) - they don't have numeric bounds
         from slither.core.solidity_types.user_defined_type import UserDefinedType
+        from slither.core.solidity_types.array_type import ArrayType
 
-        if isinstance(self.var_type, UserDefinedType):
+        if isinstance(self.var_type, (UserDefinedType, ArrayType)):
             return None, None
 
-        if self.var_type.name not in ["bool"]:
+        # Check if the type has a name attribute before accessing it
+        if hasattr(self.var_type, 'name') and self.var_type.name not in ["bool"]:
             try:
                 return Decimal(str(self.var_type.min)), Decimal(str(self.var_type.max))
             except Exception:
@@ -437,6 +439,7 @@ class RangeVariable:
                         return domain.state.get_range_variable(key)
 
         logger.error(f"Variable {var_name} not found in state")
+        embed()
         raise ValueError(f"Variable {var_name} not found in state")
 
     def apply_constraint_from_reference(self, ref_range_var: "RangeVariable") -> None:
