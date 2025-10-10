@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Deque, Dict
 
+from loguru import logger
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 

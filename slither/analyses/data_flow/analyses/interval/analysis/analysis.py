@@ -77,7 +77,8 @@ class IntervalAnalysis(Analysis):
         self._direction: Direction = Forward()
         self._operation_handler = OperationHandler()
         self._variable_info_manager = VariableInfoManager()
-        self._constraint_manager = ConstraintManager()
+        # Use the member handler from operation handler for constraint manager
+        self._constraint_manager = ConstraintManager(self._operation_handler.member_handler)
         self._operand_analyzer = OperandAnalysisManager()
         self._condition_validity_checker = ConditionValidityChecker(
             self._variable_info_manager, self._operand_analyzer

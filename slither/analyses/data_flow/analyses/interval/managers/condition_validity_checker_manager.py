@@ -16,6 +16,7 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
+from IPython import embed
 
 class ConditionValidityChecker:
     """
@@ -48,7 +49,7 @@ class ConditionValidityChecker:
             # Handle variable-constant conditions (most common case)
             if self._is_variable_constant_condition(left_operand, right_operand, domain):
                 return self._evaluate_variable_constant_condition(
-                    left_operand, right_operand, operator_type, domain
+                    left_operand, right_operand, operator_type, domain, condition
                 )
 
             # Handle variable-variable conditions
@@ -127,6 +128,7 @@ class ConditionValidityChecker:
         right_operand: Union[Variable, Constant],
         operator_type: BinaryType,
         domain: IntervalDomain,
+        condition: Binary,
     ) -> bool:
         """Evaluate a variable-constant condition against current domain constraints."""
         try:
@@ -144,6 +146,7 @@ class ConditionValidityChecker:
             variable_name = self._variable_manager.get_variable_name(variable_operand)
             if variable_name not in domain.state.get_range_variables():
                 logger.error(f"Variable '{variable_name}' not found in domain state")
+                embed()
                 raise ValueError(f"Variable '{variable_name}' not found in domain state")
 
             variable_state = domain.state.get_range_variables()[variable_name]

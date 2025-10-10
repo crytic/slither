@@ -33,7 +33,7 @@ class Engine(Generic[A]):
         worklist: Deque[Node] = deque()
 
         if self.analysis.direction().IS_FORWARD:
-            worklist.extend(self.nodes)
+            worklist.append(self.function.entry_point)
         else:
             raise NotImplementedError("Backward analysis is not implemented")
 

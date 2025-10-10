@@ -155,6 +155,18 @@ class ConstraintApplierHandler:
         """Check if operand is a variable (not a constant)."""
         return not isinstance(operand, Constant)
 
+    def _is_reference_variable(self, variable: Variable) -> bool:
+        """Check if variable is a reference variable that needs constraint propagation."""
+        if not self.member_handler:
+            return False
+        
+        var_name = self.variable_manager.get_variable_name(variable)
+        target_var_name = self.member_handler.get_target_for_reference(var_name)
+        
+        
+        # If there's a target mapping, this is a reference variable
+        return target_var_name is not None
+
     def _apply_variable_constant_constraint(
         self,
         variable_operand: Variable,
@@ -177,8 +189,10 @@ class ConstraintApplierHandler:
             # Apply the constraint by modifying the range variable's intervals
             IntervalRefiner.refine_variable_range(range_var, constant_value, operation_type)
 
-            # Propagate constraints from reference variables to their targets
-            self._propagate_constraints_from_reference_to_target(variable_operand, domain)
+            # Only propagate constraints for reference variables (struct fields, etc.)
+            # Local variables don't need constraint propagation - they are the actual variables
+            if self._is_reference_variable(variable_operand):
+                self._propagate_constraints_from_reference_to_target(variable_operand, domain)
 
         except Exception as e:
             logger.error(f"Error applying variable-constant constraint: {e}")
