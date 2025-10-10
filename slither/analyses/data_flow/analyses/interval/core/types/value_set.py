@@ -154,12 +154,8 @@ class ValueSet:
             return Decimal(int(left) % int(right))
         elif operation == BinaryType.POWER:
             # Exponentiation: x ** y
-            try:
-                return Decimal(int(left) ** int(right))
-            except OverflowError:
-                logger.warning(f"Exponentiation overflow: {left} ** {right}")
-                # Return a large value to represent overflow
-                return Decimal("999999999999999999999999999999999999999999999999999999999999999999999999999999999")
+            return Decimal(int(left) ** int(right))
+
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 
