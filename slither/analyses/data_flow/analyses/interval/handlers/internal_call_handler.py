@@ -80,6 +80,11 @@ class InternalCallHandler:
 
             # Process all operations in the called function
             for callee_function_node in callee_function.nodes:
+                # Initialize domain from bottom for the first node of the called function
+                # This ensures state variables are available in the callee's context
+                if callee_function_node == callee_function.nodes[0]:
+                    analysis_instance._initialize_domain_from_bottom(callee_function_node, domain)
+                
                 for ir_operation in callee_function_node.irs:
                     if not isinstance(
                         ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return]

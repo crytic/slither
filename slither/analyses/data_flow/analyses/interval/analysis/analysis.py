@@ -350,7 +350,7 @@ class IntervalAnalysis(Analysis):
                     )
                     # Add to domain state
                     domain.state.add_range_variable(state_variable.canonical_name, range_variable)
-                if self._variable_info_manager.is_type_bytes(state_variable.type):
+                elif self._variable_info_manager.is_type_bytes(state_variable.type):
                     # Handle bytes state variables by creating offset and length variables
                     range_variables = (
                         self._variable_info_manager.create_bytes_offset_and_length_variables(
@@ -360,6 +360,15 @@ class IntervalAnalysis(Analysis):
                     # Add all created range variables to the domain state
                     for var_name, range_variable in range_variables.items():
                         domain.state.add_range_variable(var_name, range_variable)
+                elif state_variable.type.name in ["address", "bool", "string"]:
+                    # Create placeholder range variables for common non-numeric types
+                    placeholder = RangeVariable(
+                        interval_ranges=[],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=state_variable.type,
+                    )
+                    domain.state.add_range_variable(state_variable.canonical_name, placeholder)
             elif isinstance(state_variable.type, UserDefinedType):
                 # Handle struct state variables by creating field variables
                 range_variables = self._variable_info_manager.create_struct_field_variables(
