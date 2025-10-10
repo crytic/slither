@@ -437,7 +437,6 @@ class RangeVariable:
                         return domain.state.get_range_variable(key)
 
         logger.error(f"Variable {var_name} not found in state")
-        embed()
         raise ValueError(f"Variable {var_name} not found in state")
 
     def apply_constraint_from_reference(self, ref_range_var: "RangeVariable") -> None:
