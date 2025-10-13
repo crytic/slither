@@ -2,6 +2,8 @@ from typing import Optional
 
 from loguru import logger
 
+from slither.core.declarations.contract import Contract
+
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
@@ -290,12 +292,79 @@ class IntervalAnalysis(Analysis):
         # Check if variable has no initial value
         return not hasattr(var, "expression") or var.expression is None
 
+    def _initialize_state_variable(self, state_variable, var_name: str, domain: IntervalDomain) -> None:
+        """Helper method to initialize a single state variable."""
+        logger.debug(f"Initializing state variable: {var_name} with type {state_variable.type}")
+        if isinstance(state_variable.type, ElementaryType):
+            if self._variable_info_manager.is_type_numeric(state_variable.type):
+                # Create interval range with type bounds
+                interval_range = IntervalRange(
+                    lower_bound=state_variable.type.min,
+                    upper_bound=state_variable.type.max,
+                )
+                # Create range variable for the state variable
+                range_variable = RangeVariable(
+                    interval_ranges=[interval_range],
+                    valid_values=None,
+                    invalid_values=None,
+                    var_type=state_variable.type,
+                )
+                # Add to domain state
+                domain.state.add_range_variable(var_name, range_variable)
+                logger.debug(f"Added numeric state variable {var_name} to domain state")
+            elif self._variable_info_manager.is_type_bytes(state_variable.type):
+                # Handle bytes state variables by creating offset and length variables
+                range_variables = (
+                    self._variable_info_manager.create_bytes_offset_and_length_variables(var_name)
+                )
+                # Add all created range variables to the domain state
+                for nested_var_name, range_variable in range_variables.items():
+                    domain.state.add_range_variable(nested_var_name, range_variable)
+                    logger.debug(f"Added bytes state variable {nested_var_name} to domain state")
+            else:
+                # For any other type, create a placeholder
+                placeholder = RangeVariable(
+                    interval_ranges=[],
+                    valid_values=ValueSet(set()),
+                    invalid_values=ValueSet(set()),
+                    var_type=state_variable.type,
+                )
+                domain.state.add_range_variable(var_name, placeholder)
+                logger.debug(f"Added placeholder state variable {var_name} to domain state")
+        elif isinstance(state_variable.type, UserDefinedType):
+            if isinstance(state_variable.type.type, Contract):
+                if state_variable.type.type.is_interface:
+                    # Interface - create a placeholder
+                    placeholder = RangeVariable(
+                        interval_ranges=[],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=state_variable.type,
+                    )
+                    domain.state.add_range_variable(var_name, placeholder)
+                else:
+                    # Contract or Library - recursively initialize its state variables
+                    for nested_state_var in state_variable.type.type.state_variables:
+                        nested_var_name = f"{var_name}.{nested_state_var.name}"
+                        self._initialize_state_variable(nested_state_var, nested_var_name, domain)
+            else:
+                # Handle actual struct state variables
+                range_variables = self._variable_info_manager.create_struct_field_variables(
+                    state_variable
+                )
+                # Add all created range variables to the domain state
+                for nested_var_name, range_variable in range_variables.items():
+                    domain.state.add_range_variable(nested_var_name, range_variable)
+
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant with function parameters, state variables, and constants."""
+        logger.debug(f"Initializing domain from bottom for function: {node.function.name}")
         domain.variant = DomainVariant.STATE
 
         # Initialize function parameters
+        logger.debug(f"Initializing parameters for function: {node.function.name}")
         for parameter in node.function.parameters:
+            logger.debug(f"Processing parameter: {parameter.canonical_name} with type {parameter.type}")
             if isinstance(parameter.type, ElementaryType):
                 if self._variable_info_manager.is_type_numeric(parameter.type):
                     # Create interval range with type bounds
@@ -312,6 +381,7 @@ class IntervalAnalysis(Analysis):
                     )
                     # Add to domain state
                     domain.state.add_range_variable(parameter.canonical_name, range_variable)
+                    logger.debug(f"Added numeric parameter {parameter.canonical_name} to domain state")
                 elif self._variable_info_manager.is_type_bytes(parameter.type):
                     # Handle bytes calldata parameters by creating offset and length variables
                     range_variables = (
@@ -331,11 +401,76 @@ class IntervalAnalysis(Analysis):
                         var_type=parameter.type,
                     )
                     domain.state.add_range_variable(parameter.canonical_name, placeholder)
+                    logger.debug(f"Added placeholder parameter {parameter.canonical_name} to domain state")
 
             elif isinstance(parameter.type, UserDefinedType):
                 # Handle struct parameters by creating field variables
+                logger.debug(f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}")
+                
+                # Check if it's an interface (like IERC20) - if so, create a placeholder
+                if isinstance(parameter.type.type, Contract) and parameter.type.type.is_interface:
+                    logger.debug(f"Creating placeholder for interface parameter: {parameter.canonical_name}")
+                    placeholder = RangeVariable(
+                        interval_ranges=[],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=parameter.type,
+                    )
+                    domain.state.add_range_variable(parameter.canonical_name, placeholder)
+                    logger.debug(f"Added interface placeholder parameter {parameter.canonical_name} to domain state")
+                else:
+                    # Handle actual struct parameters
+                    range_variables = self._variable_info_manager.create_struct_field_variables(
+                        parameter
+                    )
+                    logger.debug(f"Created {len(range_variables)} range variables for UserDefinedType parameter")
+                    # Add all created range variables to the domain state
+                    for var_name, range_variable in range_variables.items():
+                        domain.state.add_range_variable(var_name, range_variable)
+                        logger.debug(f"Added UserDefinedType parameter {var_name} to domain state")
+
+        # Initialize function return variables
+        for return_var in node.function.returns:
+            if isinstance(return_var.type, ElementaryType):
+                if self._variable_info_manager.is_type_numeric(return_var.type):
+                    # Create interval range with type bounds
+                    interval_range = IntervalRange(
+                        lower_bound=return_var.type.min,
+                        upper_bound=return_var.type.max,
+                    )
+                    # Create range variable for the return variable
+                    range_variable = RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=None,
+                        invalid_values=None,
+                        var_type=return_var.type,
+                    )
+                    # Add to domain state
+                    domain.state.add_range_variable(return_var.canonical_name, range_variable)
+                elif self._variable_info_manager.is_type_bytes(return_var.type):
+                    # Handle bytes return variables by creating offset and length variables
+                    range_variables = (
+                        self._variable_info_manager.create_bytes_offset_and_length_variables(
+                            return_var.canonical_name
+                        )
+                    )
+                    # Add all created range variables to the domain state
+                    for var_name, range_variable in range_variables.items():
+                        domain.state.add_range_variable(var_name, range_variable)
+                else:
+                    # For any other type, create a placeholder
+                    placeholder = RangeVariable(
+                        interval_ranges=[],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=return_var.type,
+                    )
+                    domain.state.add_range_variable(return_var.canonical_name, placeholder)
+
+            elif isinstance(return_var.type, UserDefinedType):
+                # Handle struct return variables by creating field variables
                 range_variables = self._variable_info_manager.create_struct_field_variables(
-                    parameter
+                    return_var
                 )
                 # Add all created range variables to the domain state
                 for var_name, range_variable in range_variables.items():
@@ -348,52 +483,21 @@ class IntervalAnalysis(Analysis):
             logger.error(f"Contract {contract.name} is not a valid contract")
             raise ValueError(f"Contract {contract.name} is not a valid contract")
 
-        # Initialize state variables
-
-        for state_variable in contract.state_variables:
-            if isinstance(state_variable.type, ElementaryType):
-                if self._variable_info_manager.is_type_numeric(state_variable.type):
-                    # Create interval range with type bounds
-                    interval_range = IntervalRange(
-                        lower_bound=state_variable.type.min,
-                        upper_bound=state_variable.type.max,
-                    )
-                    # Create range variable for the state variable
-                    range_variable = RangeVariable(
-                        interval_ranges=[interval_range],
-                        valid_values=None,
-                        invalid_values=None,
-                        var_type=state_variable.type,
-                    )
-                    # Add to domain state
-                    domain.state.add_range_variable(state_variable.canonical_name, range_variable)
-                elif self._variable_info_manager.is_type_bytes(state_variable.type):
-                    # Handle bytes state variables by creating offset and length variables
-                    range_variables = (
-                        self._variable_info_manager.create_bytes_offset_and_length_variables(
-                            state_variable.canonical_name
-                        )
-                    )
-                    # Add all created range variables to the domain state
-                    for var_name, range_variable in range_variables.items():
-                        domain.state.add_range_variable(var_name, range_variable)
-                elif state_variable.type.name in ["address", "bool", "string"]:
-                    # Create placeholder range variables for common non-numeric types
-                    placeholder = RangeVariable(
-                        interval_ranges=[],
-                        valid_values=ValueSet(set()),
-                        invalid_values=ValueSet(set()),
-                        var_type=state_variable.type,
-                    )
-                    domain.state.add_range_variable(state_variable.canonical_name, placeholder)
-            elif isinstance(state_variable.type, UserDefinedType):
-                # Handle struct state variables by creating field variables
-                range_variables = self._variable_info_manager.create_struct_field_variables(
-                    state_variable
-                )
-                # Add all created range variables to the domain state
-                for var_name, range_variable in range_variables.items():
-                    domain.state.add_range_variable(var_name, range_variable)
+        # Initialize state variables for current contract and all inherited contracts
+        logger.debug(f"Initializing state variables for contract: {contract.name}")
+        
+        # Get all contracts in the inheritance chain (including self)
+        contracts_to_process = [contract]
+        if hasattr(contract, 'inheritance') and contract.inheritance:
+            contracts_to_process.extend(contract.inheritance)
+        
+        logger.debug(f"Processing inheritance chain: {[c.name for c in contracts_to_process]}")
+        
+        for contract_to_process in contracts_to_process:
+            logger.debug(f"Initializing state variables for contract: {contract_to_process.name}")
+            for state_variable in contract_to_process.state_variables:
+                logger.debug(f"Processing state variable: {state_variable.canonical_name} with type {state_variable.type}")
+                self._initialize_state_variable(state_variable, state_variable.canonical_name, domain)
 
         # Initialize library constants for all libraries called by this function
         # logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
