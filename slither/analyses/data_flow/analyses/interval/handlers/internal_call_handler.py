@@ -1,3 +1,4 @@
+import decimal
 from decimal import Decimal
 from typing import TYPE_CHECKING, List, Union
 
@@ -160,12 +161,18 @@ class InternalCallHandler:
             for i, return_value in enumerate(return_values):
                 if isinstance(return_value, Constant):
                     # Handle constant return values
-                    value = Decimal(str(return_value.value))
                     var_type = self.constraint_manager.variable_manager.get_variable_type(
                         return_value
                     )
 
                     if not self.constraint_manager.variable_manager.is_type_numeric(var_type):
+                        continue
+                    
+                    # Only convert to Decimal if it's a numeric type
+                    try:
+                        value = Decimal(str(return_value.value))
+                    except (decimal.InvalidOperation, ValueError, TypeError):
+                        # Skip non-numeric values that can't be converted to Decimal
                         continue
 
                     range_variable = RangeVariable(
