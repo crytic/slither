@@ -9,6 +9,9 @@ from slither.analyses.data_flow.analyses.interval.core.types.range_variable impo
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+    ReferenceHandler,
+)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.member import Member
@@ -17,10 +20,9 @@ from slither.slithir.operations.member import Member
 class MemberHandler:
     """Handler for Member operations (e.g., struct.field, array.length, msg.sender)."""
 
-    def __init__(self) -> None:
+    def __init__(self, reference_handler: ReferenceHandler) -> None:
         self._variable_info_manager = VariableInfoManager()
-        # Track reference-to-target mappings for constraint propagation
-        self._reference_mappings: dict[str, str] = {}
+        self._reference_handler = reference_handler
 
     def handle_member(self, node: Node, domain: IntervalDomain, operation: Member) -> None:
         """Handle Member operations by creating appropriate range variables."""
@@ -31,7 +33,7 @@ class MemberHandler:
         result_type = operation.lvalue.type
 
         # Track reference mapping before creating variables
-        self._track_reference_mapping(operation, result_var_name)
+        self._reference_handler.track_member_reference(operation, result_var_name)
 
         # Create the appropriate range variable
         self._create_range_variable(domain, result_var_name, result_type, operation)
@@ -69,7 +71,7 @@ class MemberHandler:
     ) -> None:
         """Create a numeric range variable."""
         # Check if this reference should inherit constraints from its target
-        target_var_name = self.get_target_for_reference(var_name)
+        target_var_name = self._reference_handler.get_target_for_reference(var_name)
         if target_var_name:
             if not domain.state.has_range_variable(target_var_name):
                 raise ValueError(
@@ -107,24 +109,6 @@ class MemberHandler:
             domain.state.add_range_variable(var_name_bytes, range_variable)
 #        logger.debug(f"Created bytes variable {var_name} with type {var_type}")
 
-    def _track_reference_mapping(self, operation: Member, result_var_name: str) -> None:
-        """Track reference-to-target mapping for constraint propagation."""
-        if not operation.variable_left or not operation.variable_right:
-            raise ValueError("Member operation missing left or right variable")
-
-        # Get the target field variable name
-        base_var_name = self._variable_info_manager.get_variable_name(operation.variable_left)
-        field_name = (
-            operation.variable_right.value
-            if hasattr(operation.variable_right, "value")
-            else str(operation.variable_right)
-        )
-        target_field_name = f"{base_var_name}.{field_name}"
-
-        # Store the mapping: reference -> target
-        self._reference_mappings[result_var_name] = target_field_name
-#        logger.debug(f"Tracked reference mapping: {result_var_name} -> {target_field_name}")
-
     def _should_add_to_state(self, var_type: ElementaryType) -> bool:
         """Check if a variable type should be added to the interval analysis state."""
         if not var_type:
@@ -136,7 +120,3 @@ class MemberHandler:
         return self._variable_info_manager.is_type_numeric(
             var_type
         ) or self._variable_info_manager.is_type_bytes(var_type)
-
-    def get_target_for_reference(self, ref_var_name: str) -> Optional[str]:
-        """Get the target variable name for a reference variable."""
-        return self._reference_mappings.get(ref_var_name)

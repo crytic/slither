@@ -22,6 +22,9 @@ from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_mana
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+    ReferenceHandler,
+)
 from slither.analyses.data_flow.analyses.interval.analysis.widening import Widening
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
@@ -78,10 +81,11 @@ class IntervalAnalysis(Analysis):
 
     def __init__(self) -> None:
         self._direction: Direction = Forward()
-        self._operation_handler = OperationHandler()
+        self._reference_handler = ReferenceHandler()
+        self._operation_handler = OperationHandler(self._reference_handler)
         self._variable_info_manager = VariableInfoManager()
-        # Use the member handler from operation handler for constraint manager
-        self._constraint_manager = ConstraintManager(self._operation_handler.member_handler)
+        # Use the reference handler for constraint manager
+        self._constraint_manager = ConstraintManager(self._reference_handler)
         self._operand_analyzer = OperandAnalysisManager()
         self._condition_validity_checker = ConditionValidityChecker(
             self._variable_info_manager, self._operand_analyzer

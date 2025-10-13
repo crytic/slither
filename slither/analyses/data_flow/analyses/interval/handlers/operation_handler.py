@@ -45,6 +45,9 @@ from slither.analyses.data_flow.analyses.interval.managers.constraint_manager im
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+    ReferenceHandler,
+)
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
@@ -62,10 +65,11 @@ if TYPE_CHECKING:
 
 
 class OperationHandler:
-    def __init__(self):
+    def __init__(self, reference_handler: ReferenceHandler):
         # Create a shared constraint storage for all handlers
         self.shared_constraint_storage = ConstraintManager()
         self.variable_info_manager = VariableInfoManager()
+        self.reference_handler = reference_handler
 
         self.assignment_handler = AssignmentHandler()
         self.arithmetic_handler = ArithmeticHandler(self.shared_constraint_storage)
@@ -75,12 +79,9 @@ class OperationHandler:
         self.internal_call_handler = InternalCallHandler(self.shared_constraint_storage)
         self.library_call_handler = LibraryCallHandler(self.shared_constraint_storage)
         self.high_level_call_handler = HighLevelCallHandler()
-        self.member_handler = MemberHandler()
+        self.member_handler = MemberHandler(self.reference_handler)
         self.length_handler = LengthHandler()
         self.type_conversion_handler = TypeConversionHandler()
-
-        # Update constraint manager with member handler for constraint propagation
-        self.shared_constraint_storage.constraint_applier.member_handler = self.member_handler
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)

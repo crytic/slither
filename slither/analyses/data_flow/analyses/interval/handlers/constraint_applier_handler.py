@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Union, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.handlers.member_handler import MemberHandler
+    from slither.analyses.data_flow.analyses.interval.managers.reference_handler import ReferenceHandler
 
 from loguru import logger
 
@@ -26,6 +26,9 @@ from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_mana
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+    ReferenceHandler,
+)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
@@ -39,13 +42,13 @@ class ConstraintApplierHandler:
     def __init__(
         self,
         constraint_store: ConstraintStoreManager,
-        member_handler: Optional["MemberHandler"] = None,
+        reference_handler: Optional[ReferenceHandler] = None,
     ) -> None:
         self.constraint_store = constraint_store
         self.variable_manager = VariableInfoManager()
         self.operand_analyzer = OperandAnalysisManager()
         self.arithmetic_solver = ArithmeticSolverManager()
-        self.member_handler = member_handler
+        self.reference_handler = reference_handler
 
     def apply_constraint_from_variable(
         self, condition_variable: Variable, domain: IntervalDomain
@@ -157,11 +160,11 @@ class ConstraintApplierHandler:
 
     def _is_reference_variable(self, variable: Variable) -> bool:
         """Check if variable is a reference variable that needs constraint propagation."""
-        if not self.member_handler:
+        if not self.reference_handler:
             return False
         
         var_name = self.variable_manager.get_variable_name(variable)
-        target_var_name = self.member_handler.get_target_for_reference(var_name)
+        target_var_name = self.reference_handler.get_target_for_reference(var_name)
         
         
         # If there's a target mapping, this is a reference variable
@@ -342,16 +345,16 @@ class ConstraintApplierHandler:
         try:
             var_name = self.variable_manager.get_variable_name(variable_operand)
 
-            # Use the member handler to get target mapping
-            if not self.member_handler:
+            # Use the reference handler to get target mapping
+            if not self.reference_handler:
                 logger.error(
-                    f"Member handler not available for constraint propagation from {var_name}"
+                    f"Reference handler not available for constraint propagation from {var_name}"
                 )
                 raise ValueError(
-                    f"Member handler not available for constraint propagation from {var_name}"
+                    f"Reference handler not available for constraint propagation from {var_name}"
                 )
 
-            target_var_name = self.member_handler.get_target_for_reference(var_name)
+            target_var_name = self.reference_handler.get_target_for_reference(var_name)
             if not target_var_name:
                 logger.error(f"No target mapping found for reference variable {var_name}")
                 raise ValueError(f"No target mapping found for reference variable {var_name}")

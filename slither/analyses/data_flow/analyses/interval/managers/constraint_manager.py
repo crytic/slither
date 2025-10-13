@@ -1,7 +1,7 @@
 from typing import List, Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.handlers.member_handler import MemberHandler
+    from slither.analyses.data_flow.analyses.interval.managers.reference_handler import ReferenceHandler
 
 from loguru import logger
 
@@ -15,6 +15,9 @@ from slither.analyses.data_flow.analyses.interval.managers.constraint_store_mana
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
+from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+    ReferenceHandler,
+)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
@@ -27,10 +30,10 @@ class ConstraintManager:
     Constraint management using modular architecture.
     """
 
-    def __init__(self, member_handler: Optional["MemberHandler"] = None) -> None:
+    def __init__(self, reference_handler: Optional[ReferenceHandler] = None) -> None:
         # Initialize the three specialized components
         self.constraint_store = ConstraintStoreManager()
-        self.constraint_applier = ConstraintApplierHandler(self.constraint_store, member_handler)
+        self.constraint_applier = ConstraintApplierHandler(self.constraint_store, reference_handler)
         self.variable_manager = VariableInfoManager()
 
     # Delegate storage methods to ConstraintStoreManager
