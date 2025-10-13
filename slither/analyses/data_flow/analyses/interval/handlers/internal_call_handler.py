@@ -18,6 +18,7 @@ from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.index import Index
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.constant import Constant
@@ -87,10 +88,10 @@ class InternalCallHandler:
                     analysis_instance._initialize_domain_from_bottom(callee_function_node, domain)
                 
                 for ir_operation in callee_function_node.irs:
-                    if not isinstance(
-                        ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return, HighLevelCall]
-                    ):
-                        continue
+                    # if not isinstance(
+                    #     ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return, HighLevelCall, Index]
+                    # ):
+                    #     continue
 
                     analysis_instance.transfer_function_helper(
                         callee_function_node, domain, ir_operation

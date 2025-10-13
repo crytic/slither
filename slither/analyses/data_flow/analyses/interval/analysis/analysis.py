@@ -45,6 +45,7 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.operations.index import Index
 
 
 class IntervalAnalysis(Analysis):
@@ -239,10 +240,13 @@ class IntervalAnalysis(Analysis):
         if self.node_declares_variable_without_initial_value(node):
             self._operation_handler.handle_uninitialized_variable(node, domain)
 
-        # Handle HighLevelCall first to create variables before they're used in assignments
         if isinstance(operation, HighLevelCall):
             logger.debug(f"Processing HighLevelCall: {operation}")
             self._operation_handler.handle_high_level_call(node, domain, operation)
+
+        if isinstance(operation, Index):
+            logger.debug(f"Processing Index: {operation}")
+            self._operation_handler.handle_index(node, domain, operation)
 
         if isinstance(operation, Assignment):
             logger.debug(f"Processing Assignment: {operation}")

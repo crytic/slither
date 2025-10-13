@@ -39,6 +39,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.length_handler import
 from slither.analyses.data_flow.analyses.interval.handlers.type_conversion_handler import (
     TypeConversionHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.index_handler import (
+    IndexHandler,
+)
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -59,6 +62,7 @@ from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.operations.index import Index
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
@@ -82,6 +86,7 @@ class OperationHandler:
         self.member_handler = MemberHandler(self.reference_handler)
         self.length_handler = LengthHandler()
         self.type_conversion_handler = TypeConversionHandler()
+        self.index_handler = IndexHandler(self.reference_handler)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -127,6 +132,9 @@ class OperationHandler:
 
     def handle_type_conversion(self, node: Node, domain: IntervalDomain, operation: TypeConversion):
         self.type_conversion_handler.handle_type_conversion(node, domain, operation)
+
+    def handle_index(self, node: Node, domain: IntervalDomain, operation: Index):
+        self.index_handler.handle_index(node, domain, operation)
 
     def handle_boolean(self, node: Node, domain: IntervalDomain, operation: Binary):
         """Handle boolean operations by creating a temporary variable for the result."""
