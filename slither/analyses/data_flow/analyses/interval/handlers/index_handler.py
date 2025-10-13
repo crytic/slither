@@ -58,33 +58,7 @@ class IndexHandler:
             )
             return
 
-        # Add all variables to state - create placeholders for non-numeric types
-        if not self._should_add_to_state(var_type):
-            logger.debug(f"Type {var_type} should not be added to state")
-            # Create placeholder range variables for common non-numeric types
-            if var_type.name in ["address", "bool", "string"]:
-                placeholder = RangeVariable(
-                    interval_ranges=[],
-                    valid_values=ValueSet(set()),
-                    invalid_values=ValueSet(set()),
-                    var_type=var_type,
-                )
-                domain.state.add_range_variable(var_name, placeholder)
-                logger.debug(f"Created placeholder variable {var_name} with type {var_type}")
-                return
-            else:
-                # For any other non-numeric type, create a placeholder with the type
-                placeholder = RangeVariable(
-                    interval_ranges=[],
-                    valid_values=ValueSet(set()),
-                    invalid_values=ValueSet(set()),
-                    var_type=var_type,
-                )
-                domain.state.add_range_variable(var_name, placeholder)
-                logger.debug(f"Created placeholder variable {var_name} with type {var_type}")
-                return
-
-        # Create the appropriate range variable
+        # Create the appropriate range variable based on type
         if self._variable_info_manager.is_type_numeric(var_type):
             logger.debug(f"Creating numeric variable for {var_name}")
             self._create_numeric_variable(domain, var_name, var_type)
@@ -92,7 +66,16 @@ class IndexHandler:
             logger.debug(f"Creating bytes variable for {var_name}")
             self._create_bytes_variable(domain, var_name, var_type)
         else:
-            raise ValueError(f"Unsupported variable type for range analysis: {var_type}")
+            # For all other types (address, bool, string, struct, etc.), create a placeholder
+            logger.debug(f"Creating placeholder variable for {var_name} with type {var_type}")
+            placeholder = RangeVariable(
+                interval_ranges=[],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, placeholder)
+            logger.debug(f"Created placeholder variable {var_name} with type {var_type}")
 
     def _create_numeric_variable(
         self, domain: IntervalDomain, var_name: str, var_type: ElementaryType
