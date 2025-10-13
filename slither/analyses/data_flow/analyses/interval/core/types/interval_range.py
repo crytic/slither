@@ -123,6 +123,14 @@ class IntervalRange:
         elif operation == BinaryType.CARET:
             # Bitwise XOR: x ^ y
             return Decimal(int(left) ^ int(right))
+        elif operation == BinaryType.MODULO:
+            # Modulo: x % y
+            if right == 0:
+                raise ZeroDivisionError(f"Modulo by zero: {left} % {right}")
+            return Decimal(int(left) % int(right))
+        elif operation == BinaryType.POWER:
+            # Exponentiation: x ** y
+            return Decimal(int(left) ** int(right))
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 

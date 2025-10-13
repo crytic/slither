@@ -105,8 +105,8 @@ class ValueSet:
         # Apply operation to each value in the set
         for value in self._values:
             try:
-                # For subtraction, division, and modulo, we want scalar op value, not value op scalar
-                if operation_type in [BinaryType.SUBTRACTION, BinaryType.DIVISION, BinaryType.MODULO]:
+                # For subtraction, division, modulo, and power, we want scalar op value, not value op scalar
+                if operation_type in [BinaryType.SUBTRACTION, BinaryType.DIVISION, BinaryType.MODULO, BinaryType.POWER]:
                     result_val = ValueSet._apply_scalar_op(decimal_scalar, value, operation_type)
                 else:
                     result_val = ValueSet._apply_scalar_op(value, decimal_scalar, operation_type)

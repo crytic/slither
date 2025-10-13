@@ -362,6 +362,7 @@ class RangeVariable:
         domain: "IntervalDomain", variable: Union[Variable, Constant, RVALUE, Function]
     ) -> "RangeVariable":
         """Retrieve state information for a variable or constant."""
+        from decimal import Decimal
         from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
             VariableInfoManager,
         )
@@ -390,10 +391,10 @@ class RangeVariable:
         # Handle SolidityVariable (like 'this', 'msg', 'block', etc.)
         if isinstance(variable, SolidityVariable):
             # For SolidityVariable, we need to create a range variable with the appropriate type
-            # and no specific values since these are runtime variables
+            # and reasonable bounds since these are runtime variables
             solidity_type = variable.type
             
-            # Create a range variable that represents the full range of the SolidityVariable type
+            # Create a range variable that represents reasonable bounds for the SolidityVariable type
             if solidity_type.name == "address":
                 # For address type, we can't determine specific values, so we use empty ranges
                 # and let the analysis handle it as an unknown address
@@ -403,14 +404,37 @@ class RangeVariable:
                     invalid_values=ValueSet(set()),  # No specific invalid values
                     var_type=solidity_type,
                 )
-            else:
-                # For other types, create appropriate range variables
+            elif solidity_type.name == "uint256" and variable.name == "timestamp":
+                # For block.timestamp, create a reasonable range
+                # from 0 to a large future timestamp (e.g., year 2100)
+                future_timestamp = Decimal("4102444800")  # January 1, 2100
                 return RangeVariable(
-                    interval_ranges=[],
+                    interval_ranges=[IntervalRange(Decimal("0"), future_timestamp)],
                     valid_values=ValueSet(set()),
                     invalid_values=ValueSet(set()),
                     var_type=solidity_type,
                 )
+            else:
+                # For other numeric types, create appropriate range variables with type bounds
+                if variable_info_manager.is_type_numeric(solidity_type):
+                    interval_range = IntervalRange(
+                        lower_bound=solidity_type.min,
+                        upper_bound=solidity_type.max,
+                    )
+                    return RangeVariable(
+                        interval_ranges=[interval_range],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=solidity_type,
+                    )
+                else:
+                    # For other types, create empty range variables
+                    return RangeVariable(
+                        interval_ranges=[],
+                        valid_values=ValueSet(set()),
+                        invalid_values=ValueSet(set()),
+                        var_type=solidity_type,
+                    )
 
         var_name: str = variable_info_manager.get_variable_name(variable)
 

@@ -105,12 +105,12 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_overflow: bool = range_var.has_overflow()
                 has_underflow: bool = range_var.has_underflow()
 
-                # Only include variables that have overflow/underflow issues
-                if not (has_overflow or has_underflow):
-                    continue
+                # # Only include variables that have overflow/underflow issues
+                # if not (has_overflow or has_underflow):
+                #     continue
 
-                if "TMP" in var_name:
-                    continue
+                # if "TMP" in var_name:
+                #     continue
 
                 # Extract interval ranges
                 interval_ranges: List[Dict[str, str]] = []
