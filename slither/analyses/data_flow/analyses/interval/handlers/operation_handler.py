@@ -69,9 +69,12 @@ if TYPE_CHECKING:
 
 
 class OperationHandler:
-    def __init__(self, reference_handler: ReferenceHandler):
-        # Create a shared constraint storage for all handlers
-        self.shared_constraint_storage = ConstraintManager()
+    def __init__(self, reference_handler: ReferenceHandler, constraint_manager=None):
+        # Use shared constraint manager if provided, otherwise create a new one
+        if constraint_manager is not None:
+            self.shared_constraint_storage = constraint_manager  # Same instance!
+        else:
+            self.shared_constraint_storage = ConstraintManager()
         self.variable_info_manager = VariableInfoManager()
         self.reference_handler = reference_handler
 

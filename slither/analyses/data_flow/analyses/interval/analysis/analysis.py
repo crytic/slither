@@ -85,10 +85,11 @@ class IntervalAnalysis(Analysis):
     def __init__(self) -> None:
         self._direction: Direction = Forward()
         self._reference_handler = ReferenceHandler()
-        self._operation_handler = OperationHandler(self._reference_handler)
-        self._variable_info_manager = VariableInfoManager()
         # Use the reference handler for constraint manager
         self._constraint_manager = ConstraintManager(self._reference_handler)
+        # Pass the same constraint manager instance to OperationHandler
+        self._operation_handler = OperationHandler(self._reference_handler, self._constraint_manager)
+        self._variable_info_manager = VariableInfoManager()
         self._operand_analyzer = OperandAnalysisManager()
         self._condition_validity_checker = ConditionValidityChecker(
             self._variable_info_manager, self._operand_analyzer
@@ -133,6 +134,15 @@ class IntervalAnalysis(Analysis):
         self, domain: IntervalDomain, operation: Binary
     ) -> IntervalDomain:
         """Apply the condition when the then branch is taken."""
+        # Clear applied constraints set for recursive processing
+        if hasattr(self._constraint_manager.constraint_applier, '_applied_constraints'):
+            self._constraint_manager.constraint_applier._applied_constraints.clear()
+        
+        # Handle compound boolean operations
+        if operation.type in self.BOOLEAN_OPERATORS:
+            self._apply_compound_boolean_condition(domain, operation)
+            return domain
+        
         # Verify condition validity first - if invalid, return TOP (unreachable)
         if not self._condition_validity_checker.is_condition_valid(operation, domain):
             return IntervalDomain.top()
@@ -145,10 +155,45 @@ class IntervalAnalysis(Analysis):
 
         return domain
 
+    def _apply_compound_boolean_condition(self, domain: IntervalDomain, operation: Binary) -> None:
+        """Apply constraints from compound boolean operations recursively."""
+        if operation.type == BinaryType.ANDAND:
+            # For AND operations, apply constraints from both operands
+            self._apply_constraint_from_operand(domain, operation.variable_left)
+            self._apply_constraint_from_operand(domain, operation.variable_right)
+        elif operation.type == BinaryType.OROR:
+            # For now, we'll apply constraints from both operands (conservative approach)
+            self._apply_constraint_from_operand(domain, operation.variable_left)
+            self._apply_constraint_from_operand(domain, operation.variable_right)
+
+    def _apply_constraint_from_operand(self, domain: IntervalDomain, operand) -> None:
+        """Apply constraint from an operand, handling both variables and nested operations."""
+        if isinstance(operand, Binary):
+            # Recursively handle nested boolean operations
+            self._apply_then_branch_condition(domain, operand)
+        else:
+            # Apply stored constraint from temporary variable
+            temp_var_name = self._variable_info_manager.get_variable_name(operand)
+            if self._constraint_manager.has_variable_constraint(temp_var_name):
+                stored_constraint = self._constraint_manager.get_variable_constraint(temp_var_name)
+                if isinstance(stored_constraint, Binary) and stored_constraint.type in self.BOOLEAN_OPERATORS:
+                    # Recursively process boolean operations
+                    self._apply_then_branch_condition(domain, stored_constraint)
+                else:
+                    # Apply comparison constraints
+                    self._constraint_manager.apply_constraint_from_variable(operand, domain)
+
     def _apply_else_branch_condition(
         self, domain: IntervalDomain, operation: Binary
     ) -> IntervalDomain:
         """Apply inverse condition when else branch is taken."""
+
+        # Handle compound boolean operations for else branch
+        if operation.type in self.BOOLEAN_OPERATORS:
+            # For compound boolean operations in else branch, we need to handle this differently
+            # For now, we'll skip applying constraints (conservative approach)
+            logger.debug(f"Skipping else branch constraint application for boolean operation: {operation.type}")
+            return domain
 
         # Create a negated operation by creating a new Binary with the negated operator
         if operation.type not in self.COMPARISON_OPERATORS:

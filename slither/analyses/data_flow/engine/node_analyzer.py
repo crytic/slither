@@ -13,6 +13,8 @@ class NodeAnalyzer:
         if node.type not in [NodeType.IF, NodeType.IFLOOP]:
             return None
 
+        # Look for the last binary operation (comparison or boolean)
+        last_binary_op = None
         for operation in node.irs or []:
             if isinstance(operation, Binary) and operation.type in [
                 BinaryType.GREATER,
@@ -21,9 +23,11 @@ class NodeAnalyzer:
                 BinaryType.LESS_EQUAL,
                 BinaryType.EQUAL,
                 BinaryType.NOT_EQUAL,
+                BinaryType.ANDAND,  # Added for compound boolean operations
+                BinaryType.OROR,    # Added for compound boolean operations
             ]:
-                return operation
-        return None
+                last_binary_op = operation  # Return LAST, not FIRST
+        return last_binary_op
 
     @staticmethod
     def is_conditional_node(node: Node) -> bool:

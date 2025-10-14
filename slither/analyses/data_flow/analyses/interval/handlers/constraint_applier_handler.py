@@ -49,6 +49,8 @@ class ConstraintApplierHandler:
         self.operand_analyzer = OperandAnalysisManager()
         self.arithmetic_solver = ArithmeticSolverManager()
         self.reference_handler = reference_handler
+        # Track applied constraints to prevent duplicates
+        self._applied_constraints = set()
 
     def apply_constraint_from_variable(
         self, condition_variable: Variable, domain: IntervalDomain
@@ -85,6 +87,15 @@ class ConstraintApplierHandler:
         self, comparison_operation: Binary, domain: IntervalDomain
     ) -> None:
         """Apply a comparison constraint to the domain."""
+        # Create a unique identifier for this constraint to prevent duplicates
+        constraint_id = self._create_constraint_id(comparison_operation)
+        if constraint_id in self._applied_constraints:
+            logger.debug(f"Skipping duplicate constraint: {constraint_id}")
+            return
+        
+        # Mark this constraint as applied
+        self._applied_constraints.add(constraint_id)
+        
         # logger.debug(f"Applying comparison constraint: {comparison_operation.type}")
 
         # Apply the comparison operation to the domain
@@ -398,3 +409,9 @@ class ConstraintApplierHandler:
         if not has_valid_content:
             logger.info(f"🚫 Converting domain to BOTTOM - no valid intervals remain")
             domain.variant = DomainVariant.BOTTOM
+
+    def _create_constraint_id(self, comparison_operation: Binary) -> str:
+        """Create a unique identifier for a constraint to prevent duplicates."""
+        left_name = self.variable_manager.get_variable_name(comparison_operation.variable_left)
+        right_name = self.variable_manager.get_variable_name(comparison_operation.variable_right)
+        return f"{left_name}_{comparison_operation.type}_{right_name}"
