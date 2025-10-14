@@ -36,6 +36,7 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -447,6 +448,20 @@ class IntervalAnalysis(Analysis):
                     )
                     domain.state.add_range_variable(parameter.canonical_name, placeholder)
                     logger.debug(f"Added placeholder parameter {parameter.canonical_name} to domain state")
+
+            elif isinstance(parameter.type, ArrayType):
+                # Handle array parameters by creating placeholder range variables
+                logger.debug(f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}")
+                
+                # For array types, create a placeholder range variable
+                placeholder = RangeVariable(
+                    interval_ranges=[],
+                    valid_values=ValueSet(set()),
+                    invalid_values=ValueSet(set()),
+                    var_type=parameter.type,
+                )
+                domain.state.add_range_variable(parameter.canonical_name, placeholder)
+                logger.debug(f"Added ArrayType parameter {parameter.canonical_name} to domain state")
 
             elif isinstance(parameter.type, UserDefinedType):
                 # Handle struct parameters by creating field variables

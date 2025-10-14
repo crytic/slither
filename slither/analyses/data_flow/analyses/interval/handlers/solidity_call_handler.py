@@ -63,45 +63,44 @@ class SolidityCallHandler:
             return
 
         # Handle calldataload function
-        if "calldata" in operation.function.name:
+        if operation.function.full_name == "calldataload(uint256)":
             self._handle_calldataload(node, domain, operation)
             return
 
         # Handle mload function
-        if "mload" in operation.function.name:
+        if operation.function.full_name == "mload(uint256)":
             self._handle_mload(node, domain, operation)
             return
 
         # Handle revert function - mark branch as unreachable
-        if "revert" in operation.function.name:
+        if operation.function.full_name == "revert()":
             self._handle_revert(node, domain, operation)
             return
 
 
         # Handle keccak256 hashing
-        if operation.function.name.startswith("keccak256"):
+        if operation.function.full_name == "keccak256(bytes)":
             self._handle_keccak256(node, domain, operation)
             return
 
         # Handle abi.encode / abi.encodePacked family -> returns bytes
-        if "encodePacked" in operation.function.name or "abi.encode" in operation.function.name:
+        if operation.function.full_name in ["abi.encode()", "abi.encodePacked()", "abi.encodeWithSelector(bytes4)", "abi.encodeWithSignature(string)"]:
             self._handle_abi_encode(node, domain, operation)
             return
 
         # Handle CREATE2 opcode exposed via solidity call wrappers
-        if "create2" in operation.function.name or (
-            hasattr(operation.function, "full_name") and "create2(" in operation.function.full_name
-        ):
+        if operation.function.full_name == "create2(uint256,uint256,uint256,bytes32)":
             self._handle_create2(node, domain, operation)
             return
 
-        if "byte" in operation.function.name:
+        # Handle byte() function
+        if operation.function.full_name == "byte(uint256,uint256)":
             self._handle_byte(node, domain, operation)
             return
 
         # General handling for solidity's type(...) expressions.
         # Model any type(...) derived value as opaque bytes, since its content is not used numerically.
-        if "type(" in operation.function.name:
+        if operation.function.full_name.startswith("type("):
             self._handle_type_code(node, domain, operation)
             return
 
