@@ -1,8 +1,9 @@
 from typing import Optional
 
 from slither.core.cfg.node import Node, NodeType
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
-
+from slither.slithir.operations.condition import Condition
 
 class NodeAnalyzer:
     """Utility class for analyzing CFG nodes and extracting conditions."""
@@ -28,6 +29,14 @@ class NodeAnalyzer:
             ]:
                 last_binary_op = operation  # Return LAST, not FIRST
         return last_binary_op
+
+    @staticmethod
+    def extract_condition_variable(node: Node) -> Variable:
+        """Extract condition variable node."""
+        for operation in node.irs:
+            if isinstance(operation, Condition):
+
+                return operation.value
 
     @staticmethod
     def is_conditional_node(node: Node) -> bool:

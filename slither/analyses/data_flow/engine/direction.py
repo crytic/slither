@@ -63,9 +63,10 @@ class Forward(Direction):
 
         # Handle propagation based on node type
         condition = NodeAnalyzer.extract_condition(node)
+        condition_variable = NodeAnalyzer.extract_condition_variable(node)
         if condition and NodeAnalyzer.is_conditional_node(node):
             PropagationManager.propagate_conditional(
-                node, current_state, condition, analysis, worklist, global_state
+                node, current_state, condition, analysis, worklist, global_state, condition_variable
             )
         else:
             PropagationManager.propagate_unconditional(node, current_state, worklist, global_state)

@@ -41,7 +41,7 @@ class ConstraintManager:
         """Store a constraint that applies to a specific variable."""
         self.constraint_store.store_variable_constraint(var_name, constraint)
 
-    def get_variable_constraint(self, var_name: str):
+    def get_variable_constraint(self, var_name: str) -> Optional[Union[Binary, Variable]]:
         """Retrieve the constraint stored for a specific variable."""
         return self.constraint_store.get_variable_constraint(var_name)
 

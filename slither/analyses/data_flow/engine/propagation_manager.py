@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Deque, Dict
 
+from slither.core.variables.variable import Variable
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
@@ -54,6 +56,7 @@ class PropagationManager:
         analysis: "Analysis",
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
+        condition_variable: Variable,
     ) -> None:
         """Handle conditional propagation for IF nodes."""
         if len(node.sons) < 2:
@@ -62,8 +65,8 @@ class PropagationManager:
         then_successor, else_successor = node.sons[0], node.sons[1]
 
         # Apply conditions and propagate
-        then_state = analysis.apply_condition(current_state.pre, condition, True)
-        else_state = analysis.apply_condition(current_state.pre, condition, False)
+        then_state = analysis.apply_condition(current_state.pre, condition, True, condition_variable)
+        else_state = analysis.apply_condition(current_state.pre, condition, False, condition_variable)
 
         # Always propagate to then branch
         PropagationManager.propagate_to_successor(

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from loguru import logger
 
@@ -37,6 +37,7 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -111,7 +112,7 @@ class IntervalAnalysis(Analysis):
         return self._condition_validity_checker.is_condition_valid(condition, domain)
 
     def apply_condition(
-        self, domain: IntervalDomain, condition: Operation, branch_taken: bool
+        self, domain: IntervalDomain, condition: Operation, branch_taken: bool, condition_variable: Variable
     ) -> IntervalDomain:
         """Apply branch filtering based on the condition and which branch is taken.
 
@@ -126,130 +127,145 @@ class IntervalAnalysis(Analysis):
         # Create a copy of the domain to avoid modifying the original
         filtered_domain = domain.deep_copy()
 
+        list_of_conditions = self.condition_extractor(condition_variable)
+
         if branch_taken:
-            return self._apply_then_branch_condition(filtered_domain, condition)
+            return self._apply_then_branch_condition(filtered_domain, list_of_conditions)
         else:
-            return self._apply_else_branch_condition(filtered_domain, condition)
+            return self._apply_else_branch_condition(filtered_domain, list_of_conditions)
+
+    def condition_extractor(self, condition_variable: Variable) -> List[Binary]:
+        """Recursively extracts all binary operations (including compound operators) from condition variable."""
+
+        
+        constraint = self._constraint_manager.get_variable_constraint(condition_variable.name)
+        
+        # Recursively follow Variable constraints
+        if isinstance(constraint, Variable):
+            return self.condition_extractor(constraint)
+        
+        # If it's a Binary operation
+        if isinstance(constraint, Binary):
+            binaries = [constraint]  # Include this binary operation
+            
+            # Recursively expand left operand if it's a variable
+            if isinstance(constraint.variable_left, Variable):
+                binaries.extend(self.condition_extractor(constraint.variable_left))
+            
+            # Recursively expand right operand if it's a variable
+            if isinstance(constraint.variable_right, Variable):
+                binaries.extend(self.condition_extractor(constraint.variable_right))
+            
+            return binaries
+        
+        return []
 
     def _apply_then_branch_condition(
-        self, domain: IntervalDomain, operation: Binary
+        self, domain: IntervalDomain, conditions: List[Binary]
     ) -> IntervalDomain:
-        """Apply the condition when the then branch is taken."""
+        """Apply conditions when the then branch is taken."""
         # Clear applied constraints set for recursive processing
         if hasattr(self._constraint_manager.constraint_applier, '_applied_constraints'):
             self._constraint_manager.constraint_applier._applied_constraints.clear()
         
-        # Handle compound boolean operations
-        if operation.type in self.BOOLEAN_OPERATORS:
-            self._apply_compound_boolean_condition(domain, operation)
-            return domain
-        
-        # Verify condition validity first - if invalid, return TOP (unreachable)
-        if not self._condition_validity_checker.is_condition_valid(operation, domain):
-            return IntervalDomain.top()
+        for operation in conditions:
+            # Handle boolean operators (AND, OR)
+            if operation.type in self.BOOLEAN_OPERATORS:
+                if operation.type == BinaryType.ANDAND:
+                    # AND: Continue processing - we'll apply all leaf conditions
+                    continue
+                elif operation.type == BinaryType.OROR:
+                    # OR: Conservative approach - apply both sides (union is complex)
+                    # TODO: Improve OR handling with proper disjunction
+                    continue
+            
+            # Process leaf comparison operations
+            # Verify condition validity first - if invalid, return TOP (unreachable)
+            if not self._condition_validity_checker.is_condition_valid(operation, domain):
+                return IntervalDomain.top()
 
-        # Apply constraint if condition is valid
-        if operation.lvalue is not None:
-            var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
-            self._constraint_manager.store_variable_constraint(var_name, operation)
-            self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
+            # Apply constraint if condition is valid
+            if operation.lvalue is not None:
+                var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
+                self._constraint_manager.store_variable_constraint(var_name, operation)
+                self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
 
         return domain
 
-    def _apply_compound_boolean_condition(self, domain: IntervalDomain, operation: Binary) -> None:
-        """Apply constraints from compound boolean operations recursively."""
-        if operation.type == BinaryType.ANDAND:
-            # For AND operations, apply constraints from both operands
-            self._apply_constraint_from_operand(domain, operation.variable_left)
-            self._apply_constraint_from_operand(domain, operation.variable_right)
-        elif operation.type == BinaryType.OROR:
-            # For now, we'll apply constraints from both operands (conservative approach)
-            self._apply_constraint_from_operand(domain, operation.variable_left)
-            self._apply_constraint_from_operand(domain, operation.variable_right)
-
-    def _apply_constraint_from_operand(self, domain: IntervalDomain, operand) -> None:
-        """Apply constraint from an operand, handling both variables and nested operations."""
-        if isinstance(operand, Binary):
-            # Recursively handle nested boolean operations
-            self._apply_then_branch_condition(domain, operand)
-        else:
-            # Apply stored constraint from temporary variable
-            temp_var_name = self._variable_info_manager.get_variable_name(operand)
-            if self._constraint_manager.has_variable_constraint(temp_var_name):
-                stored_constraint = self._constraint_manager.get_variable_constraint(temp_var_name)
-                if isinstance(stored_constraint, Binary) and stored_constraint.type in self.BOOLEAN_OPERATORS:
-                    # Recursively process boolean operations
-                    self._apply_then_branch_condition(domain, stored_constraint)
-                else:
-                    # Apply comparison constraints
-                    self._constraint_manager.apply_constraint_from_variable(operand, domain)
 
     def _apply_else_branch_condition(
-        self, domain: IntervalDomain, operation: Binary
+        self, domain: IntervalDomain, conditions: List[Binary]
     ) -> IntervalDomain:
-        """Apply inverse condition when else branch is taken."""
+        """Apply inverse conditions when else branch is taken."""
 
-        # Handle compound boolean operations for else branch
-        if operation.type in self.BOOLEAN_OPERATORS:
-            # For compound boolean operations in else branch, we need to handle this differently
-            # For now, we'll skip applying constraints (conservative approach)
-            logger.debug(f"Skipping else branch constraint application for boolean operation: {operation.type}")
-            return domain
+        for operation in conditions:
+            # Handle compound boolean operations for else branch
+            if operation.type in self.BOOLEAN_OPERATORS:
+                if operation.type == BinaryType.ANDAND:
+                    # !(A && B) = !A || !B (De Morgan's law)
+                    # Conservative: skip for now, complex to handle properly
+                    logger.debug(f"Skipping else branch for AND operation (requires disjunction)")
+                    continue
+                elif operation.type == BinaryType.OROR:
+                    # !(A || B) = !A && !B (De Morgan's law)
+                    # We can apply negation of both conditions
+                    continue
+                continue
 
-        # Create a negated operation by creating a new Binary with the negated operator
-        if operation.type not in self.COMPARISON_OPERATORS:
-            logger.error(f"Cannot negate operation: {operation.type}")
-            raise ValueError(f"Cannot negate operation: {operation.type}")
+            # Create a negated operation for leaf comparison operations
+            if operation.type not in self.COMPARISON_OPERATORS:
+                logger.error(f"Cannot negate operation: {operation.type}")
+                raise ValueError(f"Cannot negate operation: {operation.type}")
 
-        # Get the negated operator type (logical complement)
-        negation_map = {
-            BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
-            BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
-            BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
-            BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
-            BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
-            BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
-        }
+            # Get the negated operator type (logical complement)
+            negation_map = {
+                BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
+                BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
+                BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
+                BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
+                BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
+                BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
+            }
 
-        negated_operator_type = negation_map.get(operation.type)
-        if negated_operator_type is None:
-            logger.error(f"Cannot negate operation: {operation.type}")
-            raise ValueError(f"Cannot negate operation: {operation.type}")
+            negated_operator_type = negation_map.get(operation.type)
+            if negated_operator_type is None:
+                logger.error(f"Cannot negate operation: {operation.type}")
+                raise ValueError(f"Cannot negate operation: {operation.type}")
 
-        # Create the actual negated operation
-        negated_result_variable = TemporaryVariable(operation.node)
-        negated_result_variable.set_type(operation.lvalue.type)
+            # Create the actual negated operation
+            negated_result_variable = TemporaryVariable(operation.node)
+            negated_result_variable.set_type(operation.lvalue.type)
 
-        negated_comparison = Binary(
-            result=negated_result_variable,
-            left_variable=operation.variable_left,
-            right_variable=operation.variable_right,
-            operation_type=negated_operator_type,
-        )
-        negated_comparison.set_node(operation.node)
+            negated_comparison = Binary(
+                result=negated_result_variable,
+                left_variable=operation.variable_left,
+                right_variable=operation.variable_right,
+                operation_type=negated_operator_type,
+            )
+            negated_comparison.set_node(operation.node)
 
-        # Verify the negated condition validity first
-        if not self._condition_validity_checker.is_condition_valid(negated_comparison, domain):
-            return IntervalDomain.top()
+            # Verify the negated condition validity first
+            if not self._condition_validity_checker.is_condition_valid(negated_comparison, domain):
+                return IntervalDomain.top()
 
-        # Store the negated operation as a constraint for the original variable
-        if operation.lvalue is not None:
-            # Handle assignment-based comparisons (bool result = x > 100; if (result))
-            var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
-            self._constraint_manager.store_variable_constraint(var_name, negated_comparison)
-            self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
-        else:
-            # Handle direct comparisons (if (x > 100)) - store constraint for the actual variable
-            if operation.variable_left is not None:
-                left_operand_name = self._variable_info_manager.get_variable_name(
-                    operation.variable_left
-                )
-                self._constraint_manager.store_variable_constraint(
-                    left_operand_name, negated_comparison
-                )
-                self._constraint_manager.apply_constraint_from_variable(
-                    operation.variable_left, domain
-                )
+            # Store the negated operation as a constraint for the original variable
+            if operation.lvalue is not None:
+                # Handle assignment-based comparisons (bool result = x > 100; if (result))
+                var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
+                self._constraint_manager.store_variable_constraint(var_name, negated_comparison)
+                self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
+            else:
+                # Handle direct comparisons (if (x > 100)) - store constraint for the actual variable
+                if operation.variable_left is not None:
+                    left_operand_name = self._variable_info_manager.get_variable_name(
+                        operation.variable_left
+                    )
+                    self._constraint_manager.store_variable_constraint(
+                        left_operand_name, negated_comparison
+                    )
+                    self._constraint_manager.apply_constraint_from_variable(
+                        operation.variable_left, domain
+                    )
 
         return domain
 
