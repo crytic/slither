@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Optional
 
 from loguru import logger
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import (
@@ -30,13 +30,13 @@ class VariableInfoManager:
     def __init__(self):
         """Initialize the variable manager"""
 
-    def get_variable_name(self, variable: Variable | None) -> str:
+    def get_variable_name(self, variable: Optional[Variable]) -> str:
         """Get canonical variable name."""
         if variable is None:
             logger.error("Variable is None")
             raise ValueError("Variable is None")
 
-        if isinstance(variable, Union[StateVariable, LocalVariable]):
+        if isinstance(variable, (StateVariable, LocalVariable)):
             return variable.canonical_name
 
         variable_name = getattr(variable, "name", None)

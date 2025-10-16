@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Self
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 
 class Domain(ABC):
