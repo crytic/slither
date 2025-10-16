@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 from loguru import logger
 
@@ -50,6 +50,7 @@ from slither.slithir.operations.member import Member
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.index import Index
+from slither.slithir.operations.unary import Unary, UnaryType
 
 
 class IntervalAnalysis(Analysis):
@@ -90,7 +91,9 @@ class IntervalAnalysis(Analysis):
         # Use the reference handler for constraint manager
         self._constraint_manager = ConstraintManager(self._reference_handler)
         # Pass the same constraint manager instance to OperationHandler
-        self._operation_handler = OperationHandler(self._reference_handler, self._constraint_manager)
+        self._operation_handler = OperationHandler(
+            self._reference_handler, self._constraint_manager
+        )
         self._variable_info_manager = VariableInfoManager()
         self._operand_analyzer = OperandAnalysisManager()
         self._condition_validity_checker = ConditionValidityChecker(
@@ -112,7 +115,11 @@ class IntervalAnalysis(Analysis):
         return self._condition_validity_checker.is_condition_valid(condition, domain)
 
     def apply_condition(
-        self, domain: IntervalDomain, condition: Operation, branch_taken: bool, condition_variable: Variable
+        self,
+        domain: IntervalDomain,
+        condition: Operation,
+        branch_taken: bool,
+        condition_variable: Variable,
     ) -> IntervalDomain:
         """Apply branch filtering based on the condition and which branch is taken.
 
@@ -134,140 +141,219 @@ class IntervalAnalysis(Analysis):
         else:
             return self._apply_else_branch_condition(filtered_domain, list_of_conditions)
 
-    def condition_extractor(self, condition_variable: Variable) -> List[Binary]:
-        """Recursively extracts all binary operations (including compound operators) from condition variable."""
+    def condition_extractor(
+        self, condition_variable: Union[Variable, Binary, Unary]
+    ) -> List[Tuple[Union[Binary, Unary], bool]]:
+        """Recursively extracts all operations with negation flags."""
+        return self._condition_extractor_helper(condition_variable, is_negated=False)
 
-        
+    def _condition_extractor_helper(
+        self, condition_variable: Union[Variable, Binary, Unary], is_negated: bool
+    ) -> List[Tuple[Union[Binary, Unary], bool]]:
+        """Helper that tracks negation state through recursion."""
+
         constraint = self._constraint_manager.get_variable_constraint(condition_variable.name)
-        
+        logger.info(f"Constraint: {constraint}, type: {type(constraint)}, negated: {is_negated}")
+
+        # If no constraint found, return empty list (base case for actual variables like 'a')
+        if constraint is None:
+            return []
+
         # Recursively follow Variable constraints
         if isinstance(constraint, Variable):
-            return self.condition_extractor(constraint)
-        
+            return self._condition_extractor_helper(constraint, is_negated)
+
+        # If it's a Unary BANG operation - flip the negation flag
+        if isinstance(constraint, Unary):
+            if constraint.type == UnaryType.BANG:
+                # BANG flips the negation state
+                # The rvalue should be a Variable containing the actual condition
+                if isinstance(constraint.rvalue, Variable):
+                    return self._condition_extractor_helper(constraint.rvalue, not is_negated)
+                else:
+                    logger.error(f"Unary BANG operand is not a Variable: {constraint.rvalue}")
+                    return []
+            else:
+                logger.error(f"Unsupported unary operation: {constraint.type}")
+                return []
+
         # If it's a Binary operation
         if isinstance(constraint, Binary):
-            binaries = [constraint]  # Include this binary operation
-            
-            # Recursively expand left operand if it's a variable
+            operations = [
+                (constraint, is_negated)
+            ]  # Include this operation with its negation state
+
+            # Recursively expand left operand if it's a variable AND has a stored constraint
             if isinstance(constraint.variable_left, Variable):
-                binaries.extend(self.condition_extractor(constraint.variable_left))
-            
-            # Recursively expand right operand if it's a variable
+                left_constraint = self._constraint_manager.get_variable_constraint(
+                    constraint.variable_left.name
+                )
+                if left_constraint is not None:
+                    operations.extend(
+                        self._condition_extractor_helper(constraint.variable_left, is_negated)
+                    )
+
+            # Recursively expand right operand if it's a variable AND has a stored constraint
             if isinstance(constraint.variable_right, Variable):
-                binaries.extend(self.condition_extractor(constraint.variable_right))
-            
-            return binaries
-        
+                right_constraint = self._constraint_manager.get_variable_constraint(
+                    constraint.variable_right.name
+                )
+                if right_constraint is not None:
+                    operations.extend(
+                        self._condition_extractor_helper(constraint.variable_right, is_negated)
+                    )
+
+            return operations
+
         return []
 
     def _apply_then_branch_condition(
-        self, domain: IntervalDomain, conditions: List[Binary]
+        self, domain: IntervalDomain, conditions: List[Tuple[Union[Binary, Unary], bool]]
     ) -> IntervalDomain:
         """Apply conditions when the then branch is taken."""
-        # Clear applied constraints set for recursive processing
-        if hasattr(self._constraint_manager.constraint_applier, '_applied_constraints'):
+        if hasattr(self._constraint_manager.constraint_applier, "_applied_constraints"):
             self._constraint_manager.constraint_applier._applied_constraints.clear()
-        
-        for operation in conditions:
-            # Handle boolean operators (AND, OR)
-            if operation.type in self.BOOLEAN_OPERATORS:
-                if operation.type == BinaryType.ANDAND:
-                    # AND: Continue processing - we'll apply all leaf conditions
-                    continue
-                elif operation.type == BinaryType.OROR:
-                    # OR: Conservative approach - apply both sides (union is complex)
-                    # TODO: Improve OR handling with proper disjunction
-                    continue
-            
-            # Process leaf comparison operations
-            # Verify condition validity first - if invalid, return TOP (unreachable)
-            if not self._condition_validity_checker.is_condition_valid(operation, domain):
-                return IntervalDomain.top()
 
-            # Apply constraint if condition is valid
-            if operation.lvalue is not None:
-                var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
-                self._constraint_manager.store_variable_constraint(var_name, operation)
-                self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
-
-        return domain
-
-
-    def _apply_else_branch_condition(
-        self, domain: IntervalDomain, conditions: List[Binary]
-    ) -> IntervalDomain:
-        """Apply inverse conditions when else branch is taken."""
-
-        for operation in conditions:
-            # Handle compound boolean operations for else branch
-            if operation.type in self.BOOLEAN_OPERATORS:
-                if operation.type == BinaryType.ANDAND:
-                    # !(A && B) = !A || !B (De Morgan's law)
-                    # Conservative: skip for now, complex to handle properly
-                    logger.debug(f"Skipping else branch for AND operation (requires disjunction)")
-                    continue
-                elif operation.type == BinaryType.OROR:
-                    # !(A || B) = !A && !B (De Morgan's law)
-                    # We can apply negation of both conditions
-                    continue
+        for operation, is_negated in conditions:
+            if isinstance(operation, Unary):
                 continue
 
-            # Create a negated operation for leaf comparison operations
-            if operation.type not in self.COMPARISON_OPERATORS:
-                logger.error(f"Cannot negate operation: {operation.type}")
-                raise ValueError(f"Cannot negate operation: {operation.type}")
+            if operation.type in self.BOOLEAN_OPERATORS:
+                continue
 
-            # Get the negated operator type (logical complement)
-            negation_map = {
-                BinaryType.GREATER: BinaryType.LESS_EQUAL,  # !(a > b) = (a <= b)
-                BinaryType.GREATER_EQUAL: BinaryType.LESS,  # !(a >= b) = (a < b)
-                BinaryType.LESS: BinaryType.GREATER_EQUAL,  # !(a < b) = (a >= b)
-                BinaryType.LESS_EQUAL: BinaryType.GREATER,  # !(a <= b) = (a > b)
-                BinaryType.EQUAL: BinaryType.NOT_EQUAL,  # !(a == b) = (a != b)
-                BinaryType.NOT_EQUAL: BinaryType.EQUAL,  # !(a != b) = (a == b)
-            }
+            if isinstance(operation, Binary):
+                # Determine the actual operator to apply
+                operator_to_apply = operation.type
+                if is_negated:
+                    operator_to_apply = self._get_negated_operator(operation.type)
 
-            negated_operator_type = negation_map.get(operation.type)
-            if negated_operator_type is None:
-                logger.error(f"Cannot negate operation: {operation.type}")
-                raise ValueError(f"Cannot negate operation: {operation.type}")
+                # Only create new comparison if we need to negate
+                if is_negated:
+                    negated_result_variable = TemporaryVariable(operation.node)
+                    negated_result_variable.set_type(operation.lvalue.type)
 
-            # Create the actual negated operation
-            negated_result_variable = TemporaryVariable(operation.node)
-            negated_result_variable.set_type(operation.lvalue.type)
+                    actual_comparison = Binary(
+                        result=negated_result_variable,
+                        left_variable=operation.variable_left,
+                        right_variable=operation.variable_right,
+                        operation_type=operator_to_apply,
+                    )
+                    actual_comparison.set_node(operation.node)
+                else:
+                    actual_comparison = operation
 
-            negated_comparison = Binary(
-                result=negated_result_variable,
-                left_variable=operation.variable_left,
-                right_variable=operation.variable_right,
-                operation_type=negated_operator_type,
-            )
-            negated_comparison.set_node(operation.node)
+                # Verify condition validity first
+                if not self._condition_validity_checker.is_condition_valid(
+                    actual_comparison, domain
+                ):
+                    return IntervalDomain.top()
 
-            # Verify the negated condition validity first
-            if not self._condition_validity_checker.is_condition_valid(negated_comparison, domain):
-                return IntervalDomain.top()
-
-            # Store the negated operation as a constraint for the original variable
-            if operation.lvalue is not None:
-                # Handle assignment-based comparisons (bool result = x > 100; if (result))
-                var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
-                self._constraint_manager.store_variable_constraint(var_name, negated_comparison)
-                self._constraint_manager.apply_constraint_from_variable(operation.lvalue, domain)
-            else:
-                # Handle direct comparisons (if (x > 100)) - store constraint for the actual variable
+                # Apply constraint to the actual variables in the comparison
                 if operation.variable_left is not None:
                     left_operand_name = self._variable_info_manager.get_variable_name(
                         operation.variable_left
                     )
                     self._constraint_manager.store_variable_constraint(
-                        left_operand_name, negated_comparison
+                        left_operand_name, actual_comparison
                     )
                     self._constraint_manager.apply_constraint_from_variable(
                         operation.variable_left, domain
                     )
 
         return domain
+
+    def _apply_else_branch_condition(
+        self, domain: IntervalDomain, conditions: List[Tuple[Union[Binary, Unary], bool]]
+    ) -> IntervalDomain:
+        """Apply inverse conditions when else branch is taken."""
+
+        for operation, is_negated in conditions:
+            if isinstance(operation, Unary):
+                continue
+
+            # Handle compound boolean operations
+            if isinstance(operation, Binary) and operation.type in self.BOOLEAN_OPERATORS:
+                if operation.type == BinaryType.OROR:
+                    if is_negated:
+                        # !(A || B) = !A && !B (can apply both negations - this is a conjunction)
+                        # Let leaf conditions through
+                        continue
+                    else:
+                        # (A || B) requires disjunction - skip
+
+                        continue
+                elif operation.type == BinaryType.ANDAND:
+                    # Just skip, process leaf conditions
+                    continue
+
+            if isinstance(operation, Binary):
+                # In else branch: the whole condition is FALSE
+                # For negated operations: they were flipped by BANG, we want originals
+                # For non-negated operations: we want them negated
+                operator_to_apply = operation.type
+
+                if is_negated:
+                    # Was negated by BANG, use original (don't negate)
+                    actual_comparison = operation
+                else:
+                    # Not negated, negate it for else branch
+                    operator_to_apply = self._get_negated_operator(operation.type)
+
+                    negated_result_variable = TemporaryVariable(operation.node)
+                    negated_result_variable.set_type(operation.lvalue.type)
+
+                    actual_comparison = Binary(
+                        result=negated_result_variable,
+                        left_variable=operation.variable_left,
+                        right_variable=operation.variable_right,
+                        operation_type=operator_to_apply,
+                    )
+                    actual_comparison.set_node(operation.node)
+
+                # Verify the condition validity BEFORE applying
+                if not self._condition_validity_checker.is_condition_valid(
+                    actual_comparison, domain
+                ):
+                    logger.debug(
+                        f"Condition {actual_comparison} is not valid, returning TOP (unreachable)"
+                    )
+                    return IntervalDomain.top()
+
+                # Apply constraint to the actual variables in the comparison
+                if operation.variable_left is not None:
+                    left_operand_name = self._variable_info_manager.get_variable_name(
+                        operation.variable_left
+                    )
+                    self._constraint_manager.store_variable_constraint(
+                        left_operand_name, actual_comparison
+                    )
+                    self._constraint_manager.apply_constraint_from_variable(
+                        operation.variable_left, domain
+                    )
+
+                    logger.debug(
+                        f"After applying {actual_comparison}, domain for {left_operand_name}: {domain.state.get_range_variable(left_operand_name)}"
+                    )
+
+        return domain
+
+    def _get_negated_operator(self, operator_type: BinaryType) -> BinaryType:
+        """Get the negated version of a comparison operator."""
+        negation_map = {
+            BinaryType.GREATER: BinaryType.LESS_EQUAL,
+            BinaryType.GREATER_EQUAL: BinaryType.LESS,
+            BinaryType.LESS: BinaryType.GREATER_EQUAL,
+            BinaryType.LESS_EQUAL: BinaryType.GREATER,
+            BinaryType.EQUAL: BinaryType.NOT_EQUAL,
+            BinaryType.NOT_EQUAL: BinaryType.EQUAL,
+        }
+
+        negated_operator = negation_map.get(operator_type)
+        if negated_operator is None:
+            logger.error(f"Cannot negate operation: {operator_type}")
+            raise ValueError(f"Cannot negate operation: {operator_type}")
+
+        return negated_operator
 
     def transfer_function(
         self,
@@ -329,7 +415,7 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation, InternalCall):
             self._operation_handler.handle_internal_call(node, domain, operation, self)
-        
+
         if isinstance(operation, LibraryCall):
             self._operation_handler.handle_library_call(node, domain, operation, self)
 
@@ -341,6 +427,9 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation, TypeConversion):
             self._operation_handler.handle_type_conversion(node, domain, operation)
+
+        if isinstance(operation, Unary):
+            self._operation_handler.handle_unary(node, domain, operation)
 
     def node_declares_variable_without_initial_value(self, node: Node) -> bool:
         """Check if the node has an uninitialized variable."""
@@ -354,7 +443,9 @@ class IntervalAnalysis(Analysis):
         # Check if variable has no initial value
         return not hasattr(var, "expression") or var.expression is None
 
-    def _initialize_state_variable(self, state_variable, var_name: str, domain: IntervalDomain) -> None:
+    def _initialize_state_variable(
+        self, state_variable, var_name: str, domain: IntervalDomain
+    ) -> None:
         """Helper method to initialize a single state variable."""
         logger.debug(f"Initializing state variable: {var_name} with type {state_variable.type}")
         if isinstance(state_variable.type, ElementaryType):
@@ -426,7 +517,9 @@ class IntervalAnalysis(Analysis):
         # Initialize function parameters
         logger.debug(f"Initializing parameters for function: {node.function.name}")
         for parameter in node.function.parameters:
-            logger.debug(f"Processing parameter: {parameter.canonical_name} with type {parameter.type}")
+            logger.debug(
+                f"Processing parameter: {parameter.canonical_name} with type {parameter.type}"
+            )
             if isinstance(parameter.type, ElementaryType):
                 if self._variable_info_manager.is_type_numeric(parameter.type):
                     # Create interval range with type bounds
@@ -443,7 +536,9 @@ class IntervalAnalysis(Analysis):
                     )
                     # Add to domain state
                     domain.state.add_range_variable(parameter.canonical_name, range_variable)
-                    logger.debug(f"Added numeric parameter {parameter.canonical_name} to domain state")
+                    logger.debug(
+                        f"Added numeric parameter {parameter.canonical_name} to domain state"
+                    )
                 elif self._variable_info_manager.is_type_bytes(parameter.type):
                     # Handle bytes calldata parameters by creating offset and length variables
                     range_variables = (
@@ -463,12 +558,16 @@ class IntervalAnalysis(Analysis):
                         var_type=parameter.type,
                     )
                     domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                    logger.debug(f"Added placeholder parameter {parameter.canonical_name} to domain state")
+                    logger.debug(
+                        f"Added placeholder parameter {parameter.canonical_name} to domain state"
+                    )
 
             elif isinstance(parameter.type, ArrayType):
                 # Handle array parameters by creating placeholder range variables
-                logger.debug(f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}")
-                
+                logger.debug(
+                    f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}"
+                )
+
                 # For array types, create a placeholder range variable
                 placeholder = RangeVariable(
                     interval_ranges=[],
@@ -477,15 +576,21 @@ class IntervalAnalysis(Analysis):
                     var_type=parameter.type,
                 )
                 domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                logger.debug(f"Added ArrayType parameter {parameter.canonical_name} to domain state")
+                logger.debug(
+                    f"Added ArrayType parameter {parameter.canonical_name} to domain state"
+                )
 
             elif isinstance(parameter.type, UserDefinedType):
                 # Handle struct parameters by creating field variables
-                logger.debug(f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}")
-                
+                logger.debug(
+                    f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}"
+                )
+
                 # Check if it's an interface (like IERC20) - if so, create a placeholder
                 if isinstance(parameter.type.type, Contract) and parameter.type.type.is_interface:
-                    logger.debug(f"Creating placeholder for interface parameter: {parameter.canonical_name}")
+                    logger.debug(
+                        f"Creating placeholder for interface parameter: {parameter.canonical_name}"
+                    )
                     placeholder = RangeVariable(
                         interval_ranges=[],
                         valid_values=ValueSet(set()),
@@ -493,13 +598,17 @@ class IntervalAnalysis(Analysis):
                         var_type=parameter.type,
                     )
                     domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                    logger.debug(f"Added interface placeholder parameter {parameter.canonical_name} to domain state")
+                    logger.debug(
+                        f"Added interface placeholder parameter {parameter.canonical_name} to domain state"
+                    )
                 else:
                     # Handle actual struct parameters
                     range_variables = self._variable_info_manager.create_struct_field_variables(
                         parameter
                     )
-                    logger.debug(f"Created {len(range_variables)} range variables for UserDefinedType parameter")
+                    logger.debug(
+                        f"Created {len(range_variables)} range variables for UserDefinedType parameter"
+                    )
                     # Add all created range variables to the domain state
                     for var_name, range_variable in range_variables.items():
                         domain.state.add_range_variable(var_name, range_variable)
@@ -561,44 +670,48 @@ class IntervalAnalysis(Analysis):
 
         # Initialize state variables for current contract and all inherited contracts
         logger.debug(f"Initializing state variables for contract: {contract.name}")
-        
+
         # Get all contracts in the inheritance chain (including self)
         contracts_to_process = [contract]
-        if hasattr(contract, 'inheritance') and contract.inheritance:
+        if hasattr(contract, "inheritance") and contract.inheritance:
             contracts_to_process.extend(contract.inheritance)
-        
+
         logger.debug(f"Processing inheritance chain: {[c.name for c in contracts_to_process]}")
-        
+
         for contract_to_process in contracts_to_process:
             logger.debug(f"Initializing state variables for contract: {contract_to_process.name}")
             for state_variable in contract_to_process.state_variables:
-                logger.debug(f"Processing state variable: {state_variable.canonical_name} with type {state_variable.type}")
-                self._initialize_state_variable(state_variable, state_variable.canonical_name, domain)
+                logger.debug(
+                    f"Processing state variable: {state_variable.canonical_name} with type {state_variable.type}"
+                )
+                self._initialize_state_variable(
+                    state_variable, state_variable.canonical_name, domain
+                )
 
         # Initialize library constants for all libraries called by this function
         # logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
-        
+
         # Get all libraries called by this function
         all_libraries = set()
-        
+
         # Add the current contract if it's a library
         if contract.is_library:
             all_libraries.add(contract)
-        
+
         # Find all libraries called by this function
         for library_call in node.function.all_library_calls():
-            if hasattr(library_call, 'destination') and library_call.destination.is_library:
+            if hasattr(library_call, "destination") and library_call.destination.is_library:
                 all_libraries.add(library_call.destination)
                 # logger.debug(f"Found library call to {library_call.destination.name}")
-        
+
         # logger.debug(f"Found {len(all_libraries)} libraries to initialize constants for")
-        
+
         # Initialize constants for all libraries
         total_constants_found = 0
         for lib_contract in all_libraries:
             # logger.debug(f"Initializing constants for library {lib_contract.name}")
             # logger.debug(f"Library {lib_contract.name} - variables_as_dict keys: {list(lib_contract.variables_as_dict.keys())}")
-            
+
             constants_found = 0
             for var_name, state_variable in lib_contract.variables_as_dict.items():
                 # logger.debug(f"Checking variable {var_name} - is_constant: {state_variable.is_constant}, type: {state_variable.type}")
@@ -615,7 +728,7 @@ class IntervalAnalysis(Analysis):
                             from slither.core.expressions.literal import Literal
                             from slither.core.expressions.unary_operation import UnaryOperation
                             from slither.utils.integer_conversion import convert_string_to_int
-                            
+
                             if isinstance(state_variable.expression, Literal):
                                 constant_value = convert_string_to_int(
                                     state_variable.expression.converted_value
@@ -629,13 +742,15 @@ class IntervalAnalysis(Analysis):
                             else:
                                 # For other expression types, try to convert to int
                                 try:
-                                    constant_value = convert_string_to_int(str(state_variable.expression))
+                                    constant_value = convert_string_to_int(
+                                        str(state_variable.expression)
+                                    )
                                     # logger.debug(f"Constant {var_name} has converted value: {constant_value}")
                                 except:
                                     # If conversion fails, use the type bounds
                                     constant_value = None
                                     # logger.debug(f"Could not convert constant {var_name} value, using type bounds")
-                        
+
                         if constant_value is not None:
                             # Create range variable with exact constant value
                             range_variable = RangeVariable(
@@ -658,9 +773,11 @@ class IntervalAnalysis(Analysis):
                                 var_type=state_variable.type,
                             )
                             # logger.debug(f"Created range variable for constant {var_name} with type bounds")
-                        
+
                         # Add to domain state
-                        domain.state.add_range_variable(state_variable.canonical_name, range_variable)
+                        domain.state.add_range_variable(
+                            state_variable.canonical_name, range_variable
+                        )
                         # logger.debug(f"Added constant {state_variable.canonical_name} to domain state")
                     elif self._variable_info_manager.is_type_bytes(state_variable.type):
                         # Handle bytes constants by creating offset and length variables
@@ -673,11 +790,11 @@ class IntervalAnalysis(Analysis):
                         for var_name_bytes, range_variable in range_variables.items():
                             domain.state.add_range_variable(var_name_bytes, range_variable)
                         # logger.debug(f"Added bytes constant {state_variable.canonical_name} to domain state")
-            
+
             # logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
-        
+
         # logger.debug(f"Total constants initialized: {total_constants_found}")
-        
+
         # Initialize msg.value for payable functions
         if node.function.payable:
             msg_value_type = ElementaryType("uint256")

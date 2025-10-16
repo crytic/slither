@@ -109,8 +109,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 # if not (has_overflow or has_underflow):
                 #     continue
 
-                if "TMP" in var_name:
-                    continue
+                # if "TMP" in var_name:
+                #     continue
 
                 # Skip variables that end with a dot
                 if var_name.endswith("."):

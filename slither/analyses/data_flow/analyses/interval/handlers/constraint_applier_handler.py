@@ -62,6 +62,7 @@ class ConstraintApplierHandler:
             # Check if variable exists in domain state
             if not domain.state.has_range_variable(condition_variable_name):
                 logger.error(f"Variable '{condition_variable_name}' not found in domain state")
+                embed()
                 raise ValueError(f"Variable '{condition_variable_name}' not found in domain state")
 
             # Check if it was assigned from a temporary variable (bool r=x>50; require(r))

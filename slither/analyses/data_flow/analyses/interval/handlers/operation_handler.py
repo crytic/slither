@@ -27,6 +27,7 @@ from slither.analyses.data_flow.analyses.interval.handlers.library_call_handler 
 from slither.analyses.data_flow.analyses.interval.handlers.solidity_call_handler import (
     SolidityCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.unary_handler import UnaryHandler
 from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import (
     UninitializedVariableHandler,
 )
@@ -63,6 +64,7 @@ from slither.slithir.operations.member import Member
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.index import Index
+from slither.slithir.operations.unary import Unary
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
@@ -90,6 +92,7 @@ class OperationHandler:
         self.length_handler = LengthHandler()
         self.type_conversion_handler = TypeConversionHandler()
         self.index_handler = IndexHandler(self.reference_handler)
+        self.unary_handler = UnaryHandler(self.shared_constraint_storage)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -167,4 +170,7 @@ class OperationHandler:
             var_type=ElementaryType("bool"),
         )
         domain.state.set_range_variable(temp_var_name, range_variable)
+
+    def handle_unary(self, node: Node, domain: IntervalDomain, operation: Unary):
+        self.unary_handler.handle_unary(node, domain, operation)
         
