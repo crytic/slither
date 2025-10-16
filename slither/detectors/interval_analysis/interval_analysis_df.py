@@ -112,6 +112,10 @@ class IntervalAnalysisDF(AbstractDetector):
                 if "TMP" in var_name:
                     continue
 
+                # Skip variables that end with a dot
+                if var_name.endswith("."):
+                    continue
+                
                 # Extract interval ranges
                 interval_ranges: List[Dict[str, str]] = []
                 for interval_range in range_var.get_interval_ranges():
