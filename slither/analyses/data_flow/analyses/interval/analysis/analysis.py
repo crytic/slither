@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple, Union
+from decimal import Decimal
 
 from loguru import logger
 
@@ -179,9 +180,16 @@ class IntervalAnalysis(Analysis):
 
         # If it's a Binary operation
         if isinstance(constraint, Binary):
-            operations = [
-                (constraint, is_negated)
-            ]  # Include this operation with its negation state
+            # Only include comparison and boolean operations, not arithmetic operations
+            if (
+                constraint.type in self.COMPARISON_OPERATORS
+                or constraint.type in self.BOOLEAN_OPERATORS
+            ):
+                operations = [
+                    (constraint, is_negated)
+                ]  # Include this operation with its negation state
+            else:
+                operations = []  # Skip arithmetic operations - they're not conditions
 
             # Recursively expand left operand if it's a variable AND has a stored constraint
             if isinstance(constraint.variable_left, Variable):
@@ -221,7 +229,11 @@ class IntervalAnalysis(Analysis):
             if operation.type in self.BOOLEAN_OPERATORS:
                 continue
 
-            if isinstance(operation, Binary):
+            # Skip arithmetic operations - they are not conditions to be negated
+            if operation.type in self.ARITHMETIC_OPERATORS:
+                continue
+
+            if isinstance(operation, Binary) and operation.type in self.COMPARISON_OPERATORS:
                 # Determine the actual operator to apply
                 operator_to_apply = operation.type
                 if is_negated:
@@ -286,7 +298,11 @@ class IntervalAnalysis(Analysis):
                     # Just skip, process leaf conditions
                     continue
 
-            if isinstance(operation, Binary):
+            # Skip arithmetic operations - they are not conditions to be negated
+            if operation.type in self.ARITHMETIC_OPERATORS:
+                continue
+
+            if isinstance(operation, Binary) and operation.type in self.COMPARISON_OPERATORS:
                 # In else branch: the whole condition is FALSE
                 # For negated operations: they were flipped by BANG, we want originals
                 # For non-negated operations: we want them negated
@@ -810,6 +826,119 @@ class IntervalAnalysis(Analysis):
             )
             domain.state.add_range_variable("msg.value", msg_value_range_variable)
             # logger.debug("Added msg.value to domain state for payable function")
+
+        # Initialize all Solidity global variables
+        self._initialize_solidity_globals(domain)
+
+    def _initialize_solidity_globals(self, domain: IntervalDomain) -> None:
+        """Initialize all Solidity global variables in the domain state."""
+        # Block properties
+        solidity_globals = {
+            # Block properties (uint256)
+            "block.basefee": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("1000000000000")),  # 0 to 1000 gwei
+            },
+            "block.blobbasefee": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("1000000000000")),  # 0 to 1000 gwei
+            },
+            "block.chainid": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("1"), Decimal("4294967295")),  # 1 to 2^32 - 1
+            },
+            "block.difficulty": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("100000000000000000000")),  # Large but reasonable
+            },
+            "block.gaslimit": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("1000000"), Decimal("50000000")),  # 1M to 50M
+            },
+            "block.number": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("100000000")),  # 0 to 100M blocks
+            },
+            "block.prevrandao": {
+                "type": ElementaryType("uint256"),
+                "range": (
+                    Decimal("0"),
+                    Decimal(
+                        "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+                    ),
+                ),  # Full uint256
+            },
+            "block.timestamp": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("4102444800")),  # 0 to year 2100
+            },
+            # Message properties
+            "msg.value": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("1000000000000000000000")),  # 0 to 1000 ETH in wei
+            },
+            # Transaction properties
+            "tx.gasprice": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("1000000000000")),  # 0 to 1000 gwei
+            },
+            # Gas-related globals
+            "msg.gas": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("50000000")),  # 0 to block gas limit
+            },
+            "gasleft": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("50000000")),  # 0 to block gas limit
+            },
+            # Backward compatibility
+            "timestamp": {
+                "type": ElementaryType("uint256"),
+                "range": (Decimal("0"), Decimal("4102444800")),  # 0 to year 2100
+            },
+        }
+
+        # Add address type globals
+        address_globals = ["block.coinbase", "msg.sender", "tx.origin"]
+        for var_name in address_globals:
+            address_type = ElementaryType("address")
+            range_variable = RangeVariable(
+                interval_ranges=[],  # No specific intervals for address
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=address_type,
+            )
+            domain.state.add_range_variable(var_name, range_variable)
+
+        # Add bytes type globals
+        bytes_globals = {
+            "msg.data": "bytes",
+            "msg.sig": "bytes4",
+        }
+        for var_name, type_name in bytes_globals.items():
+            bytes_type = ElementaryType(type_name)
+            range_variable = RangeVariable(
+                interval_ranges=[],  # No intervals for bytes
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=bytes_type,
+            )
+            domain.state.add_range_variable(var_name, range_variable)
+
+        # Add uint256 globals with specific ranges
+        for var_name, config in solidity_globals.items():
+            var_type = config["type"]
+            min_val, max_val = config["range"]
+
+            range_variable = RangeVariable(
+                interval_ranges=[IntervalRange(min_val, max_val)],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, range_variable)
+
+        logger.debug("Initialized all Solidity global variables in domain state")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set
