@@ -17,6 +17,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.index import Index
 
+
 class IndexHandler:
     """Handler for Index operations (e.g., array[index], mapping[key])."""
 
@@ -27,13 +28,13 @@ class IndexHandler:
     def handle_index(self, node: Node, domain: IntervalDomain, operation: Index) -> None:
         """Handle Index operations by creating appropriate range variables and tracking references."""
         logger.debug(f"IndexHandler.handle_index called for operation: {operation}")
-        
+
         if not operation.lvalue:
             raise ValueError("Index operation has no lvalue")
 
         result_var_name = self._variable_info_manager.get_variable_name(operation.lvalue)
         result_type = operation.lvalue.type
-        
+
         logger.debug(f"Processing Index operation: {result_var_name} with type {result_type}")
 
         # Create the appropriate range variable
@@ -44,7 +45,7 @@ class IndexHandler:
     ) -> None:
         """Create and add a range variable to the domain state."""
         logger.debug(f"Creating range variable: {var_name} with type {var_type}")
-        
+
         # Check if variable already exists
         if domain.state.has_range_variable(var_name):
             logger.debug(f"Variable {var_name} already exists in state")
@@ -56,6 +57,16 @@ class IndexHandler:
             self._variable_info_manager.create_struct_field_variables_for_domain(
                 domain, var_name, var_type
             )
+            # Also create a placeholder variable for the struct itself
+            logger.debug(f"Creating placeholder variable for struct {var_name}")
+            placeholder = RangeVariable(
+                interval_ranges=[],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, placeholder)
+            logger.debug(f"Created placeholder variable {var_name} with type {var_type}")
             return
 
         # Create the appropriate range variable based on type
@@ -82,7 +93,7 @@ class IndexHandler:
     ) -> None:
         """Create a numeric range variable."""
         logger.debug(f"Creating numeric variable: {var_name} with type {var_type}")
-        
+
         # Index operations create independent variables with type bounds
         # They don't inherit from other variables since array[index] is a dynamic access
         interval_range = IntervalRange(
@@ -98,7 +109,7 @@ class IndexHandler:
 
         domain.state.add_range_variable(var_name, range_variable)
         logger.debug(f"Successfully added numeric variable {var_name} to domain state")
-        
+
         # Verify the variable was actually added
         if domain.state.has_range_variable(var_name):
             logger.debug(f"Verification: Variable {var_name} exists in domain state")
