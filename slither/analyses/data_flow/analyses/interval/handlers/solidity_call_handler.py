@@ -142,6 +142,10 @@ class SolidityCallHandler:
             self._handle_call(node, domain, operation)
             return
 
+        if "ecrecover" in operation.function.full_name:
+            self._handle_ecrecover(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
         # logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
         return
@@ -466,3 +470,28 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
 
         # logger.debug(f"Handled returndatasize() -> {result_var_name} (uint256, range [0,1048576])")
+
+    def _handle_ecrecover(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle ecrecover(bytes32, uint8, bytes32, bytes32) returning address or zero on error."""
+        if not operation.lvalue:
+            logger.error("ecrecover operation has no lvalue")
+            raise ValueError("ecrecover operation has no lvalue")
+
+        arg_count = len(operation.arguments) if operation.arguments else 0
+        if arg_count != 4:
+            logger.error(f"ecrecover requires exactly 4 arguments, got {arg_count}")
+            raise ValueError(f"ecrecover requires exactly 4 arguments, got {arg_count}")
+
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
