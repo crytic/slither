@@ -35,6 +35,7 @@ from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
@@ -530,7 +531,47 @@ class IntervalAnalysis(Analysis):
         logger.debug(f"Initializing domain from bottom for function: {node.function.name}")
         domain.variant = DomainVariant.STATE
 
-        # Initialize function parameters
+        # Initialize function parameters and return variables
+        self._initialize_function_parameters(node, domain)
+        self._initialize_function_returns(node, domain)
+
+        # Get the contract for this function
+        contract = self._get_contract_for_function(node)
+
+        # Initialize state variables for current contract and all inherited contracts
+        if contract is not None:
+            self._initialize_state_variables(contract, domain)
+            # Initialize library constants
+            self._initialize_library_constants(node, contract, domain)
+        else:
+            # For free functions, we don't have state variables or library constants
+            logger.debug(f"Skipping state variables and library constants for free function {node.function.name}")
+
+        # Initialize msg.value for payable functions
+        self._initialize_msg_value(node, domain)
+
+        # Initialize all Solidity global variables
+        self._initialize_solidity_globals(domain)
+
+    def _get_contract_for_function(self, node: Node) -> Optional[Contract]:
+        """Get the contract for the given function node, or None for free functions."""
+        if isinstance(node.function, FunctionContract):
+            contract = node.function.contract
+            if not isinstance(contract, Contract):
+                logger.error(f"Contract {contract.name} is not a valid contract")
+                raise ValueError(f"Contract {contract.name} is not a valid contract")
+            return contract
+        elif isinstance(node.function, FunctionTopLevel):
+            # Free functions don't belong to any contract
+            logger.debug(f"Function {node.function.name} is a free function (top-level)")
+            return None
+        else:
+            # For other function types, we need to handle them differently
+            logger.error(f"Function {node.function.name} is not a contract function or free function")
+            raise ValueError(f"Function {node.function.name} is not a contract function or free function")
+
+    def _initialize_function_parameters(self, node: Node, domain: IntervalDomain) -> None:
+        """Initialize function parameters in the domain state."""
         logger.debug(f"Initializing parameters for function: {node.function.name}")
         for parameter in node.function.parameters:
             logger.debug(
@@ -630,7 +671,8 @@ class IntervalAnalysis(Analysis):
                         domain.state.add_range_variable(var_name, range_variable)
                         logger.debug(f"Added UserDefinedType parameter {var_name} to domain state")
 
-        # Initialize function return variables
+    def _initialize_function_returns(self, node: Node, domain: IntervalDomain) -> None:
+        """Initialize function return variables in the domain state."""
         for return_var in node.function.returns:
             if isinstance(return_var.type, ElementaryType):
                 if self._variable_info_manager.is_type_numeric(return_var.type):
@@ -677,14 +719,8 @@ class IntervalAnalysis(Analysis):
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
 
-        if isinstance(node.function, FunctionContract):
-            contract = node.function.contract
-
-        if not isinstance(contract, Contract):
-            logger.error(f"Contract {contract.name} is not a valid contract")
-            raise ValueError(f"Contract {contract.name} is not a valid contract")
-
-        # Initialize state variables for current contract and all inherited contracts
+    def _initialize_state_variables(self, contract: Contract, domain: IntervalDomain) -> None:
+        """Initialize state variables for the contract and all inherited contracts."""
         logger.debug(f"Initializing state variables for contract: {contract.name}")
 
         # Get all contracts in the inheritance chain (including self)
@@ -704,9 +740,10 @@ class IntervalAnalysis(Analysis):
                     state_variable, state_variable.canonical_name, domain
                 )
 
-        # Initialize library constants for all libraries called by this function
-        # logger.debug(f"Contract {contract.name} - is_library: {contract.is_library}")
-
+    def _initialize_library_constants(
+        self, node: Node, contract: Contract, domain: IntervalDomain
+    ) -> None:
+        """Initialize library constants for all libraries called by this function."""
         # Get all libraries called by this function
         all_libraries = set()
 
@@ -718,23 +755,15 @@ class IntervalAnalysis(Analysis):
         for library_call in node.function.all_library_calls():
             if hasattr(library_call, "destination") and library_call.destination.is_library:
                 all_libraries.add(library_call.destination)
-                # logger.debug(f"Found library call to {library_call.destination.name}")
-
-        # logger.debug(f"Found {len(all_libraries)} libraries to initialize constants for")
 
         # Initialize constants for all libraries
         total_constants_found = 0
         for lib_contract in all_libraries:
-            # logger.debug(f"Initializing constants for library {lib_contract.name}")
-            # logger.debug(f"Library {lib_contract.name} - variables_as_dict keys: {list(lib_contract.variables_as_dict.keys())}")
-
             constants_found = 0
             for var_name, state_variable in lib_contract.variables_as_dict.items():
-                # logger.debug(f"Checking variable {var_name} - is_constant: {state_variable.is_constant}, type: {state_variable.type}")
                 if state_variable.is_constant and isinstance(state_variable.type, ElementaryType):
                     constants_found += 1
                     total_constants_found += 1
-                    # logger.debug(f"Processing constant {var_name} with type {state_variable.type}")
                     if self._variable_info_manager.is_type_numeric(state_variable.type):
                         # For constants, we know their exact value, so we create a range variable
                         # with the exact value in valid_values instead of a range
@@ -749,23 +778,19 @@ class IntervalAnalysis(Analysis):
                                 constant_value = convert_string_to_int(
                                     state_variable.expression.converted_value
                                 )
-                                # logger.debug(f"Constant {var_name} has literal value: {constant_value}")
                             elif isinstance(state_variable.expression, UnaryOperation):
                                 constant_value = convert_string_to_int(
                                     str(state_variable.expression).replace(" ", "")
                                 )
-                                # logger.debug(f"Constant {var_name} has unary operation value: {constant_value}")
                             else:
                                 # For other expression types, try to convert to int
                                 try:
                                     constant_value = convert_string_to_int(
                                         str(state_variable.expression)
                                     )
-                                    # logger.debug(f"Constant {var_name} has converted value: {constant_value}")
                                 except:
                                     # If conversion fails, use the type bounds
                                     constant_value = None
-                                    # logger.debug(f"Could not convert constant {var_name} value, using type bounds")
 
                         if constant_value is not None:
                             # Create range variable with exact constant value
@@ -775,7 +800,6 @@ class IntervalAnalysis(Analysis):
                                 invalid_values=None,
                                 var_type=state_variable.type,
                             )
-                            # logger.debug(f"Created range variable for constant {var_name} with exact value {constant_value}")
                         else:
                             # Fallback to type bounds if we can't determine the exact value
                             interval_range = IntervalRange(
@@ -788,13 +812,11 @@ class IntervalAnalysis(Analysis):
                                 invalid_values=None,
                                 var_type=state_variable.type,
                             )
-                            # logger.debug(f"Created range variable for constant {var_name} with type bounds")
 
                         # Add to domain state
                         domain.state.add_range_variable(
                             state_variable.canonical_name, range_variable
                         )
-                        # logger.debug(f"Added constant {state_variable.canonical_name} to domain state")
                     elif self._variable_info_manager.is_type_bytes(state_variable.type):
                         # Handle bytes constants by creating offset and length variables
                         range_variables = (
@@ -805,14 +827,11 @@ class IntervalAnalysis(Analysis):
                         # Add all created range variables to the domain state
                         for var_name_bytes, range_variable in range_variables.items():
                             domain.state.add_range_variable(var_name_bytes, range_variable)
-                        # logger.debug(f"Added bytes constant {state_variable.canonical_name} to domain state")
 
-            # logger.debug(f"Library {lib_contract.name} constants initialization complete. Found {constants_found} constants.")
-
-        # logger.debug(f"Total constants initialized: {total_constants_found}")
-
-        # Initialize msg.value for payable functions
-        if node.function.payable:
+    def _initialize_msg_value(self, node: Node, domain: IntervalDomain) -> None:
+        """Initialize msg.value for payable functions."""
+        # Only contract functions can be payable, free functions cannot
+        if isinstance(node.function, FunctionContract) and node.function.payable:
             msg_value_type = ElementaryType("uint256")
             interval_range = IntervalRange(
                 lower_bound=msg_value_type.min,
@@ -825,10 +844,6 @@ class IntervalAnalysis(Analysis):
                 var_type=msg_value_type,
             )
             domain.state.add_range_variable("msg.value", msg_value_range_variable)
-            # logger.debug("Added msg.value to domain state for payable function")
-
-        # Initialize all Solidity global variables
-        self._initialize_solidity_globals(domain)
 
     def _initialize_solidity_globals(self, domain: IntervalDomain) -> None:
         """Initialize all Solidity global variables in the domain state."""

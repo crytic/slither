@@ -6,6 +6,7 @@ from slither.core.cfg.node import Node
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
 from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
     VariableInfoManager,
 )
@@ -44,7 +45,7 @@ class MemberHandler:
         """Create and add a range variable to the domain state."""
         # Check if variable already exists
         if domain.state.has_range_variable(var_name):
-#            logger.debug(f"Variable {var_name} already exists in state")
+            #            logger.debug(f"Variable {var_name} already exists in state")
             return
 
         # Handle struct types - recursively create range variables for their fields
@@ -52,19 +53,30 @@ class MemberHandler:
             self._variable_info_manager.create_struct_field_variables_for_domain(
                 domain, var_name, var_type
             )
+            # Also create a placeholder variable for the struct itself
+            placeholder = RangeVariable(
+                interval_ranges=[],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, placeholder)
             return
 
-        # Only add numeric and bytes types to state
-        if not self._should_add_to_state(var_type):
-            raise ValueError(f"Cannot create range variable for unsupported type: {var_type}")
-
-        # Create the appropriate range variable
+        # Create the appropriate range variable based on type
         if self._variable_info_manager.is_type_numeric(var_type):
             self._create_numeric_variable(domain, var_name, var_type)
         elif self._variable_info_manager.is_type_bytes(var_type):
             self._create_bytes_variable(domain, var_name, var_type)
         else:
-            raise ValueError(f"Unsupported variable type for range analysis: {var_type}")
+            # For all other types (address, bool, string, etc.), create a placeholder
+            placeholder = RangeVariable(
+                interval_ranges=[],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, placeholder)
 
     def _create_numeric_variable(
         self, domain: IntervalDomain, var_name: str, var_type: ElementaryType
@@ -80,7 +92,7 @@ class MemberHandler:
             # Inherit constraints from the target variable
             target_range_var = domain.state.get_range_variable(target_var_name)
             range_variable = target_range_var.deep_copy()
-#            logger.debug(f"Inherited constraints from {target_var_name} for {var_name}")
+        #            logger.debug(f"Inherited constraints from {target_var_name} for {var_name}")
         else:
             # Create new range variable with type bounds
             interval_range = IntervalRange(
@@ -95,7 +107,8 @@ class MemberHandler:
             )
 
         domain.state.add_range_variable(var_name, range_variable)
-#        logger.debug(f"Created numeric variable {var_name} with type {var_type}")
+
+    #        logger.debug(f"Created numeric variable {var_name} with type {var_type}")
 
     def _create_bytes_variable(
         self, domain: IntervalDomain, var_name: str, var_type: ElementaryType
@@ -107,16 +120,6 @@ class MemberHandler:
         # Add all created range variables to the domain state
         for var_name_bytes, range_variable in range_variables.items():
             domain.state.add_range_variable(var_name_bytes, range_variable)
+
+
 #        logger.debug(f"Created bytes variable {var_name} with type {var_type}")
-
-    def _should_add_to_state(self, var_type: ElementaryType) -> bool:
-        """Check if a variable type should be added to the interval analysis state."""
-        if not var_type:
-            return False
-
-        if isinstance(var_type, UserDefinedType):
-            return False
-
-        return self._variable_info_manager.is_type_numeric(
-            var_type
-        ) or self._variable_info_manager.is_type_bytes(var_type)

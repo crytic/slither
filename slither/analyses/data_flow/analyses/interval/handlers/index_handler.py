@@ -77,7 +77,7 @@ class IndexHandler:
             logger.debug(f"Creating bytes variable for {var_name}")
             self._create_bytes_variable(domain, var_name, var_type)
         else:
-            # For all other types (address, bool, string, struct, etc.), create a placeholder
+            # For all other types (address, bool, string, etc.), create a placeholder
             logger.debug(f"Creating placeholder variable for {var_name} with type {var_type}")
             placeholder = RangeVariable(
                 interval_ranges=[],
@@ -127,15 +127,3 @@ class IndexHandler:
         for var_name_bytes, range_variable in range_variables.items():
             domain.state.add_range_variable(var_name_bytes, range_variable)
         logger.debug(f"Created bytes variable {var_name} with type {var_type}")
-
-    def _should_add_to_state(self, var_type: ElementaryType) -> bool:
-        """Check if a variable type should be added to the interval analysis state."""
-        if not var_type:
-            return False
-
-        if isinstance(var_type, UserDefinedType):
-            return False
-
-        return self._variable_info_manager.is_type_numeric(
-            var_type
-        ) or self._variable_info_manager.is_type_bytes(var_type)
