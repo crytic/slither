@@ -30,27 +30,27 @@ class AssignmentHandler:
         written_variable: Variable = operation.lvalue
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         right_value = operation.rvalue
-        
-        # Skip assignments to non-numeric variables (address, bool, string, etc.)
-        # Exception: Don't skip boolean assignments that come from integer comparisons
-        should_skip = not (
-            isinstance(written_variable_type, ElementaryType) and 
-            (self.variable_info_manager.is_type_numeric(written_variable_type) or 
-             self.variable_info_manager.is_type_bytes(written_variable_type))
-        )
-        
-        # Check if this is a boolean assignment from a comparison operation
-        if should_skip and isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
-            # Check if the rvalue is a temporary variable from a comparison
-            if isinstance(right_value, TemporaryVariable):
-                # This is likely a boolean result from a comparison operation
-                # We should handle it to track the comparison result
-#                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
-                should_skip = False
-        
-        if should_skip:
-#            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
-            return
+
+        #         # Skip assignments to non-numeric variables (address, bool, string, etc.)
+        #         # Exception: Don't skip boolean assignments that come from integer comparisons
+        #         should_skip = not (
+        #             isinstance(written_variable_type, ElementaryType) and
+        #             (self.variable_info_manager.is_type_numeric(written_variable_type) or
+        #              self.variable_info_manager.is_type_bytes(written_variable_type))
+        #         )
+
+        #         # Check if this is a boolean assignment from a comparison operation
+        #         if should_skip and isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
+        #             # Check if the rvalue is a temporary variable from a comparison
+        #             if isinstance(right_value, TemporaryVariable):
+        #                 # This is likely a boolean result from a comparison operation
+        #                 # We should handle it to track the comparison result
+        # #                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
+        #                 should_skip = False
+
+        #         if should_skip:
+        # #            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
+        #             return
 
         if isinstance(right_value, TemporaryVariable):
             self._handle_temporary_assignment(written_variable, right_value, domain)
@@ -77,13 +77,16 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-#            logger.debug(
+            #            logger.debug(
             #     f"Created bytes variable {written_variable_name} with offset and length from temporary"
             # )
             return
 
         # Handle boolean variables specially
-        if isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
+        if (
+            isinstance(written_variable_type, ElementaryType)
+            and written_variable_type.name == "bool"
+        ):
             # For boolean assignments from comparisons, create a boolean range variable
             range_variable = RangeVariable(
                 interval_ranges=[],
@@ -92,12 +95,14 @@ class AssignmentHandler:
                 var_type=written_variable_type,
             )
             domain.state.set_range_variable(written_variable_name, range_variable)
-#            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
+            #            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
             return
 
         # copy the temporary variable to the target variable
         logger.debug(f"Looking for source variable: {source_variable_name}")
-        logger.debug(f"Available variables in domain: {list(domain.state.get_range_variables().keys())}")
+        logger.debug(
+            f"Available variables in domain: {list(domain.state.get_range_variables().keys())}"
+        )
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 
         if source_range_variable is None:
@@ -135,7 +140,7 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-#            logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
+            #            logger.debug(f"Created bytes variable {written_variable_name} with offset and length")
             return
         elif self.variable_info_manager.is_type_numeric(written_variable_type):
             # Convert constant to Decimal only for numeric targets
@@ -174,7 +179,11 @@ class AssignmentHandler:
             )
 
     def _handle_variable_assignment(
-        self, written_variable: Variable, source_variable: Variable, domain: IntervalDomain, operation: Assignment
+        self,
+        written_variable: Variable,
+        source_variable: Variable,
+        domain: IntervalDomain,
+        operation: Assignment,
     ) -> None:
         written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
@@ -187,14 +196,14 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-#            logger.debug(
+            #            logger.debug(
             #     f"Created bytes variable {written_variable_name} with offset and length from variable"
             # )
             return
 
         source_variable_name = self.variable_info_manager.get_variable_name(source_variable)
         if not domain.state.has_range_variable(source_variable_name):
-                    
+
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
             embed()
             raise ValueError(
