@@ -16,6 +16,7 @@ from slither.analyses.data_flow.analyses.interval.managers.reference_handler imp
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.member import Member
+from IPython import embed
 
 
 class MemberHandler:
@@ -65,7 +66,7 @@ class MemberHandler:
 
         # Create the appropriate range variable based on type
         if self._variable_info_manager.is_type_numeric(var_type):
-            self._create_numeric_variable(domain, var_name, var_type)
+            self._create_numeric_variable(domain, var_name, var_type, operation)
         elif self._variable_info_manager.is_type_bytes(var_type):
             self._create_bytes_variable(domain, var_name, var_type)
         else:
@@ -79,16 +80,21 @@ class MemberHandler:
             domain.state.add_range_variable(var_name, placeholder)
 
     def _create_numeric_variable(
-        self, domain: IntervalDomain, var_name: str, var_type: ElementaryType
+        self, domain: IntervalDomain, var_name: str, var_type: ElementaryType, operation: Member
     ) -> None:
         """Create a numeric range variable."""
         # Check if this reference should inherit constraints from its target
         target_var_name = self._reference_handler.get_target_for_reference(var_name)
         if target_var_name:
             if not domain.state.has_range_variable(target_var_name):
+                logger.error(
+                    f"Target variable {target_var_name} not found for reference {var_name}"
+                )
+                embed()
                 raise ValueError(
                     f"Target variable {target_var_name} not found for reference {var_name}"
                 )
+
             # Inherit constraints from the target variable
             target_range_var = domain.state.get_range_variable(target_var_name)
             range_variable = target_range_var.deep_copy()

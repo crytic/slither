@@ -54,7 +54,11 @@ class UninitializedVariableHandler:
             raise
 
     def _initialize_uninitialized_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, var_type: Type, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        var_type: Type,
+        domain: IntervalDomain,
     ) -> None:
         """Initialize an uninitialized variable using the same logic as parameter initialization."""
         # Resolve the actual type to process (handles type aliases)
@@ -82,7 +86,11 @@ class UninitializedVariableHandler:
             return var_type
 
     def _initialize_numeric_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, actual_type: ElementaryType, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        actual_type: ElementaryType,
+        domain: IntervalDomain,
     ) -> None:
         """Initialize a numeric variable with interval ranges."""
         interval_range = IntervalRange(
@@ -99,7 +107,11 @@ class UninitializedVariableHandler:
         logger.debug(f"Added numeric uninitialized variable {var_name} to domain state")
 
     def _initialize_bytes_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, actual_type: ElementaryType, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        actual_type: ElementaryType,
+        domain: IntervalDomain,
     ) -> None:
         """Initialize a bytes variable with offset and length variables."""
         range_variables = self.variable_manager.create_bytes_offset_and_length_variables(var_name)
@@ -108,7 +120,11 @@ class UninitializedVariableHandler:
         logger.debug(f"Added bytes uninitialized variable {var_name} to domain state")
 
     def _initialize_array_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, var_type: ArrayType, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        var_type: ArrayType,
+        domain: IntervalDomain,
     ) -> None:
         """Initialize an array variable with a placeholder."""
         logger.debug(
@@ -118,7 +134,11 @@ class UninitializedVariableHandler:
         logger.debug(f"Added ArrayType uninitialized variable {var_name} to domain state")
 
     def _initialize_user_defined_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, var_type: UserDefinedType, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        var_type: UserDefinedType,
+        domain: IntervalDomain,
     ) -> None:
         """Initialize a UserDefinedType variable (struct, contract, interface, or type alias)."""
         logger.debug(
@@ -167,7 +187,11 @@ class UninitializedVariableHandler:
         )
 
     def _create_placeholder_variable(
-        self, variable: Union["LocalVariable", "StateVariable"], var_name: str, var_type: Type, domain: IntervalDomain
+        self,
+        variable: Union["LocalVariable", "StateVariable"],
+        var_name: str,
+        var_type: Type,
+        domain: IntervalDomain,
     ) -> None:
         """Create a placeholder range variable for an uninitialized variable."""
         placeholder = RangeVariable(

@@ -148,12 +148,31 @@ class IntervalAnalysis(Analysis):
         self, condition_variable: Union[Variable, Binary, Unary]
     ) -> List[Tuple[Union[Binary, Unary], bool]]:
         """Recursively extracts all operations with negation flags."""
-        return self._condition_extractor_helper(condition_variable, is_negated=False)
+        visited = set()  # Track visited variables to prevent infinite recursion
+        return self._condition_extractor_helper(
+            condition_variable, is_negated=False, visited=visited
+        )
 
     def _condition_extractor_helper(
-        self, condition_variable: Union[Variable, Binary, Unary], is_negated: bool
+        self,
+        condition_variable: Union[Variable, Binary, Unary],
+        is_negated: bool,
+        visited: set = None,
     ) -> List[Tuple[Union[Binary, Unary], bool]]:
         """Helper that tracks negation state through recursion."""
+
+        # Initialize visited set if not provided
+        if visited is None:
+            visited = set()
+
+        # Check for infinite recursion
+        var_name = condition_variable.name
+        if var_name in visited:
+            logger.debug(f"Detected cycle for variable {var_name}, stopping recursion")
+            return []
+
+        # Add current variable to visited set
+        visited.add(var_name)
 
         constraint = self._constraint_manager.get_variable_constraint(condition_variable.name)
         logger.info(f"Constraint: {constraint}, type: {type(constraint)}, negated: {is_negated}")
@@ -164,7 +183,7 @@ class IntervalAnalysis(Analysis):
 
         # Recursively follow Variable constraints
         if isinstance(constraint, Variable):
-            return self._condition_extractor_helper(constraint, is_negated)
+            return self._condition_extractor_helper(constraint, is_negated, visited)
 
         # If it's a Unary BANG operation - flip the negation flag
         if isinstance(constraint, Unary):
@@ -172,7 +191,9 @@ class IntervalAnalysis(Analysis):
                 # BANG flips the negation state
                 # The rvalue should be a Variable containing the actual condition
                 if isinstance(constraint.rvalue, Variable):
-                    return self._condition_extractor_helper(constraint.rvalue, not is_negated)
+                    return self._condition_extractor_helper(
+                        constraint.rvalue, not is_negated, visited
+                    )
                 else:
                     logger.error(f"Unary BANG operand is not a Variable: {constraint.rvalue}")
                     return []
@@ -200,7 +221,9 @@ class IntervalAnalysis(Analysis):
                 )
                 if left_constraint is not None:
                     operations.extend(
-                        self._condition_extractor_helper(constraint.variable_left, is_negated)
+                        self._condition_extractor_helper(
+                            constraint.variable_left, is_negated, visited
+                        )
                     )
 
             # Recursively expand right operand if it's a variable AND has a stored constraint
@@ -210,7 +233,9 @@ class IntervalAnalysis(Analysis):
                 )
                 if right_constraint is not None:
                     operations.extend(
-                        self._condition_extractor_helper(constraint.variable_right, is_negated)
+                        self._condition_extractor_helper(
+                            constraint.variable_right, is_negated, visited
+                        )
                     )
 
             return operations

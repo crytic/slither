@@ -10,6 +10,7 @@ from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager
 )
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
@@ -52,12 +53,50 @@ class AssignmentHandler:
         # #            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
         #             return
 
-        if isinstance(right_value, TemporaryVariable):
+        # Handle struct assignments by creating field variables
+        if isinstance(written_variable_type, UserDefinedType):
+            self._handle_struct_assignment(written_variable, written_variable_type, domain)
+        elif isinstance(right_value, TemporaryVariable):
             self._handle_temporary_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Constant):
             self._handle_constant_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Variable):
             self._handle_variable_assignment(written_variable, right_value, domain, operation)
+
+    def _handle_struct_assignment(
+        self,
+        written_variable: Variable,
+        written_variable_type: UserDefinedType,
+        domain: IntervalDomain,
+    ) -> None:
+        """Handle assignment to a struct variable by creating field variables."""
+        written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
+
+        # Check if the variable already exists in the domain
+        if domain.state.has_range_variable(written_variable_name):
+            logger.debug(f"Struct variable {written_variable_name} already exists in state")
+            return
+
+        logger.debug(f"Creating struct field variables for {written_variable_name}")
+        # Create struct field variables
+        self.variable_info_manager.create_struct_field_variables_for_domain(
+            domain, written_variable_name, written_variable_type
+        )
+
+        # Also create a placeholder variable for the struct itself
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
+        from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+
+        placeholder = RangeVariable(
+            interval_ranges=[],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=written_variable_type,
+        )
+        domain.state.add_range_variable(written_variable_name, placeholder)
+        logger.debug(f"Created placeholder for struct variable {written_variable_name}")
 
     def _handle_temporary_assignment(
         self,
