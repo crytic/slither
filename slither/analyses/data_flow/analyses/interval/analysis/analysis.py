@@ -4,6 +4,7 @@ from decimal import Decimal
 from loguru import logger
 
 from slither.core.declarations.contract import Contract
+from slither.core.solidity_types.type_alias import TypeAlias, TypeAliasTopLevel
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
@@ -545,7 +546,9 @@ class IntervalAnalysis(Analysis):
             self._initialize_library_constants(node, contract, domain)
         else:
             # For free functions, we don't have state variables or library constants
-            logger.debug(f"Skipping state variables and library constants for free function {node.function.name}")
+            logger.debug(
+                f"Skipping state variables and library constants for free function {node.function.name}"
+            )
 
         # Initialize msg.value for payable functions
         self._initialize_msg_value(node, domain)
@@ -567,109 +570,137 @@ class IntervalAnalysis(Analysis):
             return None
         else:
             # For other function types, we need to handle them differently
-            logger.error(f"Function {node.function.name} is not a contract function or free function")
-            raise ValueError(f"Function {node.function.name} is not a contract function or free function")
+            logger.error(
+                f"Function {node.function.name} is not a contract function or free function"
+            )
+            raise ValueError(
+                f"Function {node.function.name} is not a contract function or free function"
+            )
 
     def _initialize_function_parameters(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize function parameters in the domain state."""
         logger.debug(f"Initializing parameters for function: {node.function.name}")
         for parameter in node.function.parameters:
             logger.debug(
-                f"Processing parameter: {parameter.canonical_name} with type {parameter.type}"
+                f"Processing parameter: {parameter.canonical_name} with type {parameter.type} (type class: {type(parameter.type)})"
             )
-            if isinstance(parameter.type, ElementaryType):
-                if self._variable_info_manager.is_type_numeric(parameter.type):
-                    # Create interval range with type bounds
-                    interval_range = IntervalRange(
-                        lower_bound=parameter.type.min,
-                        upper_bound=parameter.type.max,
-                    )
-                    # Create range variable for the parameter
-                    range_variable = RangeVariable(
-                        interval_ranges=[interval_range],
-                        valid_values=None,
-                        invalid_values=None,
-                        var_type=parameter.type,
-                    )
-                    # Add to domain state
-                    domain.state.add_range_variable(parameter.canonical_name, range_variable)
-                    logger.debug(
-                        f"Added numeric parameter {parameter.canonical_name} to domain state"
-                    )
-                elif self._variable_info_manager.is_type_bytes(parameter.type):
-                    # Handle bytes calldata parameters by creating offset and length variables
-                    range_variables = (
-                        self._variable_info_manager.create_bytes_offset_and_length_variables(
-                            parameter.canonical_name
-                        )
-                    )
-                    # Add all created range variables to the domain state
-                    for var_name, range_variable in range_variables.items():
-                        domain.state.add_range_variable(var_name, range_variable)
-                elif parameter.type.name in ["address", "bool", "string"]:
-                    # Create placeholder range variables for common non-numeric types
-                    placeholder = RangeVariable(
-                        interval_ranges=[],
-                        valid_values=ValueSet(set()),
-                        invalid_values=ValueSet(set()),
-                        var_type=parameter.type,
-                    )
-                    domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                    logger.debug(
-                        f"Added placeholder parameter {parameter.canonical_name} to domain state"
-                    )
+            self._initialize_single_parameter(parameter, domain)
 
-            elif isinstance(parameter.type, ArrayType):
-                # Handle array parameters by creating placeholder range variables
-                logger.debug(
-                    f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}"
-                )
+    def _initialize_single_parameter(self, parameter, domain: IntervalDomain) -> None:
+        """Initialize a single parameter in the domain state."""
+        # Resolve the actual type to process (handles type aliases)
+        actual_type = self._resolve_parameter_type(parameter.type)
 
-                # For array types, create a placeholder range variable
-                placeholder = RangeVariable(
-                    interval_ranges=[],
-                    valid_values=ValueSet(set()),
-                    invalid_values=ValueSet(set()),
-                    var_type=parameter.type,
-                )
-                domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                logger.debug(
-                    f"Added ArrayType parameter {parameter.canonical_name} to domain state"
-                )
+        if self._variable_info_manager.is_type_numeric(actual_type):
+            self._initialize_numeric_parameter(parameter, actual_type, domain)
+        elif self._variable_info_manager.is_type_bytes(actual_type):
+            self._initialize_bytes_parameter(parameter, actual_type, domain)
+        elif isinstance(parameter.type, ArrayType):
+            self._initialize_array_parameter(parameter, domain)
+        elif isinstance(parameter.type, UserDefinedType):
+            self._initialize_user_defined_parameter(parameter, domain)
+        else:
+            # For other types (address, bool, string, etc.), create a placeholder
+            self._create_placeholder_parameter(parameter, domain)
 
-            elif isinstance(parameter.type, UserDefinedType):
-                # Handle struct parameters by creating field variables
-                logger.debug(
-                    f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}"
-                )
+    def _resolve_parameter_type(self, param_type):
+        """Resolve the actual type to process, handling type aliases."""
+        if isinstance(param_type, TypeAliasTopLevel):
+            return param_type.type
+        elif isinstance(param_type, UserDefinedType) and isinstance(param_type.type, TypeAlias):
+            return param_type.type.type
+        else:
+            return param_type
 
-                # Check if it's an interface (like IERC20) - if so, create a placeholder
-                if isinstance(parameter.type.type, Contract) and parameter.type.type.is_interface:
-                    logger.debug(
-                        f"Creating placeholder for interface parameter: {parameter.canonical_name}"
-                    )
-                    placeholder = RangeVariable(
-                        interval_ranges=[],
-                        valid_values=ValueSet(set()),
-                        invalid_values=ValueSet(set()),
-                        var_type=parameter.type,
-                    )
-                    domain.state.add_range_variable(parameter.canonical_name, placeholder)
-                    logger.debug(
-                        f"Added interface placeholder parameter {parameter.canonical_name} to domain state"
-                    )
-                else:
-                    # Handle actual struct parameters
-                    range_variables = self._variable_info_manager.create_struct_field_variables(
-                        parameter
-                    )
-                    logger.debug(
-                        f"Created {len(range_variables)} range variables for UserDefinedType parameter"
-                    )
-                    # Add all created range variables to the domain state
-                    for var_name, range_variable in range_variables.items():
-                        domain.state.add_range_variable(var_name, range_variable)
-                        logger.debug(f"Added UserDefinedType parameter {var_name} to domain state")
+    def _initialize_numeric_parameter(self, parameter, actual_type, domain: IntervalDomain) -> None:
+        """Initialize a numeric parameter with interval ranges."""
+        interval_range = IntervalRange(
+            lower_bound=actual_type.min,
+            upper_bound=actual_type.max,
+        )
+        range_variable = RangeVariable(
+            interval_ranges=[interval_range],
+            valid_values=None,
+            invalid_values=None,
+            var_type=parameter.type,  # Keep original type for consistency
+        )
+        domain.state.add_range_variable(parameter.canonical_name, range_variable)
+        logger.debug(f"Added numeric parameter {parameter.canonical_name} to domain state")
+
+    def _initialize_bytes_parameter(self, parameter, actual_type, domain: IntervalDomain) -> None:
+        """Initialize a bytes parameter with offset and length variables."""
+        range_variables = self._variable_info_manager.create_bytes_offset_and_length_variables(
+            parameter.canonical_name
+        )
+        for var_name, range_variable in range_variables.items():
+            domain.state.add_range_variable(var_name, range_variable)
+        logger.debug(f"Added bytes parameter {parameter.canonical_name} to domain state")
+
+    def _initialize_array_parameter(self, parameter, domain: IntervalDomain) -> None:
+        """Initialize an array parameter with a placeholder."""
+        logger.debug(
+            f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}"
+        )
+        self._create_placeholder_parameter(parameter, domain)
+        logger.debug(f"Added ArrayType parameter {parameter.canonical_name} to domain state")
+
+    def _initialize_user_defined_parameter(self, parameter, domain: IntervalDomain) -> None:
+        """Initialize a UserDefinedType parameter (struct, contract, interface, or type alias)."""
+        logger.debug(
+            f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}"
+        )
+
+        # Check if it's a type alias wrapped in UserDefinedType
+        if isinstance(parameter.type.type, TypeAlias):
+            logger.debug(
+                f"Processing TypeAlias parameter: {parameter.canonical_name} with underlying type {parameter.type.type.type}"
+            )
+            actual_type = parameter.type.type.type
+            if self._variable_info_manager.is_type_numeric(actual_type):
+                self._initialize_numeric_parameter(parameter, actual_type, domain)
+            elif self._variable_info_manager.is_type_bytes(actual_type):
+                self._initialize_bytes_parameter(parameter, actual_type, domain)
+            else:
+                self._create_placeholder_parameter(parameter, domain)
+            return
+
+        # Check if it's an interface
+        if isinstance(parameter.type.type, Contract) and parameter.type.type.is_interface:
+            logger.debug(
+                f"Creating placeholder for interface parameter: {parameter.canonical_name}"
+            )
+            self._create_placeholder_parameter(parameter, domain)
+            return
+
+        # Handle structs and contracts by creating field variables
+        range_variables = self._variable_info_manager.create_struct_field_variables(parameter)
+        logger.debug(
+            f"Created {len(range_variables)} range variables for UserDefinedType parameter"
+        )
+
+        # Add all created range variables to the domain state
+        for var_name, range_variable in range_variables.items():
+            domain.state.add_range_variable(var_name, range_variable)
+            logger.debug(f"Added UserDefinedType parameter {var_name} to domain state")
+
+        # Also create a placeholder variable for the parameter itself
+        # This is needed for contract types and struct types to ensure the main parameter
+        # (e.g., newModule_) is available in the domain state
+        self._create_placeholder_parameter(parameter, domain)
+        logger.debug(
+            f"Added placeholder for UserDefinedType parameter {parameter.canonical_name} to domain state"
+        )
+
+    def _create_placeholder_parameter(self, parameter, domain: IntervalDomain) -> None:
+        """Create a placeholder range variable for a parameter."""
+        placeholder = RangeVariable(
+            interval_ranges=[],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=parameter.type,
+        )
+        domain.state.add_range_variable(parameter.canonical_name, placeholder)
+        logger.debug(f"Added placeholder parameter {parameter.canonical_name} to domain state")
 
     def _initialize_function_returns(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize function return variables in the domain state."""
