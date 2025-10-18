@@ -219,14 +219,18 @@ def _find_function_from_parameter(
     type_args: List[str]
     for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
+            # If the argument is an array literal (list of IR variables), the type is a fixed array.
+            # We resolve the complete fixed array type here (e.g., 'struct B[2]') and store it in type_args.
             type_args = [f"{get_type(arg[0].type)}[{len(arg)}]"]
         elif isinstance(arg, Function):
             type_args = [arg.signature_str]
         else:
             type_args = [get_type(arg.type)]
 
-        # if an array was instantiated in the function call, we'll get a list of types
-        # hence we can skip the conversion check
+        # --- Array Instantiation Guard ---
+        # If the argument was an array literal (list), its type was definitively resolved above.
+        # We must skip the subsequent logic, which attempts implicit type conversions
+        # designed only for single ElementaryTypes (uint/int/bytes).
         if not isinstance(arg, (list,)):
             arg_type = arg.type
             if isinstance(
