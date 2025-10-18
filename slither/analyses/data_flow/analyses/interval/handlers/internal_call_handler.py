@@ -4,14 +4,12 @@ from typing import TYPE_CHECKING, List, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
-    ConstraintManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
+    ConstraintManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
@@ -26,8 +24,7 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.analysis.analysis import \
-        IntervalAnalysis
+    from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 
 
 class InternalCallHandler:
@@ -79,7 +76,7 @@ class InternalCallHandler:
                 internal_call_operation.arguments, callee_function.parameters, domain
             )
 
-#            logger.debug(f"Processing internal call to function: {callee_function.name}")
+            #            logger.debug(f"Processing internal call to function: {callee_function.name}")
 
             # Process all operations in the called function
             for callee_function_node in callee_function.nodes:
@@ -87,7 +84,7 @@ class InternalCallHandler:
                 # This ensures state variables are available in the callee's context
                 if callee_function_node == callee_function.nodes[0]:
                     analysis_instance._initialize_domain_from_bottom(callee_function_node, domain)
-                
+
                 for ir_operation in callee_function_node.irs:
                     # if not isinstance(
                     #     ir_operation, Union[InternalCall, SolidityCall, Binary, Assignment, Return, HighLevelCall, Index]
@@ -147,7 +144,7 @@ class InternalCallHandler:
     def _create_return_temporary_variables(
         self, caller_lvalue: Variable, return_values: List[Variable], domain: IntervalDomain
     ) -> None:
-        """Create temporary variables for return values if they are constants."""
+        """Create temporary variables for return values."""
         if not caller_lvalue:
             return
 
@@ -159,32 +156,40 @@ class InternalCallHandler:
         if isinstance(caller_lvalue, TemporaryVariable):
             # Process each return value
             for i, return_value in enumerate(return_values):
+                var_type = self.constraint_manager.variable_manager.get_variable_type(return_value)
+
                 if isinstance(return_value, Constant):
                     # Handle constant return values
-                    var_type = self.constraint_manager.variable_manager.get_variable_type(
-                        return_value
-                    )
+                    if self.constraint_manager.variable_manager.is_type_numeric(var_type):
+                        # Only convert to Decimal if it's a numeric type
+                        try:
+                            value = Decimal(str(return_value.value))
+                            range_variable = RangeVariable(
+                                interval_ranges=None,
+                                valid_values=ValueSet([value]),
+                                invalid_values=None,
+                                var_type=var_type,
+                            )
+                        except (decimal.InvalidOperation, ValueError, TypeError):
+                            # Skip non-numeric values that can't be converted to Decimal
+                            range_variable = self._create_placeholder_for_type(var_type)
+                    else:
+                        # Create placeholder for non-numeric constants
+                        range_variable = self._create_placeholder_for_type(var_type)
+                else:
+                    # Handle non-constant return values (variables, function calls, etc.)
+                    range_variable = self._create_placeholder_for_type(var_type)
 
-                    if not self.constraint_manager.variable_manager.is_type_numeric(var_type):
-                        continue
-                    
-                    # Only convert to Decimal if it's a numeric type
-                    try:
-                        value = Decimal(str(return_value.value))
-                    except (decimal.InvalidOperation, ValueError, TypeError):
-                        # Skip non-numeric values that can't be converted to Decimal
-                        continue
+                # Store the temporary variable in domain state
+                domain.state.set_range_variable(caller_lvalue_name, range_variable)
+                logger.debug(f"Created temporary variable {caller_lvalue_name} for return value")
+                break  # Only process the first return value for now
 
-                    range_variable = RangeVariable(
-                        interval_ranges=None,
-                        valid_values=ValueSet([value]),
-                        invalid_values=None,
-                        var_type=var_type,
-                    )
-
-                    # Store the temporary variable in domain state
-                    domain.state.set_range_variable(caller_lvalue_name, range_variable)
-#                    logger.debug(
-                    #     f"Created temporary variable {caller_lvalue_name} for constant return value {value}"
-                    # )
-                    break  # Only process the first return value for now
+    def _create_placeholder_for_type(self, var_type) -> RangeVariable:
+        """Create a placeholder range variable for a given type."""
+        return RangeVariable(
+            interval_ranges=[],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=var_type,
+        )
