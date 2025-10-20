@@ -60,6 +60,8 @@ class InternalCallHandler:
         """Handle internal function calls with constraint propagation for interprocedural analysis."""
         callee_function = internal_call_operation.function
 
+        logger.info(f"Handling internal call to function: {callee_function.name}")
+
         if callee_function is None:
             logger.error(f"Internal call has no function: {internal_call_operation}")
             raise ValueError(f"Internal call has no function: {internal_call_operation}")
@@ -118,28 +120,39 @@ class InternalCallHandler:
         if not called_function.return_type or len(called_function.return_type) == 0:
             return
 
-        # Look for return statements and extract constraints
-        for node in called_function.nodes:
-            for ir in node.irs:
-                # Skip non-return operations
-                if not isinstance(ir, Return):
-                    continue
+        # For assembly functions, look for assignments to return variables
+        return_variables = called_function.returns
+        if return_variables:
+            # Create temporary variable for the return value
+            self._create_return_temporary_variables(operation.lvalue, return_variables, domain)
 
-                # Skip return statements without values
-                if not ir.values:
-                    continue
+            # Copy callee return constraints to caller variable
+            self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
+                operation.lvalue, return_variables, called_function.return_type, domain
+            )
+        else:
+            # Look for return statements and extract constraints
+            for node in called_function.nodes:
+                for ir in node.irs:
+                    # Skip non-return operations
+                    if not isinstance(ir, Return):
+                        continue
 
-                # Skip if return value count doesn't match expected count
-                if len(ir.values) != len(called_function.return_type):
-                    continue
+                    # Skip return statements without values
+                    if not ir.values:
+                        continue
 
-                # Create temporary variable for the return value if it's a constant
-                self._create_return_temporary_variables(operation.lvalue, ir.values, domain)
+                    # Skip if return value count doesn't match expected count
+                    if len(ir.values) != len(called_function.return_type):
+                        continue
 
-                # Copy callee return constraints to caller variable and exit
-                self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
-                    operation.lvalue, ir.values, called_function.return_type, domain
-                )
+                    # Create temporary variable for the return value if it's a constant
+                    self._create_return_temporary_variables(operation.lvalue, ir.values, domain)
+
+                    # Copy callee return constraints to caller variable and exit
+                    self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
+                        operation.lvalue, ir.values, called_function.return_type, domain
+                    )
 
     def _create_return_temporary_variables(
         self, caller_lvalue: Variable, return_values: List[Variable], domain: IntervalDomain
