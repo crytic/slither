@@ -25,6 +25,8 @@ from slither.core.variables.state_variable import StateVariable
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
+from IPython import embed
+
 
 class VariableInfoManager:
     def __init__(self):
@@ -69,11 +71,10 @@ class VariableInfoManager:
             logger.warning(f"Type {elementary_type} is None")
             return False
 
-        try:
-            # Handle UserDefinedType (structs) - they are not numeric
-            if isinstance(elementary_type, UserDefinedType):
-                return False
+        if not isinstance(elementary_type, ElementaryType):
+            return False
 
+        try:
             type_name = elementary_type.name
             # Use the predefined lists from ElementaryType
             is_numeric = (
@@ -83,13 +84,17 @@ class VariableInfoManager:
             # # logger.debug(f"Type {type_name} is numeric: {is_numeric}")
             return is_numeric
         except Exception as e:
-            logger.warning(f"Error checking if type {elementary_type} is numeric: {e}")
-            return False
+            logger.error(f"Error checking if type {elementary_type} is numeric: {e}")
+            embed()
+            raise ValueError(f"Error checking if type {elementary_type} is numeric: {e}")
 
     def is_type_bytes(self, elementary_type: ElementaryType) -> bool:
         # Check if type is bytes using ElementaryType properties
         if not elementary_type:
             logger.warning(f"Type {elementary_type} is None")
+            return False
+
+        if not isinstance(elementary_type, ElementaryType):
             return False
 
         try:
@@ -240,19 +245,19 @@ class VariableInfoManager:
             # For contract types, create range variables for the contract's state variables
             # This allows us to track the state of the contract instance
             # logger.debug(f"Creating contract state variables for: {type_def.name}")
-            
+
             for state_var in type_def.state_variables:
                 # Create field variables for each state variable in the contract
                 field_name = f"{parameter.canonical_name}.{state_var.name}"
                 field_type = state_var.type
-                
+
                 # Handle different state variable types
                 if isinstance(field_type, ElementaryType):
                     elementary_range_variables = self._create_elementary_type_range_variable(
                         field_name, field_type
                     )
                     range_variables.update(elementary_range_variables)
-                
+
                 elif isinstance(field_type, UserDefinedType):
                     # Handle nested structs/enums/contracts in state variables
                     # logger.debug(f"Processing nested type in contract state variable: {field_name}")
@@ -261,7 +266,7 @@ class VariableInfoManager:
                     )
                     range_variables.update(nested_range_variables)
                     # logger.debug(f"Created nested type variables for contract state: {field_name}")
-                
+
                 else:
                     logger.warning(
                         f"Non-elementary, non-user-defined state variable type {field_type} for contract field {field_name} - skipping"
@@ -360,16 +365,12 @@ class VariableInfoManager:
 
         elif self.is_type_bytes(field_type):
             # For bytes fields, create offset and length variables
-            bytes_range_variables = self.create_bytes_offset_and_length_variables(
-                field_name
-            )
+            bytes_range_variables = self.create_bytes_offset_and_length_variables(field_name)
             range_variables.update(bytes_range_variables)
             # logger.debug(f"Created bytes field variables for: {field_name}")
 
         else:
-            logger.warning(
-                f"Unsupported field type {field_type} for field {field_name}"
-            )
+            logger.warning(f"Unsupported field type {field_type} for field {field_name}")
 
         return range_variables
 

@@ -1,7 +1,10 @@
 from typing import List, Union, Optional, TYPE_CHECKING
+import decimal
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.interval.managers.reference_handler import ReferenceHandler
+    from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
+        ReferenceHandler,
+    )
 
 from loguru import logger
 
@@ -78,30 +81,43 @@ class ConstraintManager:
         """Copy constraints from caller arguments to callee parameters for interprocedural analysis."""
         for caller_arg, callee_param in zip(caller_arguments, callee_parameters):
             callee_param_name = self.variable_manager.get_variable_name(callee_param)
-            
+
             # Handle numeric parameters - copy constraints
-            if (
-                isinstance(callee_param.type, ElementaryType)
-                and self.variable_manager.is_type_numeric(callee_param.type)
-            ):
+            if isinstance(
+                callee_param.type, ElementaryType
+            ) and self.variable_manager.is_type_numeric(callee_param.type):
                 caller_arg_name = self.variable_manager.get_variable_name(caller_arg)
 
                 # Ensure the caller argument exists in the domain state
                 if not domain.state.has_range_variable(caller_arg_name):
-                    logger.error(
-                        f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
-                    )
-                    raise ValueError(
-                        f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
-                    )
+                    # Try to create a range variable for literals/constants
+                    if self._create_range_variable_for_literal(caller_arg, domain):
+                        logger.debug(
+                            f"Created range variable for literal argument: {caller_arg_name}"
+                        )
+                    else:
+                        logger.error(
+                            f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
+                        )
+                        raise ValueError(
+                            f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
+                        )
 
                 # Copy constraints using the reusable method
                 self._copy_constraints_between_variables(caller_arg_name, callee_param_name, domain)
             # Handle non-numeric parameters - create placeholder range variables
-            elif isinstance(callee_param.type, ElementaryType) and callee_param.type.name in ["address", "bool", "string"]:
-                from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
-                from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
-                
+            elif isinstance(callee_param.type, ElementaryType) and callee_param.type.name in [
+                "address",
+                "bool",
+                "string",
+            ]:
+                from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+                    RangeVariable,
+                )
+                from slither.analyses.data_flow.analyses.interval.core.types.value_set import (
+                    ValueSet,
+                )
+
                 # Create placeholder range variable for non-numeric parameter
                 placeholder = RangeVariable(
                     interval_ranges=[],
@@ -110,11 +126,12 @@ class ConstraintManager:
                     var_type=callee_param.type,
                 )
                 domain.state.add_range_variable(callee_param_name, placeholder)
-#                logger.debug(f"Created placeholder for callee parameter {callee_param_name} ({callee_param.type.name})")
-#             else:
-# #                logger.debug(
-#                     f"Skipping unsupported parameter: {callee_param.name} of type {callee_param.type}"
-#                 )
+
+    #                logger.debug(f"Created placeholder for callee parameter {callee_param_name} ({callee_param.type.name})")
+    #             else:
+    # #                logger.debug(
+    #                     f"Skipping unsupported parameter: {callee_param.name} of type {callee_param.type}"
+    #                 )
 
     def copy_callee_parameter_constraints_back_to_caller_arguments(
         self,
@@ -149,12 +166,12 @@ class ConstraintManager:
         try:
             source_range_variable = domain.state.get_range_variable(source_var_name)
             if not source_range_variable:
-#                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
+                #                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
                 return
 
             # Copy constraints to target variable
             domain.state.set_range_variable(target_var_name, source_range_variable.deep_copy())
-#            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
+        #            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
 
         except Exception as e:
             logger.error(
@@ -261,3 +278,65 @@ class ConstraintManager:
                     self._copy_constraints_between_variables(
                         callee_var_name, return_var_name, domain
                     )
+
+    def _create_range_variable_for_literal(
+        self, caller_arg: Variable, domain: IntervalDomain
+    ) -> bool:
+        """Create a range variable for a literal/constant argument if possible."""
+        from slither.slithir.variables.constant import Constant
+        from slither.analyses.data_flow.analyses.interval.core.types.range_variable import (
+            RangeVariable,
+        )
+        from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+        from decimal import Decimal
+
+        # Only handle constants/literals
+        if not isinstance(caller_arg, Constant):
+            return False
+
+        caller_arg_name = self.variable_manager.get_variable_name(caller_arg)
+        caller_arg_type = self.variable_manager.get_variable_type(caller_arg)
+
+        # Only create range variables for numeric types
+        if not self.variable_manager.is_type_numeric(caller_arg_type):
+            return False
+
+        # Convert constant value to Decimal
+        constant_val = caller_arg.value
+        try:
+            if isinstance(constant_val, bool):
+                value = Decimal(1) if constant_val else Decimal(0)
+            elif isinstance(constant_val, (bytes, bytearray)):
+                value = Decimal(int.from_bytes(constant_val, byteorder="big"))
+            elif isinstance(constant_val, str):
+                s = constant_val
+                if s.startswith("0x") or s.startswith("0X"):
+                    value = Decimal(int(s, 16))
+                else:
+                    # If it looks like hex bytecode (only hex chars, even length), parse as hex
+                    hs = s.strip()
+                    if len(hs) % 2 == 0 and all(c in "0123456789abcdefABCDEF" for c in hs):
+                        try:
+                            value = Decimal(int(hs, 16))
+                        except Exception:
+                            value = Decimal(0)
+                    else:
+                        value = Decimal(str(s))
+            else:
+                value = Decimal(str(constant_val))
+
+            # Create range variable with the exact value
+            range_variable = RangeVariable(
+                interval_ranges=None,
+                valid_values=ValueSet([value]),
+                invalid_values=None,
+                var_type=caller_arg_type,
+            )
+
+            # Store in domain state
+            domain.state.set_range_variable(caller_arg_name, range_variable)
+            return True
+
+        except (ValueError, TypeError, decimal.InvalidOperation):
+            # If conversion fails, return False
+            return False

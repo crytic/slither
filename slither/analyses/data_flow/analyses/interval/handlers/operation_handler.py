@@ -21,6 +21,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.high_level_call_handl
 from slither.analyses.data_flow.analyses.interval.handlers.internal_call_handler import (
     InternalCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.internal_dynamic_call_handler import (
+    InternalDynamicCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.handlers.library_call_handler import (
     LibraryCallHandler,
 )
@@ -58,6 +61,7 @@ from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
@@ -93,6 +97,9 @@ class OperationHandler:
         self.type_conversion_handler = TypeConversionHandler()
         self.index_handler = IndexHandler(self.reference_handler)
         self.unary_handler = UnaryHandler(self.shared_constraint_storage)
+        self.internal_dynamic_call_handler = InternalDynamicCallHandler(
+            self.shared_constraint_storage
+        )
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -162,7 +169,7 @@ class OperationHandler:
         temp_var_name = self.variable_info_manager.get_variable_name(operation.lvalue)
 
         logger.info(f"Created boolean temporary variable: {temp_var_name}")
-        
+
         range_variable = RangeVariable(
             interval_ranges=[],
             valid_values=ValueSet({Decimal(0), Decimal(1)}),  # Boolean can be 0 or 1
@@ -173,4 +180,9 @@ class OperationHandler:
 
     def handle_unary(self, node: Node, domain: IntervalDomain, operation: Unary):
         self.unary_handler.handle_unary(node, domain, operation)
-        
+
+    def handle_internal_dynamic_call(
+        self, node: Node, domain: IntervalDomain, operation: InternalDynamicCall
+    ):
+
+        self.internal_dynamic_call_handler.handle_internal_dynamic_call(node, domain, operation)

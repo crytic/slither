@@ -59,15 +59,15 @@ class IntervalAnalysisDF(AbstractDetector):
         result: Dict[FindingKey, List[FindingValue]] = {}
 
         for contract in self.contracts:
-            # if "Settlement" not in contract.name:
-            #     continue
+            if "Settlement" not in contract.name:
+                continue
 
             for function in contract.functions_and_modifiers_declared:
                 if not function.is_implemented or function.is_constructor:
                     continue
 
-                # if "_settle" not in function.name:
-                #     continue
+                if "_settle" not in function.name:
+                    continue
 
                 # Run interval analysis
                 engine = Engine.new(analysis=IntervalAnalysis(), function=function)
@@ -95,8 +95,35 @@ class IntervalAnalysisDF(AbstractDetector):
 
             state = analysis.post.state
 
-            # Get range variables from state
+            # Get variables that are actually read or written in this node
+            relevant_canonical_names = set()
+
+            # Add variables read in this node
+            for var in node.ssa_variables_read:
+                if hasattr(var, "canonical_name"):
+                    relevant_canonical_names.add(var.canonical_name)
+                elif hasattr(var, "name"):
+                    # Fallback to simple name if canonical_name is not available
+                    relevant_canonical_names.add(var.name)
+
+            # Add variables written in this node
+            for var in node.ssa_variables_written:
+                if hasattr(var, "canonical_name"):
+                    relevant_canonical_names.add(var.canonical_name)
+                elif hasattr(var, "name"):
+                    # Fallback to simple name if canonical_name is not available
+                    relevant_canonical_names.add(var.name)
+
+            # Get range variables from state, but only for relevant variables
             for var_name, range_var in state.get_range_variables().items():
+                # Check if this variable is relevant to the current node
+                # Match using canonical names
+                is_relevant = var_name in relevant_canonical_names
+
+                # Skip if variable is not relevant to this node
+                if not is_relevant:
+                    continue
+
                 # Skip boolean variables
                 if range_var.get_var_type() == ElementaryType("bool"):
                     continue
