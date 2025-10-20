@@ -6,6 +6,7 @@ if TYPE_CHECKING:
         ReferenceHandler,
     )
 
+from IPython import embed
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
@@ -99,6 +100,7 @@ class ConstraintManager:
                         logger.error(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )
+                        embed()
                         raise ValueError(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )

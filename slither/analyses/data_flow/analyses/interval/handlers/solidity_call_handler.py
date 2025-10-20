@@ -146,6 +146,10 @@ class SolidityCallHandler:
             self._handle_ecrecover(node, domain, operation)
             return
 
+        if operation.function.full_name == "timestamp()":
+            self._handle_timestamp(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
         # logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
         return
@@ -495,3 +499,39 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
+
+    def _handle_timestamp(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle timestamp() operation returning the current block timestamp as uint256."""
+        if not operation.lvalue:
+            logger.error("timestamp() operation has no lvalue")
+            raise ValueError("timestamp() operation has no lvalue")
+
+        from datetime import datetime
+
+        now = datetime.now()
+        timestamp = int(now.timestamp())
+
+        result_type = ElementaryType("uint256")
+
+        # We use current timestamp as a reasonable upper bound for analysis
+        timestamp_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(timestamp)),
+        )
+
+        # Create range variable for the timestamp
+        result_range_variable = RangeVariable(
+            interval_ranges=[timestamp_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+
+        # logger.debug(f"Handled timestamp() -> {result_var_name} (uint256, range [0,{timestamp}])")
