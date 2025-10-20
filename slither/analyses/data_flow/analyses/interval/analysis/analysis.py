@@ -803,8 +803,8 @@ class IntervalAnalysis(Analysis):
     def _initialize_library_constants(
         self, node: Node, contract: Contract, domain: IntervalDomain
     ) -> None:
-        """Initialize library constants for all libraries called by this function."""
-        # Get all libraries called by this function
+        """Initialize library constants for all libraries in the compilation unit."""
+        # Get all libraries from the compilation unit
         all_libraries = set()
 
         # Add the current contract if it's a library
@@ -815,6 +815,13 @@ class IntervalAnalysis(Analysis):
         for library_call in node.function.all_library_calls():
             if hasattr(library_call, "destination") and library_call.destination.is_library:
                 all_libraries.add(library_call.destination)
+
+        # Also add all libraries from the compilation unit to ensure we don't miss any
+        # that might be referenced through direct member access (like DynamicSuffix._STATIC_DATA_SIZE)
+        compilation_unit = contract.compilation_unit
+        for comp_contract in compilation_unit.contracts:
+            if comp_contract.is_library:
+                all_libraries.add(comp_contract)
 
         # Initialize constants for all libraries
         total_constants_found = 0

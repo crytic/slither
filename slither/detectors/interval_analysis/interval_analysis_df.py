@@ -58,16 +58,17 @@ class IntervalAnalysisDF(AbstractDetector):
         """Find intervals for all functions and return variable ranges."""
         result: Dict[FindingKey, List[FindingValue]] = {}
 
+        flag = True
         for contract in self.contracts:
-            # if "Settlement" not in contract.name:
-            #     continue
+            if "Settlement" not in contract.name and flag:
+                continue
 
             for function in contract.functions_and_modifiers_declared:
                 if not function.is_implemented or function.is_constructor:
                     continue
 
-                # if "_settle" not in function.name:
-                #     continue
+                if "_settle" not in function.name and flag:
+                    continue
 
                 # Run interval analysis
                 engine = Engine.new(analysis=IntervalAnalysis(), function=function)
@@ -133,11 +134,11 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_underflow: bool = range_var.has_underflow()
 
                 # # Only include variables that have overflow/underflow issues
-                # if not (has_overflow or has_underflow):
-                #     continue
+                if not (has_overflow or has_underflow):
+                    continue
 
-                # if "TMP" in var_name:
-                #     continue
+                if "TMP" in var_name:
+                    continue
 
                 # Skip variables that end with a dot
                 if var_name.endswith("."):
