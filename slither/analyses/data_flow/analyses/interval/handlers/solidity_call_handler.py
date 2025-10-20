@@ -53,15 +53,7 @@ class SolidityCallHandler:
 
         # Handle require/assert functions
         if operation.function.name in require_assert_functions:
-            if not operation.arguments:
-                logger.error("Operation arguments are empty")
-                raise ValueError("Operation arguments are empty")
-
-            condition_variable = operation.arguments[0]
-            self.constraint_storage.apply_constraint_from_variable(condition_variable, domain)
-            # logger.debug(
-            #     f"Require/assert function encountered: {operation.function.name} with condition: {condition_variable}"
-            # )
+            self._handle_require_assert(node, domain, operation)
             return
 
         # Handle calldataload function
@@ -182,6 +174,38 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         # logger.debug(f"Handled calldataload operation, created variable: {result_var_name}")
+
+    def _handle_require_assert(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle require/assert functions by applying constraints from condition variables."""
+        logger.info(f"Handling require/assert function: {operation.function.name}")
+        if not operation.arguments:
+            logger.error("Operation arguments are empty")
+            raise ValueError("Operation arguments are empty")
+
+        condition_variable = operation.arguments[0]
+
+        # Try to apply constraint - the constraint applier will handle literals and variables
+        try:
+            self.constraint_storage.apply_constraint_from_variable(
+                condition_variable, domain, operation
+            )
+        except ValueError as e:
+            # If constraint cannot be applied (e.g., variable not found), set domain to TOP
+            logger.warning(f"Could not apply constraint for require/assert: {e}")
+            logger.info("Setting domain to TOP due to constraint application failure")
+            domain.variant = DomainVariant.TOP
+            return
+
+        # Check if domain was set to TOP by the constraint applier (e.g., for assert(false))
+        if domain.variant == DomainVariant.TOP:
+            logger.info("Domain set to TOP by constraint applier")
+            return
+
+        # logger.debug(
+        #     f"Require/assert function encountered: {operation.function.name} with condition: {condition_variable}"
+        # )
 
     def _handle_mload(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle mload operation by creating a variable with appropriate range."""

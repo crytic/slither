@@ -58,7 +58,7 @@ class IntervalAnalysisDF(AbstractDetector):
         """Find intervals for all functions and return variable ranges."""
         result: Dict[FindingKey, List[FindingValue]] = {}
 
-        flag = True
+        flag = False
         for contract in self.contracts:
             if "Settlement" not in contract.name and flag:
                 continue
@@ -134,8 +134,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_underflow: bool = range_var.has_underflow()
 
                 # # Only include variables that have overflow/underflow issues
-                if not (has_overflow or has_underflow):
-                    continue
+                # if not (has_overflow or has_underflow):
+                #     continue
 
                 if "TMP" in var_name:
                     continue

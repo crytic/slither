@@ -134,6 +134,10 @@ class AssignmentHandler:
                 var_type=written_variable_type,
             )
             domain.state.set_range_variable(written_variable_name, range_variable)
+            
+            # Store the relationship: local variable -> temporary variable
+            domain.state.add_temp_var_mapping(written_variable_name, source_variable_name)
+            
             #            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
             return
 
@@ -160,7 +164,9 @@ class AssignmentHandler:
         )
 
         # Store the relationship: local variable -> temporary variable
+        logger.debug(f"Adding temp var mapping: {written_variable_name} -> {source_variable_name}")
         domain.state.add_temp_var_mapping(written_variable_name, source_variable_name)
+        logger.debug(f"Temp var mappings after adding: {domain.state.get_temp_var_mapping()}")
 
         domain.state.set_range_variable(written_variable_name, range_variable)
 

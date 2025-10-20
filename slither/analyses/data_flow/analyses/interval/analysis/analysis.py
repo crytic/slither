@@ -297,7 +297,7 @@ class IntervalAnalysis(Analysis):
                         left_operand_name, actual_comparison
                     )
                     self._constraint_manager.apply_constraint_from_variable(
-                        operation.variable_left, domain
+                        operation.variable_left, domain, operation
                     )
 
         return domain
@@ -372,7 +372,7 @@ class IntervalAnalysis(Analysis):
                         left_operand_name, actual_comparison
                     )
                     self._constraint_manager.apply_constraint_from_variable(
-                        operation.variable_left, domain
+                        operation.variable_left, domain, operation
                     )
 
                     logger.debug(

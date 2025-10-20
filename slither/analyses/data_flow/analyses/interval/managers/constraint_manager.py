@@ -1,6 +1,8 @@
 from typing import List, Union, Optional, TYPE_CHECKING
 import decimal
 
+from slither.slithir.operations.solidity_call import SolidityCall
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
         ReferenceHandler,
@@ -68,10 +70,12 @@ class ConstraintManager:
         self.constraint_store.store_comparison_operation_constraint(comparison_operation)
 
     def apply_constraint_from_variable(
-        self, condition_variable: Variable, domain: IntervalDomain
+        self, condition_variable: Variable, domain: IntervalDomain, operation: SolidityCall
     ) -> None:
         """Apply a constraint from a condition variable (used by require/assert functions)."""
-        self.constraint_applier.apply_constraint_from_variable(condition_variable, domain)
+        self.constraint_applier.apply_constraint_from_variable(
+            condition_variable, domain, operation
+        )
 
     def copy_caller_constraints_to_callee_parameters(
         self,
