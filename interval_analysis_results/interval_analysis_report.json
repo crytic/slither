@@ -1,1 +1,4274 @@
-[]
+[
+  {
+    "contract": "FarmAccounting",
+    "function": "farmedSinceCheckpointScaled",
+    "findings": [
+      {
+        "variable_name": "FarmAccounting.farmedSinceCheckpointScaled(FarmAccounting.Info,uint256).elapsed",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "FarmAccounting.farmedSinceCheckpointScaled(FarmAccounting.Info,uint256).elapsed",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "FarmAccounting",
+    "function": "startFarming",
+    "findings": [
+      {
+        "variable_name": "FarmAccounting.startFarming(FarmAccounting.Info,uint256,uint256).amount",
+        "node_id": 12,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039458",
+            "upper": "115792089237316195423595504937341762075003718218074968986395483833868067274750"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "FarmAccounting.startFarming(FarmAccounting.Info,uint256,uint256).amount",
+        "node_id": 14,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039458",
+            "upper": "115792089237316195423595504937341762075003718218074968986395483833868067274750"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "FarmAccounting.startFarming(FarmAccounting.Info,uint256,uint256).amount",
+        "node_id": 15,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039458",
+            "upper": "115792089237316195423595504937341762075003718218074968986395483833868067274750"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "UserAccounting",
+    "function": "farmedPerToken",
+    "findings": [
+      {
+        "variable_name": "UserAccounting.farmedPerToken(UserAccounting.Info,bytes32,function(bytes32) returns(uint256),function(bytes32,uint256) returns(uint256)).fpt",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "115792089237421507715239542195385825880953655097959459134858133119167440617470"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "UserAccounting.farmedPerToken(UserAccounting.Info,bytes32,function(bytes32) returns(uint256),function(bytes32,uint256) returns(uint256)).fpt",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "115792089237421507715239542195385825880953655097959459134858133119167440617470"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "UserAccounting",
+    "function": "updateBalances",
+    "findings": [
+      {
+        "variable_name": "UserAccounting.updateBalances(UserAccounting.Info,address,address,uint256,uint256).diff",
+        "node_id": 7,
+        "var_type": "int256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "UserAccounting.updateBalances(UserAccounting.Info,address,address,uint256,uint256).diff",
+        "node_id": 9,
+        "var_type": "int256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "UserAccounting.updateBalances(UserAccounting.Info,address,address,uint256,uint256).diff",
+        "node_id": 12,
+        "var_type": "int256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderRFQMixin",
+    "function": "_invalidateOrder",
+    "findings": [
+      {
+        "variable_name": "OrderRFQMixin._invalidateOrder(address,uint256,uint256).invalidatorBits",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderRFQMixin._invalidateOrder(address,uint256,uint256).invalidatorBits",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderRFQMixin._invalidateOrder(address,uint256,uint256).invalidatorBits",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "NonceManager",
+    "function": "advanceNonce",
+    "findings": [
+      {
+        "variable_name": "NonceManager.advanceNonce(uint256).newNonce",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "NonceManager.advanceNonce(uint256).newNonce",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "NonceManager.advanceNonce(uint256).newNonce",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "SafeERC20",
+    "function": "_makeCalldataCall",
+    "findings": [
+      {
+        "variable_name": "SafeERC20._makeCalldataCall(IERC20,bytes4,bytes).len__makeCalldataCall_asm_0",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "4",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639939"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "SafeERC20._makeCalldataCall(IERC20,bytes4,bytes).len__makeCalldataCall_asm_0",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "4",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639939"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "StringUtil",
+    "function": "toHex",
+    "findings": [
+      {
+        "variable_name": "StringUtil.toHex(bytes).resultLength_toHex_asm_0",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).toPtr_toHex_asm_0",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "34",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639969"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).resultLength_toHex_asm_0",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).toPtr_toHex_asm_0",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "34",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639969"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).resultLength_toHex_asm_0",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).fromPtr_toHex_asm_0",
+        "node_id": 15,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).fromPtr_toHex_asm_0",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).endPtr_toHex_asm_0",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279902"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).fromPtr_toHex_asm_0",
+        "node_id": 18,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).endPtr_toHex_asm_0",
+        "node_id": 18,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279902"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Strings",
+    "function": "toString",
+    "findings": [
+      {
+        "variable_name": "Strings.toString(uint256).length",
+        "node_id": 1,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Strings.toString(uint256).length",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Strings.toString(uint256).length",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Strings",
+    "function": "toHexString",
+    "findings": [
+      {
+        "variable_name": "Strings.toHexString(uint256,uint256).i",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279871"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Strings.toHexString(uint256,uint256).i",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279871"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Strings.toHexString(uint256,uint256).i",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279871"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Strings.toHexString(uint256,uint256).i",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "mulDiv",
+    "findings": [
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 12,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "-1"
+          },
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": [
+          "0"
+        ]
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 16,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 16,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 21,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 22,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).twos",
+        "node_id": 23,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 25,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 25,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).twos",
+        "node_id": 25,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 26,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 26,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 27,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 27,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 28,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 28,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 29,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 29,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 30,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 30,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 31,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 31,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).result",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).result",
+        "node_id": 34,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "mulDiv",
+    "findings": [
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256,Math.Rounding).denominator",
+        "node_id": 1,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256,Math.Rounding).result",
+        "node_id": 1,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256,Math.Rounding).denominator",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256,Math.Rounding).result",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256,Math.Rounding).result",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "sqrt",
+    "findings": [
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "FeeBank",
+    "function": "gatherFees",
+    "findings": [
+      {
+        "variable_name": "FeeBank.gatherFees(address[]).totalAccountFees",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919805"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Settlement",
+    "function": "_settleOrder",
+    "findings": [
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).totalFee",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007343118471263698197147986E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).rateBump",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).suffixLength",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "192",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129640127"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1",
+        "node_id": 21,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).suffixLength",
+        "node_id": 30,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "192",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129640127"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).totalFee",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007343118471263698197147986E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 34,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 35,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).rateBump",
+        "node_id": 36,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 36,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 37,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 40,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 41,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).suffixLength",
+        "node_id": 42,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "192",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129640127"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inch",
+    "function": "_deposit",
+    "findings": [
+      {
+        "variable_name": "St1inch._deposit(address,uint256,uint256).lockedTill",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._deposit(address,uint256,uint256).lockedTill",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._deposit(address,uint256,uint256).lockLeft",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._deposit(address,uint256,uint256).lockLeft",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._deposit(address,uint256,uint256).lockLeft",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inch",
+    "function": "earlyWithdrawTo",
+    "findings": [
+      {
+        "variable_name": "St1inch.earlyWithdrawTo(address,uint256,uint256).allowedExitTime",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch.earlyWithdrawTo(address,uint256,uint256).allowedExitTime",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inch",
+    "function": "_earlyWithdrawLoss",
+    "findings": [
+      {
+        "variable_name": "St1inch._earlyWithdrawLoss(uint256,uint256).ret",
+        "node_id": 1,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._earlyWithdrawLoss(uint256,uint256).loss",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._earlyWithdrawLoss(uint256,uint256).ret",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._earlyWithdrawLoss(uint256,uint256).loss",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "St1inch._earlyWithdrawLoss(uint256,uint256).ret",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inch",
+    "function": "_withdraw",
+    "findings": [
+      {
+        "variable_name": "St1inch.totalDeposits",
+        "node_id": 1,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-95780971304118053647396689196894323976171195136475135",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "shrinkWhitelist",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.shrinkWhitelist(uint256).i",
+        "node_id": 9,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [
+          "0"
+        ],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "WhitelistRegistry.shrinkWhitelist(uint256).i",
+        "node_id": 14,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "register",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.register().i",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [
+          "0"
+        ],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "WhitelistRegistry.register().i",
+        "node_id": 18,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "clean",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.clean().i",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [
+          "0"
+        ],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "WhitelistRegistry.clean().i",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inchPreview",
+    "function": "previewBalance",
+    "findings": [
+      {
+        "variable_name": "St1inchPreview.previewBalance(address,uint256,uint256).lockedTill",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "St1inchPreview",
+    "function": "previewPowerOfAtTime",
+    "findings": [
+      {
+        "variable_name": "St1inchPreview.previewPowerOfAtTime(address,uint256,uint256,uint256).lockedTill",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_votingPowerAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 13,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 14,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 16,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 19,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 20,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 22,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 23,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 25,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 26,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 28,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 29,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 31,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 34,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 35,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 37,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 38,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 40,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 41,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 43,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 44,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 46,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 47,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 49,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 50,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 52,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 53,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 55,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 56,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 58,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 59,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 61,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 62,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 64,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 65,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 67,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 68,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 70,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 71,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 73,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 74,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 76,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 77,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 79,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 80,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 82,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 83,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 85,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 86,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 88,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 89,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 91,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 92,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 94,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_balanceAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 2,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 8,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 11,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 13,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 14,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 16,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 19,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 20,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 22,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 23,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 25,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 26,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 28,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 29,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 31,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 34,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 35,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 37,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 38,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 40,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 41,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 43,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 44,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 46,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 47,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 49,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 50,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 52,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 53,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 55,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 56,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 58,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 59,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 61,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 62,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 64,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 65,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 67,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 68,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 70,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 71,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 73,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 74,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 76,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 77,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 79,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 80,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 82,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 83,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 85,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 86,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 88,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 89,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 91,
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 92,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 94,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "DynamicSuffix",
+    "function": "decodeSuffix",
+    "findings": [
+      {
+        "variable_name": "DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279838"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279838"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279838"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "takingFee",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0",
+        "node_id": 5,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "checkResolver",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 4,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 7,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-5",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 10,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279833"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 14,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 21,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).end_checkResolver_asm_0",
+        "node_id": 21,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 22,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).end_checkResolver_asm_0",
+        "node_id": 22,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "rateBump",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).lastTime",
+        "node_id": 3,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).lastTime",
+        "node_id": 6,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 13,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 17,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 23,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-33",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 24,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).end_rateBump_asm_0",
+        "node_id": 32,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-432",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).end_rateBump_asm_0",
+        "node_id": 33,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-432",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).bump",
+        "node_id": 49,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).bump",
+        "node_id": 51,
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  }
+]

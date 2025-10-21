@@ -63,7 +63,7 @@ class IntervalAnalysisDF(AbstractDetector):
         # Prepare structured output for file writing
         structured_results = []
 
-        flag = True
+        flag = False
         for contract in self.contracts:
             if "Settlement" not in contract.name and flag:
                 continue
@@ -238,9 +238,9 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_overflow: bool = range_var.has_overflow()
                 has_underflow: bool = range_var.has_underflow()
 
-                # # Only include variables that have overflow/underflow issues
-                # if not (has_overflow or has_underflow):
-                #     continue
+                # Only include variables that have overflow/underflow issues
+                if not (has_overflow or has_underflow):
+                    continue
 
                 if "TMP" in var_name:
                     continue
