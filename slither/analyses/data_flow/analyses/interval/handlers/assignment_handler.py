@@ -150,6 +150,7 @@ class AssignmentHandler:
 
         if source_range_variable is None:
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
+            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
