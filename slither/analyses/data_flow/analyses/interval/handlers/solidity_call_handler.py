@@ -162,8 +162,86 @@ class SolidityCallHandler:
             self._handle_return(node, domain, operation)
             return
 
+        if operation.function.full_name == "calldatacopy(uint256,uint256,uint256)":
+            self._handle_calldatacopy(node, domain, operation)
+            return
+
+        if operation.function.full_name == "keccak256(uint256,uint256)":
+            self._handle_keccak256(node, domain, operation)
+            return
+
+        if operation.function.full_name == "returndatacopy(uint256,uint256,uint256)":
+            self._handle_returndatacopy(node, domain, operation)
+            return
+
+        if (
+            operation.function.full_name
+            == "staticcall(uint256,uint256,uint256,uint256,uint256,uint256)"
+        ):
+            self._handle_staticcall(node, domain, operation)
+            return
+
+        # Handle ABI encoding/decoding functions
+        if "abi.encode" in operation.function.full_name:
+            self._handle_abi_encode(node, domain, operation)
+            return
+
+        if "abi.decode" in operation.function.full_name:
+            self._handle_abi_decode(node, domain, operation)
+            return
+
+        if "abi.encodePacked" in operation.function.full_name:
+            self._handle_abi_encode_packed(node, domain, operation)
+            return
+
+        if "abi.encodeWithSelector" in operation.function.full_name:
+            self._handle_abi_encode_with_selector(node, domain, operation)
+            return
+
+        if "abi.encodeCall" in operation.function.full_name:
+            self._handle_abi_encode_call(node, domain, operation)
+            return
+
+        if "abi.encodeWithSignature" in operation.function.full_name:
+            self._handle_abi_encode_with_signature(node, domain, operation)
+            return
+
+        # Handle address members
+        if "balance(address)" in operation.function.full_name:
+            self._handle_address_balance(node, domain, operation)
+            return
+
+        if "code(address)" in operation.function.full_name:
+            self._handle_address_code(node, domain, operation)
+            return
+
+        if "codehash(address)" in operation.function.full_name:
+            self._handle_address_codehash(node, domain, operation)
+            return
+
+        if "call(address,bytes)" in operation.function.full_name:
+            self._handle_address_call(node, domain, operation)
+            return
+
+        if "delegatecall(address,bytes)" in operation.function.full_name:
+            self._handle_address_delegatecall(node, domain, operation)
+            return
+
+        if "staticcall(address,bytes)" in operation.function.full_name:
+            self._handle_address_staticcall(node, domain, operation)
+            return
+
+        if "send(address,uint256)" in operation.function.full_name:
+            self._handle_address_send(node, domain, operation)
+            return
+
+        if "transfer(address,uint256)" in operation.function.full_name:
+            self._handle_address_transfer(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
         logger.error(f"Unhandled Solidity function: {operation.function.name}")
+        embed()
         raise ValueError(f"Unhandled Solidity function: {operation.function.name}")
         return
 
@@ -722,41 +800,99 @@ class SolidityCallHandler:
         """Handle mstore(p, v) operation: mem[p…(p+32)) := v."""
         logger.debug(f"Handling mstore operation: {operation}")
 
-        # mstore doesn't return a value, it modifies memory
-        # We don't need to create a range variable for the result
-        # Just log the operation for debugging purposes
-
-        if operation.arguments and len(operation.arguments) == 2:
-            p_arg, v_arg = operation.arguments
-            variable_manager = VariableInfoManager()
-            p_name = variable_manager.get_variable_name(p_arg)
-            v_name = variable_manager.get_variable_name(v_arg)
-            logger.debug(f"mstore: storing value {v_name} at memory position {p_name}")
-        else:
+        if not operation.arguments or len(operation.arguments) != 2:
             logger.warning(
                 f"mstore operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
             )
+            return
+
+        p_arg, v_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        v_name = variable_manager.get_variable_name(v_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are stored in memory
+        memory_var_name = f"mem_{p_name}"
+
+        # Get the value being stored
+        if domain.state.has_range_variable(v_name):
+            stored_value = domain.state.get_range_variable(v_name)
+            # Create a copy of the stored value for the memory location
+            memory_range_variable = stored_value.deep_copy()
+        else:
+            # If we don't know the value being stored, create a conservative range
+            result_type = ElementaryType("uint256")
+            result_range = IntervalRange(
+                lower_bound=result_type.min,
+                upper_bound=result_type.max,
+            )
+            memory_range_variable = RangeVariable(
+                interval_ranges=[result_range],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"mstore: stored value {v_name} at memory position {p_name} -> {memory_var_name}"
+        )
 
     def _handle_mstore8(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle mstore8(p, v) operation: mem[p] := v & 0xff (only modifies a single byte)."""
         logger.debug(f"Handling mstore8 operation: {operation}")
 
-        # mstore8 doesn't return a value, it modifies memory
-        # We don't need to create a range variable for the result
-        # Just log the operation for debugging purposes
-
-        if operation.arguments and len(operation.arguments) == 2:
-            p_arg, v_arg = operation.arguments
-            variable_manager = VariableInfoManager()
-            p_name = variable_manager.get_variable_name(p_arg)
-            v_name = variable_manager.get_variable_name(v_arg)
-            logger.debug(
-                f"mstore8: storing byte (value & 0xff) of {v_name} at memory position {p_name}"
-            )
-        else:
+        if not operation.arguments or len(operation.arguments) != 2:
             logger.warning(
                 f"mstore8 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
             )
+            return
+
+        p_arg, v_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        v_name = variable_manager.get_variable_name(v_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are stored in memory
+        memory_var_name = f"mem8_{p_name}"
+
+        # Get the value being stored (but only the low byte)
+        if domain.state.has_range_variable(v_name):
+            stored_value = domain.state.get_range_variable(v_name)
+            # For mstore8, we need to mask to only the low byte (0-255)
+            result_type = ElementaryType("uint8")
+            result_range = IntervalRange(
+                lower_bound=Decimal("0"),
+                upper_bound=Decimal("255"),
+            )
+            memory_range_variable = RangeVariable(
+                interval_ranges=[result_range],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+        else:
+            # If we don't know the value being stored, create a conservative range for byte
+            result_type = ElementaryType("uint8")
+            result_range = IntervalRange(
+                lower_bound=Decimal("0"),
+                upper_bound=Decimal("255"),
+            )
+            memory_range_variable = RangeVariable(
+                interval_ranges=[result_range],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"mstore8: stored byte (value & 0xff) of {v_name} at memory position {p_name} -> {memory_var_name}"
+        )
 
     def _handle_pop(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle pop(x) operation: discard value x."""
@@ -796,3 +932,640 @@ class SolidityCallHandler:
             logger.warning(
                 f"return operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
             )
+
+    def _handle_calldatacopy(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle calldatacopy(t, f, s) operation: copy s bytes from calldata at position f to mem at position t."""
+        logger.debug(f"Handling calldatacopy operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.warning(
+                f"calldatacopy operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        t_arg, f_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        t_name = variable_manager.get_variable_name(t_arg)
+        f_name = variable_manager.get_variable_name(f_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are copied to memory
+        memory_var_name = f"mem_copied_{t_name}"
+
+        # For calldatacopy, we don't know the exact values being copied from calldata
+        # So we create a conservative range for the copied data
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+        memory_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"calldatacopy: copied {s_name} bytes from calldata[{f_name}] to memory[{t_name}] -> {memory_var_name}"
+        )
+
+    def _handle_keccak256(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle keccak256(p, n) operation: keccak(mem[p…(p+n)))."""
+        logger.debug(f"Handling keccak256 operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("keccak256 operation has no lvalue")
+            raise ValueError("keccak256 operation has no lvalue")
+
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.warning(
+                f"keccak256 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, n_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        n_name = variable_manager.get_variable_name(n_arg)
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+
+        # keccak256 returns a 32-byte hash, treat as uint256
+        result_type = ElementaryType("uint256")
+
+        # For keccak256, we can't determine the exact hash value without knowing the input data
+        # So we create a conservative range for the hash result
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+
+        # Create range variable for the hash result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(
+            f"keccak256: computed hash of memory[{p_name}...{p_name}+{n_name}] -> {result_var_name}"
+        )
+
+    def _handle_returndatacopy(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle returndatacopy(t, f, s) operation: copy s bytes from returndata at position f to mem at position t."""
+        logger.debug(f"Handling returndatacopy operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.warning(
+                f"returndatacopy operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        t_arg, f_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        t_name = variable_manager.get_variable_name(t_arg)
+        f_name = variable_manager.get_variable_name(f_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are copied to memory
+        memory_var_name = f"mem_returndata_{t_name}"
+
+        # For returndatacopy, we don't know the exact values being copied from returndata
+        # So we create a conservative range for the copied data
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+        memory_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"returndatacopy: copied {s_name} bytes from returndata[{f_name}] to memory[{t_name}] -> {memory_var_name}"
+        )
+
+    def _handle_staticcall(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle staticcall(g, a, in, insize, out, outsize) operation: static call to contract."""
+        logger.debug(f"Handling staticcall operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("staticcall operation has no lvalue")
+            raise ValueError("staticcall operation has no lvalue")
+
+        if not operation.arguments or len(operation.arguments) != 6:
+            logger.warning(
+                f"staticcall operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        g_arg, a_arg, in_arg, insize_arg, out_arg, outsize_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        g_name = variable_manager.get_variable_name(g_arg)
+        a_name = variable_manager.get_variable_name(a_arg)
+        in_name = variable_manager.get_variable_name(in_arg)
+        insize_name = variable_manager.get_variable_name(insize_arg)
+        out_name = variable_manager.get_variable_name(out_arg)
+        outsize_name = variable_manager.get_variable_name(outsize_arg)
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+
+        # staticcall returns success (1) or failure (0)
+        result_type = ElementaryType("uint256")
+
+        # For staticcall, we can't determine the exact result without knowing the call outcome
+        # So we create a conservative range for the success/failure result
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # 0 = failure
+            upper_bound=Decimal("1"),  # 1 = success
+        )
+
+        # Create range variable for the call result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(
+            f"staticcall: called contract {a_name} with gas {g_name}, input[{in_name}...{in_name}+{insize_name}], output[{out_name}...{out_name}+{outsize_name}] -> {result_var_name}"
+        )
+
+    def _handle_abi_encode(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.encode(...) operation: ABI-encodes the given arguments."""
+        logger.debug(f"Handling abi.encode operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.encode operation has no lvalue")
+            raise ValueError("abi.encode operation has no lvalue")
+
+        # abi.encode returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For abi.encode, we can't determine the exact encoded data without knowing the input values
+        # So we create a conservative range for the encoded bytes
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the encoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.encode: encoded arguments -> {result_var_name}")
+
+    def _handle_abi_decode(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.decode(bytes memory encodedData, (...)) operation: ABI-decodes the provided data."""
+        logger.debug(f"Handling abi.decode operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.decode operation has no lvalue")
+            raise ValueError("abi.decode operation has no lvalue")
+
+        # abi.decode returns the decoded values (type depends on the decode types)
+        # For simplicity, we'll use a conservative approach
+        result_type = ElementaryType("uint256")
+
+        # For abi.decode, we can't determine the exact decoded values without knowing the encoded data
+        # So we create a conservative range
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+
+        # Create range variable for the decoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.decode: decoded data -> {result_var_name}")
+
+    def _handle_abi_encode_packed(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.encodePacked(...) operation: Performs packed encoding of the given arguments."""
+        logger.debug(f"Handling abi.encodePacked operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.encodePacked operation has no lvalue")
+            raise ValueError("abi.encodePacked operation has no lvalue")
+
+        # abi.encodePacked returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For abi.encodePacked, we can't determine the exact encoded data without knowing the input values
+        # So we create a conservative range for the encoded bytes
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the encoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.encodePacked: packed encoded arguments -> {result_var_name}")
+
+    def _handle_abi_encode_with_selector(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.encodeWithSelector(bytes4 selector, ...) operation: ABI-encodes with selector."""
+        logger.debug(f"Handling abi.encodeWithSelector operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.encodeWithSelector operation has no lvalue")
+            raise ValueError("abi.encodeWithSelector operation has no lvalue")
+
+        # abi.encodeWithSelector returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For abi.encodeWithSelector, we can't determine the exact encoded data without knowing the input values
+        # So we create a conservative range for the encoded bytes
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the encoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.encodeWithSelector: encoded with selector -> {result_var_name}")
+
+    def _handle_abi_encode_call(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.encodeCall(function functionPointer, (...)) operation: ABI-encodes a call."""
+        logger.debug(f"Handling abi.encodeCall operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.encodeCall operation has no lvalue")
+            raise ValueError("abi.encodeCall operation has no lvalue")
+
+        # abi.encodeCall returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For abi.encodeCall, we can't determine the exact encoded data without knowing the input values
+        # So we create a conservative range for the encoded bytes
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the encoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.encodeCall: encoded call -> {result_var_name}")
+
+    def _handle_abi_encode_with_signature(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle abi.encodeWithSignature(string memory signature, ...) operation: ABI-encodes with signature."""
+        logger.debug(f"Handling abi.encodeWithSignature operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("abi.encodeWithSignature operation has no lvalue")
+            raise ValueError("abi.encodeWithSignature operation has no lvalue")
+
+        # abi.encodeWithSignature returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For abi.encodeWithSignature, we can't determine the exact encoded data without knowing the input values
+        # So we create a conservative range for the encoded bytes
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the encoded result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"abi.encodeWithSignature: encoded with signature -> {result_var_name}")
+
+    def _handle_address_balance(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.balance operation: balance of the Address in Wei."""
+        logger.debug(f"Handling address.balance operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.balance operation has no lvalue")
+            raise ValueError("address.balance operation has no lvalue")
+
+        # address.balance returns uint256
+        result_type = ElementaryType("uint256")
+
+        # For address.balance, we can't determine the exact balance without knowing the address
+        # So we create a conservative range
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+
+        # Create range variable for the balance result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.balance: retrieved balance -> {result_var_name}")
+
+    def _handle_address_code(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.code operation: code at the Address (can be empty)."""
+        logger.debug(f"Handling address.code operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.code operation has no lvalue")
+            raise ValueError("address.code operation has no lvalue")
+
+        # address.code returns bytes memory
+        result_type = ElementaryType("bytes")
+
+        # For address.code, we can't determine the exact code without knowing the address
+        # So we create a conservative range
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the code result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.code: retrieved code -> {result_var_name}")
+
+    def _handle_address_codehash(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.codehash operation: the codehash of the Address."""
+        logger.debug(f"Handling address.codehash operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.codehash operation has no lvalue")
+            raise ValueError("address.codehash operation has no lvalue")
+
+        # address.codehash returns bytes32
+        result_type = ElementaryType("bytes32")
+
+        # For address.codehash, we can't determine the exact codehash without knowing the address
+        # So we create a conservative range
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),
+            upper_bound=Decimal(str(2**256 - 1)),  # Conservative upper bound
+        )
+
+        # Create range variable for the codehash result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.codehash: retrieved codehash -> {result_var_name}")
+
+    def _handle_address_call(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.call(bytes memory) operation: issue low-level CALL."""
+        logger.debug(f"Handling address.call operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.call operation has no lvalue")
+            raise ValueError("address.call operation has no lvalue")
+
+        # address.call returns (bool, bytes memory)
+        # For simplicity, we'll handle the bool return value
+        result_type = ElementaryType("bool")
+
+        # For address.call, we can't determine the exact result without knowing the call outcome
+        # So we create a conservative range for success/failure
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # false
+            upper_bound=Decimal("1"),  # true
+        )
+
+        # Create range variable for the call result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.call: made call -> {result_var_name}")
+
+    def _handle_address_delegatecall(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.delegatecall(bytes memory) operation: issue low-level DELEGATECALL."""
+        logger.debug(f"Handling address.delegatecall operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.delegatecall operation has no lvalue")
+            raise ValueError("address.delegatecall operation has no lvalue")
+
+        # address.delegatecall returns (bool, bytes memory)
+        # For simplicity, we'll handle the bool return value
+        result_type = ElementaryType("bool")
+
+        # For address.delegatecall, we can't determine the exact result without knowing the call outcome
+        # So we create a conservative range for success/failure
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # false
+            upper_bound=Decimal("1"),  # true
+        )
+
+        # Create range variable for the delegatecall result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.delegatecall: made delegatecall -> {result_var_name}")
+
+    def _handle_address_staticcall(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.staticcall(bytes memory) operation: issue low-level STATICCALL."""
+        logger.debug(f"Handling address.staticcall operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.staticcall operation has no lvalue")
+            raise ValueError("address.staticcall operation has no lvalue")
+
+        # address.staticcall returns (bool, bytes memory)
+        # For simplicity, we'll handle the bool return value
+        result_type = ElementaryType("bool")
+
+        # For address.staticcall, we can't determine the exact result without knowing the call outcome
+        # So we create a conservative range for success/failure
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # false
+            upper_bound=Decimal("1"),  # true
+        )
+
+        # Create range variable for the staticcall result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.staticcall: made staticcall -> {result_var_name}")
+
+    def _handle_address_send(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.send(uint256 amount) operation: send given amount of Wei to Address."""
+        logger.debug(f"Handling address.send operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address.send operation has no lvalue")
+            raise ValueError("address.send operation has no lvalue")
+
+        # address.send returns bool
+        result_type = ElementaryType("bool")
+
+        # For address.send, we can't determine the exact result without knowing the send outcome
+        # So we create a conservative range for success/failure
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # false
+            upper_bound=Decimal("1"),  # true
+        )
+
+        # Create range variable for the send result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"address.send: sent amount -> {result_var_name}")
+
+    def _handle_address_transfer(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle address.transfer(uint256 amount) operation: send given amount of Wei to Address."""
+        logger.debug(f"Handling address.transfer operation: {operation}")
+
+        # address.transfer doesn't return a value, it throws on failure
+        # We don't need to create a range variable for the result
+        # Just log the operation for debugging purposes
+        logger.debug(f"address.transfer: transferred amount (throws on failure)")
