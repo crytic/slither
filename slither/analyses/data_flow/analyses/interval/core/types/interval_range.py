@@ -12,6 +12,9 @@ getcontext().prec = 100
 class IntervalRange:
     """Represents a closed interval [lower_bound, upper_bound] with high-precision decimal arithmetic."""
 
+    # Class-level configuration for power operation limits
+    MAX_POWER_VALUE = Decimal(2) ** 256 - 1  # Default to 256-bit max
+
     def __init__(self, lower_bound: Union[int, Decimal], upper_bound: Union[int, Decimal]):
         self.lower_bound = Decimal(str(lower_bound))
         self.upper_bound = Decimal(str(upper_bound))
@@ -64,6 +67,60 @@ class IntervalRange:
     def contains(self, value: Union[int, Decimal]) -> bool:
         value = Decimal(str(value))
         return self.lower_bound <= value <= self.upper_bound
+
+    @classmethod
+    def set_max_power_value(cls, max_value: Union[int, Decimal]) -> None:
+        """Set the maximum value for power operations."""
+        cls.MAX_POWER_VALUE = Decimal(str(max_value))
+
+    @staticmethod
+    def _safe_power(base: Decimal, exponent: int) -> Decimal:
+        """
+        Compute base^exponent with early termination if result exceeds MAX_POWER_VALUE.
+        Returns the first value that goes over the threshold.
+        Uses binary exponentiation for O(log n) performance.
+        """
+        max_value = IntervalRange.MAX_POWER_VALUE
+
+        if exponent < 0:
+            if base == 0:
+                raise ZeroDivisionError(f"Cannot compute 0^{exponent}")
+            # Negative exponents result in fractions, will be 0 after to_integral_value
+            return Decimal(0) if abs(base) > 1 else max_value
+
+        if exponent == 0:
+            return Decimal(1)
+
+        if base == 0:
+            return Decimal(0)
+
+        if base == 1:
+            return Decimal(1)
+
+        if base == -1:
+            return Decimal(1) if exponent % 2 == 0 else Decimal(-1)
+
+        # Binary exponentiation with overflow check
+        result = Decimal(1)
+        current_base = Decimal(int(base))
+        current_exp = exponent
+
+        while current_exp > 0:
+            if current_exp % 2 == 1:
+                result *= current_base
+                if abs(result) > max_value:
+                    # Return the actual value that exceeded threshold
+                    return result
+
+            current_exp //= 2
+            if current_exp > 0:
+                current_base *= current_base
+                if abs(current_base) > max_value:
+                    # Base squared exceeded threshold, compute what the result would be
+                    # We need to continue with the overflowed base to get the final result
+                    return result * current_base
+
+        return result
 
     @staticmethod
     def compute_arithmetic_interval(
@@ -129,8 +186,8 @@ class IntervalRange:
                 raise ZeroDivisionError(f"Modulo by zero: {left} % {right}")
             return Decimal(int(left) % int(right))
         elif operation == BinaryType.POWER:
-            # Exponentiation: x ** y
-            return Decimal(int(left) ** int(right))
+            # Exponentiation: x ** y with overflow protection
+            return IntervalRange._safe_power(left, int(right))
         else:
             raise ValueError(f"Unsupported operation: {operation}")
 
