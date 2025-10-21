@@ -213,6 +213,11 @@ class InternalCallHandler:
                         logger.debug(
                             f"Copied existing range variable for {return_value_name} -> {range_variable}"
                         )
+                    else:
+                        logger.debug(
+                            f"Return value {return_value_name} not found in domain state, creating placeholder"
+                        )
+                        range_variable = self._create_placeholder_for_type(var_type)
 
                 # Store the tuple element in domain state
                 domain.state.set_range_variable(tuple_element_name, range_variable)
@@ -260,6 +265,11 @@ class InternalCallHandler:
                         logger.debug(
                             f"Copied existing range variable for {return_value_name} -> {range_variable}"
                         )
+                    else:
+                        logger.debug(
+                            f"Return value {return_value_name} not found in domain state, creating placeholder"
+                        )
+                        range_variable = self._create_placeholder_for_type(var_type)
 
                 # Store the temporary variable in domain state
                 domain.state.set_range_variable(caller_lvalue_name, range_variable)
