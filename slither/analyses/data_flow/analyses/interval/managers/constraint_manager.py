@@ -198,16 +198,23 @@ class ConstraintManager:
         domain: IntervalDomain,
     ) -> None:
         """Copy constraints from callee function return values to caller's return variable."""
+        from slither.slithir.variables.tuple import TupleVariable
+
         # Early return if no return variable or return types
         if not caller_return_variable or not callee_return_types:
             return
 
+        # Handle TupleVariable (multiple return values assigned to tuple)
+        if isinstance(caller_return_variable, TupleVariable):
+            self._handle_tuple_return_value(
+                caller_return_variable, callee_return_values, callee_return_types, domain
+            )
         # Handle single return value
-        if len(callee_return_values) == 1 and len(callee_return_types) == 1:
+        elif len(callee_return_values) == 1 and len(callee_return_types) == 1:
             self._handle_single_return_value(
                 caller_return_variable, callee_return_values[0], callee_return_types[0], domain
             )
-        # Handle multiple return values
+        # Handle multiple return values (but not tuple variable)
         elif len(callee_return_values) > 1 and len(callee_return_types) > 1:
             self._process_multiple_return_values(
                 caller_return_variable, callee_return_values, callee_return_types, domain
@@ -351,3 +358,66 @@ class ConstraintManager:
         except (ValueError, TypeError, decimal.InvalidOperation):
             # If conversion fails, return False
             return False
+
+    def _handle_tuple_return_value(
+        self,
+        caller_tuple_variable: Variable,  # TupleVariable
+        callee_return_values: List[Variable],
+        callee_return_types: List,
+        domain: IntervalDomain,
+    ) -> None:
+        """Handle copying constraints for tuple return values."""
+        from slither.slithir.variables.tuple import TupleVariable
+
+        if not isinstance(caller_tuple_variable, TupleVariable):
+            return
+
+        # Process each return value and copy to corresponding tuple element
+        for i, (callee_return_value, return_type) in enumerate(
+            zip(callee_return_values, callee_return_types)
+        ):
+            # Only process numeric types
+            if not (
+                isinstance(return_type, ElementaryType)
+                and self.variable_manager.is_type_numeric(return_type)
+            ):
+                continue
+
+            # Create tuple element name matching what we created in _create_return_temporary_variables
+            tuple_element_name = f"{caller_tuple_variable.name}_element_{i}"
+
+            # Check if tuple element already exists with valid constraints
+            if domain.state.has_range_variable(tuple_element_name):
+                existing_range_var = domain.state.get_range_variable(tuple_element_name)
+                # If the tuple element already has valid constraints (not just placeholder), don't overwrite it
+                if not (
+                    existing_range_var.valid_values.is_empty()
+                    and existing_range_var.interval_ranges
+                ):
+                    logger.debug(
+                        f"Tuple element {tuple_element_name} already has valid constraints, skipping overwrite"
+                    )
+                    continue
+
+            if isinstance(callee_return_value, Variable):
+                callee_return_value_name = self.variable_manager.get_variable_name(
+                    callee_return_value
+                )
+
+                # Look for the return value identifier created by OperationHandler
+                return_identifier = f"return_{callee_return_value_name}"
+
+                if domain.state.has_range_variable(return_identifier):
+                    self._copy_constraints_between_variables(
+                        return_identifier, tuple_element_name, domain
+                    )
+                elif domain.state.has_range_variable(callee_return_value_name):
+                    # Fallback to original variable name
+                    self._copy_constraints_between_variables(
+                        callee_return_value_name, tuple_element_name, domain
+                    )
+            elif isinstance(callee_return_value, Constant):
+                # Use constraint application manager to create constant value range variable
+                self.constraint_applier.create_constant_value_range_variable(
+                    tuple_element_name, callee_return_value, return_type, domain
+                )

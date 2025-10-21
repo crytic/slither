@@ -501,3 +501,29 @@ class RangeVariable:
         # Union invalid values (if reference says something is invalid, it should be invalid)
         if not ref_range_var.invalid_values.is_empty():
             self.invalid_values = self.invalid_values.union(ref_range_var.invalid_values)
+
+    def __str__(self) -> str:
+        """Return a string representation of the RangeVariable."""
+        parts = []
+
+        # Add type information
+        if self.var_type:
+            type_name = self.var_type.name if hasattr(self.var_type, "name") else str(self.var_type)
+            parts.append(f"type={type_name}")
+
+        # Add interval ranges
+        if self.interval_ranges:
+            ranges_str = ", ".join(str(r) for r in self.interval_ranges)
+            parts.append(f"ranges=[{ranges_str}]")
+
+        # Add valid values
+        if not self.valid_values.is_empty():
+            values_str = ", ".join(str(v) for v in sorted(self.valid_values))
+            parts.append(f"valid={{{values_str}}}")
+
+        # Add invalid values
+        if not self.invalid_values.is_empty():
+            invalid_str = ", ".join(str(v) for v in sorted(self.invalid_values))
+            parts.append(f"invalid={{{invalid_str}}}")
+
+        return f"RangeVariable({', '.join(parts)})"

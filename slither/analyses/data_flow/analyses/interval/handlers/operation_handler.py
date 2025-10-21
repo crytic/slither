@@ -46,6 +46,7 @@ from slither.analyses.data_flow.analyses.interval.handlers.type_conversion_handl
 from slither.analyses.data_flow.analyses.interval.handlers.index_handler import (
     IndexHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.unpack_handler import UnpackHandler
 from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
     ConstraintManager,
 )
@@ -69,6 +70,7 @@ from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.index import Index
 from slither.slithir.operations.unary import Unary
+from slither.slithir.operations.unpack import Unpack
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
@@ -100,6 +102,7 @@ class OperationHandler:
         self.internal_dynamic_call_handler = InternalDynamicCallHandler(
             self.shared_constraint_storage
         )
+        self.unpack_handler = UnpackHandler(self.shared_constraint_storage)
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -187,3 +190,6 @@ class OperationHandler:
     ):
 
         self.internal_dynamic_call_handler.handle_internal_dynamic_call(node, domain, operation)
+
+    def handle_unpack(self, node: Node, domain: IntervalDomain, operation: Unpack):
+        self.unpack_handler.handle_unpack(node, domain, operation)
