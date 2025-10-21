@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING, List, Tuple, Union
 
+from _pytest.nodes import Node
 from loguru import logger
 
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
@@ -360,7 +361,9 @@ class RangeVariable:
 
     @staticmethod
     def get_variable_info(
-        domain: "IntervalDomain", variable: Union[Variable, Constant, RVALUE, Function]
+        domain: "IntervalDomain",
+        variable: Union[Variable, Constant, RVALUE, Function],
+        node: Node = None,
     ) -> "RangeVariable":
         """Retrieve state information for a variable or constant."""
         from decimal import Decimal

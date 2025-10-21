@@ -1,15 +1,14 @@
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.core.types.value_set import \
-    ValueSet
-from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import \
-    ConstraintManager
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.value_set import ValueSet
+from slither.analyses.data_flow.analyses.interval.managers.constraint_manager import (
+    ConstraintManager,
+)
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
@@ -46,6 +45,7 @@ class ComparisonHandler:
             raise ValueError("Comparison operation lvalue is None")
 
         # Store the comparison operation constraint for future use
+        logger.warning(f"Storing comparison operation constraint for variable {operation.lvalue}")
         self.constraint_storage.store_comparison_operation_constraint(operation, domain)
 
         # Create a range variable for the comparison result (boolean)
@@ -59,4 +59,3 @@ class ComparisonHandler:
             var_type=ElementaryType("bool"),
         )
         domain.state.set_range_variable(temp_var_name, range_variable)
-

@@ -1,11 +1,10 @@
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary
@@ -21,6 +20,7 @@ class ArithmeticHandler:
             logger.error("Arithmetic operation lvalue is not a variable")
             raise ValueError("Arithmetic operation lvalue is not a variable")
 
+        logger.info(f"Handling arithmetic operation: {operation}")
         left_variable_range = RangeVariable.get_variable_info(domain, operation.variable_left)
         right_variable_range = RangeVariable.get_variable_info(domain, operation.variable_right)
 
@@ -36,6 +36,6 @@ class ArithmeticHandler:
             name=result_variable_name, range_variable=result_range_variable
         )
 
-        # Store the arithmetic operation for constraint solving
-        if self.constraint_storage:
-            self.constraint_storage.store_variable_constraint(result_variable_name, operation)
+        # Don't store arithmetic operations as constraints
+        # Only comparison operations should be stored as constraints
+        # Arithmetic operations are computation results, not comparison constraints

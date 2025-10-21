@@ -138,7 +138,8 @@ class IntervalAnalysis(Analysis):
         # Create a copy of the domain to avoid modifying the original
         filtered_domain = domain.deep_copy()
 
-        list_of_conditions = self.condition_extractor(condition_variable)
+        # Use the existing logic but pass the condition directly instead of using condition_extractor
+        list_of_conditions = [(condition, False)]  # The condition itself with no negation
 
         if branch_taken:
             return self._apply_then_branch_condition(filtered_domain, list_of_conditions)
@@ -293,11 +294,19 @@ class IntervalAnalysis(Analysis):
                     left_operand_name = self._variable_info_manager.get_variable_name(
                         operation.variable_left
                     )
+                    logger.info(
+                        f"key: {left_operand_name}, value: {actual_comparison}, type: {type(actual_comparison)}"
+                    )
                     self._constraint_manager.store_variable_constraint(
                         left_operand_name, actual_comparison
                     )
-                    self._constraint_manager.apply_constraint_from_variable(
-                        operation.variable_left, domain, operation
+                    logger.info(
+                        f"Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
+                    )
+                    # Apply the constraint directly to the domain
+                    # The constraint is the comparison operation itself, not something stored elsewhere
+                    self._constraint_manager.constraint_applier._apply_comparison_constraint(
+                        actual_comparison, domain
                     )
 
         return domain
@@ -371,8 +380,16 @@ class IntervalAnalysis(Analysis):
                     self._constraint_manager.store_variable_constraint(
                         left_operand_name, actual_comparison
                     )
-                    self._constraint_manager.apply_constraint_from_variable(
-                        operation.variable_left, domain, operation
+                    logger.info(
+                        f" ELSE: Storing constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
+                    )
+                    # Apply the constraint directly to the domain
+                    # The constraint is the comparison operation itself, not something stored elsewhere
+                    self._constraint_manager.constraint_applier._apply_comparison_constraint(
+                        actual_comparison, domain
+                    )
+                    logger.info(
+                        f" ELSE: Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
                     )
 
                     logger.debug(

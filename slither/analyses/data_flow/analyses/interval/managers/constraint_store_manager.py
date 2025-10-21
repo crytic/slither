@@ -9,10 +9,13 @@ from typing import Dict, Optional, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
+from slither.slithir.operations.operation import Operation
 
 
 class ConstraintStoreManager:
@@ -20,16 +23,21 @@ class ConstraintStoreManager:
 
     def __init__(self):
         # Store constraints from comparison operations for each variable
-        self._comparison_constraints: Dict[str, Union[Binary, Variable]] = {}
+        self._comparison_constraints: Dict[str, Union[Binary, Variable, Operation]] = {}
         # Initialize variable info manager for basic operations
         self.variable_manager = VariableInfoManager()
 
-    def store_variable_constraint(self, var_name: str, constraint: Union[Binary, Variable]) -> None:
+    def store_variable_constraint(
+        self, var_name: str, constraint: Union[Binary, Variable, Operation]
+    ) -> None:
         """Store a constraint that applies to a specific variable."""
         self._comparison_constraints[var_name] = constraint
-#        logger.debug(f"Stored constraint for variable '{var_name}': {constraint}")
 
-    def get_variable_constraint(self, var_name: str) -> Optional[Union[Binary, Variable]]:
+    #        logger.debug(f"Stored constraint for variable '{var_name}': {constraint}")
+
+    def get_variable_constraint(
+        self, var_name: str
+    ) -> Optional[Union[Binary, Variable, Operation]]:
         """Retrieve the constraint stored for a specific variable."""
         return self._comparison_constraints.get(var_name)
 
@@ -40,7 +48,8 @@ class ConstraintStoreManager:
     def clear_all_constraints(self) -> None:
         """Clear all stored comparison constraints."""
         self._comparison_constraints.clear()
-#        logger.debug("Cleared all comparison constraints")
+
+    #        logger.debug("Cleared all comparison constraints")
 
     def get_total_constraint_count(self) -> int:
         """Get the total number of stored constraints."""

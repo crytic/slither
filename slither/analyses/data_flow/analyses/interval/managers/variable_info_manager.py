@@ -85,7 +85,7 @@ class VariableInfoManager:
             return is_numeric
         except Exception as e:
             logger.error(f"Error checking if type {elementary_type} is numeric: {e}")
-            embed()
+            # embed()
             raise ValueError(f"Error checking if type {elementary_type} is numeric: {e}")
 
     def is_type_bytes(self, elementary_type: ElementaryType) -> bool:
@@ -238,8 +238,12 @@ class VariableInfoManager:
 
                 else:
                     logger.warning(
-                        f"Non-elementary, non-struct field type {field_type} for struct field {field_name} - skipping"
+                        f"1. Non-elementary, non-struct field type {field_type} for struct field {field_name} - skipping"
                     )
+                    logger.warning(
+                        f"field_type: {field_type}, type: {type(field_type)}, name: {parameter.name}"
+                    )
+                    # embed()
 
         elif isinstance(type_def, Contract):
             # For contract types, create range variables for the contract's state variables
@@ -269,7 +273,7 @@ class VariableInfoManager:
 
                 else:
                     logger.warning(
-                        f"Non-elementary, non-user-defined state variable type {field_type} for contract field {field_name} - skipping"
+                        f"2. Non-elementary, non-user-defined state variable type {field_type} for contract field {field_name} - skipping"
                     )
 
         else:
@@ -413,7 +417,7 @@ class VariableInfoManager:
 
             else:
                 logger.warning(
-                    f"Non-elementary, non-struct nested field type {field_type} for struct field {field_name} - skipping"
+                    f"3. Non-elementary, non-struct nested field type {field_type} for struct field {field_name} - skipping"
                 )
 
         return range_variables

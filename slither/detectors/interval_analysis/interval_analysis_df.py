@@ -67,8 +67,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 if not function.is_implemented or function.is_constructor:
                     continue
 
-                if "_settle" not in function.name and flag:
-                    continue
+                # if "_settle" not in function.name and flag:
+                #     continue
 
                 # Run interval analysis
                 engine = Engine.new(analysis=IntervalAnalysis(), function=function)

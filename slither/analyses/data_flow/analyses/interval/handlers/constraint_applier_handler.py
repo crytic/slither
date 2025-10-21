@@ -73,7 +73,6 @@ class ConstraintApplierHandler:
         # Check if variable exists in domain state
         if not domain.state.has_range_variable(condition_variable_name):
             logger.error(f"Variable '{condition_variable_name}' not found in domain state")
-            embed()
             raise ValueError(f"Variable '{condition_variable_name}' not found in domain state")
 
         # Check if it was assigned from a temporary variable (bool r=x>50; require(r))
@@ -85,18 +84,19 @@ class ConstraintApplierHandler:
 
         stored_constraint = self.constraint_store.get_variable_constraint(temp_var_name)
 
+        logger.info(
+            f"variable constraint: {temp_var_name}, stored_constraint: {stored_constraint}, operation: {operation}"
+        )
+
+        # embed()
+
         if stored_constraint is None:
             logger.debug(
                 f"No constraint found for variable {temp_var_name}, skipping constraint application"
             )
             return
 
-        if isinstance(stored_constraint, InternalDynamicCall):
-            logger.error(f"InternalDynamicCall found for variable {temp_var_name}")
-            embed()
-            raise ValueError(f"InternalDynamicCall found for variable {temp_var_name}")
-
-        # Check if the stored constraint can be satisfied using condition validity checker
+        # Handle different types of stored constraints
         if isinstance(stored_constraint, Binary):
             from slither.analyses.data_flow.analyses.interval.managers.condition_validity_checker_manager import (
                 ConditionValidityChecker,
@@ -116,7 +116,20 @@ class ConstraintApplierHandler:
                 domain.variant = DomainVariant.TOP
                 return
 
-        self._apply_comparison_constraint(stored_constraint, domain)
+            self._apply_comparison_constraint(stored_constraint, domain)
+        elif isinstance(stored_constraint, Variable):
+            # For Variable constraints, we can't apply comparison constraints directly
+            # This typically happens when a variable is used in a condition
+            logger.debug(
+                f"Variable constraint {stored_constraint} cannot be applied as comparison constraint"
+            )
+            return
+        else:
+            # For other operation types (like InternalDynamicCall), we can't apply comparison constraints
+            logger.debug(
+                f"Operation type {type(stored_constraint)} cannot be applied as comparison constraint"
+            )
+            return
 
     def _handle_literal_constraint(
         self, condition_variable: Constant, domain: IntervalDomain, operation: SolidityCall
@@ -212,7 +225,11 @@ class ConstraintApplierHandler:
     ) -> None:
         """Apply a comparison constraint to the domain."""
         # Create a unique identifier for this constraint to prevent duplicates
+        logger.info(
+            f"Applying comparison constraint: {comparison_operation}, type: {type(comparison_operation)}"
+        )
         constraint_id = self._create_constraint_id(comparison_operation)
+
         if constraint_id in self._applied_constraints:
             logger.debug(f"Skipping duplicate constraint: {constraint_id}")
             return
@@ -314,6 +331,9 @@ class ConstraintApplierHandler:
         """Apply constraint for variable < constant case."""
         try:
             # Use RangeVariable.get_variable_info to handle reference variables
+            logger.info(
+                f"Applying variable-constant constraint: {variable_operand} {operation_type} {constant_operand}"
+            )
             range_var = RangeVariable.get_variable_info(domain, variable_operand)
 
             # Extract constant value
@@ -537,7 +557,7 @@ class ConstraintApplierHandler:
         """Create a unique identifier for a constraint to prevent duplicates."""
         if not isinstance(comparison_operation, Binary):
             logger.error(f"Comparison operation is not a binary operation: {comparison_operation}")
-            embed()
+            # embed()
             raise ValueError(
                 f"Comparison operation is not a binary operation: {comparison_operation}"
             )

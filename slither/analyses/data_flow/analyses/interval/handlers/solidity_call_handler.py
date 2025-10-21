@@ -256,6 +256,7 @@ class SolidityCallHandler:
         source_value_arg = operation.arguments[1]
 
         # Get the range information for the source value
+        logger.info(f"Getting range information for source value: {source_value_arg}")
         source_range = RangeVariable.get_variable_info(domain, source_value_arg)
 
         # The result is always a uint8 (0-255)

@@ -163,6 +163,7 @@ class OperationHandler:
             raise ValueError("Boolean operation lvalue is None")
 
         # Store the boolean operation constraint for future use
+        logger.warning(f"Storing boolean operation constraint for variable {operation.lvalue}")
         self.shared_constraint_storage.store_comparison_operation_constraint(operation, domain)
 
         # Create a range variable for the boolean result (0 or 1)

@@ -2,6 +2,7 @@ from typing import List, Union, Optional, TYPE_CHECKING
 import decimal
 
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.managers.reference_handler import (
@@ -43,11 +44,15 @@ class ConstraintManager:
         self.variable_manager = VariableInfoManager()
 
     # Delegate storage methods to ConstraintStoreManager
-    def store_variable_constraint(self, var_name: str, constraint: Union[Binary, Variable]) -> None:
+    def store_variable_constraint(
+        self, var_name: str, constraint: Union[Binary, Variable, Operation]
+    ) -> None:
         """Store a constraint that applies to a specific variable."""
         self.constraint_store.store_variable_constraint(var_name, constraint)
 
-    def get_variable_constraint(self, var_name: str) -> Optional[Union[Binary, Variable]]:
+    def get_variable_constraint(
+        self, var_name: str
+    ) -> Optional[Union[Binary, Variable, Operation]]:
         """Retrieve the constraint stored for a specific variable."""
         return self.constraint_store.get_variable_constraint(var_name)
 
@@ -104,7 +109,7 @@ class ConstraintManager:
                         logger.error(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )
-                        embed()
+                        # embed()
                         raise ValueError(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )

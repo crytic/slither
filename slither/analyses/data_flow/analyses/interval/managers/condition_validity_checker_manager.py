@@ -3,20 +3,20 @@ from typing import Optional, Set, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.analysis.domain import \
-    IntervalDomain
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
-from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import \
-    OperandAnalysisManager
-from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import \
-    VariableInfoManager
+from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
+from slither.analyses.data_flow.analyses.interval.managers.operand_analysis_manager import (
+    OperandAnalysisManager,
+)
+from slither.analyses.data_flow.analyses.interval.managers.variable_info_manager import (
+    VariableInfoManager,
+)
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
 from IPython import embed
+
 
 class ConditionValidityChecker:
     """
@@ -146,7 +146,7 @@ class ConditionValidityChecker:
             variable_name = self._variable_manager.get_variable_name(variable_operand)
             if variable_name not in domain.state.get_range_variables():
                 logger.error(f"Variable '{variable_name}' not found in domain state")
-                embed()
+                # embed()
                 raise ValueError(f"Variable '{variable_name}' not found in domain state")
 
             variable_state = domain.state.get_range_variables()[variable_name]
@@ -320,7 +320,7 @@ class ConditionValidityChecker:
                 f"Cannot determine condition validity: left_ranges={len(left_value_ranges)}, right_ranges={len(right_value_ranges)}"
             )
             return True  # Assume valid when we can't determine
-        
+
         for left_range in left_value_ranges:
             for right_range in right_value_ranges:
                 if self._can_ranges_satisfy_condition(left_range, right_range, operator_type):

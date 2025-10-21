@@ -21,6 +21,9 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 
 
+from IPython import embed
+
+
 class InternalDynamicCallHandler:
     def __init__(self, constraint_manager: ConstraintManager = None):
         self.constraint_manager = constraint_manager or ConstraintManager()
@@ -53,8 +56,9 @@ class InternalDynamicCallHandler:
 
         domain.state.set_range_variable(result_var_name, range_variable)
 
-        if self.constraint_manager:
-            self.constraint_manager.store_variable_constraint(result_var_name, operation)
+        # Don't store InternalDynamicCall operations as constraints
+        # Only comparison operations should be stored as constraints
+        # InternalDynamicCall results are operation results, not comparison constraints
 
         logger.debug(f"Created range variable for dynamic call result: {result_var_name}")
 

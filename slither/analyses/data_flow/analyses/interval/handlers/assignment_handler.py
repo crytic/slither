@@ -134,10 +134,10 @@ class AssignmentHandler:
                 var_type=written_variable_type,
             )
             domain.state.set_range_variable(written_variable_name, range_variable)
-            
+
             # Store the relationship: local variable -> temporary variable
             domain.state.add_temp_var_mapping(written_variable_name, source_variable_name)
-            
+
             #            logger.debug(f"Created boolean variable {written_variable_name} from temporary")
             return
 
@@ -150,7 +150,6 @@ class AssignmentHandler:
 
         if source_range_variable is None:
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
-            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
@@ -250,7 +249,7 @@ class AssignmentHandler:
         if not domain.state.has_range_variable(source_variable_name):
 
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
-            embed()
+            # embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )

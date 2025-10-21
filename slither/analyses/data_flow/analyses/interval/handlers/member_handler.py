@@ -90,7 +90,7 @@ class MemberHandler:
                 logger.error(
                     f"Target variable {target_var_name} not found for reference {var_name}"
                 )
-                embed()
+                # embed()
                 raise ValueError(
                     f"Target variable {target_var_name} not found for reference {var_name}"
                 )
