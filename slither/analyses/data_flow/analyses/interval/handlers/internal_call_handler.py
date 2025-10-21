@@ -121,39 +121,45 @@ class InternalCallHandler:
         if not called_function.return_type or len(called_function.return_type) == 0:
             return
 
-        # For assembly functions, look for assignments to return variables
-        return_variables = called_function.returns
-        if return_variables:
-            # Create temporary variable for the return value
-            self._create_return_temporary_variables(operation.lvalue, return_variables, domain)
+        # First, try to look for return statements and extract actual return values
+        return_values_found = False
+        for node in called_function.nodes:
+            for ir in node.irs:
+                # Skip non-return operations
+                if not isinstance(ir, Return):
+                    continue
 
-            # Copy callee return constraints to caller variable
-            self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
-                operation.lvalue, return_variables, called_function.return_type, domain
-            )
-        else:
-            # Look for return statements and extract constraints
-            for node in called_function.nodes:
-                for ir in node.irs:
-                    # Skip non-return operations
-                    if not isinstance(ir, Return):
-                        continue
+                # Skip return statements without values
+                if not ir.values:
+                    continue
 
-                    # Skip return statements without values
-                    if not ir.values:
-                        continue
+                # Skip if return value count doesn't match expected count
+                if len(ir.values) != len(called_function.return_type):
+                    continue
 
-                    # Skip if return value count doesn't match expected count
-                    if len(ir.values) != len(called_function.return_type):
-                        continue
+                # Create temporary variable for the return value
+                self._create_return_temporary_variables(operation.lvalue, ir.values, domain)
 
-                    # Create temporary variable for the return value if it's a constant
-                    self._create_return_temporary_variables(operation.lvalue, ir.values, domain)
+                # Copy callee return constraints to caller variable and exit
+                self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
+                    operation.lvalue, ir.values, called_function.return_type, domain
+                )
+                return_values_found = True
+                break  # Exit after processing the first return statement
+            if return_values_found:
+                break
 
-                    # Copy callee return constraints to caller variable and exit
-                    self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
-                        operation.lvalue, ir.values, called_function.return_type, domain
-                    )
+        # If no return statements found, fall back to assembly function logic
+        if not return_values_found:
+            return_variables = called_function.returns
+            if return_variables:
+                # Create temporary variable for the return value
+                self._create_return_temporary_variables(operation.lvalue, return_variables, domain)
+
+                # Copy callee return constraints to caller variable
+                self.constraint_manager.copy_callee_return_constraints_to_caller_variable(
+                    operation.lvalue, return_variables, called_function.return_type, domain
+                )
 
     def _create_return_temporary_variables(
         self, caller_lvalue: Variable, return_values: List[Variable], domain: IntervalDomain
@@ -199,45 +205,14 @@ class InternalCallHandler:
                     )
                     logger.debug(f"Return value {i} canonical name: {return_value_name}")
 
-                    # For this specific case, we know the function returns (a, a), so we need to look up the local variable 'a'
-                    # The return values might be intermediate variables that don't have the correct constraints
-                    local_var_name = "DecodeTest.doubleValue().a"
-
-                    # Check if the local variable exists in the domain state
-                    if domain.state.has_range_variable(local_var_name):
-                        # Copy the existing range variable from the local variable
-                        existing_range_var = domain.state.get_range_variable(local_var_name)
+                    # Check if the return value variable exists in the domain state
+                    if domain.state.has_range_variable(return_value_name):
+                        # Copy the existing range variable from the return value variable
+                        existing_range_var = domain.state.get_range_variable(return_value_name)
                         range_variable = existing_range_var.deep_copy()
                         logger.debug(
-                            f"Copied existing range variable for local variable {local_var_name} -> {range_variable}"
+                            f"Copied existing range variable for {return_value_name} -> {range_variable}"
                         )
-                    else:
-                        # Fallback to original logic
-                        if domain.state.has_range_variable(return_value_name):
-                            existing_range_var = domain.state.get_range_variable(return_value_name)
-                            range_variable = existing_range_var.deep_copy()
-                            logger.debug(
-                                f"Copied existing range variable for {return_value_name} -> {range_variable}"
-                            )
-                        else:
-                            # Try looking for return value with return_ prefix
-                            return_identifier = f"return_{return_value_name}"
-                            if domain.state.has_range_variable(return_identifier):
-                                existing_range_var = domain.state.get_range_variable(
-                                    return_identifier
-                                )
-                                range_variable = existing_range_var.deep_copy()
-                                logger.debug(
-                                    f"Copied existing range variable for {return_identifier} -> {range_variable}"
-                                )
-                            else:
-                                logger.debug(
-                                    f"Return value {return_value_name} and {return_identifier} not found in domain state, creating placeholder"
-                                )
-                                logger.debug(
-                                    f"Available variables in domain: {list(domain.state.get_range_variables().keys())}"
-                                )
-                                range_variable = self._create_placeholder_for_type(var_type)
 
                 # Store the tuple element in domain state
                 domain.state.set_range_variable(tuple_element_name, range_variable)
@@ -271,8 +246,20 @@ class InternalCallHandler:
                     else:
                         range_variable = self._create_placeholder_for_type(var_type)
                 else:
-                    # Handle non-constant return values
-                    range_variable = self._create_placeholder_for_type(var_type)
+                    # Handle non-constant return values - check if it's a local variable with known constraints
+                    return_value_name = self.constraint_manager.variable_manager.get_variable_name(
+                        return_value
+                    )
+                    logger.debug(f"Return value canonical name: {return_value_name}")
+
+                    # Check if the return value variable exists in the domain state
+                    if domain.state.has_range_variable(return_value_name):
+                        # Copy the existing range variable from the return value variable
+                        existing_range_var = domain.state.get_range_variable(return_value_name)
+                        range_variable = existing_range_var.deep_copy()
+                        logger.debug(
+                            f"Copied existing range variable for {return_value_name} -> {range_variable}"
+                        )
 
                 # Store the temporary variable in domain state
                 domain.state.set_range_variable(caller_lvalue_name, range_variable)

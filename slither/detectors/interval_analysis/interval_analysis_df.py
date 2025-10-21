@@ -239,8 +239,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_underflow: bool = range_var.has_underflow()
 
                 # Only include variables that have overflow/underflow issues
-                if not (has_overflow or has_underflow):
-                    continue
+                # if not (has_overflow or has_underflow):
+                #     continue
 
                 if "TMP" in var_name:
                     continue
