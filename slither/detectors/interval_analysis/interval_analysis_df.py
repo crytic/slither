@@ -3,8 +3,8 @@ Interval analysis detection
 """
 
 import json
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional, Set
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 from pathlib import Path
 
 from loguru import logger
@@ -13,13 +13,14 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
-from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.declarations.function import Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
+
+from IPython import embed
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,7 @@ class FindingValue:
     has_underflow: bool
     var_type: Optional[str] = None
     variable_name: Optional[str] = None
+    node_expression: Optional[str] = None  # Added this
 
 
 class IntervalAnalysisDF(AbstractDetector):
@@ -56,90 +58,183 @@ class IntervalAnalysisDF(AbstractDetector):
     WIKI_RECOMMENDATION = "tbd"
     STANDARD_JSON = False
 
-    def find_intervals(self) -> Dict[FindingKey, List[FindingValue]]:
-        """Find intervals for all functions and return variable ranges."""
-        result: Dict[FindingKey, List[FindingValue]] = {}
+    def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:
+        """Analyze a single function and return findings."""
+        findings: Dict[FindingKey, List[FindingValue]] = {}
 
-        # Prepare structured output for file writing
-        structured_results = []
+        # Run interval analysis
+        engine = Engine.new(analysis=IntervalAnalysis(), function=function)
+        engine.run_analysis()
+        analysis_results = engine.result()
 
-        flag = False
-        for contract in self.contracts:
-            if "Settlement" not in contract.name and flag:
+        # Extract findings from each node
+        for node, analysis in analysis_results.items():
+            # Skip checked scopes - no overflows will happen there
+            if node.scope.is_checked:
+                continue
+            if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
+                continue
+            if analysis.post.variant != DomainVariant.STATE:
                 continue
 
-            contract_name = contract.name
-            logger.info(f"Analyzing contract: {contract_name}")
+            state = analysis.post.state
+
+            # Get variables relevant to this node (exact matches only)
+            node_variables = set()
+            variables = node.variables_written
+
+            for var in variables:
+                if hasattr(var, "canonical_name"):
+                    node_variables.add(var.canonical_name)
+                elif hasattr(var, "name"):
+                    node_variables.add(var.name)
+
+            if not node_variables:
+                continue
+
+            # Check each range variable
+            for var_name, range_var in state.get_range_variables().items():
+
+                # Only exact matches
+                if var_name not in node_variables:
+                    continue
+
+                # if (
+                #     "Settlement" in node.function.contract.name
+                #     and "_settleOrd" in node.function.name
+                #     and variables
+                #     and node.node_id == 17
+                # ):
+                #     embed()
+
+                # Skip booleans, temp variables, and variables ending with dot
+                if (
+                    range_var.get_var_type() == ElementaryType("bool")
+                    or "TMP" in var_name
+                    or var_name.endswith(".")
+                ):
+                    continue
+
+                # Only include overflow/underflow issues
+                has_overflow = range_var.has_overflow()
+                has_underflow = range_var.has_underflow()
+                if not (has_overflow or has_underflow):
+                    continue
+
+                # Extract interval ranges
+                interval_ranges = [
+                    {
+                        "lower": str(r.get_lower()),
+                        "upper": str(r.get_upper()),
+                    }
+                    for r in range_var.get_interval_ranges()
+                ]
+
+                # Create finding
+                finding_key = FindingKey(
+                    function=function,
+                    variable_name=var_name,
+                    node_id=node.node_id,
+                )
+
+                finding_value = FindingValue(
+                    interval_ranges=interval_ranges,
+                    valid_values=[str(v) for v in range_var.get_valid_values()],
+                    invalid_values=[str(v) for v in range_var.get_invalid_values()],
+                    has_overflow=has_overflow,
+                    has_underflow=has_underflow,
+                    var_type=str(range_var.get_var_type()) if range_var.get_var_type() else None,
+                    variable_name=var_name,
+                    node_expression=(
+                        str(node.expression)
+                        if hasattr(node, "expression") and node.expression
+                        else None
+                    ),
+                )
+
+                if finding_key not in findings:
+                    findings[finding_key] = []
+                findings[finding_key].append(finding_value)
+
+        return findings
+
+    def _analyze_all_contracts(self) -> Dict[FindingKey, List[FindingValue]]:
+        """Run analysis on all contracts."""
+        all_findings: Dict[FindingKey, List[FindingValue]] = {}
+
+        logger.info("=" * 80)
+        logger.info("Starting interval analysis on all contracts")
+        logger.info(f"Total contracts: {len(self.contracts)}")
+        logger.info("=" * 80)
+
+        for contract in self.contracts:
+            logger.info(f"Analyzing contract: {contract.name}")
 
             for function in contract.functions_and_modifiers_declared:
                 if not function.is_implemented or function.is_constructor:
                     continue
 
-                # if "_settle" not in function.name and flag:
-                #     continue
+                logger.info(f"  Analyzing function: {function.name}")
+                function_findings = self._analyze_function(function)
+                all_findings.update(function_findings)
 
-                function_name = function.name
-                logger.info(f"  Running interval analysis on function: {function_name}")
+                if function_findings:
+                    logger.info(f"  ✓ Found {len(function_findings)} findings")
 
-                # Run interval analysis on every function
-                engine = Engine.new(analysis=IntervalAnalysis(), function=function)
-                engine.run_analysis()
-                analysis_results = engine.result()
+        logger.info("=" * 80)
+        logger.info(f"Analysis complete: {len(all_findings)} total findings")
+        logger.info("=" * 80)
 
-                # Extract variable ranges from analysis results
-                function_findings = self._extract_variable_ranges(function, analysis_results)
-                result.update(function_findings)
+        return all_findings
 
-                # Convert findings to structured format for this function
-                function_data = {
+    def _findings_to_structured_format(
+        self, findings: Dict[FindingKey, List[FindingValue]]
+    ) -> List[Dict]:
+        """Convert findings dictionary to structured format for JSON output."""
+        # Group by contract and function
+        grouped = {}
+
+        for finding_key, finding_values in findings.items():
+            contract_name = finding_key.function.contract.name
+            function_name = finding_key.function.name
+            key = (contract_name, function_name)
+
+            if key not in grouped:
+                grouped[key] = {
                     "contract": contract_name,
                     "function": function_name,
                     "findings": [],
                 }
 
-                for finding_key, finding_values in function_findings.items():
-                    for finding_value in finding_values:
-                        finding_data = {
-                            "variable_name": finding_key.variable_name,
-                            "node_id": finding_key.node_id,
-                            "var_type": finding_value.var_type,
-                            "has_overflow": finding_value.has_overflow,
-                            "has_underflow": finding_value.has_underflow,
-                            "interval_ranges": finding_value.interval_ranges,
-                            "valid_values": finding_value.valid_values,
-                            "invalid_values": finding_value.invalid_values,
-                        }
-                        function_data["findings"].append(finding_data)
+            for finding_value in finding_values:
+                grouped[key]["findings"].append(
+                    {
+                        "variable_name": finding_key.variable_name,
+                        "node_id": finding_key.node_id,
+                        "node_expression": finding_value.node_expression,
+                        "var_type": finding_value.var_type,
+                        "has_overflow": finding_value.has_overflow,
+                        "has_underflow": finding_value.has_underflow,
+                        "interval_ranges": finding_value.interval_ranges,
+                        "valid_values": finding_value.valid_values,
+                        "invalid_values": finding_value.invalid_values,
+                    }
+                )
 
-                # Only add if there are findings
-                if function_data["findings"]:
-                    structured_results.append(function_data)
-                    logger.info(
-                        f"Added findings for {contract_name}.{function_name}: {len(function_data['findings'])} findings"
-                    )
-                else:
-                    logger.debug(f"No findings for {contract_name}.{function_name}")
+        return list(grouped.values())
 
-        # Write results to file
-        self._write_results_to_file(structured_results)
-
-        return result
-
-    def _write_results_to_file(self, structured_results: List[Dict]) -> None:
-        """Write analysis results to a JSON file."""
-        output_dir = Path("interval_analysis_results")
-        output_dir.mkdir(exist_ok=True)
-
+    def _write_json_report(self, structured_results: List[Dict], output_dir: Path):
+        """Write JSON report."""
         output_file = output_dir / "interval_analysis_report.json"
-
         with open(output_file, "w") as f:
             json.dump(structured_results, f, indent=2)
+        logger.info(f"JSON report written to: {output_file}")
 
-        logger.info(f"Interval analysis results written to: {output_file}")
+    def _write_text_report(self, structured_results: List[Dict], output_dir: Path):
+        """Write human-readable text report."""
+        output_file = output_dir / "interval_analysis_report.txt"
 
-        # Also create a human-readable text report
-        text_file = output_dir / "interval_analysis_report.txt"
-        with open(text_file, "w") as f:
+        with open(output_file, "w") as f:
             f.write("=" * 80 + "\n")
             f.write("INTERVAL ANALYSIS REPORT\n")
             f.write("=" * 80 + "\n\n")
@@ -153,6 +248,8 @@ class IntervalAnalysisDF(AbstractDetector):
                     f.write(f"\n  Variable: {finding['variable_name']}\n")
                     if finding["node_id"] is not None:
                         f.write(f"  Node ID: {finding['node_id']}\n")
+                    if finding.get("node_expression"):
+                        f.write(f"  Expression: {finding['node_expression']}\n")
                     if finding["var_type"]:
                         f.write(f"  Type: {finding['var_type']}\n")
 
@@ -182,203 +279,102 @@ class IntervalAnalysisDF(AbstractDetector):
 
                 f.write("=" * 80 + "\n\n")
 
-        logger.info(f"Human-readable report written to: {text_file}")
+        logger.info(f"Text report written to: {output_file}")
 
-    def _extract_variable_ranges(
-        self, function, analysis_results: Dict[Node, AnalysisState[IntervalDomain]]
-    ) -> Dict[FindingKey, List[FindingValue]]:
-        """Extract variable ranges from analysis results."""
-        findings: Dict[FindingKey, List[FindingValue]] = {}
+    def _generate_slither_outputs(
+        self, findings: Dict[FindingKey, List[FindingValue]]
+    ) -> List[Output]:
+        """Generate Slither Output objects for console display."""
+        results = []
 
-        for node, analysis in analysis_results.items():
-            if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
-                continue
+        # Sort for consistent output
+        sorted_findings = sorted(findings.items(), key=lambda x: x[0].function.name)
 
-            if analysis.post.variant != DomainVariant.STATE:
-                continue
-
-            state = analysis.post.state
-
-            # Get variables that are actually read or written in this node
-            relevant_canonical_names = set()
-
-            # Add variables read in this node
-            for var in node.ssa_variables_read:
-                if hasattr(var, "canonical_name"):
-                    relevant_canonical_names.add(var.canonical_name)
-                elif hasattr(var, "name"):
-                    # Fallback to simple name if canonical_name is not available
-                    relevant_canonical_names.add(var.name)
-
-            # Add variables written in this node
-            for var in node.ssa_variables_written:
-                if hasattr(var, "canonical_name"):
-                    relevant_canonical_names.add(var.canonical_name)
-                elif hasattr(var, "name"):
-                    # Fallback to simple name if canonical_name is not available
-                    relevant_canonical_names.add(var.name)
-
-            # Get range variables from state, but only for relevant variables
-            for var_name, range_var in state.get_range_variables().items():
-                # Check if this variable is relevant to the current node
-                # Match using canonical names
-                is_relevant = var_name in relevant_canonical_names
-
-                # Skip if variable is not relevant to this node
-                if not is_relevant:
-                    continue
-
-                logger.debug(f"Processing variable: {var_name} (relevant: {is_relevant})")
-
-                # Skip boolean variables
-                if range_var.get_var_type() == ElementaryType("bool"):
-                    continue
-
-                # Check for overflow/underflow first
-                has_overflow: bool = range_var.has_overflow()
-                has_underflow: bool = range_var.has_underflow()
-
-                # Only include variables that have overflow/underflow issues
-                if not (has_overflow or has_underflow):
-                    continue
-
-                if "TMP" in var_name:
-                    continue
-
-                # Skip variables that end with a dot
-                if var_name.endswith("."):
-                    continue
-
-                # Extract interval ranges
-                interval_ranges: List[Dict[str, str]] = []
-                for interval_range in range_var.get_interval_ranges():
-                    interval_ranges.append(
-                        {
-                            "lower": str(interval_range.get_lower()),
-                            "upper": str(interval_range.get_upper()),
-                        }
-                    )
-
-                # Extract valid and invalid values
-                valid_values: List[str] = [str(v) for v in range_var.get_valid_values()]
-                invalid_values: List[str] = [str(v) for v in range_var.get_invalid_values()]
-
-                # Create finding key and value
-                finding_key = FindingKey(
-                    function=function,
-                    variable_name=var_name,
-                    node_id=node.node_id,
-                )
-
-                finding_value = FindingValue(
-                    interval_ranges=interval_ranges,
-                    valid_values=valid_values,
-                    invalid_values=invalid_values,
-                    has_overflow=has_overflow,
-                    has_underflow=has_underflow,
-                    var_type=str(range_var.get_var_type()) if range_var.get_var_type() else None,
-                    variable_name=var_name,
-                )
-
-                # Add to findings
-                if finding_key not in findings:
-                    findings[finding_key] = []
-                findings[finding_key].append(finding_value)
-
-        return findings
-
-    def _detect(self) -> List[Output]:
-        """Main detection method."""
-        super()._detect()
-        intervals = self.find_intervals()
-        results: List[Output] = []
-
-        # Sort findings by function name for consistent output
-        result_sorted = sorted(list(intervals.items()), key=lambda x: x[0].function.name)
-
-        for finding_key, finding_values in result_sorted:
-            # Build info string for this finding
+        for finding_key, finding_values in sorted_findings:
             info = [
-                f"Interval analysis for variable '{finding_key.variable_name}' in function '{finding_key.function.name}':\n"
+                f"Interval analysis for variable '{finding_key.variable_name}' "
+                f"in function '{finding_key.function.name}':\n"
             ]
 
             for finding_value in finding_values:
-                # Add node information
+                # Node info
                 if finding_key.node_id is not None:
-                    info += [f"\tNode {finding_key.node_id}"]
-                    # Find the node to get its expression
-                    node = next(
-                        (n for n in finding_key.function.nodes if n.node_id == finding_key.node_id),
-                        None,
-                    )
-                    if node and hasattr(node, "expression") and node.expression:
-                        info += [f": {node.expression}\n"]
+                    info.append(f"\tNode {finding_key.node_id}")
+                    if finding_value.node_expression:
+                        info.append(f": {finding_value.node_expression}\n")
                     else:
-                        info += ["\n"]
-                # Add variable type information first
-                if finding_value.var_type:
-                    info += [f"\tType: {finding_value.var_type}\n"]
+                        info.append("\n")
 
-                # Add overflow/underflow warnings prominently
+                # Type
+                if finding_value.var_type:
+                    info.append(f"\tType: {finding_value.var_type}\n")
+
+                # Warnings
                 warnings = []
                 if finding_value.has_overflow:
                     warnings.append("OVERFLOW")
                 if finding_value.has_underflow:
                     warnings.append("UNDERFLOW")
-
                 if warnings:
-                    info += [f"\t⚠️  WARNINGS: {', '.join(warnings)}\n"]
+                    info.append(f"\t⚠️  WARNINGS: {', '.join(warnings)}\n")
 
-                # Add interval ranges information
+                # Ranges
                 if finding_value.interval_ranges:
-                    info += ["\tRanges: "]
-                    range_strs = []
-                    for interval in finding_value.interval_ranges:
-                        range_strs.append(f"[{interval['lower']}, {interval['upper']}]")
-                    info += [f"{', '.join(range_strs)}\n"]
+                    range_strs = [
+                        f"[{r['lower']}, {r['upper']}]" for r in finding_value.interval_ranges
+                    ]
+                    info.append(f"\tRanges: {', '.join(range_strs)}\n")
                 else:
-                    info += ["\tRanges: None\n"]
+                    info.append("\tRanges: None\n")
 
-                # Add valid values information
-                if finding_value.valid_values:
-                    info += [f"\tValid: {', '.join(finding_value.valid_values)}\n"]
-                else:
-                    info += ["\tValid: None\n"]
+                # Values
+                info.append(
+                    f"\tValid: {', '.join(finding_value.valid_values) if finding_value.valid_values else 'None'}\n"
+                )
+                info.append(
+                    f"\tInvalid: {', '.join(finding_value.invalid_values) if finding_value.invalid_values else 'None'}\n"
+                )
 
-                # Add invalid values information
-                if finding_value.invalid_values:
-                    info += [f"\tInvalid: {', '.join(finding_value.invalid_values)}\n"]
-                else:
-                    info += ["\tInvalid: None\n"]
-
-            # Generate result and add nodes
+            # Create output
             res = self.generate_result(info)
-
-            # Add the function to the result
             res.add(finding_key.function)
 
-            # Add nodes with metadata
+            # Add node with metadata
             for finding_value in finding_values:
-                # Find the node by node_id
-                node = None
                 if finding_key.node_id is not None:
                     node = next(
                         (n for n in finding_key.function.nodes if n.node_id == finding_key.node_id),
                         None,
                     )
-
-                if node:
-                    res.add(
-                        node,
-                        {
-                            "underlying_type": "interval_analysis",
-                            "variable_name": finding_value.variable_name,
-                            "has_overflow": finding_value.has_overflow,
-                            "has_underflow": finding_value.has_underflow,
-                            "var_type": finding_value.var_type,
-                        },
-                    )
+                    if node:
+                        res.add(
+                            node,
+                            {
+                                "underlying_type": "interval_analysis",
+                                "variable_name": finding_value.variable_name,
+                                "has_overflow": finding_value.has_overflow,
+                                "has_underflow": finding_value.has_underflow,
+                                "var_type": finding_value.var_type,
+                            },
+                        )
 
             results.append(res)
 
         return results
+
+    def _detect(self) -> List[Output]:
+        """Main detection method."""
+        # 1. Run analysis on all contracts
+        findings = self._analyze_all_contracts()
+
+        # 2. Convert to structured format
+        structured_results = self._findings_to_structured_format(findings)
+
+        # 3. Write reports
+        output_dir = Path("interval_analysis_results")
+        output_dir.mkdir(exist_ok=True)
+        self._write_json_report(structured_results, output_dir)
+        self._write_text_report(structured_results, output_dir)
+
+        # 4. Generate Slither outputs for console
+        return self._generate_slither_outputs(findings)

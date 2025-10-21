@@ -1,0 +1,987 @@
+================================================================================
+INTERVAL ANALYSIS REPORT
+================================================================================
+
+Contract: FarmAccounting
+Function: farmedSinceCheckpointScaled
+--------------------------------------------------------------------------------
+
+  Variable: FarmAccounting.farmedSinceCheckpointScaled(FarmAccounting.Info,uint256).elapsed
+  Node ID: 2
+  Expression: elapsed = Math.min(block.timestamp,info.finished) - Math.min(checkpoint,info.finished)
+  Type: uint256
+  ⚠️  WARNINGS: UNDERFLOW
+  Ranges: [-115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+
+================================================================================
+
+Contract: UserAccounting
+Function: farmedPerToken
+--------------------------------------------------------------------------------
+
+  Variable: UserAccounting.farmedPerToken(UserAccounting.Info,bytes32,function(bytes32) returns(uint256),function(bytes32,uint256) returns(uint256)).fpt
+  Node ID: 6
+  Expression: fpt += lazyGetFarmed(context,checkpoint) / supply
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [0, 115792089237421507715239542195385825880953655097959459134858133119167440617470]
+
+================================================================================
+
+Contract: NonceManager
+Function: advanceNonce
+--------------------------------------------------------------------------------
+
+  Variable: NonceManager.advanceNonce(uint256).newNonce
+  Node ID: 4
+  Expression: newNonce = nonce[msg.sender] + amount
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [0, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+
+================================================================================
+
+Contract: SafeERC20
+Function: _makeCalldataCall
+--------------------------------------------------------------------------------
+
+  Variable: SafeERC20._makeCalldataCall(IERC20,bytes4,bytes).len__makeCalldataCall_asm_0
+  Node ID: 3
+  Expression: len__makeCalldataCall_asm_0 = 4 + args
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [4, 115792089237316195423570985008687907853269984665640564039457584007913129639939]
+
+================================================================================
+
+Contract: StringUtil
+Function: toHex
+--------------------------------------------------------------------------------
+
+  Variable: StringUtil.toHex(bytes).resultLength_toHex_asm_0
+  Node ID: 6
+  Expression: resultLength_toHex_asm_0 = length_toHex_asm_0 << 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [0, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+
+
+  Variable: StringUtil.toHex(bytes).toPtr_toHex_asm_0
+  Node ID: 8
+  Expression: toPtr_toHex_asm_0 = result + 0x22
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [34, 115792089237316195423570985008687907853269984665640564039457584007913129639969]
+
+
+  Variable: StringUtil.toHex(bytes).fromPtr_toHex_asm_0
+  Node ID: 15
+  Expression: fromPtr_toHex_asm_0 = data + 0x20
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [32, 115792089237316195423570985008687907853269984665640564039457584007913129639967]
+
+
+  Variable: StringUtil.toHex(bytes).endPtr_toHex_asm_0
+  Node ID: 17
+  Expression: endPtr_toHex_asm_0 = fromPtr_toHex_asm_0 + length_toHex_asm_0
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [32, 231584178474632390847141970017375815706539969331281128078915168015826259279902]
+
+================================================================================
+
+Contract: Math
+Function: mulDiv
+--------------------------------------------------------------------------------
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod0
+  Node ID: 6
+  Expression: prod0 = x * y
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [0, 1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod1
+  Node ID: 7
+  Expression: prod1 = mm_mulDiv_asm_0 - prod0 - mm_mulDiv_asm_0 < prod0
+  Type: uint256
+  ⚠️  WARNINGS: UNDERFLOW
+  Ranges: [-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod1
+  Node ID: 16
+  Expression: prod1 = prod1 - remainder > prod0
+  Type: uint256
+  ⚠️  WARNINGS: UNDERFLOW
+  Ranges: [-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod0
+  Node ID: 17
+  Expression: prod0 = prod0 - remainder
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [0, 1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).denominator
+  Node ID: 21
+  Expression: denominator = denominator / twos
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod0
+  Node ID: 22
+  Expression: prod0 = prod0 / twos
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).twos
+  Node ID: 23
+  Expression: twos = 0 - twos / twos + 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).prod0
+  Node ID: 25
+  Expression: prod0 |= prod1 * twos
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 26
+  Expression: inverse = (3 * denominator) ^ 2
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 27
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 28
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 29
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 30
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 31
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).inverse
+  Node ID: 32
+  Expression: inverse *= 2 - denominator * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.mulDiv(uint256,uint256,uint256).result
+  Node ID: 33
+  Expression: result = prod0 * inverse
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+================================================================================
+
+Contract: Math
+Function: sqrt
+--------------------------------------------------------------------------------
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 5
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 6
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 7
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 8
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 9
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 10
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: Math.sqrt(uint256).result
+  Node ID: 11
+  Expression: result = (result + a / result) >> 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+================================================================================
+
+Contract: FeeBank
+Function: gatherFees
+--------------------------------------------------------------------------------
+
+  Variable: FeeBank.gatherFees(address[]).totalAccountFees
+  Node ID: 10
+  Expression: totalAccountFees += accountDeposit - availableCredit_
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-231584178474632390847141970017375815706539969331281128078915168015826259279870, 347376267711948586270712955026063723559809953996921692118372752023739388919805]
+
+================================================================================
+
+Contract: Settlement
+Function: _settleOrder
+--------------------------------------------------------------------------------
+
+  Variable: Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1
+  Node ID: 17
+  Expression: interactionOffset__settleOrder_asm_1 = interactionLengthOffset__settleOrder_asm_1 + 0x20
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [32, 115792089237316195423570985008687907853269984665640564039457584007913129639967]
+
+
+  Variable: Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1
+  Node ID: 32
+  Expression: offset__settleOrder_asm_1 = ptr__settleOrder_asm_1 + interactionOffset__settleOrder_asm_1 + interactionLength__settleOrder_asm_1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [32, 347376267711948586270712955026063723559809953996921692118372752023739388919837]
+
+================================================================================
+
+Contract: WhitelistRegistry
+Function: shrinkWhitelist
+--------------------------------------------------------------------------------
+
+  Variable: WhitelistRegistry.shrinkWhitelist(uint256).i
+  Node ID: 14
+  Expression: i ++
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639937]
+
+================================================================================
+
+Contract: WhitelistRegistry
+Function: register
+--------------------------------------------------------------------------------
+
+  Variable: WhitelistRegistry.register().i
+  Node ID: 18
+  Expression: ++ i
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639937]
+
+================================================================================
+
+Contract: WhitelistRegistry
+Function: clean
+--------------------------------------------------------------------------------
+
+  Variable: WhitelistRegistry.clean().i
+  Node ID: 10
+  Expression: i ++
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW
+  Ranges: [1, 115792089237316195423570985008687907853269984665640564039457584007913129639937]
+
+================================================================================
+
+Contract: VotingPowerCalculator
+Function: _votingPowerAt
+--------------------------------------------------------------------------------
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).t
+  Node ID: 2
+  Expression: t = timestamp - origin
+  Type: uint256
+  ⚠️  WARNINGS: UNDERFLOW
+  Ranges: [-115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 5
+  Expression: votingPower = (votingPower * _expTable0) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 8
+  Expression: votingPower = (votingPower * _expTable1) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 11
+  Expression: votingPower = (votingPower * _expTable2) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 14
+  Expression: votingPower = (votingPower * _expTable3) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 17
+  Expression: votingPower = (votingPower * _expTable4) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 20
+  Expression: votingPower = (votingPower * _expTable5) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 23
+  Expression: votingPower = (votingPower * _expTable6) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 26
+  Expression: votingPower = (votingPower * _expTable7) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 29
+  Expression: votingPower = (votingPower * _expTable8) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 32
+  Expression: votingPower = (votingPower * _expTable9) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 35
+  Expression: votingPower = (votingPower * _expTable10) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 38
+  Expression: votingPower = (votingPower * _expTable11) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 41
+  Expression: votingPower = (votingPower * _expTable12) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 44
+  Expression: votingPower = (votingPower * _expTable13) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 47
+  Expression: votingPower = (votingPower * _expTable14) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 50
+  Expression: votingPower = (votingPower * _expTable15) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 53
+  Expression: votingPower = (votingPower * _expTable16) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 56
+  Expression: votingPower = (votingPower * _expTable17) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 59
+  Expression: votingPower = (votingPower * _expTable18) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 62
+  Expression: votingPower = (votingPower * _expTable19) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 65
+  Expression: votingPower = (votingPower * _expTable20) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 68
+  Expression: votingPower = (votingPower * _expTable21) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 71
+  Expression: votingPower = (votingPower * _expTable22) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 74
+  Expression: votingPower = (votingPower * _expTable23) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 77
+  Expression: votingPower = (votingPower * _expTable24) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 80
+  Expression: votingPower = (votingPower * _expTable25) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 83
+  Expression: votingPower = (votingPower * _expTable26) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 86
+  Expression: votingPower = (votingPower * _expTable27) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 89
+  Expression: votingPower = (votingPower * _expTable28) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower
+  Node ID: 92
+  Expression: votingPower = (votingPower * _expTable29) / _ONE_E18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+================================================================================
+
+Contract: VotingPowerCalculator
+Function: _balanceAt
+--------------------------------------------------------------------------------
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).t
+  Node ID: 2
+  Expression: t = timestamp - origin
+  Type: uint256
+  ⚠️  WARNINGS: UNDERFLOW
+  Ranges: [-115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 5
+  Expression: balance = (balance * _ONE_E18) / _expTable0
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 8
+  Expression: balance = (balance * _ONE_E18) / _expTable1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 11
+  Expression: balance = (balance * _ONE_E18) / _expTable2
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 14
+  Expression: balance = (balance * _ONE_E18) / _expTable3
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 17
+  Expression: balance = (balance * _ONE_E18) / _expTable4
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 20
+  Expression: balance = (balance * _ONE_E18) / _expTable5
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 23
+  Expression: balance = (balance * _ONE_E18) / _expTable6
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 26
+  Expression: balance = (balance * _ONE_E18) / _expTable7
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 29
+  Expression: balance = (balance * _ONE_E18) / _expTable8
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 32
+  Expression: balance = (balance * _ONE_E18) / _expTable9
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 35
+  Expression: balance = (balance * _ONE_E18) / _expTable10
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 38
+  Expression: balance = (balance * _ONE_E18) / _expTable11
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 41
+  Expression: balance = (balance * _ONE_E18) / _expTable12
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 44
+  Expression: balance = (balance * _ONE_E18) / _expTable13
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 47
+  Expression: balance = (balance * _ONE_E18) / _expTable14
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 50
+  Expression: balance = (balance * _ONE_E18) / _expTable15
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 53
+  Expression: balance = (balance * _ONE_E18) / _expTable16
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 56
+  Expression: balance = (balance * _ONE_E18) / _expTable17
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 59
+  Expression: balance = (balance * _ONE_E18) / _expTable18
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 62
+  Expression: balance = (balance * _ONE_E18) / _expTable19
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 65
+  Expression: balance = (balance * _ONE_E18) / _expTable20
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 68
+  Expression: balance = (balance * _ONE_E18) / _expTable21
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 71
+  Expression: balance = (balance * _ONE_E18) / _expTable22
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 74
+  Expression: balance = (balance * _ONE_E18) / _expTable23
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 77
+  Expression: balance = (balance * _ONE_E18) / _expTable24
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 80
+  Expression: balance = (balance * _ONE_E18) / _expTable25
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 83
+  Expression: balance = (balance * _ONE_E18) / _expTable26
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 86
+  Expression: balance = (balance * _ONE_E18) / _expTable27
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 89
+  Expression: balance = (balance * _ONE_E18) / _expTable28
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+
+  Variable: VotingPowerCalculator._balanceAt(uint256,uint256).balance
+  Node ID: 92
+  Expression: balance = (balance * _ONE_E18) / _expTable29
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-Infinity, Infinity]
+
+================================================================================
+
+Contract: DynamicSuffix
+Function: decodeSuffix
+--------------------------------------------------------------------------------
+
+  Variable: DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0
+  Node ID: 3
+  Expression: lengthOffset_decodeSuffix_asm_0 = cd + cd - 0x20
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-32, 231584178474632390847141970017375815706539969331281128078915168015826259279838]
+
+================================================================================
+
+Contract: OrderSuffix
+Function: takingFee
+--------------------------------------------------------------------------------
+
+  Variable: OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0
+  Node ID: 4
+  Expression: ptr_takingFee_asm_0 = interactions + interactions - 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-1, 231584178474632390847141970017375815706539969331281128078915168015826259279869]
+
+================================================================================
+
+Contract: OrderSuffix
+Function: checkResolver
+--------------------------------------------------------------------------------
+
+  Variable: OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0
+  Node ID: 4
+  Expression: ptr_checkResolver_asm_0 = interactions + interactions - 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-1, 231584178474632390847141970017375815706539969331281128078915168015826259279869]
+
+
+  Variable: OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0
+  Node ID: 7
+  Expression: ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _PUBLIC_TIME_LIMIT_BYTES_SIZE
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-5, 231584178474632390847141970017375815706539969331281128078915168015826259279865]
+
+
+  Variable: OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0
+  Node ID: 10
+  Expression: ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _TAKING_FEE_BYTES_SIZE
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-37, 231584178474632390847141970017375815706539969331281128078915168015826259279833]
+
+
+  Variable: OrderSuffix.checkResolver(OrderLib.Order,address).end_checkResolver_asm_0
+  Node ID: 21
+  Expression: end_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_checkResolver_asm_0
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-397, 231584178474632390847141970017375815706539969331281128078915168015826259279865]
+
+================================================================================
+
+Contract: OrderSuffix
+Function: rateBump
+--------------------------------------------------------------------------------
+
+  Variable: OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0
+  Node ID: 13
+  Expression: ptr_rateBump_asm_0 = interactions + interactions - 1
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-1, 231584178474632390847141970017375815706539969331281128078915168015826259279869]
+
+
+  Variable: OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0
+  Node ID: 23
+  Expression: ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _TAKING_FEE_BYTES_SIZE
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-33, 231584178474632390847141970017375815706539969331281128078915168015826259279837]
+
+
+  Variable: OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0
+  Node ID: 24
+  Expression: ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_rateBump_asm_0 + _PUBLIC_TIME_LIMIT_BYTES_SIZE
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-397, 231584178474632390847141970017375815706539969331281128078915168015826259279865]
+
+
+  Variable: OrderSuffix.rateBump(OrderLib.Order).end_rateBump_asm_0
+  Node ID: 32
+  Expression: end_rateBump_asm_0 = ptr_rateBump_asm_0 - _AUCTION_POINT_BYTES_SIZE * pointsCount_rateBump_asm_0
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-432, 231584178474632390847141970017375815706539969331281128078915168015826259279865]
+
+
+  Variable: OrderSuffix.rateBump(OrderLib.Order).bump
+  Node ID: 49
+  Expression: bump = linearInterpolation(prevCumulativeTime_rateBump_asm_0,lastTime,prevCoefficient_rateBump_asm_0,0,timestamp()())
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-231584178474632390847141970017375815706539969331281128078915168015826259279870, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+
+================================================================================
+
+Contract: OrderSuffix
+Function: linearInterpolation
+--------------------------------------------------------------------------------
+
+  Variable: OrderSuffix.rateBump.asm_0.linearInterpolation().v_rateBump_asm_0_linearInterpolation
+  Node ID: 8
+  Expression: v_rateBump_asm_0_linearInterpolation = t_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation * v2_rateBump_asm_0_linearInterpolation + t2_rateBump_asm_0_linearInterpolation - t_rateBump_asm_0_linearInterpolation * v1_rateBump_asm_0_linearInterpolation / t2_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation
+  Type: uint256
+  ⚠️  WARNINGS: OVERFLOW, UNDERFLOW
+  Ranges: [-231584178474632390847141970017375815706539969331281128078915168015826259279870, 231584178474632390847141970017375815706539969331281128078915168015826259279870]
+
+================================================================================
+

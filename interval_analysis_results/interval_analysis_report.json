@@ -1,0 +1,1892 @@
+[
+  {
+    "contract": "FarmAccounting",
+    "function": "farmedSinceCheckpointScaled",
+    "findings": [
+      {
+        "variable_name": "FarmAccounting.farmedSinceCheckpointScaled(FarmAccounting.Info,uint256).elapsed",
+        "node_id": 2,
+        "node_expression": "elapsed = Math.min(block.timestamp,info.finished) - Math.min(checkpoint,info.finished)",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "UserAccounting",
+    "function": "farmedPerToken",
+    "findings": [
+      {
+        "variable_name": "UserAccounting.farmedPerToken(UserAccounting.Info,bytes32,function(bytes32) returns(uint256),function(bytes32,uint256) returns(uint256)).fpt",
+        "node_id": 6,
+        "node_expression": "fpt += lazyGetFarmed(context,checkpoint) / supply",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "115792089237421507715239542195385825880953655097959459134858133119167440617470"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "NonceManager",
+    "function": "advanceNonce",
+    "findings": [
+      {
+        "variable_name": "NonceManager.advanceNonce(uint256).newNonce",
+        "node_id": 4,
+        "node_expression": "newNonce = nonce[msg.sender] + amount",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "SafeERC20",
+    "function": "_makeCalldataCall",
+    "findings": [
+      {
+        "variable_name": "SafeERC20._makeCalldataCall(IERC20,bytes4,bytes).len__makeCalldataCall_asm_0",
+        "node_id": 3,
+        "node_expression": "len__makeCalldataCall_asm_0 = 4 + args",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "4",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639939"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "StringUtil",
+    "function": "toHex",
+    "findings": [
+      {
+        "variable_name": "StringUtil.toHex(bytes).resultLength_toHex_asm_0",
+        "node_id": 6,
+        "node_expression": "resultLength_toHex_asm_0 = length_toHex_asm_0 << 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).toPtr_toHex_asm_0",
+        "node_id": 8,
+        "node_expression": "toPtr_toHex_asm_0 = result + 0x22",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "34",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639969"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).fromPtr_toHex_asm_0",
+        "node_id": 15,
+        "node_expression": "fromPtr_toHex_asm_0 = data + 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).endPtr_toHex_asm_0",
+        "node_id": 17,
+        "node_expression": "endPtr_toHex_asm_0 = fromPtr_toHex_asm_0 + length_toHex_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279902"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "mulDiv",
+    "findings": [
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 6,
+        "node_expression": "prod0 = x * y",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 7,
+        "node_expression": "prod1 = mm_mulDiv_asm_0 - prod0 - mm_mulDiv_asm_0 < prod0",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 16,
+        "node_expression": "prod1 = prod1 - remainder > prod0",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 17,
+        "node_expression": "prod0 = prod0 - remainder",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).denominator",
+        "node_id": 21,
+        "node_expression": "denominator = denominator / twos",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 22,
+        "node_expression": "prod0 = prod0 / twos",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).twos",
+        "node_id": 23,
+        "node_expression": "twos = 0 - twos / twos + 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 25,
+        "node_expression": "prod0 |= prod1 * twos",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 26,
+        "node_expression": "inverse = (3 * denominator) ^ 2",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 27,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 28,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 29,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 30,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 31,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).inverse",
+        "node_id": 32,
+        "node_expression": "inverse *= 2 - denominator * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).result",
+        "node_id": 33,
+        "node_expression": "result = prod0 * inverse",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "sqrt",
+    "findings": [
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 5,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 6,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 7,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 8,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 9,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 10,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.sqrt(uint256).result",
+        "node_id": 11,
+        "node_expression": "result = (result + a / result) >> 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "FeeBank",
+    "function": "gatherFees",
+    "findings": [
+      {
+        "variable_name": "FeeBank.gatherFees(address[]).totalAccountFees",
+        "node_id": 10,
+        "node_expression": "totalAccountFees += accountDeposit - availableCredit_",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919805"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Settlement",
+    "function": "_settleOrder",
+    "findings": [
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1",
+        "node_id": 17,
+        "node_expression": "interactionOffset__settleOrder_asm_1 = interactionLengthOffset__settleOrder_asm_1 + 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 32,
+        "node_expression": "offset__settleOrder_asm_1 = ptr__settleOrder_asm_1 + interactionOffset__settleOrder_asm_1 + interactionLength__settleOrder_asm_1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "shrinkWhitelist",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.shrinkWhitelist(uint256).i",
+        "node_id": 14,
+        "node_expression": "i ++",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "register",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.register().i",
+        "node_id": 18,
+        "node_expression": "++ i",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "WhitelistRegistry",
+    "function": "clean",
+    "findings": [
+      {
+        "variable_name": "WhitelistRegistry.clean().i",
+        "node_id": 10,
+        "node_expression": "i ++",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "1",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639937"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_votingPowerAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 2,
+        "node_expression": "t = timestamp - origin",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 5,
+        "node_expression": "votingPower = (votingPower * _expTable0) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 8,
+        "node_expression": "votingPower = (votingPower * _expTable1) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 11,
+        "node_expression": "votingPower = (votingPower * _expTable2) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 14,
+        "node_expression": "votingPower = (votingPower * _expTable3) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 17,
+        "node_expression": "votingPower = (votingPower * _expTable4) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 20,
+        "node_expression": "votingPower = (votingPower * _expTable5) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 23,
+        "node_expression": "votingPower = (votingPower * _expTable6) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 26,
+        "node_expression": "votingPower = (votingPower * _expTable7) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 29,
+        "node_expression": "votingPower = (votingPower * _expTable8) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 32,
+        "node_expression": "votingPower = (votingPower * _expTable9) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 35,
+        "node_expression": "votingPower = (votingPower * _expTable10) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 38,
+        "node_expression": "votingPower = (votingPower * _expTable11) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 41,
+        "node_expression": "votingPower = (votingPower * _expTable12) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 44,
+        "node_expression": "votingPower = (votingPower * _expTable13) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 47,
+        "node_expression": "votingPower = (votingPower * _expTable14) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 50,
+        "node_expression": "votingPower = (votingPower * _expTable15) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 53,
+        "node_expression": "votingPower = (votingPower * _expTable16) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 56,
+        "node_expression": "votingPower = (votingPower * _expTable17) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 59,
+        "node_expression": "votingPower = (votingPower * _expTable18) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 62,
+        "node_expression": "votingPower = (votingPower * _expTable19) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 65,
+        "node_expression": "votingPower = (votingPower * _expTable20) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 68,
+        "node_expression": "votingPower = (votingPower * _expTable21) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 71,
+        "node_expression": "votingPower = (votingPower * _expTable22) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 74,
+        "node_expression": "votingPower = (votingPower * _expTable23) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 77,
+        "node_expression": "votingPower = (votingPower * _expTable24) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 80,
+        "node_expression": "votingPower = (votingPower * _expTable25) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 83,
+        "node_expression": "votingPower = (votingPower * _expTable26) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 86,
+        "node_expression": "votingPower = (votingPower * _expTable27) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 89,
+        "node_expression": "votingPower = (votingPower * _expTable28) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).votingPower",
+        "node_id": 92,
+        "node_expression": "votingPower = (votingPower * _expTable29) / _ONE_E18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_balanceAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 2,
+        "node_expression": "t = timestamp - origin",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 5,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 8,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 11,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable2",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 14,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable3",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 17,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable4",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 20,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable5",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 23,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable6",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 26,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable7",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 29,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable8",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 32,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable9",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 35,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable10",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 38,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable11",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 41,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable12",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 44,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable13",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 47,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable14",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 50,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable15",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 53,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable16",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 56,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable17",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 59,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable18",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 62,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable19",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 65,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 68,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable21",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 71,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable22",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 74,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable23",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 77,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable24",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 80,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable25",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 83,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable26",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 86,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable27",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 89,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable28",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).balance",
+        "node_id": 92,
+        "node_expression": "balance = (balance * _ONE_E18) / _expTable29",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-Infinity",
+            "upper": "Infinity"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "DynamicSuffix",
+    "function": "decodeSuffix",
+    "findings": [
+      {
+        "variable_name": "DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0",
+        "node_id": 3,
+        "node_expression": "lengthOffset_decodeSuffix_asm_0 = cd + cd - 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279838"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "takingFee",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0",
+        "node_id": 4,
+        "node_expression": "ptr_takingFee_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "checkResolver",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 4,
+        "node_expression": "ptr_checkResolver_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 7,
+        "node_expression": "ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _PUBLIC_TIME_LIMIT_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-5",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 10,
+        "node_expression": "ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _TAKING_FEE_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279833"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).end_checkResolver_asm_0",
+        "node_id": 21,
+        "node_expression": "end_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_checkResolver_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "rateBump",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 13,
+        "node_expression": "ptr_rateBump_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 23,
+        "node_expression": "ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _TAKING_FEE_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-33",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 24,
+        "node_expression": "ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_rateBump_asm_0 + _PUBLIC_TIME_LIMIT_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).end_rateBump_asm_0",
+        "node_id": 32,
+        "node_expression": "end_rateBump_asm_0 = ptr_rateBump_asm_0 - _AUCTION_POINT_BYTES_SIZE * pointsCount_rateBump_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-432",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).bump",
+        "node_id": 49,
+        "node_expression": "bump = linearInterpolation(prevCumulativeTime_rateBump_asm_0,lastTime,prevCoefficient_rateBump_asm_0,0,timestamp()())",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "linearInterpolation",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.rateBump.asm_0.linearInterpolation().v_rateBump_asm_0_linearInterpolation",
+        "node_id": 8,
+        "node_expression": "v_rateBump_asm_0_linearInterpolation = t_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation * v2_rateBump_asm_0_linearInterpolation + t2_rateBump_asm_0_linearInterpolation - t_rateBump_asm_0_linearInterpolation * v1_rateBump_asm_0_linearInterpolation / t2_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  }
+]
