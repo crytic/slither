@@ -36,7 +36,7 @@ contract ArrayLengthAssignment {
         a.x.length = param;
     
 
-        // Array length setting in # embed()ded structs should not be detected too.
+        // Array length setting in embedded structs should not be detected too.
         b.subStruct.x.length--;
         b.subStruct.x.length = param + 1;
 
