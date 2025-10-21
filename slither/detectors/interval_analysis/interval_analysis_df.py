@@ -2,8 +2,10 @@
 Interval analysis detection
 """
 
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Set
+from pathlib import Path
 
 from loguru import logger
 from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
@@ -58,10 +60,16 @@ class IntervalAnalysisDF(AbstractDetector):
         """Find intervals for all functions and return variable ranges."""
         result: Dict[FindingKey, List[FindingValue]] = {}
 
-        flag = False
+        # Prepare structured output for file writing
+        structured_results = []
+
+        flag = True
         for contract in self.contracts:
             if "Settlement" not in contract.name and flag:
                 continue
+
+            contract_name = contract.name
+            logger.info(f"Analyzing contract: {contract_name}")
 
             for function in contract.functions_and_modifiers_declared:
                 if not function.is_implemented or function.is_constructor:
@@ -70,7 +78,10 @@ class IntervalAnalysisDF(AbstractDetector):
                 # if "_settle" not in function.name and flag:
                 #     continue
 
-                # Run interval analysis
+                function_name = function.name
+                logger.info(f"  Running interval analysis on function: {function_name}")
+
+                # Run interval analysis on every function
                 engine = Engine.new(analysis=IntervalAnalysis(), function=function)
                 engine.run_analysis()
                 analysis_results = engine.result()
@@ -79,7 +90,99 @@ class IntervalAnalysisDF(AbstractDetector):
                 function_findings = self._extract_variable_ranges(function, analysis_results)
                 result.update(function_findings)
 
+                # Convert findings to structured format for this function
+                function_data = {
+                    "contract": contract_name,
+                    "function": function_name,
+                    "findings": [],
+                }
+
+                for finding_key, finding_values in function_findings.items():
+                    for finding_value in finding_values:
+                        finding_data = {
+                            "variable_name": finding_key.variable_name,
+                            "node_id": finding_key.node_id,
+                            "var_type": finding_value.var_type,
+                            "has_overflow": finding_value.has_overflow,
+                            "has_underflow": finding_value.has_underflow,
+                            "interval_ranges": finding_value.interval_ranges,
+                            "valid_values": finding_value.valid_values,
+                            "invalid_values": finding_value.invalid_values,
+                        }
+                        function_data["findings"].append(finding_data)
+
+                # Only add if there are findings
+                if function_data["findings"]:
+                    structured_results.append(function_data)
+                    logger.info(
+                        f"Added findings for {contract_name}.{function_name}: {len(function_data['findings'])} findings"
+                    )
+                else:
+                    logger.debug(f"No findings for {contract_name}.{function_name}")
+
+        # Write results to file
+        self._write_results_to_file(structured_results)
+
         return result
+
+    def _write_results_to_file(self, structured_results: List[Dict]) -> None:
+        """Write analysis results to a JSON file."""
+        output_dir = Path("interval_analysis_results")
+        output_dir.mkdir(exist_ok=True)
+
+        output_file = output_dir / "interval_analysis_report.json"
+
+        with open(output_file, "w") as f:
+            json.dump(structured_results, f, indent=2)
+
+        logger.info(f"Interval analysis results written to: {output_file}")
+
+        # Also create a human-readable text report
+        text_file = output_dir / "interval_analysis_report.txt"
+        with open(text_file, "w") as f:
+            f.write("=" * 80 + "\n")
+            f.write("INTERVAL ANALYSIS REPORT\n")
+            f.write("=" * 80 + "\n\n")
+
+            for contract_function in structured_results:
+                f.write(f"Contract: {contract_function['contract']}\n")
+                f.write(f"Function: {contract_function['function']}\n")
+                f.write("-" * 80 + "\n")
+
+                for finding in contract_function["findings"]:
+                    f.write(f"\n  Variable: {finding['variable_name']}\n")
+                    if finding["node_id"] is not None:
+                        f.write(f"  Node ID: {finding['node_id']}\n")
+                    if finding["var_type"]:
+                        f.write(f"  Type: {finding['var_type']}\n")
+
+                    # Warnings
+                    warnings = []
+                    if finding["has_overflow"]:
+                        warnings.append("OVERFLOW")
+                    if finding["has_underflow"]:
+                        warnings.append("UNDERFLOW")
+                    if warnings:
+                        f.write(f"  ⚠️  WARNINGS: {', '.join(warnings)}\n")
+
+                    # Ranges
+                    if finding["interval_ranges"]:
+                        range_strs = [
+                            f"[{r['lower']}, {r['upper']}]" for r in finding["interval_ranges"]
+                        ]
+                        f.write(f"  Ranges: {', '.join(range_strs)}\n")
+
+                    # Valid/Invalid values
+                    if finding["valid_values"]:
+                        f.write(f"  Valid: {', '.join(finding['valid_values'])}\n")
+                    if finding["invalid_values"]:
+                        f.write(f"  Invalid: {', '.join(finding['invalid_values'])}\n")
+
+                    f.write("\n")
+
+                f.write("=" * 80 + "\n\n")
+
+        logger.info(f"Human-readable report written to: {text_file}")
 
     def _extract_variable_ranges(
         self, function, analysis_results: Dict[Node, AnalysisState[IntervalDomain]]
@@ -124,6 +227,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 # Skip if variable is not relevant to this node
                 if not is_relevant:
                     continue
+
+                logger.debug(f"Processing variable: {var_name} (relevant: {is_relevant})")
 
                 # Skip boolean variables
                 if range_var.get_var_type() == ElementaryType("bool"):
