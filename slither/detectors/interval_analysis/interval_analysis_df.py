@@ -63,7 +63,7 @@ class IntervalAnalysisDF(AbstractDetector):
         # Prepare structured output for file writing
         structured_results = []
 
-        flag = True
+        flag = False
         for contract in self.contracts:
             if "Settlement" not in contract.name and flag:
                 continue
