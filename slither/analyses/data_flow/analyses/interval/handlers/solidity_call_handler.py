@@ -67,7 +67,7 @@ class SolidityCallHandler:
             return
 
         # Handle revert function - mark branch as unreachable
-        if operation.function.full_name == "revert()":
+        if "revert" in operation.function.full_name:
             self._handle_revert(node, domain, operation)
             return
 
@@ -142,8 +142,29 @@ class SolidityCallHandler:
             self._handle_timestamp(node, domain, operation)
             return
 
+        if operation.function.full_name == "mulmod(uint256,uint256,uint256)":
+            self._handle_mulmod(node, domain, operation)
+            return
+
+        if operation.function.full_name == "mstore(uint256,uint256)":
+            self._handle_mstore(node, domain, operation)
+            return
+
+        if operation.function.full_name == "mstore8(uint256,uint256)":
+            self._handle_mstore8(node, domain, operation)
+            return
+
+        if operation.function.full_name == "pop(uint256)":
+            self._handle_pop(node, domain, operation)
+            return
+
+        if operation.function.full_name == "return(uint256,uint256)":
+            self._handle_return(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
-        # logger.debug(f"Unhandled Solidity function: {operation.function.name} - skipping")
+        logger.error(f"Unhandled Solidity function: {operation.function.name}")
+        raise ValueError(f"Unhandled Solidity function: {operation.function.name}")
         return
 
     def _handle_calldataload(
@@ -560,3 +581,218 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
 
         # logger.debug(f"Handled timestamp() -> {result_var_name} (uint256, range [0,{timestamp}])")
+
+    def _handle_mulmod(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle mulmod(x, y, m) operation: (x * y) % m with arbitrary precision arithmetic."""
+        from decimal import Decimal
+        from slither.analyses.data_flow.analyses.interval.core.types.interval_range import (
+            IntervalRange,
+        )
+
+        if not operation.lvalue:
+            logger.error("mulmod operation has no lvalue")
+            raise ValueError("mulmod operation has no lvalue")
+
+        # Validate argument count
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.error(
+                f"mulmod operation requires 3 arguments, got {len(operation.arguments) if operation.arguments else 0}"
+            )
+            raise ValueError(
+                f"mulmod operation requires 3 arguments, got {len(operation.arguments) if operation.arguments else 0}"
+            )
+
+        x_arg, y_arg, m_arg = operation.arguments
+        result_type = ElementaryType("uint256")
+
+        # Get variable names
+        variable_manager = VariableInfoManager()
+        x_name = variable_manager.get_variable_name(x_arg)
+        y_name = variable_manager.get_variable_name(y_arg)
+        m_name = variable_manager.get_variable_name(m_arg)
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+
+        logger.debug(f"Handling mulmod({x_name}, {y_name}, {m_name})")
+
+        # Check if all arguments exist in domain state
+        if not (
+            domain.state.has_range_variable(x_name)
+            and domain.state.has_range_variable(y_name)
+            and domain.state.has_range_variable(m_name)
+        ):
+            logger.warning(
+                f"Some mulmod arguments not found in domain state, creating conservative result"
+            )
+            # Create conservative result (full uint256 range)
+            result_range_variable = RangeVariable(
+                interval_ranges=[IntervalRange(Decimal("0"), Decimal(str(result_type.max)))],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+            domain.state.set_range_variable(result_var_name, result_range_variable)
+            return
+
+        # Get argument range variables
+        x_range_var = domain.state.get_range_variable(x_name)
+        y_range_var = domain.state.get_range_variable(y_name)
+        m_range_var = domain.state.get_range_variable(m_name)
+
+        # Compute mulmod result
+        result_range_var = self._compute_mulmod(x_range_var, y_range_var, m_range_var, result_type)
+
+        # Store the result
+        domain.state.set_range_variable(result_var_name, result_range_var)
+        logger.debug(f"Computed mulmod result: {result_range_var}")
+
+    def _compute_mulmod(
+        self,
+        x_range_var: RangeVariable,
+        y_range_var: RangeVariable,
+        m_range_var: RangeVariable,
+        result_type: ElementaryType,
+    ) -> RangeVariable:
+        """Compute mulmod(x, y, m) = (x * y) % m with arbitrary precision arithmetic."""
+        from decimal import Decimal
+        from slither.analyses.data_flow.analyses.interval.core.types.interval_range import (
+            IntervalRange,
+        )
+
+        result_valid_values = ValueSet(set())
+        result_interval_ranges = []
+
+        # Handle discrete values
+        if (
+            not x_range_var.valid_values.is_empty()
+            and not y_range_var.valid_values.is_empty()
+            and not m_range_var.valid_values.is_empty()
+        ):
+
+            for x_val in x_range_var.valid_values:
+                for y_val in y_range_var.valid_values:
+                    for m_val in m_range_var.valid_values:
+                        if m_val == 0:
+                            # mulmod returns 0 if m == 0
+                            result_valid_values.add(Decimal("0"))
+                        else:
+                            # Compute (x * y) % m with arbitrary precision
+                            product = x_val * y_val
+                            result = product % m_val
+                            result_valid_values.add(result)
+
+        # Handle interval ranges (more complex)
+        if (
+            x_range_var.interval_ranges
+            and y_range_var.interval_ranges
+            and m_range_var.interval_ranges
+        ):
+
+            for x_interval in x_range_var.interval_ranges:
+                for y_interval in y_range_var.interval_ranges:
+                    for m_interval in m_range_var.interval_ranges:
+                        # For interval ranges, we need to be conservative
+                        # The result of mulmod with intervals is complex to compute exactly
+                        # We'll use a conservative approximation
+
+                        # If m can be 0, result can be 0
+                        if m_interval.lower_bound <= 0:
+                            # Result can be 0 when m == 0
+                            result_interval_ranges.append(IntervalRange(Decimal("0"), Decimal("0")))
+
+                        # If m > 0, result is in [0, m-1]
+                        if m_interval.lower_bound > 0:
+                            max_result = m_interval.upper_bound - 1
+                            result_interval_ranges.append(IntervalRange(Decimal("0"), max_result))
+
+        # If we have no specific constraints, use conservative bounds
+        if result_valid_values.is_empty() and not result_interval_ranges:
+            # Conservative: result is in [0, max_uint256] since we can't determine exact bounds
+            result_interval_ranges.append(
+                IntervalRange(Decimal("0"), Decimal(str(result_type.max)))
+            )
+
+        return RangeVariable(
+            interval_ranges=result_interval_ranges,
+            valid_values=result_valid_values,
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+    def _handle_mstore(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle mstore(p, v) operation: mem[p…(p+32)) := v."""
+        logger.debug(f"Handling mstore operation: {operation}")
+
+        # mstore doesn't return a value, it modifies memory
+        # We don't need to create a range variable for the result
+        # Just log the operation for debugging purposes
+
+        if operation.arguments and len(operation.arguments) == 2:
+            p_arg, v_arg = operation.arguments
+            variable_manager = VariableInfoManager()
+            p_name = variable_manager.get_variable_name(p_arg)
+            v_name = variable_manager.get_variable_name(v_arg)
+            logger.debug(f"mstore: storing value {v_name} at memory position {p_name}")
+        else:
+            logger.warning(
+                f"mstore operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+
+    def _handle_mstore8(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle mstore8(p, v) operation: mem[p] := v & 0xff (only modifies a single byte)."""
+        logger.debug(f"Handling mstore8 operation: {operation}")
+
+        # mstore8 doesn't return a value, it modifies memory
+        # We don't need to create a range variable for the result
+        # Just log the operation for debugging purposes
+
+        if operation.arguments and len(operation.arguments) == 2:
+            p_arg, v_arg = operation.arguments
+            variable_manager = VariableInfoManager()
+            p_name = variable_manager.get_variable_name(p_arg)
+            v_name = variable_manager.get_variable_name(v_arg)
+            logger.debug(
+                f"mstore8: storing byte (value & 0xff) of {v_name} at memory position {p_name}"
+            )
+        else:
+            logger.warning(
+                f"mstore8 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+
+    def _handle_pop(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle pop(x) operation: discard value x."""
+        logger.debug(f"Handling pop operation: {operation}")
+
+        # pop doesn't return a value, it discards a value from the stack
+        # We don't need to create a range variable for the result
+        # Just log the operation for debugging purposes
+
+        if operation.arguments and len(operation.arguments) == 1:
+            x_arg = operation.arguments[0]
+            variable_manager = VariableInfoManager()
+            x_name = variable_manager.get_variable_name(x_arg)
+            logger.debug(f"pop: discarding value {x_name}")
+        else:
+            logger.warning(
+                f"pop operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+
+    def _handle_return(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle return(p, s) operation: end execution, return data mem[p…(p+s))."""
+        logger.debug(f"Handling return operation: {operation}")
+
+        # return doesn't return a value, it ends execution and returns data from memory
+        # We don't need to create a range variable for the result
+        # Just log the operation for debugging purposes
+
+        if operation.arguments and len(operation.arguments) == 2:
+            p_arg, s_arg = operation.arguments
+            variable_manager = VariableInfoManager()
+            p_name = variable_manager.get_variable_name(p_arg)
+            s_name = variable_manager.get_variable_name(s_arg)
+            logger.debug(
+                f"return: ending execution, returning data from memory[{p_name}...{p_name}+{s_name})"
+            )
+        else:
+            logger.warning(
+                f"return operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
