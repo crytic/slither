@@ -97,6 +97,9 @@ class ConstraintManager:
                 callee_param.type, ElementaryType
             ) and self.variable_manager.is_type_numeric(callee_param.type):
                 caller_arg_name = self.variable_manager.get_variable_name(caller_arg)
+                logger.debug(
+                    f"Copying constraints from caller argument '{caller_arg_name}' to callee parameter '{callee_param_name}'"
+                )
 
                 # Ensure the caller argument exists in the domain state
                 if not domain.state.has_range_variable(caller_arg_name):
@@ -177,12 +180,15 @@ class ConstraintManager:
         try:
             source_range_variable = domain.state.get_range_variable(source_var_name)
             if not source_range_variable:
-                #                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
+                logger.debug(f"Source variable '{source_var_name}' not found in domain state")
                 return
 
             # Copy constraints to target variable
-            domain.state.set_range_variable(target_var_name, source_range_variable.deep_copy())
-        #            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
+            copied_range_variable = source_range_variable.deep_copy()
+            domain.state.set_range_variable(target_var_name, copied_range_variable)
+            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
+            logger.debug(f"Source range variable: {source_range_variable}")
+            logger.debug(f"Copied range variable: {copied_range_variable}")
 
         except Exception as e:
             logger.error(

@@ -17,6 +17,7 @@ from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.declarations.function import Function
+from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -58,6 +59,13 @@ class IntervalAnalysisDF(AbstractDetector):
     WIKI_RECOMMENDATION = "tbd"
     STANDARD_JSON = False
 
+    ONLY_SHOW_OVERFLOW = False
+    SHOW_TEMP_VARIABLES = False
+    SHOW_BOOLEAN_VARIABLES = False
+    SHOW_CHECKED_SCOPES = True
+    SHOW_WRITTEN_VARIABLES = True
+    SHOW_READ_VARIABLES = True
+
     def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:
         """Analyze a single function and return findings."""
         findings: Dict[FindingKey, List[FindingValue]] = {}
@@ -70,7 +78,7 @@ class IntervalAnalysisDF(AbstractDetector):
         # Extract findings from each node
         for node, analysis in analysis_results.items():
             # Skip checked scopes - no overflows will happen there
-            if node.scope.is_checked:
+            if node.scope.is_checked and not self.SHOW_CHECKED_SCOPES:
                 continue
             if not hasattr(analysis, "post") or not isinstance(analysis.post, IntervalDomain):
                 continue
@@ -81,7 +89,20 @@ class IntervalAnalysisDF(AbstractDetector):
 
             # Get variables relevant to this node (exact matches only)
             node_variables = set()
-            variables = node.variables_written
+            variables: List[Variable] = []
+
+            if self.SHOW_WRITTEN_VARIABLES:
+                variables = variables + node.variables_written
+            if self.SHOW_READ_VARIABLES:
+                variables = variables + node.variables_read
+
+            if not (self.SHOW_WRITTEN_VARIABLES and self.SHOW_READ_VARIABLES):
+                logger.error(
+                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+                )
+                raise ValueError(
+                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+                )
 
             for var in variables:
                 if hasattr(var, "canonical_name"):
@@ -110,15 +131,20 @@ class IntervalAnalysisDF(AbstractDetector):
                 # Skip booleans, temp variables, and variables ending with dot
                 if (
                     range_var.get_var_type() == ElementaryType("bool")
-                    or "TMP" in var_name
-                    or var_name.endswith(".")
+                    and not self.SHOW_BOOLEAN_VARIABLES
                 ):
+                    continue
+                if "TMP" in var_name and not self.SHOW_TEMP_VARIABLES:
+                    continue
+
+                if var_name.endswith("."):
                     continue
 
                 # Only include overflow/underflow issues
                 has_overflow = range_var.has_overflow()
                 has_underflow = range_var.has_underflow()
-                if not (has_overflow or has_underflow):
+
+                if self.ONLY_SHOW_OVERFLOW and not (has_overflow or has_underflow):
                     continue
 
                 # Extract interval ranges

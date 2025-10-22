@@ -74,12 +74,8 @@ class InternalCallHandler:
         self.mark_function_seen(callee_function)
 
         try:
-            # Copy constraints from caller arguments to callee parameters
-            self.constraint_manager.copy_caller_constraints_to_callee_parameters(
-                internal_call_operation.arguments, callee_function.parameters, domain
-            )
-
-            #            logger.debug(f"Processing internal call to function: {callee_function.name}")
+            # Store the caller's domain state before initializing callee domain
+            caller_domain_state = domain.state.deep_copy()
 
             # Process all operations in the called function
             for callee_function_node in callee_function.nodes:
@@ -87,6 +83,18 @@ class InternalCallHandler:
                 # This ensures state variables are available in the callee's context
                 if callee_function_node == callee_function.nodes[0]:
                     analysis_instance._initialize_domain_from_bottom(callee_function_node, domain)
+
+                    # Preserve caller's constraints for state variables that exist in both domains
+                    # This must happen BEFORE constraint copying to ensure the source variables have constraints
+                    self._preserve_caller_constraints_for_shared_variables(
+                        caller_domain_state, domain
+                    )
+
+                    # Copy constraints from caller arguments to callee parameters AFTER domain initialization
+                    # This ensures the constraints are applied to the initialized domain
+                    self.constraint_manager.copy_caller_constraints_to_callee_parameters(
+                        internal_call_operation.arguments, callee_function.parameters, domain
+                    )
 
                 for ir_operation in callee_function_node.irs:
                     # if not isinstance(
@@ -284,3 +292,31 @@ class InternalCallHandler:
             invalid_values=ValueSet(set()),
             var_type=var_type,
         )
+
+    def _preserve_caller_constraints_for_shared_variables(
+        self, caller_domain_state, callee_domain: IntervalDomain
+    ) -> None:
+        """Preserve constraints from caller's domain for shared state variables."""
+        for var_name, caller_range_var in caller_domain_state.get_range_variables().items():
+            # Only preserve constraints for state variables (not function parameters)
+            # State variables have the pattern: contract_name.variable_name
+            # Function parameters have the pattern: contract_name.function_name(types).parameter_name
+            if "." in var_name and "(" in var_name:
+                # This is a function parameter, skip it
+                continue
+
+            # Check if this variable exists in the callee domain
+            if callee_domain.state.has_range_variable(var_name):
+                callee_range_var = callee_domain.state.get_range_variable(var_name)
+
+                # If caller has more specific constraints (valid values or refined intervals), preserve them
+                if not caller_range_var.valid_values.is_empty() or (
+                    caller_range_var.interval_ranges
+                    and len(caller_range_var.interval_ranges) > 0
+                    and caller_range_var.interval_ranges != callee_range_var.interval_ranges
+                ):
+
+                    logger.debug(
+                        f"Preserving caller constraints for {var_name}: {caller_range_var}"
+                    )
+                    callee_domain.state.set_range_variable(var_name, caller_range_var.deep_copy())

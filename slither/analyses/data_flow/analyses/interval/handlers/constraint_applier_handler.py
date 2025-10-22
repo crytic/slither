@@ -335,6 +335,7 @@ class ConstraintApplierHandler:
                 f"Applying variable-constant constraint: {variable_operand} {operation_type} {constant_operand}"
             )
             range_var = RangeVariable.get_variable_info(domain, variable_operand)
+            logger.debug(f"Range variable before constraint application: {range_var}")
 
             # Extract constant value
             if hasattr(constant_operand, "value"):
@@ -345,6 +346,7 @@ class ConstraintApplierHandler:
 
             # Apply the constraint by modifying the range variable's intervals
             IntervalRefiner.refine_variable_range(range_var, constant_value, operation_type)
+            logger.debug(f"Range variable after constraint application: {range_var}")
 
             # Only propagate constraints for reference variables (struct fields, etc.)
             # Local variables don't need constraint propagation - they are the actual variables
