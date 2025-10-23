@@ -112,7 +112,7 @@ class ConstraintManager:
                         logger.error(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )
-                        # embed()
+                        embed()
                         raise ValueError(
                             f"Caller argument '{caller_arg_name}' not found in domain state during interprocedural analysis"
                         )

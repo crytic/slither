@@ -13,8 +13,10 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
-from slither.slithir.variables.constant import Constant
+from slither.core.declarations.solidity_variables import SolidityVariableComposed
 from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.constant import Constant
+
 from IPython import embed
 
 
@@ -62,6 +64,10 @@ class AssignmentHandler:
             self._handle_constant_assignment(written_variable, right_value, domain)
         elif isinstance(right_value, Variable):
             self._handle_variable_assignment(written_variable, right_value, domain, operation)
+        elif isinstance(right_value, SolidityVariableComposed):
+            self._handle_solidity_variable_assignment(written_variable, right_value, domain, operation)
+        else:
+            logger.warning(f"Unhandled assignment type: {type(right_value)} for {written_variable.name}")
 
     def _handle_struct_assignment(
         self,
@@ -264,3 +270,45 @@ class AssignmentHandler:
             var_type=written_variable_type,
         )
         domain.state.set_range_variable(written_variable_name, range_variable)
+
+    def _handle_solidity_variable_assignment(
+        self,
+        written_variable: Variable,
+        source_solidity_var: SolidityVariableComposed,
+        domain: IntervalDomain,
+        operation: Assignment,
+    ) -> None:
+        """Handle assignment from Solidity global variables like msg.value, block.timestamp, etc."""
+        written_variable_name = self.variable_info_manager.get_variable_name(written_variable)
+        written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
+        source_var_name = source_solidity_var.name
+
+        logger.debug(f"Handling Solidity variable assignment: {written_variable_name} = {source_var_name}")
+
+        # Handle bytes variables by creating offset and length variables
+        if self.variable_info_manager.is_type_bytes(written_variable_type):
+            range_variables = self.variable_info_manager.create_bytes_offset_and_length_variables(
+                written_variable_name
+            )
+            # Add all created range variables to the domain state
+            for var_name, range_variable in range_variables.items():
+                domain.state.add_range_variable(var_name, range_variable)
+            return
+
+        # Check if the source Solidity variable exists in the domain state
+        if not domain.state.has_range_variable(source_var_name):
+            logger.error(f"Source Solidity variable {source_var_name} does not exist in domain state")
+            raise ValueError(f"Source Solidity variable {source_var_name} does not exist in domain state")
+
+        source_range_variable = domain.state.get_range_variable(source_var_name)
+
+        # Create range variable by copying from source
+        range_variable = RangeVariable(
+            interval_ranges=[ir.deep_copy() for ir in source_range_variable.get_interval_ranges()],
+            valid_values=source_range_variable.get_valid_values().deep_copy(),
+            invalid_values=source_range_variable.get_invalid_values().deep_copy(),
+            var_type=written_variable_type,
+        )
+
+        domain.state.set_range_variable(written_variable_name, range_variable)
+        logger.debug(f"Created range variable for {written_variable_name} from Solidity variable {source_var_name}")
