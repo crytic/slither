@@ -239,6 +239,165 @@ class SolidityCallHandler:
             self._handle_address_transfer(node, domain, operation)
             return
 
+        # Handle stop() function - identical to return(0, 0)
+        if operation.function.full_name == "stop()":
+            self._handle_stop(node, domain, operation)
+            return
+
+
+        # Handle storage operations
+        if operation.function.full_name == "sload(uint256)":
+            self._handle_sload(node, domain, operation)
+            return
+
+        if operation.function.full_name == "sstore(uint256,uint256)":
+            self._handle_sstore(node, domain, operation)
+            return
+
+        if operation.function.full_name == "tload(uint256)":
+            self._handle_tload(node, domain, operation)
+            return
+
+        if operation.function.full_name == "tstore(uint256,uint256)":
+            self._handle_tstore(node, domain, operation)
+            return
+
+        # Handle memory operations
+        if operation.function.full_name == "msize()":
+            self._handle_msize(node, domain, operation)
+            return
+
+        if operation.function.full_name == "mcopy(uint256,uint256,uint256)":
+            self._handle_mcopy(node, domain, operation)
+            return
+
+        # Handle context operations
+        if operation.function.full_name == "address()":
+            self._handle_address(node, domain, operation)
+            return
+
+        if operation.function.full_name == "selfbalance()":
+            self._handle_selfbalance(node, domain, operation)
+            return
+
+        if operation.function.full_name == "caller()":
+            self._handle_caller(node, domain, operation)
+            return
+
+        if operation.function.full_name == "callvalue()":
+            self._handle_callvalue(node, domain, operation)
+            return
+
+        if operation.function.full_name == "calldatasize()":
+            self._handle_calldatasize(node, domain, operation)
+            return
+
+        if operation.function.full_name == "codesize()":
+            self._handle_codesize(node, domain, operation)
+            return
+
+        if operation.function.full_name == "codecopy(uint256,uint256,uint256)":
+            self._handle_codecopy(node, domain, operation)
+            return
+
+        if operation.function.full_name == "extcodesize(uint256)":
+            self._handle_extcodesize(node, domain, operation)
+            return
+
+        if operation.function.full_name == "extcodecopy(uint256,uint256,uint256,uint256)":
+            self._handle_extcodecopy(node, domain, operation)
+            return
+
+        # Handle create operations
+        if operation.function.full_name == "create(uint256,uint256,uint256)":
+            self._handle_create(node, domain, operation)
+            return
+
+        # Handle callcode
+        if operation.function.full_name == "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)":
+            self._handle_callcode(node, domain, operation)
+            return
+
+        # Handle logging operations
+        if operation.function.full_name == "log0(uint256,uint256)":
+            self._handle_log0(node, domain, operation)
+            return
+
+        if operation.function.full_name == "log1(uint256,uint256,uint256)":
+            self._handle_log1(node, domain, operation)
+            return
+
+        if operation.function.full_name == "log2(uint256,uint256,uint256,uint256)":
+            self._handle_log2(node, domain, operation)
+            return
+
+        if operation.function.full_name == "log3(uint256,uint256,uint256,uint256,uint256)":
+            self._handle_log3(node, domain, operation)
+            return
+
+        if operation.function.full_name == "log4(uint256,uint256,uint256,uint256,uint256,uint256)":
+            self._handle_log4(node, domain, operation)
+            return
+
+        # Handle block context operations
+        if operation.function.full_name == "chainid()":
+            self._handle_chainid(node, domain, operation)
+            return
+
+        if operation.function.full_name == "basefee()":
+            self._handle_basefee(node, domain, operation)
+            return
+
+        if operation.function.full_name == "blobbasefee()":
+            self._handle_blobbasefee(node, domain, operation)
+            return
+
+        if operation.function.full_name == "origin()":
+            self._handle_origin(node, domain, operation)
+            return
+
+        if operation.function.full_name == "gasprice()":
+            self._handle_gasprice(node, domain, operation)
+            return
+
+        if operation.function.full_name == "blockhash(uint256)":
+            self._handle_blockhash(node, domain, operation)
+            return
+
+        if operation.function.full_name == "blobhash(uint256)":
+            self._handle_blobhash(node, domain, operation)
+            return
+
+        if operation.function.full_name == "coinbase()":
+            self._handle_coinbase(node, domain, operation)
+            return
+
+        if operation.function.full_name == "number()":
+            self._handle_number(node, domain, operation)
+            return
+
+        if operation.function.full_name == "difficulty()":
+            self._handle_difficulty(node, domain, operation)
+            return
+
+        if operation.function.full_name == "prevrandao()":
+            self._handle_prevrandao(node, domain, operation)
+            return
+
+        if operation.function.full_name == "gaslimit()":
+            self._handle_gaslimit(node, domain, operation)
+            return
+
+        # Handle selfdestruct
+        if operation.function.full_name == "selfdestruct(uint256)":
+            self._handle_selfdestruct(node, domain, operation)
+            return
+
+        # Handle invalid
+        if operation.function.full_name == "invalid()":
+            self._handle_invalid(node, domain, operation)
+            return
+
         # For other Solidity functions, log and continue without error
         logger.error(f"Unhandled Solidity function: {operation.function.name}")
         embed()
@@ -1569,3 +1728,967 @@ class SolidityCallHandler:
         # We don't need to create a range variable for the result
         # Just log the operation for debugging purposes
         logger.debug(f"address.transfer: transferred amount (throws on failure)")
+
+    def _handle_stop(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle stop() operation - identical to return(0, 0)."""
+        logger.debug(f"Handling stop operation: {operation}")
+        # stop() doesn't return a value, it ends execution
+        # Just log the operation for debugging purposes
+        logger.debug("stop: ending execution (identical to return(0, 0))")
+
+    def _handle_sload(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle sload(p) operation: storage[p]."""
+        logger.debug(f"Handling sload operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("sload operation has no lvalue")
+            raise ValueError("sload operation has no lvalue")
+
+        # sload returns 32 bytes from storage, treat as uint256
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+
+        # Create range variable for the result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled sload operation, created variable: {result_var_name}")
+
+    def _handle_sstore(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle sstore(p, v) operation: storage[p] := v."""
+        logger.debug(f"Handling sstore operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.warning(
+                f"sstore operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, v_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        v_name = variable_manager.get_variable_name(v_arg)
+
+        # Track the storage operation by creating a range variable for the storage location
+        storage_var_name = f"storage_{p_name}"
+
+        # Get the value being stored
+        if domain.state.has_range_variable(v_name):
+            stored_value = domain.state.get_range_variable(v_name)
+            # Create a copy of the stored value for the storage location
+            storage_range_variable = stored_value.deep_copy()
+        else:
+            # If we don't know the value being stored, create a conservative range
+            result_type = ElementaryType("uint256")
+            result_range = IntervalRange(
+                lower_bound=result_type.min,
+                upper_bound=result_type.max,
+            )
+            storage_range_variable = RangeVariable(
+                interval_ranges=[result_range],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+
+        # Store the storage location in domain state
+        domain.state.set_range_variable(storage_var_name, storage_range_variable)
+        logger.debug(f"sstore: stored value {v_name} at storage position {p_name} -> {storage_var_name}")
+
+    def _handle_tload(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle tload(p) operation: transientStorage[p]."""
+        logger.debug(f"Handling tload operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("tload operation has no lvalue")
+            raise ValueError("tload operation has no lvalue")
+
+        # tload returns 32 bytes from transient storage, treat as uint256
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+
+        # Create range variable for the result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled tload operation, created variable: {result_var_name}")
+
+    def _handle_tstore(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle tstore(p, v) operation: transientStorage[p] := v."""
+        logger.debug(f"Handling tstore operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.warning(
+                f"tstore operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, v_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        v_name = variable_manager.get_variable_name(v_arg)
+
+        # Track the transient storage operation by creating a range variable for the storage location
+        tstorage_var_name = f"tstorage_{p_name}"
+
+        # Get the value being stored
+        if domain.state.has_range_variable(v_name):
+            stored_value = domain.state.get_range_variable(v_name)
+            # Create a copy of the stored value for the transient storage location
+            tstorage_range_variable = stored_value.deep_copy()
+        else:
+            # If we don't know the value being stored, create a conservative range
+            result_type = ElementaryType("uint256")
+            result_range = IntervalRange(
+                lower_bound=result_type.min,
+                upper_bound=result_type.max,
+            )
+            tstorage_range_variable = RangeVariable(
+                interval_ranges=[result_range],
+                valid_values=ValueSet(set()),
+                invalid_values=ValueSet(set()),
+                var_type=result_type,
+            )
+
+        # Store the transient storage location in domain state
+        domain.state.set_range_variable(tstorage_var_name, tstorage_range_variable)
+        logger.debug(f"tstore: stored value {v_name} at transient storage position {p_name} -> {tstorage_var_name}")
+
+    def _handle_msize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle msize() operation: size of memory, i.e. largest accessed memory index."""
+        logger.debug(f"Handling msize operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("msize operation has no lvalue")
+            raise ValueError("msize operation has no lvalue")
+
+        # msize() returns the size of memory in bytes
+        result_type = ElementaryType("uint256")
+
+        # Memory size is typically 0 to a few KB, but could theoretically be larger
+        # We'll use a reasonable upper bound
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1048576"))],  # 0 to 1MB
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled msize() -> {result_var_name} (uint256, range [0,1048576])")
+
+    def _handle_mcopy(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle mcopy(t, f, s) operation: copy s bytes from mem at position f to mem at position t."""
+        logger.debug(f"Handling mcopy operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.warning(
+                f"mcopy operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        t_arg, f_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        t_name = variable_manager.get_variable_name(t_arg)
+        f_name = variable_manager.get_variable_name(f_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are copied to memory
+        memory_var_name = f"mem_copied_{t_name}"
+
+        # For mcopy, we don't know the exact values being copied from memory
+        # So we create a conservative range for the copied data
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+        memory_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"mcopy: copied {s_name} bytes from memory[{f_name}] to memory[{t_name}] -> {memory_var_name}"
+        )
+
+    def _handle_address(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle address() operation: address of the current contract / execution context."""
+        logger.debug(f"Handling address operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("address operation has no lvalue")
+            raise ValueError("address operation has no lvalue")
+
+        # address() returns the current contract address
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled address() -> {result_var_name} (address)")
+
+    def _handle_selfbalance(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle selfbalance() operation: equivalent to balance(address()), but cheaper."""
+        logger.debug(f"Handling selfbalance operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("selfbalance operation has no lvalue")
+            raise ValueError("selfbalance operation has no lvalue")
+
+        # selfbalance() returns the balance of the current contract
+        result_type = ElementaryType("uint256")
+
+        # Get the full range for uint256 type
+        variable_manager = VariableInfoManager()
+        type_bounds = variable_manager.get_type_bounds(result_type)
+
+        result_range_variable = RangeVariable(
+            interval_ranges=[type_bounds],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled selfbalance() -> {result_var_name} (uint256)")
+
+    def _handle_caller(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle caller() operation: call sender (excluding delegatecall)."""
+        logger.debug(f"Handling caller operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("caller operation has no lvalue")
+            raise ValueError("caller operation has no lvalue")
+
+        # caller() returns the address that called this contract
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled caller() -> {result_var_name} (address)")
+
+    def _handle_callvalue(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle callvalue() operation: wei sent together with the current call."""
+        logger.debug(f"Handling callvalue operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("callvalue operation has no lvalue")
+            raise ValueError("callvalue operation has no lvalue")
+
+        # callvalue() returns the amount of wei sent with the call
+        result_type = ElementaryType("uint256")
+
+        # Get the full range for uint256 type
+        variable_manager = VariableInfoManager()
+        type_bounds = variable_manager.get_type_bounds(result_type)
+
+        result_range_variable = RangeVariable(
+            interval_ranges=[type_bounds],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled callvalue() -> {result_var_name} (uint256)")
+
+    def _handle_calldatasize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle calldatasize() operation: size of call data in bytes."""
+        logger.debug(f"Handling calldatasize operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("calldatasize operation has no lvalue")
+            raise ValueError("calldatasize operation has no lvalue")
+
+        # calldatasize() returns the size of call data
+        result_type = ElementaryType("uint256")
+
+        # Call data size is typically 0 to a few KB, but could theoretically be larger
+        # We'll use a reasonable upper bound
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1048576"))],  # 0 to 1MB
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled calldatasize() -> {result_var_name} (uint256, range [0,1048576])")
+
+    def _handle_codesize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle codesize() operation: size of the code of the current contract / execution context."""
+        logger.debug(f"Handling codesize operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("codesize operation has no lvalue")
+            raise ValueError("codesize operation has no lvalue")
+
+        # codesize() returns the size of the current contract's code
+        result_type = ElementaryType("uint256")
+
+        # Code size is typically a few KB to a few MB
+        # We'll use a reasonable upper bound
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("10485760"))],  # 0 to 10MB
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled codesize() -> {result_var_name} (uint256, range [0,10485760])")
+
+    def _handle_codecopy(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle codecopy(t, f, s) operation: copy s bytes from code at position f to mem at position t."""
+        logger.debug(f"Handling codecopy operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.warning(
+                f"codecopy operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        t_arg, f_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        t_name = variable_manager.get_variable_name(t_arg)
+        f_name = variable_manager.get_variable_name(f_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are copied to memory
+        memory_var_name = f"mem_code_{t_name}"
+
+        # For codecopy, we don't know the exact values being copied from code
+        # So we create a conservative range for the copied data
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+        memory_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"codecopy: copied {s_name} bytes from code[{f_name}] to memory[{t_name}] -> {memory_var_name}"
+        )
+
+    def _handle_extcodesize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle extcodesize(a) operation: size of the code at address a."""
+        logger.debug(f"Handling extcodesize operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("extcodesize operation has no lvalue")
+            raise ValueError("extcodesize operation has no lvalue")
+
+        # extcodesize() returns the size of code at the given address
+        result_type = ElementaryType("uint256")
+
+        # Code size is typically 0 (EOA) to a few MB
+        # We'll use a reasonable upper bound
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("10485760"))],  # 0 to 10MB
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled extcodesize() -> {result_var_name} (uint256, range [0,10485760])")
+
+    def _handle_extcodecopy(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle extcodecopy(a, t, f, s) operation: like codecopy(t, f, s) but take code at address a."""
+        logger.debug(f"Handling extcodecopy operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 4:
+            logger.warning(
+                f"extcodecopy operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        a_arg, t_arg, f_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        a_name = variable_manager.get_variable_name(a_arg)
+        t_name = variable_manager.get_variable_name(t_arg)
+        f_name = variable_manager.get_variable_name(f_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # Track the memory operation by creating a range variable for the memory location
+        # This helps with tracking what values are copied to memory
+        memory_var_name = f"mem_extcode_{t_name}"
+
+        # For extcodecopy, we don't know the exact values being copied from external code
+        # So we create a conservative range for the copied data
+        result_type = ElementaryType("uint256")
+        result_range = IntervalRange(
+            lower_bound=result_type.min,
+            upper_bound=result_type.max,
+        )
+        memory_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the memory location in domain state
+        domain.state.set_range_variable(memory_var_name, memory_range_variable)
+        logger.debug(
+            f"extcodecopy: copied {s_name} bytes from code at address {a_name}[{f_name}] to memory[{t_name}] -> {memory_var_name}"
+        )
+
+    def _handle_create(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle create(v, p, n) operation: create new contract with code mem[p…(p+n)) and send v wei and return the new address; returns 0 on error."""
+        logger.debug(f"Handling create operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("create operation has no lvalue")
+            raise ValueError("create operation has no lvalue")
+
+        # create returns the new contract address or 0 on error
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled create call -> {result_var_name} (address)")
+
+    def _handle_callcode(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle callcode(g, a, v, in, insize, out, outsize) operation: identical to call but only use the code from a and stay in the context of the current contract otherwise."""
+        logger.debug(f"Handling callcode operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("callcode operation has no lvalue")
+            raise ValueError("callcode operation has no lvalue")
+
+        if not operation.arguments or len(operation.arguments) != 7:
+            logger.warning(
+                f"callcode operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        g_arg, a_arg, v_arg, in_arg, insize_arg, out_arg, outsize_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        g_name = variable_manager.get_variable_name(g_arg)
+        a_name = variable_manager.get_variable_name(a_arg)
+        v_name = variable_manager.get_variable_name(v_arg)
+        in_name = variable_manager.get_variable_name(in_arg)
+        insize_name = variable_manager.get_variable_name(insize_arg)
+        out_name = variable_manager.get_variable_name(out_arg)
+        outsize_name = variable_manager.get_variable_name(outsize_arg)
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+
+        # callcode returns success (1) or failure (0)
+        result_type = ElementaryType("uint256")
+
+        # For callcode, we can't determine the exact result without knowing the call outcome
+        # So we create a conservative range for the success/failure result
+        result_range = IntervalRange(
+            lower_bound=Decimal("0"),  # 0 = failure
+            upper_bound=Decimal("1"),  # 1 = success
+        )
+
+        # Create range variable for the call result
+        result_range_variable = RangeVariable(
+            interval_ranges=[result_range],
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(
+            f"callcode: called contract {a_name} with gas {g_name}, value {v_name}, input[{in_name}...{in_name}+{insize_name}], output[{out_name}...{out_name}+{outsize_name}] -> {result_var_name}"
+        )
+
+    def _handle_log0(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle log0(p, s) operation: log data mem[p…(p+s))."""
+        logger.debug(f"Handling log0 operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 2:
+            logger.warning(
+                f"log0 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+
+        # log0 doesn't return a value, it logs data
+        # Just log the operation for debugging purposes
+        logger.debug(f"log0: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name})")
+
+    def _handle_log1(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle log1(p, s, t1) operation: log data mem[p…(p+s)) with topic t1."""
+        logger.debug(f"Handling log1 operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 3:
+            logger.warning(
+                f"log1 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, s_arg, t1_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+        t1_name = variable_manager.get_variable_name(t1_arg)
+
+        # log1 doesn't return a value, it logs data
+        # Just log the operation for debugging purposes
+        logger.debug(f"log1: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topic {t1_name}")
+
+    def _handle_log2(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle log2(p, s, t1, t2) operation: log data mem[p…(p+s)) with topics t1, t2."""
+        logger.debug(f"Handling log2 operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 4:
+            logger.warning(
+                f"log2 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, s_arg, t1_arg, t2_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+        t1_name = variable_manager.get_variable_name(t1_arg)
+        t2_name = variable_manager.get_variable_name(t2_arg)
+
+        # log2 doesn't return a value, it logs data
+        # Just log the operation for debugging purposes
+        logger.debug(f"log2: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}")
+
+    def _handle_log3(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle log3(p, s, t1, t2, t3) operation: log data mem[p…(p+s)) with topics t1, t2, t3."""
+        logger.debug(f"Handling log3 operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 5:
+            logger.warning(
+                f"log3 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, s_arg, t1_arg, t2_arg, t3_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+        t1_name = variable_manager.get_variable_name(t1_arg)
+        t2_name = variable_manager.get_variable_name(t2_arg)
+        t3_name = variable_manager.get_variable_name(t3_arg)
+
+        # log3 doesn't return a value, it logs data
+        # Just log the operation for debugging purposes
+        logger.debug(f"log3: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}")
+
+    def _handle_log4(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle log4(p, s, t1, t2, t3, t4) operation: log data mem[p…(p+s)) with topics t1, t2, t3, t4."""
+        logger.debug(f"Handling log4 operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 6:
+            logger.warning(
+                f"log4 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        p_arg, s_arg, t1_arg, t2_arg, t3_arg, t4_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        p_name = variable_manager.get_variable_name(p_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+        t1_name = variable_manager.get_variable_name(t1_arg)
+        t2_name = variable_manager.get_variable_name(t2_arg)
+        t3_name = variable_manager.get_variable_name(t3_arg)
+        t4_name = variable_manager.get_variable_name(t4_arg)
+
+        # log4 doesn't return a value, it logs data
+        # Just log the operation for debugging purposes
+        logger.debug(f"log4: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}, {t4_name}")
+
+    def _handle_chainid(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle chainid() operation: ID of the executing chain (EIP-1344)."""
+        logger.debug(f"Handling chainid operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("chainid operation has no lvalue")
+            raise ValueError("chainid operation has no lvalue")
+
+        # chainid() returns the chain ID
+        result_type = ElementaryType("uint256")
+
+        # Chain ID is typically a small positive integer
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("1"), Decimal("1000000"))],  # Reasonable range for chain IDs
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled chainid() -> {result_var_name} (uint256, range [1,1000000])")
+
+    def _handle_basefee(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle basefee() operation: current block's base fee (EIP-3198 and EIP-1559)."""
+        logger.debug(f"Handling basefee operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("basefee operation has no lvalue")
+            raise ValueError("basefee operation has no lvalue")
+
+        # basefee() returns the base fee
+        result_type = ElementaryType("uint256")
+
+        # Base fee is typically a small positive integer (in wei)
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled basefee() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+
+    def _handle_blobbasefee(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle blobbasefee() operation: current block's blob base fee (EIP-7516 and EIP-4844)."""
+        logger.debug(f"Handling blobbasefee operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("blobbasefee operation has no lvalue")
+            raise ValueError("blobbasefee operation has no lvalue")
+
+        # blobbasefee() returns the blob base fee
+        result_type = ElementaryType("uint256")
+
+        # Blob base fee is typically a small positive integer (in wei)
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled blobbasefee() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+
+    def _handle_origin(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle origin() operation: transaction sender."""
+        logger.debug(f"Handling origin operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("origin operation has no lvalue")
+            raise ValueError("origin operation has no lvalue")
+
+        # origin() returns the transaction sender address
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled origin() -> {result_var_name} (address)")
+
+    def _handle_gasprice(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle gasprice() operation: gas price of the transaction."""
+        logger.debug(f"Handling gasprice operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("gasprice operation has no lvalue")
+            raise ValueError("gasprice operation has no lvalue")
+
+        # gasprice() returns the gas price
+        result_type = ElementaryType("uint256")
+
+        # Gas price is typically a small positive integer (in wei)
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled gasprice() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+
+    def _handle_blockhash(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle blockhash(b) operation: hash of block nr b - only for last 256 blocks excluding current."""
+        logger.debug(f"Handling blockhash operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("blockhash operation has no lvalue")
+            raise ValueError("blockhash operation has no lvalue")
+
+        # blockhash() returns a 32-byte hash
+        result_type = ElementaryType("bytes32")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled blockhash() -> {result_var_name} (bytes32)")
+
+    def _handle_blobhash(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle blobhash(i) operation: versioned hash of transaction's i-th blob, 0 if blob does not exist."""
+        logger.debug(f"Handling blobhash operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("blobhash operation has no lvalue")
+            raise ValueError("blobhash operation has no lvalue")
+
+        # blobhash() returns a 32-byte hash
+        result_type = ElementaryType("bytes32")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled blobhash() -> {result_var_name} (bytes32)")
+
+    def _handle_coinbase(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle coinbase() operation: current mining beneficiary."""
+        logger.debug(f"Handling coinbase operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("coinbase operation has no lvalue")
+            raise ValueError("coinbase operation has no lvalue")
+
+        # coinbase() returns the miner's address
+        result_type = ElementaryType("address")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled coinbase() -> {result_var_name} (address)")
+
+    def _handle_number(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle number() operation: current block number."""
+        logger.debug(f"Handling number operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("number operation has no lvalue")
+            raise ValueError("number operation has no lvalue")
+
+        # number() returns the current block number
+        result_type = ElementaryType("uint256")
+
+        # Block number is typically a large positive integer
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("100000000"))],  # 0 to 100M blocks
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled number() -> {result_var_name} (uint256, range [0,100000000])")
+
+    def _handle_difficulty(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle difficulty() operation: difficulty of the current block (see note below)."""
+        logger.debug(f"Handling difficulty operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("difficulty operation has no lvalue")
+            raise ValueError("difficulty operation has no lvalue")
+
+        # difficulty() returns the block difficulty
+        result_type = ElementaryType("uint256")
+
+        # Difficulty is typically a large positive integer
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000000000000000"))],  # Large range for difficulty
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled difficulty() -> {result_var_name} (uint256)")
+
+    def _handle_prevrandao(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle prevrandao() operation: randomness provided by the beacon chain (see note below)."""
+        logger.debug(f"Handling prevrandao operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("prevrandao operation has no lvalue")
+            raise ValueError("prevrandao operation has no lvalue")
+
+        # prevrandao() returns randomness from the beacon chain
+        result_type = ElementaryType("uint256")
+
+        # Randomness is typically a large positive integer
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal(str(2**256 - 1)))],  # Full uint256 range
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled prevrandao() -> {result_var_name} (uint256)")
+
+    def _handle_gaslimit(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle gaslimit() operation: block gas limit of the current block."""
+        logger.debug(f"Handling gaslimit operation: {operation}")
+
+        if not operation.lvalue:
+            logger.error("gaslimit operation has no lvalue")
+            raise ValueError("gaslimit operation has no lvalue")
+
+        # gaslimit() returns the block gas limit
+        result_type = ElementaryType("uint256")
+
+        # Gas limit is typically a large positive integer
+        result_range_variable = RangeVariable(
+            interval_ranges=[IntervalRange(Decimal("0"), Decimal("100000000"))],  # 0 to 100M gas
+            valid_values=ValueSet(set()),
+            invalid_values=ValueSet(set()),
+            var_type=result_type,
+        )
+
+        # Store the result in the domain state
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(f"Handled gaslimit() -> {result_var_name} (uint256, range [0,100000000])")
+
+    def _handle_selfdestruct(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle selfdestruct(a) operation: end execution, destroy current contract and send funds to a (deprecated)."""
+        logger.debug(f"Handling selfdestruct operation: {operation}")
+
+        if not operation.arguments or len(operation.arguments) != 1:
+            logger.warning(
+                f"selfdestruct operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        a_arg = operation.arguments[0]
+        variable_manager = VariableInfoManager()
+        a_name = variable_manager.get_variable_name(a_arg)
+
+        # selfdestruct doesn't return a value, it destroys the contract
+        # Just log the operation for debugging purposes
+        logger.debug(f"selfdestruct: destroying contract and sending funds to {a_name}")
+
+    def _handle_invalid(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+        """Handle invalid() operation: end execution with invalid instruction."""
+        logger.debug(f"Handling invalid operation: {operation}")
+
+        # invalid() doesn't return a value, it ends execution with an invalid instruction
+        # Just log the operation for debugging purposes
+        logger.debug("invalid: ending execution with invalid instruction")
