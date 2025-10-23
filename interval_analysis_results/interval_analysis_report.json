@@ -1,90 +1,551 @@
 [
   {
-    "contract": "struct_push",
-    "function": "foo",
+    "contract": "FarmAccounting",
+    "function": "farmedSinceCheckpointScaled",
     "findings": [
       {
-        "variable_name": "struct_push.index",
-        "node_id": 1,
-        "node_expression": "require(bool)(index == 0)",
-        "var_type": "uint256",
-        "has_overflow": false,
-        "has_underflow": false,
-        "interval_ranges": [],
-        "valid_values": [
-          "0"
-        ],
-        "invalid_values": []
-      },
-      {
-        "variable_name": "struct_push.index",
+        "variable_name": "FarmAccounting.farmedSinceCheckpointScaled(FarmAccounting.Info,uint256).elapsed",
         "node_id": 2,
-        "node_expression": "(a,map[++ index]) = (index,bar(++ index))",
+        "node_expression": "elapsed = Math.min(block.timestamp,info.finished) - Math.min(checkpoint,info.finished)",
         "var_type": "uint256",
         "has_overflow": false,
-        "has_underflow": false,
-        "interval_ranges": [],
-        "valid_values": [
-          "2"
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "4102444800"
+          }
         ],
-        "invalid_values": []
-      },
-      {
-        "variable_name": "struct_push.a",
-        "node_id": 2,
-        "node_expression": "(a,map[++ index]) = (index,bar(++ index))",
-        "var_type": "uint256",
-        "has_overflow": false,
-        "has_underflow": false,
-        "interval_ranges": [],
-        "valid_values": [
-          "2"
-        ],
-        "invalid_values": []
-      },
-      {
-        "variable_name": "struct_push.index",
-        "node_id": 3,
-        "node_expression": "(a,index,map[0],map[1],map[2])",
-        "var_type": "uint256",
-        "has_overflow": false,
-        "has_underflow": false,
-        "interval_ranges": [],
-        "valid_values": [
-          "2"
-        ],
-        "invalid_values": []
-      },
-      {
-        "variable_name": "struct_push.a",
-        "node_id": 3,
-        "node_expression": "(a,index,map[0],map[1],map[2])",
-        "var_type": "uint256",
-        "has_overflow": false,
-        "has_underflow": false,
-        "interval_ranges": [],
-        "valid_values": [
-          "2"
-        ],
+        "valid_values": [],
         "invalid_values": []
       }
     ]
   },
   {
-    "contract": "struct_push",
-    "function": "bar",
+    "contract": "UserAccounting",
+    "function": "farmedPerToken",
     "findings": [
       {
-        "variable_name": "struct_push.bar(uint256).i",
-        "node_id": 1,
-        "node_expression": "i",
+        "variable_name": "UserAccounting.farmedPerToken(UserAccounting.Info,bytes32,function(bytes32) returns(uint256),function(bytes32,uint256) returns(uint256)).fpt",
+        "node_id": 6,
+        "node_expression": "fpt += lazyGetFarmed(context,checkpoint) / supply",
         "var_type": "uint256",
-        "has_overflow": false,
+        "has_overflow": true,
         "has_underflow": false,
         "interval_ranges": [
           {
             "lower": "0",
+            "upper": "115792089237421507715239542195385825880953655097959459134858133119167440617470"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "NonceManager",
+    "function": "advanceNonce",
+    "findings": [
+      {
+        "variable_name": "NonceManager.advanceNonce(uint256).newNonce",
+        "node_id": 4,
+        "node_expression": "newNonce = nonce[msg.sender] + amount",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "SafeERC20",
+    "function": "_makeCalldataCall",
+    "findings": [
+      {
+        "variable_name": "SafeERC20._makeCalldataCall(IERC20,bytes4,bytes).len__makeCalldataCall_asm_0",
+        "node_id": 3,
+        "node_expression": "len__makeCalldataCall_asm_0 = 4 + args",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "4",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639939"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "StringUtil",
+    "function": "toHex",
+    "findings": [
+      {
+        "variable_name": "StringUtil.toHex(bytes).resultLength_toHex_asm_0",
+        "node_id": 6,
+        "node_expression": "resultLength_toHex_asm_0 = length_toHex_asm_0 << 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).toPtr_toHex_asm_0",
+        "node_id": 8,
+        "node_expression": "toPtr_toHex_asm_0 = result + 0x22",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "34",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639969"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).fromPtr_toHex_asm_0",
+        "node_id": 15,
+        "node_expression": "fromPtr_toHex_asm_0 = data + 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "StringUtil.toHex(bytes).endPtr_toHex_asm_0",
+        "node_id": 17,
+        "node_expression": "endPtr_toHex_asm_0 = fromPtr_toHex_asm_0 + length_toHex_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279902"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Math",
+    "function": "mulDiv",
+    "findings": [
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 6,
+        "node_expression": "prod0 = x * y",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 7,
+        "node_expression": "prod1 = mm_mulDiv_asm_0 - prod0 - mm_mulDiv_asm_0 < prod0",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
             "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod1",
+        "node_id": 16,
+        "node_expression": "prod1 = prod1 - remainder > prod0",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Math.mulDiv(uint256,uint256,uint256).prod0",
+        "node_id": 17,
+        "node_expression": "prod0 = prod0 - remainder",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "0",
+            "upper": "1.340780792994259709957402499820584612747936582059239337772356144372176403007331539262339966577605629E+154"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "FeeBank",
+    "function": "gatherFees",
+    "findings": [
+      {
+        "variable_name": "FeeBank.gatherFees(address[]).totalAccountFees",
+        "node_id": 10,
+        "node_expression": "totalAccountFees += accountDeposit - availableCredit_",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919805"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "Settlement",
+    "function": "_settleOrder",
+    "findings": [
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).interactionOffset__settleOrder_asm_1",
+        "node_id": 17,
+        "node_expression": "interactionOffset__settleOrder_asm_1 = interactionLengthOffset__settleOrder_asm_1 + 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639967"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "Settlement._settleOrder(bytes,address,uint256,bytes).offset__settleOrder_asm_1",
+        "node_id": 32,
+        "node_expression": "offset__settleOrder_asm_1 = ptr__settleOrder_asm_1 + interactionOffset__settleOrder_asm_1 + interactionLength__settleOrder_asm_1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": false,
+        "interval_ranges": [
+          {
+            "lower": "32",
+            "upper": "347376267711948586270712955026063723559809953996921692118372752023739388919837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_votingPowerAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._votingPowerAt(uint256,uint256).t",
+        "node_id": 2,
+        "node_expression": "t = timestamp - origin",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "VotingPowerCalculator",
+    "function": "_balanceAt",
+    "findings": [
+      {
+        "variable_name": "VotingPowerCalculator._balanceAt(uint256,uint256).t",
+        "node_id": 2,
+        "node_expression": "t = timestamp - origin",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "upper": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "DynamicSuffix",
+    "function": "decodeSuffix",
+    "findings": [
+      {
+        "variable_name": "DynamicSuffix.decodeSuffix(bytes).lengthOffset_decodeSuffix_asm_0",
+        "node_id": 3,
+        "node_expression": "lengthOffset_decodeSuffix_asm_0 = cd + cd - 0x20",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-32",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279838"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "takingFee",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.takingFee(OrderLib.Order).ptr_takingFee_asm_0",
+        "node_id": 4,
+        "node_expression": "ptr_takingFee_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "checkResolver",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 4,
+        "node_expression": "ptr_checkResolver_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 7,
+        "node_expression": "ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _PUBLIC_TIME_LIMIT_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-5",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).ptr_checkResolver_asm_0",
+        "node_id": 10,
+        "node_expression": "ptr_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _TAKING_FEE_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-37",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279833"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.checkResolver(OrderLib.Order,address).end_checkResolver_asm_0",
+        "node_id": 21,
+        "node_expression": "end_checkResolver_asm_0 = ptr_checkResolver_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_checkResolver_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "rateBump",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 13,
+        "node_expression": "ptr_rateBump_asm_0 = interactions + interactions - 1",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-1",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279869"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 23,
+        "node_expression": "ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _TAKING_FEE_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-33",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279837"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).ptr_rateBump_asm_0",
+        "node_id": 24,
+        "node_expression": "ptr_rateBump_asm_0 = ptr_rateBump_asm_0 - _RESOLVER_BYTES_SIZE * resolversCount_rateBump_asm_0 + _PUBLIC_TIME_LIMIT_BYTES_SIZE",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-397",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).end_rateBump_asm_0",
+        "node_id": 32,
+        "node_expression": "end_rateBump_asm_0 = ptr_rateBump_asm_0 - _AUCTION_POINT_BYTES_SIZE * pointsCount_rateBump_asm_0",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-432",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279865"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      },
+      {
+        "variable_name": "OrderSuffix.rateBump(OrderLib.Order).bump",
+        "node_id": 49,
+        "node_expression": "bump = linearInterpolation(prevCumulativeTime_rateBump_asm_0,lastTime,prevCoefficient_rateBump_asm_0,0,timestamp()())",
+        "var_type": "uint256",
+        "has_overflow": false,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-16842751",
+            "upper": "16777215"
+          }
+        ],
+        "valid_values": [],
+        "invalid_values": []
+      }
+    ]
+  },
+  {
+    "contract": "OrderSuffix",
+    "function": "linearInterpolation",
+    "findings": [
+      {
+        "variable_name": "OrderSuffix.rateBump.asm_0.linearInterpolation().v_rateBump_asm_0_linearInterpolation",
+        "node_id": 8,
+        "node_expression": "v_rateBump_asm_0_linearInterpolation = t_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation * v2_rateBump_asm_0_linearInterpolation + t2_rateBump_asm_0_linearInterpolation - t_rateBump_asm_0_linearInterpolation * v1_rateBump_asm_0_linearInterpolation / t2_rateBump_asm_0_linearInterpolation - t1_rateBump_asm_0_linearInterpolation",
+        "var_type": "uint256",
+        "has_overflow": true,
+        "has_underflow": true,
+        "interval_ranges": [
+          {
+            "lower": "-231584178474632390847141970017375815706539969331281128078915168015826259279870",
+            "upper": "231584178474632390847141970017375815706539969331281128078915168015826259279870"
           }
         ],
         "valid_values": [],

@@ -59,12 +59,13 @@ class IntervalAnalysisDF(AbstractDetector):
     WIKI_RECOMMENDATION = "tbd"
     STANDARD_JSON = False
 
-    ONLY_SHOW_OVERFLOW = False
+    ONLY_SHOW_OVERFLOW = True
     SHOW_TEMP_VARIABLES = False
     SHOW_BOOLEAN_VARIABLES = False
-    SHOW_CHECKED_SCOPES = True
+    SHOW_CHECKED_SCOPES = False
     SHOW_WRITTEN_VARIABLES = True
-    SHOW_READ_VARIABLES = True
+    SHOW_READ_VARIABLES = False
+    SHOW_DIVISION_BY_ZERO = False
 
     def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:
         """Analyze a single function and return findings."""
@@ -96,7 +97,7 @@ class IntervalAnalysisDF(AbstractDetector):
             if self.SHOW_READ_VARIABLES:
                 variables = variables + node.variables_read
 
-            if not (self.SHOW_WRITTEN_VARIABLES and self.SHOW_READ_VARIABLES):
+            if (not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES):
                 logger.error(
                     "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
                 )
@@ -147,14 +148,23 @@ class IntervalAnalysisDF(AbstractDetector):
                 if self.ONLY_SHOW_OVERFLOW and not (has_overflow or has_underflow):
                     continue
 
-                # Extract interval ranges
-                interval_ranges = [
-                    {
+                interval_ranges = []
+                skip_variable = False
+                for r in range_var.get_interval_ranges():
+                    if "Infinity" in str(r.get_upper()) and not self.SHOW_DIVISION_BY_ZERO:
+                        skip_variable = True
+                        break
+                    if "-Infinity" in str(r.get_lower()) and not self.SHOW_DIVISION_BY_ZERO:
+                        skip_variable = True
+                        break
+                    
+                    interval_ranges.append({
                         "lower": str(r.get_lower()),
                         "upper": str(r.get_upper()),
-                    }
-                    for r in range_var.get_interval_ranges()
-                ]
+                    })
+                
+                if skip_variable:
+                    continue
 
                 # Create finding
                 finding_key = FindingKey(
