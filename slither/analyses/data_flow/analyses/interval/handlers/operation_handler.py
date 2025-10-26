@@ -27,6 +27,7 @@ from slither.analyses.data_flow.analyses.interval.handlers.internal_dynamic_call
 from slither.analyses.data_flow.analyses.interval.handlers.library_call_handler import (
     LibraryCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.new_array_handler import NewArrayHandler
 from slither.analyses.data_flow.analyses.interval.handlers.new_elementary_type_handler import (
     NewElementaryTypeHandler,
 )
@@ -69,6 +70,7 @@ from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
+from slither.slithir.operations.new_array import NewArray
 from slither.slithir.operations.new_elementary_type import NewElementaryType
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
@@ -108,6 +110,7 @@ class OperationHandler:
         )
         self.unpack_handler = UnpackHandler(self.shared_constraint_storage)
         self.new_elementary_type_handler = NewElementaryTypeHandler()
+        self.new_array_handler = NewArrayHandler()
 
     def handle_assignment(self, node: Node, domain: IntervalDomain, operation: Assignment):
         self.assignment_handler.handle_assignment(node, domain, operation)
@@ -203,3 +206,6 @@ class OperationHandler:
         self, node: Node, domain: IntervalDomain, operation: NewElementaryType
     ):
         self.new_elementary_type_handler.handle_new_elementary_type(node, domain, operation)
+
+    def handle_new_array(self, node: Node, domain: IntervalDomain, operation: NewArray):
+        self.new_array_handler.handle_new_array(node, domain, operation)

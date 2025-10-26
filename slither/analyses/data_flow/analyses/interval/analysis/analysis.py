@@ -57,6 +57,7 @@ from slither.slithir.operations.unary import Unary, UnaryType
 from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.operations.new_elementary_type import NewElementaryType
+from slither.slithir.operations.new_array import NewArray
 
 
 class IntervalAnalysis(Analysis):
@@ -503,6 +504,9 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation, NewElementaryType):
             self._operation_handler.handle_new_elementary_type(node, domain, operation)
+
+        if isinstance(operation, NewArray):
+            self._operation_handler.handle_new_array(node, domain, operation)
 
     def node_declares_variable_without_initial_value(self, node: Node) -> bool:
         """Check if the node has an uninitialized variable."""
