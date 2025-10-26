@@ -62,9 +62,9 @@ class IntervalAnalysisDF(AbstractDetector):
     ONLY_SHOW_OVERFLOW = True
     SHOW_TEMP_VARIABLES = False
     SHOW_BOOLEAN_VARIABLES = False
-    SHOW_CHECKED_SCOPES = False
+    SHOW_CHECKED_SCOPES = True
     SHOW_WRITTEN_VARIABLES = True
-    SHOW_READ_VARIABLES = False
+    SHOW_READ_VARIABLES = True
     SHOW_DIVISION_BY_ZERO = False
 
     def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:

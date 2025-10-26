@@ -126,9 +126,11 @@ class SolidityCallHandler:
             # delegatecall variants
             "delegatecall(bytes)",  # Simple delegatecall with data
             "delegatecall(uint256,bytes)",  # Delegatecall with gas and data
+            "delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)",  # Low-level delegatecall with 6 parameters
             # staticcall variants
             "staticcall(bytes)",  # Simple staticcall with data
             "staticcall(uint256,bytes)",  # Staticcall with gas and data
+            "staticcall(uint256,uint256,uint256,uint256,uint256,uint256)",  # Low-level staticcall with 6 parameters
         ]
         if operation.function.full_name in call_signatures:
             self._handle_call(node, domain, operation)
@@ -664,8 +666,10 @@ class SolidityCallHandler:
         - call(uint256, bytes) - high-level call with gas and data (2 args)
         - delegatecall(bytes) - delegatecall with data (1 arg)
         - delegatecall(uint256, bytes) - delegatecall with gas and data (2 args)
+        - delegatecall(uint256, uint256, uint256, uint256, uint256, uint256) - low-level delegatecall (6 args)
         - staticcall(bytes) - staticcall with data (1 arg)
         - staticcall(uint256, bytes) - staticcall with gas and data (2 args)
+        - staticcall(uint256, uint256, uint256, uint256, uint256, uint256) - low-level staticcall (6 args)
 
         All call family functions return:
         - 0 on error (e.g. out of gas, revert)
@@ -680,12 +684,13 @@ class SolidityCallHandler:
         valid_arg_counts = {
             1,
             2,
+            6,
             7,
-        }  # call(bytes), call(uint256,bytes), call(g,a,v,in,insize,out,outsize)
+        }  # call(bytes), call(uint256,bytes), delegatecall/staticcall with 6 args, call with 7 args
 
         if arg_count not in valid_arg_counts:
-            logger.error(f"call operation requires 1, 2, or 7 arguments, got {arg_count}")
-            raise ValueError(f"call operation requires 1, 2, or 7 arguments, got {arg_count}")
+            logger.error(f"call operation requires 1, 2, 6, or 7 arguments, got {arg_count}")
+            raise ValueError(f"call operation requires 1, 2, 6, or 7 arguments, got {arg_count}")
 
         # The result is always 0 or 1 (failure or success)
         result_type = ElementaryType("uint256")
