@@ -73,7 +73,7 @@ class SolidityCallHandler:
 
         # Handle keccak256 hashing
         if operation.function.full_name == "keccak256(bytes)":
-            self._handle_keccak256(node, domain, operation)
+            self._handle_keccak256_bytes(node, domain, operation)
             return
 
         # Handle abi.encode / abi.encodePacked family -> returns bytes
@@ -169,7 +169,7 @@ class SolidityCallHandler:
             return
 
         if operation.function.full_name == "keccak256(uint256,uint256)":
-            self._handle_keccak256(node, domain, operation)
+            self._handle_keccak256_memory(node, domain, operation)
             return
 
         if operation.function.full_name == "returndatacopy(uint256,uint256,uint256)":
@@ -547,13 +547,13 @@ class SolidityCallHandler:
         # to the final analysis
         domain.variant = DomainVariant.TOP
 
-    def _handle_keccak256(
+    def _handle_keccak256_bytes(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
     ) -> None:
-        """Handle keccak256(...) returning bytes32."""
+        """Handle keccak256(bytes memory) returning bytes32."""
         if not operation.lvalue:
-            logger.error("keccak256 operation has no lvalue")
-            raise ValueError("keccak256 operation has no lvalue")
+            logger.error("keccak256(bytes) operation has no lvalue")
+            raise ValueError("keccak256(bytes) operation has no lvalue")
 
         result_type = ElementaryType("bytes32")
         # Hash output is opaque; we model as unconstrained bytes32 (no numeric intervals)
@@ -567,7 +567,7 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        # logger.debug(f"Handled keccak256 call, created variable: {result_var_name} (bytes32)")
+        logger.debug(f"Handled keccak256(bytes) call, created variable: {result_var_name} (bytes32)")
 
     def _handle_abi_encode(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
@@ -1161,19 +1161,19 @@ class SolidityCallHandler:
             f"calldatacopy: copied {s_name} bytes from calldata[{f_name}] to memory[{t_name}] -> {memory_var_name}"
         )
 
-    def _handle_keccak256(
+    def _handle_keccak256_memory(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
     ) -> None:
-        """Handle keccak256(p, n) operation: keccak(mem[p…(p+n)))."""
-        logger.debug(f"Handling keccak256 operation: {operation}")
+        """Handle keccak256(p, n) operation: keccak(mem[p…(p+n))) returning uint256."""
+        logger.debug(f"Handling keccak256(uint256,uint256) operation: {operation}")
 
         if not operation.lvalue:
-            logger.error("keccak256 operation has no lvalue")
-            raise ValueError("keccak256 operation has no lvalue")
+            logger.error("keccak256(uint256,uint256) operation has no lvalue")
+            raise ValueError("keccak256(uint256,uint256) operation has no lvalue")
 
         if not operation.arguments or len(operation.arguments) != 2:
             logger.warning(
-                f"keccak256 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+                f"keccak256(uint256,uint256) operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
             )
             return
 
@@ -1204,7 +1204,7 @@ class SolidityCallHandler:
         # Store the result in the domain state
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(
-            f"keccak256: computed hash of memory[{p_name}...{p_name}+{n_name}] -> {result_var_name}"
+            f"keccak256(uint256,uint256): computed hash of memory[{p_name}...{p_name}+{n_name}] -> {result_var_name}"
         )
 
     def _handle_returndatacopy(
