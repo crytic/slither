@@ -115,3 +115,6 @@ crytic-export/
 
 # slither.db.json 
 slither.db.json
+
+# df results
+interval_analysis_results
