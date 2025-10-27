@@ -87,7 +87,7 @@ class SolidityCallHandler:
             return
 
         # Handle CREATE2 opcode exposed via solidity call wrappers
-        if operation.function.full_name == "create2(uint256,uint256,uint256,bytes32)":
+        if operation.function.full_name == "create2(uint256,uint256,uint256,uint256)":
             self._handle_create2(node, domain, operation)
             return
 
@@ -615,11 +615,33 @@ class SolidityCallHandler:
     #        logger.debug(f"Handled {operation.function.name} -> {result_var_name} (bytes)")
 
     def _handle_create2(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
-        """Handle create2(v, p, n, s) returning the new contract address or 0 on error."""
+        """Handle create2(v, p, n, s) operation: create new contract with code mem[p…(p+n)) at address keccak256(0xff . this . s . keccak256(mem[p…(p+n)))) and send v wei and return the new address; returns 0 on error."""
+        logger.debug(f"Handling create2 operation: {operation}")
+
         if not operation.lvalue:
             logger.error("create2 operation has no lvalue")
             raise ValueError("create2 operation has no lvalue")
 
+        # Validate argument count
+        if not operation.arguments or len(operation.arguments) != 4:
+            logger.warning(
+                f"create2 operation has unexpected argument count: {len(operation.arguments) if operation.arguments else 0}"
+            )
+            return
+
+        v_arg, p_arg, n_arg, s_arg = operation.arguments
+        variable_manager = VariableInfoManager()
+        v_name = variable_manager.get_variable_name(v_arg)
+        p_name = variable_manager.get_variable_name(p_arg)
+        n_name = variable_manager.get_variable_name(n_arg)
+        s_name = variable_manager.get_variable_name(s_arg)
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+
+        # create2 returns the new contract address or 0 on error
+        # The exact address is computed as: keccak256(0xff . this . s . keccak256(mem[p…(p+n))))
+        # Since this depends on runtime values we can't determine, we model it as:
+        # - 0 on failure (address = 0)
+        # - Any valid address on success
         result_type = ElementaryType("address")
         result_range_variable = RangeVariable(
             interval_ranges=[],
@@ -628,11 +650,11 @@ class SolidityCallHandler:
             var_type=result_type,
         )
 
-        variable_manager = VariableInfoManager()
-        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        # Store the result in the domain state
         domain.state.set_range_variable(result_var_name, result_range_variable)
-
-    #        logger.debug(f"Handled create2 call -> {result_var_name} (address)")
+        logger.debug(
+            f"create2: create contract with {v_name} wei, code at mem[{p_name}...{p_name}+{n_name}], salt {s_name} -> {result_var_name} (address or 0)"
+        )
 
     def _handle_balance(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle balance(address) operation returning uint256."""
