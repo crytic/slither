@@ -199,88 +199,42 @@ class VariableInfoManager:
             logger.error(f"Parameter {parameter.name} is not a UserDefinedType")
             raise ValueError(f"Parameter {parameter.name} is not a UserDefinedType")
 
-        type_def = parameter.type.type  # This could be Struct, Contract, or Enum
-        # logger.debug(f"Creating field variables for: {type_def.name}")
-
-        # Handle different types of UserDefinedType
-
-        if isinstance(type_def, Structure):
-            # Create range variables for each struct field
-            for field_var in type_def.elems_ordered:
-                field_name = f"{parameter.canonical_name}.{field_var.name}"
-                field_type = field_var.type
-
-                # Handle different field types
-                if isinstance(field_type, ElementaryType):
-                    elementary_range_variables = self._create_elementary_type_range_variable(
-                        field_name, field_type
-                    )
-                    range_variables.update(elementary_range_variables)
-
-                elif isinstance(field_type, UserDefinedType):
-                    # Handle nested structs recursively
-                    # logger.debug(f"Processing nested struct field: {field_name}")
-                    # Create a temporary variable object for the nested struct field
-
-                    nested_struct_var = LocalVariable()
-                    nested_struct_var.name = field_name
-                    # canonical_name is a read-only property, so we can't set it directly
-                    # We'll pass the field_name directly to the recursive call
-                    nested_struct_var.type = field_type
-
-                    # Recursively create range variables for the nested struct
-                    # We need to create a modified version that uses the field_name as the base
-                    nested_range_variables = self._create_nested_struct_field_variables(
-                        field_name, field_type
-                    )
-                    range_variables.update(nested_range_variables)
-                    # logger.debug(f"Created nested struct field variables for: {field_name}")
-
-                else:
-                    logger.warning(
-                        f"1. Non-elementary, non-struct field type {field_type} for struct field {field_name} - skipping"
-                    )
-                    logger.warning(
-                        f"field_type: {field_type}, type: {type(field_type)}, name: {parameter.name}"
-                    )
-                    # embed()
-
-        elif isinstance(type_def, Contract):
-            # For contract types, create range variables for the contract's state variables
-            # This allows us to track the state of the contract instance
-            # logger.debug(f"Creating contract state variables for: {type_def.name}")
-
-            for state_var in type_def.state_variables:
-                # Create field variables for each state variable in the contract
-                field_name = f"{parameter.canonical_name}.{state_var.name}"
-                field_type = state_var.type
-
-                # Handle different state variable types
-                if isinstance(field_type, ElementaryType):
-                    elementary_range_variables = self._create_elementary_type_range_variable(
-                        field_name, field_type
-                    )
-                    range_variables.update(elementary_range_variables)
-
-                elif isinstance(field_type, UserDefinedType):
-                    # Handle nested structs/enums/contracts in state variables
-                    # logger.debug(f"Processing nested type in contract state variable: {field_name}")
-                    nested_range_variables = self._create_nested_struct_field_variables(
-                        field_name, field_type
-                    )
-                    range_variables.update(nested_range_variables)
-                    # logger.debug(f"Created nested type variables for contract state: {field_name}")
-
-                else:
-                    logger.warning(
-                        f"2. Non-elementary, non-user-defined state variable type {field_type} for contract field {field_name} - skipping"
-                    )
-
-        else:
-            logger.warning(f"Unsupported UserDefinedType: {type_def}")
-            return range_variables
+        # Use the unified helper method to create range variables
+        nested_range_variables = self._process_fields_in_user_defined_type(
+            parameter.canonical_name, parameter.type
+        )
+        range_variables.update(nested_range_variables)
 
         return range_variables
+
+    def _add_range_variable_to_domain(
+        self, domain: "IntervalDomain", var_name: str, var_type: ElementaryType
+    ) -> None:
+        """Add a single range variable to the domain state.
+
+        Args:
+            domain: The domain to add to
+            var_name: The variable name
+            var_type: The type of the variable
+        """
+        if self.is_type_numeric(var_type):
+            # Create numeric range variable
+            interval_range = IntervalRange(
+                lower_bound=var_type.min,
+                upper_bound=var_type.max,
+            )
+            range_variable = RangeVariable(
+                interval_ranges=[interval_range],
+                valid_values=None,
+                invalid_values=None,
+                var_type=var_type,
+            )
+            domain.state.add_range_variable(var_name, range_variable)
+        elif self.is_type_bytes(var_type):
+            # Create bytes range variables
+            range_variables = self.create_bytes_offset_and_length_variables(var_name)
+            for var_name_bytes, range_variable in range_variables.items():
+                domain.state.add_range_variable(var_name_bytes, range_variable)
 
     def create_struct_field_variables_for_domain(
         self, domain: "IntervalDomain", var_name: str, var_type: UserDefinedType
@@ -290,53 +244,43 @@ class VariableInfoManager:
         This is a convenience method for handlers that need to create struct field
         variables and add them to the domain state in one operation.
         """
+        struct_def = var_type.type
 
-        if not hasattr(var_type.type, "elems"):
-            # logger.debug(f"Struct type {var_type} has no elements")
+        # Get fields from Structure or Contract
+        fields_to_process = []
+        if isinstance(struct_def, Structure):
+            if hasattr(struct_def, "elems"):
+                for field_name, field_type in struct_def.elems.items():
+                    fields_to_process.append((field_name, field_type))
+        elif isinstance(struct_def, Contract):
+            for state_var in struct_def.state_variables:
+                fields_to_process.append((state_var.name, state_var.type))
+        else:
+            logger.warning(
+                f"Expected Structure or Contract type in create_struct_field_variables_for_domain but got {type(struct_def)} ({struct_def}) - skipping"
+            )
             return
 
-        for field_name, field_type in var_type.type.elems.items():
-            field_var_name = f"{var_name}.{field_name}"
+        # Process each field
+        for field_name_suffix, field_type_instance in fields_to_process:
+            field_var_name = f"{var_name}.{field_name_suffix}"
 
             # Skip if field variable already exists
             if domain.state.has_range_variable(field_var_name):
-                # logger.debug(f"Field variable {field_var_name} already exists")
                 continue
 
             # Get the actual field type from the struct definition
-            actual_field_type = field_type.type if hasattr(field_type, "type") else field_type
+            actual_field_type = field_type_instance.type if hasattr(field_type_instance, "type") else field_type_instance
 
-            # Recursively handle nested structs
+            # Handle different field types
             if isinstance(actual_field_type, UserDefinedType):
+                # Recursively handle nested structs/contracts
                 self.create_struct_field_variables_for_domain(
                     domain, field_var_name, actual_field_type
                 )
-            elif self.is_type_numeric(actual_field_type):
-                # Create numeric range variable
-                interval_range = IntervalRange(
-                    lower_bound=actual_field_type.min,
-                    upper_bound=actual_field_type.max,
-                )
-                range_variable = RangeVariable(
-                    interval_ranges=[interval_range],
-                    valid_values=None,
-                    invalid_values=None,
-                    var_type=actual_field_type,
-                )
-                domain.state.add_range_variable(field_var_name, range_variable)
-                # logger.debug(f"Created numeric field variable {field_var_name}")
-            elif self.is_type_bytes(actual_field_type):
-                # Create bytes range variables
-                range_variables = self.create_bytes_offset_and_length_variables(field_var_name)
-                for var_name_bytes, range_variable in range_variables.items():
-                    domain.state.add_range_variable(var_name_bytes, range_variable)
-                # logger.debug(f"Created bytes field variable {field_var_name}")
-            # else:
-            #     # logger.debug(
-            #         f"Skipping unsupported field type {actual_field_type} for {field_var_name}"
-            #     )
-
-        # logger.debug(f"Created struct field variables for {var_name}")
+            elif isinstance(actual_field_type, ElementaryType):
+                # Add elementary type variables to domain
+                self._add_range_variable_to_domain(domain, field_var_name, actual_field_type)
 
     def _create_elementary_type_range_variable(
         self, field_name: str, field_type: ElementaryType
@@ -378,6 +322,62 @@ class VariableInfoManager:
 
         return range_variables
 
+    def _process_fields_in_user_defined_type(
+        self, base_name: str, field_type: "UserDefinedType"
+    ) -> dict[str, "RangeVariable"]:
+        """Process fields from a UserDefinedType (Structure or Contract).
+
+        Args:
+            base_name: The base name for the field
+            field_type: The UserDefinedType for the field
+
+        Returns:
+            Dictionary mapping field variable names to their corresponding RangeVariable objects.
+        """
+        range_variables = {}
+        struct_def = field_type.type  # This could be a Struct or Contract object
+
+        # Get fields from Structure or Contract
+        fields_to_process = []
+        if isinstance(struct_def, Structure):
+            # Get fields from struct
+            for field_var in struct_def.elems_ordered:
+                fields_to_process.append((field_var.name, field_var.type))
+        elif isinstance(struct_def, Contract):
+            # Get state variables from contract
+            for state_var in struct_def.state_variables:
+                fields_to_process.append((state_var.name, state_var.type))
+        else:
+            logger.warning(
+                f"Expected Structure or Contract type but got {type(struct_def)} ({struct_def}) - skipping nested field creation"
+            )
+            return range_variables
+
+        # Process each field
+        for field_name_suffix, field_type_instance in fields_to_process:
+            field_name = f"{base_name}.{field_name_suffix}"
+
+            # Handle different field types
+            if isinstance(field_type_instance, ElementaryType):
+                elementary_range_variables = self._create_elementary_type_range_variable(
+                    field_name, field_type_instance
+                )
+                range_variables.update(elementary_range_variables)
+
+            elif isinstance(field_type_instance, UserDefinedType):
+                # Handle deeply nested structs/contracts recursively
+                nested_range_variables = self._process_fields_in_user_defined_type(
+                    field_name, field_type_instance
+                )
+                range_variables.update(nested_range_variables)
+
+            else:
+                logger.warning(
+                    f"Non-elementary, non-user-defined field type {field_type_instance} for field {field_name} - skipping"
+                )
+
+        return range_variables
+
     def _create_nested_struct_field_variables(
         self, base_name: str, field_type: "UserDefinedType"
     ) -> dict[str, "RangeVariable"]:
@@ -390,34 +390,4 @@ class VariableInfoManager:
         Returns:
             Dictionary mapping field variable names to their corresponding RangeVariable objects.
         """
-
-        range_variables = {}
-        struct_def = field_type.type  # This is the Struct object
-
-        # Create range variables for each struct field
-        for field_var in struct_def.elems_ordered:
-            field_name = f"{base_name}.{field_var.name}"
-            field_type = field_var.type
-
-            # Handle different field types
-            if isinstance(field_type, ElementaryType):
-                elementary_range_variables = self._create_elementary_type_range_variable(
-                    field_name, field_type
-                )
-                range_variables.update(elementary_range_variables)
-
-            elif isinstance(field_type, UserDefinedType):
-                # Handle deeply nested structs recursively
-                # logger.debug(f"Processing deeply nested struct field: {field_name}")
-                nested_range_variables = self._create_nested_struct_field_variables(
-                    field_name, field_type
-                )
-                range_variables.update(nested_range_variables)
-                # logger.debug(f"Created deeply nested struct field variables for: {field_name}")
-
-            else:
-                logger.warning(
-                    f"3. Non-elementary, non-struct nested field type {field_type} for struct field {field_name} - skipping"
-                )
-
-        return range_variables
+        return self._process_fields_in_user_defined_type(base_name, field_type)
