@@ -60,7 +60,7 @@ class IntervalAnalysisDF(AbstractDetector):
     STANDARD_JSON = False
 
     ONLY_SHOW_OVERFLOW = True
-    SHOW_TEMP_VARIABLES = False
+    SHOW_TEMP_VARIABLES = True
     SHOW_BOOLEAN_VARIABLES = False
     SHOW_CHECKED_SCOPES = True
     SHOW_WRITTEN_VARIABLES = True
@@ -97,7 +97,7 @@ class IntervalAnalysisDF(AbstractDetector):
             if self.SHOW_READ_VARIABLES:
                 variables = variables + node.variables_read
 
-            if (not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES):
+            if not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES:
                 logger.error(
                     "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
                 )
@@ -120,14 +120,6 @@ class IntervalAnalysisDF(AbstractDetector):
                 # Only exact matches
                 if var_name not in node_variables:
                     continue
-
-                # if (
-                #     "Settlement" in node.function.contract.name
-                #     and "_settleOrd" in node.function.name
-                #     and variables
-                #     and node.node_id == 17
-                # ):
-                #     embed()
 
                 # Skip booleans, temp variables, and variables ending with dot
                 if (
@@ -157,12 +149,14 @@ class IntervalAnalysisDF(AbstractDetector):
                     if "-Infinity" in str(r.get_lower()) and not self.SHOW_DIVISION_BY_ZERO:
                         skip_variable = True
                         break
-                    
-                    interval_ranges.append({
-                        "lower": str(r.get_lower()),
-                        "upper": str(r.get_upper()),
-                    })
-                
+
+                    interval_ranges.append(
+                        {
+                            "lower": str(r.get_lower()),
+                            "upper": str(r.get_upper()),
+                        }
+                    )
+
                 if skip_variable:
                     continue
 

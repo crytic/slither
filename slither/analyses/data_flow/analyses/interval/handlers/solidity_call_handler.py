@@ -72,6 +72,11 @@ class SolidityCallHandler:
             return
 
         # Handle keccak256 hashing
+        if operation.function.full_name == "keccak256()":
+            # keccak256() with multiple arguments (packed encoding variant)
+            self._handle_keccak256_packed(node, domain, operation)
+            return
+
         if operation.function.full_name == "keccak256(bytes)":
             self._handle_keccak256_bytes(node, domain, operation)
             return
@@ -246,7 +251,6 @@ class SolidityCallHandler:
             self._handle_stop(node, domain, operation)
             return
 
-
         # Handle storage operations
         if operation.function.full_name == "sload(uint256)":
             self._handle_sload(node, domain, operation)
@@ -316,7 +320,10 @@ class SolidityCallHandler:
             return
 
         # Handle callcode
-        if operation.function.full_name == "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)":
+        if (
+            operation.function.full_name
+            == "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+        ):
             self._handle_callcode(node, domain, operation)
             return
 
@@ -567,7 +574,34 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled keccak256(bytes) call, created variable: {result_var_name} (bytes32)")
+        logger.debug(
+            f"Handled keccak256(bytes) call, created variable: {result_var_name} (bytes32)"
+        )
+
+    def _handle_keccak256_packed(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle keccak256() with multiple arguments (packed encoding variant) returning bytes32."""
+        if not operation.lvalue:
+            logger.error("keccak256() operation has no lvalue")
+            raise ValueError("keccak256() operation has no lvalue")
+
+        result_type = ElementaryType("bytes32")
+        # Hash output is opaque; we model as unconstrained bytes32 (no numeric intervals)
+        # keccak256() with multiple args performs packed encoding then hashes
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        logger.debug(
+            f"Handled keccak256() call with packed arguments, created variable: {result_var_name} (bytes32)"
+        )
 
     def _handle_abi_encode(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
@@ -1831,7 +1865,9 @@ class SolidityCallHandler:
 
         # Store the storage location in domain state
         domain.state.set_range_variable(storage_var_name, storage_range_variable)
-        logger.debug(f"sstore: stored value {v_name} at storage position {p_name} -> {storage_var_name}")
+        logger.debug(
+            f"sstore: stored value {v_name} at storage position {p_name} -> {storage_var_name}"
+        )
 
     def _handle_tload(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle tload(p) operation: transientStorage[p]."""
@@ -1901,7 +1937,9 @@ class SolidityCallHandler:
 
         # Store the transient storage location in domain state
         domain.state.set_range_variable(tstorage_var_name, tstorage_range_variable)
-        logger.debug(f"tstore: stored value {v_name} at transient storage position {p_name} -> {tstorage_var_name}")
+        logger.debug(
+            f"tstore: stored value {v_name} at transient storage position {p_name} -> {tstorage_var_name}"
+        )
 
     def _handle_msize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle msize() operation: size of memory, i.e. largest accessed memory index."""
@@ -1992,7 +2030,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled address() -> {result_var_name} (address)")
 
-    def _handle_selfbalance(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_selfbalance(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle selfbalance() operation: equivalent to balance(address()), but cheaper."""
         logger.debug(f"Handling selfbalance operation: {operation}")
 
@@ -2041,7 +2081,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled caller() -> {result_var_name} (address)")
 
-    def _handle_callvalue(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_callvalue(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle callvalue() operation: wei sent together with the current call."""
         logger.debug(f"Handling callvalue operation: {operation}")
 
@@ -2067,7 +2109,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled callvalue() -> {result_var_name} (uint256)")
 
-    def _handle_calldatasize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_calldatasize(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle calldatasize() operation: size of call data in bytes."""
         logger.debug(f"Handling calldatasize operation: {operation}")
 
@@ -2159,7 +2203,9 @@ class SolidityCallHandler:
             f"codecopy: copied {s_name} bytes from code[{f_name}] to memory[{t_name}] -> {memory_var_name}"
         )
 
-    def _handle_extcodesize(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_extcodesize(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle extcodesize(a) operation: size of the code at address a."""
         logger.debug(f"Handling extcodesize operation: {operation}")
 
@@ -2185,7 +2231,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled extcodesize() -> {result_var_name} (uint256, range [0,10485760])")
 
-    def _handle_extcodecopy(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_extcodecopy(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle extcodecopy(a, t, f, s) operation: like codecopy(t, f, s) but take code at address a."""
         logger.debug(f"Handling extcodecopy operation: {operation}")
 
@@ -2334,7 +2382,9 @@ class SolidityCallHandler:
 
         # log1 doesn't return a value, it logs data
         # Just log the operation for debugging purposes
-        logger.debug(f"log1: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topic {t1_name}")
+        logger.debug(
+            f"log1: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topic {t1_name}"
+        )
 
     def _handle_log2(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle log2(p, s, t1, t2) operation: log data mem[p…(p+s)) with topics t1, t2."""
@@ -2355,7 +2405,9 @@ class SolidityCallHandler:
 
         # log2 doesn't return a value, it logs data
         # Just log the operation for debugging purposes
-        logger.debug(f"log2: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}")
+        logger.debug(
+            f"log2: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}"
+        )
 
     def _handle_log3(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle log3(p, s, t1, t2, t3) operation: log data mem[p…(p+s)) with topics t1, t2, t3."""
@@ -2377,7 +2429,9 @@ class SolidityCallHandler:
 
         # log3 doesn't return a value, it logs data
         # Just log the operation for debugging purposes
-        logger.debug(f"log3: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}")
+        logger.debug(
+            f"log3: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}"
+        )
 
     def _handle_log4(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle log4(p, s, t1, t2, t3, t4) operation: log data mem[p…(p+s)) with topics t1, t2, t3, t4."""
@@ -2400,7 +2454,9 @@ class SolidityCallHandler:
 
         # log4 doesn't return a value, it logs data
         # Just log the operation for debugging purposes
-        logger.debug(f"log4: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}, {t4_name}")
+        logger.debug(
+            f"log4: logged {s_name} bytes from memory[{p_name}...{p_name}+{s_name}) with topics {t1_name}, {t2_name}, {t3_name}, {t4_name}"
+        )
 
     def _handle_chainid(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle chainid() operation: ID of the executing chain (EIP-1344)."""
@@ -2415,7 +2471,9 @@ class SolidityCallHandler:
 
         # Chain ID is typically a small positive integer
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("1"), Decimal("1000000"))],  # Reasonable range for chain IDs
+            interval_ranges=[
+                IntervalRange(Decimal("1"), Decimal("1000000"))
+            ],  # Reasonable range for chain IDs
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2440,7 +2498,9 @@ class SolidityCallHandler:
 
         # Base fee is typically a small positive integer (in wei)
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            interval_ranges=[
+                IntervalRange(Decimal("0"), Decimal("1000000000000000000"))
+            ],  # 0 to 1 ETH in wei
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2450,9 +2510,13 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled basefee() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+        logger.debug(
+            f"Handled basefee() -> {result_var_name} (uint256, range [0,1000000000000000000])"
+        )
 
-    def _handle_blobbasefee(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_blobbasefee(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle blobbasefee() operation: current block's blob base fee (EIP-7516 and EIP-4844)."""
         logger.debug(f"Handling blobbasefee operation: {operation}")
 
@@ -2465,7 +2529,9 @@ class SolidityCallHandler:
 
         # Blob base fee is typically a small positive integer (in wei)
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            interval_ranges=[
+                IntervalRange(Decimal("0"), Decimal("1000000000000000000"))
+            ],  # 0 to 1 ETH in wei
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2475,7 +2541,9 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled blobbasefee() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+        logger.debug(
+            f"Handled blobbasefee() -> {result_var_name} (uint256, range [0,1000000000000000000])"
+        )
 
     def _handle_origin(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
         """Handle origin() operation: transaction sender."""
@@ -2513,7 +2581,9 @@ class SolidityCallHandler:
 
         # Gas price is typically a small positive integer (in wei)
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000"))],  # 0 to 1 ETH in wei
+            interval_ranges=[
+                IntervalRange(Decimal("0"), Decimal("1000000000000000000"))
+            ],  # 0 to 1 ETH in wei
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2523,9 +2593,13 @@ class SolidityCallHandler:
         variable_manager = VariableInfoManager()
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
-        logger.debug(f"Handled gasprice() -> {result_var_name} (uint256, range [0,1000000000000000000])")
+        logger.debug(
+            f"Handled gasprice() -> {result_var_name} (uint256, range [0,1000000000000000000])"
+        )
 
-    def _handle_blockhash(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_blockhash(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle blockhash(b) operation: hash of block nr b - only for last 256 blocks excluding current."""
         logger.debug(f"Handling blockhash operation: {operation}")
 
@@ -2619,7 +2693,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled number() -> {result_var_name} (uint256, range [0,100000000])")
 
-    def _handle_difficulty(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_difficulty(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle difficulty() operation: difficulty of the current block (see note below)."""
         logger.debug(f"Handling difficulty operation: {operation}")
 
@@ -2632,7 +2708,9 @@ class SolidityCallHandler:
 
         # Difficulty is typically a large positive integer
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("0"), Decimal("1000000000000000000000000000000"))],  # Large range for difficulty
+            interval_ranges=[
+                IntervalRange(Decimal("0"), Decimal("1000000000000000000000000000000"))
+            ],  # Large range for difficulty
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2644,7 +2722,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled difficulty() -> {result_var_name} (uint256)")
 
-    def _handle_prevrandao(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_prevrandao(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle prevrandao() operation: randomness provided by the beacon chain (see note below)."""
         logger.debug(f"Handling prevrandao operation: {operation}")
 
@@ -2657,7 +2737,9 @@ class SolidityCallHandler:
 
         # Randomness is typically a large positive integer
         result_range_variable = RangeVariable(
-            interval_ranges=[IntervalRange(Decimal("0"), Decimal(str(2**256 - 1)))],  # Full uint256 range
+            interval_ranges=[
+                IntervalRange(Decimal("0"), Decimal(str(2**256 - 1)))
+            ],  # Full uint256 range
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
             var_type=result_type,
@@ -2694,7 +2776,9 @@ class SolidityCallHandler:
         domain.state.set_range_variable(result_var_name, result_range_variable)
         logger.debug(f"Handled gaslimit() -> {result_var_name} (uint256, range [0,100000000])")
 
-    def _handle_selfdestruct(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
+    def _handle_selfdestruct(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
         """Handle selfdestruct(a) operation: end execution, destroy current contract and send funds to a (deprecated)."""
         logger.debug(f"Handling selfdestruct operation: {operation}")
 
