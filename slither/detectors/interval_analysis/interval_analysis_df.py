@@ -60,7 +60,8 @@ class IntervalAnalysisDF(AbstractDetector):
     STANDARD_JSON = False
 
     ONLY_SHOW_OVERFLOW = True
-    SHOW_TEMP_VARIABLES = True
+    SHOW_TEMP_VARIABLES = False
+    SHOW_REF_VARIABLES = False
     SHOW_BOOLEAN_VARIABLES = False
     SHOW_CHECKED_SCOPES = True
     SHOW_WRITTEN_VARIABLES = True
@@ -70,6 +71,8 @@ class IntervalAnalysisDF(AbstractDetector):
     def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:
         """Analyze a single function and return findings."""
         findings: Dict[FindingKey, List[FindingValue]] = {}
+        # Track variables that have already been reported as overflowing/underflowing
+        reported_overflow_vars: set[str] = set()
 
         # Run interval analysis
         engine = Engine.new(analysis=IntervalAnalysis(), function=function)
@@ -88,38 +91,38 @@ class IntervalAnalysisDF(AbstractDetector):
 
             state = analysis.post.state
 
-            # Get variables relevant to this node (exact matches only)
-            node_variables = set()
-            variables: List[Variable] = []
+            # # Get variables relevant to this node (exact matches only)
+            # node_variables = set()
+            # variables: List[Variable] = []
 
-            if self.SHOW_WRITTEN_VARIABLES:
-                variables = variables + node.variables_written
-            if self.SHOW_READ_VARIABLES:
-                variables = variables + node.variables_read
+            # if self.SHOW_WRITTEN_VARIABLES:
+            #     variables = variables + node.variables_written
+            # if self.SHOW_READ_VARIABLES:
+            #     variables = variables + node.variables_read
 
-            if not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES:
-                logger.error(
-                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
-                )
-                raise ValueError(
-                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
-                )
+            # if not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES:
+            #     logger.error(
+            #         "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+            #     )
+            #     raise ValueError(
+            #         "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+            #     )
 
-            for var in variables:
-                if hasattr(var, "canonical_name"):
-                    node_variables.add(var.canonical_name)
-                elif hasattr(var, "name"):
-                    node_variables.add(var.name)
+            # for var in variables:
+            #     if hasattr(var, "canonical_name"):
+            #         node_variables.add(var.canonical_name)
+            #     elif hasattr(var, "name"):
+            #         node_variables.add(var.name)
 
-            if not node_variables:
-                continue
+            # if not node_variables:
+            #     continue
 
             # Check each range variable
             for var_name, range_var in state.get_range_variables().items():
 
                 # Only exact matches
-                if var_name not in node_variables:
-                    continue
+                # if var_name not in node_variables:
+                #     continue
 
                 # Skip booleans, temp variables, and variables ending with dot
                 if (
@@ -128,6 +131,8 @@ class IntervalAnalysisDF(AbstractDetector):
                 ):
                     continue
                 if "TMP" in var_name and not self.SHOW_TEMP_VARIABLES:
+                    continue
+                if "REF" in var_name and not self.SHOW_REF_VARIABLES:
                     continue
 
                 if var_name.endswith("."):
@@ -138,6 +143,10 @@ class IntervalAnalysisDF(AbstractDetector):
                 has_underflow = range_var.has_underflow()
 
                 if self.ONLY_SHOW_OVERFLOW and not (has_overflow or has_underflow):
+                    continue
+
+                # Skip if this variable has already been reported as overflowing/underflowing
+                if var_name in reported_overflow_vars:
                     continue
 
                 interval_ranges = []
@@ -185,6 +194,10 @@ class IntervalAnalysisDF(AbstractDetector):
                 if finding_key not in findings:
                     findings[finding_key] = []
                 findings[finding_key].append(finding_value)
+
+                # Mark this variable as reported (if it has overflow/underflow) so it won't appear in subsequent nodes
+                if has_overflow or has_underflow:
+                    reported_overflow_vars.add(var_name)
 
         return findings
 

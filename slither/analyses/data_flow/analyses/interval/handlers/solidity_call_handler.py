@@ -71,13 +71,19 @@ class SolidityCallHandler:
             self._handle_revert(node, domain, operation)
             return
 
-        # Handle keccak256 hashing
-        if operation.function.full_name == "keccak256()":
-            # keccak256() with multiple arguments (packed encoding variant)
+        # Handle keccak256/sha3 hashing
+        if operation.function.full_name in [
+            "keccak256()",
+            "sha3()",
+        ]:
+            # packed-encoding variant with multiple arguments
             self._handle_keccak256_packed(node, domain, operation)
             return
 
-        if operation.function.full_name == "keccak256(bytes)":
+        if operation.function.full_name in [
+            "keccak256(bytes)",
+            "sha3(bytes)",
+        ]:
             self._handle_keccak256_bytes(node, domain, operation)
             return
 
@@ -173,7 +179,10 @@ class SolidityCallHandler:
             self._handle_calldatacopy(node, domain, operation)
             return
 
-        if operation.function.full_name == "keccak256(uint256,uint256)":
+        if operation.function.full_name in [
+            "keccak256(uint256,uint256)",
+            "sha3(uint256,uint256)",
+        ]:
             self._handle_keccak256_memory(node, domain, operation)
             return
 
