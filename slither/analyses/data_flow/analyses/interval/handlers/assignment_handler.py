@@ -65,9 +65,13 @@ class AssignmentHandler:
         elif isinstance(right_value, Variable):
             self._handle_variable_assignment(written_variable, right_value, domain, operation)
         elif isinstance(right_value, SolidityVariableComposed):
-            self._handle_solidity_variable_assignment(written_variable, right_value, domain, operation)
+            self._handle_solidity_variable_assignment(
+                written_variable, right_value, domain, operation
+            )
         else:
-            logger.warning(f"Unhandled assignment type: {type(right_value)} for {written_variable.name}")
+            logger.warning(
+                f"Unhandled assignment type: {type(right_value)} for {written_variable.name}"
+            )
 
     def _handle_struct_assignment(
         self,
@@ -256,7 +260,7 @@ class AssignmentHandler:
         if not domain.state.has_range_variable(source_variable_name):
 
             logger.error(f"Source variable {source_variable_name} does not exist in domain state")
-            # embed()
+            embed()
             raise ValueError(
                 f"Source variable {source_variable_name} does not exist in domain state"
             )
@@ -283,7 +287,9 @@ class AssignmentHandler:
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         source_var_name = source_solidity_var.name
 
-        logger.debug(f"Handling Solidity variable assignment: {written_variable_name} = {source_var_name}")
+        logger.debug(
+            f"Handling Solidity variable assignment: {written_variable_name} = {source_var_name}"
+        )
 
         # Handle bytes variables by creating offset and length variables
         if self.variable_info_manager.is_type_bytes(written_variable_type):
@@ -297,8 +303,12 @@ class AssignmentHandler:
 
         # Check if the source Solidity variable exists in the domain state
         if not domain.state.has_range_variable(source_var_name):
-            logger.error(f"Source Solidity variable {source_var_name} does not exist in domain state")
-            raise ValueError(f"Source Solidity variable {source_var_name} does not exist in domain state")
+            logger.error(
+                f"Source Solidity variable {source_var_name} does not exist in domain state"
+            )
+            raise ValueError(
+                f"Source Solidity variable {source_var_name} does not exist in domain state"
+            )
 
         source_range_variable = domain.state.get_range_variable(source_var_name)
 
@@ -311,4 +321,6 @@ class AssignmentHandler:
         )
 
         domain.state.set_range_variable(written_variable_name, range_variable)
-        logger.debug(f"Created range variable for {written_variable_name} from Solidity variable {source_var_name}")
+        logger.debug(
+            f"Created range variable for {written_variable_name} from Solidity variable {source_var_name}"
+        )

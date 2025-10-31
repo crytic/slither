@@ -101,14 +101,35 @@ class Widening:
                 previous_range: IntervalRange = previous_ranges[0]
 
                 # Apply widening rules to the interval
+                prev_lower = previous_range.get_lower()
+                curr_lower = current_range.get_lower()
+                prev_upper = previous_range.get_upper()
+                curr_upper = current_range.get_upper()
+
+                # Ensure we have valid Decimal values
+                if prev_lower is None or curr_lower is None:
+                    logger.error(
+                        f"Invalid lower bound values: prev={prev_lower}, curr={curr_lower}"
+                    )
+                    raise ValueError(
+                        f"Invalid lower bound values: prev={prev_lower}, curr={curr_lower}"
+                    )
+                if prev_upper is None or curr_upper is None:
+                    logger.error(
+                        f"Invalid upper bound values: prev={prev_upper}, curr={curr_upper}"
+                    )
+                    raise ValueError(
+                        f"Invalid upper bound values: prev={prev_upper}, curr={curr_upper}"
+                    )
+
                 widened_lower: Decimal = self._widen_lower_bound(
-                    previous_range.get_lower(),
-                    current_range.get_lower(),
+                    prev_lower,
+                    curr_lower,
                     widening_literals,
                 )
                 widened_upper: Decimal = self._widen_upper_bound(
-                    previous_range.get_upper(),
-                    current_range.get_upper(),
+                    prev_upper,
+                    curr_upper,
                     widening_literals,
                 )
 
@@ -208,7 +229,26 @@ class Widening:
             if valid_candidates:
                 result = max(valid_candidates)
                 # logger.debug(f"🔄 Found lower bound candidate: {result}")
-                return result
+                # Ensure result is converted to Decimal safely
+                try:
+                    if isinstance(result, Decimal):
+                        return result
+                    elif isinstance(result, int):
+                        # For large ints, use string conversion
+                        return Decimal(str(result))
+                    elif isinstance(result, float):
+                        return Decimal(result)
+                    else:
+                        logger.warning(
+                            f"Unexpected result type in _widen_lower_bound: {type(result)}, value: {result}"
+                        )
+                        return Decimal(str(result))
+                except Exception as e:
+                    logger.error(
+                        f"Error converting result to Decimal: {result} (type: {type(result)}), error: {e}"
+                    )
+                    # Fallback to default minimum
+                    return Decimal("0")
             else:
                 # If no suitable value found, use default minimum
                 result = Decimal("0")  # Default for uint types
@@ -236,7 +276,29 @@ class Widening:
             if valid_candidates:
                 result = min(valid_candidates)
                 # logger.info(f"🔄 Found candidate in widening literals: {result}")
-                return result
+                # Ensure result is converted to Decimal safely
+                try:
+                    if isinstance(result, Decimal):
+                        return result
+                    elif isinstance(result, int):
+                        # For large ints, use string conversion
+                        return Decimal(str(result))
+                    elif isinstance(result, float):
+                        return Decimal(result)
+                    else:
+                        logger.warning(
+                            f"Unexpected result type in _widen_upper_bound: {type(result)}, value: {result}"
+                        )
+                        return Decimal(str(result))
+                except Exception as e:
+                    logger.error(
+                        f"Error converting result to Decimal: {result} (type: {type(result)}), error: {e}"
+                    )
+                    # Fallback: try to convert curr_upper or use a safe default
+                    if isinstance(curr_upper, Decimal):
+                        return curr_upper
+                    else:
+                        return Decimal("0")
             else:
                 # If no suitable value found, use the maximum value in widening literals
                 # This ensures widening is capped by the program's literals
@@ -245,7 +307,29 @@ class Widening:
                     # logger.debug(
                     #     f"🔄 No candidates >= curr_upper {curr_upper}, using max in widening literals {widening_literals}: {result}"
                     # )
-                    return result
+                    # Ensure result is converted to Decimal safely
+                    try:
+                        if isinstance(result, Decimal):
+                            return result
+                        elif isinstance(result, int):
+                            # For large ints, use string conversion
+                            return Decimal(str(result))
+                        elif isinstance(result, float):
+                            return Decimal(result)
+                        else:
+                            logger.warning(
+                                f"Unexpected result type in _widen_upper_bound: {type(result)}, value: {result}"
+                            )
+                            return Decimal(str(result))
+                    except Exception as e:
+                        logger.error(
+                            f"Error converting result to Decimal: {result} (type: {type(result)}), error: {e}"
+                        )
+                        # Fallback: try to convert curr_upper or use a safe default
+                        if isinstance(curr_upper, Decimal):
+                            return curr_upper
+                        else:
+                            return Decimal("0")
                 else:
                     # Fallback to uint256 maximum if widening literals is empty
                     result = Decimal(

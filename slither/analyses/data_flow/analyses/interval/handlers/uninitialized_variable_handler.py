@@ -39,6 +39,15 @@ class UninitializedVariableHandler:
                 raise ValueError("Uninitialized variable is None")
 
             var_name = self.variable_manager.get_variable_name(variable)
+
+            # Check if variable is already initialized in domain state
+            # This can happen if local variables were initialized upfront during domain initialization
+            if domain.state.has_range_variable(var_name):
+                logger.debug(
+                    f"Variable {var_name} already exists in domain state, skipping initialization"
+                )
+                return
+
             var_type = self.variable_manager.get_variable_type(variable)
 
             # Check if variable type is valid for processing

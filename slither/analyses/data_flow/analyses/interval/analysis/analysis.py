@@ -539,29 +539,21 @@ class IntervalAnalysis(Analysis):
                     domain.state.add_range_variable(nested_var_name, range_variable)
             else:
                 # For any other type, create a placeholder
-                placeholder = RangeVariable(
-                    interval_ranges=[],
-                    valid_values=ValueSet(set()),
-                    invalid_values=ValueSet(set()),
-                    var_type=state_variable.type,
-                )
-                domain.state.add_range_variable(var_name, placeholder)
+                self._create_placeholder(var_name, state_variable.type, domain)
         elif isinstance(state_variable.type, UserDefinedType):
             if isinstance(state_variable.type.type, Contract):
                 if state_variable.type.type.is_interface:
                     # Interface - create a placeholder
-                    placeholder = RangeVariable(
-                        interval_ranges=[],
-                        valid_values=ValueSet(set()),
-                        invalid_values=ValueSet(set()),
-                        var_type=state_variable.type,
-                    )
-                    domain.state.add_range_variable(var_name, placeholder)
+                    self._create_placeholder(var_name, state_variable.type, domain)
                 else:
                     # Contract or Library - recursively initialize its state variables
                     for nested_state_var in state_variable.type.type.state_variables:
                         nested_var_name = f"{var_name}.{nested_state_var.name}"
                         self._initialize_state_variable(nested_state_var, nested_var_name, domain)
+                    # Also create a placeholder variable for the state variable itself
+                    # This is needed for contract types to ensure the main variable
+                    # (e.g., _timelock) is available in the domain state when accessed directly
+                    self._create_placeholder(var_name, state_variable.type, domain)
             else:
                 # Handle actual struct state variables
                 range_variables = self._variable_info_manager.create_struct_field_variables(
@@ -579,6 +571,10 @@ class IntervalAnalysis(Analysis):
         # Initialize function parameters and return variables
         self._initialize_function_parameters(node, domain)
         self._initialize_function_returns(node, domain)
+
+        # Initialize all local variables (including uninitialized ones)
+        # This ensures they're available in domain state from the start
+        self._initialize_local_variables(node, domain)
 
         # Get the contract for this function
         contract = self._get_contract_for_function(node)
@@ -711,15 +707,19 @@ class IntervalAnalysis(Analysis):
         # (e.g., newModule_) is available in the domain state
         self._create_placeholder_parameter(parameter, domain)
 
-    def _create_placeholder_parameter(self, parameter, domain: IntervalDomain) -> None:
-        """Create a placeholder range variable for a parameter."""
+    def _create_placeholder(self, var_name: str, var_type, domain: IntervalDomain) -> None:
+        """Create a placeholder range variable for any variable type."""
         placeholder = RangeVariable(
             interval_ranges=[],
             valid_values=ValueSet(set()),
             invalid_values=ValueSet(set()),
-            var_type=parameter.type,
+            var_type=var_type,
         )
-        domain.state.add_range_variable(parameter.canonical_name, placeholder)
+        domain.state.add_range_variable(var_name, placeholder)
+
+    def _create_placeholder_parameter(self, parameter, domain: IntervalDomain) -> None:
+        """Create a placeholder range variable for a parameter."""
+        self._create_placeholder(parameter.canonical_name, parameter.type, domain)
 
     def _initialize_function_returns(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize function return variables in the domain state."""
@@ -752,13 +752,7 @@ class IntervalAnalysis(Analysis):
                         domain.state.add_range_variable(var_name, range_variable)
                 else:
                     # For any other type, create a placeholder
-                    placeholder = RangeVariable(
-                        interval_ranges=[],
-                        valid_values=ValueSet(set()),
-                        invalid_values=ValueSet(set()),
-                        var_type=return_var.type,
-                    )
-                    domain.state.add_range_variable(return_var.canonical_name, placeholder)
+                    self._create_placeholder(return_var.canonical_name, return_var.type, domain)
 
             elif isinstance(return_var.type, UserDefinedType):
                 # Handle struct return variables by creating field variables
@@ -768,6 +762,31 @@ class IntervalAnalysis(Analysis):
                 # Add all created range variables to the domain state
                 for var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(var_name, range_variable)
+
+    def _initialize_local_variables(self, node: Node, domain: IntervalDomain) -> None:
+        """Initialize all local variables (including uninitialized ones) in the domain state."""
+        from slither.analyses.data_flow.analyses.interval.handlers.uninitialized_variable_handler import (
+            UninitializedVariableHandler,
+        )
+
+        handler = UninitializedVariableHandler()
+
+        # Get all local variables (excludes parameters and returns)
+        for local_var in node.function.local_variables:
+            # Check if variable is already in domain (e.g., if it was initialized elsewhere)
+            var_name = self._variable_info_manager.get_variable_name(local_var)
+            if domain.state.has_range_variable(var_name):
+                continue
+
+            # Get variable type
+            var_type = self._variable_info_manager.get_variable_type(local_var)
+            if var_type is None:
+                logger.debug(f"Skipping local variable {var_name} - no type information available")
+                continue
+
+            # Initialize the variable using the same logic as uninitialized variables
+            # Whether it's initialized or not, we need it in the domain state
+            handler._initialize_uninitialized_variable(local_var, var_name, var_type, domain)
 
     def _initialize_state_variables(self, contract: Contract, domain: IntervalDomain) -> None:
         """Initialize state variables for the contract and all inherited contracts."""

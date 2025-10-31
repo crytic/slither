@@ -64,7 +64,7 @@ class IntervalAnalysisDF(AbstractDetector):
     SHOW_TEMP_VARIABLES = True
     SHOW_REF_VARIABLES = True
     SHOW_BOOLEAN_VARIABLES = False
-    SHOW_CHECKED_SCOPES = False
+    SHOW_CHECKED_SCOPES = True
     SHOW_WRITTEN_VARIABLES = True
     SHOW_READ_VARIABLES = True
     SHOW_DIVISION_BY_ZERO = False
