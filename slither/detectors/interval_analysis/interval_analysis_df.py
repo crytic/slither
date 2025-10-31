@@ -15,6 +15,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 )
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
@@ -60,13 +61,16 @@ class IntervalAnalysisDF(AbstractDetector):
     STANDARD_JSON = False
 
     ONLY_SHOW_OVERFLOW = True
-    SHOW_TEMP_VARIABLES = False
-    SHOW_REF_VARIABLES = False
+    SHOW_TEMP_VARIABLES = True
+    SHOW_REF_VARIABLES = True
     SHOW_BOOLEAN_VARIABLES = False
-    SHOW_CHECKED_SCOPES = True
+    SHOW_CHECKED_SCOPES = False
     SHOW_WRITTEN_VARIABLES = True
-    SHOW_READ_VARIABLES = False
+    SHOW_READ_VARIABLES = True
     SHOW_DIVISION_BY_ZERO = False
+
+    ONLY_ANALYZE_CERTAIN_CONTRACTS = False
+    CONTRACTS_TO_ANALYZE: List[str] = ["PerpDepository"]
 
     def _analyze_function(self, function: Function) -> Dict[FindingKey, List[FindingValue]]:
         """Analyze a single function and return findings."""
@@ -211,6 +215,12 @@ class IntervalAnalysisDF(AbstractDetector):
         logger.info("=" * 80)
 
         for contract in self.contracts:
+            if (
+                self.ONLY_ANALYZE_CERTAIN_CONTRACTS
+                and contract.name not in self.CONTRACTS_TO_ANALYZE
+            ):
+                continue
+
             logger.info(f"Analyzing contract: {contract.name}")
 
             for function in contract.functions_and_modifiers_declared:

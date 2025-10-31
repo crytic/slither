@@ -370,9 +370,6 @@ class IntervalAnalysis(Analysis):
                 if not self._condition_validity_checker.is_condition_valid(
                     actual_comparison, domain
                 ):
-                    logger.debug(
-                        f"Condition {actual_comparison} is not valid, returning TOP (unreachable)"
-                    )
                     return IntervalDomain.top()
 
                 # Apply constraint to the actual variables in the comparison
@@ -383,21 +380,17 @@ class IntervalAnalysis(Analysis):
                     self._constraint_manager.store_variable_constraint(
                         left_operand_name, actual_comparison
                     )
-                    logger.info(
-                        f" ELSE: Storing constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
-                    )
+                    # logger.info(
+                    #     f" ELSE: Storing constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
+                    # )
                     # Apply the constraint directly to the domain
                     # The constraint is the comparison operation itself, not something stored elsewhere
                     self._constraint_manager.constraint_applier._apply_comparison_constraint(
                         actual_comparison, domain
                     )
-                    logger.info(
-                        f" ELSE: Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
-                    )
-
-                    logger.debug(
-                        f"After applying {actual_comparison}, domain for {left_operand_name}: {domain.state.get_range_variable(left_operand_name)}"
-                    )
+                    # logger.info(
+                    #     f" ELSE: Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
+                    # )
 
         return domain
 
@@ -455,15 +448,12 @@ class IntervalAnalysis(Analysis):
             self._operation_handler.handle_uninitialized_variable(node, domain)
 
         if isinstance(operation, HighLevelCall):
-            logger.debug(f"Processing HighLevelCall: {operation}")
             self._operation_handler.handle_high_level_call(node, domain, operation)
 
         if isinstance(operation, Index):
-            logger.debug(f"Processing Index: {operation}")
             self._operation_handler.handle_index(node, domain, operation)
 
         if isinstance(operation, Assignment):
-            logger.debug(f"Processing Assignment: {operation}")
             self._operation_handler.handle_assignment(node, domain, operation)
 
         if isinstance(operation, Binary):
@@ -499,7 +489,6 @@ class IntervalAnalysis(Analysis):
             self._operation_handler.handle_internal_dynamic_call(node, domain, operation)
 
         if isinstance(operation, Unpack):
-            logger.info(f"Processing Unpack: {operation}")
             self._operation_handler.handle_unpack(node, domain, operation)
 
         if isinstance(operation, NewElementaryType):
@@ -524,7 +513,6 @@ class IntervalAnalysis(Analysis):
         self, state_variable, var_name: str, domain: IntervalDomain
     ) -> None:
         """Helper method to initialize a single state variable."""
-        logger.debug(f"Initializing state variable: {var_name} with type {state_variable.type}")
         if isinstance(state_variable.type, ElementaryType):
             if self._variable_info_manager.is_type_numeric(state_variable.type):
                 # Create interval range with type bounds
@@ -541,7 +529,6 @@ class IntervalAnalysis(Analysis):
                 )
                 # Add to domain state
                 domain.state.add_range_variable(var_name, range_variable)
-                logger.debug(f"Added numeric state variable {var_name} to domain state")
             elif self._variable_info_manager.is_type_bytes(state_variable.type):
                 # Handle bytes state variables by creating offset and length variables
                 range_variables = (
@@ -550,7 +537,6 @@ class IntervalAnalysis(Analysis):
                 # Add all created range variables to the domain state
                 for nested_var_name, range_variable in range_variables.items():
                     domain.state.add_range_variable(nested_var_name, range_variable)
-                    logger.debug(f"Added bytes state variable {nested_var_name} to domain state")
             else:
                 # For any other type, create a placeholder
                 placeholder = RangeVariable(
@@ -560,7 +546,6 @@ class IntervalAnalysis(Analysis):
                     var_type=state_variable.type,
                 )
                 domain.state.add_range_variable(var_name, placeholder)
-                logger.debug(f"Added placeholder state variable {var_name} to domain state")
         elif isinstance(state_variable.type, UserDefinedType):
             if isinstance(state_variable.type.type, Contract):
                 if state_variable.type.type.is_interface:
@@ -625,7 +610,6 @@ class IntervalAnalysis(Analysis):
             return contract
         elif isinstance(node.function, FunctionTopLevel):
             # Free functions don't belong to any contract
-            logger.debug(f"Function {node.function.name} is a free function (top-level)")
             return None
         else:
             # For other function types, we need to handle them differently
@@ -638,11 +622,7 @@ class IntervalAnalysis(Analysis):
 
     def _initialize_function_parameters(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize function parameters in the domain state."""
-        logger.debug(f"Initializing parameters for function: {node.function.name}")
         for parameter in node.function.parameters:
-            logger.debug(
-                f"Processing parameter: {parameter.canonical_name} with type {parameter.type} (type class: {type(parameter.type)})"
-            )
             self._initialize_single_parameter(parameter, domain)
 
     def _initialize_single_parameter(self, parameter, domain: IntervalDomain) -> None:
@@ -693,27 +673,18 @@ class IntervalAnalysis(Analysis):
         )
         for var_name, range_variable in range_variables.items():
             domain.state.add_range_variable(var_name, range_variable)
-        logger.debug(f"Added bytes parameter {parameter.canonical_name} to domain state")
 
     def _initialize_array_parameter(self, parameter, domain: IntervalDomain) -> None:
         """Initialize an array parameter with a placeholder."""
-        logger.debug(
-            f"Processing ArrayType parameter: {parameter.canonical_name} with type {parameter.type}"
-        )
+
         self._create_placeholder_parameter(parameter, domain)
-        logger.debug(f"Added ArrayType parameter {parameter.canonical_name} to domain state")
 
     def _initialize_user_defined_parameter(self, parameter, domain: IntervalDomain) -> None:
         """Initialize a UserDefinedType parameter (struct, contract, interface, or type alias)."""
-        logger.debug(
-            f"Processing UserDefinedType parameter: {parameter.canonical_name} with type {parameter.type}"
-        )
 
         # Check if it's a type alias wrapped in UserDefinedType
         if isinstance(parameter.type.type, TypeAlias):
-            logger.debug(
-                f"Processing TypeAlias parameter: {parameter.canonical_name} with underlying type {parameter.type.type.type}"
-            )
+
             actual_type = parameter.type.type.type
             if self._variable_info_manager.is_type_numeric(actual_type):
                 self._initialize_numeric_parameter(parameter, actual_type, domain)
@@ -725,30 +696,20 @@ class IntervalAnalysis(Analysis):
 
         # Check if it's an interface
         if isinstance(parameter.type.type, Contract) and parameter.type.type.is_interface:
-            logger.debug(
-                f"Creating placeholder for interface parameter: {parameter.canonical_name}"
-            )
             self._create_placeholder_parameter(parameter, domain)
             return
 
         # Handle structs and contracts by creating field variables
         range_variables = self._variable_info_manager.create_struct_field_variables(parameter)
-        logger.debug(
-            f"Created {len(range_variables)} range variables for UserDefinedType parameter"
-        )
 
         # Add all created range variables to the domain state
         for var_name, range_variable in range_variables.items():
             domain.state.add_range_variable(var_name, range_variable)
-            logger.debug(f"Added UserDefinedType parameter {var_name} to domain state")
 
         # Also create a placeholder variable for the parameter itself
         # This is needed for contract types and struct types to ensure the main parameter
         # (e.g., newModule_) is available in the domain state
         self._create_placeholder_parameter(parameter, domain)
-        logger.debug(
-            f"Added placeholder for UserDefinedType parameter {parameter.canonical_name} to domain state"
-        )
 
     def _create_placeholder_parameter(self, parameter, domain: IntervalDomain) -> None:
         """Create a placeholder range variable for a parameter."""
@@ -759,7 +720,6 @@ class IntervalAnalysis(Analysis):
             var_type=parameter.type,
         )
         domain.state.add_range_variable(parameter.canonical_name, placeholder)
-        logger.debug(f"Added placeholder parameter {parameter.canonical_name} to domain state")
 
     def _initialize_function_returns(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize function return variables in the domain state."""
@@ -811,21 +771,16 @@ class IntervalAnalysis(Analysis):
 
     def _initialize_state_variables(self, contract: Contract, domain: IntervalDomain) -> None:
         """Initialize state variables for the contract and all inherited contracts."""
-        logger.debug(f"Initializing state variables for contract: {contract.name}")
 
         # Get all contracts in the inheritance chain (including self)
         contracts_to_process = [contract]
         if hasattr(contract, "inheritance") and contract.inheritance:
             contracts_to_process.extend(contract.inheritance)
 
-        logger.debug(f"Processing inheritance chain: {[c.name for c in contracts_to_process]}")
-
         for contract_to_process in contracts_to_process:
-            logger.debug(f"Initializing state variables for contract: {contract_to_process.name}")
+
             for state_variable in contract_to_process.state_variables:
-                logger.debug(
-                    f"Processing state variable: {state_variable.canonical_name} with type {state_variable.type}"
-                )
+
                 self._initialize_state_variable(
                     state_variable, state_variable.canonical_name, domain
                 )
@@ -1049,8 +1004,6 @@ class IntervalAnalysis(Analysis):
                 var_type=var_type,
             )
             domain.state.add_range_variable(var_name, range_variable)
-
-        logger.debug("Initialized all Solidity global variables in domain state")
 
     def apply_widening(
         self, current_state: IntervalDomain, previous_state: IntervalDomain, widening_literals: set
