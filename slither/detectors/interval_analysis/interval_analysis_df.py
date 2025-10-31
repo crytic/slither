@@ -61,13 +61,14 @@ class IntervalAnalysisDF(AbstractDetector):
     STANDARD_JSON = False
 
     ONLY_SHOW_OVERFLOW = True
-    SHOW_TEMP_VARIABLES = True
-    SHOW_REF_VARIABLES = True
+    SHOW_TEMP_VARIABLES = False
+    SHOW_REF_VARIABLES = False
     SHOW_BOOLEAN_VARIABLES = False
     SHOW_CHECKED_SCOPES = True
     SHOW_WRITTEN_VARIABLES = True
-    SHOW_READ_VARIABLES = True
+    SHOW_READ_VARIABLES = False
     SHOW_DIVISION_BY_ZERO = False
+    SHOW_RELEVANT_VARIABLES = True
 
     ONLY_ANALYZE_CERTAIN_CONTRACTS = False
     CONTRACTS_TO_ANALYZE: List[str] = ["PerpDepository"]
@@ -95,38 +96,38 @@ class IntervalAnalysisDF(AbstractDetector):
 
             state = analysis.post.state
 
-            # # Get variables relevant to this node (exact matches only)
-            # node_variables = set()
-            # variables: List[Variable] = []
+            # Get variables relevant to this node (exact matches only)
+            node_variables = set()
+            variables: List[Variable] = []
 
-            # if self.SHOW_WRITTEN_VARIABLES:
-            #     variables = variables + node.variables_written
-            # if self.SHOW_READ_VARIABLES:
-            #     variables = variables + node.variables_read
+            if self.SHOW_WRITTEN_VARIABLES:
+                variables = variables + node.variables_written
+            if self.SHOW_READ_VARIABLES:
+                variables = variables + node.variables_read
 
-            # if not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES:
-            #     logger.error(
-            #         "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
-            #     )
-            #     raise ValueError(
-            #         "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
-            #     )
+            if not self.SHOW_WRITTEN_VARIABLES and not self.SHOW_READ_VARIABLES:
+                logger.error(
+                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+                )
+                raise ValueError(
+                    "At least one of SHOW_WRITTEN_VARIABLES or SHOW_READ_VARIABLES must be True"
+                )
 
-            # for var in variables:
-            #     if hasattr(var, "canonical_name"):
-            #         node_variables.add(var.canonical_name)
-            #     elif hasattr(var, "name"):
-            #         node_variables.add(var.name)
+            for var in variables:
+                if hasattr(var, "canonical_name"):
+                    node_variables.add(var.canonical_name)
+                elif hasattr(var, "name"):
+                    node_variables.add(var.name)
 
-            # if not node_variables:
-            #     continue
+            if not node_variables:
+                continue
 
             # Check each range variable
             for var_name, range_var in state.get_range_variables().items():
 
                 # Only exact matches
-                # if var_name not in node_variables:
-                #     continue
+                if var_name not in node_variables and self.SHOW_RELEVANT_VARIABLES:
+                    continue
 
                 # Skip booleans, temp variables, and variables ending with dot
                 if (

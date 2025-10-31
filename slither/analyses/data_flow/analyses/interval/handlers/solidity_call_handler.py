@@ -118,7 +118,7 @@ class SolidityCallHandler:
             return
 
         # Handle gas-related functions
-        if operation.function.full_name == "gas()":
+        if operation.function.full_name in ["gas()", "gasleft()"]:
             self._handle_gas(node, domain, operation)
             return
 
@@ -778,12 +778,12 @@ class SolidityCallHandler:
         # logger.debug(f"Handled {operation.function.name} -> {result_var_name} (uint256, range [0,1])")
 
     def _handle_gas(self, node: Node, domain: IntervalDomain, operation: SolidityCall) -> None:
-        """Handle gas() operation returning remaining gas as uint256."""
+        """Handle gas() and gasleft() operations returning remaining gas as uint256."""
         if not operation.lvalue:
-            logger.error("gas() operation has no lvalue")
-            raise ValueError("gas() operation has no lvalue")
+            logger.error(f"{operation.function.full_name} operation has no lvalue")
+            raise ValueError(f"{operation.function.full_name} operation has no lvalue")
 
-        # gas() returns the remaining gas (0 to block gas limit)
+        # gas() and gasleft() both return the remaining gas (0 to block gas limit)
         result_type = ElementaryType("uint256")
 
         # Create range variable for remaining gas (0 to reasonable gas limit)
@@ -799,7 +799,7 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
 
-        # logger.debug(f"Handled gas() -> {result_var_name} (uint256, range [0,50000000])")
+        # logger.debug(f"Handled {operation.function.full_name} -> {result_var_name} (uint256, range [0,50000000])")
 
     def _handle_returndatasize(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
