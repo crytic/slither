@@ -13,6 +13,7 @@ from slither.analyses.data_flow.analyses.interval.managers.constraint_manager im
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -227,6 +228,16 @@ class InternalCallHandler:
                 domain.state.set_range_variable(tuple_element_name, range_variable)
                 logger.debug(f"Created tuple element {tuple_element_name} for return value {i}")
                 logger.debug(f"Stored tuple element range variable: {range_variable}")
+
+                # If the tuple element type is a struct, initialize its field variables
+                if isinstance(var_type, UserDefinedType):
+                    logger.debug(
+                        f"Tuple element {i} is a struct type {var_type}, initializing struct fields for {tuple_element_name}"
+                    )
+                    # Create struct field variables for this tuple element
+                    self.constraint_manager.variable_manager.create_struct_field_variables_for_domain(
+                        domain, tuple_element_name, var_type
+                    )
             return
 
         # Handle TemporaryVariable (single return value)
@@ -274,6 +285,21 @@ class InternalCallHandler:
                 # Store the temporary variable in domain state
                 domain.state.set_range_variable(caller_lvalue_name, range_variable)
                 logger.debug(f"Created temporary variable {caller_lvalue_name} for return value")
+
+                # If the return type is a struct, initialize its field variables
+                caller_lvalue_type = self.constraint_manager.variable_manager.get_variable_type(
+                    caller_lvalue
+                )
+                if isinstance(caller_lvalue_type, UserDefinedType):
+                    logger.debug(
+                        f"Return value is a struct type {caller_lvalue_type}, initializing struct fields for {caller_lvalue_name}"
+                    )
+                    # Create struct field variables (e.g., TMP_6407.maxOperators)
+                    # This will create variables like TMP_6407.maxOperators for each struct field
+                    self.constraint_manager.variable_manager.create_struct_field_variables_for_domain(
+                        domain, caller_lvalue_name, caller_lvalue_type
+                    )
+
                 break  # Only process the first return value for now
 
     def _create_placeholder_for_type(self, var_type) -> RangeVariable:

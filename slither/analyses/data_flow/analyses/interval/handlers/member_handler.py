@@ -90,7 +90,14 @@ class MemberHandler:
                 logger.error(
                     f"Target variable {target_var_name} not found for reference {var_name}"
                 )
-                # embed()
+                # Debug: Log available variables in domain state
+                available_vars = list(domain.state._range_variables.keys()) if hasattr(domain.state, '_range_variables') else []
+                logger.error(f"Available variables in domain state: {available_vars[:20]}")  # First 20 for brevity
+                logger.error(f"Operation: {operation}, Type: {var_type}")
+                logger.error(f"Member variable: {operation.variable if hasattr(operation, 'variable') else 'N/A'}")
+                logger.error(f"Member member_name: {operation.member_name if hasattr(operation, 'member_name') else 'N/A'}")
+                logger.error(f"Reference handler mappings: {self._reference_handler._reference_to_target if hasattr(self._reference_handler, '_reference_to_target') else 'N/A'}")
+                embed()  # Interactive debugging session
                 raise ValueError(
                     f"Target variable {target_var_name} not found for reference {var_name}"
                 )
