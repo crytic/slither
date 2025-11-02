@@ -88,8 +88,6 @@ class ConstraintApplierHandler:
             f"variable constraint: {temp_var_name}, stored_constraint: {stored_constraint}, operation: {operation}"
         )
 
-        # embed()
-
         if stored_constraint is None:
             logger.debug(
                 f"No constraint found for variable {temp_var_name}, skipping constraint application"

@@ -81,7 +81,6 @@ class VariableInfoManager:
                 type_name in Int or type_name in Uint or type_name in Fixed or type_name in Ufixed
             )
 
-            # # logger.debug(f"Type {type_name} is numeric: {is_numeric}")
             return is_numeric
         except Exception as e:
             logger.error(f"Error checking if type {elementary_type} is numeric: {e}")
@@ -106,7 +105,6 @@ class VariableInfoManager:
             # Use the predefined Byte list from ElementaryType
             is_bytes = type_name in Byte
 
-            # # logger.debug(f"Type {type_name} is bytes: {is_bytes}")
             return is_bytes
         except Exception as e:
             logger.warning(f"Error checking if type {elementary_type} is bytes: {e}")
@@ -121,7 +119,6 @@ class VariableInfoManager:
         try:
             # Use the is_dynamic property from ElementaryType
             is_dynamic = elementary_type.is_dynamic
-            # logger.debug(f"Type {elementary_type.name} is dynamic: {is_dynamic}")
             return is_dynamic
         except Exception as e:
             logger.warning(f"Error checking if type {elementary_type} is dynamic: {e}")
@@ -270,7 +267,11 @@ class VariableInfoManager:
                 continue
 
             # Get the actual field type from the struct definition
-            actual_field_type = field_type_instance.type if hasattr(field_type_instance, "type") else field_type_instance
+            actual_field_type = (
+                field_type_instance.type
+                if hasattr(field_type_instance, "type")
+                else field_type_instance
+            )
 
             # Handle different field types
             if isinstance(actual_field_type, UserDefinedType):
@@ -309,13 +310,11 @@ class VariableInfoManager:
                 var_type=field_type,
             )
             range_variables[field_name] = range_variable
-            # logger.debug(f"Created numeric field variable: {field_name} -> {field_type}")
 
         elif self.is_type_bytes(field_type):
             # For bytes fields, create offset and length variables
             bytes_range_variables = self.create_bytes_offset_and_length_variables(field_name)
             range_variables.update(bytes_range_variables)
-            # logger.debug(f"Created bytes field variables for: {field_name}")
 
         else:
             logger.warning(f"Unsupported field type {field_type} for field {field_name}")

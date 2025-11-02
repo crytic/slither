@@ -41,7 +41,3 @@ class TypeConversionHandler:
         domain.state.set_range_variable(
             name=result_variable_name, range_variable=result_range_variable
         )
-
-        logger.debug(
-            f"Handled type conversion: {result_variable_name} = CONVERT {operation.variable} to {operation.type}"
-        )

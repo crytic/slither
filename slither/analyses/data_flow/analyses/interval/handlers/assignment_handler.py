@@ -34,27 +34,6 @@ class AssignmentHandler:
         written_variable_type = self.variable_info_manager.get_variable_type(written_variable)
         right_value = operation.rvalue
 
-        #         # Skip assignments to non-numeric variables (address, bool, string, etc.)
-        #         # Exception: Don't skip boolean assignments that come from integer comparisons
-        #         should_skip = not (
-        #             isinstance(written_variable_type, ElementaryType) and
-        #             (self.variable_info_manager.is_type_numeric(written_variable_type) or
-        #              self.variable_info_manager.is_type_bytes(written_variable_type))
-        #         )
-
-        #         # Check if this is a boolean assignment from a comparison operation
-        #         if should_skip and isinstance(written_variable_type, ElementaryType) and written_variable_type.name == "bool":
-        #             # Check if the rvalue is a temporary variable from a comparison
-        #             if isinstance(right_value, TemporaryVariable):
-        #                 # This is likely a boolean result from a comparison operation
-        #                 # We should handle it to track the comparison result
-        # #                logger.debug(f"Handling boolean assignment from comparison: {written_variable.name}")
-        #                 should_skip = False
-
-        #         if should_skip:
-        # #            logger.debug(f"Skipping assignment to non-numeric variable: {written_variable.name} of type {written_variable_type}")
-        #             return
-
         # Handle struct assignments by creating field variables
         if isinstance(written_variable_type, UserDefinedType):
             self._handle_struct_assignment(written_variable, written_variable_type, domain)
@@ -84,10 +63,8 @@ class AssignmentHandler:
 
         # Check if the variable already exists in the domain
         if domain.state.has_range_variable(written_variable_name):
-            logger.debug(f"Struct variable {written_variable_name} already exists in state")
             return
 
-        logger.debug(f"Creating struct field variables for {written_variable_name}")
         # Create struct field variables
         self.variable_info_manager.create_struct_field_variables_for_domain(
             domain, written_variable_name, written_variable_type
@@ -126,9 +103,7 @@ class AssignmentHandler:
             # Add all created range variables to the domain state
             for var_name, range_variable in range_variables.items():
                 domain.state.add_range_variable(var_name, range_variable)
-            #            logger.debug(
-            #     f"Created bytes variable {written_variable_name} with offset and length from temporary"
-            # )
+
             return
 
         # Handle boolean variables specially
@@ -152,10 +127,7 @@ class AssignmentHandler:
             return
 
         # copy the temporary variable to the target variable
-        logger.debug(f"Looking for source variable: {source_variable_name}")
-        logger.debug(
-            f"Available variables in domain: {list(domain.state.get_range_variables().keys())}"
-        )
+
         source_range_variable = domain.state.get_range_variable(source_variable_name)
 
         if source_range_variable is None:

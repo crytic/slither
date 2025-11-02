@@ -30,24 +30,16 @@ class HighLevelCallHandler:
     ) -> None:
         """Handle high-level calls by creating a RangeVariable based on the return type."""
 
-        logger.debug(f"HighLevelCall operation: {operation}")
-        logger.debug(f"HighLevelCall lvalue: {operation.lvalue}")
-
         # Get the result variable (lvalue) of the call
         result_variable = operation.lvalue
         if result_variable is None:
-            logger.debug("HighLevelCall has no result variable, skipping")
+
             return
 
         try:
             # Get the variable name and type
             result_variable_name = self.variable_info_manager.get_variable_name(result_variable)
             result_variable_type = self.variable_info_manager.get_variable_type(result_variable)
-
-            logger.debug(
-                f"Handling HighLevelCall: {result_variable_name} = {operation.function_name}"
-            )
-            logger.debug(f"Variable object: {result_variable}, name: {result_variable_name}")
 
             # Create a RangeVariable based on the return type
             self._create_range_variable_for_call_result(
@@ -66,7 +58,7 @@ class HighLevelCallHandler:
 
         # Check if variable already exists
         if domain.state.has_range_variable(var_name):
-            logger.debug(f"Variable {var_name} already exists in state")
+
             return
 
         # Create RangeVariable based on the return type
@@ -125,7 +117,3 @@ class HighLevelCallHandler:
 
         # Add the range variable to the domain state
         domain.state.add_range_variable(var_name, range_variable)
-        logger.debug(f"Created RangeVariable for HighLevelCall result: {var_name} ({var_type})")
-        logger.debug(
-            f"Added to domain state. Total variables: {len(domain.state.get_range_variables())}"
-        )

@@ -221,14 +221,11 @@ class Widening:
             return prev_lower
         # If l₁ > l₂ (lower bound is unstable/decreasing): widen to l₃ = max{i ∈ B | i ≤ l₂}
         else:
-            # logger.debug(
-            #     f"🔄 Lower bound unstable: {prev_lower} > {curr_lower}, looking for candidates in widening literals: {widening_literals}"
-            # )
+
             # Find the maximum value in widening literals that is less than or equal to curr_lower
             valid_candidates = [i for i in widening_literals if i <= curr_lower]
             if valid_candidates:
                 result = max(valid_candidates)
-                # logger.debug(f"🔄 Found lower bound candidate: {result}")
                 # Ensure result is converted to Decimal safely
                 try:
                     if isinstance(result, Decimal):
@@ -252,7 +249,6 @@ class Widening:
             else:
                 # If no suitable value found, use default minimum
                 result = Decimal("0")  # Default for uint types
-                # logger.debug(f"🔄 No lower bound candidates, using default: {result}")
                 return result
 
     def _widen_upper_bound(
@@ -304,9 +300,7 @@ class Widening:
                 # This ensures widening is capped by the program's literals
                 if widening_literals:
                     result = max(widening_literals)
-                    # logger.debug(
-                    #     f"🔄 No candidates >= curr_upper {curr_upper}, using max in widening literals {widening_literals}: {result}"
-                    # )
+
                     # Ensure result is converted to Decimal safely
                     try:
                         if isinstance(result, Decimal):
@@ -347,4 +341,3 @@ class Widening:
         if self.is_variable_widened(var_name):
             # Clear any discrete values that might have been added
             range_variable.valid_values.clear()
-            # logger.debug(f"🔄 Prevented discrete assignment to widened variable: {var_name}")

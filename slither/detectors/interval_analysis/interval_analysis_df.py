@@ -68,7 +68,7 @@ class IntervalAnalysisDF(AbstractDetector):
     SHOW_WRITTEN_VARIABLES = True
     SHOW_READ_VARIABLES = False
     SHOW_DIVISION_BY_ZERO = False
-    SHOW_RELEVANT_VARIABLES = True
+    SHOW_RELEVANT_VARIABLES = False
 
     ONLY_ANALYZE_CERTAIN_CONTRACTS = False
     CONTRACTS_TO_ANALYZE: List[str] = ["PerpDepository"]

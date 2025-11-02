@@ -180,7 +180,7 @@ class IntervalAnalysis(Analysis):
         visited.add(var_name)
 
         constraint = self._constraint_manager.get_variable_constraint(condition_variable.name)
-        logger.info(f"Constraint: {constraint}, type: {type(constraint)}, negated: {is_negated}")
+        # logger.info(f"Constraint: {constraint}, type: {type(constraint)}, negated: {is_negated}")
 
         # If no constraint found, return empty list (base case for actual variables like 'a')
         if constraint is None:
@@ -297,15 +297,15 @@ class IntervalAnalysis(Analysis):
                     left_operand_name = self._variable_info_manager.get_variable_name(
                         operation.variable_left
                     )
-                    logger.info(
-                        f"key: {left_operand_name}, value: {actual_comparison}, type: {type(actual_comparison)}"
-                    )
+                    # logger.info(
+                    #     f"key: {left_operand_name}, value: {actual_comparison}, type: {type(actual_comparison)}"
+                    # )
                     self._constraint_manager.store_variable_constraint(
                         left_operand_name, actual_comparison
                     )
-                    logger.info(
-                        f"Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
-                    )
+                    # logger.info(
+                    #     f"Applying constraint for variable {left_operand_name}, operation: {operation}, type: {type(operation)}"
+                    # )
                     # Apply the constraint directly to the domain
                     # The constraint is the comparison operation itself, not something stored elsewhere
                     self._constraint_manager.constraint_applier._apply_comparison_constraint(
@@ -565,7 +565,6 @@ class IntervalAnalysis(Analysis):
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant with function parameters, state variables, and constants."""
-        logger.debug(f"Initializing domain from bottom for function: {node.function.name}")
         domain.variant = DomainVariant.STATE
 
         # Initialize function parameters and return variables
@@ -584,11 +583,6 @@ class IntervalAnalysis(Analysis):
             self._initialize_state_variables(contract, domain)
             # Initialize library constants
             self._initialize_library_constants(node, contract, domain)
-        else:
-            # For free functions, we don't have state variables or library constants
-            logger.debug(
-                f"Skipping state variables and library constants for free function {node.function.name}"
-            )
 
         # Initialize msg.value for payable functions
         self._initialize_msg_value(node, domain)
@@ -660,7 +654,6 @@ class IntervalAnalysis(Analysis):
             var_type=parameter.type,  # Keep original type for consistency
         )
         domain.state.add_range_variable(parameter.canonical_name, range_variable)
-        logger.debug(f"Added numeric parameter {parameter.canonical_name} to domain state")
 
     def _initialize_bytes_parameter(self, parameter, actual_type, domain: IntervalDomain) -> None:
         """Initialize a bytes parameter with offset and length variables."""

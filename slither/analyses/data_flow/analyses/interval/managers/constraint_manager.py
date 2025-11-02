@@ -186,9 +186,6 @@ class ConstraintManager:
             # Copy constraints to target variable
             copied_range_variable = source_range_variable.deep_copy()
             domain.state.set_range_variable(target_var_name, copied_range_variable)
-            logger.debug(f"Copied constraints from {source_var_name} to {target_var_name}")
-            logger.debug(f"Source range variable: {source_range_variable}")
-            logger.debug(f"Copied range variable: {copied_range_variable}")
 
         except Exception as e:
             logger.error(

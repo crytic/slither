@@ -113,7 +113,6 @@ class UninitializedVariableHandler:
             var_type=variable.type,  # Keep original type for consistency
         )
         domain.state.add_range_variable(var_name, range_variable)
-        logger.debug(f"Added numeric uninitialized variable {var_name} to domain state")
 
     def _initialize_bytes_variable(
         self,
@@ -176,16 +175,10 @@ class UninitializedVariableHandler:
 
         # Handle structs and contracts by creating field variables
         range_variables = self.variable_manager.create_struct_field_variables(variable)
-        logger.debug(
-            f"Created {len(range_variables)} range variables for UserDefinedType uninitialized variable"
-        )
 
         # Add all created range variables to the domain state
         for nested_var_name, range_variable in range_variables.items():
             domain.state.add_range_variable(nested_var_name, range_variable)
-            logger.debug(
-                f"Added UserDefinedType uninitialized variable {nested_var_name} to domain state"
-            )
 
         # Also create a placeholder variable for the variable itself
         # This is needed for contract types and struct types to ensure the main variable

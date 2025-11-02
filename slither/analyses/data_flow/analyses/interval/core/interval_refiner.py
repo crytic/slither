@@ -3,10 +3,8 @@ from typing import List, Optional, Union
 
 from loguru import logger
 
-from slither.analyses.data_flow.analyses.interval.core.types.interval_range import \
-    IntervalRange
-from slither.analyses.data_flow.analyses.interval.core.types.range_variable import \
-    RangeVariable
+from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
+from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 from slither.slithir.operations.binary import BinaryType
 
 
@@ -27,7 +25,6 @@ class IntervalRefiner:
             current_intervals = range_var.get_interval_ranges()
 
             if not current_intervals:
-#                logger.debug("No current intervals to refine")
                 return
 
             # Handle equality constraint specially - use valid_values instead of intervals
@@ -42,13 +39,10 @@ class IntervalRefiner:
                     # Clear all intervals and add the exact value to valid_values
                     range_var.clear_intervals()
                     range_var.add_valid_value(constant_decimal)
-#                    logger.debug(
-                    #     f"Set exact value {constant_decimal} in valid_values for equality constraint"
-                    # )
+
                 else:
                     # Constant is not in any valid range, clear everything
                     range_var.clear_intervals()
-#                    logger.debug("Constant not in valid range for equality constraint")
                 return
 
             # Handle NOT_EQUAL constraint specially - add constant to invalid_values
@@ -80,7 +74,6 @@ class IntervalRefiner:
             else:
                 # Clear all intervals if no valid ones remain
                 range_var.clear_intervals()
-#                logger.debug("No valid intervals remain after constraint application")
 
         except Exception as e:
             logger.error(f"Error refining variable range: {e}")

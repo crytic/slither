@@ -218,13 +218,9 @@ class InternalCallHandler:
                         # Copy the existing range variable from the return value variable
                         existing_range_var = domain.state.get_range_variable(return_value_name)
                         range_variable = existing_range_var.deep_copy()
-                        logger.debug(
-                            f"Copied existing range variable for {return_value_name} -> {range_variable}"
-                        )
+
                     else:
-                        logger.debug(
-                            f"Return value {return_value_name} not found in domain state, creating placeholder"
-                        )
+
                         range_variable = self._create_placeholder_for_type(var_type)
 
                 # Store the tuple element in domain state
@@ -270,13 +266,9 @@ class InternalCallHandler:
                         # Copy the existing range variable from the return value variable
                         existing_range_var = domain.state.get_range_variable(return_value_name)
                         range_variable = existing_range_var.deep_copy()
-                        logger.debug(
-                            f"Copied existing range variable for {return_value_name} -> {range_variable}"
-                        )
+
                     else:
-                        logger.debug(
-                            f"Return value {return_value_name} not found in domain state, creating placeholder"
-                        )
+
                         range_variable = self._create_placeholder_for_type(var_type)
 
                 # Store the temporary variable in domain state
@@ -316,7 +308,7 @@ class InternalCallHandler:
                     and caller_range_var.interval_ranges != callee_range_var.interval_ranges
                 ):
 
-                    logger.debug(
-                        f"Preserving caller constraints for {var_name}: {caller_range_var}"
-                    )
+                    # logger.debug(
+                    #     f"Preserving caller constraints for {var_name}: {caller_range_var}"
+                    # )
                     callee_domain.state.set_range_variable(var_name, caller_range_var.deep_copy())

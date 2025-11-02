@@ -50,11 +50,6 @@ class UnpackHandler:
                 # Set the unpacked variable in the domain state
                 domain.state.set_range_variable(unpacked_var_name, unpacked_range_var)
 
-                logger.info(
-                    f"Copied constraints from tuple element {tuple_element_name} to unpacked variable {unpacked_var_name}"
-                )
-                logger.info(f"Tuple element range variable: {tuple_element_range_var}")
-                logger.info(f"Unpacked variable domain: {unpacked_range_var}")
             else:
                 logger.warning(f"Tuple element {tuple_element_name} has no range variable")
         else:
@@ -73,4 +68,3 @@ class UnpackHandler:
                 var_type=var_type,
             )
             domain.state.set_range_variable(unpacked_var_name, placeholder)
-            logger.info(f"Created placeholder for unpacked variable {unpacked_var_name}")

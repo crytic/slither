@@ -134,9 +134,6 @@ class RangeVariable:
         if not self.interval_ranges:
             return
 
-        # Log original ranges for debugging
-        # logger.debug(f"🔧 Consolidating ranges: {[str(r) for r in self.interval_ranges]}")
-
         # Remove duplicates by converting to set and back to list
 
         deduplicated_ranges = list(set(self.interval_ranges))
@@ -168,16 +165,13 @@ class RangeVariable:
                         previous_range.get_upper(), candidate_range.get_upper()
                     )
                     merged_ranges[-1] = IntervalRange(combined_lower_bound, combined_upper_bound)
-                    # logger.debug(
-                    #     f"🔧 Merged {str(previous_range)} and {str(candidate_range)} -> {str(merged_ranges[-1])}"
-                    # )
+
                 else:
                     # No overlap, add as separate range
                     merged_ranges.append(candidate_range)
 
         # Update the interval ranges with consolidated results
         self.interval_ranges = merged_ranges
-        # logger.debug(f"🔧 Final consolidated ranges: {[str(r) for r in self.interval_ranges]}")
 
     def convert_consecutive_values_to_ranges(self) -> None:
         """Convert consecutive valid values to interval ranges."""
