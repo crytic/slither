@@ -44,6 +44,9 @@ from slither.analyses.data_flow.analyses.interval.handlers.member_handler import
 from slither.analyses.data_flow.analyses.interval.handlers.length_handler import (
     LengthHandler,
 )
+from slither.analyses.data_flow.analyses.interval.handlers.codesize_handler import (
+    CodeSizeHandler,
+)
 from slither.analyses.data_flow.analyses.interval.handlers.type_conversion_handler import (
     TypeConversionHandler,
 )
@@ -68,6 +71,7 @@ from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 from slither.slithir.operations.length import Length
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.new_array import NewArray
@@ -102,6 +106,7 @@ class OperationHandler:
         self.high_level_call_handler = HighLevelCallHandler()
         self.member_handler = MemberHandler(self.reference_handler)
         self.length_handler = LengthHandler()
+        self.codesize_handler = CodeSizeHandler()
         self.type_conversion_handler = TypeConversionHandler()
         self.index_handler = IndexHandler(self.reference_handler)
         self.unary_handler = UnaryHandler(self.shared_constraint_storage)
@@ -153,6 +158,9 @@ class OperationHandler:
 
     def handle_length(self, node: Node, domain: IntervalDomain, operation: Length):
         self.length_handler.handle_length(node, domain, operation)
+
+    def handle_codesize(self, node: Node, domain: IntervalDomain, operation: CodeSize):
+        self.codesize_handler.handle_codesize(node, domain, operation)
 
     def handle_type_conversion(self, node: Node, domain: IntervalDomain, operation: TypeConversion):
         self.type_conversion_handler.handle_type_conversion(node, domain, operation)

@@ -51,6 +51,7 @@ from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.length import Length
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.index import Index
 from slither.slithir.operations.unary import Unary, UnaryType
@@ -478,6 +479,9 @@ class IntervalAnalysis(Analysis):
 
         if isinstance(operation, Length):
             self._operation_handler.handle_length(node, domain, operation)
+
+        if isinstance(operation, CodeSize):
+            self._operation_handler.handle_codesize(node, domain, operation)
 
         if isinstance(operation, TypeConversion):
             self._operation_handler.handle_type_conversion(node, domain, operation)
