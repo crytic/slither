@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import List, Optional, Union
 
 from loguru import logger
@@ -6,6 +6,7 @@ from loguru import logger
 from slither.analyses.data_flow.analyses.interval.core.types.interval_range import IntervalRange
 from slither.analyses.data_flow.analyses.interval.core.types.range_variable import RangeVariable
 from slither.slithir.operations.binary import BinaryType
+from IPython import embed
 
 
 class IntervalRefiner:
@@ -18,8 +19,49 @@ class IntervalRefiner:
         operation_type: BinaryType,
     ) -> None:
         """Refine a variable's range based on a constant comparison."""
+        # Convert constant value to Decimal, handling different types
+        constant_decimal = None
         try:
-            constant_decimal = Decimal(str(constant_value))
+            if isinstance(constant_value, bool):
+                constant_decimal = Decimal(str(1 if constant_value else 0))
+            elif isinstance(constant_value, int):
+                constant_decimal = Decimal(str(constant_value))
+            elif isinstance(constant_value, str):
+                # Handle hex strings
+                if constant_value.startswith("0x") or constant_value.startswith("0X"):
+                    try:
+                        int_value = int(constant_value, 16)
+                        constant_decimal = Decimal(str(int_value))
+                    except ValueError:
+                        constant_decimal = Decimal(constant_value)
+                else:
+                    constant_decimal = Decimal(constant_value)
+            elif isinstance(constant_value, (float, Decimal)):
+                constant_decimal = Decimal(str(constant_value))
+            else:
+                logger.error(
+                    f"Unexpected constant value type in refine_variable_range: "
+                    f"type={type(constant_value).__name__}, value={constant_value!r}"
+                )
+                embed()  # Debug: inspect unexpected constant value type
+                return  # Skip refinement if we can't convert
+
+        except (ValueError, TypeError, InvalidOperation) as e:
+            logger.error(
+                f"Failed to convert constant value to Decimal in refine_variable_range: "
+                f"value={constant_value!r}, type={type(constant_value).__name__}, "
+                f"error={type(e).__name__}: {e}"
+            )
+            embed()  # Debug: inspect why conversion failed
+            return  # Skip refinement if conversion fails
+
+        if constant_decimal is None:
+            logger.error(
+                f"constant_decimal is None after conversion attempt for {constant_value!r}"
+            )
+            return
+
+        try:
 
             # Get the current intervals using the getter method
             current_intervals = range_var.get_interval_ranges()

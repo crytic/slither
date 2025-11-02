@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Optional, Set, Union
 
 from loguru import logger
@@ -153,6 +153,17 @@ class ConditionValidityChecker:
             constant_value = self._extract_constant_value(constant_operand, domain)
 
             if constant_value is None:
+                # Non-numeric constant - interval analysis only handles numeric comparisons
+                # Conservatively return True (condition may be valid, we just can't validate it numerically)
+                constant_display = (
+                    constant_operand.value
+                    if isinstance(constant_operand, Constant)
+                    else constant_operand
+                )
+                logger.debug(
+                    f"Skipping numeric validation for non-numeric constant comparison: "
+                    f"variable={variable_name}, constant={constant_display!r}"
+                )
                 return True
 
             # Conservative check: only return False if we're 100% certain it's impossible
@@ -239,7 +250,56 @@ class ConditionValidityChecker:
     ) -> Optional[Decimal]:
         """Extract constant value from operand."""
         if isinstance(operand, Constant):
-            return Decimal(str(operand.value))
+            # Check if constant type is numeric before converting
+            constant_type = getattr(operand, "_type", None)
+            if constant_type is not None:
+                if not self._variable_manager.is_type_numeric(constant_type):
+                    logger.debug(
+                        f"Non-numeric constant in condition check (skipping numeric validation): "
+                        f"value={operand.value!r}, "
+                        f"type={constant_type.name if hasattr(constant_type, 'name') else constant_type}. "
+                        f"Interval analysis only validates numeric comparisons."
+                    )
+                    # Non-numeric constants cannot be used in numeric comparisons
+                    # Return None to indicate we can't extract a numeric value
+                    return None
+
+            # Try to convert to Decimal
+            try:
+                constant_value = operand.value
+                if isinstance(constant_value, bool):
+                    # Convert bool to int
+                    return Decimal(str(1 if constant_value else 0))
+                elif isinstance(constant_value, int):
+                    return Decimal(str(constant_value))
+                elif isinstance(constant_value, str):
+                    # Handle hex strings
+                    if constant_value.startswith("0x") or constant_value.startswith("0X"):
+                        try:
+                            int_value = int(constant_value, 16)
+                            return Decimal(str(int_value))
+                        except ValueError:
+                            return Decimal(constant_value)
+                    else:
+                        return Decimal(constant_value)
+                else:
+                    logger.warning(
+                        f"Unexpected constant value type: {type(constant_value).__name__}, "
+                        f"value={constant_value!r}"
+                    )
+                    embed()  # Debug: inspect unexpected constant type
+                    return None
+            except (ValueError, TypeError, InvalidOperation) as e:
+                logger.error(
+                    f"Failed to convert constant value to Decimal: "
+                    f"value={operand.value!r}, "
+                    f"value_type={type(operand.value).__name__}, "
+                    f"original_value={getattr(operand, 'original_value', 'N/A')}, "
+                    f"constant_type={getattr(operand, '_type', 'N/A')}, "
+                    f"error={type(e).__name__}: {e}"
+                )
+                embed()  # Debug: inspect why conversion failed
+                return None
         elif isinstance(operand, Variable):
             variable_name = self._variable_manager.get_variable_name(operand)
             if variable_name in domain.state.get_range_variables():

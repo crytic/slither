@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, List, Tuple, Union
 
 from _pytest.nodes import Node
@@ -368,7 +368,90 @@ class RangeVariable:
         variable_info_manager = VariableInfoManager()
 
         if isinstance(variable, Constant):
-            value: Decimal = Decimal(str(variable.value))
+            # Log the constant information for debugging
+            logger.debug(
+                f"Processing Constant: value={variable.value!r}, "
+                f"value_type={type(variable.value).__name__}, "
+                f"original_value={getattr(variable, 'original_value', 'N/A')}, "
+                f"constant_type={getattr(variable, '_type', 'N/A')}"
+            )
+
+            # Get the constant's type
+            constant_type = getattr(variable, "_type", None)
+
+            # Check if the constant type is numeric before attempting conversion
+            # Non-numeric constants (like string, bytes, etc.) should not be converted to Decimal
+            if constant_type is not None:
+                if not variable_info_manager.is_type_numeric(constant_type):
+                    logger.debug(
+                        f"Skipping non-numeric constant: value={variable.value!r}, "
+                        f"type={constant_type.name if hasattr(constant_type, 'name') else constant_type}"
+                    )
+                    # Return a RangeVariable for non-numeric types without numeric values
+                    return RangeVariable(
+                        interval_ranges=[],  # No numeric intervals for non-numeric types
+                        valid_values=ValueSet(set()),  # No numeric values
+                        invalid_values=ValueSet(set()),
+                        var_type=constant_type,
+                    )
+
+            # Handle different types of constant values
+            # Constant.value can be Union[bool, int, str] according to the Constant class
+            constant_value = variable.value
+
+            try:
+                if isinstance(constant_value, bool):
+                    # Convert bool to int (True -> 1, False -> 0)
+                    logger.debug(f"Converting boolean constant {constant_value} to int")
+                    value: Decimal = Decimal(str(1 if constant_value else 0))
+                elif isinstance(constant_value, int):
+                    # Direct conversion from int
+                    logger.debug(f"Converting integer constant {constant_value} to Decimal")
+                    value: Decimal = Decimal(str(constant_value))
+                elif isinstance(constant_value, str):
+                    # String value - convert to Decimal
+                    # Note: We've already checked that the constant type is numeric above,
+                    # so this string should represent a numeric value
+                    logger.debug(f"Converting string constant {constant_value!r} to Decimal")
+
+                    # Check if it's a hex string that might need special handling
+                    if constant_value.startswith("0x") or constant_value.startswith("0X"):
+                        # Try converting hex to int first
+                        try:
+                            int_value = int(constant_value, 16)
+                            value: Decimal = Decimal(str(int_value))
+                            logger.debug(f"Converted hex string {constant_value} to {value}")
+                        except ValueError:
+                            # Fall through to regular Decimal conversion
+                            value: Decimal = Decimal(constant_value)
+                    else:
+                        # Try to convert to Decimal (validates it's numeric)
+                        value: Decimal = Decimal(constant_value)
+                else:
+                    # Unexpected type
+                    logger.error(
+                        f"Unexpected constant value type: {type(constant_value).__name__}, "
+                        f"value={constant_value!r}, "
+                        f"original_value={getattr(variable, 'original_value', 'N/A')}"
+                    )
+                    raise ValueError(
+                        f"Cannot convert constant value of type {type(constant_value).__name__} "
+                        f"to Decimal. Value: {constant_value!r}"
+                    )
+            except (ValueError, TypeError, InvalidOperation) as e:
+                logger.error(
+                    f"Failed to convert constant value to Decimal: "
+                    f"value={constant_value!r}, "
+                    f"value_type={type(constant_value).__name__}, "
+                    f"original_value={getattr(variable, 'original_value', 'N/A')}, "
+                    f"constant_type={getattr(variable, '_type', 'N/A')}, "
+                    f"error={type(e).__name__}: {e}"
+                )
+                raise ValueError(
+                    f"Cannot convert constant value '{constant_value}' "
+                    f"(type: {type(constant_value).__name__}) to Decimal: {e}"
+                ) from e
+
             valid_values = ValueSet({value})
 
             # Determine the appropriate type for the constant
@@ -378,6 +461,10 @@ class RangeVariable:
             else:
                 # Non-negative constants can use uint256
                 constant_type = ElementaryType("uint256")
+
+            logger.debug(
+                f"Created RangeVariable for constant: value={value}, type={constant_type.name}"
+            )
 
             # For constants, use valid_values instead of interval ranges
             return RangeVariable(

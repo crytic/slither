@@ -335,11 +335,27 @@ class ConstraintApplierHandler:
             range_var = RangeVariable.get_variable_info(domain, variable_operand)
             logger.debug(f"Range variable before constraint application: {range_var}")
 
-            # Extract constant value
+            # Extract constant value and validate it's numeric
+            if not isinstance(constant_operand, Constant):
+                logger.debug(f"Operand is not a Constant: {constant_operand}")
+                return
+
+            # Check if constant type is numeric before applying constraint
+            constant_type = getattr(constant_operand, "_type", None)
+            if constant_type is not None:
+                if not self.variable_manager.is_type_numeric(constant_type):
+                    logger.debug(
+                        f"Skipping constraint application for non-numeric constant: "
+                        f"value={constant_operand.value!r}, "
+                        f"type={constant_type.name if hasattr(constant_type, 'name') else constant_type}. "
+                        f"Interval constraints only apply to numeric values."
+                    )
+                    return
+
             if hasattr(constant_operand, "value"):
                 constant_value = constant_operand.value
             else:
-                # logger.debug(f"Could not extract constant value from {constant_operand}")
+                logger.debug(f"Could not extract constant value from {constant_operand}")
                 return
 
             # Apply the constraint by modifying the range variable's intervals
