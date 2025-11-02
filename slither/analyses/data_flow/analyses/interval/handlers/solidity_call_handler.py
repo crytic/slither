@@ -101,6 +101,11 @@ class SolidityCallHandler:
             self._handle_bytes_concat(node, domain, operation)
             return
 
+        # Handle string.concat() -> returns string
+        if operation.function.full_name == "string.concat()":
+            self._handle_string_concat(node, domain, operation)
+            return
+
         # Handle CREATE2 opcode exposed via solidity call wrappers
         if operation.function.full_name == "create2(uint256,uint256,uint256,uint256)":
             self._handle_create2(node, domain, operation)
@@ -654,6 +659,27 @@ class SolidityCallHandler:
         result_var_name = variable_manager.get_variable_name(operation.lvalue)
         domain.state.set_range_variable(result_var_name, result_range_variable)
         # logger.debug(f"Handled bytes.concat() -> {result_var_name} (bytes)")
+
+    def _handle_string_concat(
+        self, node: Node, domain: IntervalDomain, operation: SolidityCall
+    ) -> None:
+        """Handle string.concat() returning concatenated string memory."""
+        if not operation.lvalue:
+            logger.error("string.concat() operation has no lvalue")
+            raise ValueError("string.concat() operation has no lvalue")
+
+        result_type = ElementaryType("string")
+        result_range_variable = RangeVariable(
+            interval_ranges=[],
+            valid_values=None,
+            invalid_values=None,
+            var_type=result_type,
+        )
+
+        variable_manager = VariableInfoManager()
+        result_var_name = variable_manager.get_variable_name(operation.lvalue)
+        domain.state.set_range_variable(result_var_name, result_range_variable)
+        # logger.debug(f"Handled string.concat() -> {result_var_name} (string)")
 
     def _handle_type_code(
         self, node: Node, domain: IntervalDomain, operation: SolidityCall
