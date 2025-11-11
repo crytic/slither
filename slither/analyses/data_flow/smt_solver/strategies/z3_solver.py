@@ -61,6 +61,23 @@ class Z3Solver(SMTSolver):
         self.variables[name] = var
         return var
 
+    def create_constant(self, value: int, sort: Sort) -> SMTTerm:
+        """Create a constant value term in Z3."""
+        from z3 import BitVecVal, BoolVal, IntVal
+
+        if sort.kind == SortKind.BOOL:
+            return BoolVal(bool(value))
+        elif sort.kind == SortKind.BITVEC:
+            if not sort.parameters or len(sort.parameters) != 1:
+                raise ValueError("BitVec sort requires width parameter")
+            width = sort.parameters[0]
+            modulus = 1 << width
+            return BitVecVal(value % modulus, width)
+        elif sort.kind == SortKind.INT:
+            return IntVal(value)
+        else:
+            raise NotImplementedError(f"Sort {sort.kind} not yet implemented for Z3")
+
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """Add constraint to Z3 solver."""
         self.solver.add(constraint)

@@ -4,19 +4,30 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.analyses.data_flow.analyses.interval.operations.registry import (
+    OperationHandlerRegistry,
+)
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
+from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.core.cfg.node import Node
-from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.operation import Operation
 
 
 class IntervalAnalysis(Analysis):
     """Interval analysis for data flow analysis."""
 
-    def __init__(self) -> None:
+    def __init__(self, solver: SMTSolver) -> None:
+        """
+        Initialize interval analysis.
+
+        Args:
+            solver: The SMT solver instance to use for constraint solving
+        """
         self._direction: Direction = Forward()
+        self._solver: SMTSolver = solver
+        self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver)
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state({})
@@ -58,9 +69,18 @@ class IntervalAnalysis(Analysis):
         node: Node,
     ) -> None:
         """Route operation to appropriate handler based on type."""
-        if isinstance(operation, Assignment):
-            print(f"Assignment operation detected: {operation}")
+        if operation is None:
+            return
+
+        handler = self._registry.get_handler(operation)
+        if handler is not None:
+            handler.handle(operation, domain, node)
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant."""
         domain.variant = DomainVariant.STATE
+
+    @property
+    def solver(self) -> SMTSolver:
+        """Get the SMT solver instance."""
+        return self._solver

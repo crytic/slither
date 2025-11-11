@@ -46,6 +46,20 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def create_constant(self, value: int, sort: Sort) -> SMTTerm:
+        """
+        Create a constant value term.
+
+        Args:
+            value: The integer value
+            sort: The sort (type) of the constant
+
+        Returns:
+            An SMTTerm representing the constant value
+        """
+        pass
+
+    @abstractmethod
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """
         (assert constraint)
