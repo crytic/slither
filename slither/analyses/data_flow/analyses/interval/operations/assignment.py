@@ -47,7 +47,7 @@ class AssignmentHandler(BaseOperationHandler):
             return
 
         # Determine the best type information available for the lvalue
-        lvalue_type = self._resolve_elementary_type(
+        lvalue_type = IntervalSMTUtils.resolve_elementary_type(
             operation.variable_return_type, getattr(lvalue, "type", None)
         )
         if lvalue_type is None:
@@ -84,19 +84,6 @@ class AssignmentHandler(BaseOperationHandler):
         """Extract variable name from SlitherIR variable."""
         return IntervalSMTUtils.resolve_variable_name(var)
 
-    def _resolve_elementary_type(
-        self, primary: Optional[object], fallback: Optional[object] = None
-    ) -> Optional[ElementaryType]:
-        """Return the first available ElementaryType from the provided candidates."""
-        for candidate in (primary, fallback):
-            if isinstance(candidate, ElementaryType):
-                return candidate
-            if candidate is not None and hasattr(candidate, "type"):
-                nested_type = getattr(candidate, "type")
-                if isinstance(nested_type, ElementaryType):
-                    return nested_type
-        return None
-
     def _handle_variable_assignment(
         self,
         lvalue_smt_var: SMTVariable,
@@ -105,7 +92,7 @@ class AssignmentHandler(BaseOperationHandler):
         domain: "IntervalDomain",
     ) -> bool:
         """Process assignment from another variable; return False if unsupported."""
-        rvalue_type = self._resolve_elementary_type(getattr(rvalue, "type", None))
+        rvalue_type = IntervalSMTUtils.resolve_elementary_type(getattr(rvalue, "type", None))
         if rvalue_type is None:
             self.logger.debug("Unsupported rvalue type for assignment; skipping interval update.")
             return False

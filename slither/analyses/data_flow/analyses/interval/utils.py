@@ -35,6 +35,20 @@ class IntervalSMTUtils:
         return base_name
 
     @staticmethod
+    def resolve_elementary_type(
+        primary: Optional[object], fallback: Optional[object] = None
+    ) -> Optional[ElementaryType]:
+        """Return the first available ElementaryType from the provided candidates."""
+        for candidate in (primary, fallback):
+            if isinstance(candidate, ElementaryType):
+                return candidate
+            if candidate is not None and hasattr(candidate, "type"):
+                nested_type = getattr(candidate, "type")
+                if isinstance(nested_type, ElementaryType):
+                    return nested_type
+        return None
+
+    @staticmethod
     def get_smt_variable(domain: "IntervalDomain", name: str) -> Optional[SMTVariable]:
         """Return an existing SMT variable from the interval domain state."""
         return domain.state.get_range_variable(name)
