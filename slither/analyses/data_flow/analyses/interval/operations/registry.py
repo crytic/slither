@@ -3,7 +3,9 @@
 from typing import Dict, Optional, Type, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.operations.assignment import AssignmentHandler
+from slither.analyses.data_flow.analyses.interval.operations.binary import BinaryHandler
 from slither.slithir.operations.assignment import Assignment
+from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
@@ -30,6 +32,7 @@ class OperationHandlerRegistry:
     def _register_default_handlers(self) -> None:
         """Register default operation handlers."""
         self.register(Assignment, AssignmentHandler)
+        self.register(Binary, BinaryHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]
