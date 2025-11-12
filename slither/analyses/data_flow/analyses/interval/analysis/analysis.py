@@ -7,6 +7,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.analyses.interval.operations.registry import (
     OperationHandlerRegistry,
 )
+from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
@@ -30,7 +31,7 @@ class IntervalAnalysis(Analysis):
         self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver)
 
     def domain(self) -> Domain:
-        return IntervalDomain.with_state({})
+        return IntervalDomain.with_state(State({}))
 
     def direction(self) -> Direction:
         return self._direction

@@ -60,6 +60,36 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def is_bitvector(self, term: SMTTerm) -> bool:
+        """Return True if the solver term is a bitvector."""
+        pass
+
+    @abstractmethod
+    def bitvector_to_int(self, term: SMTTerm) -> SMTTerm:
+        """Convert a bitvector term into the solver's integer domain."""
+        pass
+
+    @abstractmethod
+    def make_ite(self, condition: SMTTerm, then_term: SMTTerm, else_term: SMTTerm) -> SMTTerm:
+        """Create an if-then-else expression."""
+        pass
+
+    @abstractmethod
+    def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned division for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned remainder for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Logical right shift for bitvectors."""
+        pass
+
+    @abstractmethod
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """
         (assert constraint)

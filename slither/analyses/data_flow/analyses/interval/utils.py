@@ -6,11 +6,14 @@ from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uin
 from slither.core.variables.variable import Variable
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.constant import Constant
-from slither.analyses.data_flow.smt_solver.types import Sort, SortKind, SMTVariable
+from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 
 
 class IntervalSMTUtils:
@@ -49,19 +52,19 @@ class IntervalSMTUtils:
         return None
 
     @staticmethod
-    def get_smt_variable(domain: "IntervalDomain", name: str) -> Optional[SMTVariable]:
-        """Return an existing SMT variable from the interval domain state."""
+    def get_tracked_variable(domain: "IntervalDomain", name: str) -> Optional[TrackedSMTVariable]:
+        """Return an existing tracked SMT variable from the interval domain state."""
         return domain.state.get_range_variable(name)
 
     @staticmethod
-    def create_smt_variable(
+    def create_tracked_variable(
         solver: "SMTSolver", name: str, solidity_type: ElementaryType
-    ) -> Optional[SMTVariable]:
-        """Create and declare a new SMT variable for the provided elementary Solidity type."""
+    ) -> Optional[TrackedSMTVariable]:
+        """Create and declare a new tracked SMT variable for the provided elementary Solidity type."""
         sort = IntervalSMTUtils.solidity_type_to_smt_sort(solidity_type)
         if sort is None:
             return None
-        return solver.declare_const(name, sort)
+        return TrackedSMTVariable.create(solver, name, sort)
 
     @staticmethod
     def solidity_type_to_smt_sort(solidity_type: ElementaryType) -> Optional[Sort]:

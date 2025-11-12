@@ -48,22 +48,11 @@ class IntervalDomain(Domain):
                 return False
 
             changed = False
-            for var_name, incoming_smt_var in other.state.get_range_variables().items():
-                existing_smt_var = self.state.get_range_variable(var_name)
+            for var_name, incoming_var in other.state.get_range_variables().items():
+                existing_var = self.state.get_range_variable(var_name)
 
-                if existing_smt_var is not None:
-                    # Variable exists - SMTVariables are compared by name + type
-                    # So if they're different objects but represent the same variable, we keep the existing one
-                    # No need to "join" SMT variables - they're just symbolic references
-                    # The actual interval computation happens via constraint solving
-                    if existing_smt_var != incoming_smt_var:
-                        # Different SMT variables - this shouldn't happen if the solver is used correctly
-                        # But if it does, we keep the existing one
-                        pass
-                else:
-                    # Add new SMT variable from other state
-                    # SMTVariables are immutable, so we can just reference it directly
-                    self.state.add_range_variable(var_name, incoming_smt_var)
+                if existing_var is None:
+                    self.state.add_range_variable(var_name, incoming_var)
                     changed = True
 
             return changed
@@ -81,9 +70,19 @@ class IntervalDomain(Domain):
 
     def __hash__(self):
         """Hash function for IntervalDomain"""
-        # Use hash of SMTVariables for hashing (SMTVariables implement __hash__)
+        # Use hash of tracked variables for hashing
         items = sorted(
-            (name, hash(smt_var)) for name, smt_var in self.state.get_range_variables().items()
+            (
+                name,
+                hash(
+                    (
+                        tracked.base,
+                        tracked.overflow_flag,
+                        tracked.overflow_amount,
+                    )
+                ),
+            )
+            for name, tracked in self.state.get_range_variables().items()
         )
         return hash((self.variant, tuple(items)))
 

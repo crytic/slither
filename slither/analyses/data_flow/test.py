@@ -8,7 +8,8 @@ from slither.analyses.data_flow.analyses.interval.analysis.analysis import Inter
 from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.analyses.data_flow.engine.analysis import AnalysisState
-from slither.analyses.data_flow.smt_solver.types import SMTVariable, CheckSatResult
+from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
@@ -20,7 +21,7 @@ console = Console()
 
 
 def solve_variable_range(
-    solver: object, smt_var: SMTVariable
+    solver: object, smt_var: TrackedSMTVariable
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """
     Solve for minimum and maximum values of a variable.
@@ -28,9 +29,11 @@ def solve_variable_range(
     Returns:
         Tuple of (min_result, max_result) dictionaries with 'value' and 'overflow' keys
     """
-    from z3 import BitVecRef, BV2Int
+    from z3 import BitVecRef, BV2Int, is_true
 
-    if not isinstance(smt_var.term, BitVecRef):
+    term = smt_var.term
+
+    if not isinstance(term, BitVecRef):
         return None, None
 
     # Get bit width
@@ -43,7 +46,7 @@ def solve_variable_range(
         # Push current state to preserve constraints
         solver.push()
         # Minimize the variable
-        solver.minimize(BV2Int(smt_var.term))
+        solver.minimize(BV2Int(term))
         # Check satisfiability
         if solver.check_sat() == CheckSatResult.SAT:
             model = solver.get_model()
@@ -61,10 +64,31 @@ def solve_variable_range(
                 else:
                     wrapped_value = 0
 
-                # For now, overflow detection is simplified
-                # In a full implementation, we'd track overflow separately
+                # Check overflow flag and amount if they exist
                 overflow = False
-                min_result = {"value": wrapped_value, "overflow": overflow}
+                overflow_amount = 0
+                overflow_flag_name = smt_var.overflow_flag.name
+                overflow_amount_name = smt_var.overflow_amount.name
+
+                if model and overflow_flag_name in model:
+                    overflow_flag = model[overflow_flag_name]
+                    overflow = is_true(overflow_flag)
+
+                if model and overflow_amount_name in model:
+                    amount_term = model[overflow_amount_name]
+                    if hasattr(amount_term, "as_long"):
+                        overflow_amount = amount_term.as_long()
+                    elif hasattr(amount_term, "as_string"):
+                        try:
+                            overflow_amount = int(amount_term.as_string())
+                        except (ValueError, AttributeError):
+                            overflow_amount = 0
+
+                min_result = {
+                    "value": wrapped_value,
+                    "overflow": overflow,
+                    "overflow_amount": overflow_amount,
+                }
         # Pop state to restore original constraints
         solver.pop()
     except Exception as e:
@@ -83,7 +107,7 @@ def solve_variable_range(
         # Push current state to preserve constraints
         solver.push()
         # Maximize the variable
-        solver.maximize(BV2Int(smt_var.term))
+        solver.maximize(BV2Int(term))
         # Check satisfiability
         if solver.check_sat() == CheckSatResult.SAT:
             model = solver.get_model()
@@ -101,9 +125,31 @@ def solve_variable_range(
                 else:
                     wrapped_value = 0
 
-                # For now, overflow detection is simplified
+                # Check overflow flag and amount if they exist
                 overflow = False
-                max_result = {"value": wrapped_value, "overflow": overflow}
+                overflow_amount = 0
+                overflow_flag_name = smt_var.overflow_flag.name
+                overflow_amount_name = smt_var.overflow_amount.name
+
+                if model and overflow_flag_name in model:
+                    overflow_flag = model[overflow_flag_name]
+                    overflow = is_true(overflow_flag)
+
+                if model and overflow_amount_name in model:
+                    amount_term = model[overflow_amount_name]
+                    if hasattr(amount_term, "as_long"):
+                        overflow_amount = amount_term.as_long()
+                    elif hasattr(amount_term, "as_string"):
+                        try:
+                            overflow_amount = int(amount_term.as_string())
+                        except (ValueError, AttributeError):
+                            overflow_amount = 0
+
+                max_result = {
+                    "value": wrapped_value,
+                    "overflow": overflow,
+                    "overflow_amount": overflow_amount,
+                }
         # Pop state to restore original constraints
         solver.pop()
     except Exception as e:
@@ -226,7 +272,7 @@ def analyze_function(
 
         # Print post-state variables
         if state.post.variant == DomainVariant.STATE:
-            post_state_vars: Dict[str, SMTVariable] = state.post.state.get_range_variables()
+            post_state_vars: Dict[str, TrackedSMTVariable] = state.post.state.get_range_variables()
 
             if post_state_vars:
                 # Get node's source code representation using str(node.expression)
@@ -250,10 +296,6 @@ def analyze_function(
                     for var_name, smt_var in sorted(post_state_vars.items()):
                         # Skip internal constant variables
                         if var_name.startswith("CONST_"):
-                            continue
-
-                        # Ensure we have an SMTVariable
-                        if not isinstance(smt_var, SMTVariable):
                             continue
 
                         # Solve for min and max

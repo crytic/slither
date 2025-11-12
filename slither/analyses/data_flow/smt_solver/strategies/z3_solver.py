@@ -6,8 +6,13 @@ from z3 import (
     BitVec,
     Bool,
     BV2Int,
+    If,
+    LShR,
     Optimize,
     Solver,
+    UDiv,
+    URem,
+    is_bv,
     sat,
     unsat,
     unknown,
@@ -138,21 +143,37 @@ class Z3Solver(SMTSolver):
         self.last_result = None
         self.model = None
 
+    def is_bitvector(self, term: SMTTerm) -> bool:
+        return is_bv(term)
+
+    def bitvector_to_int(self, term: SMTTerm) -> SMTTerm:
+        return BV2Int(term)
+
+    def make_ite(self, condition: SMTTerm, then_term: SMTTerm, else_term: SMTTerm) -> SMTTerm:
+        return If(condition, then_term, else_term)
+
+    def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        return UDiv(left, right)
+
+    def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        return URem(left, right)
+
+    def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        return LShR(left, right)
+
     def maximize(self, term: SMTTerm) -> None:
         """Add maximization objective."""
         if not self.use_optimizer:
             raise RuntimeError("maximize() requires use_optimizer=True")
-        self.solver.maximize(
-            BV2Int(term) if hasattr(term, "sort") and "BitVec" in str(term.sort()) else term
-        )
+        opt_term = self.bitvector_to_int(term) if self.is_bitvector(term) else term
+        self.solver.maximize(opt_term)
 
     def minimize(self, term: SMTTerm) -> None:
         """Add minimization objective."""
         if not self.use_optimizer:
             raise RuntimeError("minimize() requires use_optimizer=True")
-        self.solver.minimize(
-            BV2Int(term) if hasattr(term, "sort") and "BitVec" in str(term.sort()) else term
-        )
+        opt_term = self.bitvector_to_int(term) if self.is_bitvector(term) else term
+        self.solver.minimize(opt_term)
 
     def to_smtlib(self) -> str:
         """Export to SMT-LIB format."""

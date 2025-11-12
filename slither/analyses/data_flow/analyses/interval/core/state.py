@@ -1,17 +1,19 @@
 from typing import Dict, Mapping, Optional
 
-from slither.analyses.data_flow.smt_solver.types import SMTVariable
+from .tracked_variable import TrackedSMTVariable
 
 
 class State:
     """Represents the state of variables in range analysis using SMT variables."""
 
-    def __init__(self, range_variables: Optional[Mapping[str, SMTVariable]] = None):
+    def __init__(self, range_variables: Optional[Mapping[str, TrackedSMTVariable]] = None):
         if range_variables is None:
             range_variables = {}
-        self.range_variables: Dict[str, SMTVariable] = dict(range_variables)  # Make mutable copy
+        self.range_variables: Dict[str, TrackedSMTVariable] = dict(
+            range_variables
+        )  # Make mutable copy
 
-    def get_range_variable(self, name: str) -> Optional[SMTVariable]:
+    def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
         return self.range_variables.get(name)
 
@@ -19,15 +21,15 @@ class State:
         """Check if an SMT variable exists in the state."""
         return name in self.range_variables
 
-    def get_range_variables(self) -> Dict[str, SMTVariable]:
+    def get_range_variables(self) -> Dict[str, TrackedSMTVariable]:
         """Get all SMT variables in the state."""
         return self.range_variables
 
-    def set_range_variable(self, name: str, smt_variable: SMTVariable) -> None:
+    def set_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Set an SMT variable by name."""
         self.range_variables[name] = smt_variable
 
-    def add_range_variable(self, name: str, smt_variable: SMTVariable) -> None:
+    def add_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Add a new SMT variable to the state."""
         self.range_variables[name] = smt_variable
 
@@ -51,7 +53,7 @@ class State:
         for name, smt_var in self.range_variables.items():
             if name not in other.range_variables:
                 return False
-            # Compare SMTVariables using their __eq__ method
+            # Compare TrackedSMTVariables using their equality method
             if smt_var != other.range_variables[name]:
                 return False
         return True
@@ -59,13 +61,20 @@ class State:
     def __hash__(self) -> int:
         # Hash based on variable names and SMTVariable hashes
         # Sort items for consistent ordering
-        items = sorted((name, hash(smt_var)) for name, smt_var in self.range_variables.items())
+        items = sorted(
+            (name, hash((smt_var.base, smt_var.overflow_flag, smt_var.overflow_amount)))
+            for name, smt_var in self.range_variables.items()
+        )
         return hash(tuple(items))
 
     def deep_copy(self) -> "State":
         """Create a deep copy of the state"""
-        # SMTVariables are immutable, so we can just copy the dict reference
-        # However, we create a new dict to allow independent mutation of the dict itself
-        copied_vars = dict(self.range_variables)
-        new_state = State(copied_vars)
-        return new_state
+        copied_vars = {
+            name: TrackedSMTVariable(
+                base=value.base,
+                overflow_flag=value.overflow_flag,
+                overflow_amount=value.overflow_amount,
+            )
+            for name, value in self.range_variables.items()
+        }
+        return State(copied_vars)
