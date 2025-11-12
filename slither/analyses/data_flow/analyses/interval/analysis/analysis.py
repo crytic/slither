@@ -4,6 +4,10 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.analyses.data_flow.analyses.interval.operations.variables import (
+    handle_variable_declaration,
+)
+from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.analyses.interval.operations.registry import (
     OperationHandlerRegistry,
 )
@@ -71,6 +75,8 @@ class IntervalAnalysis(Analysis):
     ) -> None:
         """Route operation to appropriate handler based on type."""
         if operation is None:
+            if node.variable_declaration:
+                handle_variable_declaration(self._solver, domain, node.variable_declaration)
             return
 
         handler = self._registry.get_handler(operation)

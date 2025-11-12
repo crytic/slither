@@ -11,6 +11,7 @@ from slither.slithir.operations.operation import Operation
 if TYPE_CHECKING:
     from .base import BaseOperationHandler
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
 
 
 class OperationHandlerRegistry:
