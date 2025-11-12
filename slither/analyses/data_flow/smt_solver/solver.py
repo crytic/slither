@@ -175,4 +175,3 @@ class SMTSolver(ABC):
         Useful for debugging or using with other solvers.
         """
         pass
-

@@ -42,7 +42,7 @@ class Forward(Direction):
         global_state: Dict[int, "AnalysisState[A]"],
     ):
         # Apply transfer function to current node
-        for operation in node.irs or [None]:
+        for operation in node.irs_ssa or [None]:
             analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
 
         # Set post state

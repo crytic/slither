@@ -245,9 +245,9 @@ def analyze_function(
                 # Solve for min/max values and display results in a table
                 solver = analysis.solver
                 if solver:
-                    # Collect variable results
+                    # Collect variable results - show ALL variables in post-state
                     variable_results: List[Dict] = []
-                    for var_name, smt_var in post_state_vars.items():
+                    for var_name, smt_var in sorted(post_state_vars.items()):
                         # Skip internal constant variables
                         if var_name.startswith("CONST_"):
                             continue
@@ -268,10 +268,22 @@ def analyze_function(
                                     "max": max_result,
                                 }
                             )
+                        else:
+                            # Even if solving fails, show the variable exists
+                            logger.debug(
+                                "Could not solve range for variable {var_name}",
+                                var_name=var_name,
+                            )
 
                     # Display results in a rich table
                     if variable_results:
                         _display_variable_ranges_table(variable_results)
+                    elif post_state_vars:
+                        # Show that variables exist but couldn't be solved
+                        console.print(
+                            "[yellow]Variables in state but could not solve ranges: "
+                            f"{', '.join(sorted(post_state_vars.keys()))}[/yellow]"
+                        )
 
 
 def main() -> None:

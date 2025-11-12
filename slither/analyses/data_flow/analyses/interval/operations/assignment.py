@@ -3,10 +3,12 @@
 from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
-from slither.analyses.data_flow.smt_solver.types import Sort, SortKind, SMTVariable, SMTTerm
-from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
+from slither.analyses.data_flow.smt_solver.types import SMTVariable, SMTTerm
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
+
+from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
@@ -33,97 +35,96 @@ class AssignmentHandler(BaseOperationHandler):
         if operation is None or self.solver is None:
             return
 
+        self.logger.debug(f"Handling assignment operation: {operation}")
+
         lvalue = operation.lvalue
         rvalue = operation.rvalue
 
         # Get variable name for lvalue
         lvalue_name = self._get_variable_name(lvalue)
+        self._logger.debug(f"Lvalue name: {lvalue_name}")
         if lvalue_name is None:
             return
 
-        # Get or create SMT variable for lvalue
-        lvalue_smt_var = self._get_or_create_smt_variable(
-            lvalue_name, operation.variable_return_type, domain
+        # Determine the best type information available for the lvalue
+        lvalue_type = self._resolve_elementary_type(
+            operation.variable_return_type, getattr(lvalue, "type", None)
         )
-        if lvalue_smt_var is None:
+        if lvalue_type is None:
+            self.logger.debug("Unsupported lvalue type for assignment; skipping interval update.")
             return
+
+        # Fetch or create SMT variable for lvalue
+        lvalue_smt_var = IntervalSMTUtils.get_smt_variable(domain, lvalue_name)
+        if lvalue_smt_var is None:
+            lvalue_smt_var = self._create_smt_variable(lvalue_name, lvalue_type)
+            if lvalue_smt_var is None:
+                return
+            domain.state.set_range_variable(lvalue_name, lvalue_smt_var)
 
         # Handle rvalue: constant or variable
         if isinstance(rvalue, Constant):
             # Handle constant assignment
+            self.logger.debug(f"Handling constant assignment: {rvalue}")
             self._handle_constant_assignment(lvalue_smt_var, rvalue)
         else:
             # Handle variable assignment
             rvalue_name = self._get_variable_name(rvalue)
             if rvalue_name is not None:
-                rvalue_smt_var = self._get_or_create_smt_variable(rvalue_name, rvalue.type, domain)
-                if rvalue_smt_var is not None:
-                    # Add constraint: lvalue == rvalue
-                    # Use the term property which supports operator overloading
-                    constraint: SMTTerm = lvalue_smt_var.term == rvalue_smt_var.term
-                    self.solver.assert_constraint(constraint)
+                if not self._handle_variable_assignment(
+                    lvalue_smt_var, rvalue, rvalue_name, domain
+                ):
+                    return  # Unsupported rvalue type; skip update
 
         # Update domain state
+        self.logger.debug(f"Setting range variable {lvalue_name} to {lvalue_smt_var}")
         domain.state.set_range_variable(lvalue_name, lvalue_smt_var)
 
     def _get_variable_name(self, var: Union[object, Constant]) -> Optional[str]:
         """Extract variable name from SlitherIR variable."""
-        if hasattr(var, "name") and var.name:
-            return var.name
-        if hasattr(var, "ssa_name") and var.ssa_name:
-            return var.ssa_name
+        return IntervalSMTUtils.resolve_variable_name(var)
+
+    def _resolve_elementary_type(
+        self, primary: Optional[object], fallback: Optional[object] = None
+    ) -> Optional[ElementaryType]:
+        """Return the first available ElementaryType from the provided candidates."""
+        for candidate in (primary, fallback):
+            if isinstance(candidate, ElementaryType):
+                return candidate
+            if candidate is not None and hasattr(candidate, "type"):
+                nested_type = getattr(candidate, "type")
+                if isinstance(nested_type, ElementaryType):
+                    return nested_type
         return None
 
-    def _get_or_create_smt_variable(
-        self, var_name: str, var_type: object, domain: "IntervalDomain"
-    ) -> Optional[SMTVariable]:
-        """Get existing SMT variable from domain or create a new one."""
-        # Check if variable already exists in domain
-        existing_var = domain.state.get_range_variable(var_name)
-        if existing_var is not None:
-            return existing_var
+    def _handle_variable_assignment(
+        self,
+        lvalue_smt_var: SMTVariable,
+        rvalue: object,
+        rvalue_name: str,
+        domain: "IntervalDomain",
+    ) -> bool:
+        """Process assignment from another variable; return False if unsupported."""
+        rvalue_type = self._resolve_elementary_type(getattr(rvalue, "type", None))
+        if rvalue_type is None:
+            self.logger.debug("Unsupported rvalue type for assignment; skipping interval update.")
+            return False
 
-        # Create new SMT variable
-        sort = self._solidity_type_to_smt_sort(var_type)
-        if sort is None:
-            return None
+        rvalue_smt_var = IntervalSMTUtils.get_smt_variable(domain, rvalue_name)
+        if rvalue_smt_var is None:
+            rvalue_smt_var = self._create_smt_variable(rvalue_name, rvalue_type)
+            if rvalue_smt_var is None:
+                return False
+            domain.state.set_range_variable(rvalue_name, rvalue_smt_var)
 
-        if self.solver is None:
-            return None
+        if rvalue_smt_var is None:
+            return False
 
-        smt_var = self.solver.declare_const(var_name, sort)
-        return smt_var
-
-    def _solidity_type_to_smt_sort(self, solidity_type: object) -> Optional[Sort]:
-        """Convert Solidity type to SMT sort."""
-        if not isinstance(solidity_type, ElementaryType):
-            return None
-
-        type_str = str(solidity_type.type)
-
-        # Handle uint types
-        if type_str in Uint:
-            # Extract bit width (default to 256)
-            if type_str == "uint":
-                width = 256
-            else:
-                width = int(type_str.replace("uint", ""))
-            return Sort(kind=SortKind.BITVEC, parameters=[width])
-
-        # Handle int types
-        if type_str in Int:
-            # Extract bit width (default to 256)
-            if type_str == "int":
-                width = 256
-            else:
-                width = int(type_str.replace("int", ""))
-            return Sort(kind=SortKind.BITVEC, parameters=[width])
-
-        # Handle bool
-        if type_str == "bool":
-            return Sort(kind=SortKind.BOOL)
-
-        return None
+        # Add constraint: lvalue == rvalue
+        # Use the term property which supports operator overloading
+        constraint: SMTTerm = lvalue_smt_var.term == rvalue_smt_var.term
+        self.solver.assert_constraint(constraint)
+        return True
 
     def _handle_constant_assignment(self, lvalue_smt_var: SMTVariable, constant: Constant) -> None:
         """Handle assignment from a constant value."""
@@ -142,3 +143,19 @@ class AssignmentHandler(BaseOperationHandler):
         # Use the term property which supports operator overloading
         constraint: SMTTerm = lvalue_smt_var.term == const_term
         self.solver.assert_constraint(constraint)
+
+    def _create_smt_variable(
+        self, var_name: str, var_type: ElementaryType
+    ) -> Optional[SMTVariable]:
+        """Create a new SMT variable using the shared utilities with logging."""
+        if self.solver is None:
+            return None
+
+        smt_var = IntervalSMTUtils.create_smt_variable(self.solver, var_name, var_type)
+        if smt_var is None:
+            self.logger.error(
+                "Unsupported elementary type '%s' for variable '%s'; skipping interval update.",
+                getattr(var_type, "type", var_type),
+                var_name,
+            )
+        return smt_var
