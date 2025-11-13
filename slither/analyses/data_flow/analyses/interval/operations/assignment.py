@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
-from slither.analyses.data_flow.smt_solver.types import SMTTerm
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
@@ -55,6 +55,8 @@ class AssignmentHandler(BaseOperationHandler):
             self.logger.debug("Unsupported lvalue type for assignment; skipping interval update.")
             return
 
+        is_checked = bool(getattr(getattr(node, "scope", None), "is_checked", False))
+
         # Fetch or create SMT variable for lvalue
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
@@ -63,16 +65,21 @@ class AssignmentHandler(BaseOperationHandler):
                 return
             domain.state.set_range_variable(lvalue_name, lvalue_var)
 
+        if is_checked:
+            self._enforce_type_bounds(lvalue_var, lvalue_type)
+
         # Handle rvalue: constant or variable
         if isinstance(rvalue, Constant):
             # Handle constant assignment
             self.logger.debug(f"Handling constant assignment: {rvalue}")
-            self._handle_constant_assignment(lvalue_var, rvalue)
+            self._handle_constant_assignment(lvalue_var, rvalue, is_checked, lvalue_type)
         else:
             # Handle variable assignment
             rvalue_name = self._get_variable_name(rvalue)
             if rvalue_name is not None:
-                if not self._handle_variable_assignment(lvalue_var, rvalue, rvalue_name, domain):
+                if not self._handle_variable_assignment(
+                    lvalue_var, rvalue, rvalue_name, domain, is_checked, lvalue_type
+                ):
                     return  # Unsupported rvalue type; skip update
 
         # Update domain state
@@ -89,12 +96,18 @@ class AssignmentHandler(BaseOperationHandler):
         rvalue: object,
         rvalue_name: str,
         domain: "IntervalDomain",
+        is_checked: bool,
+        fallback_type: Optional[ElementaryType],
     ) -> bool:
         """Process assignment from another variable; return False if unsupported."""
         rvalue_type = IntervalSMTUtils.resolve_elementary_type(getattr(rvalue, "type", None))
         if rvalue_type is None:
-            self.logger.debug("Unsupported rvalue type for assignment; skipping interval update.")
-            return False
+            rvalue_type = fallback_type
+            if rvalue_type is None:
+                self.logger.debug(
+                    "Unsupported rvalue type for assignment; skipping interval update."
+                )
+                return False
 
         rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
         if rvalue_var is None:
@@ -109,12 +122,21 @@ class AssignmentHandler(BaseOperationHandler):
 
         if self._is_temporary_name(rvalue_name):
             lvalue_var.copy_overflow_from(self.solver, rvalue_var)
+            if is_checked:
+                rvalue_var.assert_no_overflow(self.solver)
         else:
             lvalue_var.assert_no_overflow(self.solver)
+
+        if is_checked and fallback_type is not None:
+            self._enforce_type_bounds(lvalue_var, fallback_type)
         return True
 
     def _handle_constant_assignment(
-        self, lvalue_var: TrackedSMTVariable, constant: Constant
+        self,
+        lvalue_var: TrackedSMTVariable,
+        constant: Constant,
+        is_checked: bool,
+        var_type: ElementaryType,
     ) -> None:
         """Handle assignment from a constant value."""
         if self.solver is None:
@@ -135,6 +157,9 @@ class AssignmentHandler(BaseOperationHandler):
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
 
+        if is_checked:
+            self._enforce_type_bounds(lvalue_var, var_type)
+
     def _create_tracked_variable(
         self, var_name: str, var_type: ElementaryType
     ) -> Optional[TrackedSMTVariable]:
@@ -152,6 +177,18 @@ class AssignmentHandler(BaseOperationHandler):
             return None
 
         return tracked_var
+
+    def _enforce_type_bounds(
+        self, tracked_var: TrackedSMTVariable, var_type: ElementaryType
+    ) -> None:
+        bounds = IntervalSMTUtils.type_bounds(var_type)
+        if bounds is None:
+            return
+        min_val, max_val = bounds
+        int_sort = Sort(kind=SortKind.INT)
+        int_term = self.solver.bitvector_to_int(tracked_var.term)
+        self.solver.assert_constraint(int_term >= self.solver.create_constant(min_val, int_sort))
+        self.solver.assert_constraint(int_term <= self.solver.create_constant(max_val, int_sort))
 
     @staticmethod
     def _is_temporary_name(name: str) -> bool:

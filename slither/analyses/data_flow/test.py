@@ -32,135 +32,98 @@ def solve_variable_range(
     from z3 import BitVecRef, BV2Int, is_true
 
     term = smt_var.term
-
     if not isinstance(term, BitVecRef):
         return None, None
 
-    # Get bit width
-    width = smt_var.sort.parameters[0]
-    modulus = 1 << width
-
-    # Solve for minimum
-    min_result: Optional[Dict] = None
-    try:
-        # Push current state to preserve constraints
-        solver.push()
-        # Minimize the variable
-        solver.minimize(BV2Int(term))
-        # Check satisfiability
-        if solver.check_sat() == CheckSatResult.SAT:
+    def _optimize_range(maximize: bool) -> Optional[Dict]:
+        try:
+            solver.push()
+            objective = BV2Int(term)
+            if maximize:
+                solver.maximize(objective)
+            else:
+                solver.minimize(objective)
+            if solver.check_sat() != CheckSatResult.SAT:
+                return None
             model = solver.get_model()
-            if model and smt_var.name in model:
-                value_term = model[smt_var.name]
-                # Extract integer value from Z3 term
-                if hasattr(value_term, "as_long"):
-                    wrapped_value = value_term.as_long()
-                elif hasattr(value_term, "as_string"):
-                    # Try to parse string representation
-                    try:
-                        wrapped_value = int(value_term.as_string())
-                    except (ValueError, AttributeError):
-                        wrapped_value = 0
-                else:
+            if not model or smt_var.name not in model:
+                return None
+            value_term = model[smt_var.name]
+            if hasattr(value_term, "as_long"):
+                wrapped_value = value_term.as_long()
+            elif hasattr(value_term, "as_string"):
+                try:
+                    wrapped_value = int(value_term.as_string())
+                except (ValueError, AttributeError):
                     wrapped_value = 0
+            else:
+                wrapped_value = 0
 
-                # Check overflow flag and amount if they exist
-                overflow = False
-                overflow_amount = 0
-                overflow_flag_name = smt_var.overflow_flag.name
-                overflow_amount_name = smt_var.overflow_amount.name
+            overflow = False
+            overflow_amount = 0
+            if smt_var.overflow_flag.name in model:
+                overflow = is_true(model[smt_var.overflow_flag.name])
+            if smt_var.overflow_amount.name in model:
+                amount_term = model[smt_var.overflow_amount.name]
+                if hasattr(amount_term, "as_long"):
+                    overflow_amount = amount_term.as_long()
+                elif hasattr(amount_term, "as_string"):
+                    try:
+                        overflow_amount = int(amount_term.as_string())
+                    except (ValueError, AttributeError):
+                        overflow_amount = 0
 
-                if model and overflow_flag_name in model:
-                    overflow_flag = model[overflow_flag_name]
-                    overflow = is_true(overflow_flag)
+            return {
+                "value": wrapped_value,
+                "overflow": overflow,
+                "overflow_amount": overflow_amount,
+            }
+        finally:
+            solver.pop()
 
-                if model and overflow_amount_name in model:
-                    amount_term = model[overflow_amount_name]
-                    if hasattr(amount_term, "as_long"):
-                        overflow_amount = amount_term.as_long()
-                    elif hasattr(amount_term, "as_string"):
-                        try:
-                            overflow_amount = int(amount_term.as_string())
-                        except (ValueError, AttributeError):
-                            overflow_amount = 0
+    min_result = _optimize_range(maximize=False)
+    max_result = _optimize_range(maximize=True)
 
-                min_result = {
-                    "value": wrapped_value,
-                    "overflow": overflow,
-                    "overflow_amount": overflow_amount,
-                }
-        # Pop state to restore original constraints
-        solver.pop()
-    except Exception as e:
-        # Ensure we pop even on error
-        if hasattr(solver, "pop"):
-            try:
-                solver.pop()
-            except Exception:
-                pass
-        # Log error if needed
-        pass
-
-    # Solve for maximum
-    max_result: Optional[Dict] = None
-    try:
-        # Push current state to preserve constraints
-        solver.push()
-        # Maximize the variable
-        solver.maximize(BV2Int(term))
-        # Check satisfiability
-        if solver.check_sat() == CheckSatResult.SAT:
+    def _optimize_overflow_amount(maximize: bool) -> Optional[int]:
+        try:
+            solver.push()
+            solver.assert_constraint(smt_var.overflow_flag.term)
+            if maximize:
+                solver.maximize(smt_var.overflow_amount.term)
+            else:
+                solver.minimize(smt_var.overflow_amount.term)
+            if solver.check_sat() != CheckSatResult.SAT:
+                return None
             model = solver.get_model()
-            if model and smt_var.name in model:
-                value_term = model[smt_var.name]
-                # Extract integer value from Z3 term
-                if hasattr(value_term, "as_long"):
-                    wrapped_value = value_term.as_long()
-                elif hasattr(value_term, "as_string"):
-                    # Try to parse string representation
-                    try:
-                        wrapped_value = int(value_term.as_string())
-                    except (ValueError, AttributeError):
-                        wrapped_value = 0
-                else:
-                    wrapped_value = 0
+            if not model or smt_var.overflow_amount.name not in model:
+                return None
+            amount_term = model[smt_var.overflow_amount.name]
+            if hasattr(amount_term, "as_long"):
+                return amount_term.as_long()
+            if hasattr(amount_term, "as_string"):
+                try:
+                    return int(amount_term.as_string())
+                except (ValueError, AttributeError):
+                    return None
+            return None
+        finally:
+            solver.pop()
 
-                # Check overflow flag and amount if they exist
-                overflow = False
-                overflow_amount = 0
-                overflow_flag_name = smt_var.overflow_flag.name
-                overflow_amount_name = smt_var.overflow_amount.name
+    overflow_min_amount = _optimize_overflow_amount(maximize=False)
+    overflow_max_amount = _optimize_overflow_amount(maximize=True)
+    overflow_possible = overflow_min_amount is not None or overflow_max_amount is not None
 
-                if model and overflow_flag_name in model:
-                    overflow_flag = model[overflow_flag_name]
-                    overflow = is_true(overflow_flag)
-
-                if model and overflow_amount_name in model:
-                    amount_term = model[overflow_amount_name]
-                    if hasattr(amount_term, "as_long"):
-                        overflow_amount = amount_term.as_long()
-                    elif hasattr(amount_term, "as_string"):
-                        try:
-                            overflow_amount = int(amount_term.as_string())
-                        except (ValueError, AttributeError):
-                            overflow_amount = 0
-
-                max_result = {
-                    "value": wrapped_value,
-                    "overflow": overflow,
-                    "overflow_amount": overflow_amount,
-                }
-        # Pop state to restore original constraints
-        solver.pop()
-    except Exception as e:
-        # Ensure we pop even on error
-        if hasattr(solver, "pop"):
-            try:
-                solver.pop()
-            except Exception:
-                pass
-        # Log error if needed
-        pass
+    if overflow_possible:
+        if min_result:
+            min_result["overflow"] = True
+            min_result["overflow_amount"] = (
+                overflow_min_amount if overflow_min_amount is not None else 0
+            )
+        if max_result:
+            max_result["overflow"] = True
+            max_result["overflow_amount"] = (
+                overflow_max_amount if overflow_max_amount is not None else 0
+            )
 
     return min_result, max_result
 
@@ -333,11 +296,11 @@ def main() -> None:
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
 
     # Initialize logger
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="DEBUG")
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="INFO")
     logger.info(LogMessages.ENGINE_START)
 
     # Load the Solidity contract
-    contract_path: str = "../contracts/src/Assignment.sol"
+    contract_path: str = "../contracts/src/Math.sol"
     logger.info("Loading contract from: {path}", path=contract_path)
     slither: Slither = Slither(contract_path)
 

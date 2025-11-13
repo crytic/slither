@@ -34,3 +34,11 @@ def handle_variable_declaration(
 
     tracked_var.assert_no_overflow(solver)
     domain.state.set_range_variable(var_name, tracked_var)
+    bounds = IntervalSMTUtils.type_bounds(var_type)
+    if bounds is not None:
+        int_sort = tracked_var.overflow_amount.sort
+        int_term = solver.bitvector_to_int(tracked_var.term)
+        min_const = solver.create_constant(bounds[0], int_sort)
+        max_const = solver.create_constant(bounds[1], int_sort)
+        solver.assert_constraint(int_term >= min_const)
+        solver.assert_constraint(int_term <= max_const)

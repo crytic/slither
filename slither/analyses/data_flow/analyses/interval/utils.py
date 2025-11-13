@@ -83,3 +83,29 @@ class IntervalSMTUtils:
             return Sort(kind=SortKind.BOOL)
 
         return None
+
+    @staticmethod
+    def type_bounds(solidity_type: ElementaryType) -> Optional[tuple[int, int]]:
+        """Return the (min, max) bounds for the given Solidity elementary type."""
+        type_str = solidity_type.type
+
+        if type_str in Uint:
+            if type_str == "uint":
+                width = 256
+            else:
+                width = int(type_str.replace("uint", ""))
+            return 0, (1 << width) - 1
+
+        if type_str in Int:
+            if type_str == "int":
+                width = 256
+            else:
+                width = int(type_str.replace("int", ""))
+            min_val = -(1 << (width - 1))
+            max_val = (1 << (width - 1)) - 1
+            return min_val, max_val
+
+        if type_str == "bool":
+            return 0, 1
+
+        return None
