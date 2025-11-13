@@ -21,7 +21,6 @@ setup(
         "eth-abi>=5.0.1",
         "eth-typing>=5.0.0",
         "eth-utils>=5.0.0",
-        "typing_extensions>=4.0.0",
     ],
     extras_require={
         "lint": [
