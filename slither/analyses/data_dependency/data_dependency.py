@@ -1,5 +1,5 @@
 """
-    Compute the data depenency between all the SSA variables
+    Compute the data dependency between all the SSA variables
 """
 from collections import defaultdict
 from typing import Union, Set, Dict, TYPE_CHECKING, List
