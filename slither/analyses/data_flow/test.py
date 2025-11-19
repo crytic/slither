@@ -26,104 +26,190 @@ def solve_variable_range(
     """
     Solve for minimum and maximum values of a variable.
 
+    Strategy: Create fresh optimizer instances for each query to avoid
+    conflicts between multiple objectives.
+
     Returns:
         Tuple of (min_result, max_result) dictionaries with 'value' and 'overflow' keys
     """
-    from z3 import BitVecRef, BV2Int, is_true
+    from z3 import BitVecRef, BitVecVal, Concat, Extract, Optimize, is_true, sat
 
     term = smt_var.term
     if not isinstance(term, BitVecRef):
+        console.print(f"[yellow]Warning: {smt_var.name} is not a bitvector[/yellow]")
         return None, None
 
-    def _optimize_range(maximize: bool) -> Optional[Dict]:
-        try:
-            solver.push()
-            objective = BV2Int(term)
-            if maximize:
-                solver.maximize(objective)
-            else:
-                solver.minimize(objective)
-            if solver.check_sat() != CheckSatResult.SAT:
-                return None
-            model = solver.get_model()
-            if not model or smt_var.name not in model:
-                return None
-            value_term = model[smt_var.name]
-            if hasattr(value_term, "as_long"):
-                wrapped_value = value_term.as_long()
-            elif hasattr(value_term, "as_string"):
-                try:
-                    wrapped_value = int(value_term.as_string())
-                except (ValueError, AttributeError):
-                    wrapped_value = 0
-            else:
-                wrapped_value = 0
+    metadata = getattr(smt_var.base, "metadata", {})
+    is_signed = bool(metadata.get("is_signed", False))
+    bit_width = metadata.get("bit_width")
+    sort_parameters = getattr(smt_var.sort, "parameters", None)
+    if bit_width is None and sort_parameters:
+        bit_width = sort_parameters[0]
 
+    console.print(
+        f"\n[cyan]Solving range for {smt_var.name} (signed={is_signed}, width={bit_width})[/cyan]"
+    )
+
+    def _apply_signed_value(raw_value: int) -> int:
+        if not is_signed or not isinstance(bit_width, int):
+            return raw_value
+        modulus = 1 << bit_width
+        half_range = 1 << (bit_width - 1)
+        return raw_value - modulus if raw_value >= half_range else raw_value
+
+    def _create_fresh_optimizer():
+        """Create a new optimizer with all current constraints."""
+        opt = Optimize()
+
+        # Copy all constraints from the original solver
+        if hasattr(solver, "solver"):
+            z3_solver = solver.solver
+            assertions = z3_solver.assertions()
+            console.print(f"[dim]Copying {len(assertions)} constraints to optimizer[/dim]")
+
+            # Debug: Print first few assertions
+            for i, assertion in enumerate(assertions[:5]):
+                console.print(f"[dim]  Constraint {i}: {assertion}[/dim]")
+            if len(assertions) > 5:
+                console.print(f"[dim]  ... and {len(assertions) - 5} more[/dim]")
+
+            for assertion in assertions:
+                opt.add(assertion)
+        else:
+            console.print("[yellow]Warning: Could not access solver assertions[/yellow]")
+            return None
+
+        return opt
+
+    def _optimize_range(maximize: bool) -> Optional[Dict]:
+        """Solve for min or max value using a fresh optimizer."""
+        try:
+            console.print(f"[dim]Creating optimizer for {'max' if maximize else 'min'}...[/dim]")
+            opt = _create_fresh_optimizer()
+            if opt is None:
+                return None
+
+            width = bit_width if isinstance(bit_width, int) else term.size()
+            if not isinstance(width, int) or width <= 0:
+                console.print("[red]Unknown bit-width; cannot optimize[/red]")
+                return None
+
+            if is_signed:
+                sign_bit = Extract(width - 1, width - 1, term)
+                flipped_sign = BitVecVal(1, 1) - sign_bit
+                if width == 1:
+                    objective = flipped_sign
+                else:
+                    other_bits = Extract(width - 2, 0, term)
+                    objective = Concat(flipped_sign, other_bits)
+            else:
+                objective = term
+
+            console.print(
+                f"[dim]Adding objective: {'maximize' if maximize else 'minimize'} {objective}[/dim]"
+            )
+
+            if maximize:
+                opt.maximize(objective)
+            else:
+                opt.minimize(objective)
+
+            # Check satisfiability
+            console.print(f"[dim]Checking satisfiability...[/dim]")
+            result = opt.check()
+            console.print(f"[dim]Result: {result}[/dim]")
+
+            if result != sat:
+                console.print(f"[red]Optimization returned {result}[/red]")
+                return None
+
+            # Get the model
+            z3_model = opt.model()
+            if z3_model is None:
+                console.print("[red]Model is None[/red]")
+                return None
+
+            # Evaluate the term
+            value_term = z3_model.eval(term, model_completion=True)
+            console.print(f"[dim]Evaluated term: {value_term}[/dim]")
+
+            if hasattr(value_term, "as_long"):
+                raw_value = value_term.as_long()
+            else:
+                console.print("[red]Cannot convert value to long[/red]")
+                return None
+
+            wrapped_value = _apply_signed_value(raw_value)
+            console.print(f"[green]{'Max' if maximize else 'Min'} value: {wrapped_value}[/green]")
+
+            # Check overflow flag
             overflow = False
+            try:
+                flag_term = z3_model.eval(smt_var.overflow_flag.term, model_completion=True)
+                overflow = is_true(flag_term)
+                console.print(f"[dim]Overflow flag: {overflow}[/dim]")
+            except Exception as e:
+                console.print(f"[yellow]Could not evaluate overflow flag: {e}[/yellow]")
+
+            # Check overflow amount
             overflow_amount = 0
-            if smt_var.overflow_flag.name in model:
-                overflow = is_true(model[smt_var.overflow_flag.name])
-            if smt_var.overflow_amount.name in model:
-                amount_term = model[smt_var.overflow_amount.name]
+            try:
+                amount_term = z3_model.eval(smt_var.overflow_amount.term, model_completion=True)
                 if hasattr(amount_term, "as_long"):
                     overflow_amount = amount_term.as_long()
-                elif hasattr(amount_term, "as_string"):
-                    try:
-                        overflow_amount = int(amount_term.as_string())
-                    except (ValueError, AttributeError):
-                        overflow_amount = 0
+                console.print(f"[dim]Overflow amount: {overflow_amount}[/dim]")
+            except Exception as e:
+                console.print(f"[yellow]Could not evaluate overflow amount: {e}[/yellow]")
 
             return {
                 "value": wrapped_value,
                 "overflow": overflow,
                 "overflow_amount": overflow_amount,
             }
-        finally:
-            solver.pop()
+        except Exception as e:
+            console.print(f"[red]Error in _optimize_range: {e}[/red]")
+            import traceback
 
-    min_result = _optimize_range(maximize=False)
-    max_result = _optimize_range(maximize=True)
-
-    def _optimize_overflow_amount(maximize: bool) -> Optional[int]:
-        try:
-            solver.push()
-            solver.assert_constraint(smt_var.overflow_flag.term)
-            if maximize:
-                solver.maximize(smt_var.overflow_amount.term)
-            else:
-                solver.minimize(smt_var.overflow_amount.term)
-            if solver.check_sat() != CheckSatResult.SAT:
-                return None
-            model = solver.get_model()
-            if not model or smt_var.overflow_amount.name not in model:
-                return None
-            amount_term = model[smt_var.overflow_amount.name]
-            if hasattr(amount_term, "as_long"):
-                return amount_term.as_long()
-            if hasattr(amount_term, "as_string"):
-                try:
-                    return int(amount_term.as_string())
-                except (ValueError, AttributeError):
-                    return None
+            traceback.print_exc()
             return None
-        finally:
-            solver.pop()
 
-    overflow_min_amount = _optimize_overflow_amount(maximize=False)
-    overflow_max_amount = _optimize_overflow_amount(maximize=True)
-    overflow_possible = overflow_min_amount is not None or overflow_max_amount is not None
+    # First check if base constraints are satisfiable
+    console.print("[dim]Checking if base constraints are satisfiable...[/dim]")
 
-    if overflow_possible:
-        if min_result:
-            min_result["overflow"] = True
-            min_result["overflow_amount"] = (
-                overflow_min_amount if overflow_min_amount is not None else 0
-            )
-        if max_result:
-            max_result["overflow"] = True
-            max_result["overflow_amount"] = (
-                overflow_max_amount if overflow_max_amount is not None else 0
-            )
+    # Print all constraints
+    if hasattr(solver, "solver"):
+        z3_solver = solver.solver
+        assertions = z3_solver.assertions()
+        console.print(f"[yellow]Total constraints in solver: {len(assertions)}[/yellow]")
+        console.print("[yellow]All constraints:[/yellow]")
+        for i, assertion in enumerate(assertions):
+            console.print(f"[yellow]  {i}: {assertion}[/yellow]")
+
+    try:
+        base_result = solver.check_sat()
+        console.print(f"[dim]Base constraints: {base_result}[/dim]")
+        if base_result != CheckSatResult.SAT:
+            console.print(f"[red]Base constraints are {base_result}![/red]")
+
+            # Try to get unsat core if available
+            if hasattr(solver, "solver") and hasattr(solver.solver, "unsat_core"):
+                try:
+                    core = solver.solver.unsat_core()
+                    console.print(f"[red]UNSAT core ({len(core)} constraints):[/red]")
+                    for constraint in core:
+                        console.print(f"[red]  - {constraint}[/red]")
+                except Exception as e:
+                    console.print(f"[yellow]Could not get unsat core: {e}[/yellow]")
+
+            return None, None
+    except Exception as e:
+        console.print(f"[red]Error checking base satisfiability: {e}[/red]")
+
+    # Solve for minimum
+    min_result = _optimize_range(maximize=False)
+
+    # Solve for maximum
+    max_result = _optimize_range(maximize=True)
 
     return min_result, max_result
 
@@ -262,6 +348,7 @@ def analyze_function(
                             continue
 
                         # Solve for min and max
+                        console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
                         min_result, max_result = solve_variable_range(solver, smt_var)
 
                         if min_result and max_result:
@@ -300,7 +387,7 @@ def main() -> None:
     logger.info(LogMessages.ENGINE_START)
 
     # Load the Solidity contract
-    contract_path: str = "../contracts/src/Math.sol"
+    contract_path: str = "../contracts/src/Assignment.sol"
     logger.info("Loading contract from: {path}", path=contract_path)
     slither: Slither = Slither(contract_path)
 
@@ -319,13 +406,9 @@ def main() -> None:
 
     logger.info("Found {count} contract(s)", count=len(contracts))
 
-    # Create Z3 solver with optimizer for min/max queries
+    # We instantiate a fresh solver per function to avoid leaking constraints
     from slither.analyses.data_flow.smt_solver import Z3Solver
 
-    solver = Z3Solver(use_optimizer=True)
-
-    # Create interval analysis with the solver (reuse for all functions)
-    analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
     logger.info(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
 
     # Analyze all contracts and functions
@@ -355,6 +438,9 @@ def main() -> None:
         # Analyze each function
         for function in implemented_functions:
             try:
+                # Fresh solver/analysis for every function execution
+                solver = Z3Solver(use_optimizer=False)
+                analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
                 analyze_function(function, analysis, logger, LogMessages)
             except Exception as e:
                 logger.exception(

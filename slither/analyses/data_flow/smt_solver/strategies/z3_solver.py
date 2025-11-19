@@ -149,6 +149,16 @@ class Z3Solver(SMTSolver):
     def bitvector_to_int(self, term: SMTTerm) -> SMTTerm:
         return BV2Int(term)
 
+    def bitvector_to_signed_int(self, term: SMTTerm) -> SMTTerm:
+        if not self.is_bitvector(term):
+            raise TypeError("bitvector_to_signed_int expects a bitvector term")
+
+        width = term.size()
+        unsigned = BV2Int(term)
+        modulus = 1 << width
+        half_range = 1 << (width - 1)
+        return If(unsigned >= half_range, unsigned - modulus, unsigned)
+
     def make_ite(self, condition: SMTTerm, then_term: SMTTerm, else_term: SMTTerm) -> SMTTerm:
         return If(condition, then_term, else_term)
 

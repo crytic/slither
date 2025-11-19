@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.smt_solver.types import SMTTerm
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
@@ -65,9 +65,6 @@ class AssignmentHandler(BaseOperationHandler):
                 return
             domain.state.set_range_variable(lvalue_name, lvalue_var)
 
-        if is_checked:
-            self._enforce_type_bounds(lvalue_var, lvalue_type)
-
         # Handle rvalue: constant or variable
         if isinstance(rvalue, Constant):
             # Handle constant assignment
@@ -120,15 +117,20 @@ class AssignmentHandler(BaseOperationHandler):
         constraint: SMTTerm = lvalue_var.term == rvalue_var.term
         self.solver.assert_constraint(constraint)
 
+        # Handle overflow propagation
         if self._is_temporary_name(rvalue_name):
+            # Temporary from an operation - copy its overflow status
             lvalue_var.copy_overflow_from(self.solver, rvalue_var)
+            # In checked mode, operations must not overflow
             if is_checked:
-                rvalue_var.assert_no_overflow(self.solver)
+                # Assert that the operation didn't overflow
+                # This makes the solver UNSAT if overflow occurred
+                lvalue_var.assert_no_overflow(self.solver)
         else:
+            # Regular variable-to-variable assignment
+            # The assignment itself doesn't cause overflow
             lvalue_var.assert_no_overflow(self.solver)
 
-        if is_checked and fallback_type is not None:
-            self._enforce_type_bounds(lvalue_var, fallback_type)
         return True
 
     def _handle_constant_assignment(
@@ -157,9 +159,6 @@ class AssignmentHandler(BaseOperationHandler):
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
 
-        if is_checked:
-            self._enforce_type_bounds(lvalue_var, var_type)
-
     def _create_tracked_variable(
         self, var_name: str, var_type: ElementaryType
     ) -> Optional[TrackedSMTVariable]:
@@ -177,18 +176,6 @@ class AssignmentHandler(BaseOperationHandler):
             return None
 
         return tracked_var
-
-    def _enforce_type_bounds(
-        self, tracked_var: TrackedSMTVariable, var_type: ElementaryType
-    ) -> None:
-        bounds = IntervalSMTUtils.type_bounds(var_type)
-        if bounds is None:
-            return
-        min_val, max_val = bounds
-        int_sort = Sort(kind=SortKind.INT)
-        int_term = self.solver.bitvector_to_int(tracked_var.term)
-        self.solver.assert_constraint(int_term >= self.solver.create_constant(min_val, int_sort))
-        self.solver.assert_constraint(int_term <= self.solver.create_constant(max_val, int_sort))
 
     @staticmethod
     def _is_temporary_name(name: str) -> bool:

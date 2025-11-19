@@ -15,7 +15,11 @@ def handle_variable_declaration(
     domain: "IntervalDomain",
     variable,
 ) -> None:
-    """Create a tracked SMT variable for a newly declared Solidity variable."""
+    """Create a tracked SMT variable for a newly declared Solidity variable.
+
+    At declaration, we only create the variable - we don't constrain its value.
+    The solver will find all possible values that satisfy later constraints.
+    """
     var_name = IntervalSMTUtils.resolve_variable_name(variable)
     if var_name is None:
         return
@@ -31,14 +35,11 @@ def handle_variable_declaration(
     tracked_var = IntervalSMTUtils.create_tracked_variable(solver, var_name, var_type)
     if tracked_var is None:
         return
-
-    tracked_var.assert_no_overflow(solver)
     domain.state.set_range_variable(var_name, tracked_var)
-    bounds = IntervalSMTUtils.type_bounds(var_type)
-    if bounds is not None:
-        int_sort = tracked_var.overflow_amount.sort
-        int_term = solver.bitvector_to_int(tracked_var.term)
-        min_const = solver.create_constant(bounds[0], int_sort)
-        max_const = solver.create_constant(bounds[1], int_sort)
-        solver.assert_constraint(int_term >= min_const)
-        solver.assert_constraint(int_term <= max_const)
+
+    # Declarations start with no overflow condition
+    tracked_var.assert_no_overflow(solver)
+
+    # KEY FIX: Don't constrain the variable's value range here
+    # Let the solver find any value that satisfies the constraints
+    # The bitvector's bit-width already limits the range implicitly

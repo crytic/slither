@@ -20,6 +20,11 @@ class IntervalSMTUtils:
     """Helper methods for interacting with SMT variables in interval analysis."""
 
     @staticmethod
+    def is_signed_type(solidity_type: ElementaryType) -> bool:
+        """Return True if the solidity type is a signed integer."""
+        return solidity_type.type in Int
+
+    @staticmethod
     def resolve_variable_name(var: Union[Variable, SlithIRVariable, Constant]) -> Optional[str]:
         """Build a stable name combining canonical/name with SSA identifier."""
         canonical = getattr(var, "canonical_name", None)
@@ -64,7 +69,19 @@ class IntervalSMTUtils:
         sort = IntervalSMTUtils.solidity_type_to_smt_sort(solidity_type)
         if sort is None:
             return None
-        return TrackedSMTVariable.create(solver, name, sort)
+        tracked = TrackedSMTVariable.create(solver, name, sort)
+        IntervalSMTUtils._annotate_tracked_variable(tracked, solidity_type, sort)
+        return tracked
+
+    @staticmethod
+    def _annotate_tracked_variable(
+        tracked: TrackedSMTVariable, solidity_type: ElementaryType, sort: Sort
+    ) -> None:
+        """Store useful metadata about the tracked variable."""
+        tracked.base.metadata["solidity_type"] = solidity_type.type
+        tracked.base.metadata["is_signed"] = IntervalSMTUtils.is_signed_type(solidity_type)
+        if sort.kind == SortKind.BITVEC and sort.parameters:
+            tracked.base.metadata["bit_width"] = sort.parameters[0]
 
     @staticmethod
     def solidity_type_to_smt_sort(solidity_type: ElementaryType) -> Optional[Sort]:

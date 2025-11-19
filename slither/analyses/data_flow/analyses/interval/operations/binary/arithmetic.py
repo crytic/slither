@@ -9,6 +9,7 @@ from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.core.expressions.literal import Literal
+from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.variable import SlithIRVariable
@@ -43,9 +44,34 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return
 
         result_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
-        result_type = IntervalSMTUtils.resolve_elementary_type(
-            getattr(operation.lvalue, "type", None)
-        )
+        result_type: Optional[ElementaryType] = None
+
+        expression = node.expression if isinstance(node.expression, AssignmentOperation) else None
+        if expression is not None:
+            right_expr = expression.expression_right
+            right_expr_type: Optional[ElementaryType] = None
+            if right_expr is not None:
+                try:
+                    candidate = right_expr.type  # type: ignore[attr-defined]
+                except AttributeError:
+                    candidate = None
+                if isinstance(candidate, ElementaryType):
+                    right_expr_type = candidate
+            if right_expr_type is not None:
+                result_type = right_expr_type
+
+            if result_type is None:
+                return_type = expression.expression_return_type
+                if isinstance(return_type, ElementaryType):
+                    result_type = return_type
+
+        if result_type is None:
+            try:
+                lvalue_type = operation.lvalue.type  # type: ignore[attr-defined]
+            except AttributeError:
+                lvalue_type = None
+            if isinstance(lvalue_type, ElementaryType):
+                result_type = lvalue_type
 
         if result_name is None or result_type is None:
             self.logger.debug(
@@ -53,7 +79,7 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             )
             return
 
-        is_checked = bool(getattr(getattr(node, "scope", None), "is_checked", False))
+        is_checked = node.scope.is_checked
 
         left_term, left_var = self._get_operand_term(
             domain,
@@ -88,25 +114,29 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
                 return
             domain.state.set_range_variable(result_name, result_var)
 
-        if is_checked:
-            self._ensure_within_bounds(result_var, result_type)
-
         is_power = operation.type == BinaryType.POWER
+
+        is_result_signed = IntervalSMTUtils.is_signed_type(result_type)
 
         if is_power:
             power_terms = self._compute_power_expression(
-                operation, result_var, left_term, right_term
+                operation,
+                result_var,
+                left_term,
+                right_term,
+                is_result_signed,
             )
             if power_terms is None:
                 return
-            expr, power_int = power_terms
+            expr, power_overflow_cond = power_terms
         else:
             expr = self._compute_expression(operation, left_term, right_term)
-            power_int = None
+            power_overflow_cond = None
 
         if expr is None:
             return
 
+        # Constrain the bitvector result
         self.solver.assert_constraint(result_var.term == expr)
 
         # Add overflow detection constraint for arithmetic operations
@@ -116,7 +146,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             right_term,
             result_var,
             is_checked,
-            power_actual_int=power_int,
+            result_type,
+            power_overflow_cond=power_overflow_cond,
         )
 
     def _compute_expression(
@@ -148,7 +179,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         result_var: TrackedSMTVariable,
         left_term: SMTTerm,
         right_term: SMTTerm,
-    ) -> Optional[tuple[SMTTerm, SMTTerm]]:
+        is_signed: bool,
+    ) -> Optional[tuple[SMTTerm, Optional[SMTTerm]]]:
         """Build the modular exponentiation expression for bitvector semantics."""
         solver = self.solver
         if solver is None:
@@ -187,24 +219,22 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             self.logger.debug("Skipping power operation due to missing bit-width information.")
             return None
 
-        int_sort = result_var.overflow_amount.sort
-
         bitvec_result = solver.create_constant(1, result_sort)
-        int_result = solver.create_constant(1, int_sort)
+        overflow_cond: Optional[SMTTerm] = None
 
         if exponent_value == 0:
-            return bitvec_result, int_result
+            return bitvec_result, None
 
-        if isinstance(operation.variable_left, Constant):
-            base_int = solver.create_constant(operation.variable_left.value, int_sort)
-        else:
-            base_int = solver.bitvector_to_int(left_term)
+        width = width_parameters[0]
 
         for _ in range(exponent_value):
+            step_overflow = self._detect_mul_overflow(bitvec_result, left_term, is_signed, width)
+            if overflow_cond is None:
+                overflow_cond = step_overflow
+            else:
+                overflow_cond = overflow_cond | step_overflow
             bitvec_result = bitvec_result * left_term
-            int_result = int_result * base_int
-
-        return bitvec_result, int_result
+        return bitvec_result, overflow_cond
 
     @staticmethod
     def _resolve_constant_value(
@@ -233,9 +263,14 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         right_term: SMTTerm,
         result_var: TrackedSMTVariable,
         is_checked: bool,
-        power_actual_int: Optional[SMTTerm] = None,
+        result_type: ElementaryType,
+        power_overflow_cond: Optional[SMTTerm] = None,
     ) -> None:
-        """Add overflow detection constraints for arithmetic operations."""
+        """Add overflow detection constraints for arithmetic operations.
+
+        PERFORMANCE OPTIMIZATION: Use bitvector operations directly instead of
+        converting to unbounded integers. This is critical for uint256/int256.
+        """
         solver = self.solver
 
         if not (
@@ -243,57 +278,126 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             and solver.is_bitvector(left_term)
             and solver.is_bitvector(right_term)
         ):
-            if is_checked:
-                result_var.assert_no_overflow(solver)
+            # For non-bitvector operations, just mark no overflow
+            result_var.assert_no_overflow(solver)
             return
 
-        width = result_var.sort.parameters[0]
-        int_sort = result_var.overflow_amount.sort
-        max_term = solver.create_constant((1 << width) - 1, int_sort)
-        zero_term = solver.create_constant(0, int_sort)
         op_type = operation.type
 
-        left_int = solver.bitvector_to_int(left_term)
-        right_int = solver.bitvector_to_int(right_term)
+        # For operations that don't overflow in the traditional sense
+        if op_type in (
+            BinaryType.DIVISION,
+            BinaryType.MODULO,
+            BinaryType.LEFT_SHIFT,
+            BinaryType.RIGHT_SHIFT,
+        ):
+            result_var.assert_no_overflow(solver)
+            return
 
+        # PERFORMANCE: Use bitvector overflow detection directly
+        # instead of converting to unbounded integers
+        is_signed = IntervalSMTUtils.is_signed_type(result_type)
+        width = result_var.sort.parameters[0]
+
+        # Detect overflow using bitvector carry/overflow flags
         if op_type == BinaryType.ADDITION:
-            actual_sum = left_int + right_int
-            overflow_cond = actual_sum > max_term
-            overflow_amount_expr = actual_sum - max_term
+            overflow_cond = self._detect_add_overflow(left_term, right_term, is_signed)
         elif op_type == BinaryType.SUBTRACTION:
-            actual_diff = left_int - right_int
-            overflow_cond = actual_diff < zero_term
-            overflow_amount_expr = right_int - left_int
+            overflow_cond = self._detect_sub_overflow(left_term, right_term, is_signed)
         elif op_type == BinaryType.MULTIPLICATION:
-            actual_prod = left_int * right_int
-            overflow_cond = actual_prod > max_term
-            overflow_amount_expr = actual_prod - max_term
+            overflow_cond = self._detect_mul_overflow(left_term, right_term, is_signed, width)
         elif op_type == BinaryType.POWER:
-            if power_actual_int is None:
-                if is_checked:
-                    result_var.assert_no_overflow(solver)
+            if power_overflow_cond is None:
+                result_var.assert_no_overflow(solver)
                 return
-
-            overflow_cond = power_actual_int > max_term
-            overflow_amount_expr = power_actual_int - max_term
+            overflow_cond = power_overflow_cond
         else:
             result_var.assert_no_overflow(solver)
             return
 
-        amount_term = solver.make_ite(
-            overflow_cond,
-            overflow_amount_expr,
-            zero_term,
-        )
+        # For overflow amount, only compute when needed (optimization queries)
+        # Use a simple marker value that indicates overflow occurred
+        int_sort = result_var.overflow_amount.sort
+        zero = solver.create_constant(0, int_sort)
+        one = solver.create_constant(1, int_sort)
 
+        # Set overflow amount to 1 if overflow, 0 otherwise
+        # This avoids expensive bitvector-to-int conversions
+        overflow_amount = solver.make_ite(overflow_cond, one, zero)
+
+        # Set overflow metadata
         result_var.mark_overflow_condition(
             solver,
             overflow_cond,
-            amount_term,
+            overflow_amount,
         )
 
+        # In checked mode, assert that no overflow occurred
         if is_checked:
             result_var.assert_no_overflow(solver)
+
+    def _detect_add_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
+        """Detect addition overflow using bitvector operations."""
+        from z3 import SignExt, ZeroExt, Extract
+
+        # Extend by 1 bit and check if result fits
+        if is_signed:
+            left_ext = SignExt(1, left)
+            right_ext = SignExt(1, right)
+            result_ext = left_ext + right_ext
+            # Sign-extend the truncated result back to compare with extended sum
+            truncated = Extract(left.size() - 1, 0, result_ext)
+            truncated_ext = SignExt(1, truncated)
+            return truncated_ext != result_ext
+        else:
+            left_ext = ZeroExt(1, left)
+            right_ext = ZeroExt(1, right)
+            result_ext = left_ext + right_ext
+            # Check if carry bit is set
+            carry_bit = Extract(left.size(), left.size(), result_ext)
+            from z3 import BitVecVal
+
+            return carry_bit == BitVecVal(1, 1)
+
+    def _detect_sub_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
+        """Detect subtraction overflow using bitvector operations."""
+        from z3 import SignExt, ZeroExt, ULT, Extract
+
+        if is_signed:
+            left_ext = SignExt(1, left)
+            right_ext = SignExt(1, right)
+            result_ext = left_ext - right_ext
+            truncated = Extract(left.size() - 1, 0, result_ext)
+            truncated_ext = SignExt(1, truncated)
+            return truncated_ext != result_ext
+        else:
+            # For unsigned, underflow occurs if left < right
+            return ULT(left, right)
+
+    def _detect_mul_overflow(
+        self, left: SMTTerm, right: SMTTerm, is_signed: bool, width: int
+    ) -> SMTTerm:
+        """Detect multiplication overflow using bitvector operations."""
+        from z3 import SignExt, ZeroExt, BitVecVal, Extract
+
+        # Extend to double width and check if upper bits are used
+        if is_signed:
+            left_ext = SignExt(width, left)
+            right_ext = SignExt(width, right)
+            result_ext = left_ext * right_ext
+            # Check if result fits in original width
+            result_truncated = Extract(width - 1, 0, result_ext)
+            # Sign extend the truncated result and compare
+            result_truncated_ext = SignExt(width, result_truncated)
+            return result_truncated_ext != result_ext
+        else:
+            left_ext = ZeroExt(width, left)
+            right_ext = ZeroExt(width, right)
+            result_ext = left_ext * right_ext
+            # Check if upper bits are non-zero
+            upper_bits = Extract(width * 2 - 1, width, result_ext)
+            zero = BitVecVal(0, width)
+            return upper_bits != zero
 
     def _get_operand_term(
         self,
@@ -304,7 +408,6 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_checked: bool,
     ) -> tuple[Optional[SMTTerm], Optional[TrackedSMTVariable]]:
         if isinstance(operand, Constant):
-            # For constants, prioritize fallback_type to ensure bit width matches the result
             var_type = fallback_type
             if var_type is None:
                 var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
@@ -333,20 +436,4 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         if tracked is None:
             return None, None
 
-        if is_checked and var_type is not None:
-            self._ensure_within_bounds(tracked, var_type)
-
         return tracked.term, tracked
-
-    def _ensure_within_bounds(
-        self, tracked_var: TrackedSMTVariable, var_type: ElementaryType
-    ) -> None:
-        tracked_var.assert_no_overflow(self.solver)
-        bounds = IntervalSMTUtils.type_bounds(var_type)
-        if bounds is None:
-            return
-        min_val, max_val = bounds
-        int_sort = tracked_var.overflow_amount.sort
-        int_term = self.solver.bitvector_to_int(tracked_var.term)
-        self.solver.assert_constraint(int_term >= self.solver.create_constant(min_val, int_sort))
-        self.solver.assert_constraint(int_term <= self.solver.create_constant(max_val, int_sort))

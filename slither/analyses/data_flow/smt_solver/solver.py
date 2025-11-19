@@ -70,6 +70,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bitvector_to_signed_int(self, term: SMTTerm) -> SMTTerm:
+        """Convert a bitvector term into a signed integer representation."""
+        pass
+
+    @abstractmethod
     def make_ite(self, condition: SMTTerm, then_term: SMTTerm, else_term: SMTTerm) -> SMTTerm:
         """Create an if-then-else expression."""
         pass
