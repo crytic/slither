@@ -411,7 +411,7 @@ def main(debug: bool = False) -> None:
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
 
     # Initialize logger
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="INFO")
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="DEBUG")
     logger.info(LogMessages.ENGINE_START)
 
     # Load the Solidity contract

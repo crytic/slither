@@ -8,4 +8,5 @@ class ReturnHandler(BaseOperationHandler):
     """Handler for return operations."""
 
     def handle(self, operation: Return, domain: IntervalDomain, node: Node) -> None:
+        self.logger.debug("Handling return operation: {operation}", operation=operation)
         pass
