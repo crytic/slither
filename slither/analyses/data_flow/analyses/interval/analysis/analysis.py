@@ -80,8 +80,7 @@ class IntervalAnalysis(Analysis):
             return
 
         handler = self._registry.get_handler(operation)
-        if handler is not None:
-            handler.handle(operation, domain, node)
+        handler.handle(operation, domain, node)
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom variant."""

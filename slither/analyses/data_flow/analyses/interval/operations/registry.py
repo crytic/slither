@@ -2,6 +2,7 @@
 
 from typing import Dict, Optional, Type, TYPE_CHECKING
 
+from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.interval.operations.assignment import AssignmentHandler
 from slither.analyses.data_flow.analyses.interval.operations.binary import BinaryHandler
 from slither.slithir.operations.assignment import Assignment
@@ -26,6 +27,7 @@ class OperationHandlerRegistry:
         """
         self._solver = solver
         self._handlers: Dict[Type[Operation], "BaseOperationHandler"] = {}
+        self._logger = get_logger()
 
         # Register default handlers
         self._register_default_handlers()
@@ -48,7 +50,7 @@ class OperationHandlerRegistry:
         handler = handler_class(self._solver)
         self._handlers[operation_type] = handler
 
-    def get_handler(self, operation: Operation) -> Optional["BaseOperationHandler"]:
+    def get_handler(self, operation: Operation) -> "BaseOperationHandler":
         """
         Get the handler for an operation.
 
@@ -56,10 +58,21 @@ class OperationHandlerRegistry:
             operation: The operation to get a handler for
 
         Returns:
-            The handler for the operation, or None if no handler is registered
+            The handler for the operation
+
+        Raises:
+            NotImplementedError: If no handler is registered for the operation type
         """
         operation_type = type(operation)
-        return self._handlers.get(operation_type)
+        handler = self._handlers.get(operation_type)
+        if handler is None:
+            operation_name = operation_type.__name__
+            self._logger.error_and_raise(
+                "No handler registered for operation type: {operation_name}",
+                NotImplementedError,
+                operation_name=operation_name,
+            )
+        return handler
 
     def has_handler(self, operation: Operation) -> bool:
         """
