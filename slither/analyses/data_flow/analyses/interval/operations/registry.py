@@ -2,11 +2,18 @@
 
 from typing import Dict, Optional, Type, TYPE_CHECKING
 
+
+from slither.analyses.data_flow.analyses.interval.operations.return_handler import ReturnHandler
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
+    SolidityCallHandler,
+)
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.interval.operations.assignment import AssignmentHandler
 from slither.analyses.data_flow.analyses.interval.operations.binary import BinaryHandler
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
@@ -36,6 +43,8 @@ class OperationHandlerRegistry:
         """Register default operation handlers."""
         self.register(Assignment, AssignmentHandler)
         self.register(Binary, BinaryHandler)
+        self.register(SolidityCall, SolidityCallHandler)
+        self.register(Return, ReturnHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]
