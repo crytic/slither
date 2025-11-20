@@ -21,7 +21,7 @@ console = Console()
 
 
 def solve_variable_range(
-    solver: object, smt_var: TrackedSMTVariable
+    solver: object, smt_var: TrackedSMTVariable, debug: bool = False
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """
     Solve for minimum and maximum values of a variable.
@@ -46,9 +46,10 @@ def solve_variable_range(
     if bit_width is None and sort_parameters:
         bit_width = sort_parameters[0]
 
-    console.print(
-        f"\n[cyan]Solving range for {smt_var.name} (signed={is_signed}, width={bit_width})[/cyan]"
-    )
+    if debug:
+        console.print(
+            f"\n[cyan]Solving range for {smt_var.name} (signed={is_signed}, width={bit_width})[/cyan]"
+        )
 
     def _apply_signed_value(raw_value: int) -> int:
         if not is_signed or not isinstance(bit_width, int):
@@ -65,18 +66,20 @@ def solve_variable_range(
         if hasattr(solver, "solver"):
             z3_solver = solver.solver
             assertions = z3_solver.assertions()
-            console.print(f"[dim]Copying {len(assertions)} constraints to optimizer[/dim]")
+            if debug:
+                console.print(f"[dim]Copying {len(assertions)} constraints to optimizer[/dim]")
 
-            # Debug: Print first few assertions
-            for i, assertion in enumerate(assertions[:5]):
-                console.print(f"[dim]  Constraint {i}: {assertion}[/dim]")
-            if len(assertions) > 5:
-                console.print(f"[dim]  ... and {len(assertions) - 5} more[/dim]")
+                # Debug: Print first few assertions
+                for i, assertion in enumerate(assertions[:5]):
+                    console.print(f"[dim]  Constraint {i}: {assertion}[/dim]")
+                if len(assertions) > 5:
+                    console.print(f"[dim]  ... and {len(assertions) - 5} more[/dim]")
 
             for assertion in assertions:
                 opt.add(assertion)
         else:
-            console.print("[yellow]Warning: Could not access solver assertions[/yellow]")
+            if debug:
+                console.print("[yellow]Warning: Could not access solver assertions[/yellow]")
             return None
 
         return opt
@@ -84,14 +87,18 @@ def solve_variable_range(
     def _optimize_range(maximize: bool) -> Optional[Dict]:
         """Solve for min or max value using a fresh optimizer."""
         try:
-            console.print(f"[dim]Creating optimizer for {'max' if maximize else 'min'}...[/dim]")
+            if debug:
+                console.print(
+                    f"[dim]Creating optimizer for {'max' if maximize else 'min'}...[/dim]"
+                )
             opt = _create_fresh_optimizer()
             if opt is None:
                 return None
 
             width = bit_width if isinstance(bit_width, int) else term.size()
             if not isinstance(width, int) or width <= 0:
-                console.print("[red]Unknown bit-width; cannot optimize[/red]")
+                if debug:
+                    console.print("[red]Unknown bit-width; cannot optimize[/red]")
                 return None
 
             if is_signed:
@@ -105,9 +112,10 @@ def solve_variable_range(
             else:
                 objective = term
 
-            console.print(
-                f"[dim]Adding objective: {'maximize' if maximize else 'minimize'} {objective}[/dim]"
-            )
+            if debug:
+                console.print(
+                    f"[dim]Adding objective: {'maximize' if maximize else 'minimize'} {objective}[/dim]"
+                )
 
             if maximize:
                 opt.maximize(objective)
@@ -115,41 +123,52 @@ def solve_variable_range(
                 opt.minimize(objective)
 
             # Check satisfiability
-            console.print(f"[dim]Checking satisfiability...[/dim]")
+            if debug:
+                console.print(f"[dim]Checking satisfiability...[/dim]")
             result = opt.check()
-            console.print(f"[dim]Result: {result}[/dim]")
+            if debug:
+                console.print(f"[dim]Result: {result}[/dim]")
 
             if result != sat:
-                console.print(f"[red]Optimization returned {result}[/red]")
+                if debug:
+                    console.print(f"[red]Optimization returned {result}[/red]")
                 return None
 
             # Get the model
             z3_model = opt.model()
             if z3_model is None:
-                console.print("[red]Model is None[/red]")
+                if debug:
+                    console.print("[red]Model is None[/red]")
                 return None
 
             # Evaluate the term
             value_term = z3_model.eval(term, model_completion=True)
-            console.print(f"[dim]Evaluated term: {value_term}[/dim]")
+            if debug:
+                console.print(f"[dim]Evaluated term: {value_term}[/dim]")
 
             if hasattr(value_term, "as_long"):
                 raw_value = value_term.as_long()
             else:
-                console.print("[red]Cannot convert value to long[/red]")
+                if debug:
+                    console.print("[red]Cannot convert value to long[/red]")
                 return None
 
             wrapped_value = _apply_signed_value(raw_value)
-            console.print(f"[green]{'Max' if maximize else 'Min'} value: {wrapped_value}[/green]")
+            if debug:
+                console.print(
+                    f"[green]{'Max' if maximize else 'Min'} value: {wrapped_value}[/green]"
+                )
 
             # Check overflow flag
             overflow = False
             try:
                 flag_term = z3_model.eval(smt_var.overflow_flag.term, model_completion=True)
                 overflow = is_true(flag_term)
-                console.print(f"[dim]Overflow flag: {overflow}[/dim]")
+                if debug:
+                    console.print(f"[dim]Overflow flag: {overflow}[/dim]")
             except Exception as e:
-                console.print(f"[yellow]Could not evaluate overflow flag: {e}[/yellow]")
+                if debug:
+                    console.print(f"[yellow]Could not evaluate overflow flag: {e}[/yellow]")
 
             # Check overflow amount
             overflow_amount = 0
@@ -157,9 +176,11 @@ def solve_variable_range(
                 amount_term = z3_model.eval(smt_var.overflow_amount.term, model_completion=True)
                 if hasattr(amount_term, "as_long"):
                     overflow_amount = amount_term.as_long()
-                console.print(f"[dim]Overflow amount: {overflow_amount}[/dim]")
+                if debug:
+                    console.print(f"[dim]Overflow amount: {overflow_amount}[/dim]")
             except Exception as e:
-                console.print(f"[yellow]Could not evaluate overflow amount: {e}[/yellow]")
+                if debug:
+                    console.print(f"[yellow]Could not evaluate overflow amount: {e}[/yellow]")
 
             return {
                 "value": wrapped_value,
@@ -167,17 +188,19 @@ def solve_variable_range(
                 "overflow_amount": overflow_amount,
             }
         except Exception as e:
-            console.print(f"[red]Error in _optimize_range: {e}[/red]")
-            import traceback
+            if debug:
+                console.print(f"[red]Error in _optimize_range: {e}[/red]")
+                import traceback
 
-            traceback.print_exc()
+                traceback.print_exc()
             return None
 
     # First check if base constraints are satisfiable
-    console.print("[dim]Checking if base constraints are satisfiable...[/dim]")
+    if debug:
+        console.print("[dim]Checking if base constraints are satisfiable...[/dim]")
 
     # Print all constraints
-    if hasattr(solver, "solver"):
+    if debug and hasattr(solver, "solver"):
         z3_solver = solver.solver
         assertions = z3_solver.assertions()
         console.print(f"[yellow]Total constraints in solver: {len(assertions)}[/yellow]")
@@ -187,23 +210,26 @@ def solve_variable_range(
 
     try:
         base_result = solver.check_sat()
-        console.print(f"[dim]Base constraints: {base_result}[/dim]")
+        if debug:
+            console.print(f"[dim]Base constraints: {base_result}[/dim]")
         if base_result != CheckSatResult.SAT:
-            console.print(f"[red]Base constraints are {base_result}![/red]")
+            if debug:
+                console.print(f"[red]Base constraints are {base_result}![/red]")
 
-            # Try to get unsat core if available
-            if hasattr(solver, "solver") and hasattr(solver.solver, "unsat_core"):
-                try:
-                    core = solver.solver.unsat_core()
-                    console.print(f"[red]UNSAT core ({len(core)} constraints):[/red]")
-                    for constraint in core:
-                        console.print(f"[red]  - {constraint}[/red]")
-                except Exception as e:
-                    console.print(f"[yellow]Could not get unsat core: {e}[/yellow]")
+                # Try to get unsat core if available
+                if hasattr(solver, "solver") and hasattr(solver.solver, "unsat_core"):
+                    try:
+                        core = solver.solver.unsat_core()
+                        console.print(f"[red]UNSAT core ({len(core)} constraints):[/red]")
+                        for constraint in core:
+                            console.print(f"[red]  - {constraint}[/red]")
+                    except Exception as e:
+                        console.print(f"[yellow]Could not get unsat core: {e}[/yellow]")
 
             return None, None
     except Exception as e:
-        console.print(f"[red]Error checking base satisfiability: {e}[/red]")
+        if debug:
+            console.print(f"[red]Error checking base satisfiability: {e}[/red]")
 
     # Solve for minimum
     min_result = _optimize_range(maximize=False)
@@ -278,6 +304,7 @@ def analyze_function(
     analysis: IntervalAnalysis,
     logger: "DataFlowLogger",
     LogMessages: "type[LogMessages]",
+    debug: bool = False,
 ) -> None:
     """Run interval analysis on a single function."""
     logger.info(
@@ -348,8 +375,9 @@ def analyze_function(
                             continue
 
                         # Solve for min and max
-                        console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
-                        min_result, max_result = solve_variable_range(solver, smt_var)
+                        if debug:
+                            console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
+                        min_result, max_result = solve_variable_range(solver, smt_var, debug=debug)
 
                         if min_result and max_result:
                             variable_results.append(
@@ -378,7 +406,7 @@ def analyze_function(
                         )
 
 
-def main() -> None:
+def main(debug: bool = False) -> None:
     # Import logger after Slither is loaded to avoid circular import issues
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
 
@@ -441,7 +469,7 @@ def main() -> None:
                 # Fresh solver/analysis for every function execution
                 solver = Z3Solver(use_optimizer=False)
                 analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
-                analyze_function(function, analysis, logger, LogMessages)
+                analyze_function(function, analysis, logger, LogMessages, debug=debug)
             except Exception as e:
                 logger.exception(
                     LogMessages.ERROR_ANALYSIS_FAILED,
@@ -454,4 +482,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    DEBUG = False  # Set to True to show detailed debugging information
+    main(debug=DEBUG)
