@@ -338,65 +338,76 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _detect_add_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
         """Detect addition overflow using bitvector operations."""
-        from z3 import SignExt, ZeroExt, Extract
+        solver = self.solver
+        if solver is None:
+            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
 
         # Extend by 1 bit and check if result fits
         if is_signed:
-            left_ext = SignExt(1, left)
-            right_ext = SignExt(1, right)
+            left_ext = solver.bv_sign_ext(left, 1)
+            right_ext = solver.bv_sign_ext(right, 1)
             result_ext = left_ext + right_ext
             # Sign-extend the truncated result back to compare with extended sum
-            truncated = Extract(left.size() - 1, 0, result_ext)
-            truncated_ext = SignExt(1, truncated)
+            truncated = solver.bv_extract(result_ext, solver.bv_size(left) - 1, 0)
+            truncated_ext = solver.bv_sign_ext(truncated, 1)
             return truncated_ext != result_ext
         else:
-            left_ext = ZeroExt(1, left)
-            right_ext = ZeroExt(1, right)
+            left_ext = solver.bv_zero_ext(left, 1)
+            right_ext = solver.bv_zero_ext(right, 1)
             result_ext = left_ext + right_ext
             # Check if carry bit is set
-            carry_bit = Extract(left.size(), left.size(), result_ext)
-            from z3 import BitVecVal
+            carry_bit = solver.bv_extract(result_ext, solver.bv_size(left), solver.bv_size(left))
+            from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
 
-            return carry_bit == BitVecVal(1, 1)
+            one_sort = Sort(kind=SortKind.BITVEC, parameters=[1])
+            one = solver.create_constant(1, one_sort)
+            return carry_bit == one
 
     def _detect_sub_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
         """Detect subtraction overflow using bitvector operations."""
-        from z3 import SignExt, ZeroExt, ULT, Extract
+        solver = self.solver
+        if solver is None:
+            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
 
         if is_signed:
-            left_ext = SignExt(1, left)
-            right_ext = SignExt(1, right)
+            left_ext = solver.bv_sign_ext(left, 1)
+            right_ext = solver.bv_sign_ext(right, 1)
             result_ext = left_ext - right_ext
-            truncated = Extract(left.size() - 1, 0, result_ext)
-            truncated_ext = SignExt(1, truncated)
+            truncated = solver.bv_extract(result_ext, solver.bv_size(left) - 1, 0)
+            truncated_ext = solver.bv_sign_ext(truncated, 1)
             return truncated_ext != result_ext
         else:
             # For unsigned, underflow occurs if left < right
-            return ULT(left, right)
+            return solver.bv_ult(left, right)
 
     def _detect_mul_overflow(
         self, left: SMTTerm, right: SMTTerm, is_signed: bool, width: int
     ) -> SMTTerm:
         """Detect multiplication overflow using bitvector operations."""
-        from z3 import SignExt, ZeroExt, BitVecVal, Extract
+        solver = self.solver
+        if solver is None:
+            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
 
         # Extend to double width and check if upper bits are used
         if is_signed:
-            left_ext = SignExt(width, left)
-            right_ext = SignExt(width, right)
+            left_ext = solver.bv_sign_ext(left, width)
+            right_ext = solver.bv_sign_ext(right, width)
             result_ext = left_ext * right_ext
             # Check if result fits in original width
-            result_truncated = Extract(width - 1, 0, result_ext)
+            result_truncated = solver.bv_extract(result_ext, width - 1, 0)
             # Sign extend the truncated result and compare
-            result_truncated_ext = SignExt(width, result_truncated)
+            result_truncated_ext = solver.bv_sign_ext(result_truncated, width)
             return result_truncated_ext != result_ext
         else:
-            left_ext = ZeroExt(width, left)
-            right_ext = ZeroExt(width, right)
+            left_ext = solver.bv_zero_ext(left, width)
+            right_ext = solver.bv_zero_ext(right, width)
             result_ext = left_ext * right_ext
             # Check if upper bits are non-zero
-            upper_bits = Extract(width * 2 - 1, width, result_ext)
-            zero = BitVecVal(0, width)
+            upper_bits = solver.bv_extract(result_ext, width * 2 - 1, width)
+            from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+
+            zero_sort = Sort(kind=SortKind.BITVEC, parameters=[width])
+            zero = solver.create_constant(0, zero_sort)
             return upper_bits != zero
 
     def _get_operand_term(

@@ -95,6 +95,36 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_sign_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
+        """Sign-extend a bitvector by extra_bits."""
+        pass
+
+    @abstractmethod
+    def bv_zero_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
+        """Zero-extend a bitvector by extra_bits."""
+        pass
+
+    @abstractmethod
+    def bv_extract(self, term: SMTTerm, high: int, low: int) -> SMTTerm:
+        """Extract bits [high:low] from a bitvector."""
+        pass
+
+    @abstractmethod
+    def bv_ult(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned less-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_size(self, term: SMTTerm) -> int:
+        """Get the bit-width of a bitvector term."""
+        pass
+
+    @abstractmethod
+    def bv_concat(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Concatenate two bitvectors."""
+        pass
+
+    @abstractmethod
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """
         (assert constraint)

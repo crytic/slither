@@ -4,14 +4,20 @@ from typing import Dict, List, Optional
 
 from z3 import (
     BitVec,
+    BitVecVal,
     Bool,
     BV2Int,
+    Concat,
+    Extract,
     If,
     LShR,
     Optimize,
+    SignExt,
     Solver,
     UDiv,
+    ULT,
     URem,
+    ZeroExt,
     is_bv,
     sat,
     unsat,
@@ -170,6 +176,32 @@ class Z3Solver(SMTSolver):
 
     def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         return LShR(left, right)
+
+    def bv_sign_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
+        """Sign-extend a bitvector by extra_bits."""
+        return SignExt(extra_bits, term)
+
+    def bv_zero_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
+        """Zero-extend a bitvector by extra_bits."""
+        return ZeroExt(extra_bits, term)
+
+    def bv_extract(self, term: SMTTerm, high: int, low: int) -> SMTTerm:
+        """Extract bits [high:low] from a bitvector."""
+        return Extract(high, low, term)
+
+    def bv_ult(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned less-than comparison for bitvectors."""
+        return ULT(left, right)
+
+    def bv_size(self, term: SMTTerm) -> int:
+        """Get the bit-width of a bitvector term."""
+        if not self.is_bitvector(term):
+            raise TypeError("bv_size expects a bitvector term")
+        return term.size()
+
+    def bv_concat(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Concatenate two bitvectors."""
+        return Concat(left, right)
 
     def maximize(self, term: SMTTerm) -> None:
         """Add maximization objective."""
