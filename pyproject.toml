@@ -1,22 +1,65 @@
-[tool.black]
-target-version = ["py36"]
+# Ruff configuration (replaces black + pylint)
+# Full pyproject.toml build config coming in separate PR
+
+[tool.ruff]
 line-length = 100
-[tool.pylint.messages_control]
-disable = """
-missing-module-docstring,
-missing-class-docstring,
-missing-function-docstring,
-unnecessary-lambda,
-cyclic-import,
-line-too-long,
-invalid-name,
-fixme,
-too-many-return-statements,
-too-many-ancestors,
-logging-fstring-interpolation,
-logging-not-lazy,
-duplicate-code,
-import-error,
-unsubscriptable-object,
-unnecessary-lambda-assignment
-"""
+target-version = "py38"
+
+# Directories to lint
+extend-include = ["scripts/*.py", "plugin_example/**/*.py"]
+extend-exclude = [
+    "examples",
+    ".github",
+]
+
+[tool.ruff.lint]
+# Rules: https://docs.astral.sh/ruff/rules/
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # Ruff-specific rules
+]
+
+# Rules to ignore (matching previous pylint/black config)
+ignore = [
+    "E501",    # line-too-long (handled by formatter, not linter)
+    "B006",    # mutable-argument-default (too many false positives)
+    "B008",    # function-call-in-default-argument
+    "B011",    # assert-false
+    "B017",    # assert-raises-exception
+    "B023",    # function-uses-loop-variable
+    "B028",    # no-explicit-stacklevel
+    "SIM102",  # collapsible-if
+    "SIM105",  # suppressible-exception
+    "SIM108",  # if-else-block-instead-of-if-exp
+    "SIM114",  # if-with-same-arms
+    "SIM115",  # open-file-with-context-handler
+    "SIM117",  # multiple-with-statements
+    "UP015",   # redundant-open-modes
+    "UP035",   # deprecated-import (we support Python 3.8+)
+    "RUF005",  # collection-literal-concatenation
+    "RUF012",  # mutable-class-default
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can use assert and have complex logic
+"tests/**/*.py" = [
+    "B011",    # assert-false
+    "B017",    # assert-raises-exception
+    "SIM",     # simplify rules less important in tests
+]
+# Scripts may have different requirements
+"scripts/**/*.py" = [
+    "B",       # bugbear rules may not apply to scripts
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["slither"]
+force-single-line = false
+lines-after-imports = 2
