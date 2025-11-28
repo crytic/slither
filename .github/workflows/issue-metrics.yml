@@ -35,7 +35,7 @@ jobs:
             -reason:"not planned" -reason:"duplicate"
 
       - name: Create issue
-        uses: peter-evans/create-issue-from-file@v5
+        uses: peter-evans/create-issue-from-file@v6
         with:
           title: Monthly issue metrics report
           token: ${{ secrets.GITHUB_TOKEN }}

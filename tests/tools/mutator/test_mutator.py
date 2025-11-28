@@ -71,7 +71,7 @@ def test_backup_source_file(solc_binary_path):
     solc_path = solc_binary_path("0.8.15")
 
     file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
-    sl = Slither(file_path, solc=solc_path)
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
 
     with tempfile.TemporaryDirectory() as directory:
         files_dict = backup_source_file(sl.source_code, Path(directory))
