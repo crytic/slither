@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source common CI test setup
+source "$(dirname "$0")/ci_test_common.sh"
+
 ### Test slither-prop
 
 cd examples/slither-prop || exit 1
