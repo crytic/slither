@@ -42,7 +42,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     # Linting
-    "ruff>=0.12.0,<1.0",  # Use latest ruff, but cap at 1.0 to avoid breaking changes
+    "ruff>=0.14.0,<1.0",  # Use latest ruff, but cap at 1.0 to avoid breaking changes
     "yamllint>=1.35.1",
     # Testing
     "pytest",

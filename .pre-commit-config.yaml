@@ -6,7 +6,7 @@
 repos:
   # Ruff - Fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.11  # Use 'pre-commit autoupdate' to get the latest version
+    rev: v0.14.6  # Use 'pre-commit autoupdate' to get the latest version
     hooks:
       # Run ruff linter
       - id: ruff
