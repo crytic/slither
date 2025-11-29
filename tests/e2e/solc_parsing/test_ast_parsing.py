@@ -294,6 +294,10 @@ ALL_TESTS = [
         ALL_VERSIONS,
     ),
     Test(
+        "if-with-ternary-condition-all.sol",
+        ALL_VERSIONS,
+    ),
+    Test(
         "modifier-all.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06,
     ),
@@ -338,6 +342,10 @@ ALL_TESTS = [
         make_version(4, 5, 9) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
     ),
     Test(
+        "dowhile-with-ternary-condition-0.4.5.sol",
+        make_version(4, 5, 9) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
+    ),
+    Test(
         "custom_error-0.4.0.sol",
         ALL_VERSIONS,
     ),
@@ -371,6 +379,10 @@ ALL_TESTS = [
     ),
     Test(
         "for-all.sol",
+        ALL_VERSIONS,
+    ),
+    Test(
+        "for-with-ternary-condition-all.sol",
         ALL_VERSIONS,
     ),
     Test("trycatch-0.4.0.sol", VERSIONS_04 + VERSIONS_05),
@@ -416,6 +428,14 @@ ALL_TESTS = [
     ),
     Test(
         "while-all.sol",
+        ALL_VERSIONS,
+    ),
+    Test(
+        "while-with-ternary-condition-all.sol",
+        ALL_VERSIONS,
+    ),
+    Test(
+        "nested-while-with-ternary-condition-all.sol",
         ALL_VERSIONS,
     ),
     Test(
