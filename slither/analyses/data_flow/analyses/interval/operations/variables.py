@@ -1,9 +1,11 @@
 from typing import Optional, TYPE_CHECKING
 
+from slither.core.solidity_types.elementary_type import Int, Uint
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
+from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
@@ -17,8 +19,9 @@ def handle_variable_declaration(
 ) -> None:
     """Create a tracked SMT variable for a newly declared Solidity variable.
 
-    At declaration, we only create the variable - we don't constrain its value.
-    The solver will find all possible values that satisfy later constraints.
+    At declaration, variables are initialized to their Solidity default values:
+    - Integer types (uint, int): initialized to 0
+    - Boolean type (bool): initialized to false
     """
     var_name = IntervalSMTUtils.resolve_variable_name(variable)
     if var_name is None:
@@ -40,6 +43,12 @@ def handle_variable_declaration(
     # Declarations start with no overflow condition
     tracked_var.assert_no_overflow(solver)
 
-    # KEY FIX: Don't constrain the variable's value range here
-    # Let the solver find any value that satisfies the constraints
-    # The bitvector's bit-width already limits the range implicitly
+    # Initialize variable to Solidity default value based on type:
+    # - Integer types (uint, int): initialized to 0
+    # - Boolean type (bool): initialized to false (0 in bitvector)
+    type_str = var_type.type
+    if type_str in Uint or type_str in Int or type_str == "bool":
+        # Create a constant term with value 0 (default for integers and false for bool)
+        zero_sort = Sort(kind=SortKind.BITVEC, parameters=[256])
+        zero_constant = solver.create_constant(0, zero_sort)
+        solver.assert_constraint(tracked_var.term == zero_constant)

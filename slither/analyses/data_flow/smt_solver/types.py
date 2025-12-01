@@ -5,11 +5,11 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 # Import solver-specific types
-from z3 import BitVecRef, BoolRef
+from z3 import ArithRef, BitVecRef, BoolRef
 
 
 # Type alias for solver terms - extend this as we add more solvers
-SMTTerm = Union[BitVecRef, BoolRef]
+SMTTerm = Union[BitVecRef, BoolRef, ArithRef]
 # Future: Union[BitVecRef, BoolRef, CVC5Term, YicesTerm, ...]
 
 

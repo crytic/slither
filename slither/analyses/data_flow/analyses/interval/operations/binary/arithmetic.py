@@ -2,7 +2,7 @@
 
 from typing import Optional, TYPE_CHECKING, Union
 
-from slither.analyses.data_flow.smt_solver.types import SMTTerm
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
@@ -24,6 +24,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
     """Arithmetic handler for binary operations."""
 
     _MAX_SUPPORTED_EXPONENT = 256
+
+    def __init__(self, solver=None) -> None:
+        super().__init__(solver)
 
     def handle(
         self,
@@ -117,41 +120,39 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_power = operation.type == BinaryType.POWER
 
         is_result_signed = IntervalSMTUtils.is_signed_type(result_type)
+        result_width = IntervalSMTUtils.type_bit_width(result_type)
 
         if is_power:
-            power_terms = self._compute_power_expression(
+            raw_expr = self._compute_power_expression(
                 operation,
                 result_var,
                 left_term,
                 right_term,
-                is_result_signed,
             )
-            if power_terms is None:
-                return
-            expr, power_overflow_cond = power_terms
         else:
-            expr = self._compute_expression(operation, left_term, right_term)
-            power_overflow_cond = None
+            raw_expr = self._compute_expression(operation, left_term, right_term)
 
-        if expr is None:
+        if raw_expr is None:
             return
 
+        wrapped_expr = self._apply_wrap(raw_expr, result_width, is_result_signed)
+
         # Constrain the bitvector result
-        self.solver.assert_constraint(result_var.term == expr)
+        self.solver.assert_constraint(result_var.term == wrapped_expr)
 
         # Add overflow detection constraint for arithmetic operations
         self._add_overflow_constraint(
-            operation,
-            left_term,
-            right_term,
             result_var,
-            is_checked,
+            raw_expr,
             result_type,
-            power_overflow_cond=power_overflow_cond,
+            is_checked,
         )
 
     def _compute_expression(
-        self, operation: Binary, left_term: SMTTerm, right_term: SMTTerm
+        self,
+        operation: Binary,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
     ) -> Optional[SMTTerm]:
         """Build the SMT expression for the arithmetic binary operation."""
         op_type = operation.type
@@ -179,8 +180,7 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         result_var: TrackedSMTVariable,
         left_term: SMTTerm,
         right_term: SMTTerm,
-        is_signed: bool,
-    ) -> Optional[tuple[SMTTerm, Optional[SMTTerm]]]:
+    ) -> Optional[SMTTerm]:
         """Build the modular exponentiation expression for bitvector semantics."""
         solver = self.solver
         if solver is None:
@@ -220,21 +220,15 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return None
 
         bitvec_result = solver.create_constant(1, result_sort)
-        overflow_cond: Optional[SMTTerm] = None
 
         if exponent_value == 0:
-            return bitvec_result, None
+            return bitvec_result
 
         width = width_parameters[0]
 
         for _ in range(exponent_value):
-            step_overflow = self._detect_mul_overflow(bitvec_result, left_term, is_signed, width)
-            if overflow_cond is None:
-                overflow_cond = step_overflow
-            else:
-                overflow_cond = overflow_cond | step_overflow
             bitvec_result = bitvec_result * left_term
-        return bitvec_result, overflow_cond
+        return bitvec_result
 
     @staticmethod
     def _resolve_constant_value(
@@ -258,81 +252,25 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _add_overflow_constraint(
         self,
-        operation: Binary,
-        left_term: SMTTerm,
-        right_term: SMTTerm,
         result_var: TrackedSMTVariable,
-        is_checked: bool,
+        raw_expr: SMTTerm,
         result_type: ElementaryType,
-        power_overflow_cond: Optional[SMTTerm] = None,
+        is_checked: bool,
     ) -> None:
-        """Add overflow detection constraints for arithmetic operations.
-
-        PERFORMANCE OPTIMIZATION: Use bitvector operations directly instead of
-        converting to unbounded integers. This is critical for uint256/int256.
-        """
         solver = self.solver
+        overflow_cond = self._detect_width_overflow(raw_expr, result_type)
 
-        if not (
-            solver.is_bitvector(result_var.term)
-            and solver.is_bitvector(left_term)
-            and solver.is_bitvector(right_term)
-        ):
-            # For non-bitvector operations, just mark no overflow
-            result_var.assert_no_overflow(solver)
-            return
-
-        op_type = operation.type
-
-        # For operations that don't overflow in the traditional sense
-        if op_type in (
-            BinaryType.DIVISION,
-            BinaryType.MODULO,
-            BinaryType.LEFT_SHIFT,
-            BinaryType.RIGHT_SHIFT,
-        ):
-            result_var.assert_no_overflow(solver)
-            return
-
-        # PERFORMANCE: Use bitvector overflow detection directly
-        # instead of converting to unbounded integers
-        is_signed = IntervalSMTUtils.is_signed_type(result_type)
-        width = result_var.sort.parameters[0]
-
-        # Detect overflow using bitvector carry/overflow flags
-        if op_type == BinaryType.ADDITION:
-            overflow_cond = self._detect_add_overflow(left_term, right_term, is_signed)
-        elif op_type == BinaryType.SUBTRACTION:
-            overflow_cond = self._detect_sub_overflow(left_term, right_term, is_signed)
-        elif op_type == BinaryType.MULTIPLICATION:
-            overflow_cond = self._detect_mul_overflow(left_term, right_term, is_signed, width)
-        elif op_type == BinaryType.POWER:
-            if power_overflow_cond is None:
-                result_var.assert_no_overflow(solver)
-                return
-            overflow_cond = power_overflow_cond
-        else:
-            result_var.assert_no_overflow(solver)
-            return
-
-        # For overflow amount, only compute when needed (optimization queries)
-        # Use a simple marker value that indicates overflow occurred
         int_sort = result_var.overflow_amount.sort
         zero = solver.create_constant(0, int_sort)
         one = solver.create_constant(1, int_sort)
-
-        # Set overflow amount to 1 if overflow, 0 otherwise
-        # This avoids expensive bitvector-to-int conversions
         overflow_amount = solver.make_ite(overflow_cond, one, zero)
 
-        # Set overflow metadata
         result_var.mark_overflow_condition(
             solver,
             overflow_cond,
             overflow_amount,
         )
 
-        # In checked mode, assert that no overflow occurred
         if is_checked:
             result_var.assert_no_overflow(solver)
 
@@ -419,15 +357,10 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_checked: bool,
     ) -> tuple[Optional[SMTTerm], Optional[TrackedSMTVariable]]:
         if isinstance(operand, Constant):
-            var_type = fallback_type
+            var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
             if var_type is None:
-                var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
-            if var_type is None:
-                return None, None
-            sort = IntervalSMTUtils.solidity_type_to_smt_sort(var_type)
-            if sort is None:
-                return None, None
-            term = self.solver.create_constant(operand.value, sort)
+                var_type = fallback_type
+            term = IntervalSMTUtils.create_constant_term(self.solver, operand.value, var_type)
             return term, None
 
         operand_name = name or IntervalSMTUtils.resolve_variable_name(operand)
@@ -448,3 +381,27 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return None, None
 
         return tracked.term, tracked
+
+    def _apply_wrap(self, expr: SMTTerm, width: int, is_signed: bool) -> SMTTerm:
+        if width >= 256:
+            return expr
+        lower = self.solver.bv_extract(expr, width - 1, 0)
+        if is_signed:
+            return self.solver.bv_sign_ext(lower, 256 - width)
+        return self.solver.bv_zero_ext(lower, 256 - width)
+
+    def _detect_width_overflow(self, expr: SMTTerm, solidity_type: ElementaryType) -> SMTTerm:
+        width = IntervalSMTUtils.type_bit_width(solidity_type)
+        if width >= 256:
+            return self._bool_false()
+        lower = self.solver.bv_extract(expr, width - 1, 0)
+        if IntervalSMTUtils.is_signed_type(solidity_type):
+            extended = self.solver.bv_sign_ext(lower, 256 - width)
+        else:
+            extended = self.solver.bv_zero_ext(lower, 256 - width)
+        return extended != expr
+
+    def _bool_false(self) -> SMTTerm:
+        if not hasattr(self, "_bool_false_term"):
+            self._bool_false_term = self.solver.create_constant(False, Sort(kind=SortKind.BOOL))
+        return self._bool_false_term

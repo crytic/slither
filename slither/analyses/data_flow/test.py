@@ -13,6 +13,7 @@ from slither.analyses.data_flow.analyses.interval.core.tracked_variable import T
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
+from z3 import BitVecRef, Optimize, is_true, sat
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.logger import DataFlowLogger, LogMessages
@@ -32,8 +33,6 @@ def solve_variable_range(
     Returns:
         Tuple of (min_result, max_result) dictionaries with 'value' and 'overflow' keys
     """
-    from z3 import BitVecRef, BitVecVal, Concat, Extract, Optimize, is_true, sat
-
     term = smt_var.term
     if not isinstance(term, BitVecRef):
         console.print(f"[yellow]Warning: {smt_var.name} is not a bitvector[/yellow]")
@@ -51,16 +50,35 @@ def solve_variable_range(
             f"\n[cyan]Solving range for {smt_var.name} (signed={is_signed}, width={bit_width})[/cyan]"
         )
 
-    def _apply_signed_value(raw_value: int) -> int:
-        if not is_signed or not isinstance(bit_width, int):
-            return raw_value
-        modulus = 1 << bit_width
-        half_range = 1 << (bit_width - 1)
-        return raw_value - modulus if raw_value >= half_range else raw_value
+    min_bound = metadata.get("min_value")
+    max_bound = metadata.get("max_value")
+
+    def _decode_model_value(raw_value: int) -> int:
+        width = bit_width if isinstance(bit_width, int) else 256
+        mask = (1 << width) - 1 if width < 256 else (1 << 256) - 1
+        value = raw_value & mask
+        if is_signed and width > 0:
+            half_range = 1 << (width - 1)
+            if value >= half_range:
+                value -= 1 << width
+        if min_bound is not None:
+            value = max(min_bound, value)
+        if max_bound is not None:
+            value = min(max_bound, value)
+        return value
 
     def _create_fresh_optimizer():
         """Create a new optimizer with all current constraints."""
         opt = Optimize()
+
+        # Set a shorter timeout to prevent hanging (5 seconds)
+        # For uint256, optimization should be fast with bitvectors
+        opt.set("timeout", 2000)
+
+        # Enable faster optimization strategies for bitvectors
+        # These settings help Z3 optimize bitvectors more efficiently
+        opt.set("opt.priority", "box")
+        opt.set("opt.maxsat_engine", "wmax")
 
         # Copy all constraints from the original solver
         if hasattr(solver, "solver"):
@@ -95,21 +113,18 @@ def solve_variable_range(
             if opt is None:
                 return None
 
-            width = bit_width if isinstance(bit_width, int) else term.size()
-            if not isinstance(width, int) or width <= 0:
-                if debug:
-                    console.print("[red]Unknown bit-width; cannot optimize[/red]")
-                return None
+            # Optimize all bitvectors directly without conversion
+            # Z3 Optimize handles bitvectors natively and efficiently
+            # Converting to integers (BV2Int) creates huge constraint formulas that slow down optimization
+            # Since we use 256-bit bitvectors for all types, we can optimize them directly
+            from z3 import is_bv
 
-            if is_signed:
-                sign_bit = Extract(width - 1, width - 1, term)
-                flipped_sign = BitVecVal(1, 1) - sign_bit
-                if width == 1:
-                    objective = flipped_sign
-                else:
-                    other_bits = Extract(width - 2, 0, term)
-                    objective = Concat(flipped_sign, other_bits)
+            if is_bv(term):
+                # Optimize bitvector directly - Z3 handles this efficiently
+                # This avoids the expensive BV2Int conversion which creates huge integer constraints
+                objective = term
             else:
+                # Not a bitvector, use as-is
                 objective = term
 
             if debug:
@@ -153,7 +168,7 @@ def solve_variable_range(
                     console.print("[red]Cannot convert value to long[/red]")
                 return None
 
-            wrapped_value = _apply_signed_value(raw_value)
+            wrapped_value = _decode_model_value(raw_value)
             if debug:
                 console.print(
                     f"[green]{'Max' if maximize else 'Min'} value: {wrapped_value}[/green]"

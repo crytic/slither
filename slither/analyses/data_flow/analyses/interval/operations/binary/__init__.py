@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 from .arithmetic import ArithmeticBinaryHandler
+from .comparison import ComparisonBinaryHandler
 
 
 class BinaryHandler(BaseOperationHandler):
@@ -26,6 +27,21 @@ class BinaryHandler(BaseOperationHandler):
         BinaryType.LEFT_SHIFT,
         BinaryType.RIGHT_SHIFT,
     }
+    _COMPARISON_TYPES = {
+        BinaryType.GREATER_EQUAL,
+        BinaryType.GREATER,
+        BinaryType.LESS_EQUAL,
+        BinaryType.LESS,
+        BinaryType.EQUAL,
+        BinaryType.NOT_EQUAL,
+        BinaryType.ANDAND,
+        BinaryType.OROR,
+    }
+
+    def __init__(self, solver=None) -> None:
+        super().__init__(solver)
+        self._arithmetic_handler = ArithmeticBinaryHandler(solver)
+        self._comparison_handler = ComparisonBinaryHandler(solver)
 
     def handle(
         self,
@@ -37,4 +53,6 @@ class BinaryHandler(BaseOperationHandler):
             return
 
         if operation.type in self._ARITHMETIC_TYPES:
-            ArithmeticBinaryHandler(self.solver).handle(operation, domain, node)
+            self._arithmetic_handler.handle(operation, domain, node)
+        elif operation.type in self._COMPARISON_TYPES:
+            self._comparison_handler.handle(operation, domain, node)

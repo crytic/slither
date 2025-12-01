@@ -70,36 +70,40 @@ class IntervalSMTUtils:
         if sort is None:
             return None
         tracked = TrackedSMTVariable.create(solver, name, sort)
-        IntervalSMTUtils._annotate_tracked_variable(tracked, solidity_type, sort)
+        IntervalSMTUtils._annotate_tracked_variable(tracked, solidity_type)
+        IntervalSMTUtils._enforce_type_bounds(solver, tracked, solidity_type)
         return tracked
 
     @staticmethod
     def _annotate_tracked_variable(
-        tracked: TrackedSMTVariable, solidity_type: ElementaryType, sort: Sort
+        tracked: TrackedSMTVariable, solidity_type: ElementaryType
     ) -> None:
         """Store useful metadata about the tracked variable."""
         tracked.base.metadata["solidity_type"] = solidity_type.type
         tracked.base.metadata["is_signed"] = IntervalSMTUtils.is_signed_type(solidity_type)
-        if sort.kind == SortKind.BITVEC and sort.parameters:
-            tracked.base.metadata["bit_width"] = sort.parameters[0]
+        width = IntervalSMTUtils.type_bit_width(solidity_type)
+        tracked.base.metadata["bit_width"] = width
+        bounds = IntervalSMTUtils.type_bounds(solidity_type)
+        if bounds:
+            tracked.base.metadata["min_value"], tracked.base.metadata["max_value"] = bounds
 
     @staticmethod
     def solidity_type_to_smt_sort(solidity_type: ElementaryType) -> Optional[Sort]:
         """Convert a Solidity elementary type into an SMT sort."""
-        type_str = solidity_type.type
-
-        if type_str in Uint:
-            width = 256 if type_str == "uint" else int(type_str.replace("uint", ""))
-            return Sort(kind=SortKind.BITVEC, parameters=[width])
-
-        if type_str in Int:
-            width = 256 if type_str == "int" else int(type_str.replace("int", ""))
-            return Sort(kind=SortKind.BITVEC, parameters=[width])
-
-        if type_str == "bool":
-            return Sort(kind=SortKind.BOOL)
-
+        if solidity_type.type in Uint or solidity_type.type in Int or solidity_type.type == "bool":
+            return Sort(kind=SortKind.BITVEC, parameters=[256])
         return None
+
+    @staticmethod
+    def type_bit_width(solidity_type: ElementaryType) -> int:
+        type_str = solidity_type.type
+        if type_str in Uint:
+            return 256 if type_str == "uint" else int(type_str.replace("uint", ""))
+        if type_str in Int:
+            return 256 if type_str == "int" else int(type_str.replace("int", ""))
+        if type_str == "bool":
+            return 1
+        raise ValueError(f"Unsupported solidity type {type_str}")
 
     @staticmethod
     def type_bounds(solidity_type: ElementaryType) -> Optional[tuple[int, int]]:
@@ -126,3 +130,46 @@ class IntervalSMTUtils:
             return 0, 1
 
         return None
+
+    @staticmethod
+    def _enforce_type_bounds(
+        solver: "SMTSolver", tracked: TrackedSMTVariable, solidity_type: ElementaryType
+    ) -> None:
+        width = IntervalSMTUtils.type_bit_width(solidity_type)
+        if width >= 256:
+            return
+
+        lower_bits = solver.bv_extract(tracked.term, width - 1, 0)
+        if IntervalSMTUtils.is_signed_type(solidity_type):
+            extended = solver.bv_sign_ext(lower_bits, 256 - width)
+        else:
+            extended = solver.bv_zero_ext(lower_bits, 256 - width)
+        solver.assert_constraint(tracked.term == extended)
+
+    @staticmethod
+    def create_constant_term(
+        solver: "SMTSolver", value: Union[int, bool], solidity_type: Optional[ElementaryType]
+    ):
+        """Create a 256-bit bitvector constant matching the logical type."""
+        is_bool = isinstance(value, bool)
+        logical_value = 1 if is_bool and value else 0 if is_bool else value
+
+        if solidity_type is not None:
+            width = IntervalSMTUtils.type_bit_width(solidity_type)
+            signed = IntervalSMTUtils.is_signed_type(solidity_type)
+        else:
+            width = 1 if is_bool else 256
+            signed = False
+
+        modulus = 1 << width if width < 256 else 1 << 256
+        if signed:
+            logical_value = logical_value % (1 << width)
+            if width < 256 and logical_value >= (1 << (width - 1)):
+                logical_value -= 1 << width
+        else:
+            logical_value = logical_value % (1 << width)
+
+        if logical_value < 0:
+            logical_value = (logical_value + (1 << 256)) % (1 << 256)
+
+        return solver.create_constant(logical_value, Sort(kind=SortKind.BITVEC, parameters=[256]))
