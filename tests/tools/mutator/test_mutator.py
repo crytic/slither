@@ -13,6 +13,7 @@ from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_sel
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
 from slither.utils.function import get_function_id
+from slither.tools.mutator.mutators.RR import RR
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -168,3 +169,120 @@ def test_parse_target_selectors_whitespace():
     # Note: 0xa9059cbb IS transfer(address,uint256), so deduped to 1
     selectors = parse_target_selectors("  0xa9059cbb  ,  mint(address,uint256)  ")
     assert len(selectors) == 2
+
+
+def test_should_mutate_function_no_filter(solc_binary_path):
+    """When target_selectors is None, all functions should be mutated"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+
+    contract = next(c for c in sl.contracts if c.name == "Counter")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = RR(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors=None,
+            target_modifiers=None,
+        )
+
+        # All functions should be included when no filter
+        for func in contract.functions_declared:
+            assert mutator.should_mutate_function(func) is True
+
+
+def test_should_mutate_function_matching_selector(solc_binary_path):
+    """Function matching target selector should be mutated"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+
+    contract = next(c for c in sl.contracts if c.name == "Counter")
+    increment_selector = get_function_id("increment()")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = RR(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors={increment_selector},
+            target_modifiers=None,
+        )
+
+        for func in contract.functions_declared:
+            if func.name == "increment":
+                assert mutator.should_mutate_function(func) is True
+            else:
+                assert mutator.should_mutate_function(func) is False
+
+
+def test_should_mutate_function_no_match(solc_binary_path):
+    """Function not matching any selector should not be mutated"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+
+    contract = next(c for c in sl.contracts if c.name == "Counter")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = RR(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors={0xDEADBEEF},
+            target_modifiers=None,
+        )
+
+        # No functions should match bogus selector
+        for func in contract.functions_declared:
+            assert mutator.should_mutate_function(func) is False
+
+
+def test_should_mutate_function_includes_modifier(solc_binary_path):
+    """Modifier used by target function should be mutated"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+
+    contract = next(c for c in sl.contracts if c.name == "Counter")
+    restricted_selector = get_function_id("restrictedIncrement()")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = RR(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors={restricted_selector},
+            target_modifiers={"onlyOwner"},
+        )
+
+        # onlyOwner modifier should be included
+        for mod in contract.modifiers:
+            if mod.name == "onlyOwner":
+                assert mutator.should_mutate_function(mod) is True
