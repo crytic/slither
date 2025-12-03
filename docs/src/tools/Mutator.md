@@ -38,5 +38,8 @@ options:
                         mutant generators to run
   --contract-names CONTRACT_NAMES
                         list of contract names you want to mutate
+  --target-functions TARGET_FUNCTIONS
+                        Comma-separated list of function selectors (hex like
+                        0xa9059cbb or signature like transfer(address,uint256))
   --comprehensive       continue testing minor mutations if severe mutants are uncaught
 ```
