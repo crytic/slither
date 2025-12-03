@@ -19,6 +19,8 @@ class LOR(AbstractMutator):  # pylint: disable=too-few-public-methods
         for (  # pylint: disable=too-many-nested-blocks
             function
         ) in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue

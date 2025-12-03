@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Type, List, Any, Optional, Union
+from typing import Type, List, Any, Optional, Union, Set
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
@@ -89,6 +89,12 @@ def parse_args() -> argparse.Namespace:
         help="list of contract names you want to mutate",
     )
 
+    # target specific functions by selector
+    parser.add_argument(
+        "--target-functions",
+        help="Comma-separated list of function selectors (hex like 0xa9059cbb or signature like transfer(address,uint256))",
+    )
+
     # flag to run full mutation based revert mutator output
     parser.add_argument(
         "--comprehensive",
@@ -134,6 +140,62 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 # endregion
 ###################################################################################
 ###################################################################################
+# region Selector Parsing
+###################################################################################
+###################################################################################
+
+
+def parse_target_selectors(selector_str: str) -> Set[int]:
+    """Parse comma-separated selectors (hex or signature format)
+
+    Handles signatures with commas like transfer(address,uint256) by
+    only splitting on commas outside of parentheses.
+    """
+    from slither.utils.function import get_function_id
+
+    selectors: Set[int] = set()
+
+    # Split on commas only when not inside parentheses
+    parts = []
+    current = ""
+    depth = 0
+    for char in selector_str:
+        if char == "(":
+            depth += 1
+            current += char
+        elif char == ")":
+            depth -= 1
+            current += char
+        elif char == "," and depth == 0:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+    if current.strip():
+        parts.append(current.strip())
+
+    for s in parts:
+        if not s:
+            continue
+        if s.startswith("0x"):
+            # Hex format: 0xa9059cbb
+            if len(s) != 10:
+                logger.error(f"Invalid selector format: {s} (must be 0x + 8 hex chars)")
+                sys.exit(1)
+            try:
+                selectors.add(int(s, 16))
+            except ValueError:
+                logger.error(f"Invalid hex selector: {s}")
+                sys.exit(1)
+        else:
+            # Signature format: transfer(address,uint256)
+            selectors.add(get_function_id(s))
+    return selectors
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Main
 ###################################################################################
 ###################################################################################
@@ -163,6 +225,10 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     contract_names: List[str] = []
     if args.contract_names:
         contract_names = args.contract_names.split(",")
+
+    target_selectors: Optional[Set[int]] = None
+    if args.target_functions:
+        target_selectors = parse_target_selectors(args.target_functions)
 
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
@@ -272,6 +338,35 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                 # Add our target to the mutation list
                 mutated_contracts.append(target_contract.name)
                 logger.info(blue(f"Mutating contract {target_contract}"))
+
+                # Validate target selectors and collect target modifiers
+                target_modifiers: Optional[Set[str]] = None
+                if target_selectors:
+                    from slither.utils.function import get_function_id
+
+                    matching_functions = []
+                    target_modifiers = set()
+
+                    for func in target_contract.functions_declared:
+                        func_selector = get_function_id(func.solidity_signature)
+                        if func_selector in target_selectors:
+                            matching_functions.append(func)
+                            # Collect modifiers used by this function
+                            for mod in func.modifiers:
+                                target_modifiers.add(mod.name)
+
+                    if not matching_functions:
+                        logger.error(
+                            f"No functions in {target_contract.name} match selectors: {[hex(s) for s in target_selectors]}"
+                        )
+                        sys.exit(1)
+
+                    logger.info(
+                        blue(f"Targeting functions: {[f.name for f in matching_functions]}")
+                    )
+                    if target_modifiers:
+                        logger.info(blue(f"Including modifiers: {list(target_modifiers)}"))
+
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
@@ -283,6 +378,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                         verbose,
                         output_folder,
                         dont_mutate_lines,
+                        target_selectors=target_selectors,
+                        target_modifiers=target_modifiers,
                     )
                     (total_counts, uncaught_counts, lines_list) = m.mutate()
 

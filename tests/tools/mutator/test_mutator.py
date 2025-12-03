@@ -9,9 +9,10 @@ from unittest import mock
 
 import pytest
 from slither import Slither
-from slither.tools.mutator.__main__ import _get_mutators, main
+from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_selectors
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
+from slither.utils.function import get_function_id
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -131,3 +132,39 @@ def test_run_tests_timeout(caplog, monkeypatch):
         result = run_test_cmd("forge test", timeout=1)
         assert not result
         assert "Tests took too long" in caplog.messages[0]
+
+
+def test_parse_target_selectors_hex():
+    """Test hex selector parsing"""
+    selectors = parse_target_selectors("0xa9059cbb")
+    assert 0xA9059CBB in selectors
+    assert len(selectors) == 1
+
+
+def test_parse_target_selectors_signature():
+    """Test signature to selector conversion"""
+    selectors = parse_target_selectors("transfer(address,uint256)")
+    expected = get_function_id("transfer(address,uint256)")
+    assert expected in selectors
+    assert len(selectors) == 1
+
+
+def test_parse_target_selectors_multiple():
+    """Test multiple selectors (mixed formats)"""
+    selectors = parse_target_selectors("0xa9059cbb,mint(address,uint256)")
+    assert len(selectors) == 2
+    assert 0xA9059CBB in selectors
+    assert get_function_id("mint(address,uint256)") in selectors
+
+
+def test_parse_target_selectors_empty_parts():
+    """Test handling of empty parts in comma-separated list"""
+    selectors = parse_target_selectors("0xa9059cbb,,0x40c10f19")
+    assert len(selectors) == 2
+
+
+def test_parse_target_selectors_whitespace():
+    """Test handling of whitespace around selectors"""
+    # Note: 0xa9059cbb IS transfer(address,uint256), so deduped to 1
+    selectors = parse_target_selectors("  0xa9059cbb  ,  mint(address,uint256)  ")
+    assert len(selectors) == 2

@@ -39,6 +39,8 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                         )
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for variable in function.local_variables:
                 if variable.initialized and isinstance(variable.expression, Literal):
                     start = variable.source_mapping.start
