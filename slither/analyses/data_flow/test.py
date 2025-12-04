@@ -430,7 +430,7 @@ def main(debug: bool = False) -> None:
     logger.info(LogMessages.ENGINE_START)
 
     # Load the Solidity contract
-    contract_path: str = "../contracts/src/Require.sol"
+    contract_path: str = "../contracts/src/Assert.sol"
     logger.info("Loading contract from: {path}", path=contract_path)
     slither: Slither = Slither(contract_path)
 

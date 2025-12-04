@@ -35,3 +35,9 @@ class SolidityCallHandler(BaseOperationHandler):
 
         if "require" in function_full_name:
             RequireHandler(self.solver).handle(operation, domain, node)
+
+        self.logger.error_and_raise(
+            "Unknown function: {function_full_name}",
+            ValueError,
+            function_full_name=function_full_name,
+        )
