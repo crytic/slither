@@ -1,17 +1,29 @@
-from typing import Dict, Mapping, Optional
+from typing import Dict, Mapping, Optional, TYPE_CHECKING
 
 from .tracked_variable import TrackedSMTVariable
+
+if TYPE_CHECKING:
+    from slither.slithir.operations.binary import Binary
 
 
 class State:
     """Represents the state of variables in range analysis using SMT variables."""
 
-    def __init__(self, range_variables: Optional[Mapping[str, TrackedSMTVariable]] = None):
+    def __init__(
+        self,
+        range_variables: Optional[Mapping[str, TrackedSMTVariable]] = None,
+        binary_operations: Optional[Mapping[str, "Binary"]] = None,
+    ):
         if range_variables is None:
             range_variables = {}
         self.range_variables: Dict[str, TrackedSMTVariable] = dict(
             range_variables
         )  # Make mutable copy
+        if binary_operations is None:
+            binary_operations = {}
+        self.binary_operations: Dict[str, "Binary"] = dict(
+            binary_operations
+        )  # Maps temp variable names to their source Binary operations
 
     def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
@@ -32,6 +44,22 @@ class State:
     def add_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Add a new SMT variable to the state."""
         self.range_variables[name] = smt_variable
+
+    def set_binary_operation(self, var_name: str, operation: "Binary") -> None:
+        """Store a Binary operation that produced a temporary variable."""
+        self.binary_operations[var_name] = operation
+
+    def get_binary_operation(self, var_name: str) -> Optional["Binary"]:
+        """Retrieve the Binary operation that produced a temporary variable."""
+        return self.binary_operations.get(var_name)
+
+    def has_binary_operation(self, var_name: str) -> bool:
+        """Check if a Binary operation exists for a variable name."""
+        return var_name in self.binary_operations
+
+    def get_binary_operations(self) -> Dict[str, "Binary"]:
+        """Get all Binary operations in the state."""
+        return self.binary_operations
 
     def remove_range_variable(self, name: str) -> bool:
         """Remove a range variable by name, returns True if removed."""
@@ -56,6 +84,15 @@ class State:
             # Compare TrackedSMTVariables using their equality method
             if smt_var != other.range_variables[name]:
                 return False
+        # Compare binary operations (by identity since operations are not directly comparable)
+        if len(self.binary_operations) != len(other.binary_operations):
+            return False
+        for name, op in self.binary_operations.items():
+            if name not in other.binary_operations:
+                return False
+            # Compare operations by identity (same object reference)
+            if op is not other.binary_operations[name]:
+                return False
         return True
 
     def __hash__(self) -> int:
@@ -65,7 +102,9 @@ class State:
             (name, hash((smt_var.base, smt_var.overflow_flag, smt_var.overflow_amount)))
             for name, smt_var in self.range_variables.items()
         )
-        return hash(tuple(items))
+        # Include binary operations in hash (using id for object identity)
+        op_items = sorted((name, id(op)) for name, op in self.binary_operations.items())
+        return hash((tuple(items), tuple(op_items)))
 
     def deep_copy(self) -> "State":
         """Create a deep copy of the state"""
@@ -77,4 +116,6 @@ class State:
             )
             for name, value in self.range_variables.items()
         }
-        return State(copied_vars)
+        # Binary operations are copied by reference (they're immutable operation objects)
+        copied_ops = dict(self.binary_operations)
+        return State(copied_vars, copied_ops)

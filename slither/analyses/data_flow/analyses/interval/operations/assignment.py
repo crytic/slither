@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
+from slither.core.cfg.scope import Scope
+from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
@@ -48,14 +50,20 @@ class AssignmentHandler(BaseOperationHandler):
             return
 
         # Determine the best type information available for the lvalue
+        lvalue_type_attr = lvalue.type if hasattr(lvalue, "type") else None
         lvalue_type = IntervalSMTUtils.resolve_elementary_type(
-            operation.variable_return_type, getattr(lvalue, "type", None)
+            operation.variable_return_type, lvalue_type_attr
         )
         if lvalue_type is None:
             self.logger.debug("Unsupported lvalue type for assignment; skipping interval update.")
             return
 
-        is_checked = bool(getattr(getattr(node, "scope", None), "is_checked", False))
+        # Get is_checked from scope (Scope has attribute, Function has method)
+        is_checked = False
+        if isinstance(node.scope, Scope):
+            is_checked = node.scope.is_checked
+        elif isinstance(node.scope, Function):
+            is_checked = node.scope.is_checked()
 
         # Fetch or create SMT variable for lvalue
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
@@ -75,7 +83,7 @@ class AssignmentHandler(BaseOperationHandler):
             rvalue_name = self._get_variable_name(rvalue)
             if rvalue_name is not None:
                 if not self._handle_variable_assignment(
-                    lvalue_var, rvalue, rvalue_name, domain, is_checked, lvalue_type
+                    lvalue_var, rvalue, rvalue_name, lvalue_name, domain, is_checked, lvalue_type
                 ):
                     return  # Unsupported rvalue type; skip update
 
@@ -92,6 +100,7 @@ class AssignmentHandler(BaseOperationHandler):
         lvalue_var: TrackedSMTVariable,
         rvalue: object,
         rvalue_name: str,
+        lvalue_name: str,
         domain: "IntervalDomain",
         is_checked: bool,
         fallback_type: Optional[ElementaryType],
@@ -116,6 +125,12 @@ class AssignmentHandler(BaseOperationHandler):
         # Add constraint: lvalue == rvalue
         constraint: SMTTerm = lvalue_var.term == rvalue_var.term
         self.solver.assert_constraint(constraint)
+
+        # Propagate binary operation mapping if rvalue has one
+        # This allows require(condition) to find the original comparison when condition = TMP_0
+        rvalue_binary_op = domain.state.get_binary_operation(rvalue_name)
+        if rvalue_binary_op is not None:
+            domain.state.set_binary_operation(lvalue_name, rvalue_binary_op)
 
         # Handle overflow propagation
         if self._is_temporary_name(rvalue_name):

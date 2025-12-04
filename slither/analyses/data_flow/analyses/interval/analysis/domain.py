@@ -55,6 +55,12 @@ class IntervalDomain(Domain):
                     self.state.add_range_variable(var_name, incoming_var)
                     changed = True
 
+            # Merge binary operations from other state
+            for var_name, incoming_op in other.state.get_binary_operations().items():
+                if not self.state.has_binary_operation(var_name):
+                    self.state.set_binary_operation(var_name, incoming_op)
+                    changed = True
+
             return changed
 
         else:

@@ -11,6 +11,7 @@ from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class ComparisonBinaryHandler(BaseOperationHandler):
@@ -37,6 +38,12 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         # Link result boolean to comparison result, no additional enforcement.
         self.solver.assert_constraint(result_var.term == comparison_bitvec)
         result_var.assert_no_overflow(self.solver)
+
+        # Store the operation for all variables (temporaries and locals) that result from comparison/logical operations
+        # This allows require() to retrieve the original constraint
+        result_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
+        if result_name is not None:
+            domain.state.set_binary_operation(result_name, operation)
 
     def _ensure_result_variable(
         self, operation: Binary, domain: IntervalDomain
@@ -155,6 +162,23 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             domain.state.set_range_variable(operand_name, tracked)
             tracked.assert_no_overflow(self.solver)
 
+            # If this is an SSA version (contains "|"), check if the base variable has an initial value
+            # and propagate it. For example, if base variable "value" = 0, then "value|value_0" should also = 0
+            if "|" in operand_name:
+                base_name = operand_name.split("|")[0]
+                base_tracked = IntervalSMTUtils.get_tracked_variable(domain, base_name)
+                # If base variable exists and we're creating the first SSA version (_0),
+                # check if we need to propagate initial value constraint
+                ssa_part = operand_name.split("|")[-1]
+                if base_tracked is not None and ssa_part.endswith("_0"):
+                    from slither.core.solidity_types.elementary_type import Int, Uint
+
+                    type_str = solidity_type.type if solidity_type else None
+                    if type_str and (type_str in Uint or type_str in Int or type_str == "bool"):
+                        # Assert that the SSA version equals 0 (default for uninitialized variables)
+                        zero_constant = self.solver.create_constant(0, tracked.sort)
+                        self.solver.assert_constraint(tracked.term == zero_constant)
+
         is_signed = self._is_signed(operand, tracked)
         return self._term_to_int(tracked.term, is_signed)
 
@@ -194,3 +218,66 @@ class ComparisonBinaryHandler(BaseOperationHandler):
     def _bool_constants(self) -> tuple[SMTTerm, SMTTerm]:
         zero, one = self._bool_zero_value()
         return one, zero
+
+    @staticmethod
+    def get_binary_operation_from_temp(
+        temp_var_name: str, domain: IntervalDomain
+    ) -> Optional[Binary]:
+        """Retrieve the original Binary operation that produced a temporary variable."""
+        return domain.state.get_binary_operation(temp_var_name)
+
+    @staticmethod
+    def validate_constraint_from_temp(
+        temp_var_name: str, domain: IntervalDomain
+    ) -> Optional[Binary]:
+        """Validate that a temporary variable represents a valid constraint from a Binary operation."""
+        operation = domain.state.get_binary_operation(temp_var_name)
+        if operation is None:
+            return None
+
+        # Validate that the operation is a comparison or logical operation
+        if operation.type in ComparisonBinaryHandler._LOGICAL_TYPES:
+            return operation
+
+        # Check if it's a comparison operation
+        comparison_types = {
+            BinaryType.LESS,
+            BinaryType.GREATER,
+            BinaryType.LESS_EQUAL,
+            BinaryType.GREATER_EQUAL,
+            BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL,
+        }
+        if operation.type in comparison_types:
+            return operation
+
+        return None
+
+    def build_comparison_constraint(
+        self, binary_op: Binary, domain: IntervalDomain
+    ) -> Optional[SMTTerm]:
+        """Build an SMT constraint from a Binary comparison operation."""
+        if self.solver is None:
+            return None
+
+        left_int = self._resolve_operand_int(binary_op.variable_left, domain)
+        right_int = self._resolve_operand_int(binary_op.variable_right, domain)
+
+        if left_int is None or right_int is None:
+            return None
+
+        comp_type = binary_op.type
+        if comp_type == BinaryType.GREATER_EQUAL:
+            return left_int >= right_int
+        if comp_type == BinaryType.GREATER:
+            return left_int > right_int
+        if comp_type == BinaryType.LESS_EQUAL:
+            return left_int <= right_int
+        if comp_type == BinaryType.LESS:
+            return left_int < right_int
+        if comp_type == BinaryType.EQUAL:
+            return left_int == right_int
+        if comp_type == BinaryType.NOT_EQUAL:
+            return left_int != right_int
+
+        return None
