@@ -8,6 +8,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.asser
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.require import (
     RequireHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.revert import (
+    RevertHandler,
+)
 from slither.slithir.operations.solidity_call import SolidityCall
 
 from ..base import BaseOperationHandler
@@ -40,6 +43,8 @@ class SolidityCallHandler(BaseOperationHandler):
             RequireHandler(self.solver).handle(operation, domain, node)
         elif "assert" in function_full_name:
             AssertHandler(self.solver).handle(operation, domain, node)
+        elif "revert" in function_full_name:
+            RevertHandler(self.solver).handle(operation, domain, node)
         else:
             self.logger.error_and_raise(
                 "Unknown function: {function_full_name}",
