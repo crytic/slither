@@ -6,8 +6,8 @@ from slither.core.cfg.node import Node
 from slither.slithir.operations.solidity_call import SolidityCall
 
 
-class RequireHandler(BaseAssertionHandler):
-    """Handler for require calls."""
+class AssertHandler(BaseAssertionHandler):
+    """Handler for assert calls."""
 
     def __init__(self, solver=None):
-        super().__init__(solver, assertion_type="require")
+        super().__init__(solver, assertion_type="assert")
