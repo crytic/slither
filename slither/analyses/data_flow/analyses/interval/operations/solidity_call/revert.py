@@ -10,7 +10,6 @@ from slither.slithir.operations.solidity_call import SolidityCall
 class RevertHandler(BaseOperationHandler):
     """Handler for revert calls.
 
-    Unlike require() and assert(), revert() is unconditional and always reverts.
     The path after a revert is always unreachable, so we set the domain to TOP.
     """
 
