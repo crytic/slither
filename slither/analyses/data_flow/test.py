@@ -797,11 +797,7 @@ def run_verbose(
 
 
 def generate_expected_results(contracts_dir: Path) -> None:
-    """Generate expected results from current analysis output.
-
-    This runs the analysis on all contracts and outputs the results in the
-    same format as expected_results.py, which can be copied directly.
-    """
+    """Generate expected results from current analysis output and save to expected_results.py."""
     console.print("\n[bold cyan]Generating expected results from current analysis...[/bold cyan]\n")
 
     # Discover all .sol files
@@ -846,40 +842,59 @@ def generate_expected_results(contracts_dir: Path) -> None:
 
             all_results[sol_file.name][contract_result.contract_name] = contract_data
 
-    # Format as Python code
-    console.print(
-        "\n[bold green]Expected results (copy this into expected_results.py):[/bold green]\n"
-    )
-    console.print(
-        "EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, str]]]]] = {"
-    )
+    # Generate Python code as string
+    output_lines = [
+        '"""Expected results for automated data flow analysis tests.',
+        "",
+        "Format: contract_file -> contract_name -> function_name -> variables",
+        'Each variable has: range (as "[min, max]"), overflow ("YES"/"NO")',
+        '"""',
+        "",
+        "from typing import Dict",
+        "",
+        "EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {",
+    ]
 
     for contract_file, contracts in sorted(all_results.items()):
-        console.print(f'    "{contract_file}": {{')
+        output_lines.append(f'    "{contract_file}": {{')
         for contract_name, functions in sorted(contracts.items()):
-            console.print(f'        "{contract_name}": {{')
+            output_lines.append(f'        "{contract_name}": {{')
             for func_name, func_data in sorted(functions.items()):
-                console.print(f'            "{func_name}": {{')
-                console.print('                "variables": {')
+                output_lines.append(f'            "{func_name}": {{')
+                output_lines.append('                "variables": {')
 
                 variables = func_data.get("variables", {})
                 if variables:
                     for var_name, var_data in sorted(variables.items()):
                         range_val = var_data.get("range", "[0, 0]")
                         overflow_val = var_data.get("overflow", "NO")
-                        console.print(
+                        output_lines.append(
                             f'                    "{var_name}": {{"range": "{range_val}", "overflow": "{overflow_val}"}},'
                         )
                 else:
-                    console.print("                    # No variables tracked")
+                    output_lines.append("                    # No variables tracked")
 
-                console.print("                }")
-                console.print("            },")
-            console.print("        },")
-        console.print("    },")
+                output_lines.append("                }")
+                output_lines.append("            },")
+            output_lines.append("        },")
+        output_lines.append("    },")
 
-    console.print("}\n")
-    console.print("[dim]Note: Review and adjust the results as needed before using them.[/dim]\n")
+    output_lines.append("}")
+
+    # Write to file
+    expected_results_path = Path(__file__).parent / "expected_results.py"
+    output_content = "\n".join(output_lines) + "\n"
+
+    try:
+        expected_results_path.write_text(output_content, encoding="utf-8")
+        console.print(
+            f"\n[bold green]✓[/bold green] Expected results saved to: {expected_results_path}"
+        )
+    except Exception as e:
+        console.print(f"\n[bold red]✗[/bold red] Failed to save expected results: {e}")
+        return
+
+    console.print("[dim]Note: Review and adjust the results as needed.[/dim]\n")
 
 
 def show_test_output(
