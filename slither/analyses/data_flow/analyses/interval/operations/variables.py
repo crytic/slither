@@ -1,6 +1,16 @@
 from typing import Optional, TYPE_CHECKING
 
-from slither.core.solidity_types.elementary_type import Int, Uint
+from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType
+
+# Import for global Solidity variables
+try:
+    from slither.core.declarations.solidity_variables import (
+        SolidityVariableComposed,
+        SOLIDITY_VARIABLES_COMPOSED,
+    )
+except ImportError:
+    SolidityVariableComposed = None
+    SOLIDITY_VARIABLES_COMPOSED = {}
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
@@ -31,8 +41,8 @@ def handle_variable_declaration(
     if var_type is None:
         return
 
-    existing: Optional[TrackedSMTVariable] = domain.state.get_range_variable(var_name)
-    if existing is not None:
+    # Use has_range_variable to avoid marking as used during declaration check
+    if domain.state.has_range_variable(var_name):
         return
 
     tracked_var = IntervalSMTUtils.create_tracked_variable(solver, var_name, var_type)
@@ -45,8 +55,15 @@ def handle_variable_declaration(
     # Initialize variable to Solidity default value based on type:
     # - Integer types (uint, int): initialized to 0
     # - Boolean type (bool): initialized to false (0 in bitvector)
+    # - Address type: initialized to 0 (zero address)
     type_str = var_type.type
-    if type_str not in Uint and type_str not in Int and type_str != "bool":
+    if (
+        type_str not in Uint
+        and type_str not in Int
+        and type_str != "bool"
+        and type_str != "address"
+        and type_str != "address payable"
+    ):
         return
 
     # Create a constant term with value 0 using the variable's sort (type-specific width)
@@ -78,3 +95,49 @@ def handle_variable_declaration(
     ssa_tracked.assert_no_overflow(solver)
     # Set the same initial value constraint on SSA version
     solver.assert_constraint(ssa_tracked.term == zero_constant)
+
+
+def initialize_global_solidity_variables(solver: "SMTSolver", domain: "IntervalDomain") -> None:
+    """Pre-initialize global Solidity variables in the domain."""
+    if SolidityVariableComposed is None:
+        return
+
+    # Initialize common global Solidity variables that are frequently used
+    # These should have their full type range (not initialized to 0)
+    # Only initialize elementary types (address, uint256, etc.)
+    global_vars_to_init = [
+        "msg.sender",  # address
+        "msg.value",  # uint256
+        "block.timestamp",  # uint256
+        "block.number",  # uint256
+        "block.coinbase",  # address
+        "block.difficulty",  # uint256
+        "block.gaslimit",  # uint256
+        "block.chainid",  # uint256
+        "tx.origin",  # address
+        "tx.gasprice",  # uint256
+    ]
+
+    for var_name in global_vars_to_init:
+        if var_name not in SOLIDITY_VARIABLES_COMPOSED:
+            continue
+
+        # Check if already exists (shouldn't happen, but be safe)
+        # Use has_range_variable to avoid marking as used during initialization
+        if domain.state.has_range_variable(var_name):
+            continue
+
+        # Get the type for this global variable
+        var_type_str = SOLIDITY_VARIABLES_COMPOSED[var_name]
+        try:
+            var_type = ElementaryType(var_type_str)
+        except Exception:
+            # Skip non-elementary types (like bytes, string)
+            continue
+
+        # Create tracked variable (without initializing to 0 - globals have full range)
+        tracked_var = IntervalSMTUtils.create_tracked_variable(solver, var_name, var_type)
+        if tracked_var is not None:
+            # Use add_range_variable for initialization (doesn't mark as used)
+            domain.state.add_range_variable(var_name, tracked_var)
+            # Global variables don't get initialized to 0 - they have full range

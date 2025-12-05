@@ -262,9 +262,14 @@ def analyze_function_quiet(
                     state.post.state.get_range_variables()
                 )
 
+                # Only show variables that were actually used
+                used_vars = state.post.state.get_used_variables()
                 for var_name, smt_var in post_state_vars.items():
                     # Filter out constants and temporary variables
                     if var_name.startswith("CONST_") or var_name.startswith("TMP_"):
+                        continue
+                    # Filter out unused variables
+                    if var_name not in used_vars:
                         continue
 
                     min_result, max_result = solve_variable_range(solver, smt_var)
@@ -675,9 +680,14 @@ def analyze_function_verbose(
 
                 solver = analysis.solver
                 if solver:
+                    # Only show variables that were actually used
+                    used_vars = state.post.state.get_used_variables()
                     variable_results: List[Dict] = []
                     for var_name, smt_var in sorted(post_state_vars.items()):
                         if var_name.startswith("CONST_"):
+                            continue
+                        # Filter out unused variables
+                        if var_name not in used_vars:
                             continue
 
                         if debug:

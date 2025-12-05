@@ -49,7 +49,8 @@ class IntervalDomain(Domain):
 
             changed = False
             for var_name, incoming_var in other.state.get_range_variables().items():
-                existing_var = self.state.get_range_variable(var_name)
+                # Use has_range_variable instead of get_range_variable to avoid marking as used
+                existing_var = self.state.range_variables.get(var_name)
 
                 if existing_var is None:
                     self.state.add_range_variable(var_name, incoming_var)
@@ -60,6 +61,12 @@ class IntervalDomain(Domain):
                 if not self.state.has_binary_operation(var_name):
                     self.state.set_binary_operation(var_name, incoming_op)
                     changed = True
+
+            # Merge used variables sets - if used in either state, mark as used
+            other_used = other.state.get_used_variables()
+            if other_used:
+                self.state.used_variables.update(other_used)
+                changed = True
 
             return changed
 

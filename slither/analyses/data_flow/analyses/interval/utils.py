@@ -96,6 +96,9 @@ class IntervalSMTUtils:
         if solidity_type.type == "bool":
             # Use 1-bit bitvector for booleans
             return Sort(kind=SortKind.BITVEC, parameters=[1])
+        if solidity_type.type == "address" or solidity_type.type == "address payable":
+            # Use 160-bit bitvector for addresses
+            return Sort(kind=SortKind.BITVEC, parameters=[160])
         return None
 
     @staticmethod
@@ -107,6 +110,8 @@ class IntervalSMTUtils:
             return 256 if type_str == "int" else int(type_str.replace("int", ""))
         if type_str == "bool":
             return 1
+        if type_str == "address" or type_str == "address payable":
+            return 160
         raise ValueError(f"Unsupported solidity type {type_str}")
 
     @staticmethod
@@ -132,6 +137,10 @@ class IntervalSMTUtils:
 
         if type_str == "bool":
             return 0, 1
+
+        if type_str == "address" or type_str == "address payable":
+            # Address is 160 bits, range is 0 to 2^160 - 1
+            return 0, (1 << 160) - 1
 
         return None
 

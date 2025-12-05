@@ -17,6 +17,16 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.core.cfg.node import Node
 
+# Import for type checking Solidity variables
+try:
+    from slither.core.declarations.solidity_variables import (
+        SolidityVariableComposed,
+        SolidityVariable,
+    )
+except ImportError:
+    SolidityVariableComposed = None
+    SolidityVariable = None
+
 
 class AssignmentHandler(BaseOperationHandler):
     """Handler for assignment operations in interval analysis."""
@@ -117,10 +127,9 @@ class AssignmentHandler(BaseOperationHandler):
 
         rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
         if rvalue_var is None:
-            rvalue_var = self._create_tracked_variable(rvalue_name, rvalue_type)
-            if rvalue_var is None:
-                return False
-            domain.state.set_range_variable(rvalue_name, rvalue_var)
+            # Variable should already exist in domain - don't create on demand
+            self.logger.debug(f"Variable '{rvalue_name}' not found in domain; skipping assignment.")
+            return False
 
         # Add constraint: lvalue == rvalue
         # First check if sizes match
@@ -221,3 +230,17 @@ class AssignmentHandler(BaseOperationHandler):
             return False
         short_name = name.split(".")[-1]
         return short_name.startswith("TMP")
+
+    @staticmethod
+    def _is_solidity_variable(var: object) -> bool:
+        """Check if variable is a Solidity global variable (should have full range, not initialized to 0)."""
+        if SolidityVariableComposed is None:
+            return False
+        return isinstance(var, (SolidityVariableComposed, SolidityVariable))
+
+    def _initialize_variable_to_zero(self, var: TrackedSMTVariable) -> None:
+        """Initialize a variable to 0 (Solidity default value for uninitialized variables)."""
+        if self.solver is None:
+            return
+        zero_constant = self.solver.create_constant(0, var.sort)
+        self.solver.assert_constraint(var.term == zero_constant)

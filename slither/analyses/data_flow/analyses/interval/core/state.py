@@ -24,10 +24,15 @@ class State:
         self.binary_operations: Dict[str, "Binary"] = dict(
             binary_operations
         )  # Maps temp variable names to their source Binary operations
+        self.used_variables: set[str] = set()  # Track which variables are actually used/read
 
     def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
-        return self.range_variables.get(name)
+        var = self.range_variables.get(name)
+        if var is not None:
+            # Mark variable as used when it's retrieved
+            self.used_variables.add(name)
+        return var
 
     def has_range_variable(self, name: str) -> bool:
         """Check if an SMT variable exists in the state."""
@@ -40,10 +45,13 @@ class State:
     def set_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Set an SMT variable by name."""
         self.range_variables[name] = smt_variable
+        # Mark as used when set (written to during analysis)
+        self.used_variables.add(name)
 
     def add_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
-        """Add a new SMT variable to the state."""
+        """Add a new SMT variable to the state (without marking as used - for initialization)."""
         self.range_variables[name] = smt_variable
+        # Don't mark as used - this is for initialization, not actual usage
 
     def set_binary_operation(self, var_name: str, operation: "Binary") -> None:
         """Store a Binary operation that produced a temporary variable."""
@@ -106,6 +114,10 @@ class State:
         op_items = sorted((name, id(op)) for name, op in self.binary_operations.items())
         return hash((tuple(items), tuple(op_items)))
 
+    def get_used_variables(self) -> set[str]:
+        """Get the set of variables that were actually used/read."""
+        return self.used_variables
+
     def deep_copy(self) -> "State":
         """Create a deep copy of the state"""
         copied_vars = {
@@ -118,4 +130,7 @@ class State:
         }
         # Binary operations are copied by reference (they're immutable operation objects)
         copied_ops = dict(self.binary_operations)
-        return State(copied_vars, copied_ops)
+        new_state = State(copied_vars, copied_ops)
+        # Copy used variables set
+        new_state.used_variables = set(self.used_variables)
+        return new_state
