@@ -156,7 +156,7 @@ class BaseAssertionHandler(BaseOperationHandler):
         )
 
     def _bool_bitvec_sort(self) -> Sort:
-        return Sort(kind=SortKind.BITVEC, parameters=[256])
+        return Sort(kind=SortKind.BITVEC, parameters=[1])
 
     def _bool_to_bitvec(self, condition: SMTTerm) -> SMTTerm:
         if self.solver is None:
@@ -165,10 +165,13 @@ class BaseAssertionHandler(BaseOperationHandler):
         return self.solver.make_ite(condition, one, zero)
 
     def _bitvec_is_true(self, term: SMTTerm) -> SMTTerm:
+        """Check if a bitvector term represents 'true' (non-zero)."""
         if self.solver is None:
             raise RuntimeError("Solver is required for bool conversion")
-        one, _ = self._bool_constants()
-        return term == one
+        # Create zero with the same width as the term
+        term_width = self.solver.bv_size(term)
+        zero = self.solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[term_width]))
+        return term != zero
 
     def _bool_constants(self) -> tuple[SMTTerm, SMTTerm]:
         if not hasattr(self, "_bool_one"):

@@ -49,9 +49,8 @@ def handle_variable_declaration(
     if type_str not in Uint and type_str not in Int and type_str != "bool":
         return
 
-    # Create a constant term with value 0 (default for integers and false for bool)
-    zero_sort = Sort(kind=SortKind.BITVEC, parameters=[256])
-    zero_constant = solver.create_constant(0, zero_sort)
+    # Create a constant term with value 0 using the variable's sort (type-specific width)
+    zero_constant = solver.create_constant(0, tracked_var.sort)
     solver.assert_constraint(tracked_var.term == zero_constant)
 
     # Also set the constraint on the first SSA version (value_0) if the base name was used

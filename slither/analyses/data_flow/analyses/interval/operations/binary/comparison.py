@@ -196,7 +196,7 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         return bool(tracked.base.metadata.get("is_signed"))
 
     def _bool_bitvec_sort(self) -> Sort:
-        return Sort(kind=SortKind.BITVEC, parameters=[256])
+        return Sort(kind=SortKind.BITVEC, parameters=[1])
 
     def _bool_to_bitvec(self, condition: SMTTerm) -> SMTTerm:
         if self.solver is None:
@@ -205,19 +205,22 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         return self.solver.make_ite(condition, one, zero)
 
     def _bitvec_to_bool(self, term: SMTTerm) -> SMTTerm:
-        zero, _ = self._bool_zero_value()
+        # Create zero with the same width as the term
+        term_width = self.solver.bv_size(term)
+        zero = self.solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[term_width]))
         return term != zero
 
-    def _bool_zero_value(self) -> tuple[SMTTerm, SMTTerm]:
-        if not hasattr(self, "_bool_zero_cached"):
+    def _bool_one_zero_cached(self) -> tuple[SMTTerm, SMTTerm]:
+        """Return (one, zero) as 1-bit bitvector constants."""
+        if not hasattr(self, "_bool_one_cached"):
             sort = self._bool_bitvec_sort()
-            self._bool_zero_cached = self.solver.create_constant(0, sort)
             self._bool_one_cached = self.solver.create_constant(1, sort)
-        return self._bool_zero_cached, self._bool_one_cached
+            self._bool_zero_cached = self.solver.create_constant(0, sort)
+        return self._bool_one_cached, self._bool_zero_cached
 
     def _bool_constants(self) -> tuple[SMTTerm, SMTTerm]:
-        zero, one = self._bool_zero_value()
-        return one, zero
+        """Return (one, zero) as 1-bit bitvector constants."""
+        return self._bool_one_zero_cached()
 
     @staticmethod
     def get_binary_operation_from_temp(

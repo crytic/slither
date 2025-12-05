@@ -123,7 +123,29 @@ class AssignmentHandler(BaseOperationHandler):
             domain.state.set_range_variable(rvalue_name, rvalue_var)
 
         # Add constraint: lvalue == rvalue
-        constraint: SMTTerm = lvalue_var.term == rvalue_var.term
+        # First check if sizes match
+        lvalue_width = self.solver.bv_size(lvalue_var.term)
+        rvalue_width = self.solver.bv_size(rvalue_var.term)
+        if lvalue_width != rvalue_width:
+            self.logger.error(
+                f"Size mismatch in assignment: lvalue width={lvalue_width}, rvalue width={rvalue_width}"
+            )
+            # Extend or truncate rvalue to match lvalue
+            rvalue_term = rvalue_var.term
+            if rvalue_width < lvalue_width:
+                # Extend rvalue - check if signed from metadata
+                is_signed = bool(rvalue_var.base.metadata.get("is_signed", False))
+                rvalue_term = IntervalSMTUtils.extend_to_width(
+                    self.solver, rvalue_term, lvalue_width, is_signed
+                )
+            else:
+                # Truncate rvalue
+                rvalue_term = IntervalSMTUtils.truncate_to_width(
+                    self.solver, rvalue_term, lvalue_width
+                )
+            constraint: SMTTerm = lvalue_var.term == rvalue_term
+        else:
+            constraint: SMTTerm = lvalue_var.term == rvalue_var.term
         self.solver.assert_constraint(constraint)
 
         # Propagate binary operation mapping if rvalue has one

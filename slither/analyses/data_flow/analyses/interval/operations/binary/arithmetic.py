@@ -122,30 +122,41 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_result_signed = IntervalSMTUtils.is_signed_type(result_type)
         result_width = IntervalSMTUtils.type_bit_width(result_type)
 
+        # Extend operands to result width for the operation
+        # Operations are performed at the result type's bit width
+        left_term_extended = IntervalSMTUtils.extend_to_width(
+            self.solver, left_term, result_width, is_result_signed
+        )
+        right_term_extended = IntervalSMTUtils.extend_to_width(
+            self.solver, right_term, result_width, is_result_signed
+        )
+
         if is_power:
             raw_expr = self._compute_power_expression(
                 operation,
                 result_var,
-                left_term,
-                right_term,
+                left_term_extended,
+                right_term_extended,
             )
         else:
-            raw_expr = self._compute_expression(operation, left_term, right_term)
+            raw_expr = self._compute_expression(operation, left_term_extended, right_term_extended)
 
         if raw_expr is None:
             return
 
-        wrapped_expr = self._apply_wrap(raw_expr, result_width, is_result_signed)
-
+        # Result is already at result_width, just assign directly
         # Constrain the bitvector result
-        self.solver.assert_constraint(result_var.term == wrapped_expr)
+        self.solver.assert_constraint(result_var.term == raw_expr)
 
         # Add overflow detection constraint for arithmetic operations
         self._add_overflow_constraint(
             result_var,
-            raw_expr,
+            left_term_extended,
+            right_term_extended,
+            operation,
             result_type,
             is_checked,
+            domain,
         )
 
     def _compute_expression(
@@ -253,12 +264,22 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
     def _add_overflow_constraint(
         self,
         result_var: TrackedSMTVariable,
-        raw_expr: SMTTerm,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        operation: Binary,
         result_type: ElementaryType,
         is_checked: bool,
+        domain: "IntervalDomain",
     ) -> None:
+        from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
+        from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+
         solver = self.solver
-        overflow_cond = self._detect_width_overflow(raw_expr, result_type)
+        result_width = IntervalSMTUtils.type_bit_width(result_type)
+        is_signed = IntervalSMTUtils.is_signed_type(result_type)
+        overflow_cond = self._detect_width_overflow(
+            left_term, right_term, operation, result_width, is_signed
+        )
 
         int_sort = result_var.overflow_amount.sort
         zero = solver.create_constant(0, int_sort)
@@ -272,81 +293,24 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         )
 
         if is_checked:
+            # In checked mode, check if overflow is possible
+            # If overflow MUST occur, mark path as unreachable
+            solver.push()
+            # Try to find a model where no overflow occurs
+            no_overflow = solver.create_constant(False, Sort(kind=SortKind.BOOL))
+            solver.assert_constraint(overflow_cond == no_overflow)
+            sat_result = solver.check_sat()
+            solver.pop()
+
+            if sat_result == CheckSatResult.UNSAT:
+                # No model exists where overflow doesn't occur
+                # This means overflow ALWAYS happens for current constraints
+                self.logger.debug("Overflow detected in checked mode - marking path as unreachable")
+                domain.variant = DomainVariant.TOP
+                return
+
+            # Otherwise, assert no overflow (constraining to valid paths)
             result_var.assert_no_overflow(solver)
-
-    def _detect_add_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
-        """Detect addition overflow using bitvector operations."""
-        solver = self.solver
-        if solver is None:
-            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
-
-        # Extend by 1 bit and check if result fits
-        if is_signed:
-            left_ext = solver.bv_sign_ext(left, 1)
-            right_ext = solver.bv_sign_ext(right, 1)
-            result_ext = left_ext + right_ext
-            # Sign-extend the truncated result back to compare with extended sum
-            truncated = solver.bv_extract(result_ext, solver.bv_size(left) - 1, 0)
-            truncated_ext = solver.bv_sign_ext(truncated, 1)
-            return truncated_ext != result_ext
-        else:
-            left_ext = solver.bv_zero_ext(left, 1)
-            right_ext = solver.bv_zero_ext(right, 1)
-            result_ext = left_ext + right_ext
-            # Check if carry bit is set
-            carry_bit = solver.bv_extract(result_ext, solver.bv_size(left), solver.bv_size(left))
-            from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
-
-            one_sort = Sort(kind=SortKind.BITVEC, parameters=[1])
-            one = solver.create_constant(1, one_sort)
-            return carry_bit == one
-
-    def _detect_sub_overflow(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> SMTTerm:
-        """Detect subtraction overflow using bitvector operations."""
-        solver = self.solver
-        if solver is None:
-            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
-
-        if is_signed:
-            left_ext = solver.bv_sign_ext(left, 1)
-            right_ext = solver.bv_sign_ext(right, 1)
-            result_ext = left_ext - right_ext
-            truncated = solver.bv_extract(result_ext, solver.bv_size(left) - 1, 0)
-            truncated_ext = solver.bv_sign_ext(truncated, 1)
-            return truncated_ext != result_ext
-        else:
-            # For unsigned, underflow occurs if left < right
-            return solver.bv_ult(left, right)
-
-    def _detect_mul_overflow(
-        self, left: SMTTerm, right: SMTTerm, is_signed: bool, width: int
-    ) -> SMTTerm:
-        """Detect multiplication overflow using bitvector operations."""
-        solver = self.solver
-        if solver is None:
-            self.logger.error_and_raise("Solver is required for overflow detection", RuntimeError)
-
-        # Extend to double width and check if upper bits are used
-        if is_signed:
-            left_ext = solver.bv_sign_ext(left, width)
-            right_ext = solver.bv_sign_ext(right, width)
-            result_ext = left_ext * right_ext
-            # Check if result fits in original width
-            result_truncated = solver.bv_extract(result_ext, width - 1, 0)
-            # Sign extend the truncated result and compare
-            result_truncated_ext = solver.bv_sign_ext(result_truncated, width)
-            return result_truncated_ext != result_ext
-        else:
-            left_ext = solver.bv_zero_ext(left, width)
-            right_ext = solver.bv_zero_ext(right, width)
-            result_ext = left_ext * right_ext
-            # Check if upper bits are non-zero
-            upper_bits = solver.bv_extract(result_ext, width * 2 - 1, width)
-            from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
-
-            zero_sort = Sort(kind=SortKind.BITVEC, parameters=[width])
-            zero = solver.create_constant(0, zero_sort)
-            return upper_bits != zero
 
     def _get_operand_term(
         self,
@@ -382,24 +346,61 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
         return tracked.term, tracked
 
-    def _apply_wrap(self, expr: SMTTerm, width: int, is_signed: bool) -> SMTTerm:
-        if width >= 256:
-            return expr
-        lower = self.solver.bv_extract(expr, width - 1, 0)
-        if is_signed:
-            return self.solver.bv_sign_ext(lower, 256 - width)
-        return self.solver.bv_zero_ext(lower, 256 - width)
+    def _detect_width_overflow(
+        self,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        operation: Binary,
+        result_width: int,
+        is_signed: bool,
+    ) -> SMTTerm:
+        """Detect overflow by performing operation at extended width and comparing."""
+        solver = self.solver
+        op_type = operation.type
 
-    def _detect_width_overflow(self, expr: SMTTerm, solidity_type: ElementaryType) -> SMTTerm:
-        width = IntervalSMTUtils.type_bit_width(solidity_type)
-        if width >= 256:
-            return self._bool_false()
-        lower = self.solver.bv_extract(expr, width - 1, 0)
-        if IntervalSMTUtils.is_signed_type(solidity_type):
-            extended = self.solver.bv_sign_ext(lower, 256 - width)
+        # Extend operands by 1 bit to detect overflow
+        if is_signed:
+            left_ext = solver.bv_sign_ext(left_term, 1)
+            right_ext = solver.bv_sign_ext(right_term, 1)
         else:
-            extended = self.solver.bv_zero_ext(lower, 256 - width)
-        return extended != expr
+            left_ext = solver.bv_zero_ext(left_term, 1)
+            right_ext = solver.bv_zero_ext(right_term, 1)
+
+        # Perform operation at extended width
+        if op_type == BinaryType.ADDITION:
+            result_ext = left_ext + right_ext
+        elif op_type == BinaryType.SUBTRACTION:
+            result_ext = left_ext - right_ext
+        elif op_type == BinaryType.MULTIPLICATION:
+            # For multiplication, extend by full width to catch all overflow cases
+            if is_signed:
+                left_mul_ext = solver.bv_sign_ext(left_term, result_width)
+                right_mul_ext = solver.bv_sign_ext(right_term, result_width)
+            else:
+                left_mul_ext = solver.bv_zero_ext(left_term, result_width)
+                right_mul_ext = solver.bv_zero_ext(right_term, result_width)
+            result_ext = left_mul_ext * right_mul_ext
+            # Check if upper bits are non-zero (for unsigned) or don't match sign extension (for signed)
+            lower = solver.bv_extract(result_ext, result_width - 1, 0)
+            if is_signed:
+                extended_back = solver.bv_sign_ext(lower, result_width)
+            else:
+                extended_back = solver.bv_zero_ext(lower, result_width)
+            return extended_back != result_ext
+        elif op_type == BinaryType.POWER:
+            # Power overflow is complex; for now return false (handled separately)
+            return self._bool_false()
+        else:
+            # Division, modulo, shifts don't overflow in the traditional sense
+            return self._bool_false()
+
+        # For add/sub: check if truncated result differs from extended result
+        lower = solver.bv_extract(result_ext, result_width - 1, 0)
+        if is_signed:
+            extended_back = solver.bv_sign_ext(lower, 1)
+        else:
+            extended_back = solver.bv_zero_ext(lower, 1)
+        return extended_back != result_ext
 
     def _bool_false(self) -> SMTTerm:
         if not hasattr(self, "_bool_false_term"):

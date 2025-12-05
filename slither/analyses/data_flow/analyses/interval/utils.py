@@ -71,7 +71,7 @@ class IntervalSMTUtils:
             return None
         tracked = TrackedSMTVariable.create(solver, name, sort)
         IntervalSMTUtils._annotate_tracked_variable(tracked, solidity_type)
-        IntervalSMTUtils._enforce_type_bounds(solver, tracked, solidity_type)
+        # Type bounds are now enforced by the bitvector width itself
         return tracked
 
     @staticmethod
@@ -89,9 +89,13 @@ class IntervalSMTUtils:
 
     @staticmethod
     def solidity_type_to_smt_sort(solidity_type: ElementaryType) -> Optional[Sort]:
-        """Convert a Solidity elementary type into an SMT sort."""
-        if solidity_type.type in Uint or solidity_type.type in Int or solidity_type.type == "bool":
-            return Sort(kind=SortKind.BITVEC, parameters=[256])
+        """Convert a Solidity elementary type into an SMT sort with appropriate bit width."""
+        if solidity_type.type in Uint or solidity_type.type in Int:
+            width = IntervalSMTUtils.type_bit_width(solidity_type)
+            return Sort(kind=SortKind.BITVEC, parameters=[width])
+        if solidity_type.type == "bool":
+            # Use 1-bit bitvector for booleans
+            return Sort(kind=SortKind.BITVEC, parameters=[1])
         return None
 
     @staticmethod
@@ -132,25 +136,10 @@ class IntervalSMTUtils:
         return None
 
     @staticmethod
-    def _enforce_type_bounds(
-        solver: "SMTSolver", tracked: TrackedSMTVariable, solidity_type: ElementaryType
-    ) -> None:
-        width = IntervalSMTUtils.type_bit_width(solidity_type)
-        if width >= 256:
-            return
-
-        lower_bits = solver.bv_extract(tracked.term, width - 1, 0)
-        if IntervalSMTUtils.is_signed_type(solidity_type):
-            extended = solver.bv_sign_ext(lower_bits, 256 - width)
-        else:
-            extended = solver.bv_zero_ext(lower_bits, 256 - width)
-        solver.assert_constraint(tracked.term == extended)
-
-    @staticmethod
     def create_constant_term(
         solver: "SMTSolver", value: Union[int, bool], solidity_type: Optional[ElementaryType]
     ):
-        """Create a 256-bit bitvector constant matching the logical type."""
+        """Create a bitvector constant with the appropriate width for the Solidity type."""
         is_bool = isinstance(value, bool)
         logical_value = 1 if is_bool and value else 0 if is_bool else value
 
@@ -161,15 +150,34 @@ class IntervalSMTUtils:
             width = 1 if is_bool else 256
             signed = False
 
-        modulus = 1 << width if width < 256 else 1 << 256
+        modulus = 1 << width
         if signed:
-            logical_value = logical_value % (1 << width)
-            if width < 256 and logical_value >= (1 << (width - 1)):
-                logical_value -= 1 << width
+            logical_value = logical_value % modulus
+            if logical_value >= (1 << (width - 1)):
+                logical_value -= modulus
         else:
-            logical_value = logical_value % (1 << width)
+            logical_value = logical_value % modulus
 
         if logical_value < 0:
-            logical_value = (logical_value + (1 << 256)) % (1 << 256)
+            logical_value = (logical_value + modulus) % modulus
 
-        return solver.create_constant(logical_value, Sort(kind=SortKind.BITVEC, parameters=[256]))
+        return solver.create_constant(logical_value, Sort(kind=SortKind.BITVEC, parameters=[width]))
+
+    @staticmethod
+    def extend_to_width(solver: "SMTSolver", term, target_width: int, is_signed: bool):
+        """Extend a bitvector term to a target width using sign or zero extension."""
+        current_width = solver.bv_size(term)
+        if current_width >= target_width:
+            return term
+        extra_bits = target_width - current_width
+        if is_signed:
+            return solver.bv_sign_ext(term, extra_bits)
+        return solver.bv_zero_ext(term, extra_bits)
+
+    @staticmethod
+    def truncate_to_width(solver: "SMTSolver", term, target_width: int):
+        """Truncate a bitvector term to a target width by extracting lower bits."""
+        current_width = solver.bv_size(term)
+        if current_width <= target_width:
+            return term
+        return solver.bv_extract(term, target_width - 1, 0)
