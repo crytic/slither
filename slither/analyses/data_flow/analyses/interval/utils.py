@@ -165,14 +165,19 @@ class IntervalSMTUtils:
 
     @staticmethod
     def extend_to_width(solver: "SMTSolver", term, target_width: int, is_signed: bool):
-        """Extend a bitvector term to a target width using sign or zero extension."""
+        """Resize a bitvector term to a target width (extend or truncate as needed)."""
         current_width = solver.bv_size(term)
-        if current_width >= target_width:
+        if current_width == target_width:
             return term
-        extra_bits = target_width - current_width
-        if is_signed:
-            return solver.bv_sign_ext(term, extra_bits)
-        return solver.bv_zero_ext(term, extra_bits)
+        if current_width < target_width:
+            # Extend
+            extra_bits = target_width - current_width
+            if is_signed:
+                return solver.bv_sign_ext(term, extra_bits)
+            return solver.bv_zero_ext(term, extra_bits)
+        else:
+            # Truncate - extract lower bits
+            return solver.bv_extract(term, target_width - 1, 0)
 
     @staticmethod
     def truncate_to_width(solver: "SMTSolver", term, target_width: int):
