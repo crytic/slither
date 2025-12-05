@@ -1,4 +1,9 @@
+"""Automated test suite for Slither data flow analysis."""
+
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
+import sys
 
 from rich.console import Console
 from rich.table import Table
@@ -18,24 +23,92 @@ from z3 import BitVecRef, Optimize, is_true, sat
 if TYPE_CHECKING:
     from slither.analyses.data_flow.logger import DataFlowLogger, LogMessages
 
+# Import expected results from separate file
+from slither.analyses.data_flow.expected_results import EXPECTED_RESULTS
+
 console = Console()
+
+
+# =============================================================================
+# DATA CLASSES FOR TEST RESULTS
+# =============================================================================
+
+
+@dataclass
+class VariableResult:
+    """Result for a single variable."""
+
+    name: str
+    range_str: str
+    overflow: str
+    overflow_amount: int = 0
+
+
+@dataclass
+class FunctionResult:
+    """Result for a single function analysis."""
+
+    function_name: str
+    contract_name: str
+    variables: Dict[str, VariableResult] = field(default_factory=dict)
+    error: Optional[str] = None
+
+
+@dataclass
+class ContractResult:
+    """Result for a single contract analysis."""
+
+    contract_file: str
+    contract_name: str
+    functions: Dict[str, FunctionResult] = field(default_factory=dict)
+
+
+@dataclass
+class TestComparison:
+    """Comparison result between expected and actual."""
+
+    passed: bool
+    variable_name: str
+    expected_range: Optional[str] = None
+    actual_range: Optional[str] = None
+    expected_overflow: Optional[str] = None
+    actual_overflow: Optional[str] = None
+    message: str = ""
+
+
+@dataclass
+class FunctionTestResult:
+    """Test result for a single function."""
+
+    function_name: str
+    passed: bool
+    comparisons: List[TestComparison] = field(default_factory=list)
+    missing_expected: List[str] = field(default_factory=list)
+    unexpected_vars: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ContractTestResult:
+    """Test result for a single contract."""
+
+    contract_file: str
+    contract_name: str
+    passed: bool
+    function_results: Dict[str, FunctionTestResult] = field(default_factory=dict)
+    error: Optional[str] = None
+
+
+# =============================================================================
+# SOLVER FUNCTIONS
+# =============================================================================
 
 
 def solve_variable_range(
     solver: object, smt_var: TrackedSMTVariable, debug: bool = False
 ) -> tuple[Optional[Dict], Optional[Dict]]:
-    """
-    Solve for minimum and maximum values of a variable.
-
-    Strategy: Create fresh optimizer instances for each query to avoid
-    conflicts between multiple objectives.
-
-    Returns:
-        Tuple of (min_result, max_result) dictionaries with 'value' and 'overflow' keys
-    """
+    """Solve for min/max values of a variable."""
     term = smt_var.term
     if not isinstance(term, BitVecRef):
-        console.print(f"[yellow]Warning: {smt_var.name} is not a bitvector[/yellow]")
         return None, None
 
     metadata = getattr(smt_var.base, "metadata", {})
@@ -44,11 +117,6 @@ def solve_variable_range(
     sort_parameters = getattr(smt_var.sort, "parameters", None)
     if bit_width is None and sort_parameters:
         bit_width = sort_parameters[0]
-
-    if debug:
-        console.print(
-            f"\n[cyan]Solving range for {smt_var.name} (signed={is_signed}, width={bit_width})[/cyan]"
-        )
 
     min_bound = metadata.get("min_value")
     max_bound = metadata.get("max_value")
@@ -68,191 +136,433 @@ def solve_variable_range(
         return value
 
     def _create_fresh_optimizer():
-        """Create a new optimizer with all current constraints."""
         opt = Optimize()
-
-        # Set a shorter timeout to prevent hanging (5 seconds)
-        # For uint256, optimization should be fast with bitvectors
         opt.set("timeout", 2000)
-
-        # Enable faster optimization strategies for bitvectors
-        # These settings help Z3 optimize bitvectors more efficiently
         opt.set("opt.priority", "box")
         opt.set("opt.maxsat_engine", "wmax")
 
-        # Copy all constraints from the original solver
         if hasattr(solver, "solver"):
             z3_solver = solver.solver
             assertions = z3_solver.assertions()
-            if debug:
-                console.print(f"[dim]Copying {len(assertions)} constraints to optimizer[/dim]")
-
-                # Debug: Print first few assertions
-                for i, assertion in enumerate(assertions[:5]):
-                    console.print(f"[dim]  Constraint {i}: {assertion}[/dim]")
-                if len(assertions) > 5:
-                    console.print(f"[dim]  ... and {len(assertions) - 5} more[/dim]")
-
             for assertion in assertions:
                 opt.add(assertion)
         else:
-            if debug:
-                console.print("[yellow]Warning: Could not access solver assertions[/yellow]")
             return None
-
         return opt
 
     def _optimize_range(maximize: bool) -> Optional[Dict]:
-        """Solve for min or max value using a fresh optimizer."""
         try:
-            if debug:
-                console.print(
-                    f"[dim]Creating optimizer for {'max' if maximize else 'min'}...[/dim]"
-                )
             opt = _create_fresh_optimizer()
             if opt is None:
                 return None
 
-            # Optimize all bitvectors directly without conversion
-            # Z3 Optimize handles bitvectors natively and efficiently
-            # Converting to integers (BV2Int) creates huge constraint formulas that slow down optimization
-            # Since we use 256-bit bitvectors for all types, we can optimize them directly
             from z3 import is_bv
 
-            if is_bv(term):
-                # Optimize bitvector directly - Z3 handles this efficiently
-                # This avoids the expensive BV2Int conversion which creates huge integer constraints
-                objective = term
-            else:
-                # Not a bitvector, use as-is
-                objective = term
-
-            if debug:
-                console.print(
-                    f"[dim]Adding objective: {'maximize' if maximize else 'minimize'} {objective}[/dim]"
-                )
+            objective = term if is_bv(term) else term
 
             if maximize:
                 opt.maximize(objective)
             else:
                 opt.minimize(objective)
 
-            # Check satisfiability
-            if debug:
-                console.print(f"[dim]Checking satisfiability...[/dim]")
             result = opt.check()
-            if debug:
-                console.print(f"[dim]Result: {result}[/dim]")
-
             if result != sat:
-                if debug:
-                    console.print(f"[red]Optimization returned {result}[/red]")
                 return None
 
-            # Get the model
             z3_model = opt.model()
             if z3_model is None:
-                if debug:
-                    console.print("[red]Model is None[/red]")
                 return None
 
-            # Evaluate the term
             value_term = z3_model.eval(term, model_completion=True)
-            if debug:
-                console.print(f"[dim]Evaluated term: {value_term}[/dim]")
-
             if hasattr(value_term, "as_long"):
                 raw_value = value_term.as_long()
             else:
-                if debug:
-                    console.print("[red]Cannot convert value to long[/red]")
                 return None
 
             wrapped_value = _decode_model_value(raw_value)
-            if debug:
-                console.print(
-                    f"[green]{'Max' if maximize else 'Min'} value: {wrapped_value}[/green]"
-                )
 
-            # Check overflow flag
             overflow = False
             try:
                 flag_term = z3_model.eval(smt_var.overflow_flag.term, model_completion=True)
                 overflow = is_true(flag_term)
-                if debug:
-                    console.print(f"[dim]Overflow flag: {overflow}[/dim]")
-            except Exception as e:
-                if debug:
-                    console.print(f"[yellow]Could not evaluate overflow flag: {e}[/yellow]")
+            except Exception:
+                pass
 
-            # Check overflow amount
             overflow_amount = 0
             try:
                 amount_term = z3_model.eval(smt_var.overflow_amount.term, model_completion=True)
                 if hasattr(amount_term, "as_long"):
                     overflow_amount = amount_term.as_long()
-                if debug:
-                    console.print(f"[dim]Overflow amount: {overflow_amount}[/dim]")
-            except Exception as e:
-                if debug:
-                    console.print(f"[yellow]Could not evaluate overflow amount: {e}[/yellow]")
+            except Exception:
+                pass
 
             return {
                 "value": wrapped_value,
                 "overflow": overflow,
                 "overflow_amount": overflow_amount,
             }
-        except Exception as e:
-            if debug:
-                console.print(f"[red]Error in _optimize_range: {e}[/red]")
-                import traceback
-
-                traceback.print_exc()
+        except Exception:
             return None
-
-    # First check if base constraints are satisfiable
-    if debug:
-        console.print("[dim]Checking if base constraints are satisfiable...[/dim]")
-
-    # Print all constraints
-    if debug and hasattr(solver, "solver"):
-        z3_solver = solver.solver
-        assertions = z3_solver.assertions()
-        console.print(f"[yellow]Total constraints in solver: {len(assertions)}[/yellow]")
-        console.print("[yellow]All constraints:[/yellow]")
-        for i, assertion in enumerate(assertions):
-            console.print(f"[yellow]  {i}: {assertion}[/yellow]")
 
     try:
         base_result = solver.check_sat()
-        if debug:
-            console.print(f"[dim]Base constraints: {base_result}[/dim]")
         if base_result != CheckSatResult.SAT:
-            if debug:
-                console.print(f"[red]Base constraints are {base_result}![/red]")
-
-                # Try to get unsat core if available
-                if hasattr(solver, "solver") and hasattr(solver.solver, "unsat_core"):
-                    try:
-                        core = solver.solver.unsat_core()
-                        console.print(f"[red]UNSAT core ({len(core)} constraints):[/red]")
-                        for constraint in core:
-                            console.print(f"[red]  - {constraint}[/red]")
-                    except Exception as e:
-                        console.print(f"[yellow]Could not get unsat core: {e}[/yellow]")
-
             return None, None
-    except Exception as e:
-        if debug:
-            console.print(f"[red]Error checking base satisfiability: {e}[/red]")
+    except Exception:
+        pass
 
-    # Solve for minimum
     min_result = _optimize_range(maximize=False)
-
-    # Solve for maximum
     max_result = _optimize_range(maximize=True)
-
     return min_result, max_result
+
+
+# =============================================================================
+# ANALYSIS FUNCTIONS
+# =============================================================================
+
+
+def analyze_function_quiet(
+    function: Function,
+    analysis: IntervalAnalysis,
+) -> FunctionResult:
+    """Run interval analysis on a function and return structured results."""
+    result = FunctionResult(
+        function_name=function.name,
+        contract_name=function.contract.name if function.contract else "Unknown",
+    )
+
+    if not function.nodes:
+        result.error = "Function has no nodes"
+        return result
+
+    try:
+        engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
+        engine.run_analysis()
+        results: Dict[Node, AnalysisState[IntervalAnalysis]] = engine.result()
+
+        solver = analysis.solver
+        if not solver:
+            result.error = "No solver available"
+            return result
+
+        # Process results - only collect from final nodes (return nodes or nodes with no successors)
+        # Find return nodes (nodes with no sons)
+        return_nodes = [node for node in function.nodes if not node.sons]
+        if not return_nodes:
+            # If no explicit return nodes, use the last node
+            return_nodes = [function.nodes[-1]] if function.nodes else []
+
+        # Collect variables only from return nodes, and filter out temporary variables
+        for node in return_nodes:
+            if node not in results:
+                continue
+            state = results[node]
+            if state.post.variant == DomainVariant.STATE:
+                post_state_vars: Dict[str, TrackedSMTVariable] = (
+                    state.post.state.get_range_variables()
+                )
+
+                for var_name, smt_var in post_state_vars.items():
+                    # Filter out constants and temporary variables
+                    if var_name.startswith("CONST_") or var_name.startswith("TMP_"):
+                        continue
+
+                    min_result, max_result = solve_variable_range(solver, smt_var)
+
+                    if min_result and max_result:
+                        has_overflow = min_result.get("overflow", False) or max_result.get(
+                            "overflow", False
+                        )
+                        is_wrapped = min_result["value"] > max_result["value"]
+
+                        if is_wrapped:
+                            range_str = f"[{max_result['value']}, {min_result['value']}]"
+                        else:
+                            range_str = f"[{min_result['value']}, {max_result['value']}]"
+
+                        result.variables[var_name] = VariableResult(
+                            name=var_name,
+                            range_str=range_str,
+                            overflow="YES" if has_overflow else "NO",
+                            overflow_amount=max(
+                                min_result.get("overflow_amount", 0),
+                                max_result.get("overflow_amount", 0),
+                            ),
+                        )
+
+    except Exception as e:
+        result.error = str(e)
+
+    return result
+
+
+def analyze_contract_quiet(contract_path: Path) -> List[ContractResult]:
+    """Analyze a contract file and return structured results."""
+    from slither.analyses.data_flow.smt_solver import Z3Solver
+
+    results: List[ContractResult] = []
+
+    try:
+        slither = Slither(str(contract_path))
+        contracts: List[Contract] = []
+        if slither.compilation_units:
+            for cu in slither.compilation_units:
+                contracts.extend(cu.contracts)
+        else:
+            contracts = slither.contracts
+
+        for contract in contracts:
+            contract_result = ContractResult(
+                contract_file=contract_path.name,
+                contract_name=contract.name,
+            )
+
+            functions = contract.functions_and_modifiers_declared
+            implemented_functions = [
+                f for f in functions if f.is_implemented and not f.is_constructor
+            ]
+
+            for function in implemented_functions:
+                solver = Z3Solver(use_optimizer=False)
+                analysis = IntervalAnalysis(solver=solver)
+                func_result = analyze_function_quiet(function, analysis)
+                contract_result.functions[function.name] = func_result
+
+            results.append(contract_result)
+
+    except Exception as e:
+        results.append(
+            ContractResult(
+                contract_file=contract_path.name,
+                contract_name="ERROR",
+                functions={
+                    "_error": FunctionResult(
+                        function_name="_error", contract_name="ERROR", error=str(e)
+                    )
+                },
+            )
+        )
+
+    return results
+
+
+# =============================================================================
+# TEST COMPARISON FUNCTIONS
+# =============================================================================
+
+
+def compare_function_results(
+    expected: Dict[str, Dict[str, str]],
+    actual: FunctionResult,
+) -> FunctionTestResult:
+    """Compare expected vs actual results for a function."""
+    test_result = FunctionTestResult(
+        function_name=actual.function_name,
+        passed=True,
+        comparisons=[],
+        missing_expected=[],
+        unexpected_vars=[],
+    )
+
+    expected_vars = expected.get("variables", {})
+    actual_vars = actual.variables
+
+    # Check each expected variable
+    for var_name, expected_data in expected_vars.items():
+        if var_name not in actual_vars:
+            test_result.missing_expected.append(var_name)
+            test_result.passed = False
+            continue
+
+        actual_var = actual_vars[var_name]
+        comparison = TestComparison(
+            passed=True,
+            variable_name=var_name,
+            expected_range=expected_data.get("range"),
+            actual_range=actual_var.range_str,
+            expected_overflow=expected_data.get("overflow"),
+            actual_overflow=actual_var.overflow,
+        )
+
+        # Compare range
+        if comparison.expected_range and comparison.expected_range != comparison.actual_range:
+            comparison.passed = False
+            comparison.message = "Range mismatch"
+            test_result.passed = False
+
+        # Compare overflow
+        if (
+            comparison.expected_overflow
+            and comparison.expected_overflow != comparison.actual_overflow
+        ):
+            comparison.passed = False
+            comparison.message = (
+                comparison.message + " | Overflow mismatch"
+                if comparison.message
+                else "Overflow mismatch"
+            )
+            test_result.passed = False
+
+        test_result.comparisons.append(comparison)
+
+    # Check for unexpected variables (not in expected but in actual)
+    for var_name in actual_vars:
+        if var_name not in expected_vars:
+            test_result.unexpected_vars.append(var_name)
+            # Note: unexpected vars don't fail the test, just reported
+
+    return test_result
+
+
+def run_tests(contracts_dir: Path, verbose: bool = False) -> int:
+    """Run all tests and return exit code (0=pass, 1=fail)."""
+    console.print("\n[bold cyan]Running Slither data flow analysis tests...[/bold cyan]\n")
+
+    # Discover all .sol files
+    sol_files = sorted(contracts_dir.glob("*.sol"))
+
+    if not sol_files:
+        console.print(f"[red]No .sol files found in {contracts_dir}[/red]")
+        return 1
+
+    total_contracts = 0
+    passed_contracts = 0
+    total_functions = 0
+    passed_functions = 0
+
+    contract_test_results: List[ContractTestResult] = []
+
+    for sol_file in sol_files:
+        if sol_file.name not in EXPECTED_RESULTS:
+            if verbose:
+                console.print(f"[dim]Skipping {sol_file.name} (no expected results defined)[/dim]")
+            continue
+
+        expected_contract_data = EXPECTED_RESULTS[sol_file.name]
+
+        # Analyze the contract
+        contract_results = analyze_contract_quiet(sol_file)
+
+        for contract_result in contract_results:
+            if contract_result.contract_name not in expected_contract_data:
+                continue
+
+            total_contracts += 1
+            expected_functions = expected_contract_data[contract_result.contract_name]
+
+            contract_test = ContractTestResult(
+                contract_file=sol_file.name,
+                contract_name=contract_result.contract_name,
+                passed=True,
+            )
+
+            for func_name, expected_func_data in expected_functions.items():
+                total_functions += 1
+
+                if func_name not in contract_result.functions:
+                    contract_test.function_results[func_name] = FunctionTestResult(
+                        function_name=func_name,
+                        passed=False,
+                        comparisons=[],
+                        missing_expected=["Function not found in analysis"],
+                    )
+                    contract_test.passed = False
+                    continue
+
+                actual_func = contract_result.functions[func_name]
+                func_test = compare_function_results(expected_func_data, actual_func)
+                contract_test.function_results[func_name] = func_test
+
+                if func_test.passed:
+                    passed_functions += 1
+                else:
+                    contract_test.passed = False
+
+            if contract_test.passed:
+                passed_contracts += 1
+
+            contract_test_results.append(contract_test)
+
+    # Display results
+    _display_test_results(contract_test_results, verbose)
+
+    # Summary
+    console.print("\n" + "=" * 50)
+    console.print(f"[bold]Results:[/bold] {total_contracts} contracts tested")
+    console.print(
+        f"[bold green]Passed:[/bold green] {passed_contracts} | "
+        f"[bold red]Failed:[/bold red] {total_contracts - passed_contracts}"
+    )
+    console.print(f"[bold]Functions tested:[/bold] {total_functions}")
+    console.print(
+        f"[bold green]Passed:[/bold green] {passed_functions} | "
+        f"[bold red]Failed:[/bold red] {total_functions - passed_functions}"
+    )
+    console.print("=" * 50)
+
+    return 0 if passed_contracts == total_contracts else 1
+
+
+def _display_test_results(results: List[ContractTestResult], verbose: bool) -> None:
+    """Display test results with rich formatting."""
+    for contract_test in results:
+        passed_funcs = sum(1 for f in contract_test.function_results.values() if f.passed)
+        total_funcs = len(contract_test.function_results)
+
+        if contract_test.passed:
+            console.print(
+                f"[bold green]✓[/bold green] {contract_test.contract_file} - "
+                f"[green]PASSED[/green] ({passed_funcs}/{total_funcs} functions)"
+            )
+        else:
+            console.print(
+                f"[bold red]✗[/bold red] {contract_test.contract_file} - "
+                f"[red]FAILED[/red] ({passed_funcs}/{total_funcs} functions)"
+            )
+
+        # Show function details
+        for func_name, func_test in contract_test.function_results.items():
+            if func_test.passed:
+                console.print(
+                    f"  [green]✓[/green] {contract_test.contract_name}.{func_name} - All variables correct"
+                )
+            else:
+                console.print(
+                    f"  [red]✗[/red] {contract_test.contract_name}.{func_name} - Variable mismatch"
+                )
+
+                # Show mismatches
+                for comparison in func_test.comparisons:
+                    if not comparison.passed:
+                        console.print(f"    [yellow]Variable:[/yellow] {comparison.variable_name}")
+                        if comparison.expected_range != comparison.actual_range:
+                            console.print(
+                                f"      Expected range: [cyan]{comparison.expected_range}[/cyan]"
+                            )
+                            console.print(
+                                f"      Got range:      [red]{comparison.actual_range}[/red]"
+                            )
+                        if comparison.expected_overflow != comparison.actual_overflow:
+                            console.print(
+                                f"      Expected overflow: [cyan]{comparison.expected_overflow}[/cyan]"
+                            )
+                            console.print(
+                                f"      Got overflow:      [red]{comparison.actual_overflow}[/red]"
+                            )
+
+                # Show missing variables
+                for missing in func_test.missing_expected:
+                    console.print(f"    [red]Missing expected variable:[/red] {missing}")
+
+                # Show unexpected variables (informational)
+                if verbose and func_test.unexpected_vars:
+                    for unexpected in func_test.unexpected_vars:
+                        console.print(f"    [dim]Unexpected variable:[/dim] {unexpected}")
+
+
+# =============================================================================
+# VERBOSE OUTPUT MODE (Original functionality)
+# =============================================================================
 
 
 def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
@@ -271,26 +581,19 @@ def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
         min_val = result["min"]
         max_val = result["max"]
 
-        # Check if overflow occurs
         has_overflow = min_val.get("overflow", False) or max_val.get("overflow", False)
-
-        # Check for wrapped ranges
         is_wrapped = min_val["value"] > max_val["value"]
 
-        # Format range
         if is_wrapped:
             range_str = f"[{max_val['value']}, {min_val['value']}] (wrapped)"
         else:
             range_str = f"[{min_val['value']}, {max_val['value']}]"
 
-        # Styling
         range_style = "red" if has_overflow else "white"
 
         if has_overflow:
             overflow_str = "✗ YES"
             overflow_style = "red bold"
-
-            # Calculate overflow amount details
             min_overflow = min_val.get("overflow_amount", 0)
             max_overflow = max_val.get("overflow_amount", 0)
             if min_val.get("overflow", False) and max_val.get("overflow", False):
@@ -314,24 +617,22 @@ def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
     console.print(table)
 
 
-def analyze_function(
+def analyze_function_verbose(
     function: Function,
     analysis: IntervalAnalysis,
     logger: "DataFlowLogger",
     LogMessages: "type[LogMessages]",
     debug: bool = False,
 ) -> None:
-    """Run interval analysis on a single function."""
+    """Run interval analysis on a single function with verbose output."""
     logger.info(
         "Analyzing function: {function_name} ({signature})",
         function_name=function.name,
         signature=function.signature,
     )
 
-    # Display function header with rich formatting
     console.print(f"\n[bold blue]=== Function: {function.name} ===[/bold blue]")
 
-    # Skip if function has no nodes (not implemented or abstract)
     if not function.nodes:
         logger.warning(
             LogMessages.WARNING_SKIP_NODE,
@@ -340,19 +641,15 @@ def analyze_function(
         )
         return
 
-    # Create engine with the analysis and function
     logger.info(LogMessages.ENGINE_INIT, function_name=function.name)
     engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
 
-    # Run the analysis
     logger.debug(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
     engine.run_analysis()
 
-    # Get and display results
     results: Dict[Node, AnalysisState[IntervalAnalysis]] = engine.result()
     logger.info("Analysis complete! Processed {count} nodes.", count=len(results))
 
-    # Display results for each node
     for node, state in results.items():
         logger.debug(
             "Node {node_id} - Pre-state: {pre_state}, Post-state: {post_state}",
@@ -361,12 +658,10 @@ def analyze_function(
             post_state=state.post.variant,
         )
 
-        # Print post-state variables
         if state.post.variant == DomainVariant.STATE:
             post_state_vars: Dict[str, TrackedSMTVariable] = state.post.state.get_range_variables()
 
             if post_state_vars:
-                # Get node's source code representation using str(node.expression)
                 node_code: str = ""
                 if node.expression:
                     node_code = str(node.expression)
@@ -375,21 +670,16 @@ def analyze_function(
                 elif str(node):
                     node_code = str(node)
 
-                # Display code line if available
                 if node_code:
                     console.print(f"\n[bold white]Code:[/bold white] [dim]{node_code}[/dim]")
 
-                # Solve for min/max values and display results in a table
                 solver = analysis.solver
                 if solver:
-                    # Collect variable results - show ALL variables in post-state
                     variable_results: List[Dict] = []
                     for var_name, smt_var in sorted(post_state_vars.items()):
-                        # Skip internal constant variables
                         if var_name.startswith("CONST_"):
                             continue
 
-                        # Solve for min and max
                         if debug:
                             console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
                         min_result, max_result = solve_variable_range(solver, smt_var, debug=debug)
@@ -404,37 +694,39 @@ def analyze_function(
                                 }
                             )
                         else:
-                            # Even if solving fails, show the variable exists
                             logger.debug(
                                 "Could not solve range for variable {var_name}",
                                 var_name=var_name,
                             )
 
-                    # Display results in a rich table
                     if variable_results:
                         _display_variable_ranges_table(variable_results)
                     elif post_state_vars:
-                        # Show that variables exist but couldn't be solved
                         console.print(
                             "[yellow]Variables in state but could not solve ranges: "
                             f"{', '.join(sorted(post_state_vars.keys()))}[/yellow]"
                         )
 
 
-def main(debug: bool = False) -> None:
-    # Import logger after Slither is loaded to avoid circular import issues
-    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
+def run_verbose(
+    contract_path: str, debug: bool = False, function_name: Optional[str] = None
+) -> None:
+    """Run analysis with verbose output (original behavior).
 
-    # Initialize logger
+    Args:
+        contract_path: Path to the contract file
+        debug: Enable debug output
+        function_name: Optional function name to filter to (if None, shows all functions)
+    """
+    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
+    from slither.analyses.data_flow.smt_solver import Z3Solver
+
     logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="DEBUG")
     logger.info(LogMessages.ENGINE_START)
 
-    # Load the Solidity contract
-    contract_path: str = "../contracts/src/FunctionArgs.sol"
     logger.info("Loading contract from: {path}", path=contract_path)
     slither: Slither = Slither(contract_path)
 
-    # Get all contracts - try compilation_units first, then fall back to contracts
     contracts: List[Contract]
     if slither.compilation_units:
         contracts = []
@@ -448,23 +740,23 @@ def main(debug: bool = False) -> None:
         return
 
     logger.info("Found {count} contract(s)", count=len(contracts))
-
-    # We instantiate a fresh solver per function to avoid leaking constraints
-    from slither.analyses.data_flow.smt_solver import Z3Solver
-
     logger.info(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
 
-    # Analyze all contracts and functions
     for contract in contracts:
         logger.info("Processing contract: {contract_name}", contract_name=contract.name)
 
-        # Get all functions (including modifiers if needed)
         functions: List[Function] = contract.functions_and_modifiers_declared
-
-        # Filter to only implemented, non-constructor functions
         implemented_functions: List[Function] = [
             f for f in functions if f.is_implemented and not f.is_constructor
         ]
+
+        if function_name:
+            implemented_functions = [f for f in implemented_functions if f.name == function_name]
+            if not implemented_functions:
+                console.print(
+                    f"[yellow]Function '{function_name}' not found in contract '{contract.name}'[/yellow]"
+                )
+                continue
 
         if not implemented_functions:
             logger.warning(
@@ -478,13 +770,11 @@ def main(debug: bool = False) -> None:
             contract_name=contract.name,
         )
 
-        # Analyze each function
         for function in implemented_functions:
             try:
-                # Fresh solver/analysis for every function execution
                 solver = Z3Solver(use_optimizer=False)
                 analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
-                analyze_function(function, analysis, logger, LogMessages, debug=debug)
+                analyze_function_verbose(function, analysis, logger, LogMessages, debug=debug)
             except Exception as e:
                 logger.exception(
                     LogMessages.ERROR_ANALYSIS_FAILED,
@@ -496,6 +786,209 @@ def main(debug: bool = False) -> None:
     logger.info(LogMessages.ENGINE_COMPLETE)
 
 
+def generate_expected_results(contracts_dir: Path) -> None:
+    """Generate expected results from current analysis output.
+
+    This runs the analysis on all contracts and outputs the results in the
+    same format as expected_results.py, which can be copied directly.
+    """
+    console.print("\n[bold cyan]Generating expected results from current analysis...[/bold cyan]\n")
+
+    # Discover all .sol files
+    sol_files = sorted(contracts_dir.glob("*.sol"))
+
+    if not sol_files:
+        console.print(f"[red]No .sol files found in {contracts_dir}[/red]")
+        return
+
+    # Analyze all contracts
+    all_results: Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, str]]]]] = {}
+
+    for sol_file in sol_files:
+        console.print(f"[dim]Analyzing {sol_file.name}...[/dim]")
+        contract_results = analyze_contract_quiet(sol_file)
+
+        for contract_result in contract_results:
+            if contract_result.contract_name == "ERROR":
+                console.print(f"[yellow]Skipping {sol_file.name} due to error[/yellow]")
+                continue
+
+            if sol_file.name not in all_results:
+                all_results[sol_file.name] = {}
+
+            contract_data: Dict[str, Dict[str, Dict[str, Dict[str, str]]]] = {}
+
+            for func_name, func_result in contract_result.functions.items():
+                if func_result.error:
+                    console.print(
+                        f"[yellow]Skipping {func_name} due to error: {func_result.error}[/yellow]"
+                    )
+                    continue
+
+                variables: Dict[str, Dict[str, str]] = {}
+                for var_name, var_result in sorted(func_result.variables.items()):
+                    variables[var_name] = {
+                        "range": var_result.range_str,
+                        "overflow": var_result.overflow,
+                    }
+
+                contract_data[func_name] = {"variables": variables}
+
+            all_results[sol_file.name][contract_result.contract_name] = contract_data
+
+    # Format as Python code
+    console.print(
+        "\n[bold green]Expected results (copy this into expected_results.py):[/bold green]\n"
+    )
+    console.print(
+        "EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, str]]]]] = {"
+    )
+
+    for contract_file, contracts in sorted(all_results.items()):
+        console.print(f'    "{contract_file}": {{')
+        for contract_name, functions in sorted(contracts.items()):
+            console.print(f'        "{contract_name}": {{')
+            for func_name, func_data in sorted(functions.items()):
+                console.print(f'            "{func_name}": {{')
+                console.print('                "variables": {')
+
+                variables = func_data.get("variables", {})
+                if variables:
+                    for var_name, var_data in sorted(variables.items()):
+                        range_val = var_data.get("range", "[0, 0]")
+                        overflow_val = var_data.get("overflow", "NO")
+                        console.print(
+                            f'                    "{var_name}": {{"range": "{range_val}", "overflow": "{overflow_val}"}},'
+                        )
+                else:
+                    console.print("                    # No variables tracked")
+
+                console.print("                }")
+                console.print("            },")
+            console.print("        },")
+        console.print("    },")
+
+    console.print("}\n")
+    console.print("[dim]Note: Review and adjust the results as needed before using them.[/dim]\n")
+
+
+def show_test_output(
+    contract_file: str, function_name: Optional[str] = None, contracts_dir: str = "../contracts/src"
+) -> None:
+    """Show verbose table output for a specific test contract/function.
+
+    Args:
+        contract_file: Name of the contract file (e.g., "FunctionArgs.sol")
+        function_name: Optional function name to filter to
+        contracts_dir: Directory containing contract files
+    """
+    contract_path = Path(contracts_dir) / contract_file
+    if not contract_path.exists():
+        console.print(f"[red]Contract file not found: {contract_path}[/red]")
+        return
+
+    console.print(f"[bold cyan]Showing verbose output for: {contract_file}[/bold cyan]")
+    if function_name:
+        console.print(f"[bold cyan]Function: {function_name}[/bold cyan]")
+    console.print()
+
+    # Suppress logger output, only show tables
+    import logging
+
+    # Set all loggers to ERROR level to suppress INFO/DEBUG
+    logging.getLogger("slither").setLevel(logging.ERROR)
+    logging.getLogger("slither.analyses.data_flow").setLevel(logging.ERROR)
+
+    # Also suppress rich console output from logger
+    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
+
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="ERROR")
+
+    run_verbose(str(contract_path), debug=False, function_name=function_name)
+
+
+# =============================================================================
+# MAIN ENTRY POINT
+# =============================================================================
+
+
+def main() -> int:
+    """Main entry point with command-line argument handling."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Slither Data Flow Analysis Test Suite")
+    parser.add_argument(
+        "--test", "-t", action="store_true", help="Run automated tests against expected results"
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Run in verbose mode (original behavior) or show extra test details",
+    )
+    parser.add_argument(
+        "--debug", "-d", action="store_true", help="Show detailed debugging information"
+    )
+    parser.add_argument(
+        "--contract",
+        "-c",
+        type=str,
+        default="../contracts/src/FunctionArgs.sol",
+        help="Path to contract file for verbose mode (default: ../contracts/src/FunctionArgs.sol)",
+    )
+    parser.add_argument(
+        "--contracts-dir",
+        type=str,
+        default="../contracts/src",
+        help="Directory containing .sol files for test mode (default: ../contracts/src)",
+    )
+    parser.add_argument(
+        "--show",
+        "-s",
+        type=str,
+        metavar="CONTRACT_FILE",
+        help="Show verbose table output for a specific contract file (e.g., FunctionArgs.sol)",
+    )
+    parser.add_argument(
+        "--function",
+        "-f",
+        type=str,
+        metavar="FUNCTION_NAME",
+        help="Filter to a specific function name (use with --show or --contract)",
+    )
+    parser.add_argument(
+        "--generate-expected",
+        "-g",
+        action="store_true",
+        help="Generate expected results from current analysis output (for copying into expected_results.py)",
+    )
+
+    args = parser.parse_args()
+
+    if args.generate_expected:
+        # Generate expected results from current analysis
+        contracts_dir = Path(args.contracts_dir)
+        if not contracts_dir.exists():
+            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
+            return 1
+        generate_expected_results(contracts_dir)
+        return 0
+    elif args.show:
+        # Show verbose output for a specific test
+        show_test_output(args.show, function_name=args.function, contracts_dir=args.contracts_dir)
+        return 0
+    elif args.test:
+        # Automated test mode
+        contracts_dir = Path(args.contracts_dir)
+        if not contracts_dir.exists():
+            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
+            return 1
+        return run_tests(contracts_dir, verbose=args.verbose)
+    else:
+        # Verbose mode (original behavior)
+        run_verbose(args.contract, debug=args.debug, function_name=args.function)
+        return 0
+
+
 if __name__ == "__main__":
-    DEBUG = False  # Set to True to show detailed debugging information
-    main(debug=DEBUG)
+    sys.exit(main())
