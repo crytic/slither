@@ -27,7 +27,14 @@ class CR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + node.source_mapping.length
                     old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines
-                    new_str = "//" + old_str
+
+                    # Check if there's a trailing semicolon to include
+                    source_code = self.slither.source_code[self.in_file]
+                    if stop < len(source_code) and source_code[stop] == ";":
+                        stop += 1
+                        old_str += ";"
+
+                    new_str = "/* " + old_str + " */"
                     create_patch_with_line(
                         result,
                         self.in_file,
