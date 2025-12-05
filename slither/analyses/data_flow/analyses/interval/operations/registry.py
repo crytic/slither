@@ -6,6 +6,7 @@ from typing import Dict, Optional, Type, TYPE_CHECKING
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
     InternalCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.phi import PhiHandler
 from slither.analyses.data_flow.analyses.interval.operations.return_handler import ReturnHandler
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
     SolidityCallHandler,
@@ -16,6 +17,7 @@ from slither.analyses.data_flow.analyses.interval.operations.binary import Binar
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.phi import Phi
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.operation import Operation
@@ -57,6 +59,7 @@ class OperationHandlerRegistry:
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
         self.register(InternalCall, InternalCallHandler)
+        self.register(Phi, PhiHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]
