@@ -9,5 +9,5 @@ from slither.slithir.operations.solidity_call import SolidityCall
 class RequireHandler(BaseAssertionHandler):
     """Handler for require calls."""
 
-    def __init__(self, solver=None):
-        super().__init__(solver, assertion_type="require")
+    def __init__(self, solver=None, analysis=None):
+        super().__init__(solver, analysis, assertion_type="require")

@@ -3,6 +3,9 @@
 from typing import Dict, Optional, Type, TYPE_CHECKING
 
 
+from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
+    InternalCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.return_handler import ReturnHandler
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
     SolidityCallHandler,
@@ -12,6 +15,7 @@ from slither.analyses.data_flow.analyses.interval.operations.assignment import A
 from slither.analyses.data_flow.analyses.interval.operations.binary import BinaryHandler
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.operation import Operation
@@ -20,19 +24,26 @@ if TYPE_CHECKING:
     from .base import BaseOperationHandler
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+    from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 
 
 class OperationHandlerRegistry:
     """Registry for mapping operation types to their handlers."""
 
-    def __init__(self, solver: Optional["SMTSolver"] = None) -> None:
+    def __init__(
+        self,
+        solver: Optional["SMTSolver"] = None,
+        analysis: Optional["IntervalAnalysis"] = None,
+    ) -> None:
         """
         Initialize the registry with handlers.
 
         Args:
             solver: The SMT solver instance (optional)
+            analysis: The interval analysis instance (optional, needed for interprocedural analysis)
         """
         self._solver = solver
+        self._analysis = analysis
         self._handlers: Dict[Type[Operation], "BaseOperationHandler"] = {}
         self._logger = get_logger()
 
@@ -45,6 +56,7 @@ class OperationHandlerRegistry:
         self.register(Binary, BinaryHandler)
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
+        self.register(InternalCall, InternalCallHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]
@@ -54,10 +66,15 @@ class OperationHandlerRegistry:
 
         Args:
             operation_type: The operation type to handle
-            handler_class: The handler class (will be instantiated with solver)
+            handler_class: The handler class (will be instantiated with solver and analysis)
         """
-        handler = handler_class(self._solver)
+        handler = handler_class(self._solver, self._analysis)
         self._handlers[operation_type] = handler
+
+    @property
+    def analysis(self) -> Optional["IntervalAnalysis"]:
+        """Get the interval analysis instance."""
+        return self._analysis
 
     def get_handler(self, operation: Operation) -> "BaseOperationHandler":
         """

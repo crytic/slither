@@ -25,8 +25,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     _MAX_SUPPORTED_EXPONENT = 256
 
-    def __init__(self, solver=None) -> None:
-        super().__init__(solver)
+    def __init__(self, solver=None, analysis=None) -> None:
+        super().__init__(solver, analysis)
 
     def handle(
         self,

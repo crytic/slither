@@ -20,8 +20,8 @@ from slither.slithir.operations.solidity_call import SolidityCall
 class BaseAssertionHandler(BaseOperationHandler):
     """Base handler for require and assert calls."""
 
-    def __init__(self, solver=None, assertion_type: str = "assertion"):
-        super().__init__(solver)
+    def __init__(self, solver=None, analysis=None, assertion_type: str = "assertion"):
+        super().__init__(solver, analysis)
         self.assertion_type = assertion_type
 
     def handle(self, operation: SolidityCall, domain: IntervalDomain, node: Node) -> None:

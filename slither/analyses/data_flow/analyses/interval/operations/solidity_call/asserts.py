@@ -9,5 +9,5 @@ from slither.slithir.operations.solidity_call import SolidityCall
 class AssertHandler(BaseAssertionHandler):
     """Handler for assert calls."""
 
-    def __init__(self, solver=None):
-        super().__init__(solver, assertion_type="assert")
+    def __init__(self, solver=None, analysis=None):
+        super().__init__(solver, analysis, assertion_type="assert")

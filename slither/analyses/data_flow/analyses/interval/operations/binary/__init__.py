@@ -38,8 +38,8 @@ class BinaryHandler(BaseOperationHandler):
         BinaryType.OROR,
     }
 
-    def __init__(self, solver=None) -> None:
-        super().__init__(solver)
+    def __init__(self, solver=None, analysis=None) -> None:
+        super().__init__(solver, analysis)
         self._arithmetic_handler = ArithmeticBinaryHandler(solver)
         self._comparison_handler = ComparisonBinaryHandler(solver)
 

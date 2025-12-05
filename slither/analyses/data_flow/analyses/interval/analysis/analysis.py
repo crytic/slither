@@ -32,7 +32,7 @@ class IntervalAnalysis(Analysis):
         """
         self._direction: Direction = Forward()
         self._solver: SMTSolver = solver
-        self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver)
+        self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver, self)
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state(State({}))
