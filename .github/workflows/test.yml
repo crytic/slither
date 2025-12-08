@@ -109,7 +109,7 @@ jobs:
       - run: pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: coverage-data-*
           merge-multiple: true
