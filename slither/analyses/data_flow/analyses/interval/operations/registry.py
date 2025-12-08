@@ -105,6 +105,7 @@ class OperationHandlerRegistry:
                 "No handler registered for operation type: {operation_name}",
                 NotImplementedError,
                 operation_name=operation_name,
+                embed_on_error=True,
             )
         return handler
 

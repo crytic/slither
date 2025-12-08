@@ -723,6 +723,7 @@ def run_verbose(
     debug: bool = False,
     function_name: Optional[str] = None,
     contract_name: Optional[str] = None,
+    embed: bool = False,
 ) -> None:
     """Run analysis with verbose output (original behavior).
 
@@ -731,11 +732,12 @@ def run_verbose(
         debug: Enable debug output
         function_name: Optional function name to filter to (if None, shows all functions)
         contract_name: Optional contract name to filter to (if None, shows all contracts)
+        embed: Enable IPython embed on errors for interactive debugging
     """
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
     from slither.analyses.data_flow.smt_solver import Z3Solver
 
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="DEBUG")
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="DEBUG")
     logger.info(LogMessages.ENGINE_START)
 
     logger.info("Loading contract from: {path}", path=contract_path)
@@ -971,6 +973,11 @@ def main() -> int:
         "--debug", "-d", action="store_true", help="Show detailed debugging information"
     )
     parser.add_argument(
+        "--embed",
+        action="store_true",
+        help="Enable IPython embed on errors for interactive debugging",
+    )
+    parser.add_argument(
         "--contract",
         "-c",
         type=str,
@@ -1068,6 +1075,7 @@ def main() -> int:
             debug=args.debug,
             function_name=args.function,
             contract_name=args.contract_name,
+            embed=args.embed,
         )
         return 0
 
