@@ -1,6 +1,6 @@
 """Operation handler registry for interval analysis."""
 
-from typing import Dict, Optional, Type, TYPE_CHECKING
+from typing import Any, Dict, Optional, Type, TYPE_CHECKING
 
 
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
+    from slither.core.cfg.node import Node
 
 
 class OperationHandlerRegistry:
@@ -84,12 +85,16 @@ class OperationHandlerRegistry:
         """Get the interval analysis instance."""
         return self._analysis
 
-    def get_handler(self, operation: Operation) -> "BaseOperationHandler":
+    def get_handler(
+        self, operation: Operation, node: Optional["Node"] = None, domain: Optional[Any] = None
+    ) -> "BaseOperationHandler":
         """
         Get the handler for an operation.
 
         Args:
             operation: The operation to get a handler for
+            node: Optional node context (for debugging)
+            domain: Optional domain context (for debugging)
 
         Returns:
             The handler for the operation
@@ -101,11 +106,17 @@ class OperationHandlerRegistry:
         handler = self._handlers.get(operation_type)
         if handler is None:
             operation_name = operation_type.__name__
+            # Pass context for debugging in embed session
+            context = {"operation": operation, "operation_name": operation_name}
+            if node is not None:
+                context["node"] = node
+            if domain is not None:
+                context["domain"] = domain
             self._logger.error_and_raise(
                 "No handler registered for operation type: {operation_name}",
                 NotImplementedError,
-                operation_name=operation_name,
                 embed_on_error=True,
+                **context,
             )
         return handler
 

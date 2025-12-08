@@ -80,7 +80,7 @@ class IntervalAnalysis(Analysis):
                 handle_variable_declaration(self._solver, domain, node.variable_declaration)
             return
 
-        handler = self._registry.get_handler(operation)
+        handler = self._registry.get_handler(operation, node=node, domain=domain)
         handler.handle(operation, domain, node)
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
