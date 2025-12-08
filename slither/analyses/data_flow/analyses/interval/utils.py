@@ -2,7 +2,7 @@
 
 from typing import Optional, TYPE_CHECKING, Union
 
-from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
+from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint, Byte
 from slither.core.variables.variable import Variable
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.constant import Constant
@@ -99,6 +99,10 @@ class IntervalSMTUtils:
         if solidity_type.type == "address" or solidity_type.type == "address payable":
             # Use 160-bit bitvector for addresses
             return Sort(kind=SortKind.BITVEC, parameters=[160])
+        if solidity_type.type in Byte:
+            # For bytes types, use appropriate width
+            width = IntervalSMTUtils.type_bit_width(solidity_type)
+            return Sort(kind=SortKind.BITVEC, parameters=[width])
         return None
 
     @staticmethod
@@ -112,6 +116,14 @@ class IntervalSMTUtils:
             return 1
         if type_str == "address" or type_str == "address payable":
             return 160
+        if type_str in Byte:
+            if type_str == "bytes":
+                # Dynamic bytes: track length as uint256
+                return 256
+            if type_str.startswith("bytes") and type_str != "bytes":
+                # Fixed-size bytes: N bytes = N*8 bits
+                return int(type_str.replace("bytes", "")) * 8
+        
         raise ValueError(f"Unsupported solidity type {type_str}")
 
     @staticmethod
@@ -141,6 +153,18 @@ class IntervalSMTUtils:
         if type_str == "address" or type_str == "address payable":
             # Address is 160 bits, range is 0 to 2^160 - 1
             return 0, (1 << 160) - 1
+
+        if type_str in Byte:
+            if type_str == "bytes":
+                # Dynamic bytes: track length, range is 0 to max uint256
+                return 0, (1 << 256) - 1
+            if type_str.startswith("bytes") and type_str != "bytes":
+                # Fixed-size bytes: N bytes can represent 0 to 2^(8*N) - 1
+                width = int(type_str.replace("bytes", "")) * 8
+                return 0, (1 << width) - 1
+            if type_str == "byte":
+                # byte is alias for bytes1
+                return 0, 255
 
         return None
 
