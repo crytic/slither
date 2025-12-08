@@ -719,14 +719,18 @@ def analyze_function_verbose(
 
 
 def run_verbose(
-    contract_path: str, debug: bool = False, function_name: Optional[str] = None
+    contract_path: str,
+    debug: bool = False,
+    function_name: Optional[str] = None,
+    contract_name: Optional[str] = None,
 ) -> None:
     """Run analysis with verbose output (original behavior).
 
     Args:
-        contract_path: Path to the contract file
+        contract_path: Path to the contract file or directory (project root)
         debug: Enable debug output
         function_name: Optional function name to filter to (if None, shows all functions)
+        contract_name: Optional contract name to filter to (if None, shows all contracts)
     """
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
     from slither.analyses.data_flow.smt_solver import Z3Solver
@@ -748,6 +752,18 @@ def run_verbose(
     if not contracts:
         logger.warning("No contracts found!")
         return
+
+    # Collect all contract names for error message
+    all_contract_names = sorted(set(c.name for c in contracts))
+
+    # Filter by contract name if specified
+    if contract_name:
+        contracts = [c for c in contracts if c.name == contract_name]
+        if not contracts:
+            console.print(f"[red]Contract '{contract_name}' not found![/red]")
+            console.print(f"[dim]Available contracts: {', '.join(all_contract_names)}[/dim]")
+            return
+        logger.info("Filtered to contract: {contract_name}", contract_name=contract_name)
 
     logger.info("Found {count} contract(s)", count=len(contracts))
     logger.info(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
@@ -958,14 +974,14 @@ def main() -> int:
         "--contract",
         "-c",
         type=str,
-        default="../contracts/src/FunctionArgs.sol",
-        help="Path to contract file for verbose mode (default: ../contracts/src/FunctionArgs.sol)",
+        default=None,
+        help="Path to contract file or project directory for verbose mode (Slither supports Foundry, Hardhat, etc.)",
     )
     parser.add_argument(
         "--contracts-dir",
         type=str,
-        default="../contracts/src",
-        help="Directory containing .sol files for test mode (default: ../contracts/src)",
+        default=None,
+        help="Directory containing .sol files for test mode, or project directory for verbose mode if --contract not specified",
     )
     parser.add_argument(
         "--show",
@@ -982,17 +998,29 @@ def main() -> int:
         help="Filter to a specific function name (use with --show or --contract)",
     )
     parser.add_argument(
+        "--contract-name",
+        type=str,
+        metavar="CONTRACT_NAME",
+        help="Filter to a specific contract name (e.g., 'Settlement'). Only analyzes the specified contract.",
+    )
+    parser.add_argument(
         "--generate-expected",
         "-g",
         action="store_true",
         help="Generate expected results from current analysis output (for copying into expected_results.py)",
+    )
+    parser.add_argument(
+        "path",
+        nargs="?",
+        type=str,
+        help="Optional path to contract file or project directory (alternative to --contract)",
     )
 
     args = parser.parse_args()
 
     if args.generate_expected:
         # Generate expected results from current analysis
-        contracts_dir = Path(args.contracts_dir)
+        contracts_dir = Path(args.contracts_dir or "../contracts/src")
         if not contracts_dir.exists():
             console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
             return 1
@@ -1000,18 +1028,47 @@ def main() -> int:
         return 0
     elif args.show:
         # Show verbose output for a specific test
-        show_test_output(args.show, function_name=args.function, contracts_dir=args.contracts_dir)
+        contracts_dir = args.contracts_dir or "../contracts/src"
+        show_test_output(args.show, function_name=args.function, contracts_dir=contracts_dir)
         return 0
     elif args.test:
         # Automated test mode
-        contracts_dir = Path(args.contracts_dir)
+        contracts_dir = Path(args.contracts_dir or "../contracts/src")
         if not contracts_dir.exists():
             console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
             return 1
         return run_tests(contracts_dir, verbose=args.verbose)
     else:
         # Verbose mode (original behavior)
-        run_verbose(args.contract, debug=args.debug, function_name=args.function)
+        # Priority: positional argument > --contract > --contracts-dir > default
+        if args.path:
+            contract_path = args.path
+        elif args.contract:
+            contract_path = args.contract
+        elif args.contracts_dir:
+            # Use contracts_dir if explicitly provided
+            contract_path = args.contracts_dir
+        else:
+            # Fallback to default (for backward compatibility)
+            contract_path = "../contracts/src/FunctionArgs.sol"
+        
+        # Convert to absolute path for better handling, but Slither can handle both
+        contract_path_obj = Path(contract_path)
+        if contract_path_obj.exists():
+            # Use absolute path if it exists
+            contract_path = str(contract_path_obj.resolve())
+        else:
+            # Even if path doesn't exist as-is, let Slither try (it handles project detection)
+            # Just warn the user
+            console.print(f"[yellow]Warning: Path may not exist: {contract_path}[/yellow]")
+            console.print("[dim]Slither will attempt to detect project type (Foundry/Hardhat/etc.)[/dim]")
+        
+        run_verbose(
+            contract_path,
+            debug=args.debug,
+            function_name=args.function,
+            contract_name=args.contract_name,
+        )
         return 0
 
 
