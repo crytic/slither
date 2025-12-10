@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from slither import Slither
+from slither.exceptions import SlitherError
 from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
 from slither.analyses.data_flow.engine.engine import Engine
@@ -741,7 +742,35 @@ def run_verbose(
     logger.info(LogMessages.ENGINE_START)
 
     logger.info("Loading contract from: {path}", path=contract_path)
-    slither: Slither = Slither(contract_path)
+    try:
+        slither: Slither = Slither(contract_path)
+    except SlitherError as e:
+        error_msg = str(e)
+        # Check if this is a Foundry compilation error
+        if "build-info" in error_msg or "Compilation failed" in error_msg:
+            contract_path_obj = Path(contract_path)
+            # Check if foundry.toml exists (indicates Foundry project)
+            foundry_toml = contract_path_obj / "foundry.toml"
+            if not foundry_toml.exists() and contract_path_obj.is_file():
+                # If it's a file, check parent directory
+                foundry_toml = contract_path_obj.parent / "foundry.toml"
+            
+            if foundry_toml.exists():
+                logger.error(
+                    "Foundry project compilation failed. Please build the project first:\n"
+                    "  cd {project_dir}\n"
+                    "  forge build",
+                    project_dir=foundry_toml.parent
+                )
+            else:
+                logger.error(
+                    "Compilation failed. Please ensure the project is built.\n"
+                    "Original error: {error}",
+                    error=error_msg
+                )
+        else:
+            logger.error("Slither initialization failed: {error}", error=error_msg)
+        raise
 
     contracts: List[Contract]
     if slither.compilation_units:

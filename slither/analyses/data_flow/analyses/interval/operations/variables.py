@@ -1,5 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
+from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType
 
 # Import for global Solidity variables
@@ -141,3 +142,45 @@ def initialize_global_solidity_variables(solver: "SMTSolver", domain: "IntervalD
             # Use add_range_variable for initialization (doesn't mark as used)
             domain.state.add_range_variable(var_name, tracked_var)
             # Global variables don't get initialized to 0 - they have full range
+
+
+def initialize_function_parameters(
+    solver: "SMTSolver", domain: "IntervalDomain", function: Function
+) -> None:
+    """Pre-initialize function parameters in the domain with full possible ranges."""
+    if not hasattr(function, "parameters") or not function.parameters:
+        return
+
+    # Initialize each function parameter with full range
+    for param in function.parameters:
+        param_name = IntervalSMTUtils.resolve_variable_name(param)
+        if param_name is None:
+            continue
+
+        param_type = IntervalSMTUtils.resolve_elementary_type(param.type, None)
+        if param_type is None:
+            continue
+
+        # Create tracked variable for base parameter name (without initializing to 0 - parameters have full range)
+        tracked_var = IntervalSMTUtils.create_tracked_variable(solver, param_name, param_type)
+        if tracked_var is not None:
+            # Use add_range_variable for initialization (doesn't mark as used)
+            domain.state.add_range_variable(param_name, tracked_var)
+            # Function parameters don't get initialized to 0 - they have full range
+
+        # Also initialize the first SSA version (e.g., paramName|paramName_1) which is used in assignments
+        base_var_name = getattr(param, "name", None)
+        if base_var_name is not None:
+            # Extract base name from canonical name if it exists (e.g., "newNumber" from "Counter.setNumber(uint256).newNumber")
+            if "." in param_name:
+                base_var_name = param_name.split(".")[-1]
+            # Construct first SSA version name: canonicalName|baseName_1
+            first_ssa_name = f"{param_name}|{base_var_name}_1"
+            # Check if already exists
+            if not domain.state.has_range_variable(first_ssa_name):
+                ssa_tracked = IntervalSMTUtils.create_tracked_variable(
+                    solver, first_ssa_name, param_type
+                )
+                if ssa_tracked is not None:
+                    domain.state.add_range_variable(first_ssa_name, ssa_tracked)
+                    # SSA version also has full range (not initialized to 0)

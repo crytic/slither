@@ -7,6 +7,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.analyses.interval.operations.variables import (
     handle_variable_declaration,
     initialize_global_solidity_variables,
+    initialize_function_parameters,
 )
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.analyses.interval.operations.registry import (
@@ -84,9 +85,13 @@ class IntervalAnalysis(Analysis):
         handler.handle(operation, domain, node)
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
-        """Initialize domain state from bottom variant with global Solidity variables."""
+        """Initialize domain state from bottom variant with global Solidity variables and function parameters."""
         domain.variant = DomainVariant.STATE
+        # Initialize global Solidity variables with full range
         initialize_global_solidity_variables(self._solver, domain)
+        # Initialize function parameters with full range
+        if node.function:
+            initialize_function_parameters(self._solver, domain, node.function)
 
     @property
     def solver(self) -> SMTSolver:
