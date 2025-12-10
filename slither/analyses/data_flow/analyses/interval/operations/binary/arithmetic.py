@@ -185,6 +185,12 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return left_term << right_term
         if op_type == BinaryType.RIGHT_SHIFT:
             return self.solver.bv_lshr(left_term, right_term)
+        if op_type == BinaryType.AND:
+            return left_term & right_term
+        if op_type == BinaryType.OR:
+            return left_term | right_term
+        if op_type == BinaryType.CARET:
+            return left_term ^ right_term
 
         self.logger.debug("Unsupported arithmetic binary operation type: %s", op_type)
         return None
@@ -398,6 +404,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return extended_back != result_ext
         elif op_type == BinaryType.POWER:
             # Power overflow is complex; for now return false (handled separately)
+            return self._bool_false()
+        elif op_type in [BinaryType.AND, BinaryType.OR, BinaryType.CARET]:
+            # Bitwise operations don't overflow
             return self._bool_false()
         else:
             # Division, modulo, shifts don't overflow in the traditional sense

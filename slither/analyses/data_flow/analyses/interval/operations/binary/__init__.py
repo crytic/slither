@@ -26,6 +26,9 @@ class BinaryHandler(BaseOperationHandler):
         BinaryType.POWER,
         BinaryType.LEFT_SHIFT,
         BinaryType.RIGHT_SHIFT,
+        BinaryType.AND,
+        BinaryType.OR,
+        BinaryType.CARET,
     }
     _COMPARISON_TYPES = {
         BinaryType.GREATER_EQUAL,
