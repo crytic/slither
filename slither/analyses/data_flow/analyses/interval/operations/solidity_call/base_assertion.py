@@ -84,7 +84,9 @@ class BaseAssertionHandler(BaseOperationHandler):
         if validated_op is not None:
             # Build the comparison constraint from the stored operation
             handler = ComparisonBinaryHandler(self.solver)
-            constraint = handler.build_comparison_constraint(validated_op, domain)
+            constraint = handler.build_comparison_constraint(
+                validated_op, domain, node, validated_op
+            )
             if constraint is not None:
                 # Link the condition variable to the constraint
                 bitvec_constraint = self._bool_to_bitvec(constraint)

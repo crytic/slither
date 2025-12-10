@@ -66,7 +66,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         domain.state.set_range_variable(result_name, tracked)
         return tracked
 
-    def _build_comparison(self, operation: Binary, domain: IntervalDomain, node: Node) -> Optional[SMTTerm]:
+    def _build_comparison(
+        self, operation: Binary, domain: IntervalDomain, node: Node
+    ) -> Optional[SMTTerm]:
         left_int = self._resolve_operand_int(operation.variable_left, domain, node, operation)
         right_int = self._resolve_operand_int(operation.variable_right, domain, node, operation)
 
@@ -93,7 +95,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
 
         return self._bool_to_bitvec(bool_expr)
 
-    def _build_logical(self, operation: Binary, domain: IntervalDomain, node: Node) -> Optional[SMTTerm]:
+    def _build_logical(
+        self, operation: Binary, domain: IntervalDomain, node: Node
+    ) -> Optional[SMTTerm]:
         left_bv = self._resolve_operand_bitvec(operation.variable_left, domain, node, operation)
         right_bv = self._resolve_operand_bitvec(operation.variable_right, domain, node, operation)
         if left_bv is None or right_bv is None:
@@ -109,7 +113,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             return None
         return self._bool_to_bitvec(bool_expr)
 
-    def _resolve_operand_bitvec(self, operand, domain: IntervalDomain, node: Node, operation: Binary) -> Optional[SMTTerm]:
+    def _resolve_operand_bitvec(
+        self, operand, domain: IntervalDomain, node: Node, operation: Binary
+    ) -> Optional[SMTTerm]:
         if self.solver is None:
             return None
 
@@ -134,7 +140,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             )
         return tracked.term
 
-    def _resolve_operand_int(self, operand, domain: IntervalDomain, node: Node, operation: Binary) -> Optional[SMTTerm]:
+    def _resolve_operand_int(
+        self, operand, domain: IntervalDomain, node: Node, operation: Binary
+    ) -> Optional[SMTTerm]:
         if self.solver is None:
             return None
 
@@ -256,14 +264,14 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         return None
 
     def build_comparison_constraint(
-        self, binary_op: Binary, domain: IntervalDomain
+        self, binary_op: Binary, domain: IntervalDomain, node: Node, operation: Binary
     ) -> Optional[SMTTerm]:
         """Build an SMT constraint from a Binary comparison operation."""
         if self.solver is None:
             return None
 
-        left_int = self._resolve_operand_int(binary_op.variable_left, domain)
-        right_int = self._resolve_operand_int(binary_op.variable_right, domain)
+        left_int = self._resolve_operand_int(binary_op.variable_left, domain, node, operation)
+        right_int = self._resolve_operand_int(binary_op.variable_right, domain, node, operation)
 
         if left_int is None or right_int is None:
             return None
