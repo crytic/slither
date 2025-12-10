@@ -49,18 +49,31 @@ class TypeConversionHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        # Fetch SMT variable for lvalue (must already exist in domain)
+        # Fetch or create SMT variable for lvalue (type conversion operations create new variables)
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
-            self.logger.error_and_raise(
-                "Variable '{var_name}' not found in domain for type conversion operation",
-                ValueError,
-                var_name=lvalue_name,
-                embed_on_error=True,
-                node=node,
-                operation=operation,
-                domain=domain,
+            # Check if target type is supported for interval analysis
+            if IntervalSMTUtils.solidity_type_to_smt_sort(target_type) is None:
+                self.logger.debug(
+                    "Elementary type '%s' not supported for interval analysis; skipping.",
+                    getattr(target_type, "type", target_type),
+                )
+                return
+            lvalue_var = IntervalSMTUtils.create_tracked_variable(
+                self.solver, lvalue_name, target_type
             )
+            if lvalue_var is None:
+                self.logger.error_and_raise(
+                    "Failed to create tracked variable for type '{type_name}' and variable '{var_name}'",
+                    ValueError,
+                    var_name=lvalue_name,
+                    type_name=getattr(target_type, "type", target_type),
+                    embed_on_error=True,
+                    node=node,
+                    operation=operation,
+                    domain=domain,
+                )
+            domain.state.set_range_variable(lvalue_name, lvalue_var)
 
         # Handle constant conversion
         if isinstance(variable, Constant):
