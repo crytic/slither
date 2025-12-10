@@ -75,13 +75,18 @@ class AssignmentHandler(BaseOperationHandler):
         elif isinstance(node.scope, Function):
             is_checked = node.scope.is_checked()
 
-        # Fetch or create SMT variable for lvalue
+        # Fetch SMT variable for lvalue (must already exist in domain)
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
-            lvalue_var = self._create_tracked_variable(lvalue_name, lvalue_type)
-            if lvalue_var is None:
-                return
-            domain.state.set_range_variable(lvalue_name, lvalue_var)
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for assignment operation",
+                ValueError,
+                var_name=lvalue_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
+            )
 
         # Handle rvalue: constant or variable
         if isinstance(rvalue, Constant):
@@ -93,7 +98,7 @@ class AssignmentHandler(BaseOperationHandler):
             rvalue_name = self._get_variable_name(rvalue)
             if rvalue_name is not None:
                 if not self._handle_variable_assignment(
-                    lvalue_var, rvalue, rvalue_name, lvalue_name, domain, is_checked, lvalue_type
+                    lvalue_var, rvalue, rvalue_name, lvalue_name, domain, is_checked, lvalue_type, node, operation
                 ):
                     return  # Unsupported rvalue type; skip update
 
@@ -114,6 +119,8 @@ class AssignmentHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         is_checked: bool,
         fallback_type: Optional[ElementaryType],
+        node: "Node",
+        operation: Assignment,
     ) -> bool:
         """Process assignment from another variable; return False if unsupported."""
         rvalue_type = IntervalSMTUtils.resolve_elementary_type(getattr(rvalue, "type", None))
@@ -127,9 +134,15 @@ class AssignmentHandler(BaseOperationHandler):
 
         rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
         if rvalue_var is None:
-            # Variable should already exist in domain - don't create on demand
-            self.logger.debug(f"Variable '{rvalue_name}' not found in domain; skipping assignment.")
-            return False
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for assignment rvalue",
+                ValueError,
+                var_name=rvalue_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
+            )
 
         # Add constraint: lvalue == rvalue
         # First check if sizes match
@@ -204,24 +217,6 @@ class AssignmentHandler(BaseOperationHandler):
 
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
-
-    def _create_tracked_variable(
-        self, var_name: str, var_type: ElementaryType
-    ) -> Optional[TrackedSMTVariable]:
-        """Create a new SMT variable using the shared utilities with logging."""
-        if self.solver is None:
-            return None
-
-        tracked_var = IntervalSMTUtils.create_tracked_variable(self.solver, var_name, var_type)
-        if tracked_var is None:
-            self.logger.error(
-                "Unsupported elementary type '%s' for variable '%s'; skipping interval update.",
-                getattr(var_type, "type", var_type),
-                var_name,
-            )
-            return None
-
-        return tracked_var
 
     @staticmethod
     def _is_temporary_name(name: str) -> bool:

@@ -62,32 +62,41 @@ class NewElementaryTypeHandler(BaseOperationHandler):
             )
             return
 
-        # Fetch or create SMT variable for lvalue
+        # Fetch or create SMT variable for lvalue (new elementary type operations create new variables)
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
             lvalue_var = IntervalSMTUtils.create_tracked_variable(
                 self.solver, lvalue_name, lvalue_type
             )
             if lvalue_var is None:
-                self.logger.error(
-                    "Failed to create tracked variable for type '%s' and variable '%s'.",
-                    getattr(lvalue_type, "type", lvalue_type),
-                    lvalue_name,
+                self.logger.error_and_raise(
+                    "Failed to create tracked variable for type '{type_name}' and variable '{var_name}'",
+                    ValueError,
+                    var_name=lvalue_name,
+                    type_name=getattr(lvalue_type, "type", lvalue_type),
+                    embed_on_error=True,
+                    node=node,
+                    operation=operation,
+                    domain=domain,
                 )
-                return
             domain.state.set_range_variable(lvalue_name, lvalue_var)
 
         # Initialize based on arguments
         if not operation.arguments:
             self._initialize_to_zero(lvalue_var)
         else:
-            self._handle_argument_initialization(operation.arguments[0], lvalue_var, domain)
+            self._handle_argument_initialization(operation.arguments[0], lvalue_var, domain, node, operation)
 
         lvalue_var.assert_no_overflow(self.solver)
         domain.state.set_range_variable(lvalue_name, lvalue_var)
 
     def _handle_argument_initialization(
-        self, first_arg: object, lvalue_var: TrackedSMTVariable, domain: "IntervalDomain"
+        self,
+        first_arg: object,
+        lvalue_var: TrackedSMTVariable,
+        domain: "IntervalDomain",
+        node: "Node",
+        operation: NewElementaryType,
     ) -> None:
         """Initialize lvalue from operation argument (constant or variable)."""
         if isinstance(first_arg, Constant):
@@ -106,8 +115,15 @@ class NewElementaryTypeHandler(BaseOperationHandler):
 
         arg_var = IntervalSMTUtils.get_tracked_variable(domain, arg_name)
         if arg_var is None:
-            self._initialize_to_zero(lvalue_var)
-            return
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for new elementary type argument",
+                ValueError,
+                var_name=arg_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
+            )
 
         self._initialize_from_variable(lvalue_var, arg_var)
 

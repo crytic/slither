@@ -90,6 +90,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             left_name,
             fallback_type=result_type,
             is_checked=is_checked,
+            node=node,
+            operation=operation,
         )
         right_term, right_var = self._get_operand_term(
             domain,
@@ -97,6 +99,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             right_name,
             fallback_type=result_type,
             is_checked=is_checked,
+            node=node,
+            operation=operation,
         )
 
         if left_term is None or right_term is None:
@@ -319,6 +323,8 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         name: Optional[str],
         fallback_type: Optional[ElementaryType],
         is_checked: bool,
+        node: "Node",
+        operation: Binary,
     ) -> tuple[Optional[SMTTerm], Optional[TrackedSMTVariable]]:
         if isinstance(operand, Constant):
             var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
@@ -336,13 +342,16 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             var_type = fallback_type
 
         tracked = IntervalSMTUtils.get_tracked_variable(domain, operand_name)
-        if tracked is None and var_type is not None:
-            tracked = IntervalSMTUtils.create_tracked_variable(self.solver, operand_name, var_type)
-            if tracked is not None:
-                domain.state.set_range_variable(operand_name, tracked)
-
         if tracked is None:
-            return None, None
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for binary operation operand",
+                ValueError,
+                var_name=operand_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
+            )
 
         return tracked.term, tracked
 

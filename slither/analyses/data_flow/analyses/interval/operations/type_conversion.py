@@ -49,13 +49,18 @@ class TypeConversionHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        # Fetch or create SMT variable for lvalue (target)
+        # Fetch SMT variable for lvalue (must already exist in domain)
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
-            lvalue_var = self._create_tracked_variable(lvalue_name, target_type)
-            if lvalue_var is None:
-                return
-            domain.state.set_range_variable(lvalue_name, lvalue_var)
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for type conversion operation",
+                ValueError,
+                var_name=lvalue_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
+            )
 
         # Handle constant conversion
         if isinstance(variable, Constant):
@@ -74,14 +79,18 @@ class TypeConversionHandler(BaseOperationHandler):
                 )
                 return
 
-            # Fetch SMT variable for source variable (should already exist)
+            # Fetch SMT variable for source variable (must already exist in domain)
             source_var = IntervalSMTUtils.get_tracked_variable(domain, variable_name)
             if source_var is None:
-                # Variable should already exist in domain - don't create on demand
-                self.logger.debug(
-                    f"Variable '{variable_name}' not found in domain; skipping type conversion."
+                self.logger.error_and_raise(
+                    "Variable '{var_name}' not found in domain for type conversion source",
+                    ValueError,
+                    var_name=variable_name,
+                    embed_on_error=True,
+                    node=node,
+                    operation=operation,
+                    domain=domain,
                 )
-                return
 
             # Handle type conversion: extend or truncate as needed
             source_width = self.solver.bv_size(source_var.term)
@@ -136,21 +145,3 @@ class TypeConversionHandler(BaseOperationHandler):
 
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
-
-    def _create_tracked_variable(
-        self, var_name: str, var_type: ElementaryType
-    ) -> Optional[TrackedSMTVariable]:
-        """Create a new SMT variable using the shared utilities with logging."""
-        if self.solver is None:
-            return None
-
-        tracked_var = IntervalSMTUtils.create_tracked_variable(self.solver, var_name, var_type)
-        if tracked_var is None:
-            self.logger.error(
-                "Unsupported elementary type '%s' for variable '%s'; skipping interval update.",
-                getattr(var_type, "type", var_type),
-                var_name,
-            )
-            return None
-
-        return tracked_var

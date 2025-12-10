@@ -28,9 +28,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             return
 
         if operation.type in self._LOGICAL_TYPES:
-            comparison_bitvec = self._build_logical(operation, domain)
+            comparison_bitvec = self._build_logical(operation, domain, node)
         else:
-            comparison_bitvec = self._build_comparison(operation, domain)
+            comparison_bitvec = self._build_comparison(operation, domain, node)
 
         if comparison_bitvec is None:
             return
@@ -66,9 +66,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         domain.state.set_range_variable(result_name, tracked)
         return tracked
 
-    def _build_comparison(self, operation: Binary, domain: IntervalDomain) -> Optional[SMTTerm]:
-        left_int = self._resolve_operand_int(operation.variable_left, domain)
-        right_int = self._resolve_operand_int(operation.variable_right, domain)
+    def _build_comparison(self, operation: Binary, domain: IntervalDomain, node: Node) -> Optional[SMTTerm]:
+        left_int = self._resolve_operand_int(operation.variable_left, domain, node, operation)
+        right_int = self._resolve_operand_int(operation.variable_right, domain, node, operation)
 
         if left_int is None or right_int is None:
             return None
@@ -93,9 +93,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
 
         return self._bool_to_bitvec(bool_expr)
 
-    def _build_logical(self, operation: Binary, domain: IntervalDomain) -> Optional[SMTTerm]:
-        left_bv = self._resolve_operand_bitvec(operation.variable_left, domain)
-        right_bv = self._resolve_operand_bitvec(operation.variable_right, domain)
+    def _build_logical(self, operation: Binary, domain: IntervalDomain, node: Node) -> Optional[SMTTerm]:
+        left_bv = self._resolve_operand_bitvec(operation.variable_left, domain, node, operation)
+        right_bv = self._resolve_operand_bitvec(operation.variable_right, domain, node, operation)
         if left_bv is None or right_bv is None:
             return None
 
@@ -109,7 +109,7 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             return None
         return self._bool_to_bitvec(bool_expr)
 
-    def _resolve_operand_bitvec(self, operand, domain: IntervalDomain) -> Optional[SMTTerm]:
+    def _resolve_operand_bitvec(self, operand, domain: IntervalDomain, node: Node, operation: Binary) -> Optional[SMTTerm]:
         if self.solver is None:
             return None
 
@@ -123,19 +123,18 @@ class ComparisonBinaryHandler(BaseOperationHandler):
 
         tracked = IntervalSMTUtils.get_tracked_variable(domain, operand_name)
         if tracked is None:
-            solidity_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
-            if solidity_type is None:
-                return None
-            tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver, operand_name, solidity_type
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain for comparison operation operand",
+                ValueError,
+                var_name=operand_name,
+                embed_on_error=True,
+                node=node,
+                operation=operation,
+                domain=domain,
             )
-            if tracked is None:
-                return None
-            domain.state.set_range_variable(operand_name, tracked)
-            tracked.assert_no_overflow(self.solver)
         return tracked.term
 
-    def _resolve_operand_int(self, operand, domain: IntervalDomain) -> Optional[SMTTerm]:
+    def _resolve_operand_int(self, operand, domain: IntervalDomain, node: Node, operation: Binary) -> Optional[SMTTerm]:
         if self.solver is None:
             return None
 
