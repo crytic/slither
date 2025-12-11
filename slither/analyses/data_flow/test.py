@@ -297,7 +297,17 @@ def analyze_function_quiet(
                         )
 
     except Exception as e:
-        result.error = str(e)
+        # Log error with context, then stop execution
+        from slither.analyses.data_flow.logger import get_logger, LogMessages
+
+        logger = get_logger()
+        logger.exception(
+            LogMessages.ERROR_ANALYSIS_FAILED,
+            error=str(e),
+            function_name=function.name,
+            embed_on_error=False,
+        )
+        raise
 
     return result
 
@@ -337,17 +347,16 @@ def analyze_contract_quiet(contract_path: Path) -> List[ContractResult]:
             results.append(contract_result)
 
     except Exception as e:
-        results.append(
-            ContractResult(
-                contract_file=contract_path.name,
-                contract_name="ERROR",
-                functions={
-                    "_error": FunctionResult(
-                        function_name="_error", contract_name="ERROR", error=str(e)
-                    )
-                },
-            )
+        # Log error with context, then stop execution
+        from slither.analyses.data_flow.logger import get_logger
+
+        logger = get_logger()
+        logger.exception(
+            "Failed to analyze contract: {contract_path}",
+            contract_path=str(contract_path),
+            embed_on_error=False,
         )
+        raise
 
     return results
 
@@ -847,12 +856,14 @@ def run_verbose(
                 analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
                 analyze_function_verbose(function, analysis, logger, LogMessages, debug=debug)
             except Exception as e:
+                # Log error with context, then stop execution
                 logger.exception(
                     LogMessages.ERROR_ANALYSIS_FAILED,
                     error=str(e),
                     function_name=function.name,
                     embed_on_error=False,
                 )
+                raise
 
     logger.info(LogMessages.ENGINE_COMPLETE)
 
