@@ -20,8 +20,10 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
 from slither.analyses.data_flow.analyses.interval.operations.new_elementary_type import (
     NewElementaryTypeHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.condition import ConditionHandler
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.phi import Phi
 from slither.slithir.operations.return_operation import Return
@@ -65,6 +67,7 @@ class OperationHandlerRegistry:
         """Register default operation handlers."""
         self.register(Assignment, AssignmentHandler)
         self.register(Binary, BinaryHandler)
+        self.register(Condition, ConditionHandler)
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
         self.register(InternalCall, InternalCallHandler)
