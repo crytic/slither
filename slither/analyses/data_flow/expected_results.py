@@ -379,4 +379,44 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "Require.sol": {
+        "RequireTests": {
+            "requireAlwaysFalse": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "requireComplexExpression": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "requireExactValue": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "requireLowerBound": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "requireMultipleConstraints": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "requireRange": {
+                "variables": {
+                    "RequireTests.requireRange().x|x_1": {"range": "[150, 150]", "overflow": "NO"},
+                    "RequireTests.requireRange().y|y_1": {"range": "[300, 300]", "overflow": "NO"},
+                }
+            },
+            "requireUpperBound": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+        },
+    },
 }
