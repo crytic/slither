@@ -249,6 +249,58 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "FunctionArgs.sol": {
+        "FunctionArgsTests": {
+            "callDouble": {
+                "variables": {
+                    "FunctionArgsTests.callDouble().arg|arg_1": {"range": "[10, 10]", "overflow": "NO"},
+                    "FunctionArgsTests.callDouble().result|result_1": {"range": "[20, 20]", "overflow": "NO"},
+                    "FunctionArgsTests.double(uint8).x|x_1": {"range": "[10, 10]", "overflow": "NO"},
+                    "FunctionArgsTests.double(uint8).x|x_2": {"range": "[20, 20]", "overflow": "NO"},
+                }
+            },
+            "complexExpression": {
+                "variables": {
+                    "FunctionArgsTests.complexExpression(uint256).x|x_1": {"range": "[1, 499]", "overflow": "NO"},
+                    "FunctionArgsTests.complexExpression(uint256).y|y_1": {"range": "[2, 998]", "overflow": "NO"},
+                }
+            },
+            "constrainedAdd": {
+                "variables": {
+                    "FunctionArgsTests.constrainedAdd(uint8,uint8).a|a_1": {"range": "[10, 100]", "overflow": "NO"},
+                    "FunctionArgsTests.constrainedAdd(uint8,uint8).b|b_1": {"range": "[20, 50]", "overflow": "NO"},
+                }
+            },
+            "double": {
+                "variables": {
+                    "FunctionArgsTests.double(uint8).x|x_1": {"range": "[0, 49]", "overflow": "NO"},
+                    "FunctionArgsTests.double(uint8).x|x_2": {"range": "[0, 98]", "overflow": "NO"},
+                }
+            },
+            "multipleCalls": {
+                "variables": {
+                    "FunctionArgsTests.constrainedAdd(uint8,uint8).a|a_1": {"range": "[30, 30]", "overflow": "NO"},
+                    "FunctionArgsTests.constrainedAdd(uint8,uint8).b|b_1": {"range": "[25, 25]", "overflow": "NO"},
+                    "FunctionArgsTests.double(uint8).x|x_1": {"range": "[25, 25]", "overflow": "NO"},
+                    "FunctionArgsTests.double(uint8).x|x_2": {"range": "[50, 50]", "overflow": "NO"},
+                    "FunctionArgsTests.multipleCalls().a|a_1": {"range": "[25, 25]", "overflow": "NO"},
+                    "FunctionArgsTests.multipleCalls().b|b_1": {"range": "[50, 50]", "overflow": "NO"},
+                    "FunctionArgsTests.multipleCalls().c|c_1": {"range": "[55, 55]", "overflow": "NO"},
+                    "FunctionArgsTests.multipleCalls().d|d_1": {"range": "[105, 105]", "overflow": "NO"},
+                }
+            },
+            "potentialOverflow": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "potentialUnderflow": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+        },
+    },
     "Math.sol": {
         "MathOperations": {
             "addNoOverflow": {
