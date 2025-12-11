@@ -48,9 +48,16 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
         result_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
         result_type: Optional[ElementaryType] = None
+        # Prefer the lvalue type to keep the width narrow (e.g., uint8 stays uint8)
+        try:
+            lvalue_type = operation.lvalue.type  # type: ignore[attr-defined]
+        except AttributeError:
+            lvalue_type = None
+        if isinstance(lvalue_type, ElementaryType):
+            result_type = lvalue_type
 
         expression = node.expression if isinstance(node.expression, AssignmentOperation) else None
-        if expression is not None:
+        if result_type is None and expression is not None:
             right_expr = expression.expression_right
             right_expr_type: Optional[ElementaryType] = None
             if right_expr is not None:
@@ -67,14 +74,6 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
                 return_type = expression.expression_return_type
                 if isinstance(return_type, ElementaryType):
                     result_type = return_type
-
-        if result_type is None:
-            try:
-                lvalue_type = operation.lvalue.type  # type: ignore[attr-defined]
-            except AttributeError:
-                lvalue_type = None
-            if isinstance(lvalue_type, ElementaryType):
-                result_type = lvalue_type
 
         if result_name is None or result_type is None:
             self.logger.debug(
@@ -151,6 +150,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         # Result is already at result_width, just assign directly
         # Constrain the bitvector result
         self.solver.assert_constraint(result_var.term == raw_expr)
+
+        # Enforce type bounds to ensure result stays within valid range
+        IntervalSMTUtils.enforce_type_bounds(self.solver, result_var)
 
         # Add overflow detection constraint for arithmetic operations
         self._add_overflow_constraint(

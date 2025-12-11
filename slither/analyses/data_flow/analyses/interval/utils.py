@@ -123,7 +123,7 @@ class IntervalSMTUtils:
             if type_str.startswith("bytes") and type_str != "bytes":
                 # Fixed-size bytes: N bytes = N*8 bits
                 return int(type_str.replace("bytes", "")) * 8
-        
+
         raise ValueError(f"Unsupported solidity type {type_str}")
 
     @staticmethod
@@ -219,3 +219,36 @@ class IntervalSMTUtils:
         if current_width <= target_width:
             return term
         return solver.bv_extract(term, target_width - 1, 0)
+
+    @staticmethod
+    def enforce_type_bounds(solver: "SMTSolver", tracked_var: "TrackedSMTVariable") -> None:
+        """Enforce type bounds as solver constraints."""
+        metadata = getattr(tracked_var.base, "metadata", {})
+        min_value = metadata.get("min_value")
+        max_value = metadata.get("max_value")
+
+        if min_value is None and max_value is None:
+            return
+
+        term = tracked_var.term
+        width = solver.bv_size(term)
+
+        # Enforce minimum bound: term >= min_value
+        if min_value is not None:
+            min_const = solver.create_constant(
+                min_value, Sort(kind=SortKind.BITVEC, parameters=[width])
+            )
+            # term >= min_value is equivalent to Not(term < min_value)
+            # For unsigned: term >= min_value means Not(bv_ult(term, min_const))
+            min_constraint = solver.Not(solver.bv_ult(term, min_const))
+            solver.assert_constraint(min_constraint)
+
+        # Enforce maximum bound: term <= max_value
+        if max_value is not None:
+            max_const = solver.create_constant(
+                max_value, Sort(kind=SortKind.BITVEC, parameters=[width])
+            )
+            # term <= max_value is equivalent to Not(term > max_value)
+            # For unsigned: term <= max_value means Not(bv_ult(max_const, term))
+            max_constraint = solver.Not(solver.bv_ult(max_const, term))
+            solver.assert_constraint(max_constraint)

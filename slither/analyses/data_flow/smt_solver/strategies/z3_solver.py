@@ -11,6 +11,7 @@ from z3 import (
     Extract,
     If,
     LShR,
+    Not as Z3Not,
     Optimize,
     Or,
     SignExt,
@@ -176,6 +177,10 @@ class Z3Solver(SMTSolver):
         if len(terms) == 1:
             return terms[0]
         return Or(*terms)
+
+    def Not(self, term: SMTTerm) -> SMTTerm:
+        """Create a negation (NOT) of a boolean term."""
+        return Z3Not(term)
 
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         return UDiv(left, right)

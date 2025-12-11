@@ -121,9 +121,11 @@ class PhiHandler(BaseOperationHandler):
         or_constraints: list[SMTTerm],
         rvalues: list[object],
     ) -> None:
-        """Apply OR constraint to solver."""
+        """Apply OR constraint to solver and assert no overflow."""
         or_constraint: SMTTerm = self.solver.Or(*or_constraints)
         self.solver.assert_constraint(or_constraint)
+
+        lvalue_var.assert_no_overflow(self.solver)
 
         lvalue_name = lvalue_var.base.name
         rvalue_names = ", ".join(

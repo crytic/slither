@@ -85,6 +85,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def Not(self, term: SMTTerm) -> SMTTerm:
+        """Create a negation (NOT) of a boolean term."""
+        pass
+
+    @abstractmethod
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Unsigned division for bitvectors."""
         pass
