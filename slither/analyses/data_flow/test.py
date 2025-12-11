@@ -424,12 +424,31 @@ def run_tests(contracts_dir: Path, verbose: bool = False) -> int:
     """Run all tests and return exit code (0=pass, 1=fail)."""
     console.print("\n[bold cyan]Running Slither data flow analysis tests...[/bold cyan]\n")
 
-    # Discover all .sol files
-    sol_files = sorted(contracts_dir.glob("*.sol"))
+    # Only test files that are in EXPECTED_RESULTS
+    expected_file_names = set(EXPECTED_RESULTS.keys())
+
+    if not expected_file_names:
+        console.print("[red]No expected results defined![/red]")
+        return 1
+
+    # Find matching .sol files
+    sol_files = []
+    for file_name in sorted(expected_file_names):
+        sol_file = contracts_dir / file_name
+        if sol_file.exists():
+            sol_files.append(sol_file)
+        elif verbose:
+            console.print(
+                f"[yellow]Warning: Expected file {file_name} not found in {contracts_dir}[/yellow]"
+            )
 
     if not sol_files:
-        console.print(f"[red]No .sol files found in {contracts_dir}[/red]")
+        console.print(f"[red]No matching .sol files found in {contracts_dir}[/red]")
+        console.print(f"[dim]Expected files: {', '.join(sorted(expected_file_names))}[/dim]")
         return 1
+
+    if verbose:
+        console.print(f"[dim]Testing {len(sol_files)} file(s) with expected results[/dim]\n")
 
     total_contracts = 0
     passed_contracts = 0
@@ -439,11 +458,6 @@ def run_tests(contracts_dir: Path, verbose: bool = False) -> int:
     contract_test_results: List[ContractTestResult] = []
 
     for sol_file in sol_files:
-        if sol_file.name not in EXPECTED_RESULTS:
-            if verbose:
-                console.print(f"[dim]Skipping {sol_file.name} (no expected results defined)[/dim]")
-            continue
-
         expected_contract_data = EXPECTED_RESULTS[sol_file.name]
 
         # Analyze the contract
@@ -754,19 +768,19 @@ def run_verbose(
             if not foundry_toml.exists() and contract_path_obj.is_file():
                 # If it's a file, check parent directory
                 foundry_toml = contract_path_obj.parent / "foundry.toml"
-            
+
             if foundry_toml.exists():
                 logger.error(
                     "Foundry project compilation failed. Please build the project first:\n"
                     "  cd {project_dir}\n"
                     "  forge build",
-                    project_dir=foundry_toml.parent
+                    project_dir=foundry_toml.parent,
                 )
             else:
                 logger.error(
                     "Compilation failed. Please ensure the project is built.\n"
                     "Original error: {error}",
-                    error=error_msg
+                    error=error_msg,
                 )
         else:
             logger.error("Slither initialization failed: {error}", error=error_msg)
@@ -843,19 +857,65 @@ def run_verbose(
     logger.info(LogMessages.ENGINE_COMPLETE)
 
 
-def generate_expected_results(contracts_dir: Path) -> None:
-    """Generate expected results from current analysis output and save to expected_results.py."""
-    console.print("\n[bold cyan]Generating expected results from current analysis...[/bold cyan]\n")
+def generate_expected_results(contracts_dir: Path, contract_file: Optional[str] = None) -> None:
+    """Generate expected results from current analysis output and save to expected_results.py.
 
-    # Discover all .sol files
-    sol_files = sorted(contracts_dir.glob("*.sol"))
+    Args:
+        contracts_dir: Directory containing contract files
+        contract_file: Optional contract file name (e.g., "FunctionArgs.sol"). If provided,
+                      only generates results for this file and merges with existing results.
+    """
+    if contract_file:
+        console.print(
+            f"\n[bold cyan]Generating expected results for {contract_file}...[/bold cyan]\n"
+        )
+    else:
+        console.print(
+            "\n[bold cyan]Generating expected results from current analysis...[/bold cyan]\n"
+        )
 
-    if not sol_files:
-        console.print(f"[red]No .sol files found in {contracts_dir}[/red]")
-        return
-
-    # Analyze all contracts
+    # Load existing results if updating a single file
     all_results: Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, str]]]]] = {}
+    was_already_present = False
+    if contract_file:
+        try:
+            from slither.analyses.data_flow.expected_results import EXPECTED_RESULTS
+
+            all_results = EXPECTED_RESULTS.copy()
+            was_already_present = contract_file in all_results
+            if was_already_present:
+                console.print(
+                    f"[yellow]⚠[/yellow] [dim]{contract_file} already exists in expected results. Will update it.[/dim]"
+                )
+            else:
+                console.print(
+                    f"[green]✓[/green] [dim]{contract_file} not found in expected results. Will add it.[/dim]"
+                )
+            console.print(
+                f"[dim]Loaded existing results for {len(all_results)} contract file(s)[/dim]"
+            )
+        except Exception as e:
+            console.print(f"[yellow]Could not load existing results: {e}[/yellow]")
+            console.print("[dim]Will generate new results file[/dim]")
+
+    # Discover .sol files to process
+    if contract_file:
+        # Process only the specified file
+        sol_file = contracts_dir / contract_file
+        if not sol_file.exists():
+            console.print(f"[red]Contract file not found: {sol_file}[/red]")
+            return
+        sol_files = [sol_file]
+    else:
+        # Process all .sol files
+        sol_files = sorted(contracts_dir.glob("*.sol"))
+        if not sol_files:
+            console.print(f"[red]No .sol files found in {contracts_dir}[/red]")
+            return
+
+    # Analyze contracts
+    updated_contracts: List[str] = []
+    added_contracts: List[str] = []
 
     for sol_file in sol_files:
         console.print(f"[dim]Analyzing {sol_file.name}...[/dim]")
@@ -866,8 +926,13 @@ def generate_expected_results(contracts_dir: Path) -> None:
                 console.print(f"[yellow]Skipping {sol_file.name} due to error[/yellow]")
                 continue
 
-            if sol_file.name not in all_results:
+            # Track if this is new or updated
+            is_new = sol_file.name not in all_results
+            if is_new:
                 all_results[sol_file.name] = {}
+                added_contracts.append(sol_file.name)
+            elif contract_file and sol_file.name == contract_file:
+                updated_contracts.append(sol_file.name)
 
             contract_data: Dict[str, Dict[str, Dict[str, Dict[str, str]]]] = {}
 
@@ -902,8 +967,8 @@ def generate_expected_results(contracts_dir: Path) -> None:
         "EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {",
     ]
 
-    for contract_file, contracts in sorted(all_results.items()):
-        output_lines.append(f'    "{contract_file}": {{')
+    for contract_file_name, contracts in sorted(all_results.items()):
+        output_lines.append(f'    "{contract_file_name}": {{')
         for contract_name, functions in sorted(contracts.items()):
             output_lines.append(f'        "{contract_name}": {{')
             for func_name, func_data in sorted(functions.items()):
@@ -937,6 +1002,18 @@ def generate_expected_results(contracts_dir: Path) -> None:
         console.print(
             f"\n[bold green]✓[/bold green] Expected results saved to: {expected_results_path}"
         )
+
+        # Show summary of what was added/updated
+        if contract_file:
+            if updated_contracts:
+                console.print(f"[green]Updated:[/green] {', '.join(updated_contracts)}")
+            if added_contracts:
+                console.print(f"[green]Added:[/green] {', '.join(added_contracts)}")
+        else:
+            if added_contracts:
+                console.print(
+                    f"[green]Generated results for {len(added_contracts)} contract file(s)[/green]"
+                )
     except Exception as e:
         console.print(f"\n[bold red]✗[/bold red] Failed to save expected results: {e}")
         return
@@ -950,11 +1027,19 @@ def show_test_output(
     """Show verbose table output for a specific test contract/function.
 
     Args:
-        contract_file: Name of the contract file (e.g., "FunctionArgs.sol")
+        contract_file: Name of the contract file (e.g., "FunctionArgs.sol") or full path
         function_name: Optional function name to filter to
-        contracts_dir: Directory containing contract files
+        contracts_dir: Directory containing contract files (used if contract_file is just a filename)
     """
-    contract_path = Path(contracts_dir) / contract_file
+    # Check if contract_file is already a full path
+    contract_file_path = Path(contract_file)
+    if contract_file_path.is_absolute() or "/" in contract_file or "\\" in contract_file:
+        # It's already a path, use it directly
+        contract_path = contract_file_path.resolve()
+    else:
+        # It's just a filename, prepend contracts_dir
+        contract_path = (Path(contracts_dir) / contract_file).resolve()
+
     if not contract_path.exists():
         console.print(f"[red]Contract file not found: {contract_path}[/red]")
         return
@@ -1043,7 +1128,8 @@ def main() -> int:
         "--generate-expected",
         "-g",
         action="store_true",
-        help="Generate expected results from current analysis output (for copying into expected_results.py)",
+        help="Generate expected results from current analysis output (for copying into expected_results.py). "
+        "If a contract file name is provided as positional argument, only generates results for that file.",
     )
     parser.add_argument(
         "path",
@@ -1060,7 +1146,19 @@ def main() -> int:
         if not contracts_dir.exists():
             console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
             return 1
-        generate_expected_results(contracts_dir)
+
+        # If a path is provided, treat it as a contract file name
+        contract_file = None
+        if args.path:
+            contract_file = args.path
+            # Remove directory path if provided, keep only filename
+            if "/" in contract_file or "\\" in contract_file:
+                contract_file = Path(contract_file).name
+            # Ensure it ends with .sol
+            if not contract_file.endswith(".sol"):
+                contract_file = f"{contract_file}.sol"
+
+        generate_expected_results(contracts_dir, contract_file=contract_file)
         return 0
     elif args.show:
         # Show verbose output for a specific test
@@ -1087,7 +1185,7 @@ def main() -> int:
         else:
             # Fallback to default (for backward compatibility)
             contract_path = "../contracts/src/FunctionArgs.sol"
-        
+
         # Convert to absolute path for better handling, but Slither can handle both
         contract_path_obj = Path(contract_path)
         if contract_path_obj.exists():
@@ -1097,8 +1195,10 @@ def main() -> int:
             # Even if path doesn't exist as-is, let Slither try (it handles project detection)
             # Just warn the user
             console.print(f"[yellow]Warning: Path may not exist: {contract_path}[/yellow]")
-            console.print("[dim]Slither will attempt to detect project type (Foundry/Hardhat/etc.)[/dim]")
-        
+            console.print(
+                "[dim]Slither will attempt to detect project type (Foundry/Hardhat/etc.)[/dim]"
+            )
+
         run_verbose(
             contract_path,
             debug=args.debug,
