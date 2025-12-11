@@ -12,6 +12,7 @@ from z3 import (
     If,
     LShR,
     Optimize,
+    Or,
     SignExt,
     Solver,
     UDiv,
@@ -167,6 +168,14 @@ class Z3Solver(SMTSolver):
 
     def make_ite(self, condition: SMTTerm, then_term: SMTTerm, else_term: SMTTerm) -> SMTTerm:
         return If(condition, then_term, else_term)
+
+    def Or(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a disjunction (OR) of multiple boolean terms."""
+        if not terms:
+            raise ValueError("Or() requires at least one term")
+        if len(terms) == 1:
+            return terms[0]
+        return Or(*terms)
 
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         return UDiv(left, right)

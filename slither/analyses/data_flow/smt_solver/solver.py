@@ -80,6 +80,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def Or(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a disjunction (OR) of multiple boolean terms."""
+        pass
+
+    @abstractmethod
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Unsigned division for bitvectors."""
         pass
