@@ -232,6 +232,7 @@ class IntervalSMTUtils:
 
         term = tracked_var.term
         width = solver.bv_size(term)
+        is_signed = metadata.get("is_signed", False)
 
         # Enforce minimum bound: term >= min_value
         if min_value is not None:
@@ -239,8 +240,12 @@ class IntervalSMTUtils:
                 min_value, Sort(kind=SortKind.BITVEC, parameters=[width])
             )
             # term >= min_value is equivalent to Not(term < min_value)
-            # For unsigned: term >= min_value means Not(bv_ult(term, min_const))
-            min_constraint = solver.Not(solver.bv_ult(term, min_const))
+            if is_signed:
+                # For signed: use signed comparison
+                min_constraint = solver.Not(solver.bv_slt(term, min_const))
+            else:
+                # For unsigned: use unsigned comparison
+                min_constraint = solver.Not(solver.bv_ult(term, min_const))
             solver.assert_constraint(min_constraint)
 
         # Enforce maximum bound: term <= max_value
@@ -249,6 +254,10 @@ class IntervalSMTUtils:
                 max_value, Sort(kind=SortKind.BITVEC, parameters=[width])
             )
             # term <= max_value is equivalent to Not(term > max_value)
-            # For unsigned: term <= max_value means Not(bv_ult(max_const, term))
-            max_constraint = solver.Not(solver.bv_ult(max_const, term))
+            if is_signed:
+                # For signed: use signed comparison
+                max_constraint = solver.Not(solver.bv_slt(max_const, term))
+            else:
+                # For unsigned: use unsigned comparison
+                max_constraint = solver.Not(solver.bv_ult(max_const, term))
             solver.assert_constraint(max_constraint)

@@ -207,6 +207,13 @@ class Z3Solver(SMTSolver):
         """Unsigned less-than comparison for bitvectors."""
         return ULT(left, right)
 
+    def bv_slt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed less-than comparison for bitvectors."""
+        # Convert to signed integers and compare
+        left_signed = self.bitvector_to_signed_int(left)
+        right_signed = self.bitvector_to_signed_int(right)
+        return left_signed < right_signed
+
     def bv_size(self, term: SMTTerm) -> int:
         """Get the bit-width of a bitvector term."""
         if not self.is_bitvector(term):

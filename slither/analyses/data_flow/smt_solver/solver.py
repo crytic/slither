@@ -125,6 +125,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_slt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed less-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
     def bv_size(self, term: SMTTerm) -> int:
         """Get the bit-width of a bitvector term."""
         pass
