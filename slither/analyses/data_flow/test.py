@@ -157,23 +157,18 @@ def solve_variable_range(
             if opt is None:
                 return None
 
-            from z3 import is_bv, BV2Int, If
+            from z3 import is_bv, BitVecVal
 
             objective = term if is_bv(term) else term
 
-            # For signed types, we need to convert to signed interpretation before optimization
-            # Z3's minimize/maximize treats bitvectors as unsigned by default
-            # We use BV2Int with manual signed conversion: if bv >= half then bv - full else bv
+            # For signed types, use sign-bit XOR trick to convert signed order to unsigned order
+            # This stays entirely in bitvector theory (no BV2Int), avoiding theory mixing overhead
+            # XOR with sign bit maps: -128→0, -1→127, 0→128, 127→255 (for int8)
+            # So signed ordering becomes unsigned ordering, and we can use standard min/max
             if is_signed and is_bv(objective):
                 width = bit_width if isinstance(bit_width, int) else 256
-                half = 1 << (width - 1)  # e.g., 128 for int8
-                full = 1 << width  # e.g., 256 for int8
-                # Signed interpretation: values >= half are negative (value - full)
-                objective = If(
-                    BV2Int(objective) >= half,
-                    BV2Int(objective) - full,
-                    BV2Int(objective)
-                )
+                sign_bit = BitVecVal(1 << (width - 1), width)
+                objective = objective ^ sign_bit
 
             if maximize:
                 opt.maximize(objective)
