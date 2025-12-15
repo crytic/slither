@@ -25,6 +25,10 @@ from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.library_call import LibraryCall
+from slither.analyses.data_flow.analyses.interval.operations.library_call import (
+    LibraryCallHandler,
+)
 from slither.slithir.operations.phi import Phi
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
@@ -71,6 +75,7 @@ class OperationHandlerRegistry:
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
         self.register(InternalCall, InternalCallHandler)
+        self.register(LibraryCall, LibraryCallHandler)
         self.register(Phi, PhiHandler)
         self.register(TypeConversion, TypeConversionHandler)
         self.register(NewElementaryType, NewElementaryTypeHandler)
