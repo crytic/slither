@@ -12,20 +12,16 @@ from slither.slithir.variables.constant import Constant
 
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityVariable,
+)
+from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.core.cfg.node import Node
-
-# Import for type checking Solidity variables
-try:
-    from slither.core.declarations.solidity_variables import (
-        SolidityVariableComposed,
-        SolidityVariable,
-    )
-except ImportError:
-    SolidityVariableComposed = None
-    SolidityVariable = None
 
 
 class AssignmentHandler(BaseOperationHandler):
@@ -111,13 +107,25 @@ class AssignmentHandler(BaseOperationHandler):
             rvalue_name = self._get_variable_name(rvalue)
             if rvalue_name is not None:
                 if not self._handle_variable_assignment(
-                    lvalue_var, rvalue, rvalue_name, lvalue_name, domain, is_checked, lvalue_type, node, operation
+                    lvalue_var,
+                    rvalue,
+                    rvalue_name,
+                    lvalue_name,
+                    domain,
+                    is_checked,
+                    lvalue_type,
+                    node,
+                    operation,
                 ):
                     return  # Unsupported rvalue type; skip update
 
         # Update domain state
         self.logger.debug(f"Setting range variable {lvalue_name} to {lvalue_var}")
         domain.state.set_range_variable(lvalue_name, lvalue_var)
+
+        # If lvalue is a ReferenceVariable that points to a struct member, also update the struct member
+        if hasattr(lvalue, "points_to") and lvalue.points_to is not None:
+            self._update_struct_member_if_reference(lvalue, lvalue_var, domain, node, operation)
 
     def _get_variable_name(self, var: Union[object, Constant]) -> Optional[str]:
         """Extract variable name from SlitherIR variable."""
@@ -242,8 +250,6 @@ class AssignmentHandler(BaseOperationHandler):
     @staticmethod
     def _is_solidity_variable(var: object) -> bool:
         """Check if variable is a Solidity global variable (should have full range, not initialized to 0)."""
-        if SolidityVariableComposed is None:
-            return False
         return isinstance(var, (SolidityVariableComposed, SolidityVariable))
 
     def _initialize_variable_to_zero(self, var: TrackedSMTVariable) -> None:
@@ -252,3 +258,65 @@ class AssignmentHandler(BaseOperationHandler):
             return
         zero_constant = self.solver.create_constant(0, var.sort)
         self.solver.assert_constraint(var.term == zero_constant)
+
+    def _update_struct_member_if_reference(
+        self,
+        lvalue: object,
+        lvalue_var: TrackedSMTVariable,
+        domain: "IntervalDomain",
+        node: "Node",
+        operation: Assignment,
+    ) -> None:
+        """Update struct member when assigning to a reference variable that points to a struct member."""
+        if self.solver is None:
+            return
+
+        # Guard: only process ReferenceVariable lvalues
+        if not isinstance(lvalue, (ReferenceVariable, ReferenceVariableSSA)):
+            return
+
+        # Find struct member variables that might be constrained to equal this reference
+        # Look for variables with pattern "*.member_name" where the base matches points_to
+        points_to = getattr(lvalue, "points_to", None)
+        if points_to is None:
+            return
+
+        points_to_name = IntervalSMTUtils.resolve_variable_name(points_to)
+        if points_to_name is None:
+            return
+
+        # Search for struct member variables that start with the points_to name
+        # and are constrained to equal this reference
+        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
+        if lvalue_name is None:
+            return
+
+        # Find all variables in domain that match the pattern "{points_to_name}.*"
+        # and check if they're constrained to equal lvalue_var
+        for var_name, tracked_var in domain.state.get_range_variables().items():
+            # Check if this variable name matches the pattern of a struct member
+            if "." in var_name:
+                base_name = var_name.split(".", 1)[0]
+                # Check if base name matches (accounting for SSA versions)
+                if base_name.startswith(points_to_name) or points_to_name.startswith(
+                    base_name.split("|")[0]
+                ):
+                    # This might be the struct member - update it to match the reference
+                    # The constraint REF == struct.member should already exist from Member handler
+                    # We just need to ensure the struct member is updated when REF is updated
+                    # Since they're constrained to be equal, updating REF should propagate
+                    # But we can explicitly update the struct member to be safe
+                    member_width = self.solver.bv_size(tracked_var.term)
+                    ref_width = self.solver.bv_size(lvalue_var.term)
+
+                    if member_width == ref_width:
+                        # Explicitly constrain struct member to equal the reference
+                        constraint: SMTTerm = tracked_var.term == lvalue_var.term
+                        self.solver.assert_constraint(constraint)
+                        self.logger.debug(
+                            "Updated struct member '{member}' to match reference '{ref}'",
+                            member=var_name,
+                            ref=lvalue_name,
+                        )
+                        # Only update the first matching struct member (should be unique per reference)
+                        break
