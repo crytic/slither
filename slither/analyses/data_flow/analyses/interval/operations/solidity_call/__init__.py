@@ -11,6 +11,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.requi
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.revert import (
     RevertHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.calldata_load import (
+    CalldataLoadHandler,
+)
 from slither.slithir.operations.solidity_call import SolidityCall
 
 from ..base import BaseOperationHandler
@@ -39,15 +42,26 @@ class SolidityCallHandler(BaseOperationHandler):
 
         function_full_name = operation.function.full_name
 
+        # Dispatch require/assert/revert by substring as they are high-level helpers.
         if "require" in function_full_name:
             RequireHandler(self.solver).handle(operation, domain, node)
-        elif "assert" in function_full_name:
+            return
+
+        if "assert" in function_full_name:
             AssertHandler(self.solver).handle(operation, domain, node)
-        elif "revert" in function_full_name:
+            return
+
+        if "revert" in function_full_name:
             RevertHandler(self.solver).handle(operation, domain, node)
-        else:
-            self.logger.error_and_raise(
-                "Unknown function: {function_full_name}",
-                ValueError,
-                function_full_name=function_full_name,
-            )
+            return
+
+        # Handle low-level builtin calldataload(uint256).
+        if "calldataload" in function_full_name:
+            CalldataLoadHandler(self.solver).handle(operation, domain, node)
+            return
+
+        self.logger.error_and_raise(
+            "Unknown function: {function_full_name}",
+            ValueError,
+            function_full_name=function_full_name,
+        )
