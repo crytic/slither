@@ -57,11 +57,7 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             result_type = lvalue_type
 
         expression = node.expression if isinstance(node.expression, AssignmentOperation) else None
-
-        # For default wide types (uint256/int256), try to infer a narrower type from the expression
-        # This handles cases like -10 (converted to 0 - 10) where the temp gets uint256 but should be int8
-        is_default_wide_type = result_type is not None and result_type.type in ("uint256", "int256")
-        if (result_type is None or is_default_wide_type) and expression is not None:
+        if result_type is None and expression is not None:
             right_expr = expression.expression_right
             right_expr_type: Optional[ElementaryType] = None
             if right_expr is not None:
@@ -74,7 +70,7 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             if right_expr_type is not None:
                 result_type = right_expr_type
 
-            if result_type is None or is_default_wide_type:
+            if result_type is None:
                 return_type = expression.expression_return_type
                 if isinstance(return_type, ElementaryType):
                     result_type = return_type

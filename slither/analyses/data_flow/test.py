@@ -157,9 +157,23 @@ def solve_variable_range(
             if opt is None:
                 return None
 
-            from z3 import is_bv
+            from z3 import is_bv, BV2Int, If
 
             objective = term if is_bv(term) else term
+
+            # For signed types, we need to convert to signed interpretation before optimization
+            # Z3's minimize/maximize treats bitvectors as unsigned by default
+            # We use BV2Int with manual signed conversion: if bv >= half then bv - full else bv
+            if is_signed and is_bv(objective):
+                width = bit_width if isinstance(bit_width, int) else 256
+                half = 1 << (width - 1)  # e.g., 128 for int8
+                full = 1 << width  # e.g., 256 for int8
+                # Signed interpretation: values >= half are negative (value - full)
+                objective = If(
+                    BV2Int(objective) >= half,
+                    BV2Int(objective) - full,
+                    BV2Int(objective)
+                )
 
             if maximize:
                 opt.maximize(objective)
