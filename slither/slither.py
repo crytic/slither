@@ -125,6 +125,14 @@ class Slither(
         self.codex_log = kwargs.get("codex_log", False)
         self.codex_organization: Optional[str] = kwargs.get("codex_organization", None)
 
+        # Indicate if Claude related features should be used
+        self.claude_enabled = kwargs.get("claude", False)
+        self.claude_contracts = kwargs.get("claude_contracts", "all")
+        self.claude_model = kwargs.get("claude_model", "sonnet")
+        self.claude_max_tokens = kwargs.get("claude_max_tokens", 4096)
+        self.claude_log = kwargs.get("claude_log", False)
+        self.claude_use_code = kwargs.get("claude_use_code", False)
+
         self.no_fail = kwargs.get("no_fail", False)
 
         self._parsers: List[SlitherCompilationUnitSolc] = []

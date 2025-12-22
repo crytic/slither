@@ -115,3 +115,6 @@ crytic-export/
 
 # slither.db.json 
 slither.db.json
+# Test environment
+.venv-test/
+result.json

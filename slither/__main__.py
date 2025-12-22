@@ -25,6 +25,7 @@ from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
+from slither.utils import claude
 from slither.utils.output import (
     output_to_json,
     output_to_zip,
@@ -620,6 +621,7 @@ def parse_args(
     )
 
     codex.init_parser(parser)
+    claude.init_parser(parser)
 
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
