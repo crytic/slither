@@ -936,6 +936,59 @@ N/A
 
 Review codex's message.
 
+## Claude
+
+### Configuration
+
+- Check: `claude`
+- Severity: `High`
+- Confidence: `Low`
+
+### Description
+
+Use [Claude](https://www.anthropic.com/claude) to find vulnerabilities in smart contracts. This detector leverages Claude's AI capabilities to analyze Solidity code for security issues.
+
+The detector supports two modes of operation:
+- **API Mode**: Uses the Anthropic API with `ANTHROPIC_API_KEY`
+- **Claude Code CLI Mode**: Uses Claude Code CLI with `CLAUDE_CODE_OAUTH_TOKEN` (no API cost for MAX subscribers)
+
+### Options
+
+- `--claude`: Enable Claude-based vulnerability detection
+- `--claude-use-code`: Use Claude Code CLI instead of API
+- `--claude-model`: Model to use (e.g., 'opus', 'sonnet'). Defaults to 'sonnet'
+- `--claude-contracts`: Comma-separated list of contracts to analyze (default: all)
+- `--claude-max-tokens`: Maximum tokens for API response (default: 4096)
+- `--claude-log`: Log queries and responses to `crytic_export/claude/`
+
+### Usage
+
+```bash
+# Using Claude Code CLI (recommended for MAX subscribers)
+slither . --claude --claude-use-code --claude-model opus
+
+# Using Anthropic API
+export ANTHROPIC_API_KEY=your_key
+slither . --claude
+```
+
+### Exploit Scenario:
+
+N/A
+
+### Recommendation
+
+Review Claude's analysis and recommendations. Claude may identify vulnerabilities including:
+- Reentrancy vulnerabilities
+- Access control issues
+- Integer overflow/underflow
+- Unchecked external calls
+- Front-running vulnerabilities
+- Logic errors
+- Signature replay attacks
+- Oracle manipulation
+- Flash loan attack vectors
+
 ## Domain separator collision
 
 ### Configuration
