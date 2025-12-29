@@ -19,6 +19,14 @@ if TYPE_CHECKING:
 class PhiHandler(BaseOperationHandler):
     """Handler for Phi operations (merges values from different branches)."""
 
+    # Class-level set to track which Phi lvalues have been constrained (reset per analysis)
+    _applied_phi_constraints: set[str] = set()
+
+    @classmethod
+    def reset_applied_constraints(cls) -> None:
+        """Reset the set of applied Phi constraints (call at start of analysis)."""
+        cls._applied_phi_constraints = set()
+
     def handle(
         self,
         operation: Optional[Phi],
@@ -38,11 +46,79 @@ class PhiHandler(BaseOperationHandler):
         if lvalue_var is None:
             return
 
+        lvalue_name = lvalue_var.base.name
+
+        # Skip if we've already applied constraint for this Phi
+        if lvalue_name in PhiHandler._applied_phi_constraints:
+            return
+
+        # Check if all rvalues exist in domain - if not, skip (will be processed again later)
+        all_rvalues_exist = self._all_rvalues_exist_check(operation.rvalues, domain, lvalue_name)
+        if not all_rvalues_exist:
+            self.logger.debug(
+                "Skipping Phi constraint for '{lvalue}' - not all rvalues exist yet",
+                lvalue=lvalue_name,
+            )
+            return
+
         or_constraints = self._collect_phi_constraints(lvalue_var, operation.rvalues, domain)
         if not or_constraints:
             return
 
         self._apply_phi_constraint(lvalue_var, or_constraints, operation.rvalues)
+        
+        # Mark this Phi as applied
+        PhiHandler._applied_phi_constraints.add(lvalue_name)
+
+    def _all_rvalues_exist_check(
+        self,
+        rvalues: list[object],
+        domain: "IntervalDomain",
+        lvalue_name: str,
+    ) -> bool:
+        """Check if all rvalues exist in the domain state.
+        
+        Also checks if enough SSA versions exist to ensure we have all branches covered.
+        """
+        rvalue_names_found = []
+        
+        for rvalue in rvalues:
+            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+            if rvalue_name is None:
+                return False
+            # Input parameters (_0, _1) always exist, check for others
+            if self._is_input_param_version(rvalue_name, domain):
+                continue
+            rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+            if rvalue_var is None:
+                return False
+            rvalue_names_found.append(rvalue_name)
+        
+        # Additional check: make sure we have enough SSA versions
+        # If there's only 1 non-input rvalue, wait for more to appear
+        if len(rvalue_names_found) <= 1:
+            # Get base variable name for checking other versions
+            base_name = self._get_base_name(lvalue_name)
+            
+            if base_name:
+                # Count how many versions exist (excluding input params and lvalue)
+                version_count = 0
+                all_vars = list(domain.state.get_range_variables().keys())
+                for var_name in all_vars:
+                    # Skip the lvalue itself
+                    if var_name == lvalue_name:
+                        continue
+                    if var_name.startswith(base_name + "_"):
+                        ssa_num = self._get_ssa_num(var_name)
+                        if ssa_num >= 2:  # Not input param
+                            version_count += 1
+                
+                
+                # Wait for at least 2 concrete versions (typical for if-else branches)
+                if version_count < 2:
+                    return False
+        
+        return True
 
     def _get_or_create_lvalue_variable(
         self, lvalue: object, domain: "IntervalDomain"
@@ -74,12 +150,42 @@ class PhiHandler(BaseOperationHandler):
         rvalues: list[object],
         domain: "IntervalDomain",
     ) -> list[SMTTerm]:
-        """Collect equality constraints for each rvalue in Phi operation."""
+        """Collect equality constraints for each rvalue in Phi operation.
+        
+        Also checks for missing SSA versions that should be included (workaround for SSA bugs).
+        """
         or_constraints: list[SMTTerm] = []
+        lvalue_name = lvalue_var.base.name
+        used_rvalue_names: set[str] = set()
+        rvalue_names_from_ssa: set[str] = set()
 
+        # First, collect rvalue names from the SSA Phi
+        for rvalue in rvalues:
+            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+            if rvalue_name:
+                rvalue_names_from_ssa.add(rvalue_name)
+
+        # Find missing SSA versions first to determine if input param should be excluded
+        missing_versions = self._find_missing_phi_rvalues(lvalue_name, rvalue_names_from_ssa, domain)
+        
+        # Check if we should exclude input parameter (version _1)
+        # If there are concrete assignment versions, the input shouldn't flow through
+        should_exclude_input = self._should_exclude_input_param(
+            lvalue_name, rvalue_names_from_ssa, missing_versions, domain
+        )
+
+        # Collect constraints from explicit rvalues (excluding input if needed)
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
+                continue
+
+            # Skip input parameter if we determined it shouldn't be included
+            if should_exclude_input and self._is_input_param_version(rvalue_name, domain):
+                self.logger.debug(
+                    "Excluding input param '{rvalue_name}' from Phi (all branches assign)",
+                    rvalue_name=rvalue_name,
+                )
                 continue
 
             rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
@@ -93,8 +199,169 @@ class PhiHandler(BaseOperationHandler):
             constraint = self._create_equality_constraint(lvalue_var, rvalue_var)
             if constraint is not None:
                 or_constraints.append(constraint)
+                used_rvalue_names.add(rvalue_name)
+
+        # Add missing SSA versions
+        for rvalue_name in missing_versions:
+            if rvalue_name in used_rvalue_names:
+                continue
+            rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+            if rvalue_var is None:
+                continue
+            constraint = self._create_equality_constraint(lvalue_var, rvalue_var)
+            if constraint is not None:
+                or_constraints.append(constraint)
+                self.logger.debug(
+                    "Added missing SSA version '{rvalue_name}' to Phi for '{lvalue_name}'",
+                    rvalue_name=rvalue_name,
+                    lvalue_name=lvalue_name,
+                )
 
         return or_constraints
+
+    def _is_input_param_version(self, var_name: str, domain: "IntervalDomain" = None) -> bool:
+        """Check if this is an input parameter version (function param, ends with _0 or _1).
+        
+        Only considers variables that are function parameters (not local var first assignments).
+        """
+        if "_" not in var_name:
+            return False
+        suffix = var_name.rsplit("_", 1)[-1]
+        if suffix not in ("0", "1"):
+            return False
+        
+        # If we have domain access, check if _0 version exists (indicates local var, not param)
+        # Function params typically have _1 as their first version with no _0
+        if domain is not None:
+            base_name = self._get_base_name(var_name)
+            if base_name:
+                # If there's a _0 version, this is a local var (initialized to default)
+                zero_version = base_name + "_0"
+                if domain.state.has_range_variable(zero_version):
+                    return False
+        
+        return True
+
+    def _should_exclude_input_param(
+        self,
+        lvalue_name: str,
+        rvalue_names: set[str],
+        missing_versions: list[str],
+        domain: "IntervalDomain",
+    ) -> bool:
+        """Determine if input parameter should be excluded from Phi.
+        
+        Returns True if all branches appear to assign to the variable (i.e., we have
+        concrete assignment versions like _2, _3, _4, not just the input _1).
+        """
+        # Extract base name for matching
+        base_name = self._get_base_name(lvalue_name)
+        if not base_name:
+            return False
+
+        # Check if we have any concrete assignment versions (SSA >= 2)
+        has_concrete_assignment = False
+        for version in list(rvalue_names) + missing_versions:
+            ssa_num = self._get_ssa_num(version)
+            if ssa_num >= 2:
+                has_concrete_assignment = True
+                break
+
+        # If we have concrete assignments and the rvalues include input param, likely SSA bug
+        if has_concrete_assignment:
+            for rv in rvalue_names:
+                if self._is_input_param_version(rv, domain):
+                    return True
+
+        return False
+
+    def _get_base_name(self, var_name: str) -> Optional[str]:
+        """Extract base variable name without SSA suffix."""
+        if "|" in var_name and "_" in var_name:
+            parts = var_name.rsplit("|", 1)
+            prefix = parts[0]
+            ssa_part = parts[1]
+            if "_" in ssa_part:
+                base_var_name = ssa_part.rsplit("_", 1)[0]
+                return f"{prefix}|{base_var_name}"
+        return None
+
+    def _find_missing_phi_rvalues(
+        self,
+        lvalue_name: str,
+        used_rvalue_names: set[str],
+        domain: "IntervalDomain",
+    ) -> list[str]:
+        """Find SSA versions of the same variable that should be in the Phi but weren't listed.
+        
+        This works around Slither SSA bugs where nested if-else results aren't included.
+        """
+        # Extract base variable name (before SSA suffix like _6)
+        # Format: "Contract.func().var|var_6" → extract "var" to find "var_5", "var_4", etc.
+        base_name = lvalue_name
+        lvalue_ssa_num = -1
+        
+        # Handle the "|var_N" suffix format
+        if "|" in lvalue_name:
+            parts = lvalue_name.rsplit("|", 1)
+            prefix = parts[0]  # "Contract.func().var"
+            ssa_part = parts[1]  # "var_6"
+            
+            # Extract SSA number from the ssa_part
+            if "_" in ssa_part:
+                base_var_name, ssa_num_str = ssa_part.rsplit("_", 1)
+                try:
+                    lvalue_ssa_num = int(ssa_num_str)
+                    base_name = f"{prefix}|{base_var_name}"
+                except ValueError:
+                    return []
+            else:
+                return []
+        else:
+            return []
+
+        # Look for other SSA versions in the domain that we haven't used
+        missing: list[str] = []
+        all_var_names = domain.state.get_range_variables().keys()
+        
+        for var_name in all_var_names:
+            # Skip if already used
+            if var_name in used_rvalue_names:
+                continue
+            # Skip the lvalue itself
+            if var_name == lvalue_name:
+                continue
+            
+            # Check if this is another SSA version of the same variable
+            if var_name.startswith(base_name + "_"):
+                suffix = var_name[len(base_name) + 1:]
+                try:
+                    ssa_num = int(suffix)
+                    # Only include versions less than lvalue (predecessors in SSA)
+                    # but greater than the minimum used (to catch nested results like variable_5)
+                    if ssa_num < lvalue_ssa_num:
+                        # Check if there's a used version with lower number
+                        # If so, we might need this version (nested if-else result)
+                        has_lower_used = any(
+                            self._get_ssa_num(used) < ssa_num 
+                            for used in used_rvalue_names
+                            if used.startswith(base_name + "_")
+                        )
+                        if has_lower_used:
+                            missing.append(var_name)
+                except ValueError:
+                    continue
+
+        return missing
+
+    def _get_ssa_num(self, var_name: str) -> int:
+        """Extract SSA number from variable name."""
+        if "_" in var_name:
+            try:
+                return int(var_name.rsplit("_", 1)[1])
+            except ValueError:
+                return -1
+        return -1
 
     def _create_equality_constraint(
         self,

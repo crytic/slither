@@ -4,6 +4,7 @@ from typing import Generic, TypeVar
 from slither.analyses.data_flow.engine.direction import Direction
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
+from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.operation import Operation
 
 
@@ -24,8 +25,8 @@ class Analysis(ABC):
     def bottom_value(self) -> Domain:
         pass
 
-    def apply_condition(self, domain: Domain, condition: Operation, branch_taken: bool) -> Domain:
-        """Override this to handle branch filtering. Default: no-op"""
+    def apply_condition(self, domain: Domain, condition: Condition, branch_taken: bool) -> Domain:
+        """Apply branch-specific constraints based on condition. Override to implement filtering."""
         return domain  # Analyses that don't implement this get no filtering
 
     def apply_widening(self, current_state: Domain, previous_state: Domain, set_b: set) -> Domain:

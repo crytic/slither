@@ -1,9 +1,12 @@
 from enum import Enum, auto
-from typing import Optional
+from typing import List, Optional, TYPE_CHECKING
 
 
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.types import SMTTerm
 
 
 class DomainVariant(Enum):
@@ -66,6 +69,15 @@ class IntervalDomain(Domain):
             other_used = other.state.get_used_variables()
             if other_used:
                 self.state.used_variables.update(other_used)
+                changed = True
+
+            # Merge path constraints: when branches merge, constraints should be disjointed
+            # (either path's constraints can lead to this point)
+            self_constraints = self.state.get_path_constraints()
+            other_constraints = other.state.get_path_constraints()
+            if self_constraints or other_constraints:
+                # Clear existing constraints and mark as changed
+                self.state.path_constraints = []
                 changed = True
 
             return changed

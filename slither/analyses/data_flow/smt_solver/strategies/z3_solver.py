@@ -54,7 +54,16 @@ class Z3Solver(SMTSolver):
         """Declare a constant in Z3."""
         if name in self.variables:
             raise ValueError(f"Variable '{name}' already declared")
+        return self._create_variable(name, sort)
 
+    def get_or_declare_const(self, name: str, sort: Sort) -> SMTVariable:
+        """Get an existing constant or declare a new one if it doesn't exist."""
+        if name in self.variables:
+            return self.variables[name]
+        return self._create_variable(name, sort)
+
+    def _create_variable(self, name: str, sort: Sort) -> SMTVariable:
+        """Create and register a Z3 variable."""
         # Create Z3 term based on sort
         if sort.kind == SortKind.BOOL:
             term = Bool(name)

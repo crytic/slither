@@ -1,9 +1,10 @@
-from typing import Dict, Mapping, Optional, TYPE_CHECKING
+from typing import Dict, List, Mapping, Optional, TYPE_CHECKING
 
 from .tracked_variable import TrackedSMTVariable
 
 if TYPE_CHECKING:
     from slither.slithir.operations.binary import Binary
+    from slither.analyses.data_flow.smt_solver.types import SMTTerm
 
 
 class State:
@@ -13,6 +14,7 @@ class State:
         self,
         range_variables: Optional[Mapping[str, TrackedSMTVariable]] = None,
         binary_operations: Optional[Mapping[str, "Binary"]] = None,
+        path_constraints: Optional[List["SMTTerm"]] = None,
     ):
         if range_variables is None:
             range_variables = {}
@@ -25,6 +27,8 @@ class State:
             binary_operations
         )  # Maps temp variable names to their source Binary operations
         self.used_variables: set[str] = set()  # Track which variables are actually used/read
+        # Path constraints: branch conditions that must hold for this state
+        self.path_constraints: List["SMTTerm"] = list(path_constraints) if path_constraints else []
 
     def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
@@ -68,6 +72,14 @@ class State:
     def get_binary_operations(self) -> Dict[str, "Binary"]:
         """Get all Binary operations in the state."""
         return self.binary_operations
+
+    def add_path_constraint(self, constraint: "SMTTerm") -> None:
+        """Add a path constraint that must hold for this state."""
+        self.path_constraints.append(constraint)
+
+    def get_path_constraints(self) -> List["SMTTerm"]:
+        """Get all path constraints for this state."""
+        return self.path_constraints
 
     def remove_range_variable(self, name: str) -> bool:
         """Remove a range variable by name, returns True if removed."""
@@ -130,7 +142,9 @@ class State:
         }
         # Binary operations are copied by reference (they're immutable operation objects)
         copied_ops = dict(self.binary_operations)
-        new_state = State(copied_vars, copied_ops)
+        # Path constraints are SMT terms (immutable), copy the list
+        copied_constraints = list(self.path_constraints)
+        new_state = State(copied_vars, copied_ops, copied_constraints)
         # Copy used variables set
         new_state.used_variables = set(self.used_variables)
         return new_state

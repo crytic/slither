@@ -105,9 +105,12 @@ class ContractTestResult:
 
 
 def solve_variable_range(
-    solver: object, smt_var: TrackedSMTVariable, debug: bool = False
+    solver: object,
+    smt_var: TrackedSMTVariable,
+    path_constraints: Optional[List] = None,
+    debug: bool = False,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
-    """Solve for min/max values of a variable."""
+    """Solve for min/max values of a variable with optional path constraints."""
     term = smt_var.term
     if not isinstance(term, BitVecRef):
         return None, None
@@ -142,6 +145,7 @@ def solve_variable_range(
         opt.set("opt.priority", "box")
         opt.set("opt.maxsat_engine", "wmax")
 
+        # Add global solver assertions
         if hasattr(solver, "solver"):
             z3_solver = solver.solver
             assertions = z3_solver.assertions()
@@ -149,6 +153,12 @@ def solve_variable_range(
                 opt.add(assertion)
         else:
             return None
+
+        # Add path-specific constraints from the domain state
+        if path_constraints:
+            for constraint in path_constraints:
+                opt.add(constraint)
+
         return opt
 
     def _optimize_range(maximize: bool) -> Optional[Dict]:
@@ -282,7 +292,11 @@ def analyze_function_quiet(
                     if var_name not in used_vars:
                         continue
 
-                    min_result, max_result = solve_variable_range(solver, smt_var)
+                    # Get path constraints from the domain state
+                    path_constraints = state.post.state.get_path_constraints()
+                    min_result, max_result = solve_variable_range(
+                        solver, smt_var, path_constraints=path_constraints
+                    )
 
                     if min_result and max_result:
                         has_overflow = min_result.get("overflow", False) or max_result.get(
@@ -725,7 +739,11 @@ def analyze_function_verbose(
 
                         if debug:
                             console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
-                        min_result, max_result = solve_variable_range(solver, smt_var, debug=debug)
+                        # Get path constraints from the domain state
+                        path_constraints = state.post.state.get_path_constraints()
+                        min_result, max_result = solve_variable_range(
+                            solver, smt_var, path_constraints=path_constraints, debug=debug
+                        )
 
                         if min_result and max_result:
                             variable_results.append(

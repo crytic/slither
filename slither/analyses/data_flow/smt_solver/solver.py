@@ -42,6 +42,17 @@ class SMTSolver(ABC):
 
         Declare a constant with given name and sort.
         Returns an SMTVariable object containing the solver-specific term.
+        Raises ValueError if the variable is already declared.
+        """
+        pass
+
+    @abstractmethod
+    def get_or_declare_const(self, name: str, sort: Sort) -> SMTVariable:
+        """
+        Get an existing constant or declare a new one if it doesn't exist.
+
+        This is useful for worklist algorithms where the same variable
+        may be encountered multiple times.
         """
         pass
 

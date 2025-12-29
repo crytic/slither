@@ -44,8 +44,8 @@ class TrackedSMTVariable:
     # --------------------------------------------------------------------- #
     @classmethod
     def create(cls, solver: "SMTSolver", name: str, sort: Sort) -> "TrackedSMTVariable":
-        """Declare a new tracked variable in the solver."""
-        base = solver.declare_const(name, sort)
+        """Declare a new tracked variable in the solver (or get existing one)."""
+        base = solver.get_or_declare_const(name, sort)
         flag = cls._declare_aux_variable(solver, name, Sort(kind=SortKind.BOOL), "_overflow")
         amount = cls._declare_aux_variable(
             solver, name, Sort(kind=SortKind.INT), "_overflow_amount"

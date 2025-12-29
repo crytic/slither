@@ -13,12 +13,19 @@ from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.analyses.interval.operations.registry import (
     OperationHandlerRegistry,
 )
+from slither.analyses.data_flow.analyses.interval.operations.binary.comparison import (
+    ComparisonBinaryHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.phi import PhiHandler
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
+from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.operation import Operation
 
 
@@ -65,6 +72,8 @@ class IntervalAnalysis(Analysis):
         elif domain.variant == DomainVariant.BOTTOM:
             # Initialize domain from bottom with function parameters
             self._initialize_domain_from_bottom(node, domain)
+            # Reset Phi constraint tracking at start of new analysis
+            PhiHandler.reset_applied_constraints()
             self._analyze_operation_by_type(operation, domain, node)
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node)
@@ -97,3 +106,67 @@ class IntervalAnalysis(Analysis):
     def solver(self) -> SMTSolver:
         """Get the SMT solver instance."""
         return self._solver
+
+    def apply_condition(
+        self,
+        domain: Domain,
+        condition: Condition,
+        branch_taken: bool,
+    ) -> Domain:
+        """Apply branch-specific constraints to domain based on condition."""
+        logger = get_logger()
+
+        # Guard: only process STATE domains
+        if not isinstance(domain, IntervalDomain):
+            return domain
+        if domain.variant != DomainVariant.STATE:
+            return domain
+
+        # Create a deep copy to avoid mutating the original
+        filtered_domain = domain.deep_copy()
+
+        # Get the condition value (e.g., TMP_0 which holds the comparison result)
+        condition_value = condition.value
+        condition_name = IntervalSMTUtils.resolve_variable_name(condition_value)
+        if condition_name is None:
+            logger.debug("Could not resolve condition variable name")
+            return filtered_domain
+
+        # Get the tracked variable for the condition
+        condition_tracked = IntervalSMTUtils.get_tracked_variable(filtered_domain, condition_name)
+        if condition_tracked is None:
+            logger.debug(
+                "Condition variable '{name}' not found in domain",
+                name=condition_name,
+            )
+            return filtered_domain
+
+        # Try to get the original binary operation that produced the condition
+        binary_op = ComparisonBinaryHandler.validate_constraint_from_temp(
+            condition_name, filtered_domain
+        )
+
+        constraint = None
+        if binary_op is not None:
+            # Build the comparison constraint from the binary operation
+            handler = ComparisonBinaryHandler(self._solver)
+            constraint = handler.build_comparison_constraint(
+                binary_op, filtered_domain, condition.node, binary_op
+            )
+
+        if constraint is not None:
+            # For false branch, negate the constraint
+            if not branch_taken:
+                constraint = self._solver.Not(constraint)
+
+            # Store the constraint in the domain state (not in global solver)
+            filtered_domain.state.add_path_constraint(constraint)
+            logger.debug(
+                "Added path constraint for branch_taken={taken}: {constraint}",
+                taken=branch_taken,
+                constraint=constraint,
+            )
+            return filtered_domain
+
+        # No constraint could be built - return domain without path constraint
+        return filtered_domain
