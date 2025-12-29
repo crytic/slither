@@ -13,6 +13,7 @@ from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.variable import SlithIRVariable
+from slither.utils.integer_conversion import convert_string_to_int
 
 
 if TYPE_CHECKING:
@@ -124,17 +125,26 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             domain.state.set_range_variable(result_name, result_var)
 
         is_power = operation.type == BinaryType.POWER
+        is_shift = operation.type in (BinaryType.LEFT_SHIFT, BinaryType.RIGHT_SHIFT)
 
         is_result_signed = IntervalSMTUtils.is_signed_type(result_type)
         result_width = IntervalSMTUtils.type_bit_width(result_type)
 
-        # Extend operands to result width for the operation
-        # Operations are performed at the result type's bit width
+        # For shift operations, we need to perform the operation at the left operand's width
+        # to preserve the bits being shifted, then truncate the result to the target width.
+        # Otherwise the upper bits would be lost before the shift.
+        if is_shift:
+            left_operand_width = self.solver.bv_size(left_term)
+            operation_width = max(left_operand_width, result_width)
+        else:
+            operation_width = result_width
+
+        # Extend operands to operation width for the computation
         left_term_extended = IntervalSMTUtils.extend_to_width(
-            self.solver, left_term, result_width, is_result_signed
+            self.solver, left_term, operation_width, is_result_signed
         )
         right_term_extended = IntervalSMTUtils.extend_to_width(
-            self.solver, right_term, result_width, is_result_signed
+            self.solver, right_term, operation_width, is_result_signed
         )
 
         if is_power:
@@ -150,7 +160,10 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         if raw_expr is None:
             return
 
-        # Result is already at result_width, just assign directly
+        # If operation was performed at a wider width, truncate result to target width
+        if is_shift and operation_width > result_width:
+            raw_expr = IntervalSMTUtils.truncate_to_width(self.solver, raw_expr, result_width)
+
         # Constrain the bitvector result
         self.solver.assert_constraint(result_var.term == raw_expr)
 
@@ -341,7 +354,19 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
             if var_type is None:
                 var_type = fallback_type
-            term = IntervalSMTUtils.create_constant_term(self.solver, operand.value, var_type)
+            # Convert hex string constants (e.g., bytes32) to integers
+            const_value = operand.value
+            if isinstance(const_value, str):
+                # Handle hex strings like "0x1234..." for bytes types
+                try:
+                    const_value = convert_string_to_int(const_value)
+                except (ValueError, TypeError):
+                    self.logger.debug(
+                        "Unable to convert constant string '%s' to integer; skipping.",
+                        const_value,
+                    )
+                    return None, None
+            term = IntervalSMTUtils.create_constant_term(self.solver, const_value, var_type)
             return term, None
 
         operand_name = name or IntervalSMTUtils.resolve_variable_name(operand)

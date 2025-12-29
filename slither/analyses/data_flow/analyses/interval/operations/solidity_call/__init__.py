@@ -14,6 +14,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.rever
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.calldata_load import (
     CalldataLoadHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.byte import (
+    ByteHandler,
+)
 from slither.slithir.operations.solidity_call import SolidityCall
 
 from ..base import BaseOperationHandler
@@ -58,6 +61,11 @@ class SolidityCallHandler(BaseOperationHandler):
         # Handle low-level builtin calldataload(uint256).
         if "calldataload" in function_full_name:
             CalldataLoadHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle low-level builtin byte(uint256,uint256).
+        if "byte(" in function_full_name:
+            ByteHandler(self.solver).handle(operation, domain, node)
             return
 
         self.logger.error_and_raise(

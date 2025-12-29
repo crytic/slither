@@ -18,6 +18,7 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
+from slither.utils.integer_conversion import convert_string_to_int
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
@@ -226,6 +227,17 @@ class AssignmentHandler(BaseOperationHandler):
 
         # Get constant value
         const_value = constant.value
+        # Convert hex string constants (e.g., bytes32) to integers
+        if isinstance(const_value, str):
+            # Handle hex strings like "0x1234..." for bytes types
+            try:
+                const_value = convert_string_to_int(const_value)
+            except (ValueError, TypeError):
+                self.logger.debug(
+                    "Unable to convert constant string '%s' to integer; skipping.",
+                    const_value,
+                )
+                return
         if not isinstance(const_value, int):
             return
 

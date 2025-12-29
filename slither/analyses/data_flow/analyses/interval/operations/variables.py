@@ -1,7 +1,8 @@
 from typing import Optional, TYPE_CHECKING
 
 from slither.core.declarations.function import Function
-from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType
+from slither.core.expressions.literal import Literal
+from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType, Byte
 
 # Import for global Solidity variables
 try:
@@ -17,6 +18,7 @@ from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
 )
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+from slither.utils.integer_conversion import convert_string_to_int
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
@@ -184,3 +186,87 @@ def initialize_function_parameters(
                 if ssa_tracked is not None:
                     domain.state.add_range_variable(first_ssa_name, ssa_tracked)
                     # SSA version also has full range (not initialized to 0)
+
+
+def initialize_state_variables_with_constants(
+    solver: "SMTSolver", domain: "IntervalDomain", function: Function
+) -> None:
+    """Pre-initialize state variables that have constant initial values.
+
+    For state variables like `bytes32 public data = 0x1234...`, we constrain
+    the tracked variable to the constant value instead of using full range.
+    """
+    # Guard: function must have a contract
+    if not hasattr(function, "contract") or function.contract is None:
+        return
+
+    contract = function.contract
+
+    # Guard: contract must have state variables
+    if not hasattr(contract, "state_variables") or not contract.state_variables:
+        return
+
+    # Process each state variable
+    for state_var in contract.state_variables:
+        # Guard: must have an initial expression (constant value)
+        if not state_var.initialized or state_var.expression is None:
+            continue
+
+        # Guard: expression must be a literal (constant)
+        expr = state_var.expression
+        if not isinstance(expr, Literal):
+            continue
+
+        # Get the variable type
+        var_type = IntervalSMTUtils.resolve_elementary_type(state_var.type, None)
+        if var_type is None:
+            continue
+
+        # Guard: must be a supported type
+        if IntervalSMTUtils.solidity_type_to_smt_sort(var_type) is None:
+            continue
+
+        # Get the constant value from the literal
+        const_value = expr.converted_value
+        # Handle hex strings (e.g., bytes32)
+        if isinstance(const_value, str):
+            try:
+                const_value = convert_string_to_int(const_value)
+            except (ValueError, TypeError):
+                continue
+        if not isinstance(const_value, int):
+            continue
+
+        # Build the canonical state variable name
+        state_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
+        if state_var_name is None:
+            continue
+
+        # Create tracked variable if not exists
+        tracked_var = IntervalSMTUtils.get_tracked_variable(domain, state_var_name)
+        if tracked_var is None:
+            tracked_var = IntervalSMTUtils.create_tracked_variable(solver, state_var_name, var_type)
+            if tracked_var is None:
+                continue
+            domain.state.add_range_variable(state_var_name, tracked_var)
+
+        # Constrain to the constant value
+        const_term = solver.create_constant(const_value, tracked_var.sort)
+        solver.assert_constraint(tracked_var.term == const_term)
+        tracked_var.assert_no_overflow(solver)
+
+        # Also initialize the first SSA version (e.g., ContractName.varName|varName_1)
+        base_var_name = getattr(state_var, "name", None)
+        if base_var_name is not None:
+            # Construct first SSA version name
+            first_ssa_name = f"{state_var_name}|{base_var_name}_1"
+            if not domain.state.has_range_variable(first_ssa_name):
+                ssa_tracked = IntervalSMTUtils.create_tracked_variable(
+                    solver, first_ssa_name, var_type
+                )
+                if ssa_tracked is not None:
+                    domain.state.add_range_variable(first_ssa_name, ssa_tracked)
+                    # Constrain SSA version to the same constant value
+                    ssa_const_term = solver.create_constant(const_value, ssa_tracked.sort)
+                    solver.assert_constraint(ssa_tracked.term == ssa_const_term)
+                    ssa_tracked.assert_no_overflow(solver)

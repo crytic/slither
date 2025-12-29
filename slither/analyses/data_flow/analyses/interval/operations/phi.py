@@ -66,7 +66,7 @@ class PhiHandler(BaseOperationHandler):
             return
 
         self._apply_phi_constraint(lvalue_var, or_constraints, operation.rvalues)
-        
+
         # Mark this Phi as applied
         PhiHandler._applied_phi_constraints.add(lvalue_name)
 
@@ -77,11 +77,11 @@ class PhiHandler(BaseOperationHandler):
         lvalue_name: str,
     ) -> bool:
         """Check if all rvalues exist in the domain state.
-        
+
         Also checks if enough SSA versions exist to ensure we have all branches covered.
         """
         rvalue_names_found = []
-        
+
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
@@ -93,13 +93,13 @@ class PhiHandler(BaseOperationHandler):
             if rvalue_var is None:
                 return False
             rvalue_names_found.append(rvalue_name)
-        
+
         # Additional check: make sure we have enough SSA versions
         # If there's only 1 non-input rvalue, wait for more to appear
         if len(rvalue_names_found) <= 1:
             # Get base variable name for checking other versions
             base_name = self._get_base_name(lvalue_name)
-            
+
             if base_name:
                 # Count how many versions exist (excluding input params and lvalue)
                 version_count = 0
@@ -112,12 +112,11 @@ class PhiHandler(BaseOperationHandler):
                         ssa_num = self._get_ssa_num(var_name)
                         if ssa_num >= 2:  # Not input param
                             version_count += 1
-                
-                
+
                 # Wait for at least 2 concrete versions (typical for if-else branches)
                 if version_count < 2:
                     return False
-        
+
         return True
 
     def _get_or_create_lvalue_variable(
@@ -151,7 +150,7 @@ class PhiHandler(BaseOperationHandler):
         domain: "IntervalDomain",
     ) -> list[SMTTerm]:
         """Collect equality constraints for each rvalue in Phi operation.
-        
+
         Also checks for missing SSA versions that should be included (workaround for SSA bugs).
         """
         or_constraints: list[SMTTerm] = []
@@ -166,8 +165,10 @@ class PhiHandler(BaseOperationHandler):
                 rvalue_names_from_ssa.add(rvalue_name)
 
         # Find missing SSA versions first to determine if input param should be excluded
-        missing_versions = self._find_missing_phi_rvalues(lvalue_name, rvalue_names_from_ssa, domain)
-        
+        missing_versions = self._find_missing_phi_rvalues(
+            lvalue_name, rvalue_names_from_ssa, domain
+        )
+
         # Check if we should exclude input parameter (version _1)
         # If there are concrete assignment versions, the input shouldn't flow through
         should_exclude_input = self._should_exclude_input_param(
@@ -221,7 +222,7 @@ class PhiHandler(BaseOperationHandler):
 
     def _is_input_param_version(self, var_name: str, domain: "IntervalDomain" = None) -> bool:
         """Check if this is an input parameter version (function param, ends with _0 or _1).
-        
+
         Only considers variables that are function parameters (not local var first assignments).
         """
         if "_" not in var_name:
@@ -229,7 +230,7 @@ class PhiHandler(BaseOperationHandler):
         suffix = var_name.rsplit("_", 1)[-1]
         if suffix not in ("0", "1"):
             return False
-        
+
         # If we have domain access, check if _0 version exists (indicates local var, not param)
         # Function params typically have _1 as their first version with no _0
         if domain is not None:
@@ -239,7 +240,7 @@ class PhiHandler(BaseOperationHandler):
                 zero_version = base_name + "_0"
                 if domain.state.has_range_variable(zero_version):
                     return False
-        
+
         return True
 
     def _should_exclude_input_param(
@@ -250,7 +251,7 @@ class PhiHandler(BaseOperationHandler):
         domain: "IntervalDomain",
     ) -> bool:
         """Determine if input parameter should be excluded from Phi.
-        
+
         Returns True if all branches appear to assign to the variable (i.e., we have
         concrete assignment versions like _2, _3, _4, not just the input _1).
         """
@@ -293,20 +294,20 @@ class PhiHandler(BaseOperationHandler):
         domain: "IntervalDomain",
     ) -> list[str]:
         """Find SSA versions of the same variable that should be in the Phi but weren't listed.
-        
+
         This works around Slither SSA bugs where nested if-else results aren't included.
         """
         # Extract base variable name (before SSA suffix like _6)
         # Format: "Contract.func().var|var_6" → extract "var" to find "var_5", "var_4", etc.
         base_name = lvalue_name
         lvalue_ssa_num = -1
-        
+
         # Handle the "|var_N" suffix format
         if "|" in lvalue_name:
             parts = lvalue_name.rsplit("|", 1)
             prefix = parts[0]  # "Contract.func().var"
             ssa_part = parts[1]  # "var_6"
-            
+
             # Extract SSA number from the ssa_part
             if "_" in ssa_part:
                 base_var_name, ssa_num_str = ssa_part.rsplit("_", 1)
@@ -323,7 +324,7 @@ class PhiHandler(BaseOperationHandler):
         # Look for other SSA versions in the domain that we haven't used
         missing: list[str] = []
         all_var_names = domain.state.get_range_variables().keys()
-        
+
         for var_name in all_var_names:
             # Skip if already used
             if var_name in used_rvalue_names:
@@ -331,10 +332,10 @@ class PhiHandler(BaseOperationHandler):
             # Skip the lvalue itself
             if var_name == lvalue_name:
                 continue
-            
+
             # Check if this is another SSA version of the same variable
             if var_name.startswith(base_name + "_"):
-                suffix = var_name[len(base_name) + 1:]
+                suffix = var_name[len(base_name) + 1 :]
                 try:
                     ssa_num = int(suffix)
                     # Only include versions less than lvalue (predecessors in SSA)
@@ -343,7 +344,7 @@ class PhiHandler(BaseOperationHandler):
                         # Check if there's a used version with lower number
                         # If so, we might need this version (nested if-else result)
                         has_lower_used = any(
-                            self._get_ssa_num(used) < ssa_num 
+                            self._get_ssa_num(used) < ssa_num
                             for used in used_rvalue_names
                             if used.startswith(base_name + "_")
                         )

@@ -249,6 +249,16 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "ByteExtractor.sol": {
+        "ByteExtractor": {
+            "getHardcodedByte": {
+                "variables": {
+                    "ByteExtractor.data|data_1": {"range": "[8234104122482341265491137074636836252947884782870784360943022469005013929455, 8234104122482341265491137074636836252947884782870784360943022469005013929455]", "overflow": "NO"},
+                    "ByteExtractor.getHardcodedByte().firstByte|firstByte_1": {"range": "[18, 18]", "overflow": "NO"},
+                }
+            },
+        },
+    },
     "FunctionArgs.sol": {
         "FunctionArgsTests": {
             "callDouble": {
@@ -427,6 +437,37 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
                     "MathOperations.uninitializedVariable().a": {"range": "[0, 0]", "overflow": "NO"},
                     "MathOperations.uninitializedVariable().a|a_0": {"range": "[0, 0]", "overflow": "NO"},
                     "MathOperations.uninitializedVariable().b|b_1": {"range": "[10, 10]", "overflow": "NO"},
+                }
+            },
+        },
+    },
+    "Member.sol": {
+        "SimpleMember": {
+            "getBalance": {
+                "variables": {
+                    "REF_4": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "SimpleMember.user|user_6.balance": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "getId": {
+                "variables": {
+                    "REF_2": {"range": "[1, 1]", "overflow": "NO"},
+                    "REF_3": {"range": "[1, 1]", "overflow": "NO"},
+                    "SimpleMember.user|user_4.id": {"range": "[1, 1]", "overflow": "NO"},
+                    "SimpleMember.user|user_5.id": {"range": "[1, 1]", "overflow": "NO"},
+                }
+            },
+            "setUser": {
+                "variables": {
+                    "REF_0": {"range": "[0, 9]", "overflow": "NO"},
+                    "REF_1": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.setUser(uint256,uint256)._balance|_balance_1": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.setUser(uint256,uint256)._id|_id_1": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.user|user_1.id": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.user|user_2.balance": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.user|user_2.id": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.user|user_3.balance": {"range": "[0, 9]", "overflow": "NO"},
+                    "SimpleMember.user|user_3.id": {"range": "[0, 9]", "overflow": "NO"},
                 }
             },
         },

@@ -10,6 +10,7 @@ from slither.slithir.variables.constant import Constant
 
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+from slither.utils.integer_conversion import convert_string_to_int
 
 # Import for global Solidity variables
 try:
@@ -232,6 +233,17 @@ class TypeConversionHandler(BaseOperationHandler):
 
         # Get constant value
         const_value = constant.value
+        # Convert hex string constants (e.g., bytes32) to integers
+        if isinstance(const_value, str):
+            # Handle hex strings like "0x1234..." for bytes types
+            try:
+                const_value = convert_string_to_int(const_value)
+            except (ValueError, TypeError):
+                self.logger.debug(
+                    "Unable to convert constant string '%s' to integer; skipping.",
+                    const_value,
+                )
+                return
         if not isinstance(const_value, int):
             return
 
