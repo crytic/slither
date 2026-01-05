@@ -121,9 +121,9 @@ For each new detector, at least one regression tests must be present.
 
 ### Synchronization with crytic-compile
 
-By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`pyproject.toml`](./pyproject.toml). If crytic-compile development comes with breaking changes, the process to update `slither` is:
 
-- Update `slither/setup.py` to point to the related crytic-compile's branch
+- Update `slither/pyproject.toml` to point to the related crytic-compile's branch
 - Create a PR in `slither` and ensure it passes the CI
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
 
