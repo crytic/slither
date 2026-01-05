@@ -42,7 +42,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             throw;
         }
         not_called = False;
-    }   
+    }
 ```
 """
     # endregion wiki_exploit_scenario

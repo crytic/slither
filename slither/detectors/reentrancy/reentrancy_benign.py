@@ -41,7 +41,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             throw;
         }
         counter += 1
-    }   
+    }
 ```
 
 `callme` contains a reentrancy. The reentrancy is benign because it's exploitation would have the same effect as two consecutive calls."""

@@ -46,7 +46,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
     function callme(){
         msg.sender.transfer(balances[msg.sender]):
         balances[msg.sender] = 0;
-    }   
+    }
 ```
 
 `send` and `transfer` do not protect from reentrancies in case of gas price changes."""

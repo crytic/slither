@@ -99,7 +99,7 @@ contract A {
 }
 ```
 `x` is a `uint256`, so `x >= 0` will be always true.
-`y` is a `uint8`, so `y <512` will be always true.  
+`y` is a `uint8`, so `y <512` will be always true.
 """
     # endregion wiki_exploit_scenario
 

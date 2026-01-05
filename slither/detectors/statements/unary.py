@@ -62,7 +62,7 @@ class IncorrectUnaryExpressionDetection(AbstractDetector):
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
-```Solidity 
+```Solidity
 contract Bug{
     uint public counter;
 

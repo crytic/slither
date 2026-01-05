@@ -111,7 +111,7 @@ contract Game {
     }
 }
 ```
-Eve is a miner. Eve calls `guessing` and re-orders the block containing the transaction. 
+Eve is a miner. Eve calls `guessing` and re-orders the block containing the transaction.
 As a result, Eve wins the game."""
     # endregion wiki_exploit_scenario
 

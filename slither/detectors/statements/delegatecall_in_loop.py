@@ -89,7 +89,7 @@ contract DelegatecallInLoop{
 
     function addBalance(address a) public payable {
         balances[a] += msg.value;
-    } 
+    }
 
 }
 ```
