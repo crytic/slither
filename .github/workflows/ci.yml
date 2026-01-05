@@ -35,6 +35,9 @@ jobs:
           # Requires nvm
           - os: windows-2022
             type: truffle
+          # fasttext fails to install on Windows
+          - os: windows-2022
+            type: simil
     steps:
       - uses: actions/checkout@v6
       - name: Install uv and Python ${{ matrix.python }}
