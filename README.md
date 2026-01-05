@@ -67,7 +67,7 @@ slither tests/uninitialized.sol
 ## How to install
 
 > **Note** <br />
-> Slither requires Python 3.8+.
+> Slither requires Python 3.9+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
 ### Using Pip

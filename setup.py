@@ -10,7 +10,7 @@ setup(
     author="Trail of Bits",
     version="0.11.3",
     packages=find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         "packaging",
         "prettytable>=3.10.2",

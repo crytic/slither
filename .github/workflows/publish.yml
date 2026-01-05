@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
 
@@ -23,7 +23,7 @@ jobs:
           python -m pip install build
           python -m build
       - name: Upload distributions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: slither-dists
           path: dist/
@@ -38,16 +38,16 @@ jobs:
       - build-release
     steps:
       - name: fetch dists
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: slither-dists
           path: dist/
 
       - name: publish
-        uses: pypa/gh-action-pypi-publish@v1.12.4
+        uses: pypa/gh-action-pypi-publish@v1.13.0
 
       - name: sign
-        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        uses: sigstore/gh-action-sigstore-python@v3.1.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
           release-signing-artifacts: true
