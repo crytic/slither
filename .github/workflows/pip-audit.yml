@@ -20,18 +20,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Python
-        uses: actions/setup-python@v5
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.10"
-
       - name: Install Slither
         run: |
-          python -m venv /tmp/pip-audit-env
-          source /tmp/pip-audit-env/bin/activate
-
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .
+          uv venv /tmp/pip-audit-env
+          VIRTUAL_ENV=/tmp/pip-audit-env uv pip install .
 
       - name: Run pip-audit
         uses: pypa/gh-action-pip-audit@v1.1.0

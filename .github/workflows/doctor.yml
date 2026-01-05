@@ -31,32 +31,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
 
       - name: Try system-wide Slither
         run: |
           echo "::group::Install slither"
-          pip3 install .
-          echo "::endgroup::"
-
-          # escape cwd so python doesn't pick up local module
-          cd /
-
-          echo "::group::Via module"
-          python3 -m slither.tools.doctor .
-          echo "::endgroup::"
-
-          echo "::group::Via binary"
-          slither-doctor .
-          echo "::endgroup::"
-
-      - name: Try user Slither
-        run: |
-          echo "::group::Install slither"
-          pip3 install --user .
+          uv pip install --system .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module
@@ -73,10 +56,10 @@ jobs:
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
-          python3 -m venv venv
+          uv venv venv
           source venv/bin/activate || source venv/Scripts/activate
           hash -r
-          pip3 install .
+          uv pip install .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module

@@ -37,13 +37,13 @@ jobs:
             type: truffle
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          uv sync --group test
           solc-select use 0.4.25 --always-install
           solc-select use 0.8.0 --always-install
           solc-select use 0.5.1 --always-install
@@ -64,4 +64,4 @@ jobs:
           TEST_TYPE: ${{ matrix.type }}
           GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
         run: |
-          bash "scripts/ci_test_${TEST_TYPE}.sh"
+          uv run bash "scripts/ci_test_${TEST_TYPE}.sh"
