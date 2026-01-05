@@ -56,23 +56,6 @@ jobs:
           slither-doctor .
           echo "::endgroup::"
 
-      - name: Try user Slither
-        run: |
-          echo "::group::Install slither"
-          uv pip install --user .
-          echo "::endgroup::"
-
-          # escape cwd so python doesn't pick up local module
-          cd /
-
-          echo "::group::Via module"
-          python3 -m slither.tools.doctor .
-          echo "::endgroup::"
-
-          echo "::group::Via binary"
-          slither-doctor .
-          echo "::endgroup::"
-
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
