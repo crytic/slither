@@ -13,7 +13,7 @@ import traceback
 from importlib import metadata
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
-
+import importlib_metadata
 from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
@@ -166,12 +166,7 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    if sys.version_info >= (3, 10):
-        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
-    else:
-        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
-
-        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()

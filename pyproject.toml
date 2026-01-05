@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+    "importlib_metadata>=3.6",
     "packaging",
     "prettytable>=3.10.2",
     "pycryptodome>=3.4.6",
