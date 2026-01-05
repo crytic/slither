@@ -24,7 +24,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.10"
-          activate-environment: true
+
       - name: Install Slither
         run: |
           uv venv /tmp/pip-audit-env

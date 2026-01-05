@@ -50,7 +50,7 @@ run: $(VENV)/pyvenv.cfg
 
 $(VENV)/pyvenv.cfg: pyproject.toml
 	# Create virtual environment and install dependencies using uv
-	uv venv $(VENV) --python 3.11
+	uv venv $(VENV)
 	uv sync --python $(VENV_BIN)/python --group $(SLITHER_EXTRA)
 
 .PHONY: lint
