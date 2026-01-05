@@ -36,17 +36,29 @@ jobs:
           - os: windows-2022
             type: truffle
     steps:
+<<<<<<< build-system-hatchling
       - uses: actions/checkout@v4
       - name: Install uv and Python ${{ matrix.python }}
         uses: astral-sh/setup-uv@v7
+=======
+      - uses: actions/checkout@v6
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v6
+>>>>>>> dev
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
+<<<<<<< build-system-hatchling
           uv sync --group test
           solc-select use 0.4.25 --always-install
+=======
+          pip install ".[test]"
+>>>>>>> dev
           solc-select use 0.8.0 --always-install
+          solc-select use 0.7.0 --always-install
           solc-select use 0.5.1 --always-install
+          solc-select use 0.4.25 --always-install
 
       - name: Set up nix
         if: matrix.type == 'dapp'

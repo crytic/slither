@@ -298,7 +298,7 @@ def parse_args(
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
     usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
+    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x for x in SUPPORTED_NETWORK)}\n"
 
     parser = argparse.ArgumentParser(
         description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
