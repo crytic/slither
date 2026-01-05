@@ -27,10 +27,9 @@ jobs:
 
       - name: Install Slither
         run: |
-          uv venv /tmp/pip-audit-env
-          VIRTUAL_ENV=/tmp/pip-audit-env uv pip install .
+          uv export --format requirements-txt --no-emit-project > requirements.txt
 
       - name: Run pip-audit
         uses: pypa/gh-action-pip-audit@v1.1.0
         with:
-          virtual-environment: /tmp/pip-audit-env
+          inputs: requirements.txt
