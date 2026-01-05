@@ -41,12 +41,11 @@ dependencies = [
 
 # Development dependencies using PEP 735 dependency-groups
 [dependency-groups]
-dev = [
-    # Linting (black/pylint for now, will migrate to ruff in separate PR)
+lint = [
     "black==22.3.0",
     "pylint==3.0.3",
-    "yamllint>=1.35.1",
-    # Testing
+]
+test = [
     "pytest",
     "pytest-cov",
     "pytest-xdist",
@@ -56,9 +55,14 @@ dev = [
     "coverage[toml]",
     "filelock",
     "pytest-insta",
-    # Documentation
+]
+doc = [
     "pdoc",
-    # Development tools
+]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    {include-group = "doc"},
     "openai",
 ]
 
