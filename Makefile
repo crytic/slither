@@ -49,10 +49,9 @@ run: $(VENV)/pyvenv.cfg
 	@. $(VENV_BIN)/activate && slither $(ARGS)
 
 $(VENV)/pyvenv.cfg: pyproject.toml
-	# Create our Python 3 virtual environment
-	python3 -m venv env
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/python -m pip install -e .[$(SLITHER_EXTRA)]
+	# Create virtual environment and install dependencies using uv
+	uv venv $(VENV) --python 3.11
+	uv sync --python $(VENV_BIN)/python --group $(SLITHER_EXTRA)
 
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
@@ -81,7 +80,7 @@ doc: $(VENV)/pyvenv.cfg
 .PHONY: package
 package: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		python3 -m build
+		uv build
 
 .PHONY: edit
 edit:

@@ -47,6 +47,16 @@ A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSl
 
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
+For development setup, we use [uv](https://github.com/astral-sh/uv):
+
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Setup development environment
+make dev  # Creates venv and installs all dependencies
+```
+
 To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`. The names of tests can be obtained with `pytest tests --collect-only`.
 
 ### Linters
