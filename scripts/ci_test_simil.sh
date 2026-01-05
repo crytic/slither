@@ -3,15 +3,19 @@ set -euo pipefail
 
 ### Install requisites
 
-pip3.8 install pybind11
-pip3.8 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip
+if [ "$UV_PYTHON" = "" ]; then
+    PIP="pip3"
+else
+    PIP="uv pip"
+fi
+$PIP install fasttext
 
 ### Test slither-simil
 
 solc-select use "0.4.25"
 
-DIR_TESTS="tests/simil"
-slither-simil info "" --filename $DIR_TESTS/../complex_func.sol --fname Complex.complexExternalWrites  > test_1.txt 2>&1
+DIR_TESTS="tests/tools/simil"
+slither-simil info "" --filename $DIR_TESTS/../../unit/core/test_data/complex_func.sol --fname Complex.complexExternalWrites 2>&1 | tee test_1.txt
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")
 if [  "$DIFF" != "" ]
 then
