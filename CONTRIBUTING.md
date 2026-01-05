@@ -63,7 +63,33 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use pylint `3.0.3`, black `22.3.0`.
+We use ruff (latest 0.x version) for linting and formatting, and yamllint for YAML files.
+
+#### Pre-commit Hooks (Recommended)
+
+We recommend using pre-commit hooks to automatically check and fix code before committing:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+
+# Run on specific files
+pre-commit run --files slither/core/*.py
+
+# Update hook versions
+pre-commit autoupdate
+```
+
+The pre-commit hooks will automatically:
+- Fix linting issues with ruff
+- Check YAML syntax
+- Remove trailing whitespace
+- Fix end-of-file issues
+- Check for merge conflicts
+- Prevent large files from being committed
 
 ### Testing
 
