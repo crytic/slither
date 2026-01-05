@@ -32,6 +32,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
+          activate-environment: true
       - name: Install dependencies
         run: |
           uv sync --group test
@@ -81,7 +82,7 @@ jobs:
           elif [ ${{ matrix.os }} = "windows-2022" ]; then
             TEST_ARGS=()
           fi
-          uv run bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage
@@ -102,6 +103,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.8"
+          activate-environment: true
       - run: uv pip install --system coverage[toml]
 
       - name: download coverage data

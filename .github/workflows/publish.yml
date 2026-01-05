@@ -14,6 +14,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: true
       - name: Build distributions
         run: uv build
       - name: Upload distributions
