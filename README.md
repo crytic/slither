@@ -19,7 +19,7 @@
 * [How to install](#how-to-install)
   * [Using uv (Recommended)](#using-uv-recommended)
   * [Using Pip](#using-pip)
-  * [Using Git](#using-git)
+  * [Using Git](#using-git-development)
   * [Using Docker](#using-docker)
   * [Integration](#integration)
 * [Detectors](#detectors)
@@ -86,7 +86,7 @@ uv tool install slither-analyzer
 uvx slither-analyzer <target>
 ```
 
-#### How to upgrade
+To upgrade:
 
 ```console
 uv tool upgrade slither-analyzer
@@ -98,7 +98,7 @@ uv tool upgrade slither-analyzer
 python3 -m pip install slither-analyzer
 ```
 
-#### How to upgrade
+To upgrade:
 
 ```console
 python3 -m pip install --upgrade slither-analyzer
