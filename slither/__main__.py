@@ -14,7 +14,7 @@ from importlib import metadata
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 import importlib_metadata
-from crytic_compile import cryticparser, CryticCompile
+from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile.platform.standard import generate_standard_export
 
