@@ -31,8 +31,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Ruff linter
-        uses: astral-sh/ruff-action@v1
+        uses: astral-sh/ruff-action@v3
         with:
+          version: "0.14.10"
           args: "check slither/ tests/ scripts/"
 
       # Formatting check disabled to avoid changes to existing code
