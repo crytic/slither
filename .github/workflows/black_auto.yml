@@ -31,11 +31,11 @@ jobs:
           python-version: 3.8
 
       - name: Run black
-        uses: psf/black@stable
+        uses: psf/black@24.8.0
         with:
           options: ""
           summary: false
-          version: "~= 22.3.0"
+          version: "<24.10.0"
 
       - name: Annotate diff changes using reviewdog
         uses: reviewdog/action-suggester@v1
