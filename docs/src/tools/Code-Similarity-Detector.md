@@ -98,7 +98,7 @@ INFO:Slither-simil:Saving cache in cache.npz
 INFO:Slither-simil:Done!
 ```
 
-After it runs, the `slither-simil` will output the the trained model in `model.bin`, a cache of every function for use in test mode in `cache.npz`, and the SlithIR of every function for debugging in `last_data_train.txt`.
+After it runs, the `slither-simil` will output the trained model in `model.bin`, a cache of every function for use in test mode in `cache.npz`, and the SlithIR of every function for debugging in `last_data_train.txt`.
 
 ### Plot mode
 

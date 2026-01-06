@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-### Test slither-check-upgradeability
+### Test slither-find-paths
 
-DIR_TESTS="tests/possible_paths"
+DIR_TESTS="tests/e2e/printers/possible_paths"
 
-solc-select use "0.5.0"
+solc-select use "0.5.1"
 slither-find-paths "$DIR_TESTS/paths.sol"  A.destination  > test_possible_paths.txt 2>&1
 DIFF=$(diff test_possible_paths.txt "$DIR_TESTS/paths.txt")
 if [  "$DIFF" != "" ]
