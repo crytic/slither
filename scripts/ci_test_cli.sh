@@ -3,6 +3,7 @@ set -euo pipefail
 
 ### Test
 
+
 solc-select use 0.7.0
 
 if ! slither "tests/e2e/config/test_json_config/test.sol" --solc-ast --no-fail-pedantic; then

@@ -23,11 +23,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
+        os: ["ubuntu-latest", "windows-2025"]
         type: ["unit", "integration", "tool"]
         python: >-
-          ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]'))
-          || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
+          || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
     steps:
       - uses: actions/checkout@v6
       - name: Install uv and Python ${{ matrix.python }}
@@ -43,7 +43,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
@@ -82,7 +82,7 @@ jobs:
         run: |
           if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
             TEST_ARGS=(--cov=slither --cov-append)
-          elif [ ${{ matrix.os }} = "windows-2022" ]; then
+          elif [ ${{ matrix.os }} = "windows-2025" ]; then
             TEST_ARGS=()
           fi
           bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
@@ -92,7 +92,7 @@ jobs:
         uses: ./.github/actions/upload-coverage
         # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
         # coverage metadata.
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.8' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.9' }}
 
   coverage:
     needs:
@@ -105,7 +105,7 @@ jobs:
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.8"
+          python-version: "3.9"
           activate-environment: true
 
       - run: uv pip install coverage[toml]
