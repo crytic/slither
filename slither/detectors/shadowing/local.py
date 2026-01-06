@@ -64,7 +64,6 @@ contract Bug {
     OVERSHADOWED_EVENT = "event"
     OVERSHADOWED_RETURN_VARIABLE = "return variable"
 
-    # pylint: disable=too-many-branches
     def detect_shadowing_definitions(
         self, contract: Contract
     ) -> List[

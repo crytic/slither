@@ -10,7 +10,7 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
-class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class NewContract(Call, OperationWithLValue):
     def __init__(
         self,
         contract_name: UserDefinedType,

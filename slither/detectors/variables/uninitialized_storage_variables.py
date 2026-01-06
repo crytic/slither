@@ -96,7 +96,6 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         """
         results = []
 
-        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 

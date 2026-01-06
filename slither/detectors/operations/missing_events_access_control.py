@@ -67,7 +67,6 @@ contract C {
         """
         results = []
 
-        # pylint: disable=too-many-nested-blocks
         for function in contract.functions_entry_points:
             nodes = []
 

@@ -11,7 +11,6 @@ from slither.vyper_parsing.ast.types import Name, Subscript, Call, Index, Tuple
 from slither.solc_parsing.exceptions import ParsingError
 
 
-# pylint: disable=too-many-branches,too-many-return-statements,import-outside-toplevel,too-many-locals
 def parse_type(
     annotation: Union[Name, Subscript, Call, Tuple],
     caller_context: Union[FunctionContract, Contract],

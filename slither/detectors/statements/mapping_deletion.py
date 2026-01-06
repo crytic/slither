@@ -65,7 +65,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
             list (function, structure, node)
         """
         ret: List[Tuple[FunctionContract, Structure, Node]] = []
-        # pylint: disable=too-many-nested-blocks
+
         for f in contract.functions:
             for node in f.nodes:
                 for ir in node.irs:

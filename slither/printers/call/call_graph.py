@@ -47,7 +47,6 @@ def _node(node: str, label: Optional[str] = None) -> str:
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_internal_call(
     contract: Contract,
     function: Function,
@@ -141,7 +140,6 @@ def _process_external_call(
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_function(
     contract: Contract,
     function: Function,

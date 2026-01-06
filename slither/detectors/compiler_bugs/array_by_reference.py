@@ -112,7 +112,7 @@ As a result, Bob's usage of the contract is incorrect."""
             return results
 
         # Loop for each node in each function/modifier in each contract
-        # pylint: disable=too-many-nested-blocks
+
         for contract in contracts:
             for function in contract.functions_and_modifiers_declared:
                 for ir in [ir for _, ir in function.high_level_calls] + function.internal_calls:

@@ -5,7 +5,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
 
-class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MVIE(AbstractMutator):
     NAME = "MVIE"
     HELP = "variable initialization using an expression"
 

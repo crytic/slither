@@ -80,7 +80,6 @@ def has_auth(func) -> bool:
 
 
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class CKContractMetrics:
     """Class to hold the CK metrics for a single contract."""
 
@@ -122,8 +121,6 @@ class CKContractMetrics:
         )
         self.calculate_metrics()
 
-    # pylint: disable=too-many-locals
-    # pylint: disable=too-many-branches
     def calculate_metrics(self) -> None:
         """Calculate the metrics for a contract"""
         rfc = self.public  # initialize with public getter count
@@ -246,7 +243,6 @@ class SectionInfo:
 
 
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class CKMetrics:
     """Class to hold the CK metrics for all contracts. Contains methods useful for reporting.
 

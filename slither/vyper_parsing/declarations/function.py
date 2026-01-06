@@ -50,7 +50,7 @@ def link_underlying_nodes(node1: NodeVyper, node2: NodeVyper):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-class FunctionVyper:  # pylint: disable=too-many-instance-attributes
+class FunctionVyper:
     def __init__(
         self,
         function: Function,
@@ -250,7 +250,6 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
         for son in node.sons:
             self._update_reachability(son)
 
-    # pylint: disable=too-many-branches,too-many-statements,protected-access,too-many-locals
     def _parse_cfg(self, cfg: List[ASTNode]) -> None:
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
         self._function.entry_point = entry_node.underlying_node

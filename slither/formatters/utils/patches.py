@@ -6,7 +6,6 @@ from collections import defaultdict
 from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-# pylint: disable=too-many-arguments
 def create_patch(
     result: Dict,
     file: str,

@@ -98,7 +98,6 @@ class FunctionTopLevel(Function, TopLevel):
     def generate_slithir_ssa(
         self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
     ) -> None:
-        # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,

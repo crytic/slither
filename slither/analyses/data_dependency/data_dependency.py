@@ -366,7 +366,6 @@ def compute_dependency_contract(
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
         propagate_function(contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
-        # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
             [compilation_unit.context[KEY_INPUT].add(p) for p in function.parameters]
             [compilation_unit.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]

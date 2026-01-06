@@ -13,7 +13,6 @@ from slither.slithir import operations
 from slither.slithir import variables as SlitherIRVariable
 
 
-# pylint: disable=too-many-branches
 def ntype(_type: Union[solidity_types.Type, str]) -> str:
     if isinstance(_type, solidity_types.ElementaryType):
         _type = str(_type)
@@ -54,7 +53,6 @@ def ntype(_type: Union[solidity_types.Type, str]) -> str:
     return _type.replace(" ", "_")
 
 
-# pylint: disable=too-many-branches
 def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> str:
     # variables
     if isinstance(var, SlitherIRVariable.Constant):
@@ -87,7 +85,6 @@ def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> 
     return ""
 
 
-# pylint: disable=too-many-branches
 def encode_ir_for_upgradeability_compare(ir: operations.Operation) -> str:
     # operations
     if isinstance(ir, operations.Assignment):

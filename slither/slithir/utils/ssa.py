@@ -90,13 +90,13 @@ def transform_slithir_vars_to_ssa(
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx, _ in enumerate(tmp_variables):
-        tmp_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        tmp_variables[idx].index = idx
     ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
     for idx, _ in enumerate(ref_variables):
-        ref_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        ref_variables[idx].index = idx
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx, _ in enumerate(tuple_variables):
-        tuple_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        tuple_variables[idx].index = idx
 
 
 ###################################################################################
@@ -104,8 +104,6 @@ def transform_slithir_vars_to_ssa(
 # region SSA conversion
 ###################################################################################
 ###################################################################################
-
-# pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
 
 def add_ssa_ir(
@@ -655,7 +653,6 @@ def get(
 
 
 def get_variable(ir: Operation, f: Callable, *instances):
-    # pylint: disable=no-value-for-parameter
     variable = f(ir)
     variable = get(variable, *instances)
     return variable
@@ -663,7 +660,7 @@ def get_variable(ir: Operation, f: Callable, *instances):
 
 def _get_traversal(values: List[Any], *instances) -> List[Any]:
     ret = []
-    # pylint: disable=no-value-for-parameter
+
     for v in values:
         if isinstance(v, list):
             v = _get_traversal(v, *instances)

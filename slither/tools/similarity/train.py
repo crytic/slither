@@ -11,7 +11,7 @@ from slither.tools.similarity.model import train_unsupervised
 logger = logging.getLogger("Slither-simil")
 
 
-def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
+def train(args: argparse.Namespace) -> None:
     try:
         last_data_train_filename = "last_data_train.txt"
         model_filename = args.model
@@ -48,7 +48,7 @@ def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         save_cache(cache, "cache.npz")
         logger.info("Done!")
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

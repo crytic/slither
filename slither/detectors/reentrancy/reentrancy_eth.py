@@ -56,7 +56,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
-        for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
+        for contract in self.contracts:
             variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
@@ -97,7 +97,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             result[finding_key] |= set(read_then_written)
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches,too-many-locals
+    def _detect(self) -> List[Output]:
         """"""
         super()._detect()
 

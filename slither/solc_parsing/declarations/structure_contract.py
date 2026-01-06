@@ -12,14 +12,14 @@ if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
 
 
-class StructureContractSolc:  # pylint: disable=too-few-public-methods
+class StructureContractSolc:
     """
     Structure class
     """
 
     # elems = [(type, name)]
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         st: Structure,
         struct: Dict,

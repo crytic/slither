@@ -63,7 +63,7 @@ class Codex(AbstractDetector):
                 temperature=self.slither.codex_temperature,
                 max_tokens=self.slither.codex_max_tokens,
             )
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             logger.info("OpenAI request failed: " + str(e))
 
         # """ OpenAI completion response shape example:

@@ -27,9 +27,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-# pylint: disable=anomalous-backslash-in-string
-
-
 def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
     for element in elements:
@@ -345,7 +342,7 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     )
 
 
-def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+def _explore_type(
     slither: SlitherCompilationUnit,
     result: Dict,
     target: TARGET_TYPE,
@@ -445,7 +442,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 )
 
 
-def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+def _explore_variables_declaration(
     slither: SlitherCompilationUnit,
     variables: Sequence[Variable],
     result: Dict,
@@ -608,7 +605,6 @@ def _explore_irs(
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
-    # pylint: disable=too-many-locals
     if not irs:
         return
     for ir in irs:

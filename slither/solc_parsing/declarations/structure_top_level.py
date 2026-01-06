@@ -14,14 +14,14 @@ if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 
-class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class StructureTopLevelSolc(CallerContextExpression):
     """
     Structure class
     """
 
     # elems = [(type, name)]
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         st: StructureTopLevel,
         struct: Dict,

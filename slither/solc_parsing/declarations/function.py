@@ -42,9 +42,6 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
-
-
 class FunctionSolc(CallerContextExpression):
     # elems = [(type, name)]
 

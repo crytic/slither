@@ -63,7 +63,6 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
 
     WIKI_RECOMMENDATION = "Use the `leave` statement."
 
-    # pylint: disable=too-many-nested-blocks
     def _detect(self) -> List[Output]:
         results: List[Output] = []
         for c in self.contracts:

@@ -13,7 +13,6 @@ from slither.core.expressions import (
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
-# pylint: disable=too-many-nested-blocks
 def test_ternary_conversions(solc_binary_path) -> None:
     """This tests that true and false sons define the same number of variables that the father node declares"""
     solc_path = solc_binary_path("0.8.0")

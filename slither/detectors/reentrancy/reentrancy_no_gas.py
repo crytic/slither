@@ -103,7 +103,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches,too-many-locals
+    def _detect(self) -> List[Output]:
         """"""
 
         super()._detect()

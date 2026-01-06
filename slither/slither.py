@@ -3,7 +3,7 @@ from typing import Union, List, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
-# pylint: disable= no-name-in-module
+
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -29,13 +29,13 @@ def _check_common_things(
             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
         )
 
-    if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
+    if any(type(obj) == cls for obj in instances_list):
         raise SlitherError(f"You can't register {cls!r} twice.")
 
 
 def _update_file_scopes(
     sol_parser: SlitherCompilationUnitSolc,
-):  # pylint: disable=too-many-branches
+):
     """
     Since all definitions in a file are exported by default, including definitions from its (transitive) dependencies,
     we can identify all top level items that could possibly be referenced within the file from its exportedSymbols.
@@ -87,7 +87,7 @@ def _update_file_scopes(
                 )
 
 
-class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches
+class Slither(SlitherCore):
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
@@ -132,7 +132,6 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes,too-
                 crytic_compile = CryticCompile(target, **kwargs)
             self._crytic_compile = crytic_compile
         except InvalidCompilation as e:
-            # pylint: disable=raise-missing-from
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
         for compilation_unit in crytic_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)

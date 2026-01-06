@@ -48,7 +48,6 @@ def _detect_incorrect_operator(contract: Contract) -> List[Tuple[Function, Node]
     return ret
 
 
-# pylint: disable=too-few-public-methods
 class IncorrectOperatorExponentiation(AbstractDetector):
     """
     Incorrect operator usage of bitwise xor mistaking it for exponentiation

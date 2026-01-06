@@ -36,7 +36,6 @@ def _relative_path_format(path: str) -> str:
     return path.split("..")[-1].strip(".").strip("/")
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCore(Context):
     """
     Slither static analyzer
@@ -254,7 +253,7 @@ class SlitherCore(Context):
             self._offset_to_implementations[ref.filename][ref.start].update(implementations)
             self._offset_to_references[ref.filename][ref.start] |= set(references)
 
-    def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
+    def _compute_offsets_to_ref_impl_decl(self):
         self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))

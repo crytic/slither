@@ -60,7 +60,7 @@ def test_get_mutators():
     ),
 )
 @pytest.mark.skip(reason="Slow test")
-def test_mutator(mock_args, solc_binary_path):  # pylint: disable=unused-argument
+def test_mutator(mock_args, solc_binary_path):
     with change_directory(TEST_DATA_DIR / "test_source_unit"):
         main()
 

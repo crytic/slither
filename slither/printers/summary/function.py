@@ -21,7 +21,7 @@ class FunctionSummary(AbstractPrinter):
             return "\n".join(l)
         return str(l)
 
-    def output(self, _filename):  # pylint: disable=too-many-locals
+    def output(self, _filename):
         """
         _filename is not used
         Args:

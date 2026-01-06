@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, Union, Optional
 
-# pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
+
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -600,7 +600,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):
     # propagate the type
     node_function = node.function
 
@@ -940,7 +940,6 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
     return None
 
 
-# pylint: disable=too-many-locals
 def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, Nop]:
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):

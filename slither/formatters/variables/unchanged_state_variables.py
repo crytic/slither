@@ -27,7 +27,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result, attribute: s
         )
 
 
-def _patch(  # pylint: disable=too-many-arguments
+def _patch(
     compilation_unit: SlitherCompilationUnit,
     result,
     in_file,

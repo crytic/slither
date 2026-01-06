@@ -189,7 +189,6 @@ def get_detectors_and_printers() -> Tuple[
     return detectors, printers
 
 
-# pylint: disable=too-many-branches
 def choose_detectors(
     args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
 ) -> List[Type[AbstractDetector]]:
@@ -284,7 +283,6 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
     return []
 
 
-# pylint: disable=too-many-statements
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
@@ -678,29 +676,29 @@ def parse_args(
     return args
 
 
-class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
+class ListDetectors(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
+class ListPrinters(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputMarkdown(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -714,7 +712,7 @@ class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
         parser.exit()
 
 
-class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputWiki(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -765,7 +763,6 @@ def main() -> None:
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
-# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main_impl(
     all_detector_classes: List[Type[AbstractDetector]],
     all_printer_classes: List[Type[AbstractPrinter]],

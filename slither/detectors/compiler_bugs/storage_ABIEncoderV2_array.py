@@ -73,7 +73,7 @@ contract A {
         results = set()
 
         # Loop for each function and modifier.
-        # pylint: disable=too-many-nested-blocks
+
         for function in contract.functions_and_modifiers_declared:
             # Loop every node, looking for storage-allocated array of arrays/structs
             # in arguments to abi.encode, events or external calls

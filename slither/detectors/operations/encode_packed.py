@@ -33,7 +33,7 @@ def _detect_abi_encodePacked_collision(contract: Contract):
         list((Function), (list (Node)))
     """
     ret = []
-    # pylint: disable=too-many-nested-blocks
+
     for f in contract.functions_and_modifiers_declared:
         for ir in f.solidity_calls:
             if ir.function == SolidityFunction("abi.encodePacked()"):

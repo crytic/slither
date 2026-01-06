@@ -21,7 +21,7 @@ from slither.utils.buggy_versions import bugs_by_version
 # 3: version number
 # 4: version number
 
-# pylint: disable=anomalous-backslash-in-string
+
 PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 

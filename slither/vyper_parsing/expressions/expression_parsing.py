@@ -72,7 +72,6 @@ def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def parse_expression(
     expression: ASTNode, caller_context: Union[FunctionContract, Contract]
 ) -> "Expression":
@@ -206,7 +205,7 @@ def parse_expression(
             if isinstance(called.value, FunctionContract):
                 rets = called.value.returns
                 # Default arguments are not represented in the AST, so we recover them as well.
-                # pylint: disable=protected-access
+
                 if called.value._default_args_as_expressions and len(arguments) < len(
                     called.value.parameters
                 ):

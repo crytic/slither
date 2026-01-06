@@ -31,8 +31,6 @@ if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
 
-# pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
-
 
 class ContractSolc(CallerContextExpression):
     def __init__(
@@ -190,7 +188,7 @@ class ContractSolc(CallerContextExpression):
                         "name"
                     ]
 
-    def _parse_base_contract_info(self) -> None:  # pylint: disable=too-many-branches
+    def _parse_base_contract_info(self) -> None:
         # Parse base contracts (immediate, non-linearized)
         if self.is_compact_ast:
             # Parse base contracts + constructors in compact-ast
@@ -254,7 +252,6 @@ class ContractSolc(CallerContextExpression):
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self) -> None:
-        # pylint: disable=too-many-branches
         if not self.get_children() in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
@@ -484,7 +481,7 @@ class ContractSolc(CallerContextExpression):
             self.log_incorrect_parsing(f"Missing params {e}")
         self._functions_no_params = []
 
-    def _analyze_params_element(  # pylint: disable=too-many-arguments
+    def _analyze_params_element(
         self,
         Cls: Callable,
         Cls_parser: Callable,
@@ -526,7 +523,7 @@ class ContractSolc(CallerContextExpression):
         all_elements[elem.canonical_name] = elem
         parser.append(elem_parser)
 
-    def _analyze_params_elements(  # pylint: disable=too-many-arguments,too-many-locals
+    def _analyze_params_elements(
         self,
         elements_no_params: Sequence[FunctionSolc],
         getter: Callable[["ContractSolc"], List[FunctionSolc]],
@@ -612,7 +609,7 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing state variable {e}")
 
-    def analyze_using_for(self) -> None:  # pylint: disable=too-many-branches
+    def analyze_using_for(self) -> None:
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)

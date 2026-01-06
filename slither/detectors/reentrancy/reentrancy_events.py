@@ -104,7 +104,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:
         """"""
         super()._detect()
 

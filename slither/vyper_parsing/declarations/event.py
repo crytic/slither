@@ -11,7 +11,7 @@ from slither.vyper_parsing.ast.types import AnnAssign, Pass
 from slither.vyper_parsing.ast.types import EventDef
 
 
-class EventVyper:  # pylint: disable=too-few-public-methods
+class EventVyper:
     """
     Event class
     """

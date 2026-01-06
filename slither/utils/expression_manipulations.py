@@ -25,7 +25,6 @@ from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.new_elementary_type import NewElementaryType
 
 
-# pylint: disable=protected-access
 def f_expressions(
     e: Union[AssignmentOperation, BinaryOperation, TupleExpression],
     x: Union[Identifier, Literal, MemberAccess, IndexAccess],

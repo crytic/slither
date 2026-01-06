@@ -2,7 +2,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables.variable import SlithIRVariable
 
 
-class StateIRVariable(StateVariable, SlithIRVariable):  # pylint: disable=too-many-instance-attributes
+class StateIRVariable(StateVariable, SlithIRVariable):
     def __init__(self, state_variable: StateVariable) -> None:
         assert isinstance(state_variable, StateVariable)
 

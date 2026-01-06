@@ -29,10 +29,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("TypeParsing")
 
-# pylint: disable=anomalous-backslash-in-string
 
-
-class UnknownType:  # pylint: disable=too-few-public-methods
+class UnknownType:
     def __init__(self, name: str) -> None:
         self._name = name
 
@@ -41,7 +39,7 @@ class UnknownType:  # pylint: disable=too-few-public-methods
         return self._name
 
 
-def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-arguments
+def _find_from_type_name(
     name: str,
     functions_direct_access: List["Function"],
     contracts_direct_access: List["Contract"],
@@ -220,8 +218,7 @@ def parse_type(
     :rtype:
     """
     # local import to avoid circular dependency
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    # pylint: disable=import-outside-toplevel
+
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc

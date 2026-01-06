@@ -284,7 +284,6 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
     print(table)
 
 
-# pylint: disable=too-many-locals
 def output_detectors_json(
     detector_classes: List[Type[AbstractDetector]],
 ) -> List[Dict]:

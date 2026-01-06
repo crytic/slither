@@ -71,7 +71,6 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
     key = "OUTOFORDERRETRYABLE"
 
-    # pylint: disable=too-many-branches
     def _detect_multiple_tickets(
         self, function: FunctionContract, node: Node, visited: List[Node]
     ) -> None:
@@ -128,7 +127,6 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
     def _detect(self) -> List[Output]:
         results = []
 
-        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 

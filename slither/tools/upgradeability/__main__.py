@@ -191,43 +191,43 @@ def choose_checks(
     return detectors_to_run
 
 
-class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
+class ListDetectors(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         checks = _get_checks()
         output_detectors(checks)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         checks = _get_checks()
         detector_types_json = output_detectors_json(checks)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputMarkdown(argparse.Action):
     def __call__(
         self,
         parser: Any,
         args: Any,
         values: Optional[Union[str, Sequence[Any]]],
         option_string: Any = None,
-    ) -> None:  # pylint: disable=signature-differs
+    ) -> None:
         checks = _get_checks()
         assert isinstance(values, str)
         output_to_markdown(checks, values)
         parser.exit()
 
 
-class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputWiki(argparse.Action):
     def __call__(
         self,
         parser: Any,
         args: Any,
         values: Optional[Union[str, Sequence[Any]]],
         option_string: Any = None,
-    ) -> Any:  # pylint: disable=signature-differs
+    ) -> Any:
         checks = _get_checks()
         assert isinstance(values, str)
         output_wiki(checks, values)
@@ -276,7 +276,6 @@ def _checks_on_contract_and_proxy(
 ###################################################################################
 
 
-# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:
     json_results: Dict = {
         "proxy-present": False,

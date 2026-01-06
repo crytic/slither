@@ -6,7 +6,7 @@ from slither.vyper_parsing.variables.structure_variable import StructureVariable
 from slither.vyper_parsing.ast.types import StructDef, AnnAssign
 
 
-class StructVyper:  # pylint: disable=too-few-public-methods
+class StructVyper:
     def __init__(
         self,
         st: Structure,

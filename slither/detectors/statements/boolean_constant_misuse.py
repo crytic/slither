@@ -71,7 +71,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
     @staticmethod
     def _detect_boolean_constant_misuses(
         contract: Contract,
-    ) -> List[Tuple[Function, Set[Node]]]:  # pylint: disable=too-many-branches
+    ) -> List[Tuple[Function, Set[Node]]]:
         """
         Detects and returns all nodes which misuse a Boolean constant.
         :param contract: Contract to detect assignment within.

@@ -190,7 +190,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         """TODO Documentation"""
         return []
 
-    # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
 

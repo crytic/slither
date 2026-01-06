@@ -68,7 +68,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     def _detect(self) -> List[Output]:
         results = []
-        # pylint: disable=too-many-nested-blocks
+
         for c in self.contracts:
             for mod in c.modifiers:
                 if mod.contract_declarer != c:

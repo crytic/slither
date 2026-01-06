@@ -145,7 +145,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Each set contains the already declared variables saw in one path
         # If a path has the same set as a path already explored
         # We don't need to continue
-        # pylint: disable=attribute-defined-outside-init
+
         self.fix_point_information = {}
 
         for contract in self.contracts:

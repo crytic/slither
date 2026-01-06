@@ -97,7 +97,6 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         """
         results = []
 
-        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 

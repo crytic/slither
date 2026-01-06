@@ -24,7 +24,7 @@ from slither.slithir.variables import Constant
 from slither.utils.output import Output
 
 
-class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
+class LockedEther(AbstractDetector):
     ARGUMENT = "locked-ether"
     HELP = "Contracts that lock ether"
     IMPACT = DetectorClassification.MEDIUM
@@ -54,7 +54,7 @@ Every Ether sent to `Locked` will be lost."""
         functions = contract.all_functions_called
         to_explore = functions
         explored = []
-        while to_explore:  # pylint: disable=too-many-nested-blocks
+        while to_explore:
             functions = to_explore
             explored += to_explore
             to_explore = []

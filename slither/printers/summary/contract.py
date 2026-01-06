@@ -18,7 +18,7 @@ class ContractSummary(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary"
 
-    def output(self, _filename: str) -> Output:  # pylint: disable=too-many-locals
+    def output(self, _filename: str) -> Output:
         """
         _filename is not used
         Args:

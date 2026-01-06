@@ -46,7 +46,7 @@ def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variabl
         (nodes)
     """
     ret = set()
-    # pylint: disable=too-many-nested-blocks
+
     for node in func.nodes:
         for ir in node.irs_ssa:
             if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:

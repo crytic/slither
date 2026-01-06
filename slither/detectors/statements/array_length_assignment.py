@@ -31,7 +31,7 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
     results = set()
 
     # Loop for each function and modifier.
-    # pylint: disable=too-many-nested-blocks
+
     for function in contract.functions_and_modifiers_declared:
         # Define a set of reference variables which refer to array length.
         array_length_refs = set()

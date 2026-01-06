@@ -62,12 +62,11 @@ def is_assert(node: Node) -> bool:
     return False
 
 
-# pylint: disable=too-many-branches
 def _explore(
     to_explore: List[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
 ) -> None:
     explored = set()
-    while to_explore:  # pylint: disable=too-many-nested-blocks
+    while to_explore:
         node = to_explore.pop()
 
         if node in explored:

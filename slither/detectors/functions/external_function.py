@@ -98,7 +98,7 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
-        # pylint: disable=broad-exception-raised
+
         raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod
@@ -139,7 +139,7 @@ class ExternalFunction(AbstractDetector):
             return True
         return False
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-locals,too-many-branches
+    def _detect(self) -> List[Output]:
         results: List[Output] = []
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be

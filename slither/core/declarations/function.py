@@ -29,8 +29,6 @@ from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 
-# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
-
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, FunctionContract
     from slither.core.cfg.node import Node, NodeType
@@ -111,7 +109,7 @@ class FunctionLanguage(Enum):
     Vyper = 2
 
 
-class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
+class Function(SourceMapping, metaclass=ABCMeta):
     """
     Function class
     """
@@ -939,7 +937,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._return_values is None:
             return_values = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [  # pylint: disable=expression-not-assigned
+            [
                 return_values.extend(ir.values)
                 for node in returns
                 for ir in node.irs
@@ -960,7 +958,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._return_values_ssa is None:
             return_values_ssa = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [  # pylint: disable=expression-not-assigned
+            [
                 return_values_ssa.extend(ir.values)
                 for node in returns
                 for ir in node.irs_ssa
@@ -1718,7 +1716,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def _get_last_ssa_variable_instances(
         self, target_state: bool, target_local: bool
     ) -> Dict[str, Set["SlithIRVariable"]]:
-        # pylint: disable=too-many-locals,too-many-branches
         from slither.slithir.variables import ReferenceVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType

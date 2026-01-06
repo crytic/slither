@@ -33,7 +33,7 @@ from slither.slithir.operations import (
 )
 from slither.core.variables.state_variable import StateVariable
 
-# pylint: disable=too-many-nested-blocks,too-many-branches
+
 from slither.utils.output import Output
 
 

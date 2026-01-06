@@ -28,7 +28,7 @@ from slither.utils.erc import (
 )
 from slither.utils.tests_pattern import is_test_contract
 
-# pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
+
 if TYPE_CHECKING:
     from slither.core.declarations import (
         Enum,
@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("Contract")
 
 
-class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
+class Contract(SourceMapping):
     """
     Contract class
     """
@@ -1376,8 +1376,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             else:
                 for contract in self.inheritance + [self]:
                     # This might lead to false positive
-                    # Not sure why pylint is having a trouble here
-                    # pylint: disable=no-member
                     lower_name = contract.name.lower()
                     if "upgradeable" in lower_name or "upgradable" in lower_name:
                         self._is_upgradeable = True

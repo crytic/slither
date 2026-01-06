@@ -9,7 +9,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 
-class ReferenceVariableSSA(ReferenceVariable):  # pylint: disable=too-few-public-methods
+class ReferenceVariableSSA(ReferenceVariable):
     def __init__(self, reference: ReferenceVariable) -> None:
         super().__init__(reference.node, reference.index)
 

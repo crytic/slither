@@ -18,7 +18,7 @@ from slither.slithir.operations import (
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
 
-class State:  # pylint: disable=too-few-public-methods
+class State:
     def __init__(self) -> None:
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
@@ -33,7 +33,6 @@ class State:  # pylint: disable=too-few-public-methods
         self.nodes: Dict[Node, List[Set[Variable]]] = defaultdict(list)
 
 
-# pylint: disable=too-many-branches
 def _visit(
     node: Optional[Node],
     state: State,

@@ -89,7 +89,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:
         """"""
 
         super()._detect()

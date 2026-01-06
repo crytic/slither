@@ -298,7 +298,7 @@ class Reentrancy(AbstractDetector):
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
+        self.visited_all_paths = {}
 
         for c in self.contracts:
             self.detect_reentrancy(c)

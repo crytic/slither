@@ -13,7 +13,6 @@ from slither.utils.type import (
 logger = logging.getLogger("Slither-conformance")
 
 
-# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
     name = erc_function.name
     parameters = erc_function.parameters
@@ -59,8 +58,8 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
 
         function_view = True
     else:
-        function_return_type = function.return_type  # pylint: disable=no-member
-        function_view = function.view  # pylint: disable=no-member
+        function_return_type = function.return_type
+        function_view = function.view
 
     txt = f"[✓] {sig} is present"
     logger.info(txt)
@@ -113,7 +112,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
             should_be_view.add(function)
             ret["should_be_view"].append(should_be_view.data)
 
-    if events:  # pylint: disable=too-many-nested-blocks
+    if events:
         for event in events:
             event_sig = f"{event.name}({','.join(event.parameters)})"
 

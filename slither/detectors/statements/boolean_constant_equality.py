@@ -61,7 +61,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results: List[Tuple[Function, Set[Node]]] = []
 
         # Loop for each function and modifier.
-        # pylint: disable=too-many-nested-blocks
+
         for function in contract.functions_and_modifiers_declared:
             f_results = set()
 

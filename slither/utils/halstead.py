@@ -36,11 +36,7 @@ from slither.utils.encoding import encode_ir_for_halstead
 from slither.utils.myprettytable import make_pretty_table, MyPrettyTable
 
 
-# pylint: disable=too-many-branches
-
-
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class HalsteadContractMetrics:
     """Class to hold the Halstead metrics for a single contract."""
 
@@ -146,7 +142,6 @@ class SectionInfo:
 
 
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class HalsteadMetrics:
     """Class to hold the Halstead metrics for all contracts. Contains methods useful for reporting.
 

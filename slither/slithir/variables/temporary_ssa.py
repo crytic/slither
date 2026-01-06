@@ -10,7 +10,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 
-class TemporaryVariableSSA(TemporaryVariable):  # pylint: disable=too-few-public-methods
+class TemporaryVariableSSA(TemporaryVariable):
     def __init__(self, temporary: TemporaryVariable) -> None:
         super().__init__(temporary.node, temporary.index)
 

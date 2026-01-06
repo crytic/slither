@@ -127,7 +127,7 @@ contract A {
         allInts = Int + Uint
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
+        for function in contract.functions_declared:
             f_results = set()
 
             for node in function.nodes:

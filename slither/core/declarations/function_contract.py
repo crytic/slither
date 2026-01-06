@@ -9,8 +9,6 @@ from slither.core.declarations import Function
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
 
-# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
-
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
     from slither.core.scope.scope import FileScope

@@ -52,7 +52,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("ExpressionParsing")
 
-# pylint: disable=anomalous-backslash-in-string,import-outside-toplevel,too-many-branches,too-many-locals
 
 # region Filtering
 ###################################################################################
@@ -104,7 +103,6 @@ def filter_name(value: str) -> str:
 ###################################################################################
 
 
-# pylint: disable=too-many-statements
 def parse_call(
     expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
 ) -> Union[
@@ -257,7 +255,6 @@ def _user_defined_op_call(
 
 
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
-    # pylint: disable=too-many-nested-blocks,too-many-statements
     """
 
     Returns:

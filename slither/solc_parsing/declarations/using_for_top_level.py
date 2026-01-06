@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("UsingForTopLevelSolc")
 
 
-class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class UsingForTopLevelSolc(CallerContextExpression):
     """
     UsingFor class
     """

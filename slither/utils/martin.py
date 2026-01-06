@@ -106,7 +106,6 @@ class MartinMetrics:
                 abstract_contract_count += 1
         self.abstractness = float(abstract_contract_count / len(self.contracts))
 
-    # pylint: disable=too-many-branches
     def update_coupling(self) -> None:
         dependencies = {}
         for contract in self.contracts:

@@ -75,7 +75,7 @@ contract MyConc{
         """
         values_returned = []
         nodes_origin = {}
-        # pylint: disable=too-many-nested-blocks
+
         for n in f.nodes:
             for ir in n.irs:
                 if self._is_instance(ir):

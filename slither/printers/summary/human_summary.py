@@ -201,7 +201,7 @@ class PrinterHumanSummary(AbstractPrinter):
             ercs += contract.ercs()
         return list(set(ercs))
 
-    def _get_features(self, contract):  # pylint: disable=too-many-branches
+    def _get_features(self, contract):
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -296,7 +296,7 @@ class PrinterHumanSummary(AbstractPrinter):
         results["number_lines_assembly"] = total_asm_lines
         return txt, results
 
-    def output(self, _filename):  # pylint: disable=too-many-locals,too-many-statements
+    def output(self, _filename):
         """
         _filename is not used
             Args:
