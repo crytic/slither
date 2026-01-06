@@ -59,7 +59,7 @@ jobs:
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
-          uv venv          
+          uv venv
           uv pip install .
           source .venv/bin/activate || source .venv/Scripts/activate
           hash -r
