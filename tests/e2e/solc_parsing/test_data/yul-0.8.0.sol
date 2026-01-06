@@ -17,6 +17,7 @@ contract C {
             let aParamA := paramA
             let aRetA := retA
             let aLocalA := localA
+            let clzCount := clz(paramA)
 
             sstore(storA.slot, 0)
             sstore(offset, 0)
