@@ -85,6 +85,7 @@ jobs:
           elif [ ${{ matrix.os }} = "windows-2025" ]; then
             TEST_ARGS=()
           fi
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage
