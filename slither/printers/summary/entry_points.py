@@ -12,7 +12,6 @@ from slither.utils.tests_pattern import is_test_file
 
 
 class PrinterEntryPoints(AbstractPrinter):
-
     ARGUMENT = "entry-points"
     HELP = "Print all the state-changing entry point functions of the contracts"
 

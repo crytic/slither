@@ -53,7 +53,6 @@ The function will halt the execution, instead of returning a two uint."""
         results: List[Output] = []
         for c in self.contracts:
             for f in c.functions_declared:
-
                 if (
                     len(f.returns) == 2
                     and f.contains_assembly

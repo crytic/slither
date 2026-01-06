@@ -278,7 +278,7 @@ binary_ops = {
 }
 
 
-class YulBuiltin:  # pylint: disable=too-few-public-methods
+class YulBuiltin:
     def __init__(self, name: str) -> None:
         self._name = name
 

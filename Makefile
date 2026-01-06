@@ -2,6 +2,7 @@ SHELL := /bin/bash
 
 PY_MODULE := slither
 TEST_MODULE := tests
+SCRIPT_MODULE := scripts
 
 ALL_PY_SRCS := $(shell find $(PY_MODULE) -name '*.py') \
 	$(shell find tests -name '*.py')
@@ -49,23 +50,20 @@ run: $(VENV)/pyvenv.cfg
 	@. $(VENV_BIN)/activate && slither $(ARGS)
 
 $(VENV)/pyvenv.cfg: pyproject.toml
-	# Create our Python 3 virtual environment
-	python3 -m venv env
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/python -m pip install -e .[$(SLITHER_EXTRA)]
+	# Create virtual environment and install dependencies using uv
+	uv venv $(VENV)
+	uv sync --python $(VENV_BIN)/python --group $(SLITHER_EXTRA)
 
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		black --check . && \
-		pylint $(PY_MODULE) $(TEST_MODULE) 
-		# ruff $(ALL_PY_SRCS) && \
-		# mypy $(PY_MODULE) && 
+		ruff check $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE) && \
+		yamllint .github/
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		black .
+		ruff check --fix $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE)
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg
@@ -81,7 +79,7 @@ doc: $(VENV)/pyvenv.cfg
 .PHONY: package
 package: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		python3 -m build
+		uv build
 
 .PHONY: edit
 edit:

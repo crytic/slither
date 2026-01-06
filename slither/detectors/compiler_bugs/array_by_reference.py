@@ -1,6 +1,7 @@
 """
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
+
 from typing import List, Set, Tuple, Union
 
 from slither.core.declarations import Function
@@ -76,7 +77,6 @@ As a result, Bob's usage of the contract is incorrect."""
         # Loop through all functions in all contracts.
         for contract in contracts:
             for function in contract.functions_declared:
-
                 # Skip any constructor functions.
                 if function.is_constructor:
                     continue
@@ -112,17 +112,16 @@ As a result, Bob's usage of the contract is incorrect."""
             return results
 
         # Loop for each node in each function/modifier in each contract
-        # pylint: disable=too-many-nested-blocks
+
         for contract in contracts:
             for function in contract.functions_and_modifiers_declared:
                 for ir in [ir for _, ir in function.high_level_calls] + function.internal_calls:
-
                     # Verify this references a function in our array modifying functions collection.
                     if ir.function not in array_modifying_funcs:
                         continue
 
                     # Verify one of these parameters is an array in storage.
-                    for (param, arg) in zip(ir.function.parameters, ir.arguments):
+                    for param, arg in zip(ir.function.parameters, ir.arguments):
                         # Verify this argument is a variable that is an array type.
                         if not isinstance(arg, (StateVariable, LocalVariable)):
                             continue
