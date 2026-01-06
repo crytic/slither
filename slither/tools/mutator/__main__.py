@@ -342,7 +342,7 @@ def main() -> None:
         if total_mutant_counts[0] > 0:
             logger.info(
                 magenta(
-                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({round(100 * (total_mutant_counts[0] - uncaught_mutant_counts[0])/total_mutant_counts[0], 1)}% caught)"
+                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({round(100 * (total_mutant_counts[0] - uncaught_mutant_counts[0]) / total_mutant_counts[0], 1)}% caught)"
                 )
             )
         else:
@@ -351,7 +351,7 @@ def main() -> None:
         if total_mutant_counts[1] > 0:
             logger.info(
                 magenta(
-                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({round(100 * (total_mutant_counts[1] - uncaught_mutant_counts[1])/total_mutant_counts[1], 1)}% caught)"
+                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({round(100 * (total_mutant_counts[1] - uncaught_mutant_counts[1]) / total_mutant_counts[1], 1)}% caught)"
                 )
             )
         else:
@@ -360,7 +360,7 @@ def main() -> None:
         if total_mutant_counts[2] > 0:
             logger.info(
                 magenta(
-                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({round(100 * (total_mutant_counts[2] - uncaught_mutant_counts[2])/total_mutant_counts[2], 1)}% caught)\n"
+                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({round(100 * (total_mutant_counts[2] - uncaught_mutant_counts[2]) / total_mutant_counts[2], 1)}% caught)\n"
                 )
             )
         else:
