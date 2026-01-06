@@ -9,7 +9,7 @@ repos:
     rev: v0.14.10  # Use 'pre-commit autoupdate' to get the latest version
     hooks:
       # Run ruff linter
-      - id: ruff
+      - id: ruff-check
         name: ruff lint
         args: [--fix, --exit-non-zero-on-fix]
         types_or: [python, pyi]
