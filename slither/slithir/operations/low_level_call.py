@@ -15,7 +15,7 @@ from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 
-class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class LowLevelCall(Call, OperationWithLValue):
     """
     High level message call
     """
@@ -28,7 +28,6 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         result: Union[TupleVariable, TupleVariableSSA],
         type_call: str,
     ) -> None:
-        # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
         super().__init__()

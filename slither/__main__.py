@@ -13,7 +13,8 @@ import traceback
 from importlib import metadata
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
-from crytic_compile import CryticCompile, compile_all, cryticparser, is_supported
+import importlib_metadata
+from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile.platform.standard import generate_standard_export
 
@@ -165,14 +166,7 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    # Python 3.9 returns dict, Python 3.10+ returns EntryPoints object with select()
-    eps = metadata.entry_points()
-    if hasattr(eps, 'select'):
-        # Python 3.10+
-        entry_points = eps.select(group="slither_analyzer.plugin")
-    else:
-        # Python 3.9 - returns dict
-        entry_points = eps.get("slither_analyzer.plugin", [])
+    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
@@ -195,7 +189,6 @@ def get_detectors_and_printers() -> Tuple[
     return detectors, printers
 
 
-# pylint: disable=too-many-branches
 def choose_detectors(
     args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
 ) -> List[Type[AbstractDetector]]:
@@ -290,7 +283,6 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
     return []
 
 
-# pylint: disable=too-many-statements
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
@@ -524,8 +516,8 @@ def parse_args(
     group_misc.add_argument(
         "--json-types",
         help="Comma-separated list of result types to output to JSON, defaults to "
-        + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
-        + f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
+        + f"{','.join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. "
+        + f"Available types: {','.join(output_type for output_type in JSON_OUTPUT_TYPES)}",
         action="store",
         default=defaults_flag_in_config["json-types"],
     )
@@ -539,7 +531,7 @@ def parse_args(
 
     group_misc.add_argument(
         "--zip-type",
-        help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
+        help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
         action="store",
         default=defaults_flag_in_config["zip_type"],
     )
@@ -684,35 +676,29 @@ def parse_args(
     return args
 
 
-class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListDetectors(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListPrinters(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputMarkdown(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -726,7 +712,7 @@ class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
         parser.exit()
 
 
-class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputWiki(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -777,7 +763,6 @@ def main() -> None:
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
-# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main_impl(
     all_detector_classes: List[Type[AbstractDetector]],
     all_printer_classes: List[Type[AbstractPrinter]],
@@ -807,7 +792,7 @@ def main_impl(
     outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
     if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
+        to_log = f"Zip type not accepted, it must be one of {','.join(ZIP_TYPES_ACCEPTED.keys())}"
         logger.error(to_log)
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
@@ -820,7 +805,7 @@ def main_impl(
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for (l_name, l_level) in [
+    for l_name, l_level in [
         ("Slither", default_log),
         ("Contract", default_log),
         ("Function", default_log),

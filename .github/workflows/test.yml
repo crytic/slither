@@ -27,18 +27,18 @@ jobs:
         type: ["unit", "integration", "tool"]
         python: >-
           ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
-            || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
+          || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
+          activate-environment: true
 
       - name: Install dependencies
         run: |
-          pip install uv
-          uv sync --group dev
+          uv sync --group test
 
       - name: Setup node
         uses: actions/setup-node@v6
@@ -101,16 +101,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: 3.9
+          python-version: "3.9"
+          activate-environment: true
 
-      - run: pip install coverage[toml]
+      - run: uv pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: coverage-data-*
           merge-multiple: true

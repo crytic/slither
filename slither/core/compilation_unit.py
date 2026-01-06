@@ -45,7 +45,6 @@ class Language(Enum):
         raise ValueError(f"Unknown language: {label}")
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
     def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
         super().__init__()

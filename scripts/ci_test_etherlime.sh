@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # Source common CI test setup
 source "$(dirname "$0")/ci_test_common.sh"

@@ -15,13 +15,11 @@ class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class AbstractMutator(
-    metaclass=abc.ABCMeta
-):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class AbstractMutator(metaclass=abc.ABCMeta):
     NAME = ""
     HELP = ""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         compilation_unit: SlitherCompilationUnit,
         timeout: int,
@@ -79,10 +77,9 @@ class AbstractMutator(
         """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
-    # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         all_patches: Dict = {}
-        # pylint: disable=broad-exception-caught
+
         try:
             # call _mutate function from different mutators
             (all_patches) = self._mutate()

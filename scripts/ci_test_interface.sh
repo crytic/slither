@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # Source common CI test setup
 source "$(dirname "$0")/ci_test_common.sh"
@@ -9,18 +10,21 @@ DIR_TESTS="tests/tools/interface"
 
 solc-select use 0.8.19 --always-install
 
-#Test 1 - Etherscan target
-slither-interface WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-DIFF=$(diff crytic-export/interfaces/IWETH9.sol "$DIR_TESTS/test_1.sol" --strip-trailing-cr)
-if [  "$DIFF" != "" ]
-then
-    echo "slither-interface test 1 failed"
-    cat "crytic-export/interfaces/IWETH9.sol"
-    echo ""
-    cat "$DIR_TESTS/test_1.sol"
-    exit 255
+if [ "$GITHUB_ETHERSCAN" = "" ]; then
+    echo "skipping test 1, no api key for etherscan"
+else
+    #Test 1 - Etherscan target
+    slither-interface WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 --etherscan-apikey "$GITHUB_ETHERSCAN"
+    DIFF=$(diff crytic-export/interfaces/IWETH9.sol "$DIR_TESTS/test_1.sol" --strip-trailing-cr)
+    if [  "$DIFF" != "" ]
+    then
+        echo "slither-interface test 1 failed"
+        cat "crytic-export/interfaces/IWETH9.sol"
+        echo ""
+        cat "$DIR_TESTS/test_1.sol"
+        exit 255
+    fi
 fi
-
 
 #Test 2 - Local file target
 slither-interface Mock tests/tools/interface/ContractMock.sol

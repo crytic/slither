@@ -74,7 +74,6 @@ class ConstantFolding(ExpressionVisitor):
                 value = value & (2**256 - 1)
         return Literal(value, self._type)
 
-    # pylint: disable=import-outside-toplevel
     def _post_identifier(self, expression: Identifier) -> None:
         from slither.core.declarations.solidity_variables import SolidityFunction
         from slither.core.declarations.enum import Enum
@@ -113,7 +112,6 @@ class ConstantFolding(ExpressionVisitor):
             if not isinstance(expression.value, (Enum, TypeAlias, Contract)):
                 raise NotConstant
 
-    # pylint: disable=too-many-branches,too-many-statements
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
         expression_left = expression.expression_left
         expression_right = expression.expression_right
@@ -248,7 +246,6 @@ class ConstantFolding(ExpressionVisitor):
         from slither.core.declarations.enum import Enum
         from slither.core.solidity_types import TypeAlias
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             isinstance(expression.called, Identifier)
             and expression.called.value == SolidityFunction("type()")
@@ -293,7 +290,6 @@ class ConstantFolding(ExpressionVisitor):
     def _post_index_access(self, expression: expressions.IndexAccess) -> None:
         raise NotConstant
 
-    # pylint: disable=too-many-locals
     def _post_member_access(self, expression: expressions.MemberAccess) -> None:
         from slither.core.declarations import (
             SolidityFunction,
@@ -304,7 +300,6 @@ class ConstantFolding(ExpressionVisitor):
         )
         from slither.core.solidity_types import UserDefinedType, TypeAlias
 
-        # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",

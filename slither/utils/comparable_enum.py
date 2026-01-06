@@ -1,6 +1,6 @@
 from enum import Enum
 
-# pylint: disable=comparison-with-callable
+
 from typing import Any
 
 

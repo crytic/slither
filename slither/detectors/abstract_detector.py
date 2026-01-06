@@ -190,7 +190,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         """TODO Documentation"""
         return []
 
-    # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
 
@@ -235,7 +234,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             result["patches_diff"][file] = diff
 
                 except FormatImpossible as exception:
-                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{exception}')
+                    self._log(f"\nImpossible to patch:\n\t{result['description']}\t{exception}")
 
         if results and self.slither.triage_mode:
             while True:
