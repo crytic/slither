@@ -1282,7 +1282,9 @@ class FunctionSolc(CallerContextExpression):
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node and son not in visited:
+                # If the son is a TRY node it will be fixed later when _fix_try is called with that node
+                # otherwise we try to fix it multiple times. It can happen in the case of nested try-catch blocks.
+                if son != end_node and son not in visited and son.type != NodeType.TRY:
                     visited.add(son)
                     self._fix_catch(son, end_node, visited)
 
