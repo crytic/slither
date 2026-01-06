@@ -15,7 +15,7 @@
 ## Python guidelines
 - Always use `uv` instead of pip
 - Build with `hatchling` (`[build-system]` in pyproject.toml)
-- Use `astral-sh/ruff-action@v1` in CI
+- Use `astral-sh/ruff-action@v3` or newer in CI
 - Let tools auto-detect versions from pyproject.toml
 - Verify builds: `uv build`, `uv tool install dist/*.whl`, `uv tool install -e .`
 
