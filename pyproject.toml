@@ -1,22 +1,220 @@
-[tool.black]
-target-version = ["py36"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slither-analyzer"
+version = "0.11.3"
+description = "Slither is a Solidity and Vyper static analysis framework written in Python 3."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "AGPL-3.0"}
+authors = [
+    {name = "Trail of Bits"},
+]
+maintainers = [
+    {name = "Trail of Bits"},
+]
+urls = {Homepage = "https://github.com/crytic/slither"}
+keywords = ["solidity", "vyper", "static-analysis", "security", "ethereum", "smart-contracts"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "importlib_metadata>=3.6",
+    "packaging",
+    "prettytable>=3.10.2",
+    "pycryptodome>=3.4.6",
+    "crytic-compile>=0.3.9,<0.4.0",
+    "web3>=7.10,<8",
+    "eth-abi>=5.0.1",
+    "eth-typing>=5.0.0",
+    "eth-utils>=5.0.0",
+]
+
+# Development dependencies using PEP 735 dependency-groups
+[dependency-groups]
+lint = [
+    "ruff==0.14.10",
+    "yamllint==1.37.1"
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "deepdiff",
+    "numpy",
+    "coverage[toml]",
+    "filelock",
+    "pytest-insta",
+]
+doc = [
+    "pdoc",
+]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    {include-group = "doc"},
+    "openai",
+]
+
+[project.scripts]
+slither = "slither.__main__:main"
+slither-check-upgradeability = "slither.tools.upgradeability.__main__:main"
+slither-find-paths = "slither.tools.possible_paths.__main__:main"
+slither-simil = "slither.tools.similarity.__main__:main"
+slither-flat = "slither.tools.flattening.__main__:main"
+slither-format = "slither.tools.slither_format.__main__:main"
+slither-check-erc = "slither.tools.erc_conformance.__main__:main"
+slither-check-kspec = "slither.tools.kspec_coverage.__main__:main"
+slither-prop = "slither.tools.properties.__main__:main"
+slither-mutate = "slither.tools.mutator.__main__:main"
+slither-read-storage = "slither.tools.read_storage.__main__:main"
+slither-doctor = "slither.tools.doctor.__main__:main"
+slither-documentation = "slither.tools.documentation.__main__:main"
+slither-interface = "slither.tools.interface.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["slither"]
+
+[tool.ruff]
 line-length = 100
-[tool.pylint.messages_control]
-disable = """
-missing-module-docstring,
-missing-class-docstring,
-missing-function-docstring,
-unnecessary-lambda,
-cyclic-import,
-line-too-long,
-invalid-name,
-fixme,
-too-many-return-statements,
-too-many-ancestors,
-logging-fstring-interpolation,
-logging-not-lazy,
-duplicate-code,
-import-error,
-unsubscriptable-object,
-unnecessary-lambda-assignment
-"""
+# Target Python 3.9+ (current minimum version)
+target-version = "py39"
+# Additional exclusions beyond defaults and .gitignore
+extend-exclude = [
+    "docs/",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # Ruff-specific rules
+]
+# NOTE: When updating ruff version range, also update .pre-commit-config.yaml
+# by running: pre-commit autoupdate
+# Ignore rules to match previous black + pylint configuration
+ignore = [
+    # From pylint disabled rules
+    "E501",     # line-too-long (was disabled in pylint)
+    "F401",     # unused-import (similar to import-error tolerance)
+    "F841",     # unused-variable
+    "ARG001",   # unused-function-argument
+    "ARG002",   # unused-method-argument
+    "ARG003",   # unused-class-method-argument
+    "B008",     # function-call-in-default-argument
+    "B904",     # raise-without-from-inside-except
+    "C408",     # unnecessary-collection-call
+    "SIM102",   # collapsible-if (complexity tolerance)
+    "SIM103",   # needless-bool (allow explicit bool returns)
+    "SIM105",   # suppressible-exception
+    "SIM108",   # if-else-block-instead-of-if-exp (complexity tolerance)
+    "SIM114",   # if-with-same-arms
+    "SIM117",   # with-statement (complexity tolerance)
+    "TC001",    # typing-only-first-party-import
+    "TC002",    # typing-only-third-party-import
+    "TC003",    # typing-only-standard-library-import
+    "UP006",    # non-pep585-annotation (allow older style)
+    "UP007",    # non-pep604-annotation (allow older style)
+    "UP035",    # deprecated-import
+    "RUF001",   # ambiguous-unicode-character-string
+    "RUF002",   # ambiguous-unicode-character-docstring
+    "RUF003",   # ambiguous-unicode-character-comment
+    # Additional rules for compatibility
+    "B006",     # mutable-argument-default
+    "B007",     # unused-loop-control-variable
+    "B018",     # useless-expression
+    "C401",     # unnecessary-generator-set
+    "C403",     # unnecessary-list-comprehension-set
+    "SIM110",   # reimplemented-builtin
+    "SIM112",   # uncapitalized-environment-variables
+    # Disable additional rules to avoid code changes
+    "I001",     # unsorted-imports (453 issues)
+    "UP037",    # quoted-annotation (148 issues)
+    "RUF005",   # collection-literal-concatenation (57 issues)
+    "W291",     # trailing-whitespace (51 issues)
+    "E713",     # not-in-test (40 issues)
+    "RUF010",   # explicit-f-string-type-conversion (24 issues)
+    "C414",     # unnecessary-double-cast-or-process (20 issues)
+    "RUF015",   # unnecessary-iterable-allocation-for-first-element (15 issues)
+    "SIM910",   # dict-get-with-none-default (15 issues)
+    "E741",     # ambiguous-variable-name (14 issues)
+    "UP034",    # extraneous-parentheses (13 issues)
+    "UP045",    # non-pep604-annotation-optional (13 issues)
+    "RUF012",   # mutable-class-default (12 issues)
+    "E731",     # lambda-assignment (11 issues)
+    "RUF021",   # parenthesize-chained-operators (10 issues)
+    "UP015",    # redundant-open-modes (10 issues)
+    "RUF013",   # implicit-optional (7 issues)
+    "W293",     # blank-line-with-whitespace (7 issues)
+    "C405",     # unnecessary-literal-set (6 issues)
+    "UP012",    # unnecessary-encode-utf8 (6 issues)
+    "E722",     # bare-except (5 issues)
+    "C417",     # unnecessary-map (4 issues)
+    "C420",     # unnecessary-dict-comprehension-for-iterable (4 issues)
+    "RUF019",   # unnecessary-key-check (4 issues)
+    "RUF023",   # unsorted-dunder-slots (4 issues)
+    "SIM118",   # in-dict-keys (4 issues)
+    "E714",     # not-is-test (3 issues)
+    "F821",     # undefined-name (3 issues - might be false positives)
+    "RUF046",   # unnecessary-cast-to-int (3 issues)
+    "SIM401",   # if-else-block-instead-of-dict-get (3 issues)
+    "UP018",    # native-literals (2 issues)
+    "B011",     # assert-false (1 issue)
+    "B020",     # loop-variable-overrides-iterator (1 issue)
+    "B026",     # star-arg-unpacking-after-keyword-arg (1 issue)
+    "B034",     # re-sub-positional-args (1 issue)
+    "C400",     # unnecessary-generator-list (1 issue)
+    "C409",     # unnecessary-literal-within-tuple-call (1 issue)
+    "C416",     # unnecessary-comprehension (1 issue)
+    "E101",     # mixed-spaces-and-tabs (1 issue)
+    "E721",     # type-comparison (1 issue)
+    "SIM113",   # enumerate-for-loop (1 issue)
+    "SIM201",   # negate-equal-op (1 issue)
+    "SIM300",   # yoda-conditions (1 issue)
+    "TC005",    # empty-type-checking-block (1 issue)
+    "UP011",    # lru-cache-without-parameters (1 issue)
+    "UP022",    # replace-stdout-stderr (1 issue)
+    "UP031",    # printf-string-formatting (1 issue)
+]
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+# Allow common variable names that pylint was configured to accept
+allowed-confusables = ["'", "'", "–", "—"]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files can have more relaxed rules
+"tests/**/*.py" = [
+    "ARG",      # Unused arguments are OK in tests
+    "S101",     # assert is OK in tests
+    "SIM",      # Simplification rules can be relaxed in tests
+]
+# Scripts can have different rules
+"scripts/**/*.py" = [
+    "T201",     # print is OK in scripts
+]
+
+[tool.ruff.lint.isort]
+# Match the project's import style
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+known-first-party = ["slither"]
+known-third-party = ["crytic_compile"]

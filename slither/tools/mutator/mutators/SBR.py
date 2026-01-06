@@ -44,7 +44,7 @@ solidity_rules = [
 ]
 
 
-class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class SBR(AbstractMutator):
     NAME = "SBR"
     HELP = "Solidity Based Replacement"
 
@@ -52,9 +52,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
         result: Dict = {}
         variable: Variable
 
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue
@@ -83,9 +81,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                 line_no[0],
                             )
 
-        for (  # pylint: disable=too-many-nested-blocks
-            variable
-        ) in self.contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared:
             node = variable.node_initialization
             if node:
                 start = node.source_mapping.start

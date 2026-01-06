@@ -12,7 +12,7 @@ function_header_replacements = [
 ]
 
 
-class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class FHR(AbstractMutator):
     NAME = "FHR"
     HELP = "Function Header Replacement"
 

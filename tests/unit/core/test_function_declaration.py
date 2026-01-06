@@ -4,6 +4,7 @@ tests that `tests/test_function.sol` gets translated into correct
 `slither.core.declarations.Function` objects or its subclasses
 and that these objects behave correctly.
 """
+
 from pathlib import Path
 
 from slither import Slither
@@ -16,7 +17,6 @@ FUNC_DELC_TEST_ROOT = Path(TEST_DATA_DIR, "function_declaration")
 
 
 def test_functions(solc_binary_path):
-    # pylint: disable=too-many-statements
     solc_path = solc_binary_path("0.6.12")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function.sol").as_posix()
     slither = Slither(file, solc=solc_path)
@@ -305,7 +305,6 @@ def test_public_variable(solc_binary_path) -> None:
     assert var.type == ElementaryType("bytes32")
 
 
-# pylint: disable=too-many-statements
 def test_vyper_functions(slither_from_vyper_source) -> None:
     with slither_from_vyper_source(
         """

@@ -5,4 +5,4 @@ updates:
       directory: "/"
       target-branch: "dev"
       schedule:
-        interval: "weekly"
+          interval: "weekly"

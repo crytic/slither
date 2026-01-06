@@ -6,9 +6,7 @@ from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.state_variable import StateIRVariable
 
 
-class LocalIRVariable(
-    LocalVariable, SlithIRVariable
-):  # pylint: disable=too-many-instance-attributes
+class LocalIRVariable(LocalVariable, SlithIRVariable):
     def __init__(self, local_variable: LocalVariable) -> None:
         assert isinstance(local_variable, LocalVariable)
 
