@@ -8,18 +8,16 @@ from slither.core.solidity_types import ElementaryType
 literal_replacements = []
 
 
-class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class LIR(AbstractMutator):
     NAME = "LIR"
     HELP = "Literal Integer Replacement"
 
-    def _mutate(self) -> Dict:  # pylint: disable=too-many-branches
+    def _mutate(self) -> Dict:
         result: Dict = {}
         variable: Variable
 
         # Create fault for state variables declaration
-        for (  # pylint: disable=too-many-nested-blocks
-            variable
-        ) in self.contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared:
             if variable.initialized:
                 # Cannot remove the initialization of constant variables
                 if variable.is_constant:
@@ -53,9 +51,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                     line_no[0],
                                 )
 
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
             for variable in function.local_variables:
                 if variable.initialized and isinstance(variable.expression, Literal):
                     if isinstance(variable.type, ElementaryType):

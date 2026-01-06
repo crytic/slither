@@ -18,7 +18,7 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
     try:
         crytic_compile.CryticCompile(file_path, solc_remaps=mappings)
         return True
-    except:  # pylint: disable=bare-except
+    except:
         return False
 
 
@@ -82,7 +82,7 @@ def run_test_cmd(
 
 
 # return 0 if uncaught, 1 if caught, and 2 if compilation fails
-def test_patch(  # pylint: disable=too-many-arguments
+def test_patch(
     output_folder: Path,
     file: str,
     patch: Dict,
@@ -106,7 +106,6 @@ def test_patch(  # pylint: disable=too-many-arguments
 
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, timeout, file, False):
-
             create_mutant_file(output_folder, file, generator_name)
             logger.info(
                 f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"

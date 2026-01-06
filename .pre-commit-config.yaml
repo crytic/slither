@@ -13,11 +13,10 @@ repos:
         name: ruff lint
         args: [--fix, --exit-non-zero-on-fix]
         types_or: [python, pyi]
-      # Ruff formatter disabled to avoid code changes
-      # Uncomment to enable formatting in the future
-      # - id: ruff-format
-      #   name: ruff format
-      #   types_or: [python, pyi]
+      # Run ruff formatter
+      - id: ruff-format
+        name: ruff format
+        types_or: [python, pyi]
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint

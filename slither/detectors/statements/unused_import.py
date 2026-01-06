@@ -2,7 +2,7 @@ from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, Output
 from slither.core.scope.scope import FileScope
 
-# pylint: disable=protected-access,too-many-nested-blocks
+
 class UnusedImport(AbstractDetector):
     """
     Detector unused imports.
@@ -32,7 +32,7 @@ class UnusedImport(AbstractDetector):
     )
 
     @staticmethod
-    def _is_import_container(scope: FileScope) -> bool:  # pylint: disable=too-many-branches
+    def _is_import_container(scope: FileScope) -> bool:
         """
         Returns True if a given file (provided as a `FileScope` object) contains only `import` directives (and pragmas).
         Such a file doesn't need the imports it contains, but its purpose is to aggregate certain correlated imports.
@@ -63,7 +63,7 @@ class UnusedImport(AbstractDetector):
                 return False
         return True
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:
         results: List[Output] = []
         # This is computed lazily and then memoized so we need to trigger the computation.
         self.slither._compute_offsets_to_ref_impl_decl()

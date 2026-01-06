@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from slither.core.variables.structure_variable import StructureVariable
 
 
-# pylint: disable=too-many-arguments,too-many-locals,too-many-branches
 def generate_interface(
     contract: "Contract",
     unroll_structs: bool = True,
