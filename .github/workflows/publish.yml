@@ -19,7 +19,7 @@ jobs:
       - name: Build distributions
         run: uv build
       - name: Upload distributions
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: slither-dists
           path: dist/
@@ -34,7 +34,7 @@ jobs:
       - build-release
     steps:
       - name: fetch dists
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: slither-dists
           path: dist/

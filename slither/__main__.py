@@ -14,41 +14,42 @@ from importlib import metadata
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 import importlib_metadata
-from crytic_compile import cryticparser, CryticCompile
-from crytic_compile.platform.standard import generate_standard_export
+from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
-from crytic_compile import compile_all, is_supported
+from crytic_compile.platform.standard import generate_standard_export
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.exceptions import SlitherException
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output import (
-    output_to_json,
-    output_to_zip,
-    output_to_sarif,
-    ZIP_TYPES_ACCEPTED,
-    Output,
-)
-from slither.utils.output_capture import StandardOutputCapture
+from slither.utils import codex
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
+    DEFAULT_JSON_OUTPUT_TYPES,
+    JSON_OUTPUT_TYPES,
     FailOnLevel,
+    check_and_sanitize_markdown_root,
+    defaults_flag_in_config,
     output_detectors,
-    output_results_to_markdown,
     output_detectors_json,
     output_printers,
     output_printers_json,
+    output_results_to_markdown,
     output_to_markdown,
     output_wiki,
-    defaults_flag_in_config,
     read_config_file,
-    JSON_OUTPUT_TYPES,
-    DEFAULT_JSON_OUTPUT_TYPES,
-    check_and_sanitize_markdown_root,
 )
-from slither.exceptions import SlitherException
+from slither.utils.output import (
+    ZIP_TYPES_ACCEPTED,
+    Output,
+    output_to_json,
+    output_to_sarif,
+    output_to_zip,
+)
+from slither.utils.output_capture import StandardOutputCapture
+
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
