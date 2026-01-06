@@ -128,7 +128,6 @@ class AbstractMutator(metaclass=abc.ABCMeta):
                     else:
                         self.caught_mutant_counts[2] += 1
 
-
                 # record uncaught mutants to skip known-under-tested lines
                 if patch_was_caught == 0:
                     if self.NAME == "RR":
