@@ -1,6 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slither-analyzer"
+version = "0.11.3"
+description = "Slither is a Solidity and Vyper static analysis framework written in Python 3."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "AGPL-3.0"}
+authors = [
+    {name = "Trail of Bits"},
+]
+maintainers = [
+    {name = "Trail of Bits"},
+]
+urls = {Homepage = "https://github.com/crytic/slither"}
+keywords = ["solidity", "vyper", "static-analysis", "security", "ethereum", "smart-contracts"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "importlib_metadata>=3.6",
+    "packaging",
+    "prettytable>=3.10.2",
+    "pycryptodome>=3.4.6",
+    "crytic-compile>=0.3.9,<0.4.0",
+    "web3>=7.10,<8",
+    "eth-abi>=5.0.1",
+    "eth-typing>=5.0.0",
+    "eth-utils>=5.0.0",
+]
+
+# Development dependencies using PEP 735 dependency-groups
+[dependency-groups]
+lint = [
+    "black==22.3.0",
+    "pylint==3.0.3",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "deepdiff",
+    "orderly-set==5.3.2",  # Temporary fix for https://github.com/seperman/deepdiff/issues/539
+    "numpy",
+    "coverage[toml]",
+    "filelock",
+    "pytest-insta",
+]
+doc = [
+    "pdoc",
+]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    {include-group = "doc"},
+    "openai",
+]
+
+[project.scripts]
+slither = "slither.__main__:main"
+slither-check-upgradeability = "slither.tools.upgradeability.__main__:main"
+slither-find-paths = "slither.tools.possible_paths.__main__:main"
+slither-simil = "slither.tools.similarity.__main__:main"
+slither-flat = "slither.tools.flattening.__main__:main"
+slither-format = "slither.tools.slither_format.__main__:main"
+slither-check-erc = "slither.tools.erc_conformance.__main__:main"
+slither-check-kspec = "slither.tools.kspec_coverage.__main__:main"
+slither-prop = "slither.tools.properties.__main__:main"
+slither-mutate = "slither.tools.mutator.__main__:main"
+slither-read-storage = "slither.tools.read_storage.__main__:main"
+slither-doctor = "slither.tools.doctor.__main__:main"
+slither-documentation = "slither.tools.documentation.__main__:main"
+slither-interface = "slither.tools.interface.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["slither"]
+
+# Legacy linting config (black/pylint) - will be replaced with ruff in separate PR
 [tool.black]
-target-version = ["py36"]
+target-version = ["py38"]
 line-length = 100
+
 [tool.pylint.messages_control]
 disable = """
 missing-module-docstring,
