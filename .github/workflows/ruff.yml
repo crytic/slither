@@ -47,16 +47,14 @@ jobs:
       #     fi
       #     echo "✅ Formatting check passed"
 
-      - name: Set up Python for yamllint
-        uses: actions/setup-python@v5
+      - name: Install uv and Python for yamllint
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
+          activate-environment: true
 
       - name: Install and run yamllint
         run: |
-          # Use uv for fast installation
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          export PATH="$HOME/.local/bin:$PATH"
           uv tool install yamllint
           echo "::group::Running yamllint"
           uvx yamllint .github/ || YAML_EXIT=$?
