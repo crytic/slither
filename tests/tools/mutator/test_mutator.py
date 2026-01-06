@@ -31,7 +31,6 @@ def change_directory(new_dir):
 
 
 def test_get_mutators():
-
     mutators = _get_mutators(None)
     assert mutators
 
@@ -62,7 +61,6 @@ def test_get_mutators():
 )
 @pytest.mark.skip(reason="Slow test")
 def test_mutator(mock_args, solc_binary_path):  # pylint: disable=unused-argument
-
     with change_directory(TEST_DATA_DIR / "test_source_unit"):
         main()
 
@@ -84,7 +82,6 @@ def test_backup_source_file(solc_binary_path):
     not foundry_available or not project_ready, reason="requires Foundry and project setup"
 )
 def test_get_sol_file_list():
-
     project_directory = TEST_DATA_DIR / "test_source_unit"
 
     files = get_sol_file_list(project_directory, None)

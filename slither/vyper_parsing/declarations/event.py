@@ -1,5 +1,5 @@
 """
-    Event module
+Event module
 """
 
 from slither.core.variables.event_variable import EventVariable
@@ -17,7 +17,6 @@ class EventVyper:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, event: Event, event_def: EventDef) -> None:
-
         self._event = event
         self._event.name = event_def.name
         self._elemsNotParsed = event_def.body

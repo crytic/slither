@@ -1,6 +1,7 @@
 """
 Module detecting misuse of Boolean constants
 """
+
 from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node, NodeType
@@ -86,7 +87,6 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
 
             # Loop for every node in this function, looking for boolean constants
             for node in function.nodes:
-
                 # Do not report "while(true)"
                 if node.type == NodeType.IFLOOP and node.irs and len(node.irs) == 1:
                     ir = node.irs[0]
@@ -122,7 +122,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_constant_misuses(contract)
-            for (func, nodes) in boolean_constant_misuses:
+            for func, nodes in boolean_constant_misuses:
                 for node in nodes:
                     info: DETECTOR_INFO = [
                         func,

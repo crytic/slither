@@ -36,7 +36,6 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self, slither_parser: "VyperCompilationUnit", contract: Contract, module: Module
     ) -> None:
-
         self._contract: Contract = contract
         self._slither_parser: "VyperCompilationUnit" = slither_parser
         self._data = module
@@ -487,7 +486,6 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
             self._contract.events_as_dict[event.full_name] = event
 
     def parse_functions(self) -> None:
-
         for function in self._functionsNotParsed:
             func = FunctionContract(self._contract.compilation_unit)
             func.set_offset(function.src, self._contract.compilation_unit)
@@ -507,7 +505,6 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
             var_parser.analyze(self._contract)
 
     def analyze(self) -> None:
-
         for struct_parser in self._structures_parser:
             struct_parser.analyze(self._contract)
 

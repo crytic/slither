@@ -14,7 +14,6 @@ def get_evm_instructions(obj):
     assert isinstance(obj, (Function, Contract, Node))
 
     if KEY_EVM_INS not in obj.context:
-
         CFG = load_evm_cfg_builder()
 
         slither = obj.slither

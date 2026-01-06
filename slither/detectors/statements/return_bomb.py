@@ -15,7 +15,6 @@ from slither.utils.output import Output
 
 
 class ReturnBomb(AbstractDetector):
-
     ARGUMENT = "return-bomb"
     HELP = "A low level callee may consume all callers gas unexpectedly."
     IMPACT = DetectorClassification.LOW

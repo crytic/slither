@@ -1,6 +1,7 @@
 """
-    Node module
+Node module
 """
+
 from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
@@ -98,6 +99,7 @@ class NodeType(Enum):
 
 
 # endregion
+
 
 # I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
 # pylint: disable=no-member
@@ -847,9 +849,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
-
         for ir in self.irs:
-
             self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
 
             if isinstance(ir, OperationWithLValue):
@@ -1028,7 +1028,6 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                     self._ssa_vars_written.append(var)
 
     def update_read_write_using_ssa(self) -> None:
-
         for ir in self.irs_ssa:
             if isinstance(ir, PhiCallback):
                 continue

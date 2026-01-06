@@ -106,7 +106,6 @@ class VariableDeclarationSolc:
 
     def _handle_comment(self, attributes: Dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
-
             candidates = attributes["documentation"]["text"].split(",")
 
             for candidate in candidates:
@@ -127,9 +126,7 @@ class VariableDeclarationSolc:
         else:
             self._variable.visibility = "internal"
 
-    def _init_from_declaration(
-        self, var: Dict, init: Optional[Dict]
-    ) -> None:  # pylint: disable=too-many-branches
+    def _init_from_declaration(self, var: Dict, init: Optional[Dict]) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]

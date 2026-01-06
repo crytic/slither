@@ -123,9 +123,7 @@ def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMu
 
 
 class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         checks = _get_mutators(None)
         output_mutators(checks)
         parser.exit()
@@ -344,7 +342,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[0] > 0:
             logger.info(
                 magenta(
-                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0]/total_mutant_counts[0]}%)"
+                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0] / total_mutant_counts[0]}%)"
                 )
             )
         else:
@@ -353,7 +351,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[1] > 0:
             logger.info(
                 magenta(
-                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1]/total_mutant_counts[1]}%)"
+                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1] / total_mutant_counts[1]}%)"
                 )
             )
         else:
@@ -362,7 +360,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[2] > 0:
             logger.info(
                 magenta(
-                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2]/total_mutant_counts[2]}%)\n"
+                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2] / total_mutant_counts[2]}%)\n"
                 )
             )
         else:

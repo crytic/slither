@@ -163,7 +163,6 @@ def convert_assignment(
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-
     # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
         from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
@@ -271,7 +270,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
-
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -320,7 +318,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
-
         assert isinstance(expression, CallExpression)
 
         expression_called = expression.called

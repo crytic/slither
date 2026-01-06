@@ -1,5 +1,5 @@
 """
-    Check if an incorrect version of solc is used
+Check if an incorrect version of solc is used
 """
 
 import re

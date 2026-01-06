@@ -40,7 +40,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
         if convention == "l_O_I_should_not_be_used":
             # l_O_I_should_not_be_used cannot be automatically patched
             logger.info(
-                f'The following naming convention cannot be patched: \n{result["description"]}'
+                f"The following naming convention cannot be patched: \n{result['description']}"
             )
             continue
 
@@ -404,7 +404,6 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
             custom_type.type_from,
             custom_type.type_to,
         ]:
-
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.core.source_code[filename_source_code].encode("utf8")[

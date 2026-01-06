@@ -1,6 +1,7 @@
-""""
-    Contract module
+""" "
+Contract module
 """
+
 import logging
 from collections import defaultdict
 from pathlib import Path
@@ -515,9 +516,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         if self._state_variables_used_in_reentrant_targets is None:
             reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
-            variables_used: Dict[
-                StateVariable, Set[Union[StateVariable, "Function"]]
-            ] = defaultdict(set)
+            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = (
+                defaultdict(set)
+            )
             for function in reentrant_functions:
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
@@ -1042,7 +1043,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(StateVariable): List all of the state variables written
         """
         all_state_variables_writtens = [
-            f.all_state_variables_written() for f in self.functions + self.modifiers  # type: ignore
+            f.all_state_variables_written()
+            for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_written = [
             item for sublist in all_state_variables_writtens for item in sublist
@@ -1055,7 +1057,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(StateVariable): List all of the state variables read
         """
         all_state_variables_reads = [
-            f.all_state_variables_read() for f in self.functions + self.modifiers  # type: ignore
+            f.all_state_variables_read()
+            for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_read = [
             item for sublist in all_state_variables_reads for item in sublist
@@ -1448,9 +1451,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)  # type: ignore
@@ -1478,9 +1480,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             counter += 1
                     break
 
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES

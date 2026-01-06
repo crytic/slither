@@ -58,9 +58,9 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
         output[contract.name] = {}
 
         for func_or_modifier in contract.functions + contract.modifiers:
-            output[contract.name][
-                func_or_modifier.full_name
-            ] = func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            output[contract.name][func_or_modifier.full_name] = (
+                func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            )
 
     return output
 
@@ -620,7 +620,6 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
 
 if __name__ == "__main__":
-
     required_solcs = set()
     for test in ALL_TESTS:
         required_solcs |= set(test.solc_versions)

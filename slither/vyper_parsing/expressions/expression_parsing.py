@@ -76,7 +76,6 @@ def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
 def parse_expression(
     expression: ASTNode, caller_context: Union[FunctionContract, Contract]
 ) -> "Expression":
-
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
         literal.set_offset(expression.src, caller_context.compilation_unit)
@@ -351,9 +350,9 @@ def parse_expression(
             is_tuple = isinstance(rhs, TupleExpression)
             is_array = isinstance(rhs, Identifier) and isinstance(rhs.value.type, ArrayType)
             if is_array:
-                assert (
-                    rhs.value.type.is_fixed_array
-                ), "Dynamic arrays are not supported in comparison operators"
+                assert rhs.value.type.is_fixed_array, (
+                    "Dynamic arrays are not supported in comparison operators"
+                )
             if is_tuple or is_array:
                 length = len(rhs.expressions) if is_tuple else rhs.value.type.length_value.value
                 inner_op = (

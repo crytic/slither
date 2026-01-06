@@ -518,8 +518,8 @@ def parse_args(
     group_misc.add_argument(
         "--json-types",
         help="Comma-separated list of result types to output to JSON, defaults to "
-        + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
-        + f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
+        + f"{','.join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. "
+        + f"Available types: {','.join(output_type for output_type in JSON_OUTPUT_TYPES)}",
         action="store",
         default=defaults_flag_in_config["json-types"],
     )
@@ -533,7 +533,7 @@ def parse_args(
 
     group_misc.add_argument(
         "--zip-type",
-        help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
+        help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
         action="store",
         default=defaults_flag_in_config["zip_type"],
     )
@@ -679,18 +679,14 @@ def parse_args(
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
 
 
 class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
@@ -698,9 +694,7 @@ class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-meth
 
 
 class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
@@ -801,7 +795,7 @@ def main_impl(
     outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
     if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
+        to_log = f"Zip type not accepted, it must be one of {','.join(ZIP_TYPES_ACCEPTED.keys())}"
         logger.error(to_log)
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
@@ -814,7 +808,7 @@ def main_impl(
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for (l_name, l_level) in [
+    for l_name, l_level in [
         ("Slither", default_log),
         ("Contract", default_log),
         ("Function", default_log),

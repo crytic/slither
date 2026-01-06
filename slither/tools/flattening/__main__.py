@@ -112,7 +112,6 @@ def main() -> None:
     slither = Slither(args.filename, **vars(args))
 
     for compilation_unit in slither.compilation_units:
-
         flat = Flattening(
             compilation_unit,
             external_to_public=args.convert_external,

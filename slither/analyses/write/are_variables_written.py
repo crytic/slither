@@ -1,6 +1,7 @@
 """
-    Detect if all the given variables are written in all the paths of the function
+Detect if all the given variables are written in all the paths of the function
 """
+
 from collections import defaultdict
 from typing import Dict, Set, List, Any, Optional
 

@@ -1,6 +1,7 @@
 """
 Module detecting local variable shadowing
 """
+
 from typing import List, Tuple, Union
 
 from slither.core.declarations.contract import Contract

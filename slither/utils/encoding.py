@@ -56,7 +56,6 @@ def ntype(_type: Union[solidity_types.Type, str]) -> str:
 
 # pylint: disable=too-many-branches
 def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> str:
-
     # variables
     if isinstance(var, SlitherIRVariable.Constant):
         return f"constant({ntype(var.type)},{var.value})"

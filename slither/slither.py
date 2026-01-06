@@ -24,7 +24,6 @@ logger_printer = logging.getLogger("Printers")
 def _check_common_things(
     thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
 ) -> None:
-
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise SlitherError(
             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
@@ -88,9 +87,7 @@ def _update_file_scopes(
                 )
 
 
-class Slither(
-    SlitherCore
-):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches
+class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:

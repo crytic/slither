@@ -1,13 +1,14 @@
 """
-    Module detecting state uninitialized variables
-    Recursively check the called functions
+Module detecting state uninitialized variables
+Recursively check the called functions
 
-    The heuristic checks:
-    - state variables including mappings/refs
-    - LibraryCalls, InternalCalls, InternalDynamicCalls with storage variables
+The heuristic checks:
+- state variables including mappings/refs
+- LibraryCalls, InternalCalls, InternalDynamicCalls with storage variables
 
-    Only analyze "leaf" contracts (contracts that are not inherited by another contract)
+Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
+
 from typing import List, Tuple
 
 from slither.core.declarations import Function
@@ -143,7 +144,6 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         for c in self.compilation_unit.contracts_derived:
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
-
                 info: DETECTOR_INFO = [variable, " is never initialized. It is used in:\n"]
 
                 for f in functions:

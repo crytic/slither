@@ -1,6 +1,7 @@
 """
 Module detecting tautologies and contradictions based on types in comparison operations over integers
 """
+
 from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node
@@ -163,7 +164,7 @@ contract A {
         for contract in self.contracts:
             tautologies = self.detect_type_based_tautologies(contract)
             if tautologies:
-                for (func, nodes) in tautologies:
+                for func, nodes in tautologies:
                     for node in nodes:
                         info = [func, " contains a tautology or contradiction:\n"]
                         info += ["\t- ", node, "\n"]

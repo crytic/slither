@@ -22,7 +22,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
     required = erc_function.required
     events = erc_function.events
 
-    sig = f'{name}({",".join(parameters)})'
+    sig = f"{name}({','.join(parameters)})"
     function = contract.get_function_from_signature(sig)
 
     if not function:
@@ -33,7 +33,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
             "public",
             "external",
         ]:
-            txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
+            txt = f"[ ] {sig} is missing {'' if required else '(optional)'}"
             logger.info(txt)
             missing_func = output.Output(
                 txt, additional_fields={"function": sig, "required": required}
@@ -45,7 +45,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
         types = [str(x) for x in export_nested_types_from_variable(state_variable_as_function)]
 
         if types != parameters:
-            txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
+            txt = f"[ ] {sig} is missing {'' if required else '(optional)'}"
             logger.info(txt)
             missing_func = output.Output(
                 txt, additional_fields={"function": sig, "required": required}
@@ -115,7 +115,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
 
     if events:  # pylint: disable=too-many-nested-blocks
         for event in events:
-            event_sig = f'{event.name}({",".join(event.parameters)})'
+            event_sig = f"{event.name}({','.join(event.parameters)})"
 
             if not function:
                 txt = f"\t[ ] Must emit be view {event_sig}"
@@ -154,7 +154,7 @@ def _check_events(erc_event: ERC_EVENT, contract: Contract, ret: Dict[str, List]
     parameters = erc_event.parameters
     indexes = erc_event.indexes
 
-    sig = f'{name}({",".join(parameters)})'
+    sig = f"{name}({','.join(parameters)})"
     event = contract.get_event_from_signature(sig)
 
     if not event:
@@ -190,7 +190,6 @@ def generic_erc_checks(
     ret: Dict[str, List],
     explored: Optional[Set[Contract]] = None,
 ) -> None:
-
     if explored is None:
         explored = set()
 

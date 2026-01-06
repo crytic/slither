@@ -192,18 +192,14 @@ def choose_checks(
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         checks = _get_checks()
         output_detectors(checks)
         parser.exit()
 
 
 class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:  # pylint: disable=signature-differs
         checks = _get_checks()
         detector_types_json = output_detectors_json(checks)
         print(json.dumps(detector_types_json))
@@ -278,6 +274,7 @@ def _checks_on_contract_and_proxy(
 # region Main
 ###################################################################################
 ###################################################################################
+
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:
@@ -370,7 +367,7 @@ def main() -> None:
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
-        to_log = f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run'
+        to_log = f"{len(json_results['detectors'])} findings, {number_detectors_run} detectors run"
         logger.info(to_log)
         if args.json:
             output_to_json(args.json, None, json_results)

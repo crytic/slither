@@ -97,9 +97,7 @@ class Flattening:
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(
-        self, contract: Contract
-    ):  # pylint: disable=too-many-branches,too-many-statements
+    def _get_source_code(self, contract: Contract):  # pylint: disable=too-many-branches,too-many-statements
         """
         Save the source code of the contract in self._source_codes
         Patch the source code
@@ -461,7 +459,6 @@ class Flattening:
         zip: Optional[str] = None,  # pylint: disable=redefined-builtin
         zip_type: Optional[str] = None,
     ):
-
         if not self._export_path.exists():
             self._export_path.mkdir(parents=True)
 

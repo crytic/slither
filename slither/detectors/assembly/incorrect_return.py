@@ -68,14 +68,12 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
         results: List[Output] = []
         for c in self.contracts:
             for f in c.functions_and_modifiers_declared:
-
                 for ir in f.internal_calls:
                     if ir.node.sons:
                         function_called = ir.function
                         if isinstance(function_called, Function):
                             found = _assembly_node(function_called)
                             if found:
-
                                 info: DETECTOR_INFO = [
                                     f,
                                     " calls ",

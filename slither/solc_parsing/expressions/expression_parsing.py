@@ -103,6 +103,7 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
+
 # pylint: disable=too-many-statements
 def parse_call(
     expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
@@ -430,7 +431,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return assignement
 
     if name == "Literal":
-
         subdenomination = None
 
         assert "children" not in expression
@@ -590,7 +590,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # NewExpression is not a root expression, it's always the child of another expression
     if name == "NewExpression":
-
         if is_compact_ast:
             type_name = expression["typeName"]
         else:
@@ -623,7 +622,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return new
 
     if name == "ModifierInvocation":
-
         if is_compact_ast:
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
@@ -649,7 +647,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # Introduced with solc 0.8
     if name == "IdentifierPath":
-
         if caller_context.is_compact_ast:
             value = expression["name"]
 

@@ -196,7 +196,6 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 
 
 def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
-
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
     elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
@@ -447,7 +446,6 @@ def parse_type(
         return ArrayType(array_type, length)
 
     if t[key] == "Mapping":
-
         if is_compact_ast:
             mappingFrom = parse_type(t["keyType"], next_context)
             mappingTo = parse_type(t["valueType"], next_context)
@@ -460,7 +458,6 @@ def parse_type(
         return MappingType(mappingFrom, mappingTo)
 
     if t[key] == "FunctionTypeName":
-
         if is_compact_ast:
             params = t["parameterTypes"]
             return_values = t["returnParameterTypes"]

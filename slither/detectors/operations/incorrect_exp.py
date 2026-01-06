@@ -1,6 +1,7 @@
 """
 Module detecting incorrect operator usage for exponentiation where bitwise xor '^' is used instead of '**'
 """
+
 from typing import Tuple, List, Union
 
 from slither.core.cfg.node import Node
@@ -82,7 +83,7 @@ Alice deploys a contract in which `UINT_MAX` incorrectly uses `^` operator inste
         results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             res = _detect_incorrect_operator(c)
-            for (func, node) in res:
+            for func, node in res:
                 info: DETECTOR_INFO = [
                     func,
                     " has bitwise-xor operator ^ instead of the exponentiation operator **: \n",

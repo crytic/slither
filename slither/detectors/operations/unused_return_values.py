@@ -1,6 +1,7 @@
 """
 Module detecting unused return values from external calls
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType
@@ -103,7 +104,6 @@ contract MyConc{
             for f in c.functions_and_modifiers:
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-
                     for node in unused_return:
                         info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 

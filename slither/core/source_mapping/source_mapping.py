@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
 
+
 # pylint: disable=too-many-instance-attributes
 class Source:
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
@@ -57,7 +58,6 @@ class Source:
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
     def _get_lines_str(self, line_descr: str = "") -> str:
-
         line_prefix = self.compilation_unit.core.line_prefix
 
         lines = self.lines
@@ -157,9 +157,7 @@ def _compute_line(
     return list(range(start_line, end_line + 1)), starting_column, ending_column
 
 
-def _convert_source_mapping(
-    offset: str, compilation_unit: "SlitherCompilationUnit"
-) -> Source:  # pylint: disable=too-many-locals
+def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUnit") -> Source:  # pylint: disable=too-many-locals
     """
     Convert a text offset to a real offset
     see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings

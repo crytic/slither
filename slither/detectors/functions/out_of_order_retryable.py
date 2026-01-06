@@ -8,7 +8,6 @@ from slither.utils.output import Output
 
 
 class OutOfOrderRetryable(AbstractDetector):
-
     ARGUMENT = "out-of-order-retryable"
     HELP = "Out-of-order retryable transactions"
     IMPACT = DetectorClassification.MEDIUM

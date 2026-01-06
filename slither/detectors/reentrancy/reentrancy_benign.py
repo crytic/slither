@@ -1,9 +1,10 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import namedtuple, defaultdict
 from typing import DefaultDict, Set, List
 
@@ -106,14 +107,14 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         info += ["\t\t- ", call_list_info, "\n"]
             if calls != send_eth and send_eth:
                 info += ["\tExternal calls sending eth:\n"]
-                for (call_info, calls_list) in send_eth:
+                for call_info, calls_list in send_eth:
                     info += ["\t- ", call_info, "\n"]
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
@@ -132,7 +133,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
@@ -145,7 +146,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
-                for (call_info, calls_list) in calls:
+                for call_info, calls_list in calls:
                     res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
                     for call_list_info in calls_list:
                         if call_list_info != call_info:

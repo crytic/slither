@@ -106,7 +106,6 @@ def test_patch(  # pylint: disable=too-many-arguments
 
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, timeout, file, False):
-
             create_mutant_file(output_folder, file, generator_name)
             logger.info(
                 f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"

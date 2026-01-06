@@ -1,6 +1,7 @@
 """
 Module printing summary of the contract
 """
+
 import logging
 from typing import Tuple, List, Dict
 
@@ -339,12 +340,12 @@ class PrinterHumanSummary(AbstractPrinter):
 
         libs = self._standard_libraries()
         if libs:
-            txt += f'\nUse: {", ".join(libs)}\n'
+            txt += f"\nUse: {', '.join(libs)}\n"
             results["standard_libraries"] = [str(lib) for lib in libs]
 
         ercs = self._ercs()
         if ercs:
-            txt += f'ERCs: {", ".join(ercs)}\n'
+            txt += f"ERCs: {', '.join(ercs)}\n"
             results["ercs"] = [str(e) for e in ercs]
 
         table = MyPrettyTable(

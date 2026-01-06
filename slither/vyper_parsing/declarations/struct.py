@@ -12,7 +12,6 @@ class StructVyper:  # pylint: disable=too-few-public-methods
         st: Structure,
         struct: StructDef,
     ) -> None:
-
         self._structure = st
         st.name = struct.name
         st.canonical_name = struct.name + self._structure.contract.name

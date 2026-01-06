@@ -1,6 +1,7 @@
 """
-    Module printing evm mapping of the contract
+Module printing evm mapping of the contract
 """
+
 import logging
 from typing import Union, List, Dict
 

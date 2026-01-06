@@ -12,7 +12,6 @@ logger = logging.getLogger("Slither-simil")
 
 
 def test(args: Namespace) -> None:
-
     try:
         model = args.model
         model = load_model(model)

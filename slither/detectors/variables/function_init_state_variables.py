@@ -1,6 +1,7 @@
 """
 Module detecting state variables initializing from an immediate function call (prior to constructor run).
 """
+
 from typing import List
 
 from slither.core.declarations.contract import Contract
@@ -25,7 +26,6 @@ def detect_function_init_state_vars(contract: Contract) -> List[StateVariable]:
 
     # Loop for each state variable explicitly defined in this contract.
     for state_variable in contract.variables:
-
         # Skip this variable if it is inherited and not explicitly defined in this contract definition.
         if state_variable.contract != contract:
             continue

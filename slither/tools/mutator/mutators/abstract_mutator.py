@@ -15,9 +15,7 @@ class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class AbstractMutator(
-    metaclass=abc.ABCMeta
-):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     NAME = ""
     HELP = ""
 

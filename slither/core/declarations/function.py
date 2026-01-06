@@ -1,6 +1,7 @@
 """
-    Function module
+Function module
 """
+
 import logging
 from abc import abstractmethod, ABCMeta
 from collections import namedtuple
@@ -1838,7 +1839,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                     node, last_state_variables_instances, initial_state_variables_instances
                 )
             for ir in node.irs_ssa:
-
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
@@ -1873,7 +1873,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
-
         for node in self.nodes:
             node.slithir_generation()
 

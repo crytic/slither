@@ -73,11 +73,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
     # pylint: disable=too-many-branches,too-many-statements
     def _detect(self) -> List[Output]:
-
         results = []
         info: DETECTOR_INFO
         for contract in self.contracts:
-
             if not self.is_cap_words(contract.name):
                 info = ["Contract ", contract, " is not in CapWords\n"]
 

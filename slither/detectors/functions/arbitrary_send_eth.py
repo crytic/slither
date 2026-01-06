@@ -1,14 +1,15 @@
 """
-    Module detecting send to arbitrary address
+Module detecting send to arbitrary address
 
-    To avoid FP, it does not report:
-        - If msg.sender is used as index (withdraw situation)
-        - If the function is protected
-        - If the value sent is msg.value (repay situation)
-        - If there is a call to transferFrom
+To avoid FP, it does not report:
+    - If msg.sender is used as index (withdraw situation)
+    - If the function is protected
+    - If the value sent is msg.value (repay situation)
+    - If there is a call to transferFrom
 
-    TODO: dont report if the value is tainted by msg.value
+TODO: dont report if the value is tainted by msg.value
 """
+
 from typing import Any, Tuple, Union, List
 
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
@@ -138,8 +139,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
 
         for c in self.contracts:
             arbitrary_send_result = detect_arbitrary_send(c)
-            for (func, nodes) in arbitrary_send_result:
-
+            for func, nodes in arbitrary_send_result:
                 info = [func, " sends eth to arbitrary user\n"]
                 info += ["\tDangerous calls:\n"]
 

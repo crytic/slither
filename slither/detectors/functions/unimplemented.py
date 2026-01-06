@@ -7,6 +7,7 @@ Check for unimplemented functions that are never implemented
 Consider public state variables as implemented functions
 Do not consider fallback function or constructor
 """
+
 from typing import List, Set
 
 from slither.core.declarations import Function

@@ -12,7 +12,6 @@ from slither.utils.output import Output
 
 
 class OptimismDeprecation(AbstractDetector):
-
     ARGUMENT = "optimism-deprecation"
     HELP = "Detect when deprecated Optimism predeploy or function is used."
     IMPACT = DetectorClassification.LOW
