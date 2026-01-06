@@ -111,7 +111,7 @@ jobs:
       - run: uv pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: coverage-data-*
           merge-multiple: true
