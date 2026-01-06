@@ -1,0 +1,64 @@
+---
+# Pre-commit hooks for automated code quality checks
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10  # Use 'pre-commit autoupdate' to get the latest version
+    hooks:
+      # Run ruff linter
+      - id: ruff
+        name: ruff lint
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi]
+      # Ruff formatter disabled to avoid code changes
+      # Uncomment to enable formatting in the future
+      # - id: ruff-format
+      #   name: ruff format
+      #   types_or: [python, pyi]
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        name: yamllint
+        args: [-c=.yamllint]
+        types: [yaml]
+        exclude: ^(tests/|docs/)
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: trim trailing whitespace
+        exclude: ^(tests/|.*\.md$)
+      - id: end-of-file-fixer
+        name: fix end of files
+        exclude: ^(tests/|docs/)
+      - id: check-yaml
+        name: check yaml syntax
+        exclude: ^(tests/|docs/)
+      - id: check-added-large-files
+        name: check for large files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+        name: check for merge conflicts
+      - id: check-toml
+        name: check toml syntax
+      - id: debug-statements
+        name: check for debug statements
+        exclude: ^(tests/)
+      - id: mixed-line-ending
+        name: fix mixed line endings
+        args: [--fix=lf]
+
+# Configuration
+default_language_version:
+  python: python3.11
+
+# Run hooks on pre-commit and pre-push
+default_stages: [pre-commit, pre-push]

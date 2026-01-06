@@ -56,15 +56,13 @@ $(VENV)/pyvenv.cfg: pyproject.toml
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		black --check . && \
-		pylint $(PY_MODULE) $(TEST_MODULE) 
-		# ruff $(ALL_PY_SRCS) && \
-		# mypy $(PY_MODULE) && 
+		ruff check $(PY_MODULE) $(TEST_MODULE) && \
+		yamllint .github/
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		black .
+		ruff check --fix $(PY_MODULE) $(TEST_MODULE)
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg
