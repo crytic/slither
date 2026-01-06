@@ -512,4 +512,21 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "Timestamp.sol": {
+        "TimestampTests": {
+            "timestampArithmetic": {
+                "variables": {
+                    "TimestampTests.timestampArithmetic().future|future_1": {"range": "[86400, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "TimestampTests.timestampArithmetic().ts|ts_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129553535]", "overflow": "NO"},
+                    "block.timestamp": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129553535]", "overflow": "NO"},
+                }
+            },
+            "timestampAssignment": {
+                "variables": {
+                    "TimestampTests.timestampAssignment().ts|ts_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "block.timestamp": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+        },
+    },
 }
