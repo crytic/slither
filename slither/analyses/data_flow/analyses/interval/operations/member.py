@@ -135,4 +135,3 @@ class MemberHandler(BaseOperationHandler):
             lvalue=lvalue_name,
             member=struct_member_name,
         )
-

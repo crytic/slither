@@ -17,6 +17,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.calld
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.byte import (
     ByteHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.timestamp import (
+    TimestampHandler,
+)
 from slither.slithir.operations.solidity_call import SolidityCall
 
 from ..base import BaseOperationHandler
@@ -66,6 +69,11 @@ class SolidityCallHandler(BaseOperationHandler):
         # Handle low-level builtin byte(uint256,uint256).
         if "byte(" in function_full_name:
             ByteHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle timestamp() which returns block.timestamp.
+        if "timestamp()" in function_full_name:
+            TimestampHandler(self.solver).handle(operation, domain, node)
             return
 
         self.logger.error_and_raise(
