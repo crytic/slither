@@ -14,15 +14,9 @@ from slither.slithir.operations.solidity_call import SolidityCall
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
-# Timestamp bounds: reasonable range for block.timestamp
-# Min: Jan 1, 2020 (1577836800) - reasonable past bound
-# Max: Jan 1, 2125 (~4891881600) - about 100 years from now
-TIMESTAMP_MIN = 1577836800
-TIMESTAMP_MAX = 4891881600
-
 
 class TimestampHandler(BaseOperationHandler):
-    """Handle `timestamp()`, modeling block.timestamp as a uint256 within a reasonable time range."""
+    """Handle `timestamp()`, modeling block.timestamp as a uint256 with full range."""
 
     def handle(
         self,
@@ -58,7 +52,7 @@ class TimestampHandler(BaseOperationHandler):
         # Fetch existing tracked variable if present
         tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if tracked is None:
-            # Create a fresh tracked variable for the timestamp result
+            # Create a fresh tracked variable for the timestamp result (full uint256 range)
             tracked = IntervalSMTUtils.create_tracked_variable(
                 self.solver,
                 lvalue_name,
@@ -68,14 +62,6 @@ class TimestampHandler(BaseOperationHandler):
             if tracked is None:
                 return
             domain.state.set_range_variable(lvalue_name, tracked)
-
-        # Constrain timestamp to reasonable bounds [2020, 2125]
-        min_const = self.solver.create_constant(TIMESTAMP_MIN, tracked.sort)
-        max_const = self.solver.create_constant(TIMESTAMP_MAX, tracked.sort)
-
-        # Assert: TIMESTAMP_MIN <= timestamp <= TIMESTAMP_MAX
-        self.solver.assert_constraint(self.solver.bv_uge(tracked.term, min_const))
-        self.solver.assert_constraint(self.solver.bv_ule(tracked.term, max_const))
 
         # Timestamps don't overflow
         tracked.assert_no_overflow(self.solver)
