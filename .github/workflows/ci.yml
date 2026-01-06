@@ -35,15 +35,19 @@ jobs:
           # Requires nvm
           - os: windows-2022
             type: truffle
+          # fasttext fails to install on Windows
+          - os: windows-2022
+            type: simil
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v6
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
+          activate-environment: true
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          uv sync --group test
           solc-select use 0.8.0 --always-install
           solc-select use 0.7.0 --always-install
           solc-select use 0.5.1 --always-install
