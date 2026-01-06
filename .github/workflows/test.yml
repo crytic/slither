@@ -25,19 +25,20 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["unit", "integration", "tool"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+        python: >-
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]'))
+          || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v6
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python }}
-          cache: "pip"
-          cache-dependency-path: setup.py
+          activate-environment: true
 
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          uv sync --group test
 
       - name: Setup node
         uses: actions/setup-node@v6
@@ -101,12 +102,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v6
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: 3.8
+          python-version: "3.8"
+          activate-environment: true
 
-      - run: pip install coverage[toml]
+      - run: uv pip install coverage[toml]
 
       - name: download coverage data
         uses: actions/download-artifact@v6
