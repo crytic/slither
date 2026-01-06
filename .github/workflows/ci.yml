@@ -78,7 +78,5 @@ jobs:
           PYTHONUTF8: 1
           TEST_TYPE: ${{ matrix.type }}
           GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
-          # Export UV_RUN to use in scripts
-          UV_RUN: "uv run"
         run: |
           bash "scripts/ci_test_${TEST_TYPE}.sh"
