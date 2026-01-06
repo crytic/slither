@@ -612,8 +612,6 @@ def parse_args(
         default=defaults_flag_in_config["include_paths"],
     )
 
-    codex.init_parser(parser)
-
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
