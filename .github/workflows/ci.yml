@@ -27,7 +27,7 @@ jobs:
       matrix:
         os: >-
           ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]'))
-          || fromJSON('["ubuntu-latest", "windows-2022"]') }}
+          || fromJSON('["ubuntu-latest", "windows-2025"]') }}
         python: >-
           ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
           || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
@@ -43,10 +43,10 @@ jobs:
           - os: windows-2025
             type: dapp
           # Requires nvm
-          - os: windows-2022
+          - os: windows-2025
             type: truffle
           # fasttext fails to install on Windows
-          - os: windows-2022
+          - os: windows-2025
             type: simil
     steps:
       - uses: actions/checkout@v6
