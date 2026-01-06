@@ -529,4 +529,47 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "Unary.sol": {
+        "UnaryTests": {
+            "bitwiseNotConstant": {
+                "variables": {
+                    "UnaryTests.bitwiseNotConstant().x|x_1": {"range": "[115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "bitwiseNotUint8": {
+                "variables": {
+                    "UnaryTests.bitwiseNotUint8(uint8).result|result_1": {"range": "[0, 255]", "overflow": "NO"},
+                    "UnaryTests.bitwiseNotUint8(uint8).value|value_1": {"range": "[0, 255]", "overflow": "NO"},
+                }
+            },
+            "bitwiseNotVariable": {
+                "variables": {
+                    "UnaryTests.bitwiseNotVariable(uint256).result|result_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "UnaryTests.bitwiseNotVariable(uint256).value|value_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "complexUnary": {
+                "variables": {
+                    "UnaryTests.complexUnary(uint256,bool).a|a_1": {"range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).b|b_1": {"range": "[0, 1]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).notA|notA_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).notB|notB_1": {"range": "[0, 1]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).result|result_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).result|result_2": {"range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "UnaryTests.complexUnary(uint256,bool).result|result_3": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "logicalNotConstant": {
+                "variables": {
+                    "UnaryTests.logicalNotConstant().x|x_1": {"range": "[0, 0]", "overflow": "NO"},
+                }
+            },
+            "logicalNotVariable": {
+                "variables": {
+                    "UnaryTests.logicalNotVariable(bool).result|result_1": {"range": "[0, 1]", "overflow": "NO"},
+                    "UnaryTests.logicalNotVariable(bool).value|value_1": {"range": "[0, 1]", "overflow": "NO"},
+                }
+            },
+        },
+    },
 }
