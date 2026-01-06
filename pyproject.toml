@@ -43,14 +43,13 @@ dependencies = [
 [dependency-groups]
 lint = [
     "ruff==0.14.10",
-    "yamllint==1.35.1"
+    "yamllint==1.37.1"
 ]
 test = [
     "pytest",
     "pytest-cov",
     "pytest-xdist",
     "deepdiff",
-    "orderly-set==5.3.2",  # Temporary fix for https://github.com/seperman/deepdiff/issues/539
     "numpy",
     "coverage[toml]",
     "filelock",
