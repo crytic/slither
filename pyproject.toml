@@ -44,7 +44,7 @@ dependencies = [
 [dependency-groups]
 lint = [
     "ruff==0.14.10",
-    "yamllint==1.37.1"
+    "yamllint==1.35.1"
 ]
 test = [
     "pytest",
