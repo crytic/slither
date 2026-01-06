@@ -122,10 +122,8 @@ def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMu
     return detectors
 
 
-class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListMutators(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         checks = _get_mutators(None)
         output_mutators(checks)
         parser.exit()
@@ -139,7 +137,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> None:
     args = parse_args()
 
     # arguments
@@ -228,7 +226,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     # Keep a list of all already mutated contracts so we don't mutate them twice
     mutated_contracts: List[str] = []
 
-    for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
+    for filename in sol_file_list:
         file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
@@ -323,7 +321,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                     if comprehensive_flag:
                         dont_mutate_lines = []
 
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             logger.error(e)
             transfer_and_delete(files_dict)
 

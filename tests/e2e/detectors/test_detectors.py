@@ -14,7 +14,7 @@ from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
 
-class Test:  # pylint: disable=too-few-public-methods
+class Test:
     def __init__(
         self,
         detector: Type[AbstractDetector],
@@ -40,7 +40,7 @@ class Test:  # pylint: disable=too-few-public-methods
             self.additional_files = additional_files
 
 
-def set_solc(test_item: Test):  # pylint: disable=too-many-lines
+def set_solc(test_item: Test):
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
 
@@ -1945,7 +1945,7 @@ GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
-# pylint: disable=too-many-locals
+
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(

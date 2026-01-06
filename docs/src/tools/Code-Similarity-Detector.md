@@ -98,7 +98,7 @@ INFO:Slither-simil:Saving cache in cache.npz
 INFO:Slither-simil:Done!
 ```
 
-After it runs, the `slither-simil` will output the the trained model in `model.bin`, a cache of every function for use in test mode in `cache.npz`, and the SlithIR of every function for debugging in `last_data_train.txt`.
+After it runs, the `slither-simil` will output the trained model in `model.bin`, a cache of every function for use in test mode in `cache.npz`, and the SlithIR of every function for debugging in `last_data_train.txt`.
 
 ### Plot mode
 
@@ -109,7 +109,7 @@ Here's an example to plot all the functions named `add` from contracts named `Sa
 ```
 $ slither-simil plot etherscan_verified_contracts.bin --fname SafeMath.add --input cache.npz --nsamples 500
 INFO:Slither-simil:Loading data..
-INFO:Slither-simil:Procesing data..
+INFO:Slither-simil:Processing data..
 INFO:Slither-simil:Plotting data..
 INFO:Slither-simil:Saving figure to plot.png..
 ```
