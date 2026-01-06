@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Source common CI test setup
-source "$(dirname "$0")/ci_test_common.sh"
-
 ### Test slither-check-upgradeability
 
 DIR_TESTS="tests/tools/check_upgradeability"

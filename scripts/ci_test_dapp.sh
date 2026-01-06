@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Source common CI test setup
-source "$(dirname "$0")/ci_test_common.sh"
-
 ### Test Dapp integration
 
 # work around having two python versions loading libraries from each other in CI

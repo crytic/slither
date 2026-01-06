@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Source common CI test setup
-source "$(dirname "$0")/ci_test_common.sh"
-
 ### Test truffle integration
 
 mkdir test_truffle

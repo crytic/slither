@@ -3,8 +3,6 @@ set -euo pipefail
 
 ### Test
 
-# Source common CI test setup
-source "$(dirname "$0")/ci_test_common.sh"
 
 solc-select use 0.7.0
 
