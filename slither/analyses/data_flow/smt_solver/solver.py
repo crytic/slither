@@ -151,6 +151,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_not(self, term: SMTTerm) -> SMTTerm:
+        """Bitwise NOT for bitvectors."""
+        pass
+
+    @abstractmethod
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """
         (assert constraint)

@@ -20,6 +20,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
 from slither.analyses.data_flow.analyses.interval.operations.new_elementary_type import (
     NewElementaryTypeHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.unary import UnaryHandler
 from slither.analyses.data_flow.analyses.interval.operations.condition import ConditionHandler
 from slither.analyses.data_flow.analyses.interval.operations.member import MemberHandler
 from slither.slithir.operations.assignment import Assignment
@@ -36,6 +37,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.new_elementary_type import NewElementaryType
+from slither.slithir.operations.unary import Unary
 from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
@@ -82,6 +84,7 @@ class OperationHandlerRegistry:
         self.register(Phi, PhiHandler)
         self.register(TypeConversion, TypeConversionHandler)
         self.register(NewElementaryType, NewElementaryTypeHandler)
+        self.register(Unary, UnaryHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]

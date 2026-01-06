@@ -233,6 +233,10 @@ class Z3Solver(SMTSolver):
         """Concatenate two bitvectors."""
         return Concat(left, right)
 
+    def bv_not(self, term: SMTTerm) -> SMTTerm:
+        """Bitwise NOT for bitvectors."""
+        return ~term
+
     def maximize(self, term: SMTTerm) -> None:
         """Add maximization objective."""
         if not self.use_optimizer:
