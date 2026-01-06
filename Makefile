@@ -2,6 +2,7 @@ SHELL := /bin/bash
 
 PY_MODULE := slither
 TEST_MODULE := tests
+SCRIPT_MODULE := scripts
 
 ALL_PY_SRCS := $(shell find $(PY_MODULE) -name '*.py') \
 	$(shell find tests -name '*.py')
@@ -56,13 +57,13 @@ $(VENV)/pyvenv.cfg: pyproject.toml
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		ruff check $(PY_MODULE) $(TEST_MODULE) && \
+		ruff check $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE) && \
 		yamllint .github/
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		ruff check --fix $(PY_MODULE) $(TEST_MODULE)
+		ruff check --fix $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE)
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg
