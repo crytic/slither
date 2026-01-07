@@ -10,6 +10,8 @@ from slither.analyses.data_flow.analyses.interval.operations.base import BaseOpe
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.declarations.structure import Structure
 from slither.slithir.operations.member import Member
 
 if TYPE_CHECKING:
@@ -63,6 +65,15 @@ class MemberHandler(BaseOperationHandler):
             return
 
         struct_member_name = f"{struct_var_name}.{member_name}"
+
+        # If the base is a struct and not materialized, materialize its fields.
+        struct_type = getattr(struct_var, "type", None)
+        if (
+            isinstance(struct_type, UserDefinedType)
+            and isinstance(struct_type.type, Structure)
+            and IntervalSMTUtils.get_tracked_variable(domain, struct_member_name) is None
+        ):
+            self._materialize_struct_fields(domain, struct_var_name, struct_type.type)
 
         # Resolve the type for the struct member
         return_type: Optional[ElementaryType] = None
@@ -135,3 +146,37 @@ class MemberHandler(BaseOperationHandler):
             lvalue=lvalue_name,
             member=struct_member_name,
         )
+
+    def _materialize_struct_fields(
+        self, domain: "IntervalDomain", base_name: str, struct_type: Structure
+    ) -> None:
+        """Recursively create tracked variables for struct fields down to elementary leaves."""
+        if self.solver is None:
+            return
+
+        for member in struct_type.elems_ordered:
+            member_type = getattr(member, "type", None)
+            member_name = getattr(member, "name", None)
+            if member_name is None or member_type is None:
+                continue
+
+            member_base = f"{base_name}.{member_name}"
+
+            if isinstance(member_type, ElementaryType):
+                if IntervalSMTUtils.solidity_type_to_smt_sort(member_type) is None:
+                    continue
+                tracked = IntervalSMTUtils.get_tracked_variable(domain, member_base)
+                if tracked is None:
+                    tracked = IntervalSMTUtils.create_tracked_variable(
+                        self.solver, member_base, member_type
+                    )
+                    if tracked is None:
+                        continue
+                    domain.state.set_range_variable(member_base, tracked)
+                continue
+
+            if isinstance(member_type, UserDefinedType) and isinstance(member_type.type, Structure):
+                self._materialize_struct_fields(domain, member_base, member_type.type)
+                continue
+
+            # Skip unsupported member types (arrays/mappings) for now.

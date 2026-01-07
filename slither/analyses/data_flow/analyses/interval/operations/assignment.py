@@ -7,6 +7,8 @@ from slither.analyses.data_flow.smt_solver.types import SMTTerm
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.declarations.structure import Structure
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.constant import Constant
 
@@ -156,15 +158,47 @@ class AssignmentHandler(BaseOperationHandler):
 
         rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
         if rvalue_var is None:
-            self.logger.error_and_raise(
-                "Variable '{var_name}' not found in domain for assignment rvalue",
-                ValueError,
-                var_name=rvalue_name,
-                embed_on_error=True,
-                node=node,
-                operation=operation,
-                domain=domain,
+            # Guard: attempt to materialize struct fields when the rvalue is a struct.
+            rvalue_actual_type = getattr(rvalue, "type", None)
+            if isinstance(rvalue_actual_type, UserDefinedType) and isinstance(
+                rvalue_actual_type.type, Structure
+            ):
+                self._materialize_struct_fields(domain, rvalue_name, rvalue_actual_type.type)
+                return False
+
+            # Fallback: attempt to synthesize a tracked variable for supported elementary types.
+            candidate_type = (
+                IntervalSMTUtils.resolve_elementary_type(rvalue_actual_type) or rvalue_type
             )
+            if (
+                candidate_type is None
+                or IntervalSMTUtils.solidity_type_to_smt_sort(candidate_type) is None
+                or self.solver is None
+            ):
+                self.logger.error_and_raise(
+                    "Variable '{var_name}' not found in domain for assignment rvalue",
+                    ValueError,
+                    var_name=rvalue_name,
+                    embed_on_error=True,
+                    node=node,
+                    operation=operation,
+                    domain=domain,
+                )
+
+            rvalue_var = IntervalSMTUtils.create_tracked_variable(
+                self.solver, rvalue_name, candidate_type
+            )
+            if rvalue_var is None:
+                self.logger.error_and_raise(
+                    "Variable '{var_name}' not found and could not be synthesized for assignment rvalue",
+                    ValueError,
+                    var_name=rvalue_name,
+                    embed_on_error=True,
+                    node=node,
+                    operation=operation,
+                    domain=domain,
+                )
+            domain.state.set_range_variable(rvalue_name, rvalue_var)
 
         # Add constraint: lvalue == rvalue
         # First check if sizes match
@@ -218,6 +252,37 @@ class AssignmentHandler(BaseOperationHandler):
             lvalue_var.assert_no_overflow(self.solver)
 
         return True
+
+    def _materialize_struct_fields(
+        self, domain: "IntervalDomain", base_name: str, struct_type: Structure
+    ) -> None:
+        """Recursively create tracked variables for struct fields down to elementary leaves."""
+        if self.solver is None:
+            return
+
+        for member in struct_type.elems_ordered:
+            member_type = getattr(member, "type", None)
+            member_name = getattr(member, "name", None)
+            if member_name is None or member_type is None:
+                continue
+
+            member_base = f"{base_name}.{member_name}"
+
+            if isinstance(member_type, ElementaryType):
+                if IntervalSMTUtils.solidity_type_to_smt_sort(member_type) is None:
+                    continue
+                tracked = IntervalSMTUtils.create_tracked_variable(
+                    self.solver, member_base, member_type
+                )
+                if tracked:
+                    domain.state.set_range_variable(member_base, tracked)
+                continue
+
+            if isinstance(member_type, UserDefinedType) and isinstance(member_type.type, Structure):
+                self._materialize_struct_fields(domain, member_base, member_type.type)
+                continue
+
+            # Skip unsupported member types (arrays/mappings) for now.
 
     def _handle_constant_assignment(
         self,

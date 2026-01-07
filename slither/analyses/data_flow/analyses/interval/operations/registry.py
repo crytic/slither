@@ -24,6 +24,9 @@ from slither.analyses.data_flow.analyses.interval.operations.unary import UnaryH
 from slither.analyses.data_flow.analyses.interval.operations.condition import ConditionHandler
 from slither.analyses.data_flow.analyses.interval.operations.length import LengthHandler
 from slither.analyses.data_flow.analyses.interval.operations.member import MemberHandler
+from slither.analyses.data_flow.analyses.interval.operations.new_structure import (
+    NewStructureHandler,
+)
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.condition import Condition
@@ -39,6 +42,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.new_elementary_type import NewElementaryType
+from slither.slithir.operations.new_structure import NewStructure
 from slither.slithir.operations.unary import Unary
 from slither.slithir.operations.operation import Operation
 
@@ -87,6 +91,7 @@ class OperationHandlerRegistry:
         self.register(Phi, PhiHandler)
         self.register(TypeConversion, TypeConversionHandler)
         self.register(NewElementaryType, NewElementaryTypeHandler)
+        self.register(NewStructure, NewStructureHandler)
         self.register(Unary, UnaryHandler)
 
     def register(
