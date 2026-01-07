@@ -969,6 +969,7 @@ class Node(SourceMapping):
                 # If we read from a storage variable (outside of phi operator)
                 if isinstance(var, LocalIRVariable) and var.is_storage:
                     for refer_to in var.refers_to:
+                        # the following should always be true
                         if isinstance(refer_to, (StateIRVariable, LocalIRVariable)):
                             self._ssa_vars_read.append(refer_to)
 
