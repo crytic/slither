@@ -20,6 +20,10 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.byte 
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.timestamp import (
     TimestampHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory import (
+    MemoryLoadHandler,
+    MemoryStoreHandler,
+)
 from slither.slithir.operations.solidity_call import SolidityCall
 
 from ..base import BaseOperationHandler
@@ -74,6 +78,24 @@ class SolidityCallHandler(BaseOperationHandler):
         # Handle timestamp() which returns block.timestamp.
         if "timestamp()" in function_full_name:
             TimestampHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle low-level memory builtins (mstore/mstore8/mload).
+        if (
+            function_full_name.startswith("mstore(")
+            or function_full_name.startswith("mstore8(")
+            or function_full_name.startswith("mload(")
+        ):
+            # Branch: mstore8 uses a single byte, mstore uses a full word.
+            if function_full_name.startswith("mstore8("):
+                MemoryStoreHandler(self.solver, byte_size=1).handle(operation, domain, node)
+                return
+
+            if function_full_name.startswith("mstore("):
+                MemoryStoreHandler(self.solver, byte_size=32).handle(operation, domain, node)
+                return
+
+            MemoryLoadHandler(self.solver).handle(operation, domain, node)
             return
 
         self.logger.error_and_raise(
