@@ -35,7 +35,6 @@ class NodeVyper:
             self._unparsed_expression = None
 
         if self._node.expression:
-
             if self._node.type == NodeType.VARIABLE:
                 # Update the expression to be an assignment to the variable
                 _expression = AssignmentOperation(

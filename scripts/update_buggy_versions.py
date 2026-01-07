@@ -24,5 +24,4 @@ if __name__ == "__main__":
     bugs_by_version = organize_data(bug_data)
 
     with open(Path.cwd() / Path("slither/utils/buggy_versions.py"), "w", encoding="utf-8") as file:
-        file.write("# pylint: disable=too-many-lines\n")
         file.write(f"bugs_by_version = {bugs_by_version}")

@@ -1,5 +1,5 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
@@ -8,7 +8,6 @@ from slither.utils.output import Output
 
 
 class VariableOrder(AbstractPrinter):
-
     ARGUMENT = "variable-order"
     HELP = "Print the storage order of the state variables"
 

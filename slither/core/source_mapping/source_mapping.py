@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
 
-# pylint: disable=too-many-instance-attributes
+
 class Source:
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         self.start: int = 0
@@ -57,7 +57,6 @@ class Source:
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
     def _get_lines_str(self, line_descr: str = "") -> str:
-
         line_prefix = self.compilation_unit.core.line_prefix
 
         lines = self.lines
@@ -73,13 +72,20 @@ class Source:
         """
         Return the txt content of the Source
 
-        Returns:
+        Use this property instead of eg source_code[start:end]
+        Above will return incorrect content if source_code contains any unicode
+        because self.start and self.end are byte offsets, not char offsets
 
+        Returns: str
         """
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit
-        return self.compilation_unit.core.source_code[self.filename.absolute][self.start : self.end]
+        return (
+            self.compilation_unit.core.source_code[self.filename.absolute]
+            .encode("utf8")[self.start : self.end]
+            .decode("utf8")
+        )
 
     @property
     def content_hash(self) -> str:
@@ -150,9 +156,7 @@ def _compute_line(
     return list(range(start_line, end_line + 1)), starting_column, ending_column
 
 
-def _convert_source_mapping(
-    offset: str, compilation_unit: "SlitherCompilationUnit"
-) -> Source:  # pylint: disable=too-many-locals
+def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUnit") -> Source:
     """
     Convert a text offset to a real offset
     see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
@@ -226,6 +230,6 @@ class SourceMapping(Context):
     def pattern(self) -> str:
         if self._pattern is None:
             # Add " " to look after the first solidity keyword
-            return f" {self.name}"  # pylint: disable=no-member
+            return f" {self.name}"
 
         return self._pattern

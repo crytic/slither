@@ -9,13 +9,12 @@ from slither.utils.output import Output
 
 
 class ChainlinkFeedRegistry(AbstractDetector):
-
     ARGUMENT = "chainlink-feed-registry"
     HELP = "Detect when chainlink feed registry is used"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry-usage"
 
     WIKI_TITLE = "Chainlink Feed Registry usage"
     WIKI_DESCRIPTION = "Detect when Chainlink Feed Registry is used. At the moment is only available on Ethereum Mainnet."
@@ -37,7 +36,7 @@ contract A {
         // Do price validation
         return uint256(price);
     }
-}    
+}
 ```
 If the contract is deployed on a different chain than Ethereum Mainnet the `getPrice` function will revert.
 """

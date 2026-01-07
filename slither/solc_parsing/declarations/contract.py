@@ -31,8 +31,6 @@ if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
 
-# pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
-
 
 class ContractSolc(CallerContextExpression):
     def __init__(
@@ -53,7 +51,7 @@ class ContractSolc(CallerContextExpression):
         self._enumsNotParsed: List[Dict] = []
         self._structuresNotParsed: List[Dict] = []
         self._usingForNotParsed: List[Dict] = []
-        self._customErrorParsed: List[Dict] = []
+        self._customErrorsNotParsed: List[Dict] = []
 
         self._functions_parser: List[FunctionSolc] = []
         self._modifiers_parser: List[ModifierSolc] = []
@@ -190,7 +188,7 @@ class ContractSolc(CallerContextExpression):
                         "name"
                     ]
 
-    def _parse_base_contract_info(self) -> None:  # pylint: disable=too-many-branches
+    def _parse_base_contract_info(self) -> None:
         # Parse base contracts (immediate, non-linearized)
         if self.is_compact_ast:
             # Parse base contracts + constructors in compact-ast
@@ -254,7 +252,6 @@ class ContractSolc(CallerContextExpression):
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self) -> None:
-        # pylint: disable=too-many-branches
         if not self.get_children() in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
@@ -277,12 +274,19 @@ class ContractSolc(CallerContextExpression):
             elif item[self.get_key()] == "UsingForDirective":
                 self._usingForNotParsed.append(item)
             elif item[self.get_key()] == "ErrorDefinition":
-                self._customErrorParsed.append(item)
+                self._customErrorsNotParsed.append(item)
             elif item[self.get_key()] == "UserDefinedValueTypeDefinition":
                 self._parse_type_alias(item)
             else:
                 raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
+
+    def parse_type_alias(self) -> None:
+        # We keep parse_ in the name just to keep the naming convention even if we already parsed them initially.
+        # Here we only update the current contract type_aliases_as_dict with the fathers' values
+        # It's useful to keep using the same pattern anyway as we know all the fathers have been analyzed
+        for father in self._contract.inheritance_reverse:
+            self._contract.type_aliases_as_dict.update(father.type_aliases_as_dict)
 
     def _parse_type_alias(self, item: Dict) -> None:
         assert "name" in item
@@ -307,7 +311,6 @@ class ContractSolc(CallerContextExpression):
         self._contract.file_scope.type_aliases[alias_canonical] = type_alias
 
     def _parse_struct(self, struct: Dict) -> None:
-
         st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.compilation_unit)
@@ -337,9 +340,9 @@ class ContractSolc(CallerContextExpression):
         for father in self._contract.inheritance_reverse:
             self._contract.custom_errors_as_dict.update(father.custom_errors_as_dict)
 
-        for custom_error in self._customErrorParsed:
+        for custom_error in self._customErrorsNotParsed:
             self._parse_custom_error(custom_error)
-        self._customErrorParsed = []
+        self._customErrorsNotParsed = []
 
     def parse_state_variables(self) -> None:
         for father in self._contract.inheritance_reverse:
@@ -404,7 +407,6 @@ class ContractSolc(CallerContextExpression):
         self._slither_parser.add_function_or_modifier_parser(func_parser)
 
     def parse_functions(self) -> None:
-
         for function in self._functionsNotParsed:
             self._parse_function(function)
 
@@ -479,7 +481,7 @@ class ContractSolc(CallerContextExpression):
             self.log_incorrect_parsing(f"Missing params {e}")
         self._functions_no_params = []
 
-    def _analyze_params_element(  # pylint: disable=too-many-arguments
+    def _analyze_params_element(
         self,
         Cls: Callable,
         Cls_parser: Callable,
@@ -521,7 +523,7 @@ class ContractSolc(CallerContextExpression):
         all_elements[elem.canonical_name] = elem
         parser.append(elem_parser)
 
-    def _analyze_params_elements(  # pylint: disable=too-many-arguments,too-many-locals
+    def _analyze_params_elements(
         self,
         elements_no_params: Sequence[FunctionSolc],
         getter: Callable[["ContractSolc"], List[FunctionSolc]],
@@ -573,12 +575,12 @@ class ContractSolc(CallerContextExpression):
                 }
 
             for element_parser in elements_no_params:
-                accessible_elements[
-                    element_parser.underlying_function.full_name
-                ] = element_parser.underlying_function
-                all_elements[
-                    element_parser.underlying_function.canonical_name
-                ] = element_parser.underlying_function
+                accessible_elements[element_parser.underlying_function.full_name] = (
+                    element_parser.underlying_function
+                )
+                all_elements[element_parser.underlying_function.canonical_name] = (
+                    element_parser.underlying_function
+                )
 
             for element in all_elements.values():
                 if accessible_elements[element.full_name] != all_elements[element.canonical_name]:
@@ -607,7 +609,7 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing state variable {e}")
 
-    def analyze_using_for(self) -> None:  # pylint: disable=too-many-branches
+    def analyze_using_for(self) -> None:
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)
@@ -793,7 +795,7 @@ class ContractSolc(CallerContextExpression):
         self._enumsNotParsed = []
         self._structuresNotParsed = []
         self._usingForNotParsed = []
-        self._customErrorParsed = []
+        self._customErrorsNotParsed = []
 
     def _handle_comment(self, attributes: Dict) -> None:
         """

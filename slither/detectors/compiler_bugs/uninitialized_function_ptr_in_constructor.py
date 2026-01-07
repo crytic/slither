@@ -1,6 +1,7 @@
 """
 Module detecting uninitialized function pointer calls in constructors
 """
+
 from typing import Any, List, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,

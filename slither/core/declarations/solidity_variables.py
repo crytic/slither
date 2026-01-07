@@ -83,7 +83,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodeCall()": ["bytes"],
     "bytes.concat()": ["bytes"],
     "string.concat()": ["string"],
-    # abi.decode returns an a list arbitrary types
+    # abi.decode returns a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
     "type()": [],  # 0.6.8 changed type(address) to type()
@@ -235,7 +235,7 @@ class SolidityFunction(SourceMapping):
 
 
 class SolidityCustomRevert(SolidityFunction):
-    def __init__(self, custom_error: CustomError) -> None:  # pylint: disable=super-init-not-called
+    def __init__(self, custom_error: CustomError) -> None:
         self._name = "revert " + custom_error.solidity_signature
         self._custom_error = custom_error
         self._return_type: List[Union[TypeInformation, ElementaryType]] = []

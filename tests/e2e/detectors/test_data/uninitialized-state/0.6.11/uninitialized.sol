@@ -56,3 +56,11 @@ contract Test2 {
     }
 
 }
+
+contract Test3 {
+    string s;
+
+    function a() public {
+        string storage ss = s;
+    }
+}

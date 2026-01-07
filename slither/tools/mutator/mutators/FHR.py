@@ -12,7 +12,7 @@ function_header_replacements = [
 ]
 
 
-class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class FHR(AbstractMutator):
     NAME = "FHR"
     HELP = "Function Header Replacement"
 
@@ -22,7 +22,7 @@ class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
         for function in self.contract.functions_and_modifiers_declared:
             start = function.source_mapping.start
             stop = start + function.source_mapping.content.find("{")
-            old_str = self.in_file_str[start:stop]
+            old_str = function.source_mapping.content
             line_no = function.source_mapping.lines
             if not line_no[0] in self.dont_mutate_line:
                 for value in function_header_replacements:

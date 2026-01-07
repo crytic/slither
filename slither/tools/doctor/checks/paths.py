@@ -7,28 +7,6 @@ import sysconfig
 from slither.utils.colors import yellow, green, red
 
 
-def path_is_relative_to(path: Path, relative_to: Path) -> bool:
-    """
-    Check if a path is relative to another one.
-
-    Compatibility wrapper for Path.is_relative_to
-    """
-    if sys.version_info >= (3, 9, 0):
-        return path.is_relative_to(relative_to)
-
-    path_parts = path.resolve().parts
-    relative_to_parts = relative_to.resolve().parts
-
-    if len(path_parts) < len(relative_to_parts):
-        return False
-
-    for (a, b) in zip(path_parts, relative_to_parts):
-        if a != b:
-            return False
-
-    return True
-
-
 def check_path_config(name: str) -> Tuple[bool, Optional[Path], List[Path]]:
     """
     Check if a given Python binary/script is in PATH.
@@ -50,9 +28,9 @@ def check_path_config(name: str) -> Tuple[bool, Optional[Path], List[Path]]:
     if binary_path is not None:
         binary_path = Path(binary_path).resolve()
         this_code = Path(__file__).resolve()
-        this_binary = list(filter(lambda x: path_is_relative_to(this_code, x[1]), possible_paths))
+        this_binary = list(filter(lambda x: this_code.is_relative_to(x[1]), possible_paths))
         binary_here = len(this_binary) > 0 and all(
-            path_is_relative_to(binary_path, script) for script, _ in this_binary
+            binary_path.is_relative_to(script) for script, _ in this_binary
         )
 
     return binary_here, binary_path, list(set(script for script, _ in possible_paths))

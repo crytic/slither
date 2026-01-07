@@ -1,0 +1,1 @@
+Error, MyCoin overrides _mint
