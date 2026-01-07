@@ -294,13 +294,13 @@ def generate_ssa_irs(
                         if isinstance(new_ir.rvalue, ReferenceVariable):
                             refers_to = new_ir.rvalue.points_to_origin
                             new_ir.lvalue.add_refers_to(refers_to)
-                        # Discard Constant
+                        # Discard Constant and TopLevelVariable
                         # This can happen on yul, like
                         # assembly { var.slot = some_value }
                         # Here we do not keep track of the references as we do not track
                         # such low level manipulation
                         # However we could extend our storage model to do so in the future
-                        elif not isinstance(new_ir.rvalue, Constant):
+                        elif not isinstance(new_ir.rvalue, (Constant, TopLevelVariable)):
                             new_ir.lvalue.add_refers_to(new_ir.rvalue)
 
     for succ in node.dominator_successors:
