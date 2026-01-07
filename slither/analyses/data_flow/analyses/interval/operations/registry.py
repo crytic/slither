@@ -27,6 +27,7 @@ from slither.analyses.data_flow.analyses.interval.operations.member import Membe
 from slither.analyses.data_flow.analyses.interval.operations.new_structure import (
     NewStructureHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.unpack import UnpackHandler
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.condition import Condition
@@ -44,6 +45,7 @@ from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.new_elementary_type import NewElementaryType
 from slither.slithir.operations.new_structure import NewStructure
 from slither.slithir.operations.unary import Unary
+from slither.slithir.operations.unpack import Unpack
 from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
@@ -93,6 +95,7 @@ class OperationHandlerRegistry:
         self.register(NewElementaryType, NewElementaryTypeHandler)
         self.register(NewStructure, NewStructureHandler)
         self.register(Unary, UnaryHandler)
+        self.register(Unpack, UnpackHandler)
 
     def register(
         self, operation_type: Type[Operation], handler_class: Type["BaseOperationHandler"]
