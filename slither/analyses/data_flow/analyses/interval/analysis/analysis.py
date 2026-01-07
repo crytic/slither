@@ -125,8 +125,8 @@ class IntervalAnalysis(Analysis):
         if domain.variant != DomainVariant.STATE:
             return domain
 
-        # Create a deep copy to avoid mutating the original
-        filtered_domain = domain.deep_copy()
+        # Create a fresh branch domain so each branch carries only its own constraints
+        filtered_domain = self._clone_branch_domain(domain)
 
         # Get the condition value (e.g., TMP_0 which holds the comparison result)
         condition_value = condition.value
@@ -173,3 +173,14 @@ class IntervalAnalysis(Analysis):
 
         # No constraint could be built - return domain without path constraint
         return filtered_domain
+
+    def _clone_branch_domain(self, domain: IntervalDomain) -> IntervalDomain:
+        """Return a branch-specific clone with cleared path constraints."""
+        # Guard: ensure we only clone interval domains
+        if not isinstance(domain, IntervalDomain):
+            return domain
+
+        branch_domain = domain.deep_copy()
+        # Clear existing path constraints so we don't mix true/false branches
+        branch_domain.state.path_constraints = []
+        return branch_domain

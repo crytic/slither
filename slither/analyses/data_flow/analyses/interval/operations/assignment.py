@@ -198,6 +198,11 @@ class AssignmentHandler(BaseOperationHandler):
         if rvalue_binary_op is not None:
             domain.state.set_binary_operation(lvalue_name, rvalue_binary_op)
 
+        # Propagate bytes_length metadata if rvalue has it (for Length handler)
+        rvalue_bytes_length = rvalue_var.base.metadata.get("bytes_length")
+        if rvalue_bytes_length is not None:
+            lvalue_var.base.metadata["bytes_length"] = rvalue_bytes_length
+
         # Handle overflow propagation
         if self._is_temporary_name(rvalue_name):
             # Temporary from an operation - copy its overflow status
@@ -227,19 +232,35 @@ class AssignmentHandler(BaseOperationHandler):
 
         # Get constant value
         const_value = constant.value
+        original_string_value = None
+
         # Convert hex string constants (e.g., bytes32) to integers
         if isinstance(const_value, str):
-            # Handle hex strings like "0x1234..." for bytes types
+            original_string_value = const_value
+            # Try to convert to integer - first try hex, then try ASCII string
             try:
                 const_value = convert_string_to_int(const_value)
             except (ValueError, TypeError):
-                self.logger.debug(
-                    "Unable to convert constant string '%s' to integer; skipping.",
-                    const_value,
-                )
-                return
+                # Not a hex string - try converting as ASCII string
+                ascii_value = self._string_to_int(original_string_value)
+                if ascii_value is not None:
+                    const_value = ascii_value
+                else:
+                    self.logger.debug(
+                        "Unable to convert constant string '%s' to integer; skipping.",
+                        const_value,
+                    )
+                    return
+
         if not isinstance(const_value, int):
             return
+
+        # Store byte length metadata for bytes/string constants
+        # This allows the Length handler to get the actual length
+        if original_string_value is not None:
+            byte_length = self._compute_byte_length(original_string_value)
+            if byte_length is not None:
+                lvalue_var.base.metadata["bytes_length"] = byte_length
 
         # Create constant term using solver's create_constant method
         const_term: SMTTerm = self.solver.create_constant(const_value, lvalue_var.sort)
@@ -250,6 +271,30 @@ class AssignmentHandler(BaseOperationHandler):
 
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
+
+    @staticmethod
+    def _compute_byte_length(string_value: str) -> Optional[int]:
+        """Compute the byte length of a hex string or regular string constant."""
+        # Handle hex strings (0x prefix)
+        if string_value.startswith("0x") or string_value.startswith("0X"):
+            hex_part = string_value[2:]
+            # Each 2 hex chars = 1 byte
+            return len(hex_part) // 2
+        # Handle regular string literals
+        return len(string_value)
+
+    @staticmethod
+    def _string_to_int(string_value: str) -> Optional[int]:
+        """Convert a regular ASCII string to its big-endian integer representation."""
+        # Handle hex strings with convert_string_to_int
+        if string_value.startswith("0x") or string_value.startswith("0X"):
+            return None  # Let convert_string_to_int handle it
+        # Convert ASCII string to bytes, then to big-endian integer
+        try:
+            string_bytes = string_value.encode("utf-8")
+            return int.from_bytes(string_bytes, byteorder="big")
+        except (UnicodeEncodeError, ValueError):
+            return None
 
     @staticmethod
     def _is_temporary_name(name: str) -> bool:

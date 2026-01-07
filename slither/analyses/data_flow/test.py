@@ -161,6 +161,40 @@ def solve_variable_range(
 
         return opt
 
+    def _fallback_range() -> tuple[Optional[Dict], Optional[Dict]]:
+        """Return a conservative range using type bounds when optimization fails."""
+        # Guard: need bit width to build a range
+        if bit_width is None:
+            return None, None
+
+        # Compute default min/max from bit width and signedness
+        unsigned_min = 0
+        unsigned_max = (1 << bit_width) - 1
+        signed_min = -(1 << (bit_width - 1))
+        signed_max = (1 << (bit_width - 1)) - 1
+
+        # Choose bounds based on signedness
+        fallback_min = signed_min if is_signed else unsigned_min
+        fallback_max = signed_max if is_signed else unsigned_max
+
+        # Override with explicit type bounds when available
+        if min_bound is not None:
+            fallback_min = min_bound
+        if max_bound is not None:
+            fallback_max = max_bound
+
+        min_result = {
+            "value": fallback_min,
+            "overflow": False,
+            "overflow_amount": 0,
+        }
+        max_result = {
+            "value": fallback_max,
+            "overflow": False,
+            "overflow_amount": 0,
+        }
+        return min_result, max_result
+
     def _optimize_range(maximize: bool) -> Optional[Dict]:
         try:
             opt = _create_fresh_optimizer()
@@ -187,10 +221,17 @@ def solve_variable_range(
 
             result = opt.check()
             if result != sat:
+                if debug:
+                    console.print(
+                        f"[yellow]Optimize check returned {result} "
+                        f"(reason: {opt.reason_unknown()}) for {'max' if maximize else 'min'}[/yellow]"
+                    )
                 return None
 
             z3_model = opt.model()
             if z3_model is None:
+                if debug:
+                    console.print("[yellow]Optimize produced no model[/yellow]")
                 return None
 
             value_term = z3_model.eval(term, model_completion=True)
@@ -222,17 +263,33 @@ def solve_variable_range(
                 "overflow_amount": overflow_amount,
             }
         except Exception:
+            if debug:
+                console.print(
+                    f"[yellow]Exception during optimize {'max' if maximize else 'min'}; returning None[/yellow]"
+                )
             return None
 
     try:
         base_result = solver.check_sat()
         if base_result != CheckSatResult.SAT:
-            return None, None
+            # When path constraints are contradictory (e.g., both branch_taken=True/False),
+            # fall back to type bounds instead of failing to produce a range.
+            return _fallback_range()
     except Exception:
         pass
 
     min_result = _optimize_range(maximize=False)
     max_result = _optimize_range(maximize=True)
+    if min_result is None or max_result is None:
+        if debug:
+            console.print(
+                "[yellow]Range solve fallback: "
+                f"min_result={min_result}, max_result={max_result}, "
+                f"bit_width={bit_width}, is_signed={is_signed}, "
+                f"path_constraints={path_constraints}[/yellow]"
+            )
+        # Fallback to conservative static bounds when optimization fails
+        return _fallback_range()
     return min_result, max_result
 
 
