@@ -9,7 +9,7 @@ repos:
     rev: v0.14.10  # Use 'pre-commit autoupdate' to get the latest version
     hooks:
       # Run ruff linter
-      - id: ruff
+      - id: ruff-check
         name: ruff lint
         args: [--fix, --exit-non-zero-on-fix]
         types_or: [python, pyi]
@@ -20,7 +20,7 @@ repos:
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.37.1
     hooks:
       - id: yamllint
         name: yamllint
@@ -30,7 +30,7 @@ repos:
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         name: trim trailing whitespace

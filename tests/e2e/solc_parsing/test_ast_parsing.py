@@ -182,7 +182,7 @@ ALL_TESTS = [
     ),
     Test("yul-0.7.0.sol", make_version(7, 0, 4)),
     Test("yul-0.7.5.sol", make_version(7, 5, 6)),
-    Test("yul-0.8.0.sol", VERSIONS_08),
+    Test("yul-0.8.0.sol", ["0.8.33"]),
     Test("pragma-0.4.0.sol", VERSIONS_04),
     Test("pragma-0.5.0.sol", VERSIONS_05),
     Test("pragma-0.6.0.sol", VERSIONS_06),

@@ -29,8 +29,8 @@ jobs:
           ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]'))
           || fromJSON('["ubuntu-latest", "windows-2025"]') }}
         python: >-
-          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
-          || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.14"]'))
+          || fromJSON('["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]') }}
         type: >-
           ${{ (github.event_name == 'pull_request'
           && fromJSON('["data_dependency", "path_filtering", "erc", "find_paths",

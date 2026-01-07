@@ -26,8 +26,8 @@ jobs:
         os: ["ubuntu-latest", "windows-2025"]
         type: ["unit", "integration", "tool"]
         python: >-
-          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.12"]'))
-          || fromJSON('["3.9", "3.10", "3.11", "3.12"]') }}
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.14"]'))
+          || fromJSON('["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]') }}
     steps:
       - uses: actions/checkout@v6
       - name: Install uv and Python ${{ matrix.python }}

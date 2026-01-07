@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Ruff linter
         uses: astral-sh/ruff-action@v3
@@ -51,7 +51,7 @@ jobs:
       - name: Install uv and Python for yamllint
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           activate-environment: true
 
       - name: Install and run yamllint
