@@ -618,4 +618,60 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "UnpackTest.sol": {
+        "UnpackTest": {
+            "unpackFirst": {
+                "variables": {
+                    "UnpackTest.unpackFirst().a": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.unpackFirst().a|a_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.unpackFirst().a|a_1": {"range": "[10, 10]", "overflow": "NO"},
+                }
+            },
+            "unpackMixed": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "unpackMultiple": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "unpackSecond": {
+                "variables": {
+                    "UnpackTest.unpackSecond().b": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.unpackSecond().b|b_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.unpackSecond().b|b_1": {"range": "[20, 20]", "overflow": "NO"},
+                }
+            },
+            "useMixedUnpack": {
+                "variables": {
+                    "UnpackTest.useMixedUnpack().flag": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().flag|flag_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().flag|flag_1": {"range": "[1, 1]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().result": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().result|result_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().result|result_1": {"range": "[300, 300]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().result|result_2": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().result|result_3": {"range": "[0, 300]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().x": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().x|x_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().x|x_1": {"range": "[100, 100]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().y": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().y|y_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useMixedUnpack().y|y_1": {"range": "[200, 200]", "overflow": "NO"},
+                }
+            },
+            "useUnpacked": {
+                "variables": {
+                    "UnpackTest.useUnpacked().a": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useUnpacked().a|a_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useUnpacked().a|a_1": {"range": "[10, 10]", "overflow": "NO"},
+                    "UnpackTest.useUnpacked().b": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useUnpacked().b|b_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "UnpackTest.useUnpacked().b|b_1": {"range": "[20, 20]", "overflow": "NO"},
+                }
+            },
+        },
+    },
 }
