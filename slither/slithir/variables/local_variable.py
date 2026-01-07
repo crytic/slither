@@ -1,6 +1,5 @@
 from typing import Set
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.state_variable import StateIRVariable
@@ -67,8 +66,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
     def add_refers_to(self, variable: StateIRVariable) -> None:
         # It is a temporaryVariable if its the return of a new ..
         # ex: string[] memory dynargs = new string[](1);
-        # It can also be a TopLevelVariable for file-level constant/immutable references
-        assert isinstance(variable, (SlithIRVariable, TemporaryVariable, TopLevelVariable))
+        assert isinstance(variable, (SlithIRVariable, TemporaryVariable))
         self._refers_to.add(variable)
 
     @property

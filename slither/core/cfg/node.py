@@ -969,11 +969,6 @@ class Node(SourceMapping):
                 # If we read from a storage variable (outside of phi operator)
                 if isinstance(var, LocalIRVariable) and var.is_storage:
                     for refer_to in var.refers_to:
-                        # It is possible to have a TopLevelVariable
-                        #   assembly {
-                        #       $.slot := M
-                        #   }
-                        # where M is a constant TopLevelVariable
                         if isinstance(refer_to, (StateIRVariable, LocalIRVariable)):
                             self._ssa_vars_read.append(refer_to)
 
