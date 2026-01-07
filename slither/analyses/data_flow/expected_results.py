@@ -311,6 +311,52 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "Length.sol": {
+        "Length": {
+            "getDynamicBytesLength": {
+                "variables": {
+                    "Length.getDynamicBytesLength(bytes).data|data_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "REF_2": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "getDynamicMemoryBytesLength": {
+                "variables": {
+                    "Length.getDynamicMemoryBytesLength(bytes).data|data_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "REF_3": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "getHardcodedBytesLength": {
+                "variables": {
+                    "Length.getHardcodedBytesLength().data|data_1": {"range": "[2864434397, 2864434397]", "overflow": "NO"},
+                    "REF_0": {"range": "[4, 4]", "overflow": "NO"},
+                }
+            },
+            "getHardcodedStringLength": {
+                "variables": {
+                    "Length.getHardcodedStringLength().data|data_1": {"range": "[5735816763073854918203775149089, 5735816763073854918203775149089]", "overflow": "NO"},
+                    "REF_1": {"range": "[13, 13]", "overflow": "NO"},
+                }
+            },
+            "getLengthMinusOffset": {
+                "variables": {
+                    "Length.getLengthMinusOffset(bytes).data|data_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).len|len_1": {"range": "[32, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).res": {"range": "[0, 0]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).res|res_0": {"range": "[0, 0]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).res|res_1": {"range": "[0, 0]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).res|res_2": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]", "overflow": "NO"},
+                    "Length.getLengthMinusOffset(bytes).res|res_3": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]", "overflow": "NO"},
+                    "REF_5": {"range": "[32, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+            "getStateArrayLength": {
+                "variables": {
+                    "Length.dynamicArray|dynamicArray_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "REF_4": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                }
+            },
+        },
+    },
     "Math.sol": {
         "MathOperations": {
             "addNoOverflow": {
