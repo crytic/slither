@@ -95,8 +95,13 @@ class PhiHandler(BaseOperationHandler):
             rvalue_names_found.append(rvalue_name)
 
         # Additional check: make sure we have enough SSA versions
-        # If there's only 1 non-input rvalue, wait for more to appear
+        # If there's only 1 non-input rvalue:
+        # - Accept immediately when the Phi has only one rvalue (e.g., constant/state initializer)
+        # - Otherwise keep the conservative wait for more concrete versions
         if len(rvalue_names_found) <= 1:
+            if len(rvalues) == 1:
+                return True
+
             # Get base variable name for checking other versions
             base_name = self._get_base_name(lvalue_name)
 

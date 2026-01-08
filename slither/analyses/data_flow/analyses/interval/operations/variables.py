@@ -255,9 +255,22 @@ def initialize_state_variables_with_constants(
         solver.assert_constraint(tracked_var.term == const_term)
         tracked_var.assert_no_overflow(solver)
 
-        # Also initialize the first SSA version (e.g., ContractName.varName|varName_1)
+        # Also initialize the SSA versions consumed by Phi (_0) and by first assignments (_1)
         base_var_name = getattr(state_var, "name", None)
         if base_var_name is not None:
+            # Create and constrain the _0 version so Phi rvalues resolve (e.g., MAX_COUNT_0)
+            first_ssa_zero_name = f"{state_var_name}|{base_var_name}_0"
+            if not domain.state.has_range_variable(first_ssa_zero_name):
+                ssa_zero_tracked = IntervalSMTUtils.create_tracked_variable(
+                    solver, first_ssa_zero_name, var_type
+                )
+                # Ensure Phi can bind to the constant initializer
+                if ssa_zero_tracked is not None:
+                    domain.state.add_range_variable(first_ssa_zero_name, ssa_zero_tracked)
+                    ssa_zero_const_term = solver.create_constant(const_value, ssa_zero_tracked.sort)
+                    solver.assert_constraint(ssa_zero_tracked.term == ssa_zero_const_term)
+                    ssa_zero_tracked.assert_no_overflow(solver)
+
             # Construct first SSA version name
             first_ssa_name = f"{state_var_name}|{base_var_name}_1"
             if not domain.state.has_range_variable(first_ssa_name):
