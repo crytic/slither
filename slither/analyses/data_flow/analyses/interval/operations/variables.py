@@ -3,6 +3,7 @@ from typing import Optional, TYPE_CHECKING
 from slither.core.declarations.function import Function
 from slither.core.expressions.literal import Literal
 from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType, Byte
+from slither.core.solidity_types.array_type import ArrayType
 
 # Import for global Solidity variables
 try:
@@ -283,3 +284,77 @@ def initialize_state_variables_with_constants(
                     ssa_const_term = solver.create_constant(const_value, ssa_tracked.sort)
                     solver.assert_constraint(ssa_tracked.term == ssa_const_term)
                     ssa_tracked.assert_no_overflow(solver)
+
+
+def initialize_fixed_length_arrays(
+    solver: "SMTSolver", domain: "IntervalDomain", function: Function
+) -> None:
+    """Pre-initialize all elements of fixed-length array state variables to 0.
+
+    For fixed-length arrays like `uint256[5] fixedArray`, we create tracked variables
+    for all array elements (e.g., fixedArray[0], fixedArray[1], ..., fixedArray[4])
+    and initialize them to 0 (Solidity default value).
+    """
+    # Guard: function must have a contract
+    if not hasattr(function, "contract") or function.contract is None:
+        return
+
+    contract = function.contract
+
+    # Guard: contract must have state variables
+    if not hasattr(contract, "state_variables") or not contract.state_variables:
+        return
+
+    # Process each state variable
+    for state_var in contract.state_variables:
+        # Guard: must be a fixed-length array
+        if not isinstance(state_var.type, ArrayType):
+            continue
+
+        array_type = state_var.type
+        if not array_type.is_fixed_array:
+            continue
+
+        # Get the array length
+        if array_type.length_value is None:
+            continue
+
+        try:
+            array_length = int(str(array_type.length_value))
+        except (ValueError, TypeError):
+            continue
+
+        # Get the element type
+        element_type = IntervalSMTUtils.resolve_elementary_type(array_type.type)
+        if element_type is None:
+            continue
+
+        # Guard: must be a supported type for interval tracking
+        if IntervalSMTUtils.solidity_type_to_smt_sort(element_type) is None:
+            continue
+
+        # Build the base array variable name
+        array_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
+        if array_var_name is None:
+            continue
+
+        # Pre-initialize all array elements to 0
+        for i in range(array_length):
+            array_element_name = f"{array_var_name}[{i}]"
+
+            # Skip if already exists
+            if domain.state.has_range_variable(array_element_name):
+                continue
+
+            # Create tracked variable for the array element
+            tracked_var = IntervalSMTUtils.create_tracked_variable(
+                solver, array_element_name, element_type
+            )
+            if tracked_var is None:
+                continue
+
+            domain.state.add_range_variable(array_element_name, tracked_var)
+            tracked_var.assert_no_overflow(solver)
+            # Note: Array elements are NOT initialized to 0 with hard constraints because
+            # we need to allow assignments to update their values. The value will be set
+            # by the assignment handler when an assignment occurs.

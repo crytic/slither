@@ -22,6 +22,7 @@ from slither.analyses.data_flow.analyses.interval.operations.new_elementary_type
 )
 from slither.analyses.data_flow.analyses.interval.operations.unary import UnaryHandler
 from slither.analyses.data_flow.analyses.interval.operations.condition import ConditionHandler
+from slither.analyses.data_flow.analyses.interval.operations.index import IndexHandler
 from slither.analyses.data_flow.analyses.interval.operations.length import LengthHandler
 from slither.analyses.data_flow.analyses.interval.operations.member import MemberHandler
 from slither.analyses.data_flow.analyses.interval.operations.new_structure import (
@@ -36,6 +37,7 @@ from slither.slithir.operations.library_call import LibraryCall
 from slither.analyses.data_flow.analyses.interval.operations.library_call import (
     LibraryCallHandler,
 )
+from slither.slithir.operations.index import Index
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.phi import Phi
@@ -86,6 +88,7 @@ class OperationHandlerRegistry:
         self.register(Condition, ConditionHandler)
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
+        self.register(Index, IndexHandler)
         self.register(InternalCall, InternalCallHandler)
         self.register(LibraryCall, LibraryCallHandler)
         self.register(Length, LengthHandler)

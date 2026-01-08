@@ -126,9 +126,10 @@ class AssignmentHandler(BaseOperationHandler):
         self.logger.debug(f"Setting range variable {lvalue_name} to {lvalue_var}")
         domain.state.set_range_variable(lvalue_name, lvalue_var)
 
-        # If lvalue is a ReferenceVariable that points to a struct member, also update the struct member
+        # If lvalue is a ReferenceVariable that points to a struct member or array element, also update it
         if hasattr(lvalue, "points_to") and lvalue.points_to is not None:
             self._update_struct_member_if_reference(lvalue, lvalue_var, domain, node, operation)
+            self._update_array_element_if_reference(lvalue, lvalue_var, domain, node, operation)
 
     def _get_variable_name(self, var: Union[object, Constant]) -> Optional[str]:
         """Extract variable name from SlitherIR variable."""
@@ -442,3 +443,71 @@ class AssignmentHandler(BaseOperationHandler):
                         )
                         # Only update the first matching struct member (should be unique per reference)
                         break
+
+    def _update_array_element_if_reference(
+        self,
+        lvalue: object,
+        lvalue_var: TrackedSMTVariable,
+        domain: "IntervalDomain",
+        node: "Node",
+        operation: Assignment,
+    ) -> None:
+        """Update array element when assigning to a reference variable that points to an array element."""
+        if self.solver is None:
+            return
+
+        # Guard: only process ReferenceVariable lvalues
+        if not isinstance(lvalue, (ReferenceVariable, ReferenceVariableSSA)):
+            return
+
+        # Find array element variables that might be constrained to equal this reference
+        # Look for variables with pattern "array[index]" where the array matches points_to
+        points_to = getattr(lvalue, "points_to", None)
+        if points_to is None:
+            return
+
+        points_to_name = IntervalSMTUtils.resolve_variable_name(points_to)
+        if points_to_name is None:
+            return
+
+        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
+        if lvalue_name is None:
+            return
+
+        # Find domain variables matching "{points_to_name}[*]" that are
+        # constrained to equal lvalue_var (from Index operation: REF == array[index])
+        points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else points_to_name
+
+        for var_name, tracked_var in domain.state.get_range_variables().items():
+            # Check if this variable name matches the pattern of an array element
+            if not ("[" in var_name and "]" in var_name):
+                continue
+            # Extract array base name (before the first "[")
+            var_base = var_name.split("[", 1)[0]
+            var_base_clean = var_base.split("|")[0] if "|" in var_base else var_base
+
+            # Match base names, ignoring SSA versions (e.g., "Index.fixedArray" matches "Index.fixedArray|fixedArray_0")
+            if not (
+                var_base_clean == points_to_base
+                or var_base.startswith(points_to_base)
+                or points_to_base.startswith(var_base_clean)
+            ):
+                continue
+
+            # Update array element to match the reference (constraint REF == array[index] exists from Index handler)
+            element_width = self.solver.bv_size(tracked_var.term)
+            ref_width = self.solver.bv_size(lvalue_var.term)
+
+            if element_width != ref_width:
+                continue
+
+            # Explicitly constrain array element to equal the reference
+            constraint: SMTTerm = tracked_var.term == lvalue_var.term
+            self.solver.assert_constraint(constraint)
+            self.logger.debug(
+                "Updated array element '{element}' to match reference '{ref}'",
+                element=var_name,
+                ref=lvalue_name,
+            )
+            # Only update the first matching array element (should be unique per reference)
+            break

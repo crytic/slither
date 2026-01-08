@@ -6,6 +6,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.variables import (
     handle_variable_declaration,
+    initialize_fixed_length_arrays,
     initialize_global_solidity_variables,
     initialize_function_parameters,
     initialize_state_variables_with_constants,
@@ -104,6 +105,8 @@ class IntervalAnalysis(Analysis):
             initialize_function_parameters(self._solver, domain, node.function)
             # Initialize state variables with constant initial values
             initialize_state_variables_with_constants(self._solver, domain, node.function)
+            # Initialize fixed-length array elements to 0
+            initialize_fixed_length_arrays(self._solver, domain, node.function)
 
     @property
     def solver(self) -> SMTSolver:
