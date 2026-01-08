@@ -91,7 +91,10 @@ class PhiHandler(BaseOperationHandler):
                 continue
             rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
             if rvalue_var is None:
-                return False
+                # Try to materialize missing constant versions for state variables (e.g., _BASE_POINTS_3)
+                rvalue_var = self._materialize_missing_constant_version(rvalue_name, domain)
+                if rvalue_var is None:
+                    return False
             rvalue_names_found.append(rvalue_name)
 
         # Additional check: make sure we have enough SSA versions
@@ -280,6 +283,56 @@ class PhiHandler(BaseOperationHandler):
                     return True
 
         return False
+
+    def _materialize_missing_constant_version(
+        self, rvalue_name: str, domain: "IntervalDomain"
+    ) -> Optional["TrackedSMTVariable"]:
+        """Create a missing SSA version for constant/state variables by cloning an existing version."""
+        # Guard: need base name to search for sibling versions
+        base_name = self._get_base_name(rvalue_name)
+        if base_name is None:
+            return None
+
+        # Find an existing version (prefer _0, then _1, then any earlier SSA) to clone from
+        candidate_sources = []
+        for var_name in domain.state.get_range_variables().keys():
+            if not var_name.startswith(base_name + "_"):
+                continue
+            try:
+                ssa_num = self._get_ssa_num(var_name)
+            except Exception:
+                continue
+            candidate_sources.append((ssa_num, var_name))
+
+        if not candidate_sources:
+            return None
+
+        # Prefer the lowest SSA version (constant initializer) as source
+        candidate_sources.sort(key=lambda item: item[0])
+        _, source_name = candidate_sources[0]
+
+        source_var = IntervalSMTUtils.get_tracked_variable(domain, source_name)
+        if source_var is None:
+            return None
+
+        type_str = source_var.base.metadata.get("solidity_type")
+        if not type_str:
+            return None
+
+        try:
+            source_type = ElementaryType(type_str)
+        except Exception:
+            return None
+
+        # Create the missing version with the same type and constrain it to the source value
+        target_var = IntervalSMTUtils.create_tracked_variable(self.solver, rvalue_name, source_type)
+        if target_var is None:
+            return None
+
+        domain.state.set_range_variable(rvalue_name, target_var)
+        self.solver.assert_constraint(target_var.term == source_var.term)
+        target_var.assert_no_overflow(self.solver)
+        return target_var
 
     def _get_base_name(self, var_name: str) -> Optional[str]:
         """Extract base variable name without SSA suffix."""

@@ -845,7 +845,7 @@ def run_verbose(
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
     from slither.analyses.data_flow.smt_solver import Z3Solver
 
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="DEBUG")
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="INFO")
     logger.info(LogMessages.ENGINE_START)
 
     logger.info("Loading contract from: {path}", path=contract_path)
