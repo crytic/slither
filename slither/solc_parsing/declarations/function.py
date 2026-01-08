@@ -9,6 +9,7 @@ from slither.core.declarations.function import (
     ModifierStatements,
     FunctionType,
 )
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
@@ -1363,7 +1364,7 @@ class FunctionSolc(CallerContextExpression):
             return
 
         for m in ExportValues(m).result():
-            if isinstance(m, Function):
+            if isinstance(m, Modifier):
                 node_parser = self._new_node(
                     NodeType.EXPRESSION, modifier["src"], self.underlying_function
                 )
