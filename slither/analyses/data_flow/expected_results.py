@@ -558,6 +558,32 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
         },
     },
+    "StateVariables.sol": {
+        "SimpleCounter": {
+            "getDoubleMaxCount": {
+                "variables": {
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_2": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.getDoubleMaxCount().b|b_1": {"range": "[200, 200]", "overflow": "NO"},
+                }
+            },
+            "getMaxCount": {
+                "variables": {
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {"range": "[100, 100]", "overflow": "NO"},
+                }
+            },
+            "getMaxCountPlusOne": {
+                "variables": {
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.MAX_COUNT|MAX_COUNT_3": {"range": "[100, 100]", "overflow": "NO"},
+                    "SimpleCounter.getMaxCountPlusOne().b|b_1": {"range": "[101, 101]", "overflow": "NO"},
+                }
+            },
+        },
+    },
     "Timestamp.sol": {
         "TimestampTests": {
             "timestampArithmetic": {
