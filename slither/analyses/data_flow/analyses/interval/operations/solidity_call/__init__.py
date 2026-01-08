@@ -23,6 +23,7 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.times
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory import (
     MemoryLoadHandler,
     MemoryStoreHandler,
+    CalldataCopyHandler,
 )
 from slither.slithir.operations.solidity_call import SolidityCall
 
@@ -96,6 +97,12 @@ class SolidityCallHandler(BaseOperationHandler):
                 return
 
             MemoryLoadHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle calldatacopy(uint256,uint256,uint256).
+        # This operation copies calldata to memory but doesn't return a value, so we treat it as a no-op.
+        if "calldatacopy" in function_full_name:
+            CalldataCopyHandler(self.solver).handle(operation, domain, node)
             return
 
         self.logger.error_and_raise(

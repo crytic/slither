@@ -9,6 +9,8 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memor
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory.base import (
     MemoryBaseHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory.calldata_copy import (
+    CalldataCopyHandler,
+)
 
-__all__ = ["MemoryLoadHandler", "MemoryStoreHandler", "MemoryBaseHandler"]
-
+__all__ = ["MemoryLoadHandler", "MemoryStoreHandler", "MemoryBaseHandler", "CalldataCopyHandler"]
