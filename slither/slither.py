@@ -60,10 +60,7 @@ def _update_file_scopes(
                 # for an old solidity bug when handling aliases.
                 # We union the exported symbols between the different scopes
                 # and could bring in a contract with the same name when actually is not in scope
-                if (
-                    contract.name in scope.contracts
-                    and contract.id != scope.contracts[contract.name].id
-                ):
+                if contract.name in scope.contracts:
                     continue
                 scope.contracts[contract.name] = contract
             elif refId in sol_parser.functions_by_id:
