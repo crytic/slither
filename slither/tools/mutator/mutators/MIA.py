@@ -5,7 +5,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
 
-class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MIA(AbstractMutator):
     NAME = "MIA"
     HELP = '"if" construct around statement'
 

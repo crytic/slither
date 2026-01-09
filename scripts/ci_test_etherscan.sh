@@ -20,4 +20,3 @@ fi
 echo "::endgroup::"
 
 exit 0
-

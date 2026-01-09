@@ -5,7 +5,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
 
-class MWA(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MWA(AbstractMutator):
     NAME = "MWA"
     HELP = '"while" construct around statement'
 

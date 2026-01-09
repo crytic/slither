@@ -2,6 +2,7 @@ library L {
 
 }
 uint256 constant offset = 100;
+bytes32 constant M = 0x9bc558e75ed0a57385e96d6b87fd2864d462eed29668be6fed742168fd90ab0f;
 
 contract C {
     uint storA;
@@ -17,6 +18,7 @@ contract C {
             let aParamA := paramA
             let aRetA := retA
             let aLocalA := localA
+            let clzCount := clz(paramA)
 
             sstore(storA.slot, 0)
             sstore(offset, 0)
@@ -50,6 +52,13 @@ contract C {
         assembly{
             st.slot := 0x0000000000000000000000000000000000000000000000000000000000000000
         }
+    }
+
+    function _m() internal returns (St storage $) {
+        assembly {
+            $.slot := M
+        }
+        $.a = 3;
     }
 
 }

@@ -22,12 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        exclude:
-          # strange failure
-          - os: windows-2022
-            python: 3.8
+        os: ["ubuntu-latest", "windows-2025"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v6
 
@@ -59,7 +55,7 @@ jobs:
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
-          uv venv          
+          uv venv
           uv pip install .
           source .venv/bin/activate || source .venv/Scripts/activate
           hash -r

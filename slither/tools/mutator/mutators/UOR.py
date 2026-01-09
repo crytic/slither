@@ -12,16 +12,14 @@ unary_operators = [
 ]
 
 
-class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class UOR(AbstractMutator):
     NAME = "UOR"
     HELP = "Unary Operator Replacement"
 
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
             if not self.should_mutate_function(function):
                 continue
             for node in function.nodes:
@@ -29,7 +27,7 @@ class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     continue
                 try:
                     ir_expression = node.expression
-                except:  # pylint: disable=bare-except
+                except:
                     continue
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length

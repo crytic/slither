@@ -128,10 +128,8 @@ def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMu
     return detectors
 
 
-class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListMutators(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         checks = _get_mutators(None)
         output_mutators(checks)
         parser.exit()
@@ -201,7 +199,7 @@ def parse_target_selectors(selector_str: str) -> Set[int]:
 ###################################################################################
 
 
-def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> None:
     args = parse_args()
 
     # arguments
@@ -294,7 +292,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     # Keep a list of all already mutated contracts so we don't mutate them twice
     mutated_contracts: List[str] = []
 
-    for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
+    for filename in sol_file_list:
         file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
@@ -302,8 +300,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         files_dict = backup_source_file(sl.source_code, output_folder)
         # total revert/comment/tweak mutants that were generated and compiled
         total_mutant_counts = [0, 0, 0]
-        # total uncaught revert/comment/tweak mutants
-        uncaught_mutant_counts = [0, 0, 0]
+        # total caught revert/comment/tweak mutants
+        caught_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
@@ -381,38 +379,38 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                         target_selectors=target_selectors,
                         target_modifiers=target_modifiers,
                     )
-                    (total_counts, uncaught_counts, lines_list) = m.mutate()
+                    (total_counts, caught_counts, lines_list) = m.mutate()
 
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
-                        uncaught_mutant_counts[0] += uncaught_counts[0]
+                        caught_mutant_counts[0] += caught_counts[0]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[0]} caught revert mutants (out of {total_counts[0]} that compile)"
                                 )
                             )
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
-                        uncaught_mutant_counts[1] += uncaught_counts[1]
+                        caught_mutant_counts[1] += caught_counts[1]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[1]} caught comment mutants (out of {total_counts[1]} that compile)"
                                 )
                             )
                     else:
                         total_mutant_counts[2] += total_counts[2]
-                        uncaught_mutant_counts[2] += uncaught_counts[2]
+                        caught_mutant_counts[2] += caught_counts[2]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[2]} caught tweak mutants (out of {total_counts[2]} that compile)"
                                 )
                             )
                             logger.info(
                                 magenta(
-                                    f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"
+                                    f"Running total: found {caught_mutant_counts[2]} caught tweak mutants (out of {total_mutant_counts[2]} that compile)"
                                 )
                             )
 
@@ -420,7 +418,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                     if comprehensive_flag:
                         dont_mutate_lines = []
 
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             logger.error(e)
             transfer_and_delete(files_dict)
 
@@ -441,7 +439,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[0] > 0:
             logger.info(
                 magenta(
-                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0]/total_mutant_counts[0]}%)"
+                    f"Revert mutants: {caught_mutant_counts[0]} caught of {total_mutant_counts[0]} ({round(100 * caught_mutant_counts[0] / total_mutant_counts[0], 1)}% caught)"
                 )
             )
         else:
@@ -450,7 +448,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[1] > 0:
             logger.info(
                 magenta(
-                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1]/total_mutant_counts[1]}%)"
+                    f"Comment mutants: {caught_mutant_counts[1]} caught of {total_mutant_counts[1]} ({round(100 * caught_mutant_counts[1] / total_mutant_counts[1], 1)}% caught)"
                 )
             )
         else:
@@ -459,7 +457,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[2] > 0:
             logger.info(
                 magenta(
-                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2]/total_mutant_counts[2]}%)\n"
+                    f"Tweak mutants: {caught_mutant_counts[2]} caught of {total_mutant_counts[2]} ({round(100 * caught_mutant_counts[2] / total_mutant_counts[2], 1)}% caught)"
                 )
             )
         else:
@@ -469,9 +467,9 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
-        uncaught_mutant_counts[0] = 0
-        uncaught_mutant_counts[1] = 0
-        uncaught_mutant_counts[2] = 0
+        caught_mutant_counts[0] = 0
+        caught_mutant_counts[1] = 0
+        caught_mutant_counts[2] = 0
 
     # Print the total time elapsed in a human-readable time format
     elapsed_time = round(time.time() - start_time)

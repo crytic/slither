@@ -3,7 +3,7 @@ set -euo pipefail
 
 ### Test slither-interface
 
-DIR_TESTS="tests/tools/interface" 
+DIR_TESTS="tests/tools/interface"
 
 solc-select use 0.8.19 --always-install
 

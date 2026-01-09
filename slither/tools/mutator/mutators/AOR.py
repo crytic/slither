@@ -15,15 +15,13 @@ arithmetic_operators = [
 ]
 
 
-class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class AOR(AbstractMutator):
     NAME = "AOR"
     HELP = "Arithmetic operator replacement"
 
     def _mutate(self) -> Dict:
         result: Dict = {}
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
             if not self.should_mutate_function(function):
                 continue
             for node in function.nodes:
@@ -31,14 +29,14 @@ class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     continue
                 try:
                     ir_expression = node.expression
-                except:  # pylint: disable=bare-except
+                except:
                     continue
 
                 # Special cases handling .push and .pop on dynamic arrays.
                 # The IR for these operations has a binary operation due to internal conversion
                 # (see convert_to_push and convert_to_pop in slithir/convert.py)
                 # however it's not present in the source code and should not be mutated.
-                # pylint: disable=too-many-boolean-expressions
+
                 if (
                     isinstance(ir_expression, CallExpression)
                     and isinstance(ir_expression.called, MemberAccess)

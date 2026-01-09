@@ -34,10 +34,10 @@ jobs:
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.8"
+          python-version: "3.9"
           activate-environment: true
       - run: uv sync --group doc
-      - run: pdoc -o html/ slither '!slither.tools' #TODO fix import errors on pdoc run
+      - run: pdoc -o html/ slither '!slither.tools'  # TODO fix import errors on pdoc run
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

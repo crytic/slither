@@ -9,4 +9,3 @@ if ! slither "tests/e2e/config/test_json_config/test.sol" --config "tests/e2e/co
     echo "Config failed"
     exit 1
 fi
-

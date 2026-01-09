@@ -1,0 +1,24 @@
+extends: default
+
+rules:
+  document-start: disable
+  line-length:
+    max: 120
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+  truthy:
+    allowed-values: ['true', 'false', 'on']
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable
+  octal-values: disable
+
+ignore: |
+  .github/linters/
+  tests/
+  docs/
+  node_modules/
+  build/
+  dist/
+  *.egg-info/
