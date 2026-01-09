@@ -92,12 +92,15 @@ def test_patch(
     function to verify whether each patch is caught by tests
     returns: 0 (uncaught), 1 (caught), or 2 (compilation failure)
     """
-    with open(file, "r", encoding="utf8") as filepath:
+    with open(file, "rb") as filepath:
         content = filepath.read()
     # Perform the replacement based on the index values
-    replaced_content = content[: patch["start"]] + patch["new_string"] + content[patch["end"] :]
+    # Note: patch offsets are byte offsets from solc, so we must work with bytes
+    replaced_content = (
+        content[: patch["start"]] + patch["new_string"].encode("utf8") + content[patch["end"] :]
+    )
     # Write the modified content back to the file
-    with open(file, "w", encoding="utf8") as filepath:
+    with open(file, "wb") as filepath:
         filepath.write(replaced_content)
 
     if compile_generated_mutant(file, mappings):
