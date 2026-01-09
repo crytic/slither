@@ -12,6 +12,8 @@ class MIA(AbstractMutator):
     def _mutate(self) -> Dict:
         result: Dict = {}
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue
