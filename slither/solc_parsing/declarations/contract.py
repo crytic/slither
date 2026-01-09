@@ -24,6 +24,8 @@ from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from slither.utils.using_for import USING_FOR_KEY
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
+from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -57,6 +59,8 @@ class ContractSolc(CallerContextExpression):
         self._modifiers_parser: List[ModifierSolc] = []
         self._structures_parser: List[StructureContractSolc] = []
         self._custom_errors_parser: List[CustomErrorSolc] = []
+
+        self._storage_layout_parsed_expression = None
 
         self._is_analyzed: bool = False
 
@@ -173,6 +177,13 @@ class ContractSolc(CallerContextExpression):
 
         self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
+
+        if "storageLayout" in attributes:
+            # For now we care only about the actual value, hence we immediately parse the expression
+            # and ConstantFold it later on since it could be using a TopLevel variable
+            self._storage_layout_parsed_expression = parse_expression(
+                attributes["storageLayout"]["baseSlotExpression"], self
+            )
 
         if "abstract" in attributes:
             self._contract.is_abstract = attributes["abstract"]
@@ -424,6 +435,19 @@ class ContractSolc(CallerContextExpression):
             raise ParsingError(error)
         LOGGER.error(error)
         self._contract.is_incorrectly_constructed = True
+
+    def analyze_storage_layout(self) -> None:
+        if self._storage_layout_parsed_expression is not None:
+            try:
+                self._contract.custom_storage_layout = (
+                    ConstantFolding(self._storage_layout_parsed_expression, "uint256")
+                    .result()
+                    .value
+                )
+            except NotConstant as e:
+                self.log_incorrect_parsing(
+                    f"Error when folding the custom storage layout value {e}"
+                )
 
     def analyze_content_modifiers(self) -> None:
         try:
