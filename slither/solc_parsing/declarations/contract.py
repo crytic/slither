@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple
+from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple, Optional
 
 from slither.core.declarations import (
     Modifier,
@@ -14,6 +14,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types import ElementaryType, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
+from slither.core.expressions.expression import Expression
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.event_contract import EventContractSolc
@@ -23,9 +24,9 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.utils.using_for import USING_FOR_KEY
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
-from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -60,7 +61,7 @@ class ContractSolc(CallerContextExpression):
         self._structures_parser: List[StructureContractSolc] = []
         self._custom_errors_parser: List[CustomErrorSolc] = []
 
-        self._storage_layout_parsed_expression = None
+        self._storage_layout_parsed_expression: Optional[Expression] = None
 
         self._is_analyzed: bool = False
 
