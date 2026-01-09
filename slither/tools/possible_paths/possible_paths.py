@@ -116,7 +116,6 @@ def __find_target_paths(
     # Look through all functions
     for contract in slither.contracts:
         for function in contract.functions_and_modifiers_declared:
-
             # If the function is already in our path, skip it.
             if function in current_path:
                 continue

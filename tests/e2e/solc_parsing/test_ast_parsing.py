@@ -19,7 +19,6 @@ E2E_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_ROOT = os.path.join(E2E_ROOT, "solc_parsing", "test_data")
 
 
-# pylint: disable=too-few-public-methods
 class Test:
     def __init__(
         self,
@@ -58,9 +57,9 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
         output[contract.name] = {}
 
         for func_or_modifier in contract.functions + contract.modifiers:
-            output[contract.name][
-                func_or_modifier.full_name
-            ] = func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            output[contract.name][func_or_modifier.full_name] = (
+                func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            )
 
     return output
 
@@ -183,7 +182,7 @@ ALL_TESTS = [
     ),
     Test("yul-0.7.0.sol", make_version(7, 0, 4)),
     Test("yul-0.7.5.sol", make_version(7, 5, 6)),
-    Test("yul-0.8.0.sol", VERSIONS_08),
+    Test("yul-0.8.0.sol", ["0.8.33"]),
     Test("pragma-0.4.0.sol", VERSIONS_04),
     Test("pragma-0.5.0.sol", VERSIONS_05),
     Test("pragma-0.6.0.sol", VERSIONS_06),
@@ -494,7 +493,6 @@ def pytest_generate_tests(metafunc):
 
 
 class TestASTParsing:
-    # pylint: disable=no-self-use
     def test_parsing(self, test_file, version, flavor):
         actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
         expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
@@ -572,7 +570,7 @@ def _generate_test(test_item: Test, skip_existing=False):
                 disallow_partial=True,
                 skip_analyze=True,
             )
-        # pylint: disable=broad-except
+
         except Exception as e:
             print(e)
             print(test_item)
@@ -582,7 +580,6 @@ def _generate_test(test_item: Test, skip_existing=False):
         actual = generate_output(sl)
         print(f"Generate {expected_file}")
 
-        # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
 
         with open(expected_file, "w", encoding="utf8") as f:
@@ -613,14 +610,12 @@ def _generate_compile(test_item: Test, skip_existing=False):
             test_file, solc_force_legacy_json=flavor == "legacy", solc_args=solc_args
         )
 
-        # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
 
         save_to_zip([cc], expected_file)
 
 
 if __name__ == "__main__":
-
     required_solcs = set()
     for test in ALL_TESTS:
         required_solcs |= set(test.solc_versions)

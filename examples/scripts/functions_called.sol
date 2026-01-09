@@ -1,5 +1,5 @@
 contract BaseContract{
-    
+
     function f1() public{
 
     }
@@ -21,7 +21,7 @@ contract Contract is BaseContract{
     function f2() public{
 
     }
-    
+
     // not reached from entry_point
     function f3() public{
 
