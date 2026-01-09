@@ -32,8 +32,12 @@ from slither.analyses.data_flow.analyses.interval.operations.unpack import Unpac
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.condition import Condition
+from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
+from slither.analyses.data_flow.analyses.interval.operations.high_level_call import (
+    HighLevelCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.library_call import (
     LibraryCallHandler,
 )
@@ -41,6 +45,7 @@ from slither.slithir.operations.index import Index
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.phi import Phi
+from slither.slithir.operations.phi_callback import PhiCallback
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
@@ -88,12 +93,14 @@ class OperationHandlerRegistry:
         self.register(Condition, ConditionHandler)
         self.register(SolidityCall, SolidityCallHandler)
         self.register(Return, ReturnHandler)
+        self.register(HighLevelCall, HighLevelCallHandler)
         self.register(Index, IndexHandler)
         self.register(InternalCall, InternalCallHandler)
         self.register(LibraryCall, LibraryCallHandler)
         self.register(Length, LengthHandler)
         self.register(Member, MemberHandler)
         self.register(Phi, PhiHandler)
+        self.register(PhiCallback, PhiHandler)
         self.register(TypeConversion, TypeConversionHandler)
         self.register(NewElementaryType, NewElementaryTypeHandler)
         self.register(NewStructure, NewStructureHandler)
