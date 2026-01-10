@@ -25,7 +25,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 if isinstance(ir.function, Function)
             ]
             + [function]
-            + [m for m in function.modifiers if isinstance(m, Function)]
         )
 
         all_nodes_ = [f.nodes for f in all_functions]
