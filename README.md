@@ -243,7 +243,7 @@ Num | Detector | What it Detects | Impact | Confidence
 86 | `redundant-statements` | [Redundant statements](https://github.com/crytic/slither/wiki/Detector-Documentation#redundant-statements) | Informational | High
 87 | `solc-version` | [Incorrect Solidity version](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity) | Informational | High
 88 | `unimplemented-functions` | [Unimplemented functions](https://github.com/crytic/slither/wiki/Detector-Documentation#unimplemented-functions) | Informational | High
-89 | `unindexed-event-address` | [Events with address parameters but no indexed parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#events-with-address-parameters-but-no-indexed-parameters) | Informational | High
+89 | `unindexed-event-address` | [Events with address parameters but no indexed parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-event-address-parameters) | Informational | High
 90 | `unused-state` | [Unused state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable) | Informational | High
 91 | `costly-loop` | [Costly operations in a loop](https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop) | Informational | Medium
 92 | `dead-code` | [Functions that are not used](https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code) | Informational | Medium

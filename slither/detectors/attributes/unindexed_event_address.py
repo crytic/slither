@@ -26,7 +26,7 @@ class UnindexedEventAddress(AbstractDetector):
 
     WIKI = (
         "https://github.com/crytic/slither/wiki/Detector-Documentation"
-        "#events-with-address-parameters-but-no-indexed-parameters"
+        "#unindexed-event-address-parameters"
     )
 
     WIKI_TITLE = "Unindexed event address parameters"
