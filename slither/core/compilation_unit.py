@@ -299,18 +299,30 @@ class SlitherCompilationUnit(Context):
         assert self.is_solidity
 
         for contract in self.contracts_derived:
-            self._compute_storage_layout(contract.name, contract.storage_variables_ordered, False)
-            self._compute_storage_layout(contract.name, contract.transient_variables_ordered, True)
+            self._compute_storage_layout(
+                contract.name,
+                contract.storage_variables_ordered,
+                False,
+                contract.custom_storage_layout,
+            )
+            self._compute_storage_layout(
+                contract.name, contract.transient_variables_ordered, True, None
+            )
 
     def _compute_storage_layout(
-        self, contract_name: str, state_variables_ordered: List[StateVariable], is_transient: bool
+        self,
+        contract_name: str,
+        state_variables_ordered: List[StateVariable],
+        is_transient: bool,
+        custom_storage_layout: Optional[int],
     ):
         if is_transient:
+            slot = 0
             self._transient_storage_layouts[contract_name] = {}
         else:
+            slot = custom_storage_layout if custom_storage_layout else 0
             self._persistent_storage_layouts[contract_name] = {}
 
-        slot = 0
         offset = 0
         for var in state_variables_ordered:
             assert var.type
