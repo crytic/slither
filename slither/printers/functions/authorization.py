@@ -18,14 +18,9 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
     @staticmethod
     def get_msg_sender_checks(function: Function) -> List[str]:
-        all_functions = (
-            [
-                ir.function
-                for ir in function.all_internal_calls()
-                if isinstance(ir.function, Function)
-            ]
-            + [function]
-        )
+        all_functions = [
+            ir.function for ir in function.all_internal_calls() if isinstance(ir.function, Function)
+        ] + [function]
 
         all_nodes_ = [f.nodes for f in all_functions]
         all_nodes = [item for sublist in all_nodes_ for item in sublist]
