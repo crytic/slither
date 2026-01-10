@@ -291,6 +291,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def _log_result(self, results: List[Dict]) -> None:
         info = "\n"
+        info += f"Detector: {self.ARGUMENT}\n"
         for idx, result in enumerate(results):
             if self.slither.triage_mode:
                 info += f"{idx}: "
