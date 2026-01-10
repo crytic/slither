@@ -2,11 +2,9 @@
 Detect events with address parameters that have no indexed parameters
 """
 
-from typing import List, Union
+from typing import List
 
 from slither.core.declarations.event import Event
-from slither.core.declarations.event_contract import EventContract
-from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
