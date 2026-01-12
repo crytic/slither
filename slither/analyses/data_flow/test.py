@@ -832,6 +832,7 @@ def run_verbose(
     function_name: Optional[str] = None,
     contract_name: Optional[str] = None,
     embed: bool = False,
+    skip_compile: bool = False,
 ) -> None:
     """Run analysis with verbose output (original behavior).
 
@@ -841,16 +842,17 @@ def run_verbose(
         function_name: Optional function name to filter to (if None, shows all functions)
         contract_name: Optional contract name to filter to (if None, shows all contracts)
         embed: Enable IPython embed on errors for interactive debugging
+        skip_compile: Skip compilation step (use existing artifacts)
     """
     from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
     from slither.analyses.data_flow.smt_solver import Z3Solver
 
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="INFO")
+    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="DEBUG")
     logger.info(LogMessages.ENGINE_START)
 
     logger.info("Loading contract from: {path}", path=contract_path)
     try:
-        slither: Slither = Slither(contract_path)
+        slither: Slither = Slither(contract_path, ignore_compile=skip_compile)
     except SlitherError as e:
         error_msg = str(e)
         # Check if this is a Foundry compilation error
@@ -1227,6 +1229,12 @@ def main() -> int:
         "If a contract file name is provided as positional argument, only generates results for that file.",
     )
     parser.add_argument(
+        "--skip-compile",
+        action="store_true",
+        help="Skip compilation step (use existing build artifacts). "
+        "Much faster if project is already compiled.",
+    )
+    parser.add_argument(
         "path",
         nargs="?",
         type=str,
@@ -1300,6 +1308,7 @@ def main() -> int:
             function_name=args.function,
             contract_name=args.contract_name,
             embed=args.embed,
+            skip_compile=args.skip_compile,
         )
         return 0
 

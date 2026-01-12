@@ -20,6 +20,12 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.byte 
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.timestamp import (
     TimestampHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.gas import (
+    GasHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.low_level_call import (
+    LowLevelCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory import (
     MemoryLoadHandler,
     MemoryStoreHandler,
@@ -79,6 +85,22 @@ class SolidityCallHandler(BaseOperationHandler):
         # Handle timestamp() which returns block.timestamp.
         if "timestamp()" in function_full_name:
             TimestampHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle gas()/gasleft() which returns remaining gas.
+        if "gas()" in function_full_name or "gasleft()" in function_full_name:
+            GasHandler(self.solver).handle(operation, domain, node)
+            return
+
+        # Handle low-level EVM call opcodes (call, staticcall, delegatecall, callcode).
+        # These return a boolean success value.
+        if (
+            function_full_name.startswith("call(")
+            or function_full_name.startswith("staticcall(")
+            or function_full_name.startswith("delegatecall(")
+            or function_full_name.startswith("callcode(")
+        ):
+            LowLevelCallHandler(self.solver).handle(operation, domain, node)
             return
 
         # Handle low-level memory builtins (mstore/mstore8/mload).
