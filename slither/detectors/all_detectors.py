@@ -107,4 +107,3 @@ from .functions.optimism_deprecation import OptimismDeprecation
 
 # from .statements.unused_import import UnusedImport
 from .statements.msg_value_in_nonpayable import MsgValueInNonPayable
-

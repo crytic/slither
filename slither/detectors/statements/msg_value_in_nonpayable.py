@@ -65,30 +65,28 @@ class MsgValueInNonPayable(AbstractDetector):
 
                 # Skip functions that do not directly use msg.value
                 # (either in the function body or in attached modifiers)
-                if (
-                    not self._uses_msg_value(func) and
-                    not any([self._uses_msg_value(i) for i in func.modifiers])
+                if not self._uses_msg_value(func) and not any(
+                    self._uses_msg_value(i) for i in func.modifiers
                 ):
                     continue
 
                 # payable functions are always valid entry points for msg.value
                 if func.payable:
                     continue
-                
+
                 # Collect public/external callers and classify them
                 payable_callers, non_payable_callers = self._get_entry_point_callers(func)
 
                 # If at least one payable entry point can reach this function,
                 # msg.value usage is valid
-                if payable_callers: 
+                if payable_callers:
                     continue
-                
+
                 # Otherwise Flag, msg.value is unreachable from payable contexts
-                info = self._build_info(func, non_payable_callers)               
+                info = self._build_info(func, non_payable_callers)
                 results.append(self.generate_result(info))
 
         return results
-    
 
     # ---------------------------------------------------------
     # Helpers
@@ -101,15 +99,11 @@ class MsgValueInNonPayable(AbstractDetector):
         for node in function.nodes:
             for ir in node.irs:
                 for read in ir.read:
-                    if (
-                        isinstance(read, SolidityVariableComposed)
-                        and read.name == "msg.value"
-                    ):
+                    if isinstance(read, SolidityVariableComposed) and read.name == "msg.value":
                         return True
         return False
-   
-    
-    def _get_entry_point_callers(self, function: Function) -> Tuple[List[Function], List[Function]] :
+
+    def _get_entry_point_callers(self, function: Function) -> Tuple[List[Function], List[Function]]:
         """
         Walk the reverse call graph using Slither's
         `all_reachable_from_functions`.
@@ -125,13 +119,12 @@ class MsgValueInNonPayable(AbstractDetector):
             if isinstance(func, Function) and func.visibility in ["public", "external"]:
                 if func.payable:
                     payable_callers.append(func)
-                else: 
+                else:
                     non_payable_callers.append(func)
         return (payable_callers, non_payable_callers)
-    
-    
-    def _build_info(self, func:Function, non_payable_callers:list) -> List:
-        
+
+    def _build_info(self, func: Function, non_payable_callers: list) -> List:
+
         info = [
             "msg.value used in non-payable context\n",
             f"  Location: {func.source_mapping.filename.short}:{func.source_mapping.lines[0]}\n",
@@ -144,17 +137,18 @@ class MsgValueInNonPayable(AbstractDetector):
             info.append("\n    Entry points that can reach this function:\n")
 
             for caller in non_payable_callers:
-                info.append(
-                    f"      - {caller.full_name} "
-                    f"[{caller.visibility}, non-payable]\n"
-                )
-          
-        info.append( "\n  No payable functions can reach this code.\n\n",)
+                info.append(f"      - {caller.full_name} " f"[{caller.visibility}, non-payable]\n")
 
-        info.extend([
-            "  Suggestion: Either:\n",
-            "    1. Make the function payable if it should receive ETH\n",
-            "    2. Remove the msg.value check as it will always be 0\n",
-            "    3. Ensure this function is only called from payable contexts\n\n",
-        ])
+        info.append(
+            "\n  No payable functions can reach this code.\n\n",
+        )
+
+        info.extend(
+            [
+                "  Suggestion: Either:\n",
+                "    1. Make the function payable if it should receive ETH\n",
+                "    2. Remove the msg.value check as it will always be 0\n",
+                "    3. Ensure this function is only called from payable contexts\n\n",
+            ]
+        )
         return info
