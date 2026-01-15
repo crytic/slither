@@ -28,16 +28,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - uses: actions/setup-python@v5
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.8'
-      - run: pip install -e ".[doc]"
-      - run: pdoc -o html/ slither '!slither.tools' #TODO fix import errors on pdoc run
+          python-version: "3.9"
+          activate-environment: true
+      - run: uv sync --group doc
+      - run: pdoc -o html/ slither '!slither.tools'  # TODO fix import errors on pdoc run
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload the doc
           path: './html/'

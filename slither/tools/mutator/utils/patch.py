@@ -2,7 +2,6 @@ from typing import Dict, Union
 from collections import defaultdict
 
 
-# pylint: disable=too-many-arguments
 def create_patch_with_line(
     result: Dict,
     file: str,

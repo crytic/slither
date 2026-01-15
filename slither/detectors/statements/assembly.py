@@ -1,6 +1,7 @@
 """
 Module detecting usage of inline assembly
 """
+
 from typing import List, Tuple
 
 from slither.core.cfg.node import Node, NodeType

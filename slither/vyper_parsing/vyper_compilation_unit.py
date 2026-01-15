@@ -19,7 +19,6 @@ class VyperCompilationUnit:
     _contracts_by_id: Dict[int, Contract] = field(default_factory=dict)
 
     def parse_module(self, data: Module, filename: str):
-
         sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data.src)
         assert len(sourceUnit_candidates) == 1, "Source unit not found"
         sourceUnit = int(sourceUnit_candidates[0])
