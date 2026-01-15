@@ -80,9 +80,9 @@ def test_function_summary_external_calls(solc_binary_path) -> None:
 
     call_multiple = test_external.get_function_from_signature("callMultipleExternal(uint256)")
     ext_calls = _get_external_calls_from_summary(call_multiple)
-    assert (
-        len(ext_calls) == 2
-    ), "TestExternalCalls.callMultipleExternal should have 2 external calls"
+    assert len(ext_calls) == 2, (
+        "TestExternalCalls.callMultipleExternal should have 2 external calls"
+    )
 
     # Test TestMixed contract - mixedOperations should have exactly 1 external call
     test_mixed = slither.get_contract_from_name("TestMixed")[0]
