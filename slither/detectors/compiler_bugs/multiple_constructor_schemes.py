@@ -39,7 +39,7 @@ contract A {
     function A() public {
         x = 1;
     }
-    
+
     function test() public returns(uint) {
         return x;
     }
