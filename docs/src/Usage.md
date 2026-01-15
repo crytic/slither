@@ -39,13 +39,7 @@ To run Slither from a contract hosted on Etherscan, run
 slither 0x7F37f78cBD74481E593F9C737776F7113d76B315
 ```
 
-### AST File
-
-This section is work in progress
-
 We recommend installing [solc-select](https://github.com/crytic/solc-select/) so Slither can switch to the expected solc version automatically.
-
-## Options
 
 ### Detector selection
 
@@ -165,7 +159,3 @@ The following flags are supported:
 ```
 
 For flags related to the compilation, see the [`crytic-compile` configuration](https://github.com/crytic/crytic-compile/blob/master/crytic_compile/cryticparser/defaults.py)
-
-## IDE integrations
-
-This section is work in progress
