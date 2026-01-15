@@ -916,26 +916,6 @@ As a result, Eve wins the game.
 
 Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness
 
-## Codex
-
-### Configuration
-
-- Check: `codex`
-- Severity: `High`
-- Confidence: `Low`
-
-### Description
-
-Use [codex](https://openai.com/blog/openai-codex/) to find vulnerabilities
-
-### Exploit Scenario:
-
-N/A
-
-### Recommendation
-
-Review codex's message.
-
 ## Domain separator collision
 
 ### Configuration
@@ -1371,7 +1351,7 @@ Detects variables that are written but never read and written again.
         }
     }
     ```
-    `a` is first asigned to `b`, and then to `c`. As a result the first write does nothing.
+    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 

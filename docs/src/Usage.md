@@ -88,7 +88,7 @@ slither . --filter-paths "openzepellin"
 Filter all the results only related to openzepellin.
 
 ```
-slither . --filter-paths "Migrations.sol|ConvertLib.sol"
+slither . --filter-paths "SafeMath.sol|ConvertLib.sol"
 ```
 
 Filter all the results only related to the file `SafeMath.sol` or `ConvertLib.sol`.
@@ -157,13 +157,6 @@ The following flags are supported:
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
     "triage_database": "slither.db.json",
-    # codex
-    "codex": False,
-    "codex_contracts": "all",
-    "codex_model": "text-davinci-003",
-    "codex_temperature": 0,
-    "codex_max_tokens": 300,
-    "codex_log": False,
 }
 ```
 

@@ -48,7 +48,7 @@ class BinaryType(Enum):
         ]
 
     @staticmethod
-    def get_type(operation_type: str) -> "BinaryType":  # pylint: disable=too-many-branches
+    def get_type(operation_type: str) -> "BinaryType":
         if operation_type == "**":
             return BinaryType.POWER
         if operation_type == "*":
