@@ -123,5 +123,13 @@ contract Index {
     function set() external {
         ref = mapping_var[msg.sender];
     }
+}
 
+contract SimpleModifier {
+    address owner;
+    modifier baz {
+        bool intermediate = msg.sender == owner;
+        require(intermediate);
+        _;
+    }
 }

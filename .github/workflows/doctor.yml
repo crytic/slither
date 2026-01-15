@@ -22,41 +22,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        python: ["3.8", "3.9", "3.10", "3.11"]
-        exclude:
-          # strange failure
-          - os: windows-2022
-            python: 3.8
+        os: ["ubuntu-latest", "windows-2025"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Try system-wide Slither
         run: |
           echo "::group::Install slither"
-          pip3 install .
-          echo "::endgroup::"
-
-          # escape cwd so python doesn't pick up local module
-          cd /
-
-          echo "::group::Via module"
-          python3 -m slither.tools.doctor .
-          echo "::endgroup::"
-
-          echo "::group::Via binary"
-          slither-doctor .
-          echo "::endgroup::"
-
-      - name: Try user Slither
-        run: |
-          echo "::group::Install slither"
-          pip3 install --user .
+          uv pip install --system .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module
@@ -73,10 +55,10 @@ jobs:
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
-          python3 -m venv venv
-          source venv/bin/activate || source venv/Scripts/activate
+          uv venv
+          uv pip install .
+          source .venv/bin/activate || source .venv/Scripts/activate
           hash -r
-          pip3 install .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module

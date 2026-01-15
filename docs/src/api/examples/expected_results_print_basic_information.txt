@@ -1,0 +1,39 @@
+Contract: Coin
+	Inherit from[]
+	_mint(address,uint256):
+		Visibility: internal
+		Contract: Coin
+		Modifier: []
+		Is constructor? False
+	mint(address,uint256):
+		Visibility: public
+		Contract: Coin
+		Modifier: []
+		Is constructor? False
+	slitherConstructorVariables():
+		Visibility: internal
+		Contract: Coin
+		Modifier: []
+		Is constructor? False
+Contract: MyCoin
+	Inherit from['Coin']
+	_mint(address,uint256):
+		Visibility: internal
+		Contract: MyCoin
+		Modifier: []
+		Is constructor? False
+	mint(address,uint256):
+		Visibility: public
+		Contract: MyCoin
+		Modifier: []
+		Is constructor? False
+	_mint(address,uint256):
+		Visibility: internal
+		Contract: MyCoin
+		Modifier: []
+		Is constructor? False
+	slitherConstructorVariables():
+		Visibility: internal
+		Contract: MyCoin
+		Modifier: []
+		Is constructor? False

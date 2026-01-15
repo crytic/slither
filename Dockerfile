@@ -1,31 +1,23 @@
-# syntax=docker/dockerfile:1.3
-FROM ubuntu:jammy AS python-wheels
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    gcc \
-    git \
-    python3-dev \
-    python3-pip \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY . /slither
-
-RUN cd /slither && \
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 wheel -w /wheels . solc-select pip setuptools wheel
-
-
+# syntax=docker/dockerfile:1.12
 FROM ubuntu:jammy AS final
 
-LABEL name=slither
-LABEL src="https://github.com/trailofbits/slither"
-LABEL creator=trailofbits
-LABEL dockerfile_maintenance=trailofbits
-LABEL desc="Static Analyzer for Solidity"
+LABEL name=slither \
+      src="https://github.com/trailofbits/slither" \
+      creator=trailofbits \
+      dockerfile_maintenance=trailofbits \
+      desc="Static Analyzer for Solidity"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
-  && apt-get install -y --no-install-recommends python3-pip \
+  && apt-get install -y --no-install-recommends ca-certificates curl git python3 python3-pip python3-venv \
   && rm -rf /var/lib/apt/lists/*
+
+# Install uv if available for this architecture (amd64/arm64)
+# uv doesn't support armv7, so those builds will use pip instead
+RUN arch=$(uname -m) && \
+    if [ "$arch" = "x86_64" ] || [ "$arch" = "aarch64" ]; then \
+      curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh; \
+    fi
 
 # improve compatibility with amd64 solc in non-amd64 environments (e.g. Docker Desktop on M1 Mac)
 ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
@@ -35,18 +27,45 @@ RUN if [ ! "$(uname -m)" = "x86_64" ]; then \
   && apt-get install -y --no-install-recommends libc6-amd64-cross \
   && rm -rf /var/lib/apt/lists/*; fi
 
+# Install build tools only on armv7 (needed for pip to compile wheels)
+# amd64/arm64 use uv with pre-built wheels, so they don't need these
+RUN arch=$(uname -m) && \
+    if [ "$arch" = "armv7l" ]; then \
+      export DEBIAN_FRONTEND=noninteractive && \
+      apt-get update && \
+      apt-get install -y --no-install-recommends build-essential python3-dev && \
+      rm -rf /var/lib/apt/lists/*; \
+    fi
+
 RUN useradd -m slither
 USER slither
 
-COPY --chown=slither:slither . /home/slither/slither
 WORKDIR /home/slither/slither
 
-ENV PATH="/home/slither/.local/bin:${PATH}"
+# Copy dependency files first for layer caching
+COPY --chown=slither:slither pyproject.toml uv.lock ./
 
-# no-index ensures we install the freshly-built wheels
-RUN --mount=type=bind,target=/mnt,source=/wheels,from=python-wheels \
-    pip3 install --user --no-cache-dir --upgrade --no-index --find-links /mnt --no-deps /mnt/*.whl
+# Install dependencies - use uv if available (with lockfile), pip otherwise
+RUN if command -v uv >/dev/null 2>&1; then \
+      uv sync --frozen --no-install-project; \
+    else \
+      python3 -m venv .venv; \
+    fi
 
-RUN solc-select install 0.4.25 && solc-select use 0.4.25
+# Copy source code
+COPY --chown=slither:slither . .
 
-CMD /bin/bash
+# Install the project itself and solc-select
+RUN if command -v uv >/dev/null 2>&1; then \
+      uv sync --frozen && \
+      uv tool install solc-select; \
+    else \
+      . .venv/bin/activate && \
+      pip install --no-cache-dir -e . solc-select; \
+    fi
+
+ENV PATH="/home/slither/slither/.venv/bin:/home/slither/.local/bin:${PATH}"
+
+RUN solc-select use latest --always-install
+
+CMD ["/bin/bash"]

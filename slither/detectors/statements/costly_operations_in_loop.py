@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -10,20 +10,25 @@ from slither.utils.output import Output
 from slither.slithir.operations import InternalCall, OperationWithLValue
 from slither.core.variables.state_variable import StateVariable
 
+Result = List[Tuple[Node, List[str]]]
 
-def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
-    ret: List[Node] = []
+
+def detect_costly_operations_in_loop(contract: Contract) -> Result:
+    ret: Result = []
     for f in contract.functions_entry_points:
         if f.is_implemented:
-            costly_operations_in_loop(f.entry_point, 0, [], ret)
+            costly_operations_in_loop(f.entry_point, 0, [], [], ret)
 
     return ret
 
 
 def costly_operations_in_loop(
-    node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
+    node: Optional[Node],
+    in_loop_counter: int,
+    visited: List[Node],
+    calls_stack: List[str],
+    ret: Result,
 ) -> None:
-
     if node is None:
         return
 
@@ -38,20 +43,23 @@ def costly_operations_in_loop(
         in_loop_counter -= 1
 
     if in_loop_counter > 0:
-        for ir in node.all_slithir_operations():
+        for ir in node.irs:
             # Ignore Array/Mapping/Struct types for now
             if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
-                ret.append(ir.node)
+                ret.append((ir.node, calls_stack.copy()))
                 break
             if isinstance(ir, (InternalCall)) and ir.function:
-                costly_operations_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
+                calls_stack.append(node.function.canonical_name)
+                costly_operations_in_loop(
+                    ir.function.entry_point, in_loop_counter, visited, calls_stack, ret
+                )
+                calls_stack.pop()
 
     for son in node.sons:
-        costly_operations_in_loop(son, in_loop_counter, visited, ret)
+        costly_operations_in_loop(son, in_loop_counter, visited, calls_stack, ret)
 
 
 class CostlyOperationsInLoop(AbstractDetector):
-
     ARGUMENT = "costly-loop"
     HELP = "Costly operations in a loop"
     IMPACT = DetectorClassification.INFORMATIONAL
@@ -100,10 +108,16 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
         results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_costly_operations_in_loop(c)
-            for node in values:
+            for node, calls_stack in values:
                 func = node.function
                 info: DETECTOR_INFO = [func, " has costly operations inside a loop:\n"]
                 info += ["\t- ", node, "\n"]
+
+                if len(calls_stack) > 0:
+                    info.append("\tCalls stack containing the loop:\n")
+                    for call in calls_stack:
+                        info.extend(["\t\t", call, "\n"])
+
                 res = self.generate_result(info)
                 results.append(res)
 

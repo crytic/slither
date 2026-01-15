@@ -40,7 +40,7 @@ class TooManyDigits(AbstractDetector):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Literals with many digits are difficult to read and review.
+Literals with many digits are difficult to read and review. Use scientific notation or suffixes to make the code more readable.
 """
     # endregion wiki_description
 
@@ -48,7 +48,7 @@ Literals with many digits are difficult to read and review.
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyContract{
-    uint 1_ether = 10000000000000000000; 
+    uint 1_ether = 10000000000000000000;
 }
 ```
 

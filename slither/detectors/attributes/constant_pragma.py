@@ -1,6 +1,8 @@
 """
-    Check that the same pragma is used in all the files
+Check that the same pragma is used in all the files
 """
+
+from collections import OrderedDict
 from typing import List, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -31,16 +33,23 @@ class ConstantPragma(AbstractDetector):
 
     def _detect(self) -> List[Output]:
         results = []
-        pragma = self.compilation_unit.pragma_directives
-        versions = [p.version for p in pragma if p.is_solidity_version]
-        versions = sorted(list(set(versions)))
+        pragma_directives_by_version = OrderedDict()
+        for pragma in self.compilation_unit.pragma_directives:
+            if pragma.is_solidity_version:
+                if pragma.version not in pragma_directives_by_version:
+                    pragma_directives_by_version[pragma.version] = [pragma]
+                else:
+                    pragma_directives_by_version[pragma.version].append(pragma)
 
+        versions = list(pragma_directives_by_version.keys())
         if len(versions) > 1:
-            info: DETECTOR_INFO = ["Different versions of Solidity are used:\n"]
-            info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
+            info: DETECTOR_INFO = [f"{len(versions)} different versions of Solidity are used:\n"]
 
-            for p in sorted(pragma, key=lambda x: x.version):
-                info += ["\t- ", p, "\n"]
+            for version in versions:
+                pragmas = pragma_directives_by_version[version]
+                info += [f"\t- Version constraint {version} is used by:\n"]
+                for pragma in pragmas:
+                    info += ["\t\t-", pragma, "\n"]
 
             res = self.generate_result(info)
 

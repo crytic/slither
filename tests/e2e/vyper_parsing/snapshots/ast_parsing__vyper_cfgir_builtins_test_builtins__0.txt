@@ -115,4 +115,12 @@ x = self.balance
 
 IRs:
 x(uint256) := self.balance(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+msg.sender.send(x)
+
+IRs:
+TMP_2 = SEND dest:msg.sender value:x"];
 }

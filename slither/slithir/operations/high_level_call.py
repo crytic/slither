@@ -20,7 +20,6 @@ class HighLevelCall(Call, OperationWithLValue):
     High level message call
     """
 
-    # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(
         self,
         destination: SourceMapping,
@@ -54,7 +53,6 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is overridden by LibraryCall
-    # pylint: disable=no-self-use
     def _check_destination(self, destination: Union[Variable, SolidityVariable, Contract]) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
 

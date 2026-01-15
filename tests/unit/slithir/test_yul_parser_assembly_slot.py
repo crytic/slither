@@ -38,3 +38,26 @@ def test_yul_parser_assembly_slot(solc_binary_path) -> None:
             assert isinstance(value.value, StateVariable)
         elif value.value.name == "bucketId":
             assert isinstance(value.value, LocalVariable)
+
+
+def test_yul_parser_sstore_sload(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.18")
+    slither = Slither(Path(TEST_DATA_DIR, "assembly_sstore_sload.sol").as_posix(), solc=solc_path)
+
+    contract = slither.get_contract_from_name("Test")[0]
+
+    read = contract.get_function_from_full_name("read()")
+    # Sload is converted to an assignement
+    assert len(read.all_solidity_calls()) == 0
+
+    read_parameter = contract.get_function_from_full_name("read_parameter(uint256)")
+    # Sload is kept because the slot is dynamic
+    assert len(read_parameter.all_solidity_calls()) == 1
+
+    write = contract.get_function_from_full_name("write()")
+    # Sstore is converted to an assignement
+    assert len(write.all_solidity_calls()) == 0
+
+    write_parameter = contract.get_function_from_full_name("write_parameter(uint256)")
+    # Sstore is kept because the slot is dynamic
+    assert len(write_parameter.all_solidity_calls()) == 1

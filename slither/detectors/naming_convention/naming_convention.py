@@ -16,7 +16,7 @@ class NamingConvention(AbstractDetector):
 
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
-    - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
+    - Allow '_' at the beginning of the mixed_case match for private variables and unused parameters
     - Ignore echidna properties (functions with names starting 'echidna_' or 'crytic_'
     """
 
@@ -71,13 +71,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    # pylint: disable=too-many-branches,too-many-statements
     def _detect(self) -> List[Output]:
-
         results = []
         info: DETECTOR_INFO
         for contract in self.contracts:
-
             if not self.is_cap_words(contract.name):
                 info = ["Contract ", contract, " is not in CapWords\n"]
 
