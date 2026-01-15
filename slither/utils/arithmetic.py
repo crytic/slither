@@ -7,11 +7,8 @@ from slither.utils.integer_conversion import convert_string_to_fraction
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, Function
 
-# pylint: disable=too-many-branches
-def convert_subdenomination(
-    value: str, sub: str
-) -> int:  # pylint: disable=too-many-return-statements
 
+def convert_subdenomination(value: str, sub: str) -> int:
     decimal_value = convert_string_to_fraction(value)
     if sub == "wei":
         return int(decimal_value)
@@ -54,7 +51,6 @@ def _unchecked_arithemtic_usage(function: "Function") -> bool:
 
     """
 
-    # pylint: disable=import-outside-toplevel
     from slither.slithir.operations import Binary
 
     score = 0
@@ -78,7 +74,7 @@ def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
     Returns:
 
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations import Function
 
     ret: List[Function] = []

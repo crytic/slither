@@ -1,35 +1,36 @@
 """
-    CK Metrics are a suite of six software metrics proposed by Chidamber and Kemerer in 1994.
-    These metrics are used to measure the complexity of a class.
-    https://en.wikipedia.org/wiki/Programming_complexity
+CK Metrics are a suite of six software metrics proposed by Chidamber and Kemerer in 1994.
+These metrics are used to measure the complexity of a class.
+https://en.wikipedia.org/wiki/Programming_complexity
 
-    - Response For a Class (RFC) is a metric that measures the number of unique method calls within a class.
-    - Number of Children (NOC) is a metric that measures the number of children a class has.
-    - Depth of Inheritance Tree (DIT) is a metric that measures the number of parent classes a class has.
-    - Coupling Between Object Classes (CBO) is a metric that measures the number of classes a class is coupled to.
+- Response For a Class (RFC) is a metric that measures the number of unique method calls within a class.
+- Number of Children (NOC) is a metric that measures the number of children a class has.
+- Depth of Inheritance Tree (DIT) is a metric that measures the number of parent classes a class has.
+- Coupling Between Object Classes (CBO) is a metric that measures the number of classes a class is coupled to.
 
-    Not implemented:
-    - Lack of Cohesion of Methods (LCOM) is a metric that measures the lack of cohesion in methods.
-    - Weighted Methods per Class (WMC) is a metric that measures the complexity of a class.
+Not implemented:
+- Lack of Cohesion of Methods (LCOM) is a metric that measures the lack of cohesion in methods.
+- Weighted Methods per Class (WMC) is a metric that measures the complexity of a class.
 
-    During the calculation of the metrics above, there are a number of other intermediate metrics that are calculated.
-    These are also included in the output:
-     - State variables: total number of state variables
-     - Constants: total number of constants
-     - Immutables: total number of immutables
-     - Public: total number of public functions
-     - External: total number of external functions
-     - Internal: total number of internal functions
-     - Private: total number of private functions
-     - Mutating: total number of state mutating functions
-     - View: total number of view functions
-     - Pure: total number of pure functions
-     - External mutating: total number of external mutating functions
-     - No auth or onlyOwner: total number of functions without auth or onlyOwner modifiers
-     - No modifiers: total number of functions without modifiers
-     - Ext calls: total number of external calls
+During the calculation of the metrics above, there are a number of other intermediate metrics that are calculated.
+These are also included in the output:
+ - State variables: total number of state variables
+ - Constants: total number of constants
+ - Immutables: total number of immutables
+ - Public: total number of public functions
+ - External: total number of external functions
+ - Internal: total number of internal functions
+ - Private: total number of private functions
+ - Mutating: total number of state mutating functions
+ - View: total number of view functions
+ - Pure: total number of pure functions
+ - External mutating: total number of external mutating functions
+ - No auth or onlyOwner: total number of functions without auth or onlyOwner modifiers
+ - No modifiers: total number of functions without modifiers
+ - Ext calls: total number of external calls
 
 """
+
 from collections import OrderedDict
 from typing import Tuple, List, Dict
 from dataclasses import dataclass, field
@@ -79,7 +80,6 @@ def has_auth(func) -> bool:
 
 
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class CKContractMetrics:
     """Class to hold the CK metrics for a single contract."""
 
@@ -121,8 +121,6 @@ class CKContractMetrics:
         )
         self.calculate_metrics()
 
-    # pylint: disable=too-many-locals
-    # pylint: disable=too-many-branches
     def calculate_metrics(self) -> None:
         """Calculate the metrics for a contract"""
         rfc = self.public  # initialize with public getter count
@@ -245,7 +243,6 @@ class SectionInfo:
 
 
 @dataclass
-# pylint: disable=too-many-instance-attributes
 class CKMetrics:
     """Class to hold the CK metrics for all contracts. Contains methods useful for reporting.
 
@@ -325,7 +322,7 @@ class CKMetrics:
 
         subtitle = ""
         # Update each section
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             if attr == "core":
                 # Special handling for core section
                 totals_enabled = False

@@ -18,7 +18,7 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 
-class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class TmpCall(OperationWithLValue):
     def __init__(
         self,
         called: SourceMapping,
@@ -27,7 +27,6 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         type_call: str,
         names: Optional[List[str]] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
         """
         #### Parameters
         names -
