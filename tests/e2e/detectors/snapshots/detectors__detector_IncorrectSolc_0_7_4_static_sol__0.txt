@@ -1,3 +1,5 @@
+solc-0.7.4 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
+
 Version constraint 0.7.4 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
 	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
 	- MissingSideEffectsOnSelectorAccess
@@ -8,8 +10,6 @@ Version constraint 0.7.4 contains known severe issues (https://solidity.readthed
 	- SignedImmutables
 	- ABIDecodeTwoDimensionalArrayMemory
 	- KeccakCaching.
- It is used by:
-	- tests/e2e/detectors/test_data/solc-version/0.7.4/static.sol#1
-
-solc-0.7.4 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
+It is used by:
+	- 0.7.4 (tests/e2e/detectors/test_data/solc-version/0.7.4/static.sol#1)
 

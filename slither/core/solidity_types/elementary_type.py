@@ -225,4 +225,4 @@ class ElementaryType(Type):
         return self.type == other.type
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash(self._type)

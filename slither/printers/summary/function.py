@@ -1,5 +1,5 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
@@ -7,7 +7,6 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 class FunctionSummary(AbstractPrinter):
-
     ARGUMENT = "function-summary"
     HELP = "Print a summary of the functions"
 
@@ -22,7 +21,7 @@ class FunctionSummary(AbstractPrinter):
             return "\n".join(l)
         return str(l)
 
-    def output(self, _filename):  # pylint: disable=too-many-locals
+    def output(self, _filename):
         """
         _filename is not used
         Args:

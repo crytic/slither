@@ -1,6 +1,7 @@
 """
 Module detecting usage of low level calls
 """
+
 from typing import List, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -44,10 +45,9 @@ class LowLevelCalls(AbstractDetector):
     ) -> List[Tuple[FunctionContract, List[Node]]]:
         ret = []
         for f in [f for f in contract.functions if contract == f.contract_declarer]:
-            nodes = f.nodes
-            assembly_nodes = [n for n in nodes if self._contains_low_level_calls(n)]
-            if assembly_nodes:
-                ret.append((f, assembly_nodes))
+            low_level_nodes = [ir.node for ir in f.low_level_calls]
+            if low_level_nodes:
+                ret.append((f, low_level_nodes))
         return ret
 
     def _detect(self) -> List[Output]:

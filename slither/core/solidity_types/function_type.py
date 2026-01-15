@@ -36,7 +36,7 @@ class FunctionType(Type):
     def is_dynamic(self) -> bool:
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         # Use x.type
         # x.name may be empty
         params = ",".join([str(x.type) for x in self._params])

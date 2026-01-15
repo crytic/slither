@@ -10,3 +10,13 @@ contract A {
         }
     }
 }
+
+// Issue https://github.com/crytic/slither/issues/2655
+contract B {
+  function test(int256 a) internal {
+    assembly  {
+      function a() {}
+      function b() { a() }
+    }
+  }
+}

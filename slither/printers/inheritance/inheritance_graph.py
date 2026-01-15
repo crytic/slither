@@ -1,9 +1,9 @@
 """
-    Module printing the inheritance graph
+Module printing the inheritance graph
 
-    The inheritance graph shows the relation between the contracts
-    and their functions/modifiers/public variables.
-    The output is a dot file named filename.dot
+The inheritance graph shows the relation between the contracts
+and their functions/modifiers/public variables.
+The output is a dot file named filename.dot
 """
 
 from slither.core.declarations.contract import Contract
@@ -98,12 +98,21 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ""
 
+        # Remove contracts that have "mock" in the name and if --include-interfaces in False (default)
+        # removes inherited interfaces
+        inheritance = [
+            i
+            for i in contract.immediate_inheritance
+            if "mock" not in i.name.lower()
+            and (not i.is_interface or self.slither.include_interfaces)
+        ]
+
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
-        if len(contract.immediate_inheritance) == 1:
+        if len(inheritance) == 1:
             immediate_inheritance = contract.immediate_inheritance[0]
             ret += f"c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance};\n"
         else:
-            for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
+            for i, immediate_inheritance in enumerate(inheritance):
                 ret += f'c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance} [ label="{i + 1}" ];\n'
 
         # Functions
@@ -113,6 +122,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
+            and not f.is_virtual
             and f.contract_declarer == contract
             and f.visibility in visibilities
         ]
@@ -195,6 +205,12 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         content = 'digraph "" {\n'
         for c in self.contracts:
+            if (
+                "mock" in c.name.lower()
+                or c.is_library
+                or (c.is_interface and not self.slither.include_interfaces)
+            ):
+                continue
             content += self._summary(c) + "\n"
         content += "}"
 
