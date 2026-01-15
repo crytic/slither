@@ -1,6 +1,7 @@
 """
 Module detecting state variables that could be declared as constant
 """
+
 from typing import Set, List
 from packaging import version
 from slither.core.compilation_unit import SlitherCompilationUnit

@@ -1,6 +1,7 @@
 """
-    Node module
+Node module
 """
+
 from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
@@ -48,8 +49,6 @@ if TYPE_CHECKING:
     from slither.core.cfg.scope import Scope
     from slither.core.scope.scope import FileScope
 
-
-# pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
 
 ###################################################################################
 ###################################################################################
@@ -99,9 +98,8 @@ class NodeType(Enum):
 
 # endregion
 
-# I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
-# pylint: disable=no-member
-class Node(SourceMapping):  # pylint: disable=too-many-public-methods
+
+class Node(SourceMapping):
     """
     Node class
 
@@ -443,7 +441,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         :param callstack: used internally to check for recursion
         :return bool:
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.slithir.operations import Call
 
         if self._can_reenter is None:
@@ -459,7 +457,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         Check if the node can send eth
         :return bool:
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
@@ -846,10 +844,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
-
+    def _find_read_write_call(self) -> None:
         for ir in self.irs:
-
             self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
 
             if isinstance(ir, OperationWithLValue):
@@ -907,7 +903,6 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                         # Todo this part needs more tests and documentation
                         self._high_level_calls.append((ir.destination.type.type, ir))
                     except AttributeError as error:
-                        #  pylint: disable=raise-missing-from
                         raise SlitherException(
                             f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
@@ -1028,7 +1023,6 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                     self._ssa_vars_written.append(var)
 
     def update_read_write_using_ssa(self) -> None:
-
         for ir in self.irs_ssa:
             if isinstance(ir, PhiCallback):
                 continue

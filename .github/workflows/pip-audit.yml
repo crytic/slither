@@ -3,10 +3,10 @@ name: pip-audit
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [master]
   pull_request:
-    branches: [ dev, master ]
-  schedule: [ cron: "0 7 * * 2" ]
+    branches: [master]
+  schedule: [cron: "0 7 * * 2"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,22 +18,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Install Python
-        uses: actions/setup-python@v5
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.10"
 
       - name: Install Slither
         run: |
-          python -m venv /tmp/pip-audit-env
-          source /tmp/pip-audit-env/bin/activate
-
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .
+          uv export --format requirements-txt --no-emit-project > requirements.txt
 
       - name: Run pip-audit
         uses: pypa/gh-action-pip-audit@v1.1.0
         with:
-          virtual-environment: /tmp/pip-audit-env
+          inputs: requirements.txt

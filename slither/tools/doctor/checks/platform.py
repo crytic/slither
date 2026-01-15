@@ -54,6 +54,6 @@ def compile_project(project: str, **kwargs):
 
     try:
         crytic_compile.CryticCompile(project, **kwargs)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         with snip_section("Project compilation failed :( The following error was generated:"):
             logging.exception(e)

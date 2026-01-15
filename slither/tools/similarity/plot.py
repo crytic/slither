@@ -24,8 +24,7 @@ except ImportError:
 logger = logging.getLogger("Slither-simil")
 
 
-def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
-
+def plot(args: argparse.Namespace) -> None:
     if decomposition is None or plt is None:
         logger.error(
             "ERROR: In order to use plot mode in slither-simil, you need to install sklearn and matplotlib:"
@@ -34,7 +33,6 @@ def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         sys.exit(-1)
 
     try:
-
         model = args.model
         model = load_model(model)
         # contract = args.contract
@@ -71,7 +69,7 @@ def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         logger.info("Plotting data..")
         plt.figure(figsize=(20, 10))
         assert len(tdata) == len(fs)
-        for ([x, y], l) in zip(tdata, fs):
+        for [x, y], l in zip(tdata, fs):
             x = random.gauss(0, 0.01) + x
             y = random.gauss(0, 0.01) + y
             plt.scatter(x, y, c="blue")
@@ -80,7 +78,7 @@ def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         logger.info("Saving figure to plot.png..")
         plt.savefig("plot.png", bbox_inches="tight")
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)
