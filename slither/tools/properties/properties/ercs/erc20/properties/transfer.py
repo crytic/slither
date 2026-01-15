@@ -21,7 +21,7 @@ ERC20_Transferable = [
         name="crytic_approve_overwrites()",
         description="Allowance can be changed.",
         content="""
-\t\tbool approve_return; 
+\t\tbool approve_return;
 \t\tapprove_return = approve(crytic_user, 10);
 \t\trequire(approve_return);
 \t\tapprove_return = approve(crytic_user, 20);

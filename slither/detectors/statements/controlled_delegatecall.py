@@ -8,25 +8,22 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import LowLevelCall
 from slither.utils.output import Output
 
 
 def controlled_delegatecall(function: FunctionContract) -> List[Node]:
     ret = []
-    for node in function.nodes:
-        for ir in node.irs:
-            if isinstance(ir, LowLevelCall) and ir.function_name in [
-                "delegatecall",
-                "callcode",
-            ]:
-                if is_tainted(ir.destination, function.contract):
-                    ret.append(node)
+    for ir in function.low_level_calls:
+        if ir.function_name in [
+            "delegatecall",
+            "callcode",
+        ]:
+            if is_tainted(ir.destination, function.contract):
+                ret.append(ir.node)
     return ret
 
 
 class ControlledDelegateCall(AbstractDetector):
-
     ARGUMENT = "controlled-delegatecall"
     HELP = "Controlled delegatecall destination"
     IMPACT = DetectorClassification.HIGH

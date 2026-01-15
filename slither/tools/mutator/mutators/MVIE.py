@@ -5,7 +5,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
 
-class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MVIE(AbstractMutator):
     NAME = "MVIE"
     HELP = "variable initialization using an expression"
 
@@ -24,7 +24,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = variable.source_mapping.start
                     stop = variable.expression.source_mapping.start
-                    old_str = self.in_file_str[start:stop]
+                    old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
@@ -39,12 +39,14 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                         )
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for variable in function.local_variables:
                 if variable.initialized and not isinstance(variable.expression, Literal):
                     # Get the string
                     start = variable.source_mapping.start
                     stop = variable.expression.source_mapping.start
-                    old_str = self.in_file_str[start:stop]
+                    old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:

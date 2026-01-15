@@ -48,6 +48,7 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
@@ -79,7 +80,7 @@ defaults_flag_in_config = {
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
     if args.config_file is None:
-        # Check wether the default config file is present
+        # Check whether the default config file is present
         if os.path.exists("slither.config.json"):
             # The default file exists, use it
             args.config_file = "slither.config.json"
@@ -134,7 +135,7 @@ def output_to_markdown(
         detectors_list, key=lambda element: (element[2], element[3], element[0])
     )
     idx = 1
-    for (argument, help_info, impact, confidence) in detectors_list:
+    for argument, help_info, impact, confidence in detectors_list:
         print(f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {confidence}")
         idx = idx + 1
 
@@ -148,7 +149,7 @@ def output_to_markdown(
     # Sort by impact, confidence, and name
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
-    for (argument, help_info) in printers_list:
+    for argument, help_info in printers_list:
         print(f"{idx} | `{argument}` | {help_info}")
         idx = idx + 1
 
@@ -204,10 +205,10 @@ def output_results_to_markdown(
         )
 
     counter = 0
-    for (check, results) in checks.items():
+    for check, results in checks.items():
         print(f"## {check}")
-        print(f'Impact: {info[check]["impact"]}')
-        print(f'Confidence: {info[check]["confidence"]}')
+        print(f"Impact: {info[check]['impact']}")
+        print(f"Confidence: {info[check]['confidence']}")
         additional = False
         if checklistlimit and len(results) > 5:
             results = results[0:5]
@@ -224,7 +225,6 @@ def output_results_to_markdown(
 
 
 def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str) -> None:
-
     # Sort by impact, confidence, and name
     detectors_list = sorted(
         detector_classes,
@@ -278,13 +278,12 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
         detectors_list, key=lambda element: (element[2], element[3], element[0])
     )
     idx = 1
-    for (argument, help_info, impact, confidence) in detectors_list:
+    for argument, help_info, impact, confidence in detectors_list:
         table.add_row([str(idx), argument, help_info, classification_txt[impact], confidence])
         idx = idx + 1
     print(table)
 
 
-# pylint: disable=too-many-locals
 def output_detectors_json(
     detector_classes: List[Type[AbstractDetector]],
 ) -> List[Dict]:
@@ -358,9 +357,11 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     # Sort by impact, confidence, and name
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
-    for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+    for argument, help_info in printers_list:
+        # Clean multi line HELP info
+        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
         idx = idx + 1
+
     print(table)
 
 
@@ -376,7 +377,7 @@ def output_printers_json(printer_classes: List[Type[AbstractPrinter]]) -> List[D
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     table = []
-    for (argument, help_info) in printers_list:
+    for argument, help_info in printers_list:
         table.append({"index": idx, "check": argument, "title": help_info})
         idx = idx + 1
     return table
@@ -403,6 +404,6 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
                 "Replacing 'tree' with 'blob' in markdown_root url for better code referencing"
             )
             positions = match.span(4)
-            markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
+            markdown_root = f"{markdown_root[: positions[0]]}blob{markdown_root[positions[1] :]}"
 
     return markdown_root

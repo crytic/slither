@@ -68,7 +68,7 @@ async function catchRevertThrow(promise) {
 """
 
 
-def generate_unit_test(  # pylint: disable=too-many-arguments,too-many-branches
+def generate_unit_test(
     test_contract: str,
     filename: str,
     unit_tests: List[Property],

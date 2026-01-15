@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 # https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#type-information
 class TypeInformation(Type):
     def __init__(self, c: Union[ElementaryType, "Contract", "Enum"]) -> None:
-        # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
         from slither.core.declarations.enum import Enum
 

@@ -1,9 +1,13 @@
 """
-    Module printing evm mapping of the contract
+Module printing evm mapping of the contract
 """
+
 import logging
+from typing import Union, List, Dict
 
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.core.declarations.function import Function
+from slither.core.declarations.modifier import Modifier
 from slither.analyses.evm import (
     generate_source_to_evm_ins_mapping,
     load_evm_cfg_builder,
@@ -70,12 +74,38 @@ def _extract_evm_info(slither):
     return evm_info
 
 
-# pylint: disable=too-many-locals
 class PrinterEVM(AbstractPrinter):
     ARGUMENT = "evm"
     HELP = "Print the evm instructions of nodes in functions"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#evm"
+
+    def build_element_node_str(
+        self,
+        element: Union["Modifier", "Function"],
+        contract_pcs: Dict[int, List[int]],
+        contract_cfg,
+    ) -> str:
+        element_file = self.slither.source_code[
+            element.contract_declarer.source_mapping.filename.absolute
+        ].splitlines()
+
+        return_string = ""
+        for node in element.nodes:
+            return_string += green(f"\t\tNode: {node}\n")
+            node_source_line = node.source_mapping.lines[0]
+            return_string += green(
+                f"\t\tSource line {node_source_line}: {element_file[node_source_line - 1].rstrip()}\n"
+            )
+
+            return_string += magenta("\t\tEVM Instructions:\n")
+            node_pcs = contract_pcs.get(node_source_line, [])
+            for pc in node_pcs:
+                return_string += magenta(
+                    f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n"
+                )
+
+        return return_string
 
     def output(self, _filename):
         """
@@ -99,53 +129,27 @@ class PrinterEVM(AbstractPrinter):
                 txt += "\tempty contract\n"
                 continue
 
-            contract_file = self.slither.source_code[
-                contract.source_mapping.filename.absolute
-            ].encode("utf-8")
-            with open(contract.source_mapping.filename.absolute, "r", encoding="utf8") as f:
-                contract_file_lines = f.readlines()
-
-            contract_pcs = {}
-            contract_cfg = {}
-
             for function in contract.functions:
                 txt += blue(f"\tFunction {function.canonical_name}\n")
 
-                # CFG and source mapping depend on function being constructor or not
-                if function.is_constructor:
-                    contract_cfg = evm_info["cfg_init", contract.name]
-                    contract_pcs = evm_info["mapping_init", contract.name]
-                else:
-                    contract_cfg = evm_info["cfg", contract.name]
-                    contract_pcs = evm_info["mapping", contract.name]
-
-                for node in function.nodes:
-                    txt += green("\t\tNode: " + str(node) + "\n")
-                    node_source_line = (
-                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
-                    )
-                    txt += green(
-                        f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
-                    )
-                    txt += magenta("\t\tEVM Instructions:\n")
-                    node_pcs = contract_pcs.get(node_source_line, [])
-                    for pc in node_pcs:
-                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
+                txt += self.build_element_node_str(
+                    function,
+                    evm_info["mapping", contract.name]
+                    if not function.is_constructor
+                    else evm_info["mapping_init", contract.name],
+                    evm_info["cfg", contract.name]
+                    if not function.is_constructor
+                    else evm_info["cfg_init", contract.name],
+                )
 
             for modifier in contract.modifiers:
                 txt += blue(f"\tModifier {modifier.canonical_name}\n")
-                for node in modifier.nodes:
-                    txt += green("\t\tNode: " + str(node) + "\n")
-                    node_source_line = (
-                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
-                    )
-                    txt += green(
-                        f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
-                    )
-                    txt += magenta("\t\tEVM Instructions:\n")
-                    node_pcs = contract_pcs.get(node_source_line, [])
-                    for pc in node_pcs:
-                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
+
+                txt += self.build_element_node_str(
+                    modifier,
+                    evm_info["mapping", contract.name],
+                    evm_info["cfg", contract.name],
+                )
 
         self.info(txt)
         res = self.generate_output(txt)

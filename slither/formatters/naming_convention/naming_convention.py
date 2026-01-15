@@ -27,9 +27,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-# pylint: disable=anomalous-backslash-in-string
-
-
 def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
     for element in elements:
@@ -40,7 +37,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
         if convention == "l_O_I_should_not_be_used":
             # l_O_I_should_not_be_used cannot be automatically patched
             logger.info(
-                f'The following naming convention cannot be patched: \n{result["description"]}'
+                f"The following naming convention cannot be patched: \n{result['description']}"
             )
             continue
 
@@ -339,10 +336,13 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     :return:
     """
     v = "var "
-    return slither.core.source_code[filename][start : start + len(v)] == v
+    return (
+        slither.core.source_code[filename].encode("utf8")[start : start + len(v)].decode("utf8")
+        == v
+    )
 
 
-def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+def _explore_type(
     slither: SlitherCompilationUnit,
     result: Dict,
     target: TARGET_TYPE,
@@ -401,7 +401,6 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
             custom_type.type_from,
             custom_type.type_to,
         ]:
-
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.core.source_code[filename_source_code].encode("utf8")[
@@ -443,7 +442,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 )
 
 
-def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+def _explore_variables_declaration(
     slither: SlitherCompilationUnit,
     variables: Sequence[Variable],
     result: Dict,
@@ -606,7 +605,6 @@ def _explore_irs(
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
-    # pylint: disable=too-many-locals
     if not irs:
         return
     for ir in irs:
