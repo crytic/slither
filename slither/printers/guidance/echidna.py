@@ -69,7 +69,7 @@ def _extract_solidity_variable_usage(
     return ret
 
 
-def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
+def _is_constant(f: Function) -> bool:
     """
     Heuristic:
     - If view/pure with Solidity >= 0.4 -> Return true
@@ -139,17 +139,12 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     """
     ret: Dict[str, Dict[str, List[Dict]]] = {}
     for contract in contracts:
-        functions_using_assert = []  # Dict[str, List[Dict]] = defaultdict(list)
+        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
             for ir in f.all_solidity_calls():
-                if ir.function == SolidityFunction("assert(bool)"):
-                    functions_using_assert.append(_get_name(f))
-                    break
-            # Revert https://github.com/crytic/slither/pull/2105 until format is supported by echidna.
-            # for node in f.all_nodes():
-            #     if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
-            #         func_name = _get_name(f)
-            #         functions_using_assert[func_name].append(node.source_mapping.to_json())
+                if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
+                    func_name = _get_name(f)
+                    functions_using_assert[func_name].append(ir.node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -157,9 +152,6 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
 
 # Create a named tuple that is serialization in json
 def json_serializable(cls):
-    # pylint: disable=unnecessary-comprehension,unnecessary-dunder-call
-    # TODO: the next line is a quick workaround to prevent pylint from crashing
-    # It can be removed once https://github.com/PyCQA/pylint/pull/3810 is merged
     my_super = super
 
     def as_dict(self):
@@ -172,7 +164,7 @@ def json_serializable(cls):
 
 
 @json_serializable
-class ConstantValue(NamedTuple):  # pylint: disable=inherit-non-class,too-few-public-methods
+class ConstantValue(NamedTuple):
     # Here value should be  Union[str, int, bool]
     # But the json lib in Echidna does not handle large integer in json
     # So we convert everything to string
@@ -395,7 +387,7 @@ def _call_a_parameter(slither: SlitherCore, contracts: List[Contract]) -> Dict[s
     """
     # contract -> [ (function, idx, interface_called) ]
     ret: Dict[str, List[Dict]] = defaultdict(list)
-    for contract in contracts:  # pylint: disable=too-many-nested-blocks
+    for contract in contracts:
         for function in contract.functions_entry_points:
             try:
                 for ir in function.all_slithir_operations():
@@ -432,7 +424,7 @@ class Echidna(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#echidna"
 
-    def output(self, filename: str) -> Output:  # pylint: disable=too-many-locals
+    def output(self, filename: str) -> Output:
         """
         Output the inheritance relation
 

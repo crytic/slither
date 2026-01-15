@@ -98,7 +98,7 @@ def find_variable(
     :return:
     :rtype:
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.vyper_parsing.declarations.function import (
         FunctionVyper,
     )

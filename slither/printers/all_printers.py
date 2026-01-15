@@ -1,4 +1,3 @@
-# pylint: disable=unused-import,relative-beyond-top-level
 from .summary.function import FunctionSummary
 from .summary.contract import ContractSummary
 from .summary.loc import LocPrinter
@@ -25,3 +24,4 @@ from .summary.declaration import Declaration
 from .functions.dominator import Dominator
 from .summary.martin import Martin
 from .summary.cheatcodes import CheatcodePrinter
+from .summary.entry_points import PrinterEntryPoints

@@ -1,6 +1,7 @@
 """
 Tool to read on-chain storage from EVM
 """
+
 import json
 import argparse
 
@@ -172,7 +173,7 @@ def main() -> None:
         print(srs.table)
 
     if args.json:
-        with open(args.json, "w", encoding="utf-8") as file:
+        with open(args.json, "w", encoding="utf8") as file:
             slot_infos_json = srs.to_json()
             json.dump(slot_infos_json, file, indent=4)
 

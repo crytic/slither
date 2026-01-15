@@ -47,18 +47,14 @@ def _all_properties() -> MyPrettyTable:
     return table
 
 
-class ListScenarios(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListScenarios(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         logger.info(_all_scenarios())
         parser.exit()
 
 
-class ListProperties(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListProperties(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         logger.info(_all_properties())
         parser.exit()
 
