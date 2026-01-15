@@ -7,9 +7,10 @@ Source: https://github.com/crytic/slither/pull/2015/files
 Added chainID check
 
 Added ECDSA check, reference: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/ECDSA.sol
-    
+
 
 """
+
 from collections import defaultdict
 from typing import DefaultDict, List, Tuple
 from slither.utils.output import Output
@@ -79,7 +80,9 @@ Second, there is no verification of ecrecover's return value.
 
         for contract in self.compilation_unit.contracts_derived:
             for function in contract.functions_and_modifiers_declared:
-                var_results, nonce_results, r_ecdsa_results, s_ecdsa_results, v_ecdsa_results = _detect_ecrecover(function)
+                var_results, nonce_results, r_ecdsa_results, s_ecdsa_results, v_ecdsa_results = (
+                    _detect_ecrecover(function)
+                )
                 for _, var_nodes in var_results:
                     for var, nodes in var_nodes.items():
                         info: DETECTOR_INFO = [
@@ -136,7 +139,8 @@ Second, there is no verification of ecrecover's return value.
                         results.append(res)
         return results
 
-#Checks the Zero Address validation and returns true or false
+
+# Checks the Zero Address validation and returns true or false
 def _zero_address_validation(var: LocalVariable, function: Function) -> bool:
     for node in function.nodes:
         if node.contains_if() or node.contains_require_or_assert():
@@ -149,7 +153,8 @@ def _zero_address_validation(var: LocalVariable, function: Function) -> bool:
                         return True
     return False
 
-#Checks the ECDSA validation for the r value and returns true or false
+
+# Checks the ECDSA validation for the r value and returns true or false
 def _r_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
     for node in function.nodes:
         if node.contains_if():
@@ -157,12 +162,15 @@ def _r_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
                 expression = str(ir.expression)
                 if isinstance(ir, Binary):
                     if (
-                        ir.type == BinaryType.GREATER or ir.type == BinaryType.LESS
-                    ) and "r > 0" in expression or "0 < r" in expression:
+                        (ir.type == BinaryType.GREATER or ir.type == BinaryType.LESS)
+                        and "r > 0" in expression
+                        or "0 < r" in expression
+                    ):
                         return True
     return False
 
-#Checks the ECDSA validation for the s value and returns true or false
+
+# Checks the ECDSA validation for the s value and returns true or false
 def _s_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
     for node in function.nodes:
         if node.contains_if():
@@ -170,15 +178,25 @@ def _s_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
                 expression = str(ir.expression)
                 if isinstance(ir, Binary):
                     if (
-                        ir.type == BinaryType.GREATER or ir.type == BinaryType.LESS or 
-                        ir.type == BinaryType.LESS_EQUAL or ir.type == BinaryType.GREATER_EQUAL
-                    ) and (("s > 0") in expression or ("0 < s") in expression) or (
-                    ("uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0"
-                    ) in expression):
+                        (
+                            ir.type == BinaryType.GREATER
+                            or ir.type == BinaryType.LESS
+                            or ir.type == BinaryType.LESS_EQUAL
+                            or ir.type == BinaryType.GREATER_EQUAL
+                        )
+                        and (("s > 0") in expression or ("0 < s") in expression)
+                        or (
+                            (
+                                "uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0"
+                            )
+                            in expression
+                        )
+                    ):
                         return True
     return False
 
-#Checks the ECDSA validation for the v value and returns true or false
+
+# Checks the ECDSA validation for the v value and returns true or false
 def _v_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
     for node in function.nodes:
         if node.contains_if():
@@ -186,8 +204,10 @@ def _v_ecdsa_validation(var: LocalVariable, function: Function) -> bool:
                 expression = str(ir.expression)
                 if isinstance(ir, Binary):
                     if (
-                        ir.type == BinaryType.EQUAL
-                    ) and ("v == 0" in expression) or ("v == 1" in expression):
+                        (ir.type == BinaryType.EQUAL)
+                        and ("v == 0" in expression)
+                        or ("v == 1" in expression)
+                    ):
                         return True
     return False
 
@@ -204,7 +224,7 @@ def _detect_ecrecover(
     s_ecdsa_results = []
     v_ecdsa_results = []
 
-    #If ecrecover function is called
+    # If ecrecover function is called
     if SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)") in function.solidity_calls:
         address_list = []
         var_nodes = defaultdict(list)
@@ -215,25 +235,26 @@ def _detect_ecrecover(
                         address_list.append(var)
                         var_nodes[var].append(node)
 
-            #If keccak256 hash function is called      
+            # If keccak256 hash function is called
             if SolidityFunction("keccak256(bytes)") in node.solidity_calls:
                 for ir in node.irs:
                     if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
                         "keccak256(bytes)"
                     ):
                         # Checking if nonce or chainId is present in the expression
-                        if "nonce" not in str(ir.expression) and "chainId" not in str(ir.expression):
+                        if "nonce" not in str(ir.expression) and "chainId" not in str(
+                            ir.expression
+                        ):
                             nonce_results.append(node)
 
         for var in address_list:
             if not _zero_address_validation(var, function):
                 results.append((function, var_nodes))
             if not _r_ecdsa_validation(var, function):
-                r_ecdsa_results.append((function,var_nodes))
+                r_ecdsa_results.append((function, var_nodes))
             if not _s_ecdsa_validation(var, function):
-                s_ecdsa_results.append((function,var_nodes))
+                s_ecdsa_results.append((function, var_nodes))
             if not _v_ecdsa_validation(var, function):
-                v_ecdsa_results.append((function,var_nodes))
-            
+                v_ecdsa_results.append((function, var_nodes))
 
-    return (results, nonce_results, r_ecdsa_results, s_ecdsa_results, v_ecdsa_results) 
+    return (results, nonce_results, r_ecdsa_results, s_ecdsa_results, v_ecdsa_results)

@@ -72,11 +72,9 @@ def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def parse_expression(
     expression: ASTNode, caller_context: Union[FunctionContract, Contract]
 ) -> "Expression":
-
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
         literal.set_offset(expression.src, caller_context.compilation_unit)
@@ -153,10 +151,10 @@ def parse_expression(
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
+            # `raw_call` and `send` are treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
+            # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
             if called.value.name == "raw_call()":
                 args = [parse_expression(a, caller_context) for a in expression.args]
-                # This is treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
-                # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
                 call = CallExpression(
                     MemberAccess("raw_call", "tuple(bool,bytes32)", args[0]),
                     args[1:],
@@ -183,6 +181,17 @@ def parse_expression(
 
                 return call
 
+            if called.value.name == "send()":
+                args = [parse_expression(a, caller_context) for a in expression.args]
+                call = CallExpression(
+                    MemberAccess("send", "tuple()", args[0]),
+                    args[1:],
+                    "tuple()",
+                )
+                call.set_offset(expression.src, caller_context.compilation_unit)
+
+                return call
+
         if expression.args and isinstance(expression.args[0], VyDict):
             arguments = []
             for val in expression.args[0].values:
@@ -196,7 +205,7 @@ def parse_expression(
             if isinstance(called.value, FunctionContract):
                 rets = called.value.returns
                 # Default arguments are not represented in the AST, so we recover them as well.
-                # pylint: disable=protected-access
+
                 if called.value._default_args_as_expressions and len(arguments) < len(
                     called.value.parameters
                 ):
@@ -340,9 +349,9 @@ def parse_expression(
             is_tuple = isinstance(rhs, TupleExpression)
             is_array = isinstance(rhs, Identifier) and isinstance(rhs.value.type, ArrayType)
             if is_array:
-                assert (
-                    rhs.value.type.is_fixed_array
-                ), "Dynamic arrays are not supported in comparison operators"
+                assert rhs.value.type.is_fixed_array, (
+                    "Dynamic arrays are not supported in comparison operators"
+                )
             if is_tuple or is_array:
                 length = len(rhs.expressions) if is_tuple else rhs.value.type.length_value.value
                 inner_op = (

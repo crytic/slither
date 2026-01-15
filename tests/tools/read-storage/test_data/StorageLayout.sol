@@ -36,6 +36,11 @@ contract StorageLayout {
     uint[][] multidimensionalArray;
     PackedStruct[] dynamicArrayOfStructs;
     PackedStruct[3] fixedArrayOfStructs;
+    struct BiggerStruct {
+        uint64 x;
+        uint256 y;
+    }
+    BiggerStruct big;
 
     function store() external {
         require(_address == address(0));
@@ -71,5 +76,6 @@ contract StorageLayout {
 
        mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[0]);
        mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[1]);
+        big = BiggerStruct(10,100);
     }
 }

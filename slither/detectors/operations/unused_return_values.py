@@ -1,6 +1,7 @@
 """
 Module detecting unused return values from external calls
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType
@@ -38,7 +39,7 @@ class UnusedReturnValues(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
-    using SafeMath for uint;   
+    using SafeMath for uint;
     function my_func(uint a, uint b) public{
         a.add(b);
     }
@@ -49,7 +50,7 @@ contract MyConc{
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
-    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+    def _is_instance(self, ir: Operation) -> bool:
         return (
             isinstance(ir, HighLevelCall)
             and (
@@ -64,9 +65,7 @@ contract MyConc{
             and isinstance(ir, (Assignment, Unpack))
         )
 
-    def detect_unused_return_values(
-        self, f: FunctionContract
-    ) -> List[Node]:  # pylint: disable=no-self-use
+    def detect_unused_return_values(self, f: FunctionContract) -> List[Node]:
         """
             Return the nodes where the return value of a call is unused
         Args:
@@ -76,7 +75,7 @@ contract MyConc{
         """
         values_returned = []
         nodes_origin = {}
-        # pylint: disable=too-many-nested-blocks
+
         for n in f.nodes:
             for ir in n.irs:
                 if self._is_instance(ir):
@@ -105,7 +104,6 @@ contract MyConc{
             for f in c.functions_and_modifiers:
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-
                     for node in unused_return:
                         info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 
