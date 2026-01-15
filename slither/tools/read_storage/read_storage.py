@@ -10,7 +10,7 @@ from eth_utils import keccak, to_checksum_address
 from web3 import Web3
 from web3.types import BlockIdentifier
 from web3.exceptions import ExtraDataLengthError
-from web3.middleware import geth_poa_middleware
+from web3.middleware import ExtraDataToPOAMiddleware
 
 from slither.core.declarations import Contract, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
@@ -72,7 +72,7 @@ class RpcInfo:
         try:
             self._block: int = self.web3.eth.get_block(block)["number"]
         except ExtraDataLengthError:
-            self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._web3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
             self._block: int = self.web3.eth.get_block(block)["number"]
 
     @property
@@ -84,7 +84,6 @@ class RpcInfo:
         return self._block
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherReadStorage:
     def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
         self._checksum_address: Optional[ChecksumAddress] = None
@@ -194,8 +193,6 @@ class SlitherReadStorage:
                 continue
         return tmp
 
-    # TODO: remove this pylint exception (montyly)
-    # pylint: disable=too-many-locals
     def get_storage_slot(
         self,
         target_variable: StateVariable,
@@ -578,11 +575,12 @@ class SlitherReadStorage:
         slot = int.from_bytes(slot_as_bytes, "big")
         offset = 0
         type_to = ""
+        size = 0
         for var in elems:
             var_type = var.type
             if isinstance(var_type, ElementaryType):
                 size = var_type.size
-                if offset >= 256:
+                if size > (256 - offset):
                     slot += 1
                     offset = 0
                 if struct_var == var.name:
@@ -596,7 +594,6 @@ class SlitherReadStorage:
         info = f"\nStruct Variable: {struct_var}"
         return info, type_to, slot_as_bytes, size, offset
 
-    # pylint: disable=too-many-branches,too-many-statements
     @staticmethod
     def _find_array_slot(
         target_variable_type: ArrayType,
@@ -845,7 +842,6 @@ class SlitherReadStorage:
 
         return data
 
-    # pylint: disable=too-many-nested-blocks
     def _all_array_slots(
         self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
     ) -> Union[Elem, NestedElem]:

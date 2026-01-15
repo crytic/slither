@@ -6,7 +6,6 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import SolidityCall
 from slither.utils.output import Output
 
 
@@ -42,22 +41,18 @@ The function will halt the execution, instead of returning a two uint."""
     def _check_function(self, f: Function) -> List[Output]:
         results: List[Output] = []
 
-        for node in f.nodes:
-            for ir in node.irs:
-                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-                    "return(uint256,uint256)"
-                ):
-                    info: DETECTOR_INFO = [f, " contains an incorrect call to return: ", node, "\n"]
-                    json = self.generate_result(info)
+        for ir in f.solidity_calls:
+            if ir.function == SolidityFunction("return(uint256,uint256)"):
+                info: DETECTOR_INFO = [f, " contains an incorrect call to return: ", ir.node, "\n"]
+                json = self.generate_result(info)
 
-                    results.append(json)
+                results.append(json)
         return results
 
     def _detect(self) -> List[Output]:
         results: List[Output] = []
         for c in self.contracts:
             for f in c.functions_declared:
-
                 if (
                     len(f.returns) == 2
                     and f.contains_assembly

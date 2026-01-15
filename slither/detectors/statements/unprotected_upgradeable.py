@@ -7,23 +7,28 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import LowLevelCall, SolidityCall
 from slither.utils.output import Output
 
 
 def _can_be_destroyed(contract: Contract) -> List[Function]:
     targets = []
     for f in contract.functions_entry_points:
-        for ir in f.all_slithir_operations():
-            if (
-                isinstance(ir, LowLevelCall) and ir.function_name in ["delegatecall", "codecall"]
-            ) or (
-                isinstance(ir, SolidityCall)
-                and ir.function
-                in [SolidityFunction("suicide(address)"), SolidityFunction("selfdestruct(address)")]
-            ):
+        found = False
+        for ir in f.all_low_level_calls():
+            if ir.function_name in ["delegatecall", "codecall"]:
                 targets.append(f)
+                found = True
                 break
+
+        if not found:
+            for ir in f.all_solidity_calls():
+                if ir.function in [
+                    SolidityFunction("suicide(address)"),
+                    SolidityFunction("selfdestruct(address)"),
+                ]:
+                    targets.append(f)
+                    break
+
     return targets
 
 
@@ -35,8 +40,8 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
-        for ifc in f.all_internal_calls():
-            if ifc.name == "_disableInitializers":
+        for ir in f.all_internal_calls():
+            if ir.function.name == "_disableInitializers":
                 return True
 
     # to avoid future FPs in different modifier + function naming implementations, we can also implement a broader check for state var "_initialized" being written to in the constructor
@@ -64,7 +69,6 @@ def _initialize_functions(contract: Contract) -> List[Function]:
 
 
 class UnprotectedUpgradeable(AbstractDetector):
-
     ARGUMENT = "unprotected-upgrade"
     HELP = "Unprotected upgradeable contract"
     IMPACT = DetectorClassification.HIGH

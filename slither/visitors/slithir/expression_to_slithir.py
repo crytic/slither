@@ -163,10 +163,8 @@ def convert_assignment(
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-
-    # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
-        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
+        from slither.core.cfg.node import NodeType
 
         self._expression = expression
         self._node = node
@@ -182,7 +180,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> List[Operation]:
         return self._result
 
-    # pylint: disable=too-many-branches,too-many-statements
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
@@ -271,7 +268,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
-
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -318,9 +314,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         set_val(expression, val)
 
-    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
-
         assert isinstance(expression, CallExpression)
 
         expression_called = expression.called
@@ -406,6 +400,29 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(var)
             set_val(expression, val)
 
+        elif (
+            called.name in ["sload(uint256)", "sstore(uint256,uint256)"]
+            and len(args) > 0
+            and isinstance(args[0], StateVariable)
+        ):
+            # parse_yul._parse_yul_magic_suffixes does a best effort tentative to retrieve
+            # the right state variable on .slot access
+            #
+            # Solidity does not allow state variable to be directly used through sstore/sload
+            # As you need to specify the slot number (ex you can't do " sload(some_state_variable)")
+            #
+            # So we can make the assumption that if a state variable appear on the first argument
+            # of sstore/sload, we can convert the call to sstore to a normal assignment / read
+
+            if called.name == "sload(uint256)":
+                val = TemporaryVariable(self._node)
+                var = Assignment(val, args[0], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, val)
+            else:
+                var = Assignment(args[0], args[1], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, args[0])
         else:
             # If tuple
             if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
@@ -501,7 +518,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
-        # pylint: disable=too-many-nested-blocks
+
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -718,7 +735,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
-    # pylint: disable=too-many-statements
     def _post_unary_operation(self, expression: UnaryOperation) -> None:
         value = get(expression.expression)
         operation: Operation

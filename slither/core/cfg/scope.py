@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from slither.core.declarations.function import Function
 
 
-# pylint: disable=too-few-public-methods
 class Scope:
     def __init__(
         self, is_checked: bool, is_yul: bool, parent_scope: Union["Scope", "Function"]
