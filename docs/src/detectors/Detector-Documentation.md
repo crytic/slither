@@ -916,26 +916,6 @@ As a result, Eve wins the game.
 
 Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness
 
-## Codex
-
-### Configuration
-
-- Check: `codex`
-- Severity: `High`
-- Confidence: `Low`
-
-### Description
-
-Use [codex](https://openai.com/blog/openai-codex/) to find vulnerabilities
-
-### Exploit Scenario
-
-N/A
-
-### Recommendation
-
-Review codex's message.
-
 ## Domain separator collision
 
 ### Configuration

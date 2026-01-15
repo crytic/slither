@@ -11,9 +11,7 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
-class InternalDynamicCall(
-    Call, OperationWithLValue
-):  # pylint: disable=too-many-instance-attributes
+class InternalDynamicCall(Call, OperationWithLValue):
     def __init__(
         self,
         lvalue: Optional[Union[TemporaryVariableSSA, TemporaryVariable]],
