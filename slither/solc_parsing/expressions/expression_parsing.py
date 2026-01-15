@@ -54,7 +54,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ExpressionParsing")
 
 
-
 def _fit_smallest_integer(val: str) -> str:
     """
     Return the smallest unsigned integer that can fit val
