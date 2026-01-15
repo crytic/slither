@@ -881,7 +881,7 @@ class Node(SourceMapping):
             if isinstance(ir, InternalCall):
                 self._internal_calls.append(ir)
             if isinstance(ir, SolidityCall):
-                # TODO: consider removing dependancy of solidity_call to internal_call
+                # TODO: consider removing dependency of solidity_call to internal_call
                 self._solidity_calls.append(ir)
                 self._internal_calls.append(ir)
             if isinstance(ir, LowLevelCall):

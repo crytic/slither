@@ -118,7 +118,7 @@ INFO:Slither-simil:Saving figure to plot.png..
 
 This mode performs dimensionality reduction using PCA, so the axes you see here [are **not** associated with any particular unit](https://stats.stackexchange.com/questions/137813/the-meaning-of-units-on-the-axes-of-a-pca-plot).
 
-It can can be also used to plot sets of functions using only a name from any contract (e.g. `burn`) .
+It can also be used to plot sets of functions using only a name from any contract (e.g. `burn`) .
 
 ### Info mode
 
