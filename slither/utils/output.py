@@ -360,7 +360,6 @@ def _create_parent_element(
         Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
     ],
 ]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations.contract_level import ContractLevel
 
     if isinstance(element, FunctionContract):
@@ -411,7 +410,7 @@ class Output:
         self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
-        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
+        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf8")).hexdigest()
 
         if standard_format:
             to_add = [i for i in info if not isinstance(i, str)]

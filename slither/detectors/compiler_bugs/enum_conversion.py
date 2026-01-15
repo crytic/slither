@@ -1,6 +1,7 @@
 """
 Module detecting dangerous conversion to enum
 """
+
 from typing import List, Tuple
 
 from slither.core.cfg.node import Node

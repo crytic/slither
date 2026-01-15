@@ -1,9 +1,9 @@
 """
-    Module printing the inheritance graph
+Module printing the inheritance graph
 
-    The inheritance graph shows the relation between the contracts
-    and their functions/modifiers/public variables.
-    The output is a dot file named filename.dot
+The inheritance graph shows the relation between the contracts
+and their functions/modifiers/public variables.
+The output is a dot file named filename.dot
 """
 
 from slither.core.declarations.contract import Contract

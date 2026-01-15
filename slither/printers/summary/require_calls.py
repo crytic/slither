@@ -1,5 +1,5 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 
 from slither.core.declarations import SolidityFunction
@@ -11,11 +11,11 @@ require_or_assert = [
     SolidityFunction("assert(bool)"),
     SolidityFunction("require(bool)"),
     SolidityFunction("require(bool,string)"),
+    SolidityFunction("require(bool,error)"),
 ]
 
 
 class RequireOrAssert(AbstractPrinter):
-
     ARGUMENT = "require"
     HELP = "Print the require and assert calls of each function"
 

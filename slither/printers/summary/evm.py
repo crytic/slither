@@ -1,6 +1,7 @@
 """
-    Module printing evm mapping of the contract
+Module printing evm mapping of the contract
 """
+
 import logging
 from typing import Union, List, Dict
 
@@ -73,7 +74,6 @@ def _extract_evm_info(slither):
     return evm_info
 
 
-# pylint: disable=too-many-locals
 class PrinterEVM(AbstractPrinter):
     ARGUMENT = "evm"
     HELP = "Print the evm instructions of nodes in functions"

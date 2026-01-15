@@ -14,7 +14,7 @@ from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
 
-class Test:  # pylint: disable=too-few-public-methods
+class Test:
     def __init__(
         self,
         detector: Type[AbstractDetector],
@@ -40,7 +40,7 @@ class Test:  # pylint: disable=too-few-public-methods
             self.additional_files = additional_files
 
 
-def set_solc(test_item: Test):  # pylint: disable=too-many-lines
+def set_solc(test_item: Test):
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
 
@@ -508,6 +508,11 @@ ALL_TESTS = [
     Test(
         all_detectors.CouldBeConstant,
         "const_state_variables.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.CouldBeConstant,
+        "unused_yul.sol",
         "0.8.0",
     ),
     Test(
@@ -1714,6 +1719,46 @@ ALL_TESTS = [
         "out_of_order_retryable.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.GelatoUnprotectedRandomness,
+        "gelato_unprotected_randomness.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.ChronicleUncheckedPrice,
+        "chronicle_unchecked_price.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.PythUncheckedConfidence,
+        "pyth_unchecked_confidence.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.PythUncheckedPublishTime,
+        "pyth_unchecked_publishtime.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.ChainlinkFeedRegistry,
+        "chainlink_feed_registry.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.PythDeprecatedFunctions,
+        "pyth_deprecated_functions.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.OptimismDeprecation,
+        "optimism_deprecation.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.UnindexedEventAddress,
+        "unindexed_event_address.sol",
+        "0.8.22",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
@@ -1905,7 +1950,7 @@ GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
-# pylint: disable=too-many-locals
+
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(

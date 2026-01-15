@@ -1,3 +1,6 @@
+Test3.s (tests/e2e/detectors/test_data/uninitialized-state/0.4.25/uninitialized.sol#61) is never initialized. It is used in:
+	- Test3.a() (tests/e2e/detectors/test_data/uninitialized-state/0.4.25/uninitialized.sol#63-65)
+
 Test2.st (tests/e2e/detectors/test_data/uninitialized-state/0.4.25/uninitialized.sol#45) is never initialized. It is used in:
 	- Test2.use() (tests/e2e/detectors/test_data/uninitialized-state/0.4.25/uninitialized.sol#53-56)
 
