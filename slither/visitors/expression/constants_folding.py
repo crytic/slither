@@ -74,7 +74,6 @@ class ConstantFolding(ExpressionVisitor):
                 value = value & (2**256 - 1)
         return Literal(value, self._type)
 
-    # pylint: disable=import-outside-toplevel
     def _post_identifier(self, expression: Identifier) -> None:
         from slither.core.declarations.solidity_variables import SolidityFunction
         from slither.core.declarations.enum import Enum
@@ -113,7 +112,6 @@ class ConstantFolding(ExpressionVisitor):
             if not isinstance(expression.value, (Enum, TypeAlias, Contract)):
                 raise NotConstant
 
-    # pylint: disable=too-many-branches,too-many-statements
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
         expression_left = expression.expression_left
         expression_right = expression.expression_right
@@ -248,7 +246,6 @@ class ConstantFolding(ExpressionVisitor):
         from slither.core.declarations.enum import Enum
         from slither.core.solidity_types import TypeAlias
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             isinstance(expression.called, Identifier)
             and expression.called.value == SolidityFunction("type()")
@@ -293,7 +290,6 @@ class ConstantFolding(ExpressionVisitor):
     def _post_index_access(self, expression: expressions.IndexAccess) -> None:
         raise NotConstant
 
-    # pylint: disable=too-many-locals
     def _post_member_access(self, expression: expressions.MemberAccess) -> None:
         from slither.core.declarations import (
             SolidityFunction,
@@ -304,7 +300,6 @@ class ConstantFolding(ExpressionVisitor):
         )
         from slither.core.solidity_types import UserDefinedType, TypeAlias
 
-        # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -356,6 +351,14 @@ class ConstantFolding(ExpressionVisitor):
         ):
             # User defined type .wrap call handled in _post_call_expression
             return
+        elif (
+            isinstance(expression.expression, TypeConversion)
+            and expression.expression.type == ElementaryType("address")
+            and expression.member_name in ["balance", "code", "codehash"]
+        ):
+            # We need to raise NotConstant for these case here otherwise expression.expression.value would crash in the following condition
+            # because TypeConversion does not have a value. See https://github.com/crytic/slither/issues/2717
+            raise NotConstant
         elif (
             isinstance(expression.expression.value, Contract)
             and expression.member_name in expression.expression.value.variables_as_dict
@@ -442,6 +445,8 @@ class ConstantFolding(ExpressionVisitor):
             value = int.from_bytes(expr.value, "big")
         elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
             value = int.to_bytes(expr.value, 32, "big")
+        elif str(expression.type).startswith("byte") and isinstance(expr.value, str):
+            value = expr.value
         else:
             value = convert_string_to_fraction(expr.converted_value)
         set_val(expression, value)

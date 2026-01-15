@@ -12,7 +12,7 @@ function_header_replacements = [
 ]
 
 
-class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class FHR(AbstractMutator):
     NAME = "FHR"
     HELP = "Function Header Replacement"
 
@@ -20,6 +20,8 @@ class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
         result: Dict = {}
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             start = function.source_mapping.start
             stop = start + function.source_mapping.content.find("{")
             old_str = function.source_mapping.content

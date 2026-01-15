@@ -50,7 +50,6 @@ def get_visitor_mapping():
     }
 
 
-# pylint: disable=too-few-public-methods
 class ExpressionVisitor:
     def __init__(self, expression: Expression) -> None:
         super().__init__()
@@ -144,7 +143,7 @@ class ExpressionVisitor:
 
     # pre visit
 
-    def _pre_visit(self, expression: Expression) -> None:  # pylint: disable=too-many-branches
+    def _pre_visit(self, expression: Expression) -> None:
         if isinstance(expression, AssignmentOperation):
             self._pre_assignement_operation(expression)
 
@@ -247,7 +246,7 @@ class ExpressionVisitor:
 
     # post visit
 
-    def _post_visit(self, expression: Expression) -> None:  # pylint: disable=too-many-branches
+    def _post_visit(self, expression: Expression) -> None:
         if isinstance(expression, AssignmentOperation):
             self._post_assignement_operation(expression)
 

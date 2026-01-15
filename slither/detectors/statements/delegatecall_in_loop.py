@@ -27,7 +27,6 @@ def delegatecall_in_loop(
     calls_stack: List[str],
     results: Result,
 ) -> None:
-
     if node is None:
         return
 
@@ -89,7 +88,7 @@ contract DelegatecallInLoop{
 
     function addBalance(address a) public payable {
         balances[a] += msg.value;
-    } 
+    }
 
 }
 ```

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slither-my-plugin"
+version = "0.0.1"
+description = "Example detector and printer plugins for Slither."
+readme = "README.md"
+license = "AGPL-3.0-only"
+authors = [{ name = "Trail of Bits" }]
+requires-python = ">=3.9"
+dependencies = ["slither-analyzer>=0.6.0"]
+
+[project.urls]
+Homepage = "https://github.com/crytic/slither/tree/master/plugin_example"
+
+[project.entry-points."slither_analyzer.plugin"]
+slither_my_plugin = "slither_my_plugin:make_plugin"

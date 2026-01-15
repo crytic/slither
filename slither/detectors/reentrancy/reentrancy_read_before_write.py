@@ -1,9 +1,10 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import namedtuple, defaultdict
 from typing import Dict, Set, List
 
@@ -42,7 +43,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             throw;
         }
         not_called = False;
-    }   
+    }
 ```
 """
     # endregion wiki_exploit_scenario
@@ -51,10 +52,9 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
     STANDARD_JSON = False
 
-    # pylint: disable=too-many-locals
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
-        for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
+        for contract in self.contracts:
             variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
@@ -92,7 +92,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                             result[finding_key] |= read_then_written
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:
         """"""
 
         super()._detect()
@@ -110,7 +110,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
@@ -137,7 +137,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:

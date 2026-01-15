@@ -137,7 +137,6 @@ def _handle_codex(
     return None
 
 
-# pylint: disable=too-many-locals,too-many-arguments
 def _handle_function(
     function: Function,
     overwrite: bool,

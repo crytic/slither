@@ -17,7 +17,6 @@ class PythUnchecked(AbstractDetector):
     PYTH_FUNCTIONS = []
     PYTH_FIELD = ""
 
-    # pylint: disable=too-many-nested-blocks
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 

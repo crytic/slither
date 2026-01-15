@@ -11,7 +11,7 @@ def erc_to_signatures(erc: List[ERC]):
     :param erc:
     :return:
     """
-    return [f'{e.name}({",".join(e.parameters)})' for e in erc if e.required]
+    return [f"{e.name}({','.join(e.parameters)})" for e in erc if e.required]
 
 
 # Final

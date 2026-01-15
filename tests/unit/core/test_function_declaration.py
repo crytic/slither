@@ -4,6 +4,7 @@ tests that `tests/test_function.sol` gets translated into correct
 `slither.core.declarations.Function` objects or its subclasses
 and that these objects behave correctly.
 """
+
 from pathlib import Path
 
 from slither import Slither
@@ -16,7 +17,6 @@ FUNC_DELC_TEST_ROOT = Path(TEST_DATA_DIR, "function_declaration")
 
 
 def test_functions(solc_binary_path):
-    # pylint: disable=too-many-statements
     solc_path = solc_binary_path("0.6.12")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function.sol").as_posix()
     slither = Slither(file, solc=solc_path)
@@ -247,6 +247,29 @@ def test_functions(solc_binary_path):
     assert f.parameters == []
     assert f.return_type[0] == ElementaryType("bool")
 
+    f = functions["q()"]
+    assert f.name == "q"
+    assert f.full_name == "q()"
+    assert f.canonical_name == "TestFunction.q()"
+    assert f.solidity_signature == "q()"
+    assert f.signature_str == "q() returns()"
+    assert f.function_type == FunctionType.NORMAL
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
+    assert f.visibility == "public"
+    assert f.view is True
+    assert f.pure is True
+    assert f.is_implemented is True
+    assert f.is_empty is True
+    assert f.parameters == []
+    assert f.return_type is None
+    assert len(f.modifiers) == 1 and f.modifiers[0].name == "m"
+
 
 def test_function_can_send_eth(solc_binary_path):
     solc_path = solc_binary_path("0.6.12")
@@ -305,7 +328,6 @@ def test_public_variable(solc_binary_path) -> None:
     assert var.type == ElementaryType("bytes32")
 
 
-# pylint: disable=too-many-statements
 def test_vyper_functions(slither_from_vyper_source) -> None:
     with slither_from_vyper_source(
         """

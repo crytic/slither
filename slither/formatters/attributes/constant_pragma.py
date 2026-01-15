@@ -8,7 +8,6 @@ from slither.formatters.utils.patches import create_patch
 # Indicates the recommended versions for replacement
 REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 
-# pylint: disable=anomalous-backslash-in-string
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -67,7 +66,6 @@ def _determine_solc_version_replacement(used_solc_version: str) -> str:
     raise FormatImpossible("Unknown version!")
 
 
-# pylint: disable=too-many-arguments
 def _patch(
     slither: SlitherCompilationUnit,
     result: Dict,

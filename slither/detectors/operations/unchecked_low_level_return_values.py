@@ -1,6 +1,7 @@
 """
 Module detecting unused return values from low level
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node
@@ -79,7 +80,6 @@ If the low level is used to prevent blocking operations, consider logging failed
             for f in c.functions_and_modifiers:
                 unused_return = UncheckedLowLevel.detect_unused_return_values(f)
                 if unused_return:
-
                     for node in unused_return:
                         info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 

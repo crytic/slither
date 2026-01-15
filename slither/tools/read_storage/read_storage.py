@@ -84,7 +84,6 @@ class RpcInfo:
         return self._block
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherReadStorage:
     def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
         self._checksum_address: Optional[ChecksumAddress] = None
@@ -194,8 +193,6 @@ class SlitherReadStorage:
                 continue
         return tmp
 
-    # TODO: remove this pylint exception (montyly)
-    # pylint: disable=too-many-locals
     def get_storage_slot(
         self,
         target_variable: StateVariable,
@@ -597,7 +594,6 @@ class SlitherReadStorage:
         info = f"\nStruct Variable: {struct_var}"
         return info, type_to, slot_as_bytes, size, offset
 
-    # pylint: disable=too-many-branches,too-many-statements
     @staticmethod
     def _find_array_slot(
         target_variable_type: ArrayType,
@@ -846,7 +842,6 @@ class SlitherReadStorage:
 
         return data
 
-    # pylint: disable=too-many-nested-blocks
     def _all_array_slots(
         self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
     ) -> Union[Elem, NestedElem]:

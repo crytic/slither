@@ -53,9 +53,7 @@ ERC20_PROPERTIES = {
 }
 
 
-def generate_erc20(
-    contract: Contract, type_property: str, addresses: Addresses
-):  # pylint: disable=too-many-locals
+def generate_erc20(contract: Contract, type_property: str, addresses: Addresses):
     """
     Generate the ERC20 tests
     Files generated:

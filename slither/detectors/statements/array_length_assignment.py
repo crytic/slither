@@ -1,6 +1,7 @@
 """
 Module detecting assignment of array length
 """
+
 from typing import List, Set, Union
 
 from slither.core.variables import Variable
@@ -30,7 +31,7 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
     results = set()
 
     # Loop for each function and modifier.
-    # pylint: disable=too-many-nested-blocks
+
     for function in contract.functions_and_modifiers_declared:
         # Define a set of reference variables which refer to array length.
         array_length_refs = set()
@@ -40,7 +41,6 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
         for node in function.nodes:
             if node.type == NodeType.EXPRESSION:
                 for ir in node.irs:
-
                     # First we look for the member access for 'length', for which a reference is created.
                     # We add the reference to our list of array length references.
                     if isinstance(ir, Length):  # a
@@ -102,8 +102,8 @@ contract A {
 }
 ```
 Contract storage/state-variables are indexed by a 256-bit integer.
-The user can set the array length to `2**256-1` in order to index all storage slots. 
-In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired. 
+The user can set the array length to `2**256-1` in order to index all storage slots.
+In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired.
 Note that storage slots here are indexed via a hash of the indexers; nonetheless, all storage will still be accessible and could be controlled by the attacker."""
     # endregion wiki_exploit_scenario
 

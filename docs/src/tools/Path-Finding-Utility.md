@@ -10,7 +10,7 @@ slither-find-paths file.sol [contract.function targets]
 
 ## Example
 
-Tested on [tests/possible_paths/paths.sol](https://github.com/trailofbits/slither/blob/master/tests/possible_paths/paths.sol)
+Tested on [tests/e2e/printers/possible_paths/paths.sol](https://github.com/crytic/slither/blob/master/tests/e2e/printers/possible_paths/paths.sol)
 
 ```
 $ slither-find-paths paths.sol A.destination

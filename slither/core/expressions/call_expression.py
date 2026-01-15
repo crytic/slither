@@ -3,7 +3,7 @@ from typing import Any, Optional, List
 from slither.core.expressions.expression import Expression
 
 
-class CallExpression(Expression):  # pylint: disable=too-many-instance-attributes
+class CallExpression(Expression):
     def __init__(
         self,
         called: Expression,

@@ -47,7 +47,6 @@ DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
 
 
 class Flattening:
-    # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-locals,too-few-public-methods
     def __init__(
         self,
         compilation_unit: SlitherCompilationUnit,
@@ -97,9 +96,7 @@ class Flattening:
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(
-        self, contract: Contract
-    ):  # pylint: disable=too-many-branches,too-many-statements
+    def _get_source_code(self, contract: Contract):
         """
         Save the source code of the contract in self._source_codes
         Patch the source code
@@ -298,7 +295,7 @@ class Flattening:
         elif isinstance(t, ArrayType):
             self._export_from_type(t.type, contract, exported, list_contract, list_top_level)
 
-    def _export_list_used_contracts(  # pylint: disable=too-many-branches
+    def _export_list_used_contracts(
         self,
         contract: Contract,
         exported: Set[str],
@@ -453,15 +450,14 @@ class Flattening:
             exports.append(Export(filename=path, content=content))
         return exports
 
-    def export(  # pylint: disable=too-many-arguments,too-few-public-methods
+    def export(
         self,
         strategy: Strategy,
         target: Optional[str] = None,
         json: Optional[str] = None,
-        zip: Optional[str] = None,  # pylint: disable=redefined-builtin
+        zip: Optional[str] = None,
         zip_type: Optional[str] = None,
     ):
-
         if not self._export_path.exists():
             self._export_path.mkdir(parents=True)
 

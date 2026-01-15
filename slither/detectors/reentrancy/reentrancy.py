@@ -1,9 +1,10 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import defaultdict
 from typing import Set, Dict, List, Tuple, Optional
 
@@ -297,7 +298,7 @@ class Reentrancy(AbstractDetector):
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
+        self.visited_all_paths = {}
 
         for c in self.contracts:
             self.detect_reentrancy(c)

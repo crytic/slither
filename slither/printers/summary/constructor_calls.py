@@ -1,6 +1,7 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
+
 from slither.core.declarations import Function
 from slither.core.source_mapping.source_mapping import Source
 from slither.printers.abstract_printer import AbstractPrinter
@@ -34,7 +35,6 @@ class ConstructorPrinter(AbstractPrinter):
                     stack_definition.append(_get_source_code(cst))
 
             if len(stack_name) > 0:
-
                 info += "\n########" + "#" * len(contract.name) + "########\n"
                 info += "####### " + contract.name + " #######\n"
                 info += "########" + "#" * len(contract.name) + "########\n\n"

@@ -18,7 +18,6 @@ project_ready = Path(TEST_DATA_DIR, "test_change/lib/forge-std").exists()
     not foundry_available or not project_ready, reason="requires Foundry and project setup"
 )
 def test_diagnostic():
-
     test_file_directory = TEST_DATA_DIR / "test_change"
 
     sl = Slither(test_file_directory.as_posix())

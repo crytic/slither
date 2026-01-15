@@ -31,7 +31,7 @@ all_detectors: Dict[str, Type[AbstractDetector]] = {
 }
 
 
-def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable=too-many-locals
+def slither_format(slither: Slither, **kwargs: Dict) -> None:
     """'
     Keyword Args:
         detectors_to_run (str): Comma-separated list of detectors, defaults to all

@@ -2,6 +2,7 @@
 Module detecting constant functions
 Recursively check the called functions
 """
+
 from typing import List, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -50,7 +51,7 @@ contract Constant{
     }
 }
 ```
-`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
+`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0.
 All the calls to `get` revert, breaking Bob's smart contract execution."""
     # endregion wiki_exploit_scenario
 

@@ -1,6 +1,7 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
+
 from typing import List
 
 from slither.core.declarations import Contract
@@ -22,7 +23,6 @@ def _get(v: SUPPORTED_TYPES, c: Contract) -> List[str]:
 
 
 class DataDependency(AbstractPrinter):
-
     ARGUMENT = "data-dependency"
     HELP = "Print the data dependencies of the variables"
 

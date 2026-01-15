@@ -85,7 +85,6 @@ def main() -> None:
     ret: Dict[str, List] = defaultdict(list)
 
     if args.erc.upper() in ERCS:
-
         contracts = slither.get_contract_from_name(args.contract_name)
 
         if len(contracts) != 1:

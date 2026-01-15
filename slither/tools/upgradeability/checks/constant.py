@@ -70,7 +70,6 @@ Do not remove `constant` from a state variables during an update.
 
         results = []
         while idx_v1 < len(state_variables_v1):
-
             state_v1 = contract_v1.state_variables[idx_v1]
             if len(state_variables_v2) <= idx_v2:
                 break
@@ -160,7 +159,6 @@ Do not make an existing state variable `constant`.
 
         results = []
         while idx_v1 < len(state_variables_v1):
-
             state_v1 = contract_v1.state_variables[idx_v1]
             if len(state_variables_v2) <= idx_v2:
                 break

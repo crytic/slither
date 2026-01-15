@@ -27,7 +27,10 @@ def _convert_type_for_solidity_signature_to_string(
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
                 underlying_type, seen
             )
-            return underlying_type_str + "[]"
+
+            if types.length is None:
+                return underlying_type_str + "[]"
+            return underlying_type_str + f"[{types.length_value}]"
 
         return str(types)
 
@@ -52,7 +55,6 @@ def convert_type_for_solidity_signature_to_string(t: Type) -> str:
 
 
 def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type, List[Type]]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations import Contract, Enum, Structure
 
     # Solidity allows recursive type for structure definition if its not used in public /external
@@ -138,7 +140,6 @@ def export_nested_types_from_variable(variable: Variable) -> List[Type]:
 
 
 def _export_return_type_from_variable(underlying_type: Type, all_types: bool) -> List[Type]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations import Structure
 
     if isinstance(underlying_type, MappingType):
@@ -172,7 +173,7 @@ def export_return_type_from_variable(
     :param all_types
     :return: Type
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations import Structure
 
     if isinstance(variable_or_type, Type):
@@ -204,7 +205,7 @@ def is_underlying_type_address(t: "Type") -> bool:
     Return true if the underlying type is an address
     i.e. if the type is an address or a contract
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations.contract import Contract
 
     if t == ElementaryType("address"):

@@ -1,6 +1,7 @@
 """
 Module detecting usage of low level calls
 """
+
 from typing import List, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,

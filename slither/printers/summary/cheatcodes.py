@@ -1,15 +1,15 @@
 """
-    Cheatcode printer
+Cheatcode printer
 
-    This printer prints the usage of cheatcode in the code.
+This printer prints the usage of cheatcode in the code.
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import HighLevelCall
 from slither.utils import output
 
 
 class CheatcodePrinter(AbstractPrinter):
-
     ARGUMENT = "cheatcode"
 
     HELP = """
@@ -20,7 +20,6 @@ class CheatcodePrinter(AbstractPrinter):
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#cheatcode"
 
     def output(self, filename: str) -> output.Output:
-
         info: str = ""
 
         try:

@@ -5,7 +5,6 @@ from slither import Slither
 
 
 def kspec_coverage(args: argparse.Namespace) -> None:
-
     contract = args.contract
     kspec = args.kspec
 

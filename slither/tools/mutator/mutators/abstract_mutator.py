@@ -1,7 +1,7 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Tuple, List, Union
+from typing import Optional, Dict, Tuple, List, Union, Set
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
@@ -15,13 +15,11 @@ class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class AbstractMutator(
-    metaclass=abc.ABCMeta
-):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class AbstractMutator(metaclass=abc.ABCMeta):
     NAME = ""
     HELP = ""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         compilation_unit: SlitherCompilationUnit,
         timeout: int,
@@ -34,6 +32,8 @@ class AbstractMutator(
         dont_mutate_line: List[int],
         rate: int = 10,
         seed: Optional[int] = None,
+        target_selectors: Optional[Set[int]] = None,
+        target_modifiers: Optional[Set[str]] = None,
     ) -> None:
         self.compilation_unit = compilation_unit
         self.slither = compilation_unit.core
@@ -48,10 +48,12 @@ class AbstractMutator(
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
         self.dont_mutate_line = dont_mutate_line
+        self.target_selectors = target_selectors
+        self.target_modifiers = target_modifiers
         # total revert/comment/tweak mutants that were generated and compiled
         self.total_mutant_counts = [0, 0, 0]
-        # total uncaught revert/comment/tweak mutants
-        self.uncaught_mutant_counts = [0, 0, 0]
+        # total caught revert/comment/tweak mutants
+        self.caught_mutant_counts = [0, 0, 0]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -74,20 +76,39 @@ class AbstractMutator(
             and node.source_mapping.filename.absolute == self.in_file
         )
 
+    def should_mutate_function(self, function) -> bool:
+        """Check if function/modifier should be mutated based on target_selectors"""
+        if self.target_selectors is None:
+            return True  # No filter, mutate all
+
+        from slither.utils.function import get_function_id
+        from slither.core.declarations import Modifier
+
+        if isinstance(function, Modifier):
+            # For modifiers, check if in target_modifiers set
+            return bool(self.target_modifiers and function.name in self.target_modifiers)
+
+        # For functions, check selector
+        try:
+            func_selector = get_function_id(function.solidity_signature)
+            return func_selector in self.target_selectors
+        except Exception:  # pylint: disable=broad-except
+            return False
+
     @abc.abstractmethod
     def _mutate(self) -> Dict:
         """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
-    # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         all_patches: Dict = {}
-        # pylint: disable=broad-exception-caught
+
+        # call _mutate implementation of different mutation types
         try:
-            # call _mutate function from different mutators
             (all_patches) = self._mutate()
         except Exception as e:
             logger.error(red("%s mutator failed in %s: %s"), self.NAME, self.contract.name, str(e))
+
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
             return [0, 0, 0], [0, 0, 0], self.dont_mutate_line
@@ -98,7 +119,7 @@ class AbstractMutator(
             patches.sort(key=lambda x: x["start"])
             for patch in patches:
                 # test the patch
-                patchWasCaught = test_patch(
+                patch_was_caught = test_patch(
                     self.output_folder,
                     file,
                     patch,
@@ -109,16 +130,33 @@ class AbstractMutator(
                     self.verbose,
                 )
 
-                # count the uncaught mutants, flag RR/CR mutants to skip further mutations
-                if patchWasCaught == 0:
+                # skip mutants that couldn't compile
+                if patch_was_caught == 2:
+                    continue
+
+                # Add all mutants that could compile to the totals by type
+                if self.NAME == "RR":
+                    self.total_mutant_counts[0] += 1
+                elif self.NAME == "CR":
+                    self.total_mutant_counts[1] += 1
+                else:
+                    self.total_mutant_counts[2] += 1
+
+                # count caught mutants
+                if patch_was_caught == 1:
                     if self.NAME == "RR":
-                        self.uncaught_mutant_counts[0] += 1
+                        self.caught_mutant_counts[0] += 1
+                    elif self.NAME == "CR":
+                        self.caught_mutant_counts[1] += 1
+                    else:
+                        self.caught_mutant_counts[2] += 1
+
+                # record uncaught mutants to skip known-under-tested lines
+                if patch_was_caught == 0:
+                    if self.NAME == "RR":
                         self.dont_mutate_line.append(patch["line_number"])
                     elif self.NAME == "CR":
-                        self.uncaught_mutant_counts[1] += 1
                         self.dont_mutate_line.append(patch["line_number"])
-                    else:
-                        self.uncaught_mutant_counts[2] += 1
 
                     patched_txt, _ = apply_patch(original_txt, patch, 0)
                     diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
@@ -131,13 +169,4 @@ class AbstractMutator(
                     ) as patches_file:
                         patches_file.write(diff + "\n")
 
-                # count the total number of mutants that we were able to compile
-                if patchWasCaught != 2:
-                    if self.NAME == "RR":
-                        self.total_mutant_counts[0] += 1
-                    elif self.NAME == "CR":
-                        self.total_mutant_counts[1] += 1
-                    else:
-                        self.total_mutant_counts[2] += 1
-
-        return self.total_mutant_counts, self.uncaught_mutant_counts, self.dont_mutate_line
+        return self.total_mutant_counts, self.caught_mutant_counts, self.dont_mutate_line

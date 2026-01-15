@@ -10,7 +10,7 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
-class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class NewContract(Call, OperationWithLValue):
     def __init__(
         self,
         contract_name: UserDefinedType,
@@ -23,9 +23,9 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
             For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
             Otherwise, None.
         """
-        assert isinstance(
-            contract_name.type, Contract
-        ), f"contract_name is {contract_name} of type {type(contract_name)}"
+        assert isinstance(contract_name.type, Contract), (
+            f"contract_name is {contract_name} of type {type(contract_name)}"
+        )
         assert is_valid_lvalue(lvalue)
         super().__init__(names=names)
         self._contract_name = contract_name

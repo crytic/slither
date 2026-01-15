@@ -3,7 +3,6 @@ from slither.utils.output import Output
 
 
 class CFG(AbstractPrinter):
-
     ARGUMENT = "cfg"
     HELP = "Export the CFG of each functions"
 

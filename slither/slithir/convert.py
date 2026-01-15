@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, Union, Optional
 
-# pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
+
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -379,7 +379,7 @@ def get_declared_param_names(
         HighLevelCall,
         InternalDynamicCall,
         EventCall,
-    ]
+    ],
 ) -> Optional[List[List[str]]]:
     """
     Given a call operation, return the list of parameter names, in the order
@@ -600,7 +600,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):
     # propagate the type
     node_function = node.function
 
@@ -940,7 +940,6 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
     return None
 
 
-# pylint: disable=too-many-locals
 def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, Nop]:
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
@@ -1259,7 +1258,11 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
 
 def convert_to_low_level(
     ir: HighLevelCall,
-) -> Union[Send, LowLevelCall, Transfer,]:
+) -> Union[
+    Send,
+    LowLevelCall,
+    Transfer,
+]:
     """
     Convert to a transfer/send/or low level call
     The function assume to receive a correct IR
@@ -1441,7 +1444,15 @@ def convert_to_push_set_val(
 
 def convert_to_push(
     ir: HighLevelCall, node: "Node"
-) -> List[Union[Length, Assignment, Binary, Index, InitArray,]]:
+) -> List[
+    Union[
+        Length,
+        Assignment,
+        Binary,
+        Index,
+        InitArray,
+    ]
+]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1535,7 +1546,12 @@ def look_for_library_or_top_level(
         str,
         TypeAliasTopLevel,
     ],
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1585,7 +1601,12 @@ def look_for_library_or_top_level(
 
 def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     t = ir.destination.type
     if t in using_for:
         new_ir = look_for_library_or_top_level(ir, using_for, t)
@@ -1616,7 +1637,7 @@ def get_type(
     t: Union[
         UserDefinedType,
         ElementaryType,
-    ]
+    ],
 ) -> str:
     """
     Convert a type to a str
@@ -1827,7 +1848,6 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type:
-
         # If the return type is a structure, but the lvalue is a tuple
         # We convert the type of the structure to a list of element
         # TODO: explore to replace all tuple variables by structures
@@ -2027,7 +2047,6 @@ def convert_delete(irs: List[Operation]) -> None:
 
 def _find_source_mapping_references(irs: List[Operation]) -> None:
     for ir in irs:
-
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 

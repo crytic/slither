@@ -1,4 +1,4 @@
-# # pylint: disable=too-many-lines
+#
 import pathlib
 from argparse import ArgumentTypeError
 from collections import defaultdict
@@ -61,7 +61,6 @@ def have_ssa_if_ir(function: Function) -> None:
             assert n.irs_ssa
 
 
-# pylint: disable=too-many-branches, too-many-locals
 def ssa_basic_properties(function: Function) -> None:
     """Verifies that basic properties of ssa holds
 
@@ -120,7 +119,7 @@ def ssa_basic_properties(function: Function) -> None:
         if v and v.name:
             ssa_defs[v.name] += 1
 
-    for (k, count) in lvalue_assignments.items():
+    for k, count in lvalue_assignments.items():
         assert ssa_defs[k] >= count
 
     # Helper 5/6

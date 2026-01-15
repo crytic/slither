@@ -39,7 +39,6 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
     return contract
 
 
-# pylint: disable=too-many-locals
 @pytest.mark.parametrize(
     "test_contract, storage_file",
     [("StorageLayout", "storage_layout"), ("UnstructuredStorageLayout", "unstructured_storage")],

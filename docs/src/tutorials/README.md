@@ -17,7 +17,7 @@ Watch Slither's [code walkthrough](https://www.youtube.com/watch?v=EUl3UlYSluU),
 
 ## Installation
 
-Slither requires Python >= 3.8. You can install it through pip or by using Docker.
+Slither requires Python >= 3.9. You can install it through pip or by using Docker.
 
 Installing Slither through pip:
 

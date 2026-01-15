@@ -6,7 +6,6 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 def test_local_alias(solc_binary_path) -> None:
-
     solc_path = solc_binary_path("0.8.18")
     slither = Slither(
         Path(TEST_DATA_DIR, "variable_read_write_storage_pointer/local_alias.sol").as_posix(),
@@ -24,7 +23,6 @@ def test_local_alias(solc_binary_path) -> None:
 
 
 def test_parameter_no_library(solc_binary_path) -> None:
-
     solc_path = solc_binary_path("0.8.18")
     slither = Slither(
         Path(TEST_DATA_DIR, "variable_read_write_storage_pointer/without_library.sol").as_posix(),

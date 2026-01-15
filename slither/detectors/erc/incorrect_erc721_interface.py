@@ -1,6 +1,7 @@
 """
 Detect incorrect erc721 interface.
 """
+
 from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -46,7 +47,7 @@ contract Token{
 
     @staticmethod
     def incorrect_erc721_interface(
-        signature: Union[Tuple[str, List[str], List[str]], Tuple[str, List[str], List[Any]]]
+        signature: Union[Tuple[str, List[str], List[str]], Tuple[str, List[str], List[Any]]],
     ) -> bool:
         (name, parameters, returnVars) = signature
 

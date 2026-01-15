@@ -50,7 +50,6 @@ class TaintedExternalContract:
         self._tainted_variables.append(v)
 
 
-# pylint: disable=too-many-locals
 def compare(
     v1: Contract, v2: Contract, include_external: bool = False
 ) -> Tuple[

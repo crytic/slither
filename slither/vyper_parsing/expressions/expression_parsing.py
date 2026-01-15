@@ -72,11 +72,9 @@ def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def parse_expression(
     expression: ASTNode, caller_context: Union[FunctionContract, Contract]
 ) -> "Expression":
-
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
         literal.set_offset(expression.src, caller_context.compilation_unit)
@@ -207,7 +205,7 @@ def parse_expression(
             if isinstance(called.value, FunctionContract):
                 rets = called.value.returns
                 # Default arguments are not represented in the AST, so we recover them as well.
-                # pylint: disable=protected-access
+
                 if called.value._default_args_as_expressions and len(arguments) < len(
                     called.value.parameters
                 ):
@@ -351,9 +349,9 @@ def parse_expression(
             is_tuple = isinstance(rhs, TupleExpression)
             is_array = isinstance(rhs, Identifier) and isinstance(rhs.value.type, ArrayType)
             if is_array:
-                assert (
-                    rhs.value.type.is_fixed_array
-                ), "Dynamic arrays are not supported in comparison operators"
+                assert rhs.value.type.is_fixed_array, (
+                    "Dynamic arrays are not supported in comparison operators"
+                )
             if is_tuple or is_array:
                 length = len(rhs.expressions) if is_tuple else rhs.value.type.length_value.value
                 inner_op = (

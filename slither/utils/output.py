@@ -360,7 +360,6 @@ def _create_parent_element(
         Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
     ],
 ]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations.contract_level import ContractLevel
 
     if isinstance(element, FunctionContract):

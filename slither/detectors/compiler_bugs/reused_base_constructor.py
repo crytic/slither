@@ -1,6 +1,7 @@
 """
 Module detecting re-used base constructors in inheritance hierarchy.
 """
+
 from typing import Any, Dict, List, Tuple, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -100,7 +101,6 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         # Loop until there are no queued contracts left.
         while len(queued_contracts) > 0:
-
             # Pop a contract off the front of the queue, if it has already been processed, we stop.
             current_contract = queued_contracts.pop(0)
             if current_contract in processed_contracts:
@@ -143,7 +143,6 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         # Loop for each contract
         for contract in self.contracts:
-
             # Detect all locations which all underlying base constructors with arguments were called from.
             called_base_constructors = self._detect_explicitly_called_base_constructors(contract)
             for base_constructor, call_list in called_base_constructors.items():
@@ -159,7 +158,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
                     " arguments more than once in inheritance hierarchy:\n",
                 ]
 
-                for (calling_contract, called_by_constructor) in call_list:
+                for calling_contract, called_by_constructor in call_list:
                     info += [
                         "\t- From ",
                         calling_contract,

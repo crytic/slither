@@ -63,7 +63,6 @@ def call_in_loop(
 
 
 class MultipleCallsInLoop(AbstractDetector):
-
     ARGUMENT = "calls-loop"
     HELP = "Multiple calls in a loop"
     IMPACT = DetectorClassification.LOW

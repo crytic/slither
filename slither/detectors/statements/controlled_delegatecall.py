@@ -24,7 +24,6 @@ def controlled_delegatecall(function: FunctionContract) -> List[Node]:
 
 
 class ControlledDelegateCall(AbstractDetector):
-
     ARGUMENT = "controlled-delegatecall"
     HELP = "Controlled delegatecall destination"
     IMPACT = DetectorClassification.HIGH

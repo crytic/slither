@@ -33,14 +33,14 @@ abstract: >-
   SlithIR uses Static Single Assignment (SSA) form and a
   reduced instruction set to ease implementation of analyses
   while preserving semantic information that would be lost
-  in transforming Solidity to bytecode. 
+  in transforming Solidity to bytecode.
 
   Slither allows for the application of commonly used
   program analysis techniques like dataflow and taint
   tracking.
 
 
-  Our framework has four main use cases: 
+  Our framework has four main use cases:
 
   (1) automated detection of vulnerabilities,
 
@@ -50,7 +50,7 @@ abstract: >-
   (3) improvement of the user's understanding of the
   contracts, and
 
-  (4) assistance with code review.  
+  (4) assistance with code review.
 keywords:
   - Ethereum
   - Static Analysis

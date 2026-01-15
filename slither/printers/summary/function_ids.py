@@ -1,13 +1,13 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.function import get_function_id
 from slither.utils.myprettytable import MyPrettyTable
 
 
 class FunctionIds(AbstractPrinter):
-
     ARGUMENT = "function-id"
     HELP = "Print the keccak256 signature of the functions"
 

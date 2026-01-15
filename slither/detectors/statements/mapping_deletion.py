@@ -1,6 +1,7 @@
 """
 Detect deletion on structure containing a mapping
 """
+
 from typing import List, Tuple
 
 from slither.core.cfg.node import Node
@@ -64,7 +65,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
             list (function, structure, node)
         """
         ret: List[Tuple[FunctionContract, Structure, Node]] = []
-        # pylint: disable=too-many-nested-blocks
+
         for f in contract.functions:
             for node in f.nodes:
                 for ir in node.irs:
@@ -98,7 +99,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
         results = []
         for c in self.contracts:
             mapping = MappingDeletionDetection.detect_mapping_deletion(c)
-            for (func, struct, node) in mapping:
+            for func, struct, node in mapping:
                 info: DETECTOR_INFO = [func, " deletes ", struct, " which contains a mapping:\n"]
                 info += ["\t-", node, "\n"]
 

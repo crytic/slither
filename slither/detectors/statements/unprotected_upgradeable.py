@@ -69,7 +69,6 @@ def _initialize_functions(contract: Contract) -> List[Function]:
 
 
 class UnprotectedUpgradeable(AbstractDetector):
-
     ARGUMENT = "unprotected-upgrade"
     HELP = "Unprotected upgradeable contract"
     IMPACT = DetectorClassification.HIGH

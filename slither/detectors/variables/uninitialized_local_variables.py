@@ -1,9 +1,10 @@
 """
-    Module detecting uninitialized local variables
+Module detecting uninitialized local variables
 
-    Recursively explore the CFG to only report uninitialized local variables that are
-    read before being written
+Recursively explore the CFG to only report uninitialized local variables that are
+read before being written
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType
@@ -13,7 +14,6 @@ from slither.utils.output import Output
 
 
 class UninitializedLocalVars(AbstractDetector):
-
     ARGUMENT = "uninitialized-local"
     HELP = "Uninitialized local variables"
     IMPACT = DetectorClassification.MEDIUM
@@ -97,7 +97,6 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         """
         results = []
 
-        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 
@@ -117,8 +116,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                     function.entry_point.context[self.key] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
-        for (function, uninitialized_local_variable) in all_results:
-
+        for function, uninitialized_local_variable in all_results:
             info = [
                 uninitialized_local_variable,
                 " is a local variable never initialized\n",

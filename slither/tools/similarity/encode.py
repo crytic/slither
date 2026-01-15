@@ -106,7 +106,7 @@ def load_contracts(
     return r[:nsamples]
 
 
-def ntype(_type):  # pylint: disable=too-many-branches
+def ntype(_type):
     if isinstance(_type, ElementaryType):
         _type = str(_type)
     elif isinstance(_type, ArrayType):
@@ -141,7 +141,7 @@ def ntype(_type):  # pylint: disable=too-many-branches
     return _type.replace(" ", "_")
 
 
-def encode_ir(ir):  # pylint: disable=too-many-branches
+def encode_ir(ir):
     # operations
     if isinstance(ir, Assignment):
         return f"({encode_ir(ir.lvalue)}):=({encode_ir(ir.rvalue)})"
@@ -227,16 +227,14 @@ def encode_contract(cfilename, **kwargs):
     # Init slither
     try:
         slither = Slither(cfilename, **kwargs)
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
         return r
 
     # Iterate over all the contracts
     for contract in slither.contracts:
-
         # Iterate over all the functions
         for function in contract.functions_declared:
-
             if function.nodes == [] or function.is_constructor_variables:
                 continue
 

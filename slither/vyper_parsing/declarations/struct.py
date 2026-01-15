@@ -6,13 +6,12 @@ from slither.vyper_parsing.variables.structure_variable import StructureVariable
 from slither.vyper_parsing.ast.types import StructDef, AnnAssign
 
 
-class StructVyper:  # pylint: disable=too-few-public-methods
+class StructVyper:
     def __init__(
         self,
         st: Structure,
         struct: StructDef,
     ) -> None:
-
         self._structure = st
         st.name = struct.name
         st.canonical_name = struct.name + self._structure.contract.name

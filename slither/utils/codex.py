@@ -83,7 +83,6 @@ def openai_module():  # type: ignore
         Optional[the openai module]
     """
     try:
-        # pylint: disable=import-outside-toplevel
         import openai
 
         api_key = os.getenv("OPENAI_API_KEY")

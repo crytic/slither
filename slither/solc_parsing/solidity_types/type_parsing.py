@@ -29,10 +29,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("TypeParsing")
 
-# pylint: disable=anomalous-backslash-in-string
 
-
-class UnknownType:  # pylint: disable=too-few-public-methods
+class UnknownType:
     def __init__(self, name: str) -> None:
         self._name = name
 
@@ -41,7 +39,7 @@ class UnknownType:  # pylint: disable=too-few-public-methods
         return self._name
 
 
-def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-arguments
+def _find_from_type_name(
     name: str,
     functions_direct_access: List["Function"],
     contracts_direct_access: List["Contract"],
@@ -196,7 +194,6 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 
 
 def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
-
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
     elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
@@ -221,8 +218,7 @@ def parse_type(
     :rtype:
     """
     # local import to avoid circular dependency
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    # pylint: disable=import-outside-toplevel
+
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -447,7 +443,6 @@ def parse_type(
         return ArrayType(array_type, length)
 
     if t[key] == "Mapping":
-
         if is_compact_ast:
             mappingFrom = parse_type(t["keyType"], next_context)
             mappingTo = parse_type(t["valueType"], next_context)
@@ -460,7 +455,6 @@ def parse_type(
         return MappingType(mappingFrom, mappingTo)
 
     if t[key] == "FunctionTypeName":
-
         if is_compact_ast:
             params = t["parameterTypes"]
             return_values = t["returnParameterTypes"]

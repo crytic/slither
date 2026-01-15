@@ -2,6 +2,7 @@
 Module detecting missing events for critical contract parameters set by owners and used in arithmetic
 
 """
+
 from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_tainted
@@ -49,10 +50,10 @@ contract C {
 
     function buy() external {
      ... // buyPrice is used to determine the number of tokens purchased
-    }    
+    }
 }
 ```
-`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain. 
+`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain.
 """
     # endregion wiki_exploit_scenario
 
@@ -125,9 +126,9 @@ contract C {
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
-            for (function, nodes) in missing_events:
+            for function, nodes in missing_events:
                 info: DETECTOR_INFO = [function, " should emit an event for: \n"]
-                for (node, _) in nodes:
+                for node, _ in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)
                 results.append(res)

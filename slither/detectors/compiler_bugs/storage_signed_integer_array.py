@@ -1,6 +1,7 @@
 """
 Module detecting storage signed integer array bug
 """
+
 from typing import List, Tuple, Set
 
 from slither.core.declarations import Function, Contract
@@ -53,7 +54,7 @@ contract A {
 	}
 }
 ```
-`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.  
+`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.
 `-1` is supposed to indicate uninitialized values but the Solidity bug makes these as `1`, which could be exploited by the accounts.
 """
     # endregion wiki_exploit_scenario

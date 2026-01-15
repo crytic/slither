@@ -11,7 +11,7 @@ from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 
-class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class InternalCall(Call, OperationWithLValue):
     def __init__(
         self,
         function: Union[Function, Tuple[str, str]],
@@ -22,7 +22,6 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         type_call: str,
         names: Optional[List[str]] = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
         """
         #### Parameters
         names -
