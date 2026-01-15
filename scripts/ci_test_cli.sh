@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 ### Test
+
 
 solc-select use 0.7.0
 

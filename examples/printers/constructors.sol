@@ -4,7 +4,7 @@ contract test{
     constructor()public{
         a =5;
     }
-    
+
 }
 contract test2 is test{
     constructor()public{

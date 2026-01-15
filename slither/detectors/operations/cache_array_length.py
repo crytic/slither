@@ -34,8 +34,8 @@ class CacheArrayLength(AbstractDetector):
 contract C
 {
     uint[] array;
-    
-    function f() public 
+
+    function f() public
     {
         for (uint i = 0; i < array.length; i++)
         {
@@ -50,8 +50,8 @@ Since the `for` loop in `f` doesn't modify `array.length`, it is more gas effici
 contract C
 {
     uint[] array;
-    
-    function f() public 
+
+    function f() public
     {
         uint array_length = array.length;
         for (uint i = 0; i < array_length; i++)

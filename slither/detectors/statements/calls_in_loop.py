@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -16,18 +16,24 @@ from slither.slithir.operations import (
     InternalCall,
 )
 
+Result = List[Tuple[Node, List[str]]]
 
-def detect_call_in_loop(contract: Contract) -> List[Node]:
-    ret: List[Node] = []
+
+def detect_call_in_loop(contract: Contract) -> Result:
+    ret: Result = []
     for f in contract.functions_entry_points:
         if f.is_implemented:
-            call_in_loop(f.entry_point, 0, [], ret)
+            call_in_loop(f.entry_point, 0, [], [], ret)
 
     return ret
 
 
 def call_in_loop(
-    node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
+    node: Optional[Node],
+    in_loop_counter: int,
+    visited: List[Node],
+    calls_stack: List[str],
+    ret: Result,
 ) -> None:
     if node is None:
         return
@@ -41,22 +47,22 @@ def call_in_loop(
     elif node.type == NodeType.ENDLOOP:
         in_loop_counter -= 1
 
-    if in_loop_counter > 0:
-        for ir in node.all_slithir_operations():
-            if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)):
-                if isinstance(ir, LibraryCall):
-                    continue
-                ret.append(ir.node)
-            if isinstance(ir, (InternalCall)):
-                assert ir.function
-                call_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
+    for ir in node.irs:
+        if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)) and in_loop_counter > 0:
+            if isinstance(ir, LibraryCall):
+                continue
+            ret.append((ir.node, calls_stack.copy()))
+        if isinstance(ir, (InternalCall)):
+            assert ir.function
+            calls_stack.append(node.function.canonical_name)
+            call_in_loop(ir.function.entry_point, in_loop_counter, visited, calls_stack, ret)
+            calls_stack.pop()
 
     for successor in node.successors:
-        call_in_loop(successor, in_loop_counter, visited, ret)
+        call_in_loop(successor, in_loop_counter, visited, calls_stack, ret)
 
 
 class MultipleCallsInLoop(AbstractDetector):
-
     ARGUMENT = "calls-loop"
     HELP = "Multiple calls in a loop"
     IMPACT = DetectorClassification.LOW
@@ -96,10 +102,16 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
         results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_call_in_loop(c)
-            for node in values:
+            for node, calls_stack in values:
                 func = node.function
 
                 info: DETECTOR_INFO = [func, " has external calls inside a loop: ", node, "\n"]
+
+                if len(calls_stack) > 0:
+                    info.append("\tCalls stack containing the loop:\n")
+                    for call in calls_stack:
+                        info.extend(["\t\t", call, "\n"])
+
                 res = self.generate_result(info)
                 results.append(res)
 

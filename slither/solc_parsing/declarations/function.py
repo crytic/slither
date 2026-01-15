@@ -9,6 +9,7 @@ from slither.core.declarations.function import (
     ModifierStatements,
     FunctionType,
 )
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
@@ -42,11 +43,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
-
-
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
 
     def __init__(
@@ -162,9 +159,9 @@ class FunctionSolc(CallerContextExpression):
                 known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
-        self._function.variables_as_dict[
-            local_var_parser.underlying_variable.name
-        ] = local_var_parser.underlying_variable
+        self._function.variables_as_dict[local_var_parser.underlying_variable.name] = (
+            local_var_parser.underlying_variable
+        )
         self._local_variables_parser.append(local_var_parser)
 
     # endregion
@@ -635,7 +632,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
-
         node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], scope)
         condition_scope = Scope(scope.is_checked, False, scope)
 
@@ -1157,7 +1153,6 @@ class FunctionSolc(CallerContextExpression):
                 worklist.extend(current.successors)
 
     def _parse_cfg(self, cfg: Dict) -> None:
-
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1215,9 +1210,9 @@ class FunctionSolc(CallerContextExpression):
         # and it's the index increment expression
         if node.type == NodeType.IFLOOP:
             if skip_if_loop == 0:
-                for predecessor in node.predecessors:
-                    if predecessor.type == NodeType.EXPRESSION:
-                        return predecessor
+                for father in node.fathers:
+                    if father.type == NodeType.EXPRESSION:
+                        return father
                 return node
 
         # skip_if_loop works as explained above.
@@ -1235,8 +1230,8 @@ class FunctionSolc(CallerContextExpression):
             skip_if_loop += 1
 
         visited = visited + [node]
-        for predecessor in node.predecessors:
-            ret = self._find_if_loop(predecessor, visited, skip_if_loop)
+        for father in node.fathers:
+            ret = self._find_if_loop(father, visited, skip_if_loop)
             if ret:
                 return ret
 
@@ -1254,9 +1249,9 @@ class FunctionSolc(CallerContextExpression):
                 raise ParsingError(f"Break in no-loop context {node.function}")
 
         for successor in node.successors:
-            successor.remove_predecessor(node)
-        node.set_successors([end_node])
-        end_node.add_predecessor(node)
+            son.remove_father(node)
+        node.set_sons([end_node])
+        end_node.add_father(node)
 
     def _fix_continue_node(self, node: Node) -> None:
         if_loop_node = self._find_if_loop(node, [], 0)
@@ -1265,9 +1260,9 @@ class FunctionSolc(CallerContextExpression):
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for successor in node.successors:
-            successor.remove_predecessor(node)
-        node.set_successors([if_loop_node])
-        if_loop_node.add_predecessor(node)
+            son.remove_father(node)
+        node.set_sons([if_loop_node])
+        if_loop_node.add_father(node)
 
     # endregion
     ###################################################################################
@@ -1277,7 +1272,9 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _fix_try(self, node: Node) -> None:
-        end_node = next((son for son in node.successors if son.type != NodeType.CATCH), None)
+        end_node = next(
+            (son for successor in node.successors if successor.type != NodeType.CATCH), None
+        )
         if end_node:
             for successor in node.successors:
                 if successor.type == NodeType.CATCH:
@@ -1288,8 +1285,10 @@ class FunctionSolc(CallerContextExpression):
             link_nodes(node, end_node)
         else:
             for successor in node.successors:
-                if successor != end_node and successor not in visited:
-                    visited.add(successor)
+                # If the son is a TRY node it will be fixed later when _fix_try is called with that node
+                # otherwise we try to fix it multiple times. It can happen in the case of nested try-catch blocks.
+                if successor != end_node and son not in visited and son.type != NodeType.TRY:
+                    visited.add(son)
                     self._fix_catch(successor, end_node, visited)
 
     # endregion
@@ -1300,7 +1299,6 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1320,7 +1318,6 @@ class FunctionSolc(CallerContextExpression):
         return local_var_parser
 
     def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
-
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.compilation_unit)
@@ -1346,7 +1343,6 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
@@ -1370,7 +1366,7 @@ class FunctionSolc(CallerContextExpression):
             return
 
         for m in ExportValues(m).result():
-            if isinstance(m, Function):
+            if isinstance(m, Modifier):
                 node_parser = self._new_node(
                     NodeType.EXPRESSION, modifier["src"], self.underlying_function
                 )
@@ -1553,8 +1549,8 @@ class FunctionSolc(CallerContextExpression):
         for node in self._node_to_nodesolc:
             if node.type in [NodeType.RETURN, NodeType.THROW]:
                 for successor in node.successors:
-                    successor.remove_predecessor(node)
-                node.set_successors([])
+                    son.remove_father(node)
+                node.set_sons([])
             if node.type in [NodeType.BREAK]:
                 self._fix_break_node(node)
             if node.type in [NodeType.CONTINUE]:
@@ -1572,21 +1568,21 @@ class FunctionSolc(CallerContextExpression):
                     len(
                         [
                             son
-                            for son in node.successors
-                            if son.type != NodeType.ENDLOOP and son != node
+                            for successor in node.successors
+                            if successor.type != NodeType.ENDLOOP and son != node
                         ]
                     )
                     == 0
                 ):
                     continue
 
-                new_successors = []
+                new_sons = []
                 for successor in node.successors:
                     if successor.type != NodeType.ENDLOOP:
-                        new_successors.append(successor)
+                        new_sons.append(son)
                         continue
-                    successor.remove_predecessor(node)
-                node.set_successors(new_successors)
+                    son.remove_father(node)
+                node.set_sons(new_sons)
 
     def _remove_alone_endif(self) -> None:
         """
@@ -1612,10 +1608,10 @@ class FunctionSolc(CallerContextExpression):
             prev_nodes = self._node_to_nodesolc.keys()
             to_remove: List[Node] = []
             for node in self._node_to_nodesolc:
-                if node.type == NodeType.ENDIF and not node.predecessors:
+                if node.type == NodeType.ENDIF and not node.fathers:
                     for successor in node.successors:
-                        successor.remove_predecessor(node)
-                    node.set_successors([])
+                        son.remove_father(node)
+                    node.set_sons([])
                     to_remove.append(node)
             self._function.nodes = [n for n in self._function.nodes if n not in to_remove]
             for remove in to_remove:
@@ -1685,14 +1681,14 @@ class FunctionSolc(CallerContextExpression):
 
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
-        for predecessor in node.predecessors:
-            predecessor.replace_successor(node, condition_node.underlying_node)
-            condition_node.underlying_node.add_predecessor(predecessor)
+        for father in node.fathers:
+            father.replace_son(node, condition_node.underlying_node)
+            condition_node.underlying_node.add_father(father)
 
         for successor in node.successors:
-            successor.remove_predecessor(node)
-            successor.add_predecessor(endif_node.underlying_node)
-            endif_node.underlying_node.add_successor(successor)
+            son.remove_father(node)
+            son.add_father(endif_node.underlying_node)
+            endif_node.underlying_node.add_son(son)
 
         link_underlying_nodes(condition_node, true_node_parser)
         link_underlying_nodes(condition_node, false_node_parser)

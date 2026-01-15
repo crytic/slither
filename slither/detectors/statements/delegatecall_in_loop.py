@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -9,19 +9,24 @@ from slither.slithir.operations import LowLevelCall, InternalCall
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 
+Result = List[Tuple[Node, List[str]]]
 
-def detect_delegatecall_in_loop(contract: Contract) -> List[Node]:
-    results: List[Node] = []
+
+def detect_delegatecall_in_loop(contract: Contract) -> Result:
+    results: Result = []
     for f in contract.functions_entry_points:
         if f.is_implemented and f.payable:
-            delegatecall_in_loop(f.entry_point, 0, [], results)
+            delegatecall_in_loop(f.entry_point, 0, [], [], results)
     return results
 
 
 def delegatecall_in_loop(
-    node: Optional[Node], in_loop_counter: int, visited: List[Node], results: List[Node]
+    node: Optional[Node],
+    in_loop_counter: int,
+    visited: List[Node],
+    calls_stack: List[str],
+    results: Result,
 ) -> None:
-
     if node is None:
         return
 
@@ -35,18 +40,22 @@ def delegatecall_in_loop(
     elif node.type == NodeType.ENDLOOP:
         in_loop_counter -= 1
 
-    for ir in node.all_slithir_operations():
+    for ir in node.irs:
         if (
             in_loop_counter > 0
             and isinstance(ir, (LowLevelCall))
             and ir.function_name == "delegatecall"
         ):
-            results.append(ir.node)
+            results.append((ir.node, calls_stack.copy()))
         if isinstance(ir, (InternalCall)) and ir.function:
-            delegatecall_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
+            calls_stack.append(node.function.canonical_name)
+            delegatecall_in_loop(
+                ir.function.entry_point, in_loop_counter, visited, calls_stack, results
+            )
+            calls_stack.pop()
 
     for successor in node.successors:
-        delegatecall_in_loop(successor, in_loop_counter, visited, results)
+        delegatecall_in_loop(successor, in_loop_counter, visited, calls_stack, results)
 
 
 class DelegatecallInLoop(AbstractDetector):
@@ -79,7 +88,7 @@ contract DelegatecallInLoop{
 
     function addBalance(address a) public payable {
         balances[a] += msg.value;
-    } 
+    }
 
 }
 ```
@@ -95,7 +104,7 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
         results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_delegatecall_in_loop(c)
-            for node in values:
+            for node, calls_stack in values:
                 func = node.function
 
                 info: DETECTOR_INFO = [
@@ -104,6 +113,12 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
                     node,
                     "\n",
                 ]
+
+                if len(calls_stack) > 0:
+                    info.append("\tCalls stack containing the loop:\n")
+                    for call in calls_stack:
+                        info.extend(["\t\t", call, "\n"])
+
                 res = self.generate_result(info)
                 results.append(res)
 

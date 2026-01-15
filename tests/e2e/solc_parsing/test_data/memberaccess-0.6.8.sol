@@ -1,3 +1,4 @@
+pragma experimental ABIEncoderV2;
 contract I {
 
 }
@@ -9,6 +10,10 @@ interface F {
 contract C {
     struct S {
         uint a;
+    }
+
+    struct A {
+        uint balance;
     }
 
     function f() public payable {
@@ -33,4 +38,9 @@ contract C {
         type(int).min;
         type(int).max;
     }
+
+    function g(A memory self) public {
+        self.balance = 1;
+    }
+
 }

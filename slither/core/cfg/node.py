@@ -1,8 +1,8 @@
 """
-    Node module
+Node module
 """
+
 from enum import Enum
-import logging
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
 from slither.all_exceptions import SlitherException
@@ -12,7 +12,6 @@ from slither.core.declarations.solidity_variables import (
     SolidityFunction,
 )
 from slither.core.expressions.expression import Expression
-from slither.core.expressions import CallExpression, Identifier, AssignmentOperation
 from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -47,25 +46,15 @@ from slither.slithir.variables import (
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        HighLevelCallType,
-        LibraryCallType,
-        LowLevelCallType,
-    )
     from slither.core.cfg.scope import Scope
     from slither.core.scope.scope import FileScope
 
-
-# pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
 
 ###################################################################################
 ###################################################################################
 # region NodeType
 ###################################################################################
 ###################################################################################
-
-logger = logging.getLogger("SlitherNode")
 
 
 class NodeType(Enum):
@@ -109,9 +98,8 @@ class NodeType(Enum):
 
 # endregion
 
-# I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
-# pylint: disable=no-member
-class Node(SourceMapping):  # pylint: disable=too-many-public-methods
+
+class Node(SourceMapping):
     """
     Node class
 
@@ -128,8 +116,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
-        self._successors: List["Node"] = []
-        self._predecessors: List["Node"] = []
+        self._sons: List["Node"] = []
+        self._fathers: List["Node"] = []
 
         ## Dominators info
         # Dominators nodes
@@ -156,11 +144,11 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._ssa_vars_written: List["SlithIRVariable"] = []
         self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls: List[Union["Function", "SolidityFunction"]] = []
-        self._solidity_calls: List[SolidityFunction] = []
-        self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
-        self._library_calls: List["LibraryCallType"] = []
-        self._low_level_calls: List["LowLevelCallType"] = []
+        self._internal_calls: List[InternalCall] = []  # contains solidity calls
+        self._solidity_calls: List[SolidityCall] = []
+        self._high_level_calls: List[Tuple[Contract, HighLevelCall]] = []  # contains library calls
+        self._library_calls: List[LibraryCall] = []
+        self._low_level_calls: List[LowLevelCall] = []
         self._external_calls_as_expressions: List[Expression] = []
         self._internal_calls_as_expressions: List[Expression] = []
         self._irs: List[Operation] = []
@@ -229,8 +217,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def will_return(self) -> bool:
         if not self.successors and self.type != NodeType.THROW:
-            if SolidityFunction("revert()") not in self.solidity_calls:
-                if SolidityFunction("revert(string)") not in self.solidity_calls:
+            solidity_calls = [ir.function for ir in self.solidity_calls]
+            if SolidityFunction("revert()") not in solidity_calls:
+                if SolidityFunction("revert(string)") not in solidity_calls:
                     return True
         return False
 
@@ -376,44 +365,38 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List["InternalCallType"]:
+    def internal_calls(self) -> List[InternalCall]:
         """
-        list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(InternalCall): List of IR operations with internal/solidity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityFunction]:
+    def solidity_calls(self) -> List[SolidityCall]:
         """
-        list(SolidityFunction): List of Soldity calls
+        list(SolidityCall): List of IR operations with solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List["HighLevelCallType"]:
+    def high_level_calls(self) -> List[HighLevelCall]:
         """
-        list((Contract, Function|Variable)):
-        List of high level calls (external calls).
-        A variable is called in case of call to a public state variable
+        list(HighLevelCall): List of IR operations with high level calls (external calls).
         Include library calls
         """
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List["LibraryCallType"]:
+    def library_calls(self) -> List[LibraryCall]:
         """
-        list((Contract, Function)):
-        Include library calls
+        list(LibraryCall): List of IR operations with library calls.
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List["LowLevelCallType"]:
+    def low_level_calls(self) -> List[LowLevelCall]:
         """
-        list((Variable|SolidityVariable, str)): List of low_level call
-        A low level call is defined by
-        - the variable called
-        - the name of the function (call/delegatecall/codecall)
+        list(LowLevelCall): List of IR operations with low_level call
         """
         return list(self._low_level_calls)
 
@@ -458,7 +441,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         :param callstack: used internally to check for recursion
         :return bool:
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.slithir.operations import Call
 
         if self._can_reenter is None:
@@ -474,7 +457,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         Check if the node can send eth
         :return bool:
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
@@ -532,8 +515,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             bool: True if the node has a require or assert call
         """
         return any(
-            c.name in ["require(bool)", "require(bool,string)", "assert(bool)"]
-            for c in self.internal_calls
+            ir.function.name
+            in ["require(bool)", "require(bool,string)", "require(bool,error)", "assert(bool)"]
+            for ir in self.internal_calls
         )
 
     def contains_if(self, include_loop: bool = True) -> bool:
@@ -585,97 +569,97 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def add_predecessor(self, predecessor: "Node") -> None:
-        """Add a predecessor node
+    def add_father(self, father: "Node") -> None:
+        """Add a father node
 
         Args:
-            predecessor: predecessor to add
+            father: father to add
         """
-        self._predecessors.append(predecessor)
+        self._fathers.append(father)
 
-    def set_predecessors(self, predecessors: List["Node"]) -> None:
-        """Set the predecessors nodes
+    def set_fathers(self, fathers: List["Node"]) -> None:
+        """Set the father nodes
 
         Args:
-            predecessors: list of predecessors to add
+            fathers: list of fathers to add
         """
-        self._predecessors = predecessors
+        self._fathers = fathers
 
     @property
-    def predecessors(self) -> List["Node"]:
-        """Returns the predecessor nodes
+    def fathers(self) -> List["Node"]:
+        """Returns the father nodes
 
         Returns:
-            list(Node): list of predecessor
+            list(Node): list of fathers
         """
-        return list(self._predecessors)
+        return list(self._fathers)
 
-    def remove_predecessor(self, predecessor: "Node") -> None:
-        """Remove the predecessor node. Do nothing if the node is not a predecessor
+    def remove_father(self, father: "Node") -> None:
+        """Remove the father node. Do nothing if the node is not a father
 
         Args:
-            :param predecessor:
+            :param father:
         """
-        self._predecessors = [x for x in self._predecessors if x.node_id != predecessor.node_id]
+        self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
-    def remove_successor(self, successor: "Node") -> None:
-        """Remove the successor node. Do nothing if the node is not a successor
+    def remove_son(self, son: "Node") -> None:
+        """Remove the son node. Do nothing if the node is not a son
 
         Args:
-            :param successor:
+            :param son:
         """
-        self._successors = [x for x in self._successors if x.node_id != successor.node_id]
+        self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
-    def add_successor(self, successor: "Node") -> None:
-        """Add a successor node
+    def add_son(self, son: "Node") -> None:
+        """Add a son node
 
         Args:
-            successor: successor to add
+            son: son to add
         """
-        self._successors.append(successor)
+        self._sons.append(son)
 
-    def replace_successor(self, old_successor: "Node", new_successor: "Node") -> None:
-        """Replace a successor node. Do nothing if the node to replace is not a successor
+    def replace_son(self, ori_son: "Node", new_son: "Node") -> None:
+        """Replace a son node. Do nothing if the node to replace is not a son
 
         Args:
-            old_successor: successor to replace
-            new_successor: successor to replace with
+            ori_son: son to replace
+            new_son: son to replace with
         """
-        for i, s in enumerate(self._successors):
-            if s.node_id == old_successor.node_id:
+        for i, s in enumerate(self._sons):
+            if s.node_id == ori_son.node_id:
                 idx = i
                 break
         else:
             return
-        self._successors[idx] = new_successor
+        self._sons[idx] = new_son
 
-    def set_successors(self, successors: List["Node"]) -> None:
-        """Set the successor nodes
+    def set_sons(self, sons: List["Node"]) -> None:
+        """Set the son nodes
 
         Args:
-            successors: list of successors to add
+            sons: list of fathers to add
         """
-        self._successors = successors
+        self._sons = sons
 
     @property
-    def successors(self) -> List["Node"]:
-        """Returns the successors nodes
+    def sons(self) -> List["Node"]:
+        """Returns the son nodes
 
         Returns:
-            list(Node): list of successors
+            list(Node): list of sons
         """
-        return list(self._successors)
+        return list(self._sons)
 
     @property
-    def successor_true(self) -> Optional["Node"]:
+    def son_true(self) -> Optional["Node"]:
         if self.type in [NodeType.IF, NodeType.IFLOOP]:
-            return self._successors[0]
+            return self._sons[0]
         return None
 
     @property
-    def successor_false(self) -> Optional["Node"]:
-        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._successors) >= 1:
-            return self._successors[1]
+    def son_false(self) -> Optional["Node"]:
+        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 1:
+            return self._sons[1]
         return None
 
     # endregion
@@ -860,10 +844,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
-
+    def _find_read_write_call(self) -> None:
         for ir in self.irs:
-
             self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
 
             if isinstance(ir, OperationWithLValue):
@@ -897,54 +879,38 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
-                self._internal_calls.append(ir.function)
+                self._internal_calls.append(ir)
             if isinstance(ir, SolidityCall):
                 # TODO: consider removing dependancy of solidity_call to internal_call
-                self._solidity_calls.append(ir.function)
-                self._internal_calls.append(ir.function)
-            if (
-                isinstance(ir, SolidityCall)
-                and ir.function == SolidityFunction("sstore(uint256,uint256)")
-                and isinstance(ir.node.expression, CallExpression)
-                and isinstance(ir.node.expression.arguments[0], Identifier)
-            ):
-                self._vars_written.append(ir.arguments[0])
-            if (
-                isinstance(ir, SolidityCall)
-                and ir.function == SolidityFunction("sload(uint256)")
-                and isinstance(ir.node.expression, AssignmentOperation)
-                and isinstance(ir.node.expression.expression_right, CallExpression)
-                and isinstance(ir.node.expression.expression_right.arguments[0], Identifier)
-            ):
-                self._vars_read.append(ir.arguments[0])
+                self._solidity_calls.append(ir)
+                self._internal_calls.append(ir)
             if isinstance(ir, LowLevelCall):
                 assert isinstance(ir.destination, (Variable, SolidityVariable))
-                self._low_level_calls.append((ir.destination, str(ir.function_name.value)))
+                self._low_level_calls.append(ir)
             elif isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 # Todo investigate this if condition
                 # It does seem right to compare against a contract
                 # This might need a refactoring
                 if isinstance(ir.destination.type, Contract):
-                    self._high_level_calls.append((ir.destination.type, ir.function))
+                    self._high_level_calls.append((ir.destination.type, ir))
                 elif ir.destination == SolidityVariable("this"):
                     func = self.function
                     # Can't use this in a top level function
                     assert isinstance(func, FunctionContract)
-                    self._high_level_calls.append((func.contract, ir.function))
+                    self._high_level_calls.append((func.contract, ir))
                 else:
                     try:
                         # Todo this part needs more tests and documentation
-                        self._high_level_calls.append((ir.destination.type.type, ir.function))
+                        self._high_level_calls.append((ir.destination.type.type, ir))
                     except AttributeError as error:
-                        #  pylint: disable=raise-missing-from
                         raise SlitherException(
                             f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 assert isinstance(ir.function, Function)
-                self._high_level_calls.append((ir.destination, ir.function))
-                self._library_calls.append((ir.destination, ir.function))
+                self._high_level_calls.append((ir.destination, ir))
+                self._library_calls.append(ir)
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
@@ -975,42 +941,95 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         non_ssa_var = function.get_local_variable_from_name(v.name)
         return non_ssa_var
 
-    def update_read_write_using_ssa(self) -> None:
-        if not self.expression:
-            return
-        for ir in self.irs_ssa:
-            if isinstance(ir, PhiCallback):
-                continue
-            if not isinstance(ir, (Phi, Index, Member)):
-                self._ssa_vars_read += [
-                    v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
-                ]
-                for var in ir.read:
-                    if isinstance(var, ReferenceVariable):
-                        origin = var.points_to_origin
-                        if isinstance(origin, (StateIRVariable, LocalIRVariable)):
-                            self._ssa_vars_read.append(origin)
+    def _update_read_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_read
+        This look for all operations that read a IRvariable
+        It uses the result of the storage pointer
+        - For "normal" operation, the read are mostly everything in ir.read
+        - For "index", the read is the left part (the right part being a reference variable)
+        - For Phi, nothing is considered read
 
-            elif isinstance(ir, (Member, Index)):
-                variable_right: RVALUE = ir.variable_right
-                if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
-                    self._ssa_vars_read.append(variable_right)
-                if isinstance(variable_right, ReferenceVariable):
-                    origin = variable_right.points_to_origin
+        """
+
+        # For variable read, phi and index have special treatments
+        # Phi don't lead to values read
+        # Index leads to read the variable right (the left variable is a ref variable, not the actual object)
+        # Not that Member is a normal operation here, given we filter out constant by checking for the IRvaraible
+        if not isinstance(ir, (Phi, Index)):
+            self._ssa_vars_read += [
+                v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
+            ]
+            for var in ir.read:
+                if isinstance(var, ReferenceVariable):
+                    origin = var.points_to_origin
                     if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                         self._ssa_vars_read.append(origin)
 
-            if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length)):
-                    continue  # Don't consider Member and Index operations -> ReferenceVariable
-                var = ir.lvalue
-                if isinstance(var, ReferenceVariable):
-                    var = var.points_to_origin
+                # If we read from a storage variable (outside of phi operator)
+                if isinstance(var, LocalIRVariable) and var.is_storage:
+                    for refer_to in var.refers_to:
+                        # the following should always be true
+                        if isinstance(refer_to, (StateIRVariable, LocalIRVariable)):
+                            self._ssa_vars_read.append(refer_to)
+
+        elif isinstance(ir, Index):
+            variable_right: RVALUE = ir.variable_right
+            if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
+                self._ssa_vars_read.append(variable_right)
+
+            if isinstance(variable_right, ReferenceVariable):
+                origin = variable_right.points_to_origin
+                if isinstance(origin, (StateIRVariable, LocalIRVariable)):
+                    self._ssa_vars_read.append(origin)
+
+    def _update_write_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_written
+        This look for all operations that write a IRvariable
+        It uses the result of the storage pointer
+
+        Index/member/Length are not considering writing to anything
+        For index/member it is implictely handled when their associated RefernceVarible are written
+
+        """
+
+        if isinstance(ir, OperationWithLValue) and not isinstance(ir, Phi):
+            if isinstance(ir, (Index, Member, Length)):
+                return  # Don't consider Member and Index operations -> ReferenceVariable
+
+            var = ir.lvalue
+
+            if isinstance(var, ReferenceVariable):
+                var = var.points_to_origin
+
+            candidates = [var]
+
+            # If we write to a storage pointer, add everything it points to as target
+            # if it's a variable declaration we do not want to consider the right variable written in that case
+            # string storage ss = s; // s is a storage variable but should not be considered written at that point
+            if (
+                isinstance(var, LocalIRVariable)
+                and var.is_storage
+                and ir.node.type is not NodeType.VARIABLE
+            ):
+                candidates += var.refers_to
+
+            for var in candidates:
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
                     if isinstance(ir, PhiCallback):
                         continue
                     self._ssa_vars_written.append(var)
+
+    def update_read_write_using_ssa(self) -> None:
+        for ir in self.irs_ssa:
+            if isinstance(ir, PhiCallback):
+                continue
+
+            self._update_read_using_ssa(ir)
+            self._update_write_using_ssa(ir)
+
         self._ssa_vars_read = list(set(self._ssa_vars_read))
         self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
         self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
@@ -1049,43 +1068,6 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         txt = str(self._node_type.value) + additional_info
         return txt
 
-    def __getattr__(self, item: str):
-        """Get attribute wrapper.
-
-        Used for the breaking change to deprecate the usage of sons/fathers and use predecessors
-        and successors.
-        """
-        replaced_functions = {
-            "add_son",
-            "remove_son",
-            "replace_son",
-            "son_false",
-            "son_true",
-            "sons",
-            "add_father",
-            "fathers",
-            "remove_father",
-            "set_fathers",
-        }
-
-        if item not in replaced_functions:
-            raise AttributeError(item)
-
-        if "son" in item:
-            new_function = item.replace("son", "successor")
-        elif "father" in item:
-            new_function = item.replace("father", "predecessor")
-        else:
-            raise AttributeError(item)
-
-        proxied_function = getattr(self, new_function)
-        logger.warning(
-            "Function %s is deprecated and will be removed in a future version. Please use %s instead.",
-            item,
-            new_function,
-        )
-        return proxied_function
-
 
 # endregion
 ###################################################################################
@@ -1096,18 +1078,18 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
 
 
 def link_nodes(node1: Node, node2: Node) -> None:
-    node1.add_successor(node2)
-    node2.add_predecessor(node1)
+    node1.add_son(node2)
+    node2.add_father(node1)
 
 
 def insert_node(origin: Node, node_inserted: Node) -> None:
-    successors = origin.successors
+    sons = origin.successors
     link_nodes(origin, node_inserted)
-    for successor in successors:
-        successor.remove_predecessor(origin)
-        origin.remove_successor(successor)
+    for son in sons:
+        son.remove_father(origin)
+        origin.remove_son(son)
 
-        link_nodes(node_inserted, successor)
+        link_nodes(node_inserted, son)
 
 
 def recheable(node: Node) -> Set[Node]:
@@ -1123,9 +1105,9 @@ def recheable(node: Node) -> Set[Node]:
         nodes = nodes[1:]
         if next_node not in visited:
             visited.add(next_node)
-            for successor in next_node.successors:
-                if successor not in visited:
-                    nodes.append(successor)
+            for son in next_node.successors:
+                if son not in visited:
+                    nodes.append(son)
     return visited
 
 

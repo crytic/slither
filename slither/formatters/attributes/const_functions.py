@@ -43,7 +43,7 @@ def _patch(
     in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Find the keywords view|pure|constant and remove them
-    m = re.search("(view|pure|constant)", old_str_of_interest.decode("utf-8"))
+    m = re.search("(view|pure|constant)", old_str_of_interest.decode("utf8"))
     if m:
         create_patch(
             result,
