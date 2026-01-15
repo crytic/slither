@@ -1,32 +1,19 @@
-# syntax=docker/dockerfile:1.3
-FROM ubuntu:jammy AS python-wheels
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    gcc \
-    git \
-    make \
-    python3-dev \
-    python3-pip \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY . /slither
-
-RUN cd /slither && \
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 wheel -w /wheels . solc-select pip setuptools wheel
-
-
+# syntax=docker/dockerfile:1.12
 FROM ubuntu:jammy AS final
 
-LABEL name=slither
-LABEL src="https://github.com/trailofbits/slither"
-LABEL creator=trailofbits
-LABEL dockerfile_maintenance=trailofbits
-LABEL desc="Static Analyzer for Solidity"
+LABEL name=slither \
+      src="https://github.com/trailofbits/slither" \
+      creator=trailofbits \
+      dockerfile_maintenance=trailofbits \
+      desc="Static Analyzer for Solidity"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
-  && apt-get install -y --no-install-recommends python3-pip \
+  && apt-get install -y --no-install-recommends git python3 python3-venv \
   && rm -rf /var/lib/apt/lists/*
+
+# Install uv from official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # improve compatibility with amd64 solc in non-amd64 environments (e.g. Docker Desktop on M1 Mac)
 ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
@@ -39,15 +26,23 @@ RUN if [ ! "$(uname -m)" = "x86_64" ]; then \
 RUN useradd -m slither
 USER slither
 
-COPY --chown=slither:slither . /home/slither/slither
 WORKDIR /home/slither/slither
 
-ENV PATH="/home/slither/.local/bin:${PATH}"
+# Copy dependency files first for layer caching
+COPY --chown=slither:slither pyproject.toml uv.lock ./
 
-# no-index ensures we install the freshly-built wheels
-RUN --mount=type=bind,target=/mnt,source=/wheels,from=python-wheels \
-    pip3 install --user --no-cache-dir --upgrade --no-index --find-links /mnt --no-deps /mnt/*.whl
+# Install dependencies (creates venv in .venv)
+RUN uv sync --frozen --no-install-project
+
+# Copy source code
+COPY --chown=slither:slither . .
+
+# Install the project itself and solc-select
+RUN uv sync --frozen && \
+    uv tool install solc-select
+
+ENV PATH="/home/slither/slither/.venv/bin:/home/slither/.local/bin:${PATH}"
 
 RUN solc-select use latest --always-install
 
-CMD /bin/bash
+CMD ["/bin/bash"]
