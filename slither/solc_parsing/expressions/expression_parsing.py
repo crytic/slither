@@ -40,6 +40,7 @@ from slither.core.solidity_types import (
 )
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
+from slither.core.variables.variable import Variable
 from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
@@ -576,7 +577,14 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
-        if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
+        # Only convert to SolidityVariableComposed if the base expression is NOT
+        # a user-defined variable. This prevents a mistake like a parameter struct
+        # named "self" in a function with a balance field being treated as Vyper's self.balance.
+        is_user_defined = isinstance(member_expression, Identifier) and isinstance(
+            member_expression.value,
+            Variable,
+        )
+        if str(member_access) in SOLIDITY_VARIABLES_COMPOSED and not is_user_defined:
             id_idx = Identifier(SolidityVariableComposed(str(member_access)))
             id_idx.set_offset(src, caller_context.compilation_unit)
             return id_idx

@@ -1,7 +1,7 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Tuple, List, Union
+from typing import Optional, Dict, Tuple, List, Union, Set
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
@@ -32,6 +32,8 @@ class AbstractMutator(metaclass=abc.ABCMeta):
         dont_mutate_line: List[int],
         rate: int = 10,
         seed: Optional[int] = None,
+        target_selectors: Optional[Set[int]] = None,
+        target_modifiers: Optional[Set[str]] = None,
     ) -> None:
         self.compilation_unit = compilation_unit
         self.slither = compilation_unit.core
@@ -46,6 +48,8 @@ class AbstractMutator(metaclass=abc.ABCMeta):
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
         self.dont_mutate_line = dont_mutate_line
+        self.target_selectors = target_selectors
+        self.target_modifiers = target_modifiers
         # total revert/comment/tweak mutants that were generated and compiled
         self.total_mutant_counts = [0, 0, 0]
         # total caught revert/comment/tweak mutants
@@ -71,6 +75,25 @@ class AbstractMutator(metaclass=abc.ABCMeta):
             not node.source_mapping.lines[0] in self.dont_mutate_line
             and node.source_mapping.filename.absolute == self.in_file
         )
+
+    def should_mutate_function(self, function) -> bool:
+        """Check if function/modifier should be mutated based on target_selectors"""
+        if self.target_selectors is None:
+            return True  # No filter, mutate all
+
+        from slither.utils.function import get_function_id
+        from slither.core.declarations import Modifier
+
+        if isinstance(function, Modifier):
+            # For modifiers, check if in target_modifiers set
+            return bool(self.target_modifiers and function.name in self.target_modifiers)
+
+        # For functions, check selector
+        try:
+            func_selector = get_function_id(function.solidity_signature)
+            return func_selector in self.target_selectors
+        except Exception:  # pylint: disable=broad-except
+            return False
 
     @abc.abstractmethod
     def _mutate(self) -> Dict:
