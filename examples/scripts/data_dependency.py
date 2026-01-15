@@ -127,6 +127,24 @@ assert is_tainted(var_tainted, contract)
 print(f"{var_not_tainted} is tainted: {is_tainted(var_not_tainted, contract)}")
 assert not is_tainted(var_not_tainted, contract)
 
+print("Index contract")
+contracts = slither.get_contract_from_name("Index")
+assert len(contracts) == 1
+contract = contracts[0]
+ref = contract.get_state_variable_from_name("ref")
+assert ref
+mapping_var = contract.get_state_variable_from_name("mapping_var")
+assert mapping_var
+
+print(f"{ref} is dependent of {mapping_var}: {is_dependent(ref, mapping_var, contract)}")
+assert is_dependent(ref, mapping_var, contract)
+print(f"{ref} is dependent of {msgsender}: {is_dependent(ref, msgsender, contract)}")
+assert is_dependent(ref, msgsender, contract)
+print(
+    f"{mapping_var} is dependent of {msgsender}: {is_dependent(mapping_var, msgsender, contract)}"
+)
+assert not is_dependent(mapping_var, msgsender, contract)
+
 print("SimpleModifier contract")
 contracts = slither.get_contract_from_name("SimpleModifier")
 assert len(contracts) == 1
