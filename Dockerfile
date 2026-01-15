@@ -27,6 +27,16 @@ RUN if [ ! "$(uname -m)" = "x86_64" ]; then \
   && apt-get install -y --no-install-recommends libc6-amd64-cross \
   && rm -rf /var/lib/apt/lists/*; fi
 
+# Install build tools only on armv7 (needed for pip to compile wheels)
+# amd64/arm64 use uv with pre-built wheels, so they don't need these
+RUN arch=$(uname -m) && \
+    if [ "$arch" = "armv7l" ]; then \
+      export DEBIAN_FRONTEND=noninteractive && \
+      apt-get update && \
+      apt-get install -y --no-install-recommends build-essential python3-dev && \
+      rm -rf /var/lib/apt/lists/*; \
+    fi
+
 RUN useradd -m slither
 USER slither
 
