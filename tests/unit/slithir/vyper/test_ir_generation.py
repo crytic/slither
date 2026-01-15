@@ -1,4 +1,4 @@
-# # pylint: disable=too-many-lines
+#
 
 
 from slither.core.solidity_types import ElementaryType

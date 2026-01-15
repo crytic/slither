@@ -1,5 +1,5 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 
 from slither.core.declarations import Function
@@ -8,7 +8,6 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 class Modifiers(AbstractPrinter):
-
     ARGUMENT = "modifiers"
     HELP = "Print the modifiers called by each function"
 
