@@ -7,6 +7,7 @@ from slither.slithir.operations import HighLevelCall, NewStructure
 # This path points to the directory containing array_instantiation_call.sol
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
+
 def _check_common_assertions(target_func: FunctionContract, expected_description: str):
     """Utility to check the base requirement: successful HighLevelCall generation."""
     assert target_func is not None, f"Target function for {expected_description} not found."
@@ -17,9 +18,9 @@ def _check_common_assertions(target_func: FunctionContract, expected_description
     # The presence of this call proves the array and argument resolution completed without crashing.
     call_to_f = next((op for op in slithir_ops if isinstance(op, HighLevelCall)), None)
     assert call_to_f is not None, f"[{expected_description}]: HighLevelCall to 'a.f' should exist."
-    assert (
-        len(slithir_ops) > 0
-    ), f"[{expected_description}]: No SlithIR operations found, indicating a crash or severe parsing failure."
+    assert len(slithir_ops) > 0, (
+        f"[{expected_description}]: No SlithIR operations found, indicating a crash or severe parsing failure."
+    )
 
 
 def test_primitive_array_instantiation_fix(solc_binary_path) -> None:
@@ -62,6 +63,6 @@ def test_struct_array_instantiation_fix(solc_binary_path) -> None:
 
     # Check for the NewStructure operation (for B(num) or B(num + 1))
     new_struct_op = next((op for op in slithir_ops if isinstance(op, NewStructure)), None)
-    assert (
-        new_struct_op is not None
-    ), "[Struct Array Instantiation]: NewStructure operation must be generated for struct B creation."
+    assert new_struct_op is not None, (
+        "[Struct Array Instantiation]: NewStructure operation must be generated for struct B creation."
+    )
