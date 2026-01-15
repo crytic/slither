@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, TypeVar, Generic
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -25,11 +25,16 @@ class MultipleVariablesDeclaration(Exception):
     It should occur only on local variable definition
     """
 
+    # pylint: disable=unnecessary-pass
     pass
 
 
-class VariableDeclarationSolc:
-    def __init__(self, variable: Variable, variable_data: Dict) -> None:
+T = TypeVar("T", bound=Variable)
+
+
+class VariableDeclarationSolc(Generic[T]):
+    # pylint: disable=too-many-branches
+    def __init__(self, variable: T, variable_data: Dict) -> None:
         """
         A variable can be declared through a statement, or directly.
         If it is through a statement, the following children may contain
@@ -124,7 +129,7 @@ class VariableDeclarationSolc:
         else:
             self._variable.visibility = "internal"
 
-    def _init_from_declaration(self, var: Dict, init: Optional[Dict]) -> None:
+    def _init_from_declaration(self, var: Dict, init: Optional[Dict]) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]

@@ -227,7 +227,7 @@ class Node(SourceMapping):
         self._function = function
 
     @property
-    def function(self) -> "Function":
+    def function(self) -> Optional["Function"]:
         return self._function
 
     @property

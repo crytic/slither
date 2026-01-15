@@ -4,7 +4,7 @@ from slither.solc_parsing.variables.variable_declaration import VariableDeclarat
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 
-class FunctionTypeVariableSolc(VariableDeclarationSolc):
+class FunctionTypeVariableSolc(VariableDeclarationSolc[FunctionTypeVariable]):
     def __init__(self, variable: FunctionTypeVariable, variable_data: Dict):
         super().__init__(variable, variable_data)
 

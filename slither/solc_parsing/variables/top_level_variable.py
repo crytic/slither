@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):
+class TopLevelVariableSolc(VariableDeclarationSolc[TopLevelVariable], CallerContextExpression):
     def __init__(
         self,
         variable: TopLevelVariable,

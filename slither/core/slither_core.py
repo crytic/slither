@@ -388,9 +388,9 @@ class SlitherCore(Context):
                 if ignored:
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
-                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                        if len(vals) == 0 or vals[-1][1] != -1:
                             # First item in the array, or the prior item is fully populated.
-                            self._ignore_ranges[file][check].append((line_number, float("inf")))
+                            self._ignore_ranges[file][check].append((line_number, -1))
                         else:
                             logger.error(
                                 f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"

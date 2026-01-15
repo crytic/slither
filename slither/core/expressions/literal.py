@@ -1,17 +1,18 @@
-from typing import Optional, Union, TYPE_CHECKING, Any
+from typing import Optional, Union, Any, TypeVar
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
 from slither.utils.arithmetic import convert_subdenomination
 from slither.utils.integer_conversion import convert_string_to_int
 
-if TYPE_CHECKING:
-    from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.type import Type
+
+TypeT = TypeVar("TypeT", bound=Type)
 
 
 class Literal(Expression):
     def __init__(
-        self, value: Union[int, str], custom_type: "Type", subdenomination: Optional[str] = None
+        self, value: Union[int, str], custom_type: TypeT, subdenomination: Optional[str] = None
     ) -> None:
         super().__init__()
         self._value = value
@@ -30,7 +31,7 @@ class Literal(Expression):
         return self._value
 
     @property
-    def type(self) -> "Type":
+    def type(self) -> TypeT:
         return self._type
 
     @property

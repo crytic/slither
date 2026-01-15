@@ -4,7 +4,7 @@ from slither.solc_parsing.variables.variable_declaration import VariableDeclarat
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 
 
-class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
+class LocalVariableInitFromTupleSolc(VariableDeclarationSolc[LocalVariableInitFromTuple]):
     def __init__(
         self, variable: LocalVariableInitFromTuple, variable_data: Dict, index: int
     ) -> None:

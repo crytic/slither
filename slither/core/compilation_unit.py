@@ -191,8 +191,8 @@ class SlitherCompilationUnit(Context):
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self) -> List[Function]:
-        return self.functions + list(self.modifiers)
+    def functions_and_modifiers(self) -> List[Union[Function, Modifier]]:
+        return self.functions + self.modifiers
 
     def propagate_function_calls(self) -> None:
         """This info is used to compute the rvalues of Phi operations in `fix_phi` and ultimately

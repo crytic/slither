@@ -3,12 +3,12 @@ import json
 from typing import Optional, Any
 import urllib
 
-from packaging.version import parse, Version
+from packaging.version import parse, Version, LegacyVersion
 
 from slither.utils.colors import yellow, green
 
 
-def get_installed_version(name: str) -> Optional[Version]:
+def get_installed_version(name: str) -> Optional[Version | LegacyVersion]:
     try:
         return parse(metadata.version(name))
     except metadata.PackageNotFoundError:
