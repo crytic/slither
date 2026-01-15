@@ -1,0 +1,3 @@
+The Chainlink Feed Registry is used in the A contract. It's only available on Ethereum Mainnet, consider to not use it if the contract needs to be deployed on other chains.
+	 - (None,price,None,None,None) = registry.latestRoundData(base,quote) (tests/e2e/detectors/test_data/chainlink-feed-registry/0.8.20/chainlink_feed_registry.sol#25)
+

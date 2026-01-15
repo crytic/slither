@@ -1,1 +1,56 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Virtual environments
+.venv/
+venv/
+.tox/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+wheels/
+
+# Tests (not needed in production image)
+tests/
+
+# Development tooling
+.github/
+.pre-commit-config.yaml
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.yamllint
+
+# Documentation (README needed for pyproject.toml)
+docs/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker files
 Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# CI/CD
+.coderabbit.yaml
+CITATION.cff
+CLAUDE.md
+CONTRIBUTING.md
+Makefile

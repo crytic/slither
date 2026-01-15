@@ -8,6 +8,7 @@ from slither.core.variables.top_level_variable import TopLevelVariable
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SRC_MAPPING_TEST_ROOT = Path(TEST_DATA_DIR, "src_mapping")
 
+
 # Ensure issue fixed in https://github.com/crytic/crytic-compile/pull/554 does not regress in Slither's reference lookup.
 @pytest.mark.parametrize("solc_version", ["0.6.12", "0.8.7", "0.8.8"])
 def test_source_mapping_inheritance(solc_binary_path, solc_version):
@@ -58,7 +59,7 @@ def test_source_mapping_inheritance(solc_binary_path, solc_version):
     assert {(x.start, x.end) for x in slither.offset_to_implementations(file, 203)} == {(193, 230)}
 
     # Offset 93 is the call to f() in A.test()
-    # This can lead to three differents functions, depending on the current contract's context
+    # This can lead to three different functions, depending on the current contract's context
     functions = slither.offset_to_objects(file, 93)
     print(functions)
     assert len(functions) == 3

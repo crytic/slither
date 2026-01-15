@@ -5,9 +5,7 @@ from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.state_variable import StateIRVariable
 
 
-class LocalIRVariable(
-    LocalVariable, SlithIRVariable
-):  # pylint: disable=too-many-instance-attributes
+class LocalIRVariable(LocalVariable, SlithIRVariable):
     def __init__(self, local_variable: LocalVariable) -> None:
         assert isinstance(local_variable, LocalVariable)
 
@@ -50,6 +48,9 @@ class LocalIRVariable(
 
     @property
     def refers_to(self):
+        """
+        Return the alias for local variable that are storage pointers
+        """
         if self.is_storage:
             return self._refers_to
         return set()

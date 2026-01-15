@@ -12,9 +12,7 @@ logger = logging.getLogger("Slither-simil")
 
 
 def info(args: argparse.Namespace) -> None:
-
     try:
-
         model = args.model
         if os.path.isfile(model):
             model = load_model(model)
@@ -48,7 +46,7 @@ def info(args: argparse.Namespace) -> None:
             fvector = model.get_sentence_vector(y)
             logger.info(fvector)
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         to_log = f"Error in {args.filename}"
         logger.error(to_log)
         logger.error(traceback.format_exc())

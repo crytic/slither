@@ -57,7 +57,6 @@ def _handle_import_aliases(
     for symbol_alias in symbol_aliases:
         if "foreign" in symbol_alias and "local" in symbol_alias:
             if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
-
                 original_name = symbol_alias["foreign"]["name"]
                 local_name = symbol_alias["local"]
                 import_directive.renaming[local_name] = original_name
@@ -74,7 +73,6 @@ def _handle_import_aliases(
 
 
 class SlitherCompilationUnitSolc(CallerContextExpression):
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         super().__init__()
 
@@ -176,7 +174,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             self.parse_top_level_items(data_loaded, filename)
             return True
         except ValueError:
-
             first = json_data.find("{")
             if first != -1:
                 last = json_data.rfind("}") + 1
@@ -219,7 +216,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         refId = top_level_data["id"]
         self.top_level_enums_by_id[refId] = enum
 
-    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
         if not data_loaded or data_loaded is None:
             logger.error(
@@ -457,13 +453,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def analyzed(self) -> bool:
         return self._analyzed
 
-    def parse_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
+    def parse_contracts(self) -> None:
         if not self._underlying_contract_to_parser:
             logger.info(
                 f"No contracts were found in {self._compilation_unit.core.filename}, check the correct compilation"
             )
         if self._parsed:
-            # pylint: disable=broad-exception-raised
             raise Exception("Contract analysis can be run only once!")
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
@@ -513,7 +508,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                     missing_inheritance = i
 
             # Resolve immediate base contracts and attach references.
-            for (i, src) in contract_parser.baseContracts:
+            for i, src in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
                     target = resolve_remapping_and_renaming(contract_parser, i)
                     fathers.append(target)
@@ -558,7 +553,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         # Any contract can refer another contract enum without need for inheritance
         self._analyze_all_enums(contracts_to_be_analyzed)
-        # pylint: disable=expression-not-assigned
+
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         libraries = [
@@ -570,7 +565,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         # We first parse the struct/variables/functions/contract
         self._analyze_first_part(contracts_to_be_analyzed, libraries)
-        # pylint: disable=expression-not-assigned
+
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         # We analyze the struct and parse and analyze the events
@@ -587,7 +582,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         self._parsed = True
 
-    def analyze_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
+    def analyze_contracts(self) -> None:
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
@@ -623,7 +618,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -654,7 +648,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -681,7 +674,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -730,10 +722,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         contract.parse_modifiers()
         contract.parse_functions()
         contract.parse_custom_errors()
+        contract.parse_type_alias()
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc) -> None:
-
         contract.analyze_constant_state_variables()
 
         # Struct can refer to enum, or state variables
@@ -742,6 +734,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         contract.analyze_events()
 
         contract.analyze_custom_errors()
+
+        # Must be here since it can use top level variables hence they must be analyzed
+        contract.analyze_storage_layout()
 
         contract.set_is_analyzed(True)
 
@@ -803,7 +798,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         contract.set_is_analyzed(True)
 
     def _convert_to_slithir(self) -> None:
-
         for contract in self._compilation_unit.contracts:
             contract.add_constructor_variables()
 

@@ -11,45 +11,45 @@ import pstats
 import sys
 import traceback
 from importlib import metadata
-from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
-
-from crytic_compile import cryticparser, CryticCompile
-from crytic_compile.platform.standard import generate_standard_export
+import importlib_metadata
+from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
-from crytic_compile import compile_all, is_supported
+from crytic_compile.platform.standard import generate_standard_export
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.exceptions import SlitherException
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
-from slither.utils.output import (
-    output_to_json,
-    output_to_zip,
-    output_to_sarif,
-    ZIP_TYPES_ACCEPTED,
-    Output,
-)
-from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
+    DEFAULT_JSON_OUTPUT_TYPES,
+    JSON_OUTPUT_TYPES,
     FailOnLevel,
+    check_and_sanitize_markdown_root,
+    defaults_flag_in_config,
     output_detectors,
-    output_results_to_markdown,
     output_detectors_json,
     output_printers,
     output_printers_json,
+    output_results_to_markdown,
     output_to_markdown,
     output_wiki,
-    defaults_flag_in_config,
     read_config_file,
-    JSON_OUTPUT_TYPES,
-    DEFAULT_JSON_OUTPUT_TYPES,
-    check_and_sanitize_markdown_root,
 )
-from slither.exceptions import SlitherException
+from slither.utils.output import (
+    ZIP_TYPES_ACCEPTED,
+    Output,
+    output_to_json,
+    output_to_sarif,
+    output_to_zip,
+)
+from slither.utils.output_capture import StandardOutputCapture
+
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -166,12 +166,7 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    if sys.version_info >= (3, 10):
-        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
-    else:
-        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
-
-        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
@@ -194,7 +189,6 @@ def get_detectors_and_printers() -> Tuple[
     return detectors, printers
 
 
-# pylint: disable=too-many-branches
 def choose_detectors(
     args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
 ) -> List[Type[AbstractDetector]]:
@@ -205,43 +199,50 @@ def choose_detectors(
 
     if args.detectors_to_run == "all":
         detectors_to_run = all_detector_classes
-        if args.detectors_to_exclude:
-            detectors_excluded = args.detectors_to_exclude.split(",")
-            for detector in detectors:
-                if detector in detectors_excluded:
-                    detectors_to_run.remove(detectors[detector])
     else:
-        for detector in args.detectors_to_run.split(","):
-            if detector in detectors:
-                detectors_to_run.append(detectors[detector])
-            else:
-                raise ValueError(f"Error: {detector} is not a detector")
-        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_run, detectors
+        )
         return detectors_to_run
 
-    if args.exclude_optimization:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
-        ]
+    classification_map = {
+        DetectorClassification.HIGH: args.exclude_high,
+        DetectorClassification.MEDIUM: args.exclude_medium,
+        DetectorClassification.LOW: args.exclude_low,
+        DetectorClassification.INFORMATIONAL: args.exclude_informational,
+        DetectorClassification.OPTIMIZATION: args.exclude_optimization,
+    }
+    excluded_classification = [
+        classification for classification, included in classification_map.items() if included
+    ]
+    detectors_to_run = [d for d in detectors_to_run if d.IMPACT not in excluded_classification]
 
-    if args.exclude_informational:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
-        ]
-    if args.exclude_low:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
-        ]
-    if args.exclude_high:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
             d for d in detectors_to_run if d.ARGUMENT not in args.detectors_to_exclude
         ]
 
+    if args.detectors_to_include:
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_include, detectors
+        )
+
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+    return detectors_to_run
+
+
+def __include_detectors(
+    detectors_to_run: Set[Type[AbstractDetector]],
+    detectors_to_include: str,
+    detectors: Dict[str, Type[AbstractDetector]],
+) -> List[Type[AbstractDetector]]:
+    include_detectors = detectors_to_include.split(",")
+
+    for detector in include_detectors:
+        if detector in detectors:
+            detectors_to_run.add(detectors[detector])
+        else:
+            raise ValueError(f"Error: {detector} is not a detector")
 
     return detectors_to_run
 
@@ -282,7 +283,6 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
     return []
 
 
-# pylint: disable=too-many-statements
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
@@ -291,7 +291,7 @@ def parse_args(
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
     usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
+    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x for x in SUPPORTED_NETWORK)}\n"
 
     parser = argparse.ArgumentParser(
         description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
@@ -333,6 +333,14 @@ def parse_args(
         action="store",
         dest="printers_to_run",
         default=defaults_flag_in_config["printers_to_run"],
+    )
+
+    group_printer.add_argument(
+        "--include-interfaces",
+        help="Include interfaces from inheritance-graph printer",
+        action="store_true",
+        dest="include_interfaces",
+        default=False,
     )
 
     group_detector.add_argument(
@@ -399,6 +407,14 @@ def parse_args(
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--include-detectors",
+        help="Comma-separated list of detectors that should be included",
+        action="store",
+        dest="detectors_to_include",
+        default=defaults_flag_in_config["detectors_to_include"],
     )
 
     fail_on_group = group_detector.add_mutually_exclusive_group()
@@ -500,8 +516,8 @@ def parse_args(
     group_misc.add_argument(
         "--json-types",
         help="Comma-separated list of result types to output to JSON, defaults to "
-        + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
-        + f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
+        + f"{','.join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. "
+        + f"Available types: {','.join(output_type for output_type in JSON_OUTPUT_TYPES)}",
         action="store",
         default=defaults_flag_in_config["json-types"],
     )
@@ -515,7 +531,7 @@ def parse_args(
 
     group_misc.add_argument(
         "--zip-type",
-        help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
+        help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
         action="store",
         default=defaults_flag_in_config["zip_type"],
     )
@@ -596,8 +612,6 @@ def parse_args(
         default=defaults_flag_in_config["include_paths"],
     )
 
-    codex.init_parser(parser)
-
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
@@ -660,35 +674,29 @@ def parse_args(
     return args
 
 
-class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListDetectors(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListPrinters(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputMarkdown(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -702,7 +710,7 @@ class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
         parser.exit()
 
 
-class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
+class OutputWiki(argparse.Action):
     def __call__(
         self,
         parser: Any,
@@ -753,7 +761,6 @@ def main() -> None:
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
-# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main_impl(
     all_detector_classes: List[Type[AbstractDetector]],
     all_printer_classes: List[Type[AbstractPrinter]],
@@ -783,7 +790,7 @@ def main_impl(
     outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
     if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
+        to_log = f"Zip type not accepted, it must be one of {','.join(ZIP_TYPES_ACCEPTED.keys())}"
         logger.error(to_log)
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
@@ -796,7 +803,7 @@ def main_impl(
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for (l_name, l_level) in [
+    for l_name, l_level in [
         ("Slither", default_log),
         ("Contract", default_log),
         ("Function", default_log),

@@ -1,0 +1,15 @@
+INFO:Slither:
+Contract_reinitializer_V2 (tests/tools/check_upgradeability/contract_initialization.sol#63-77) needs to be initialized by Contract_reinitializer_V2.initialize(uint256) (tests/tools/check_upgradeability/contract_initialization.sol#66-68).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:
+Extra variables in Counter_reinitializer_V3_V4 (tests/tools/check_upgradeability/contract_initialization.sol#79-104): Counter_reinitializer_V3_V4.y (tests/tools/check_upgradeability/contract_initialization.sol#81)
+Extra variables in Counter_reinitializer_V3_V4 (tests/tools/check_upgradeability/contract_initialization.sol#79-104): Counter_reinitializer_V3_V4.z (tests/tools/check_upgradeability/contract_initialization.sol#82)
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-v2
+INFO:Slither:
+Counter_reinitializer_V3_V4.initializeV3(uint256) (tests/tools/check_upgradeability/contract_initialization.sol#92-94) multiple new reinitializers which should be combined into one per upgrade.
+Counter_reinitializer_V3_V4.initializeV4(uint256) (tests/tools/check_upgradeability/contract_initialization.sol#96-98) multiple new reinitializers which should be combined into one per upgrade.
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#multiple-new-reinitializers
+INFO:Slither:
+Counter_reinitializer_V3_V4 (tests/tools/check_upgradeability/contract_initialization.sol#79-104) needs to be initialized by Counter_reinitializer_V3_V4.initialize(uint256) (tests/tools/check_upgradeability/contract_initialization.sol#84-86).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:6 findings, 22 detectors run
