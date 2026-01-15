@@ -1,6 +1,7 @@
 """
 Module detecting unused custom errors
 """
+
 from typing import List, Set
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
