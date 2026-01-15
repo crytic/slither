@@ -1715,6 +1715,11 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
+        all_detectors.Ecrecover,
+        "ecrecover.sol",
+        "0.10.1",
+    ),
+    Test(
         all_detectors.OutOfOrderRetryable,
         "out_of_order_retryable.sol",
         "0.8.20",
