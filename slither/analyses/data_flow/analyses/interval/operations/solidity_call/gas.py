@@ -65,5 +65,3 @@ class GasHandler(BaseOperationHandler):
 
         # Gas values don't overflow
         tracked.assert_no_overflow(self.solver)
-
-

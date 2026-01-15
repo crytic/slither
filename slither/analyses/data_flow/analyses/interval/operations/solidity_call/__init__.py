@@ -26,6 +26,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.gas i
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.low_level_call import (
     LowLevelCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.evm_builtins import (
+    EvmBuiltinHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memory import (
     MemoryLoadHandler,
     MemoryStoreHandler,
@@ -127,8 +130,13 @@ class SolidityCallHandler(BaseOperationHandler):
             CalldataCopyHandler(self.solver).handle(operation, domain, node)
             return
 
-        self.logger.error_and_raise(
-            "Unknown function: {function_full_name}",
-            ValueError,
+        # Fallback: handle any other EVM builtin generically.
+        # This covers opcodes like returndatasize, calldatasize, codesize, chainid,
+        # origin, gasprice, coinbase, difficulty, number, basefee, caller, callvalue,
+        # address, balance, extcodehash, blockhash, sload, keccak256, arithmetic ops, etc.
+        # These are modeled as returning unconstrained values within their type bounds.
+        self.logger.debug(
+            "Using generic EVM builtin handler for: {function_full_name}",
             function_full_name=function_full_name,
         )
+        EvmBuiltinHandler(self.solver).handle(operation, domain, node)
