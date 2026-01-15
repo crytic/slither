@@ -62,7 +62,6 @@ class MsgValueInNonPayable(AbstractDetector):
         # Detect direct msg.value usage only
         for contract in self.contracts:
             for func in contract.functions:
-
                 # Skip functions that do not directly use msg.value
                 # (either in the function body or in attached modifiers)
                 if not self._uses_msg_value(func) and not any(
@@ -124,7 +123,6 @@ class MsgValueInNonPayable(AbstractDetector):
         return (payable_callers, non_payable_callers)
 
     def _build_info(self, func: Function, non_payable_callers: list) -> List:
-
         info = [
             "msg.value used in non-payable context\n",
             f"  Location: {func.source_mapping.filename.short}:{func.source_mapping.lines[0]}\n",
@@ -137,7 +135,7 @@ class MsgValueInNonPayable(AbstractDetector):
             info.append("\n    Entry points that can reach this function:\n")
 
             for caller in non_payable_callers:
-                info.append(f"      - {caller.full_name} " f"[{caller.visibility}, non-payable]\n")
+                info.append(f"      - {caller.full_name} [{caller.visibility}, non-payable]\n")
 
         info.append(
             "\n  No payable functions can reach this code.\n\n",
