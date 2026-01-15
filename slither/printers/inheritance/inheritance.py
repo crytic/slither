@@ -33,10 +33,11 @@ class PrinterInheritance(AbstractPrinter):
         info += blue("Child_Contract -> ") + green("Immediate_Base_Contracts")
         info += green(" [Not_Immediate_Base_Contracts]")
 
-        result = {"child_to_base": {}}
+        result = {"child_to_base": {}, "paths": {}}
 
         for child in self.contracts:
             info += blue(f"\n+ {child.name}\n")
+            result["paths"][child.name] = child.source_mapping.filename.absolute
             result["child_to_base"][child.name] = {"immediate": [], "not_immediate": []}
             if child.inheritance:
                 immediate = child.immediate_inheritance
