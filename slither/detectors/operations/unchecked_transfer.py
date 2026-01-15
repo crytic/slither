@@ -30,7 +30,7 @@ class UncheckedTransfer(UnusedReturnValues):
 contract Token {
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
 }
-contract MyBank{  
+contract MyBank{
     mapping(address => uint) balances;
     Token token;
     function deposit(uint amount) public{

@@ -572,5 +572,33 @@
                 }
             }
         }
+    },
+    "big": {
+    "name": "big",
+    "type_string": "StorageLayout.BiggerStruct",
+    "slot": 21,
+    "size": 512,
+    "offset": 0,
+    "value": "000000000000000000000000000000000000000000000000000000000000000a",
+    "elems": {
+        "x": {
+            "name": "big.x",
+            "type_string": "uint64",
+            "slot": 21,
+            "size": 64,
+            "offset": 0,
+            "value": 10,
+            "elems": {}
+        },
+        "y": {
+            "name": "big.y",
+            "type_string": "uint256",
+            "slot": 22,
+            "size": 256,
+            "offset": 0,
+            "value": 100,
+            "elems": {}
+        }
     }
+}
 }

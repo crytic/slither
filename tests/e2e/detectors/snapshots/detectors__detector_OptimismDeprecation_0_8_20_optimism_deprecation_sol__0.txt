@@ -1,0 +1,4 @@
+A deprecated Optimism predeploy or function is used in the Test contract.
+	 - OPT_GAS.scalar() (tests/e2e/detectors/test_data/optimism-deprecation/0.8.20/optimism_deprecation.sol#15)
+	 - L1_BLOCK_NUMBER.q() (tests/e2e/detectors/test_data/optimism-deprecation/0.8.20/optimism_deprecation.sol#19)
+

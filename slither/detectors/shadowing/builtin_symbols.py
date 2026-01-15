@@ -1,6 +1,7 @@
 """
 Module detecting reserved keyword shadowing
 """
+
 from typing import List, Tuple, Union, Optional
 
 from slither.core.declarations import Function, Event
@@ -29,7 +30,7 @@ class BuiltinSymbolShadowing(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing"
 
-    WIKI_TITLE = "Builtin Symbol Shadowing"
+    WIKI_TITLE = "Built-in Symbol Shadowing"
     WIKI_DESCRIPTION = "Detection of shadowing built-in symbols using local variables, state variables, functions, modifiers, or events."
 
     # region wiki_exploit_scenario
@@ -52,7 +53,7 @@ contract Bug {
 `now` is defined as a state variable, and shadows with the built-in symbol `now`. The function `assert` overshadows the built-in `assert` function. Any use of either of these built-in symbols may lead to unexpected results."""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "Rename the local variables, state variables, functions, modifiers, and events that shadow a builtin symbol."
+    WIKI_RECOMMENDATION = "Rename the local variables, state variables, functions, modifiers, and events that shadow a built-in symbol."
 
     SHADOWING_FUNCTION = "function"
     SHADOWING_MODIFIER = "modifier"
