@@ -302,13 +302,13 @@ contract Token
         address payable d = msg.sender;
         tokens[msg.sender] = 0;
         _withdraw(/*owner‮/*noitanitsed*/ d, o/*‭
-		        /*value */, amount);
+          /*value */, amount);
     }
 
     function _withdraw(address payable fee_receiver, address payable destination, uint value) internal
     {
-		fee_receiver.transfer(1);
-		destination.transfer(value);
+  fee_receiver.transfer(1);
+  destination.transfer(value);
     }
 }
 ```
@@ -567,19 +567,19 @@ Detects the direct assignment of an array's length.
 
 ```solidity
 contract A {
-	uint[] testArray; // dynamic size array
+ uint[] testArray; // dynamic size array
 
-	function f(uint usersCount) public {
-		// ...
-		testArray.length = usersCount;
-		// ...
-	}
+ function f(uint usersCount) public {
+  // ...
+  testArray.length = usersCount;
+  // ...
+ }
 
-	function g(uint userIndex, uint val) public {
-		// ...
-		testArray[userIndex] = val;
-		// ...
-	}
+ function g(uint userIndex, uint val) public {
+  // ...
+  testArray[userIndex] = val;
+  // ...
+ }
 }
 ```
 
@@ -834,12 +834,12 @@ leading to incorrect values in signed integer arrays.
 
 ```solidity
 contract A {
-	int[3] ether_balances; // storage signed integer array
-	function bad0() private {
-		// ...
-		ether_balances = [-1, -1, -1];
-		// ...
-	}
+ int[3] ether_balances; // storage signed integer array
+ function bad0() private {
+  // ...
+  ether_balances = [-1, -1, -1];
+  // ...
+ }
 }
 ```
 
@@ -915,26 +915,6 @@ As a result, Eve wins the game.
 ### Recommendation
 
 Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness
-
-## Codex
-
-### Configuration
-
-- Check: `codex`
-- Severity: `High`
-- Confidence: `Low`
-
-### Description
-
-Use [codex](https://openai.com/blog/openai-codex/) to find vulnerabilities
-
-### Exploit Scenario
-
-N/A
-
-### Recommendation
-
-Review codex's message.
 
 ## Domain separator collision
 
@@ -1174,7 +1154,7 @@ The function `A` uses the deprecated `getPrice` Pyth function.
 
 ### Recommendation
 
-Do not use deprecated Pyth functions. Visit [https://api-reference.pyth.network/](https://api-reference.pyth.network/).
+Do not use deprecated Pyth functions. Visit <https://api-reference.pyth.network/>.
 
 ## Pyth unchecked confidence level
 
@@ -1212,7 +1192,7 @@ The function `A` uses the price without checking its confidence level.
 
 ### Recommendation
 
-Check the confidence level of a Pyth price. Visit [pyth confidence intervals](https://docs.pyth.network/price-feeds/best-practices#confidence-intervals) for more information.
+Check the confidence level of a Pyth price. Visit <https://docs.pyth.network/price-feeds/best-practices#confidence-intervals> for more information.
 
 ## Pyth unchecked publishTime
 
@@ -1324,19 +1304,19 @@ Detects expressions that are tautologies or contradictions.
 
 ```solidity
 contract A {
-	function f(uint x) public {
-		// ...
+ function f(uint x) public {
+  // ...
         if (x >= 0) { // bad -- always true
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 
-	function g(uint8 y) public returns (bool) {
-		// ...
+ function g(uint8 y) public returns (bool) {
+  // ...
         return (y < 512); // bad!
-		// ...
-	}
+  // ...
+ }
 }
 ```
 
@@ -1372,7 +1352,7 @@ contract Buggy{
 }
 ```
 
-`a` is first asigned to `b`, and then to `c`. As a result the first write does nothing.
+`a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 
@@ -1394,19 +1374,19 @@ Detects the misuse of a Boolean constant.
 
 ```solidity
 contract A {
-	function f(uint x) public {
-		// ...
+ function f(uint x) public {
+  // ...
         if (false) { // bad!
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 
-	function g(bool b) public returns (bool) {
-		// ...
+ function g(bool b) public returns (bool) {
+  // ...
         return (b || true); // bad!
-		// ...
-	}
+  // ...
+ }
 }
 ```
 
@@ -1427,7 +1407,7 @@ Verify and simplify the condition.
 
 ### Description
 
-Chronicle oracle is used and the price returned is not checked to be valid. For more information visit [https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated](https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated).
+Chronicle oracle is used and the price returned is not checked to be valid. For more information visit <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
 
 ### Exploit Scenario
 
@@ -1538,7 +1518,7 @@ Solidity's integer division truncates. Thus, performing division before multipli
 
 ```solidity
 contract A {
-	function f(uint n) public {
+ function f(uint n) public {
         coins = (oldSupply / n) * interest;
     }
 }
@@ -2378,15 +2358,15 @@ Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tre
 
 ```solidity
 contract ReentrantContract {
-	function f() external {
-		if (BugReentrancyEvents(msg.sender).counter() == 1) {
-			BugReentrancyEvents(msg.sender).count(this);
-		}
-	}
+ function f() external {
+  if (BugReentrancyEvents(msg.sender).counter() == 1) {
+   BugReentrancyEvents(msg.sender).count(this);
+  }
+ }
 }
 contract Counter {
-	uint public counter;
-	event Counter(uint);
+ uint public counter;
+ event Counter(uint);
 
 }
 contract BugReentrancyEvents is Counter {
@@ -2397,7 +2377,7 @@ contract BugReentrancyEvents is Counter {
     }
 }
 contract NoReentrancyEvents is Counter {
-	function count(ReentrantContract d) external {
+ function count(ReentrantContract d) external {
         counter += 1;
         emit Counter(counter);
         d.f();
@@ -2546,13 +2526,13 @@ Detects the comparison to boolean constants.
 
 ```solidity
 contract A {
-	function f(bool x) public {
-		// ...
+ function f(bool x) public {
+  // ...
         if (x == true) { // bad!
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 }
 ```
 

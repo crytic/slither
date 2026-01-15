@@ -1,6 +1,7 @@
 """
 Module printing summary of the contract
 """
+
 import logging
 from typing import Tuple, List, Dict
 
@@ -200,7 +201,7 @@ class PrinterHumanSummary(AbstractPrinter):
             ercs += contract.ercs()
         return list(set(ercs))
 
-    def _get_features(self, contract):  # pylint: disable=too-many-branches
+    def _get_features(self, contract):
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -295,7 +296,7 @@ class PrinterHumanSummary(AbstractPrinter):
         results["number_lines_assembly"] = total_asm_lines
         return txt, results
 
-    def output(self, _filename):  # pylint: disable=too-many-locals,too-many-statements
+    def output(self, _filename):
         """
         _filename is not used
             Args:
@@ -339,12 +340,12 @@ class PrinterHumanSummary(AbstractPrinter):
 
         libs = self._standard_libraries()
         if libs:
-            txt += f'\nUse: {", ".join(libs)}\n'
+            txt += f"\nUse: {', '.join(libs)}\n"
             results["standard_libraries"] = [str(lib) for lib in libs]
 
         ercs = self._ercs()
         if ercs:
-            txt += f'ERCs: {", ".join(ercs)}\n'
+            txt += f"ERCs: {', '.join(ercs)}\n"
             results["ercs"] = [str(e) for e in ercs]
 
         table = MyPrettyTable(

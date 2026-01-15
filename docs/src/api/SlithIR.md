@@ -23,30 +23,30 @@ Additionally, Slither can include non-trivial variable tracking by default by tr
 ```sh
 $ slither examples/printers/slihtir.sol --printers slithir
 Contract UnsafeMath
-	Function add(uint256,uint256)
-		Expression: a + b
-		IRs:
-			TMP_0(uint256) = a + b
-			RETURN TMP_0
-	Function min(uint256,uint256)
-		Expression: a - b
-		IRs:
-			TMP_0(uint256) = a - b
-			RETURN TMP_0
+ Function add(uint256,uint256)
+  Expression: a + b
+  IRs:
+   TMP_0(uint256) = a + b
+   RETURN TMP_0
+ Function min(uint256,uint256)
+  Expression: a - b
+  IRs:
+   TMP_0(uint256) = a - b
+   RETURN TMP_0
 Contract MyContract
-	Function transfer(address,uint256)
-		Expression: balances[msg.sender] = balances[msg.sender].min(val)
-		IRs:
-			REF_3(uint256) -> balances[msg.sender]
-			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
-		Expression: balances[to] = balances[to].add(val)
-		IRs:
-			REF_3(uint256) -> balances[to]
-			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
+ Function transfer(address,uint256)
+  Expression: balances[msg.sender] = balances[msg.sender].min(val)
+  IRs:
+   REF_3(uint256) -> balances[msg.sender]
+   REF_1(uint256) -> balances[msg.sender]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
+  Expression: balances[to] = balances[to].add(val)
+  IRs:
+   REF_3(uint256) -> balances[to]
+   REF_1(uint256) -> balances[to]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
 ```
 
 ## SlithIR Specification

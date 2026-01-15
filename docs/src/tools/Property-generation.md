@@ -1,5 +1,3 @@
-# slither-prop
-
 `slither-prop` generates code properties (e.g., invariants) that can be tested with unit tests or [Echidna](https://github.com/crytic/echidna/), entirely automatically. Once you have these properties in hand, use [Crytic](https://crytic.io/) to continuously test them with every commit.
 
 Note: `slither-prop` only supports Truffle for now. We'll be adding support for other frameworks soon!
@@ -15,7 +13,7 @@ There are four steps:
 
 ### Step 1. Generate the tests
 
-```sh
+```
 slither-prop . --contract ContractName
 ```
 
@@ -28,7 +26,7 @@ slither-prop . --contract ContractName
 
 For example on [examples/slither-prop](https://github.com/crytic/slither/tree/9623a2781faa4e7759f06d2e8c4adcd45078af69/examples/slither-prop).
 
-```sh
+```
 Write contracts/crytic/interfaces.sol
 Write contracts/crytic/PropertiesERC20BuggyTransferable.sol
 Write contracts/crytic/TestERC20BuggyTransferable.sol
@@ -40,11 +38,11 @@ Write test/crytic/TestERC20BuggyTransferable.js
 Update the constructor in contracts/crytic/TestERC20BuggyTransferable.sol
 
 To run the unit tests:
-	truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
-	truffle test test/crytic/TestERC20BuggyTransferable.js
+ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
+ truffle test test/crytic/TestERC20BuggyTransferable.js
 
 To run Echidna:
-	 echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
+  echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
 ```
 
 ### Step 2. Customize the constructor
@@ -54,29 +52,29 @@ Next, update the constructor in `contracts/crytic/TestX.sol`:
 On [examples/slither-prop/contracts](https://github.com/crytic/slither/tree/9623a2781faa4e7759f06d2e8c4adcd45078af69/examples/slither-prop), update the constructor as follow:
 
 ```solidity
-	constructor() public{
+ constructor() public{
 
-		_balanceOf[crytic_user] = 1 ether;
-		_balanceOf[crytic_owner] = 1 ether;
-		_balanceOf[crytic_attacker] = 1 ether;
-		_totalSupply = 3 ether;
+  _balanceOf[crytic_user] = 1 ether;
+  _balanceOf[crytic_owner] = 1 ether;
+  _balanceOf[crytic_attacker] = 1 ether;
+  _totalSupply = 3 ether;
 
-		//
-		//
-		// Update the following if totalSupply and balanceOf are external functions or state variables:
+  //
+  //
+  // Update the following if totalSupply and balanceOf are external functions or state variables:
 
-		initialTotalSupply = totalSupply();
-		initialBalance_owner = balanceOf(crytic_owner);
-		initialBalance_user = balanceOf(crytic_user);
-		initialBalance_attacker = balanceOf(crytic_attacker);
-	}
+  initialTotalSupply = totalSupply();
+  initialBalance_owner = balanceOf(crytic_owner);
+  initialBalance_user = balanceOf(crytic_user);
+  initialBalance_attacker = balanceOf(crytic_attacker);
+ }
 ```
 
 ### Step 3. Run the unit tests with Truffle
 
 The first unit test file, named `InitializationX.js` will check that the constructor has been correctly initialized:
 
-```sh
+```
 $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
 [..]
   Contract: TestERC20BuggyTransferable
@@ -91,7 +89,7 @@ $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
 
 If all the unit tests passed, run the property tests:
 
-```sh
+```
 $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
   Contract: TestERC20BuggyTransferable
     ✓ The address 0x0 should not receive tokens.
@@ -115,7 +113,7 @@ As you can see, the unit tests detect some of the bugs.
 
 ### Step 4. Run the property tests with Echidna
 
-```sh
+```
 echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
 ```
 
@@ -125,7 +123,7 @@ echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yam
 
 Here are the available scenarios:
 
-```sh
+```
 #################### ERC20 ####################
 Transferable - Test the correct tokens transfer
 Pausable - Test the pausable functionality
@@ -137,7 +135,7 @@ Burnable - Test the burn of tokens. Require the "burn(address) returns()" functi
 
 ## All properties
 
-```sh
+```
 +-----+-------------------------------------------------------------------------+------------------------+
 | Num |                               Description                               |        Scenario        |
 +-----+-------------------------------------------------------------------------+------------------------+

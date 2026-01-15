@@ -1,5 +1,3 @@
-# Printing contracts
-
 Slither allows printing contracts information through its printers.
 
 | Num | Printer             | Description                                                                                                      |
@@ -34,7 +32,7 @@ Slither allows printing contracts information through its printers.
 
 Several printers require xdot installed for visualization:
 
-```sh
+```
 sudo apt install xdot
 ```
 
@@ -46,22 +44,22 @@ Export the call-graph of the contracts to a dot file
 
 ### Example
 
-```sh
+```
 slither examples/printers/call_graph.sol --print call-graph
 ```
 
-![call_graph](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png)
+<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png">
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
-```sh
+```
 xdot examples/printers/call_graph.sol.dot
 ```
 
 To convert the file to svg:
 
-```sh
+```
 dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
 ```
 
@@ -74,15 +72,15 @@ Export the control flow graph of each function
 ### Example
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
-```sh
+```
 xdot function.sol.dot
 ```
 
 To convert the file to svg:
 
-```sh
+```
 dot function.dot -Tsvg -o function.sol.png
 ```
 
@@ -94,11 +92,11 @@ Output a quick summary of the contract.
 
 ### Example
 
-```sh
+```
 slither examples/printers/quick_summary.sol --print contract-summary
 ```
 
-![quick_summary](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png)
+<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png">
 
 ## Data Dependencies
 
@@ -107,11 +105,11 @@ Print the data dependencies of the variables
 
 ### Example
 
-```sh
+```
 slither examples/printers/data_dependencies.sol --print data-dependency
 ```
 
-```text
+```
 Contract MyContract
 +----------+----------------------+
 | Variable |     Dependencies     |
@@ -150,7 +148,7 @@ Print the calling sequence of constructors based on C3 linearization.
 
 ### Example
 
-```sh
+```
 ...
 $ slither examples/printers/constructors.sol --print constructor-calls
 [..]
@@ -204,47 +202,47 @@ Print the EVM representation of the functions
 
 ### Example
 
-```sh
+```
 $ slither examples/printers/evm.sol --print evm
 
 INFO:Printers:Contract Test
-	Function Test.foo()
-		Node: ENTRY_POINT None
-		Source line 5:   function foo() public returns (address) {
-		EVM Instructions:
-			0x44: JUMPDEST
-			0x45: CALLVALUE
-			0x50: POP
-			0x51: PUSH1 0x56
-			0x53: PUSH1 0x98
-			0x55: JUMP
-			0x56: JUMPDEST
-			0x57: PUSH1 0x40
-			0x59: MLOAD
-			0x5a: DUP1
-			0x5b: DUP3
-			0x5c: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
-			0x71: AND
-			0x72: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
-			0x87: AND
-			0x88: DUP2
-			0x89: MSTORE
-			0x8a: PUSH1 0x20
-			0x8c: ADD
-			0x8d: SWAP2
-			0x8e: POP
-			0x8f: POP
-			0x90: PUSH1 0x40
-			0x92: MLOAD
-			0x93: DUP1
-			0x94: SWAP2
-			0x95: SUB
-			0x96: SWAP1
-			0x97: RETURN
-			0x98: JUMPDEST
-			0x99: PUSH1 0x0
-			0xa2: POP
-			0xa3: SWAP1
+ Function Test.foo()
+  Node: ENTRY_POINT None
+  Source line 5:   function foo() public returns (address) {
+  EVM Instructions:
+   0x44: JUMPDEST
+   0x45: CALLVALUE
+   0x50: POP
+   0x51: PUSH1 0x56
+   0x53: PUSH1 0x98
+   0x55: JUMP
+   0x56: JUMPDEST
+   0x57: PUSH1 0x40
+   0x59: MLOAD
+   0x5a: DUP1
+   0x5b: DUP3
+   0x5c: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
+   0x71: AND
+   0x72: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
+   0x87: AND
+   0x88: DUP2
+   0x89: MSTORE
+   0x8a: PUSH1 0x20
+   0x8c: ADD
+   0x8d: SWAP2
+   0x8e: POP
+   0x8f: POP
+   0x90: PUSH1 0x40
+   0x92: MLOAD
+   0x93: DUP1
+   0x94: SWAP2
+   0x95: SUB
+   0x96: SWAP1
+   0x97: RETURN
+   0x98: JUMPDEST
+   0x99: PUSH1 0x0
+   0xa2: POP
+   0xa3: SWAP1
                         0xa4: JUMP
                 Node: NEW VARIABLE from = msg.sender
                 Source line 6:     address from = msg.sender;
@@ -268,7 +266,7 @@ Print the keccack256 signature of the functions
 
 ### Examples
 
-```sh
+```
 $ slither examples/printers/authorization.sol --print function-id
 INFO:Printers:
 MyContract:
@@ -292,11 +290,11 @@ Output a summary of the contract showing for each function:
 
 ### Example
 
-```sh
+```
 slither tests/backdoor.sol --print function-summary
 ```
 
-```text
+```
 [...]
 
 Contract C
@@ -323,11 +321,11 @@ Print a human-readable summary of the contracts
 
 ### Example
 
-```sh
+```
 slither examples/printers/human_printer.sol --print human-summary
 ```
 
-![human_printer](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png)
+<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png">
 
 ## Inheritance
 
@@ -336,11 +334,11 @@ Print the inheritance relations between contracts
 
 ### Example
 
-```sh
+```
 slither examples/printers/inheritances.sol --print inheritance
 ```
 
-![inheritances](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png)
+<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png">
 
 ## Inheritance Graph
 
@@ -350,26 +348,26 @@ Output a graph showing the inheritance interaction between the contracts.
 
 ### Example
 
-```sh
+```
 $ slither examples/printers/inheritances.sol --print inheritance-graph
 [...]
 INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
 ```
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
-```sh
+```
 xdot examples/printers/inheritances.sol.dot
 ```
 
 To convert the file to svg:
 
-```sh
+```
 dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
 ```
 
-![inheritances_graph](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png)
+<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png">
 
 Indicators:
 
@@ -387,7 +385,7 @@ Print the modifiers called by each function.
 
 ### Example
 
-```sh
+```
 $ slither examples/printers/modifier.sol --print modifiers
 INFO:Printers:
 Contract C
@@ -407,7 +405,7 @@ Print the require and assert calls of each function.
 
 ### Example
 
-```sh
+```
 $ slither examples/printers/require.sol --print require
 INFO:Printers:
 Contract Lib
@@ -434,33 +432,33 @@ Print the slithIR representation of the functions
 
 ### Example
 
-```sh
+```
 $ slither examples/printers/slihtir.sol --print slithir
 Contract UnsafeMath
-	Function add(uint256,uint256)
-		Expression: a + b
-		IRs:
-			TMP_0(uint256) = a + b
-			RETURN TMP_0
-	Function min(uint256,uint256)
-		Expression: a - b
-		IRs:
-			TMP_0(uint256) = a - b
-			RETURN TMP_0
+ Function add(uint256,uint256)
+  Expression: a + b
+  IRs:
+   TMP_0(uint256) = a + b
+   RETURN TMP_0
+ Function min(uint256,uint256)
+  Expression: a - b
+  IRs:
+   TMP_0(uint256) = a - b
+   RETURN TMP_0
 Contract MyContract
-	Function transfer(address,uint256)
-		Expression: balances[msg.sender] = balances[msg.sender].min(val)
-		IRs:
-			REF_3(uint256) -> balances[msg.sender]
-			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
-		Expression: balances[to] = balances[to].add(val)
-		IRs:
-			REF_3(uint256) -> balances[to]
-			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
+ Function transfer(address,uint256)
+  Expression: balances[msg.sender] = balances[msg.sender].min(val)
+  IRs:
+   REF_3(uint256) -> balances[msg.sender]
+   REF_1(uint256) -> balances[msg.sender]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
+  Expression: balances[to] = balances[to].add(val)
+  IRs:
+   REF_3(uint256) -> balances[to]
+   REF_1(uint256) -> balances[to]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
 ```
 
 ## SlithIR-SSA
@@ -477,7 +475,7 @@ Print the storage order of the state variables
 
 ### Example
 
-```sh
+```
 $ slither tests/check-upgradability/contractV2_bug.sol --print variable-order
 INFO:Printers:
 ContractV2:
@@ -498,7 +496,7 @@ Print the variables written and the check on `msg.sender` of each function.
 
 ### Example
 
-```sh
+```
 ...
 $ slither examples/printers/authorization.sol --print vars-and-auth
 [..]

@@ -36,7 +36,7 @@ contract V2{
     uint variable1;
 }
 ```
-The new version, `V2` does not contain `variable1`. 
+The new version, `V2` does not contain `variable1`.
 If a new variable is added in an update of `V2`, this variable will hold the latest value of `variable2` and
 will be corrupted.
 """
@@ -292,7 +292,7 @@ class ExtraVariablesNewContract(ExtraVariablesProxy):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Show new variables in the updated contract. 
+Show new variables in the updated contract.
 
 This finding does not have an immediate security impact and is informative.
 """

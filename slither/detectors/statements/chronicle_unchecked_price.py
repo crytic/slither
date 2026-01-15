@@ -83,7 +83,6 @@ The `bad` function gets the price from Chronicle by calling the read function ho
                         nodes.append(son)
         return checked
 
-    # pylint: disable=too-many-nested-blocks,too-many-branches
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 

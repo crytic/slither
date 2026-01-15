@@ -29,7 +29,6 @@ def costly_operations_in_loop(
     calls_stack: List[str],
     ret: Result,
 ) -> None:
-
     if node is None:
         return
 
@@ -61,7 +60,6 @@ def costly_operations_in_loop(
 
 
 class CostlyOperationsInLoop(AbstractDetector):
-
     ARGUMENT = "costly-loop"
     HELP = "Costly operations in a loop"
     IMPACT = DetectorClassification.INFORMATIONAL

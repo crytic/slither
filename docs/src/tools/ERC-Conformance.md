@@ -58,8 +58,8 @@ The tool will report:
 [ ] totalSupply() is missing
 [ ] balanceOf(address) is missing
 [✓] transfer(address,uint256) is present
-	[ ] transfer(address,uint256) -> () should return bool
-	[✓] Transfer(address,address,uint256) is emitted
+ [ ] transfer(address,uint256) -> () should return bool
+ [✓] Transfer(address,address,uint256) is emitted
 [ ] transferFrom(address,address,uint256) is missing
 [ ] approve(address,uint256) is missing
 [ ] allowance(address,address) is missing
@@ -69,7 +69,7 @@ The tool will report:
 
 ## Check events
 [✓] Transfer(address,address,uint256) is present
-	[✓] parameter 0 is indexed
-	[ ] parameter 1 should be indexed
+ [✓] parameter 0 is indexed
+ [ ] parameter 1 should be indexed
 [ ] Approval(address,address,uint256) is missing
 ```
