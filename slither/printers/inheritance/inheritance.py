@@ -67,7 +67,9 @@ class PrinterInheritance(AbstractPrinter):
                 result["base_to_child"][base.name]["immediate"] = list(map(str, immediate))
                 if not_immediate:
                     info += ", [" + blue(", ".join(map(str, not_immediate))) + "]"
-                    result["base_to_child"][base.name]["not_immediate"] = list(map(str, not_immediate))
+                    result["base_to_child"][base.name]["not_immediate"] = list(
+                        map(str, not_immediate)
+                    )
 
         info += "\n"
         self.info(info)

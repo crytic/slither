@@ -1,6 +1,7 @@
 """
 Tests for slither/utils/output.py
 """
+
 from unittest.mock import MagicMock
 
 from slither.utils.output import (
@@ -45,6 +46,7 @@ def test_convert_to_description_with_location():
 
     # Mock isinstance check for SourceMapping
     from slither.core.source_mapping.source_mapping import SourceMapping
+
     mock_obj.__class__ = type("MockSourceMapping", (SourceMapping,), {})
 
     result = _convert_to_description(mock_obj)
@@ -63,6 +65,7 @@ def test_convert_to_description_without_location():
 
     # Mock isinstance check for SourceMapping
     from slither.core.source_mapping.source_mapping import SourceMapping
+
     mock_obj.__class__ = type("MockSourceMapping", (SourceMapping,), {})
 
     result = _convert_to_description(mock_obj)
