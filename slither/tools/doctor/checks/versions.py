@@ -24,7 +24,7 @@ def get_github_version(name: str) -> Optional[Version]:
             text = response.read()
             data = json.loads(text)
             return parse(data["tag_name"])
-    except:  # pylint: disable=bare-except
+    except:
         return None
 
 

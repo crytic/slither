@@ -1,0 +1,67 @@
+---
+name: Lint with Ruff
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths:
+      - "**/*.py"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "pyproject.toml"
+      - ".github/workflows/ruff.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Run Ruff linter
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: "0.14.10"
+          args: "check slither/ tests/ scripts/"
+
+      # Formatting check disabled to avoid changes to existing code
+      - name: Run Ruff formatter check
+        run: |
+          echo "::group::Checking formatting with Ruff"
+          ruff format --check slither/ tests/ scripts/ || FORMAT_EXIT=$?
+          echo "::endgroup::"
+          if [ "${FORMAT_EXIT:-0}" -ne 0 ]; then
+            echo "❌ Formatting check failed. Run 'make reformat' or 'ruff format' locally to fix formatting."
+            exit $FORMAT_EXIT
+          fi
+          echo "✅ Formatting check passed"
+
+      - name: Install uv and Python for yamllint
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+          activate-environment: true
+
+      - name: Install and run yamllint
+        run: |
+          uv tool install yamllint
+          echo "::group::Running yamllint"
+          uvx yamllint .github/ || YAML_EXIT=$?
+          echo "::endgroup::"
+          if [ "${YAML_EXIT:-0}" -ne 0 ]; then
+            echo "❌ YAML linting failed. Fix the YAML syntax errors shown above."
+            exit $YAML_EXIT
+          fi
+          echo "✅ YAML linting passed"

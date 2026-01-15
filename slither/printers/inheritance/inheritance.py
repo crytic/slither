@@ -1,7 +1,7 @@
 """
-    Module printing the inheritance relation
+Module printing the inheritance relation
 
-    The inheritance shows the relation between the contracts
+The inheritance shows the relation between the contracts
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
@@ -39,7 +39,6 @@ class PrinterInheritance(AbstractPrinter):
             info += blue(f"\n+ {child.name}")
             result["child_to_base"][child.name] = {"immediate": [], "not_immediate": []}
             if child.inheritance:
-
                 immediate = child.immediate_inheritance
                 not_immediate = [i for i in child.inheritance if i not in immediate]
 

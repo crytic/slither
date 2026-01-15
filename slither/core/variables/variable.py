@@ -1,6 +1,7 @@
 """
-    Variable module
+Variable module
 """
+
 from typing import Optional, TYPE_CHECKING, List, Union, Tuple
 
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.core.declarations import Function
 
-# pylint: disable=too-many-instance-attributes
+
 class Variable(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
@@ -153,7 +154,7 @@ class Variable(SourceMapping):
         Return the signature of the state variable as a function signature
         :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.utils.type import (
             export_nested_types_from_variable,
             export_return_type_from_variable,
@@ -177,7 +178,7 @@ class Variable(SourceMapping):
     @property
     def solidity_signature(self) -> str:
         name, parameters, _ = self.signature
-        return f'{name}({",".join(parameters)})'
+        return f"{name}({','.join(parameters)})"
 
     def __str__(self) -> str:
         if self._name is None:

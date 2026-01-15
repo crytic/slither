@@ -1,10 +1,11 @@
 """
-    Module printing the call graph
+Module printing the call graph
 
-    The call graph shows for each function,
-    what are the contracts/functions called.
-    The output is a dot file named filename.dot
+The call graph shows for each function,
+what are the contracts/functions called.
+The output is a dot file named filename.dot
 """
+
 from collections import defaultdict
 from typing import Optional, Union, Dict, Set, Tuple, Sequence
 
@@ -46,7 +47,6 @@ def _node(node: str, label: Optional[str] = None) -> str:
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_internal_call(
     contract: Contract,
     function: Function,
@@ -140,7 +140,6 @@ def _process_external_call(
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_function(
     contract: Contract,
     function: Function,

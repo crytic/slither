@@ -1,0 +1,8 @@
+Event TestContract.BadApproval(address,address,uint256) (tests/e2e/detectors/test_data/unindexed-event-address/0.8.22/unindexed_event_address.sol#16) has address parameters but no indexed parameters
+
+Event TestContract.BadTransfer(address,address,uint256) (tests/e2e/detectors/test_data/unindexed-event-address/0.8.22/unindexed_event_address.sol#15) has address parameters but no indexed parameters
+
+Event TopLevelBadEvent (tests/e2e/detectors/test_data/unindexed-event-address/0.8.22/unindexed_event_address.sol#5) has address parameters but no indexed parameters
+
+Event TestContract.SingleBadAddress(address) (tests/e2e/detectors/test_data/unindexed-event-address/0.8.22/unindexed_event_address.sol#17) has address parameters but no indexed parameters
+
