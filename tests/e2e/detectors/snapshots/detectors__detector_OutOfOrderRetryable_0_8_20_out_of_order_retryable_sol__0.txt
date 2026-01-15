@@ -1,0 +1,16 @@
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,) (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#62-70)
+	 -Y(msg.sender).createRetryableTicket(address(2),0,0,address(0),address(0),0,0,) (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#72-80)
+
+Multiple retryable tickets created in the same function:
+	 -good2() (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#95)
+	 -good2() (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#96)
+
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,) (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#40-48)
+	 -Y(msg.sender).createRetryableTicket(address(2),0,0,address(0),address(0),0,0,) (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#50-58)
+
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,) (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#83-91)
+	 -good2() (tests/e2e/detectors/test_data/out-of-order-retryable/0.8.20/out_of_order_retryable.sol#92)
+

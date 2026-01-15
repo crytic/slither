@@ -1,0 +1,62 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+S = 0
+
+IRs:
+S(uint256) := 0(uint256)"];
+1->2;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->4;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+counter_var = 0
+
+IRs:
+counter_var(uint256) := 0(uint256)"];
+4->5;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+counter_var <= len()(_xp)
+
+IRs:
+TMP_0(uint256) = SOLIDITY_CALL len()(_xp)
+TMP_1(bool) = counter_var <= TMP_0
+CONDITION TMP_1"];
+5->7[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+counter_var += 1
+
+IRs:
+counter_var(uint256) = counter_var (c)+ 1"];
+6->5;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+x = _xp[counter_var]
+
+IRs:
+REF_0(uint256) -> _xp[counter_var]
+x(uint256) := REF_0(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+S += x
+
+IRs:
+S(uint256) = S (c)+ x"];
+8->6;
+}

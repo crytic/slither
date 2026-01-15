@@ -16,7 +16,7 @@ class ContractLevel(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
         # TODO remove all the setters for the child objects
-        # And make it a constructor arguement
+        # And make it a constructor argument
         # This will remove the optional
         self._contract: Optional["Contract"] = None
 

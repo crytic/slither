@@ -5,7 +5,6 @@ from enum import Enum
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.exceptions import SlithIRError
-from slither.core.expressions.unary_operation import UnaryOperationType
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
@@ -35,7 +34,7 @@ class Unary(OperationWithLValue):
         self,
         result: Union[TemporaryVariableSSA, TemporaryVariable],
         variable: Union[Constant, LocalIRVariable, LocalVariable],
-        operation_type: UnaryOperationType,
+        operation_type: UnaryType,
     ) -> None:
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
@@ -53,7 +52,7 @@ class Unary(OperationWithLValue):
         return self._variable
 
     @property
-    def type(self) -> UnaryOperationType:
+    def type(self) -> UnaryType:
         return self._type
 
     @property

@@ -2,7 +2,6 @@ from typing import Optional, TYPE_CHECKING
 
 from slither.core.variables.variable import Variable
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.elementary_type import ElementaryType
 
@@ -51,6 +50,9 @@ class LocalVariable(Variable):
         Returns:
             (bool)
         """
+
+        from slither.core.solidity_types.array_type import ArrayType
+
         if self.location == "memory":
             return False
         if self.location == "calldata":

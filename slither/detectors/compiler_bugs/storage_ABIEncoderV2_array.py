@@ -1,6 +1,7 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
+
 from typing import List, Set, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -44,9 +45,9 @@ class ABIEncoderV2Array(AbstractDetector):
 ```solidity
 contract A {
     uint[2][3] bad_arr = [[1, 2], [3, 4], [5, 6]];
-    
+
     /* Array of arrays passed to abi.encode is vulnerable */
-    function bad() public {                                                                                          
+    function bad() public {
         bytes memory b = abi.encode(bad_arr);
     }
 }
@@ -72,7 +73,7 @@ contract A {
         results = set()
 
         # Loop for each function and modifier.
-        # pylint: disable=too-many-nested-blocks
+
         for function in contract.functions_and_modifiers_declared:
             # Loop every node, looking for storage-allocated array of arrays/structs
             # in arguments to abi.encode, events or external calls

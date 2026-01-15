@@ -1,6 +1,7 @@
 """
-    Variable module
+Variable module
 """
+
 from typing import Optional, TYPE_CHECKING, List, Union, Tuple
 
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -9,14 +10,15 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.core.declarations import Function
 
-# pylint: disable=too-many-instance-attributes
+
 class Variable(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None
-        self._type: Optional[Type] = None
+        self._type: Optional[Union[List, Type, "Function", str]] = None
         self._initialized: Optional[bool] = None
         self._visibility: Optional[str] = None
         self._is_constant = False
@@ -77,7 +79,7 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self) -> Optional[Type]:
+    def type(self) -> Optional[Union[List, Type, "Function", str]]:
         return self._type
 
     @type.setter
@@ -120,7 +122,7 @@ class Variable(SourceMapping):
     def visibility(self, v: str) -> None:
         self._visibility = v
 
-    def set_type(self, t: Optional[Union[List, Type, str]]) -> None:
+    def set_type(self, t: Optional[Union[List, Type, "Function", str]]) -> None:
         if isinstance(t, str):
             self._type = ElementaryType(t)
             return
@@ -152,7 +154,7 @@ class Variable(SourceMapping):
         Return the signature of the state variable as a function signature
         :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.utils.type import (
             export_nested_types_from_variable,
             export_return_type_from_variable,
@@ -176,8 +178,9 @@ class Variable(SourceMapping):
     @property
     def solidity_signature(self) -> str:
         name, parameters, _ = self.signature
-        return f'{name}({",".join(parameters)})'
+        return f"{name}({','.join(parameters)})"
 
     def __str__(self) -> str:
-        assert self._name
+        if self._name is None:
+            return ""
         return self._name

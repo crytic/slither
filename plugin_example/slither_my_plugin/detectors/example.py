@@ -1,7 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
+class Example(AbstractDetector):
     """
     Documentation
     """
@@ -11,12 +11,12 @@ class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = ""
+    WIKI = "https://www.example.com/#example-detector"
 
-    WIKI_TITLE = ""
-    WIKI_DESCRIPTION = ""
-    WIKI_EXPLOIT_SCENARIO = ""
-    WIKI_RECOMMENDATION = ""
+    WIKI_TITLE = "example detector"
+    WIKI_DESCRIPTION = "This is an example detector that always generates a finding"
+    WIKI_EXPLOIT_SCENARIO = "Scenario goes here"
+    WIKI_RECOMMENDATION = "Customize the detector"
 
     def _detect(self):
 

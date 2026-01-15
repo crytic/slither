@@ -6,7 +6,7 @@ If you're unsure where to start, we recommend our [`good first issue`](https://g
 
 ## Bug reports and feature suggestions
 
-Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email opensource@trailofbits.com instead.
+Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email <opensource@trailofbits.com> instead.
 
 ## Questions
 
@@ -14,11 +14,11 @@ Questions can be submitted to the "Discussions" page, and you may also join our 
 
 ## Code
 
-Slither uses the pull request contribution model. Please make an account on Github, fork this repo, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
+Slither uses the pull request contribution model. Please make an account on GitHub, fork this repository, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
 
 Some pull request guidelines:
 
-- Work from the [`dev`](https://github.com/crytic/slither/tree/dev) branch. We performed extensive tests prior to merging anything to `master`, working from `dev` will allow us to merge your work faster.
+- Work from the [`master`](https://github.com/crytic/slither/tree/master) branch.
 - Minimize irrelevant changes (formatting, whitespace, etc) to code that would otherwise not be touched by this patch. Save formatting or style corrections for a separate pull request that does not make any semantic changes.
 - When possible, large changes should be split up into smaller focused pull requests.
 - Fill out the pull request description with a summary of what your patch does, key changes that have been made, and any further points of discussion, if applicable.
@@ -47,6 +47,16 @@ A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSl
 
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
+For development setup, we use [uv](https://github.com/astral-sh/uv):
+
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Setup development environment
+make dev  # Creates venv and installs all dependencies
+```
+
 To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`. The names of tests can be obtained with `pytest tests --collect-only`.
 
 ### Linters
@@ -63,7 +73,33 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use pylint `2.13.4`, black `22.3.0`.
+We use ruff (latest 0.x version) for linting and formatting, and yamllint for YAML files.
+
+#### Pre-commit Hooks (Recommended)
+
+We recommend using pre-commit hooks to automatically check and fix code before committing:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+
+# Run on specific files
+pre-commit run --files slither/core/*.py
+
+# Update hook versions
+pre-commit autoupdate
+```
+
+The pre-commit hooks will automatically:
+- Fix linting issues with ruff
+- Check YAML syntax
+- Remove trailing whitespace
+- Fix end-of-file issues
+- Check for merge conflicts
+- Prevent large files from being committed
 
 ### Testing
 
@@ -82,7 +118,7 @@ For each new detector, at least one regression tests must be present.
 1. Create a folder in `tests/e2e/detectors/test_data` with the detector's argument name.
 2. Create a test contract in `tests/e2e/detectors/test_data/<detector_name>/`.
 3. Update `ALL_TESTS` in `tests/e2e/detectors/test_detectors.py`.
-4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a zip file of the compilation artifacts.
+4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a ZIP file of the compilation artifacts.
 5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
 6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
 
@@ -96,8 +132,8 @@ For each new detector, at least one regression tests must be present.
 #### Adding parsing tests
 
 1. Create a test in `tests/e2e/solc_parsing/`
-2. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
-3. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+2. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
 4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
 5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
@@ -111,9 +147,9 @@ For each new detector, at least one regression tests must be present.
 
 ### Synchronization with crytic-compile
 
-By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`pyproject.toml`](./pyproject.toml). If crytic-compile development comes with breaking changes, the process to update `slither` is:
 
-- Update `slither/setup.py` to point to the related crytic-compile's branch
+- Update `slither/pyproject.toml` to point to the related crytic-compile's branch
 - Create a PR in `slither` and ensure it passes the CI
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
 

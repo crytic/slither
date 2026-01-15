@@ -1,14 +1,13 @@
 """
-    Function module
+Function module
 """
+
 from typing import Dict, TYPE_CHECKING, List, Tuple, Optional
 
 from slither.core.declarations.contract_level import ContractLevel
 from slither.core.declarations import Function
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
-
-# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
@@ -65,7 +64,10 @@ class FunctionContract(Function, ContractLevel):
 
     @property
     def file_scope(self) -> "FileScope":
-        return self.contract.file_scope
+        # This is the contract declarer's file scope because inherited functions have access
+        # to the file scope which their declared in. This scope may contain references not
+        # available in the child contract's scope. See inherited_function_scope.sol for an example.
+        return self.contract_declarer.file_scope
 
     # endregion
     ###################################################################################

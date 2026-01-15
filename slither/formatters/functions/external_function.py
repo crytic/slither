@@ -32,16 +32,16 @@ def _patch(
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Search for 'public' keyword which is in-between the function name and modifier name (if present)
     # regex: 'public' could have spaces around or be at the end of the line
-    m = re.search(r"((\spublic)\s+)|(\spublic)$|(\)public)$", old_str_of_interest.decode("utf-8"))
+    m = re.search(r"((\spublic)\s+)|(\spublic)$|(\)public)$", old_str_of_interest.decode("utf8"))
     if m is None:
         # No visibility specifier exists; public by default.
         create_patch(
             result,
             in_file,
             # start after the function definition's closing paranthesis
-            modify_loc_start + len(old_str_of_interest.decode("utf-8").split(")")[0]) + 1,
+            modify_loc_start + len(old_str_of_interest.decode("utf8").split(")")[0]) + 1,
             # end is same as start because we insert the keyword `external` at that location
-            modify_loc_start + len(old_str_of_interest.decode("utf-8").split(")")[0]) + 1,
+            modify_loc_start + len(old_str_of_interest.decode("utf8").split(")")[0]) + 1,
             "",
             " external",
         )  # replace_text is `external`
