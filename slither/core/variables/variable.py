@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from slither.core.declarations import Function
 
 
-
 class VariableLocation(Enum):
     DEFAULT = "default"
     MEMORY = "memory"
@@ -25,6 +24,7 @@ class VariableLocation(Enum):
 
 
 # pylint: disable=too-many-instance-attributes
+
 
 class Variable(SourceMapping):
     def __init__(self) -> None:
