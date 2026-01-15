@@ -55,6 +55,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
+    "exclude_location": False,
     "fail_on": FailOnLevel.PEDANTIC,
     "json": None,
     "sarif": None,

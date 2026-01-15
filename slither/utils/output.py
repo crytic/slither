@@ -33,6 +33,21 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
+# Global setting to exclude location (filename:lines) from detector messages
+_exclude_location = False
+
+
+def set_exclude_location(exclude: bool) -> None:
+    """Set whether to exclude location info from detector messages."""
+    global _exclude_location
+    _exclude_location = exclude
+
+
+def get_exclude_location() -> bool:
+    """Get whether location info should be excluded from detector messages."""
+    return _exclude_location
+
+
 ###################################################################################
 ###################################################################################
 # region Output
@@ -236,15 +251,26 @@ def _convert_to_description(d: str) -> str:
     if not isinstance(d, SourceMapping):
         raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
 
+    # Check if location should be excluded from the output
+    exclude_loc = get_exclude_location()
+
     if isinstance(d, Node):
         if d.expression:
+            if exclude_loc:
+                return f"{d.expression}"
             return f"{d.expression} ({d.source_mapping})"
+        if exclude_loc:
+            return f"{str(d)}"
         return f"{str(d)} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
+        if exclude_loc:
+            return f"{d.canonical_name}"
         return f"{d.canonical_name} ({d.source_mapping})"
 
     if hasattr(d, "name"):
+        if exclude_loc:
+            return f"{d.name}"
         return f"{d.name} ({d.source_mapping})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
