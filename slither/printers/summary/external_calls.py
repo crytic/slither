@@ -1,12 +1,12 @@
 """
-    Module printing the high level calls
+Module printing the high level calls
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
 
 
 class ExternalCallPrinter(AbstractPrinter):
-
     ARGUMENT = "external-calls"
     HELP = "Print the external calls performed by each function"
 
@@ -31,14 +31,12 @@ class ExternalCallPrinter(AbstractPrinter):
 
                 for node in function.nodes:
                     for target_contract, target_function in node.high_level_calls:
-
                         row = [
                             f"{function.canonical_name} {node.source_mapping.to_detailed_str()}",
                             f"{target_contract.name}.{target_function}",
                         ]
 
                         if function.all_reachable_from_functions:
-
                             for source in function.all_reachable_from_functions:
                                 chain = f"{source.canonical_name} -> {function.canonical_name}"
                                 table.add_row(
