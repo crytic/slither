@@ -405,6 +405,8 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
                 "Replacing 'tree' with 'blob/HEAD' in markdown_root url for better code referencing"
             )
             positions = match.span(4)
-            markdown_root = f"{markdown_root[: positions[0]]}blob/HEAD{markdown_root[positions[1] :]}"
+            markdown_root = (
+                f"{markdown_root[: positions[0]]}blob/HEAD{markdown_root[positions[1] :]}"
+            )
 
     return markdown_root
