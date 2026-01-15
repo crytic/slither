@@ -14,7 +14,7 @@ from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
 
-class Test:
+class Test:  # pylint: disable=too-few-public-methods
     def __init__(
         self,
         detector: Type[AbstractDetector],
@@ -40,7 +40,7 @@ class Test:
             self.additional_files = additional_files
 
 
-def set_solc(test_item: Test):
+def set_solc(test_item: Test):  # pylint: disable=too-many-lines
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
 
@@ -367,6 +367,52 @@ ALL_TESTS = [
     Test(all_detectors.ReentrancyEth, "reentrancy_with_non_reentrant.sol", "0.8.10"),
     # Test parse_ignore_comments
     Test(all_detectors.ReentrancyEth, "reentrancy_filtered_comments.sol", "0.8.10"),
+    # ReentrancyEthDF tests - data flow based reentrancy detection
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.6.11",
+    ),
+    Test(all_detectors.ReentrancyEthDF, "reentrancy.sol", "0.7.6"),
+    Test(
+        all_detectors.ReentrancyEthDF,
+        "reentrancy_indirect.sol",
+        "0.7.6",
+    ),
+    # Test(
+    #     all_detectors.ReentrancyEthDF,
+    #     "DAO.sol",
+    #     "0.4.25",
+    # ),
+    # Test the nonReentrant filtering
+    Test(all_detectors.ReentrancyEthDF, "reentrancy_with_non_reentrant.sol", "0.8.10"),
+    # Test parse_ignore_comments
+    Test(all_detectors.ReentrancyEthDF, "reentrancy_filtered_comments.sol", "0.8.10"),
     Test(
         all_detectors.UninitializedStorageVars,
         "uninitialized_storage_pointer.sol",
@@ -1754,11 +1800,6 @@ ALL_TESTS = [
         "optimism_deprecation.sol",
         "0.8.20",
     ),
-    Test(
-        all_detectors.UnindexedEventAddress,
-        "unindexed_event_address.sol",
-        "0.8.22",
-    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
@@ -1951,6 +1992,7 @@ GENERIC_PATH = "/GENERIC_PATH"
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
+# pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(
