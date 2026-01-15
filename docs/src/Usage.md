@@ -1,17 +1,14 @@
 ## Usage
 
 - [How to run Slither](#how-to-run-slither)
-  - [Foundry/Hardhat](#foundryhardhat)
+  - [Foundry/hardhat](#foundryhardhat)
   - [solc](#solc)
   - [Etherscan](#etherscan)
-  - [AST input](#ast-file)
-- [Options](#options)
-  - [Detector selection](#detector-selection)
-  - [Printer selection](#printer-selection)
-  - [Path Filtering](#path-filtering)
-  - [Triage mode](#triage-mode)
-  - [Configuration file](#configuration-file)
-- [IDE integrations](#ide-integration)
+- [Detector selection](#detector-selection)
+- [Printer selection](#printer-selection)
+- [Path filtering](#path-filtering)
+- [Triage mode](#triage-mode)
+- [Configuration File](#configuration-file)
 
 ## How to run Slither
 
@@ -112,7 +109,7 @@ Examples:
 slither . --triage-mode
 [...]
 0: C.destination (test.sol#3) is never initialized. It is used in:
-	- f (test.sol#5-7)
+ - f (test.sol#5-7)
 Reference: https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables
 Results to hide during next runs: "0,1,..." or "All" (enter to not hide results):  0
 [...]
