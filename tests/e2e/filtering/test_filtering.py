@@ -82,7 +82,6 @@ def test_filtering():
         filtering: Union[List[FilteringRule], None],
         default_action: FilteringAction,
     ):
-
         # First, reset any results
         # pylint: disable=protected-access
         sl._currently_seen_resuts = set()

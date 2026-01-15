@@ -15,7 +15,6 @@ class FilteringAction(enum.Enum):
 
 @dataclass
 class FilteringRule:
-
     type: FilteringAction = FilteringAction.ALLOW
     path: Union[re.Pattern, None] = None
     contract: Union[re.Pattern, None] = None

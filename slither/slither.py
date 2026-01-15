@@ -176,7 +176,6 @@ class Slither(SlitherCore):
                     files_to_analyze |= contract.file_scope.get_all_files(set())
 
                 for contract in sol_parser._underlying_contract_to_parser:
-
                     if contract.file_scope.filename not in files_to_analyze:
                         logger.debug("Filtering out %s", contract.file_scope.filename)
                         continue

@@ -284,7 +284,6 @@ def parse_filter_paths(args: argparse.Namespace) -> List[FilteringRule]:
     )
 
     def parse_option(element: str, option: str) -> FilteringRule:
-
         match = regex.match(element)
         if match:
             filtering_type = FilteringAction.ALLOW
