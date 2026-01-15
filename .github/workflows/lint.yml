@@ -1,5 +1,5 @@
 ---
-name: Lint with Ruff
+name: Lint
 
 defaults:
   run:
@@ -11,6 +11,7 @@ on:
   pull_request:
     branches: [master, dev]
     paths:
+      - "docs/**/*.md"
       - "**/*.py"
       - "**/*.yml"
       - "**/*.yaml"
@@ -21,10 +22,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
+  ruff:
+    name: ruff
+    runs-on: ubuntu-slim
 
     steps:
       - name: Checkout Code
@@ -36,7 +40,6 @@ jobs:
           version: "0.14.10"
           args: "check slither/ tests/ scripts/"
 
-      # Formatting check disabled to avoid changes to existing code
       - name: Run Ruff formatter check
         run: |
           echo "::group::Checking formatting with Ruff"
@@ -47,6 +50,14 @@ jobs:
             exit $FORMAT_EXIT
           fi
           echo "✅ Formatting check passed"
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
 
       - name: Install uv and Python for yamllint
         uses: astral-sh/setup-uv@v7
@@ -65,3 +76,17 @@ jobs:
             exit $YAML_EXIT
           fi
           echo "✅ YAML linting passed"
+
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v22
+        with:
+          globs: "docs/**/*.md"
+          config: .github/linters/.markdownlint.json
