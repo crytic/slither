@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Callable
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither import Slither
 from slither.core.declarations import Contract
@@ -42,6 +43,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-check-erc project contractName",
     )
 
+    shtab.add_argument_to(parser)
+
     parser.add_argument("project", help="The codebase to be tested.")
 
     parser.add_argument(
@@ -53,7 +56,8 @@ def parse_args() -> argparse.Namespace:
         "--erc",
         help=f"ERC to be tested, available {','.join(ERCS.keys())} (default ERC20)",
         action="store",
-        default="erc20",
+        default="ERC20",
+        choices=list(ERCS.keys()),
     )
 
     parser.add_argument(
@@ -61,7 +65,7 @@ def parse_args() -> argparse.Namespace:
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=False,
-    )
+    ).complete = shtab.FILE
 
     # Add default arguments from crytic-compile
     cryticparser.init(parser)

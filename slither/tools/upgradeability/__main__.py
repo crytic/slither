@@ -6,6 +6,7 @@ import sys
 from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
 
 from crytic_compile import cryticparser
+import shtab
 
 
 from slither import Slither
@@ -36,6 +37,8 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
         usage="slither-check-upgradeability contract.sol ContractName",
     )
 
+    shtab.add_argument_to(parser)
+
     group_checks = parser.add_argument_group("Checks")
 
     parser.add_argument("contract.sol", help="Codebase to analyze")
@@ -47,14 +50,14 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
     parser.add_argument("--new-contract-name", help="New contract name (if changed)")
     parser.add_argument(
         "--new-contract-filename", help="New implementation filename (if different)"
-    )
+    ).complete = shtab.FILE
 
     parser.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=False,
-    )
+    ).complete = shtab.FILE
 
     group_checks.add_argument(
         "--detect",
