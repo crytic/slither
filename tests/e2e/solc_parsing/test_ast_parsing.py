@@ -242,6 +242,16 @@ ALL_TESTS = [
         VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
         disable_legacy=True,
     ),
+    Test(
+        "memberaccess-0.6.7.sol",
+        ["0.6.7"],
+        disable_legacy=True,
+    ),
+    Test(
+        "memberaccess-0.6.8.sol",
+        ["0.6.8"] + VERSIONS_07 + VERSIONS_08,
+        disable_legacy=True,
+    ),
     Test("throw-0.4.0.sol", VERSIONS_04),
     Test(
         "throw-0.5.0.sol",

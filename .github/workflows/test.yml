@@ -7,7 +7,7 @@ defaults:
 
 on:
   push:
-    branches: [master, dev]
+    branches: [master]
   pull_request:
   schedule:
     # run CI every day even if no PRs/merges occur

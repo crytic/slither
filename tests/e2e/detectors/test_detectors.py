@@ -1754,6 +1754,11 @@ ALL_TESTS = [
         "optimism_deprecation.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.UnindexedEventAddress,
+        "unindexed_event_address.sol",
+        "0.8.22",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
