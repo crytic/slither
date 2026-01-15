@@ -20,6 +20,8 @@ class FHR(AbstractMutator):
         result: Dict = {}
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             start = function.source_mapping.start
             stop = start + function.source_mapping.content.find("{")
             old_str = function.source_mapping.content

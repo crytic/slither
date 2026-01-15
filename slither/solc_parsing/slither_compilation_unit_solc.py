@@ -735,6 +735,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         contract.analyze_custom_errors()
 
+        # Must be here since it can use top level variables hence they must be analyzed
+        contract.analyze_storage_layout()
+
         contract.set_is_analyzed(True)
 
     def _analyze_top_level_structures(self) -> None:

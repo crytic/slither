@@ -18,7 +18,7 @@ Slither uses the pull request contribution model. Please make an account on GitH
 
 Some pull request guidelines:
 
-- Work from the [`dev`](https://github.com/crytic/slither/tree/dev) branch. We performed extensive tests prior to merging anything to `master`, working from `dev` will allow us to merge your work faster.
+- Work from the [`master`](https://github.com/crytic/slither/tree/master) branch.
 - Minimize irrelevant changes (formatting, whitespace, etc) to code that would otherwise not be touched by this patch. Save formatting or style corrections for a separate pull request that does not make any semantic changes.
 - When possible, large changes should be split up into smaller focused pull requests.
 - Fill out the pull request description with a summary of what your patch does, key changes that have been made, and any further points of discussion, if applicable.

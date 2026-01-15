@@ -63,6 +63,8 @@ class Contract(SourceMapping):
         self._id: Optional[int] = None
         self._inheritance: List["Contract"] = []  # all contract inherited, c3 linearization
         self._immediate_inheritance: List["Contract"] = []  # immediate inheritance
+        # Start slot for the persistent storage if custom layout used
+        self._custom_storage_layout: Optional[int] = None
 
         # Constructors called on contract's definition
         # contract B is A(1) { ..
@@ -228,6 +230,19 @@ class Contract(SourceMapping):
     @is_abstract.setter
     def is_abstract(self, is_abstract: bool):
         self._is_abstract = is_abstract
+
+    @property
+    def custom_storage_layout(self) -> Optional[int]:
+        """
+        Return the persistent storage slot starting position if a custom storage layout is used.
+        Otherwise None.
+        int: Storage slot starting position.
+        """
+        return self._custom_storage_layout
+
+    @custom_storage_layout.setter
+    def custom_storage_layout(self, slot: int):
+        self._custom_storage_layout = slot
 
     # endregion
     ###################################################################################

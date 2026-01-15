@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple
+from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple, Optional
 
 from slither.core.declarations import (
     Modifier,
@@ -14,6 +14,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types import ElementaryType, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
+from slither.core.expressions.expression import Expression
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.event_contract import EventContractSolc
@@ -23,7 +24,9 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.utils.using_for import USING_FOR_KEY
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -57,6 +60,8 @@ class ContractSolc(CallerContextExpression):
         self._modifiers_parser: List[ModifierSolc] = []
         self._structures_parser: List[StructureContractSolc] = []
         self._custom_errors_parser: List[CustomErrorSolc] = []
+
+        self._storage_layout_parsed_expression: Optional[Expression] = None
 
         self._is_analyzed: bool = False
 
@@ -173,6 +178,13 @@ class ContractSolc(CallerContextExpression):
 
         self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
+
+        if "storageLayout" in attributes:
+            # For now we care only about the actual value, hence we immediately parse the expression
+            # and ConstantFold it later on since it could be using a TopLevel variable
+            self._storage_layout_parsed_expression = parse_expression(
+                attributes["storageLayout"]["baseSlotExpression"], self
+            )
 
         if "abstract" in attributes:
             self._contract.is_abstract = attributes["abstract"]
@@ -424,6 +436,19 @@ class ContractSolc(CallerContextExpression):
             raise ParsingError(error)
         LOGGER.error(error)
         self._contract.is_incorrectly_constructed = True
+
+    def analyze_storage_layout(self) -> None:
+        if self._storage_layout_parsed_expression is not None:
+            try:
+                self._contract.custom_storage_layout = (
+                    ConstantFolding(self._storage_layout_parsed_expression, "uint256")
+                    .result()
+                    .value
+                )
+            except NotConstant as e:
+                self.log_incorrect_parsing(
+                    f"Error when folding the custom storage layout value {e}"
+                )
 
     def analyze_content_modifiers(self) -> None:
         try:

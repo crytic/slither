@@ -6,14 +6,16 @@ See the [detector documentation](https://github.com/trailofbits/slither/wiki/Add
 
 ## Architecture
 
-- `pyproject.toml`: Contain the plugin information
-- `slither_my_plugin/__init__.py`: Contain `make_plugin()`. The function must return the list of new detectors and printers
+- `pyproject.toml`: Contains the plugin information and dependencies
+- `slither_my_plugin/__init__.py`: Contains `make_plugin()`. The function must return the list of new detectors and printers
 - `slither_my_plugin/detectors/example.py`: Detector plugin skeleton.
 
-Once these files are updated with your plugin, you can install it:
+## Installation
+
+Once these files are updated with your plugin, install it in a virtual environment:
 
 ```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -e .
 ```
-
-We recommend to use a Python virtual environment (for example: [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)).

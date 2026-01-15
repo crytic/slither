@@ -38,11 +38,11 @@ A detector result found in the `detectors` array above will be of the following 
 
 ```
 {
-	"check": "...",
-	"impact": "...",
-	"confidence": "...",
-	"description": "...",
-	"elements": []
+ "check": "...",
+ "impact": "...",
+ "confidence": "...",
+ "description": "...",
+ "elements": []
 }
 ```
 
@@ -94,19 +94,19 @@ Each `source_mapping` object is used to map an element to some portion of source
 
 ```
 "source_mapping": {
-	"start": 45
-	"length": 58,
-	"filename_relative": "contracts/tests/constant.sol",
-	"filename_absolute": "/tmp/contracts/tests/constant.sol",
-	"filename_short": "tests/constant.sol",
-	"filename_used": "contracts/tests/constant.sol",
-	"lines": [
-		5,
-		6,
-		7
- 	],
- 	"starting_column": 1,
- 	"ending_column": 24,
+ "start": 45
+ "length": 58,
+ "filename_relative": "contracts/tests/constant.sol",
+ "filename_absolute": "/tmp/contracts/tests/constant.sol",
+ "filename_short": "tests/constant.sol",
+ "filename_used": "contracts/tests/constant.sol",
+ "lines": [
+  5,
+  6,
+  7
+  ],
+  "starting_column": 1,
+  "ending_column": 24,
 }
 ```
 
