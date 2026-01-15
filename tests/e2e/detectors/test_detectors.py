@@ -1690,7 +1690,6 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-    Test(
         all_detectors.Ecrecover,
         "ecrecover.sol",
         "0.8.0",

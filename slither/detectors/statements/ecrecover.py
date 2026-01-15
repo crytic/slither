@@ -2,6 +2,7 @@
 Module detecting improper use of ecrecover.
 
 """
+
 from collections import defaultdict
 from typing import DefaultDict, List, Tuple
 from slither.utils.output import Output
