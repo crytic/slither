@@ -113,7 +113,6 @@ class SpotPriceDetector(AbstractDetector):
     def detect_oracle_call(
         self, function: FunctionContract, function_names, interface_names
     ) -> (Node, str):
-
         nodes = []
         first_node = None
         first_arguments = []
@@ -186,7 +185,6 @@ class SpotPriceDetector(AbstractDetector):
         swap_functions = []
         for contract in self.contracts:
             for function in contract.functions:
-
                 oracle_calls, swap_function = self.detect_oracle_call(
                     function,
                     ["slot0", "getReserves"],
@@ -278,7 +276,6 @@ class SpotPriceDetector(AbstractDetector):
 
     # Check if calculations are made with spot data
     def are_calculations_made_with_spot_data(self, node: Node, interface: str) -> Node:
-
         # For the case when the node is not a list, create a list
         # This is done to make compatibility with balanceOf method usage which returns two nodes
         if not isinstance(node, list):
