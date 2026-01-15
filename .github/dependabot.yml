@@ -11,4 +11,4 @@ updates:
     schedule:
       interval: "weekly"
     exclude-paths:
-      - "tests/e2e/compilation/test_data/test_node_modules/**"
+      - "**/*"
