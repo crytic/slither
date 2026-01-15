@@ -189,7 +189,7 @@ class YulScope(metaclass=abc.ABCMeta):
         )
 
 
-class YulLocalVariable:  # pylint: disable=too-few-public-methods
+class YulLocalVariable:
     __slots__ = ["_variable", "_root"]
 
     def __init__(self, var: LocalVariable, root: YulScope, ast: Dict) -> None:
@@ -298,7 +298,6 @@ class YulBlock(YulScope):
 
     """
 
-    # pylint: disable=redefined-slots-in-subclass
     __slots__ = ["_entrypoint", "_parent_func", "_nodes", "node_scope"]
 
     def __init__(
@@ -542,7 +541,7 @@ def convert_yul_switch(
         }
 
         if last_if:
-            last_if["false_body"] = current_if  # pylint: disable=unsupported-assignment-operation
+            last_if["false_body"] = current_if
         else:
             rewritten_switch["statements"].append(current_if)
 
@@ -792,7 +791,6 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
     return None
 
 
-# pylint: disable=too-many-branches
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 

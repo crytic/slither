@@ -1,6 +1,7 @@
 """
 Module detecting deprecated standards.
 """
+
 from typing import List, Tuple, Union
 
 from slither.core.cfg.node import Node, NodeType
@@ -155,7 +156,7 @@ contract ContractWithDeprecatedReferences {
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
-        # pylint: disable=too-many-nested-blocks
+
         for function in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
@@ -192,7 +193,7 @@ contract ContractWithDeprecatedReferences {
                     deprecated_entries = deprecated_reference[1]
                     info: DETECTOR_INFO = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
+                    for _dep_id, original_desc, recommended_disc in deprecated_entries:
                         info += [
                             f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
                         ]

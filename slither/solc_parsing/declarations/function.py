@@ -9,6 +9,7 @@ from slither.core.declarations.function import (
     ModifierStatements,
     FunctionType,
 )
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
@@ -43,11 +44,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
-
-
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
 
     def __init__(
@@ -163,9 +160,9 @@ class FunctionSolc(CallerContextExpression):
                 known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
-        self._function.variables_as_dict[
-            local_var_parser.underlying_variable.name
-        ] = local_var_parser.underlying_variable
+        self._function.variables_as_dict[local_var_parser.underlying_variable.name] = (
+            local_var_parser.underlying_variable
+        )
         self._local_variables_parser.append(local_var_parser)
 
     # endregion
@@ -636,7 +633,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
-
         node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], scope)
         condition_scope = Scope(scope.is_checked, False, scope)
 
@@ -1158,7 +1154,6 @@ class FunctionSolc(CallerContextExpression):
                 worklist.extend(current.sons)
 
     def _parse_cfg(self, cfg: Dict) -> None:
-
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1289,7 +1284,9 @@ class FunctionSolc(CallerContextExpression):
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node and son not in visited:
+                # If the son is a TRY node it will be fixed later when _fix_try is called with that node
+                # otherwise we try to fix it multiple times. It can happen in the case of nested try-catch blocks.
+                if son != end_node and son not in visited and son.type != NodeType.TRY:
                     visited.add(son)
                     self._fix_catch(son, end_node, visited)
 
@@ -1301,7 +1298,6 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1321,7 +1317,6 @@ class FunctionSolc(CallerContextExpression):
         return local_var_parser
 
     def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
-
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.compilation_unit)
@@ -1347,7 +1342,6 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
@@ -1371,7 +1365,7 @@ class FunctionSolc(CallerContextExpression):
             return
 
         for m in ExportValues(m).result():
-            if isinstance(m, Function):
+            if isinstance(m, Modifier):
                 node_parser = self._new_node(
                     NodeType.EXPRESSION, modifier["src"], self.underlying_function
                 )

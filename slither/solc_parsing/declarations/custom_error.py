@@ -91,7 +91,6 @@ class CustomErrorSolc(CallerContextExpression):
         self._custom_error.set_solidity_sig()
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_offset(param["src"], self._slither_parser.compilation_unit)
 
