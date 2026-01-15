@@ -1,6 +1,7 @@
 """
-    Main module
+Main module
 """
+
 import json
 import logging
 import os
@@ -35,7 +36,6 @@ def _relative_path_format(path: str) -> str:
     return path.split("..")[-1].strip(".").strip("/")
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCore(Context):
     """
     Slither static analyzer
@@ -245,7 +245,6 @@ class SlitherCore(Context):
                     < ref.start
                     < thing.contract.source_mapping.end
                 ):
-
                     self._offset_to_definitions[ref.filename][ref.start].add(definition)
 
             else:
@@ -254,7 +253,7 @@ class SlitherCore(Context):
             self._offset_to_implementations[ref.filename][ref.start].update(implementations)
             self._offset_to_references[ref.filename][ref.start] |= set(references)
 
-    def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
+    def _compute_offsets_to_ref_impl_decl(self):
         self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))
@@ -375,7 +374,6 @@ class SlitherCore(Context):
         # The first time we check a file, find all start/end ignore comments and memoize them.
         line_number = 1
         while True:
-
             line_text = self.crytic_compile.get_code_from_line(file, line_number)
             if line_text is None:
                 break
@@ -433,7 +431,6 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
-
             # Check if result is within an ignored range.
             ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
             for start, end in ignore_ranges:

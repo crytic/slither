@@ -33,18 +33,18 @@ import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 contract C {
 
     IPyth pyth;
-    
+
     constructor(IPyth _pyth) {
         pyth = _pyth;
     }
-    
+
     function A(bytes32 priceId) public {
         PythStructs.Price memory price = pyth.getPrice(priceId);
         ...
     }
-}    
+}
 ```
-The function `A` uses the deprecated `getPrice` Pyth function. 
+The function `A` uses the deprecated `getPrice` Pyth function.
 """
 
     def _detect(self):
