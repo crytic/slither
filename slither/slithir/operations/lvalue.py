@@ -25,13 +25,5 @@ class OperationWithLValue(Operation):
         self._lvalue = lvalue
 
     @property
-    def used(self):
-        return self.read + [self.lvalue]
-
-    @lvalue.setter
-    def lvalue(self, lvalue: Variable) -> None:
-        self._lvalue = lvalue
-
-    @property
     def used(self) -> List[Optional[Any]]:
         return self.read + [self.lvalue]
