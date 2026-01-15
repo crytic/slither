@@ -235,7 +235,7 @@ class SolidityFunction(SourceMapping):
 
 
 class SolidityCustomRevert(SolidityFunction):
-    def __init__(self, custom_error: CustomError) -> None:  # pylint: disable=super-init-not-called
+    def __init__(self, custom_error: CustomError) -> None:
         self._name = "revert " + custom_error.solidity_signature
         self._custom_error = custom_error
         self._return_type: List[Union[TypeInformation, ElementaryType]] = []

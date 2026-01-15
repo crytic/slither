@@ -1,6 +1,7 @@
 """
 Various utils for sarif/vscode
 """
+
 import json
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any
@@ -56,7 +57,6 @@ def read_triage_info(path_to_sarif: Path, path_to_triage: Path) -> List[str]:
 
     ids: List[str] = []
     for run, index in indexes:
-
         # We dont support multiple runs for now
         if run != 0:
             continue

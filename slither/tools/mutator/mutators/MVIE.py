@@ -5,7 +5,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
 
-class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MVIE(AbstractMutator):
     NAME = "MVIE"
     HELP = "variable initialization using an expression"
 
@@ -39,6 +39,8 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                         )
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for variable in function.local_variables:
                 if variable.initialized and not isinstance(variable.expression, Literal):
                     # Get the string

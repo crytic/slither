@@ -1,6 +1,7 @@
 """
 Module detecting unused state variables
 """
+
 from typing import List, Optional, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit

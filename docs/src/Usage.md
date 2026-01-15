@@ -157,13 +157,6 @@ The following flags are supported:
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
     "triage_database": "slither.db.json",
-    # codex
-    "codex": False,
-    "codex_contracts": "all",
-    "codex_model": "text-davinci-003",
-    "codex_temperature": 0,
-    "codex_max_tokens": 300,
-    "codex_log": False,
 }
 ```
 
