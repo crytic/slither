@@ -1,7 +1,10 @@
 pragma solidity ^0.8.4;
+
+import "./IFee.sol";
+
 interface I {
-  enum SomeEnum { ONE, TWO, THREE }
-  error ErrorWithEnum(SomeEnum e);
+    enum SomeEnum { ONE, TWO, THREE }
+    error ErrorWithEnum(SomeEnum e);
 }
 
 contract TestContract is I {
@@ -61,5 +64,11 @@ contract TestContract is I {
     }
     function setOtherI(I _i) public {
         otherI = _i;
+    }
+
+    function newFee(uint128 fee) public returns (IFee.Fee memory) {
+        IFee.Fee memory _fee;
+        _fee.fee = fee;
+        return _fee;
     }
 }

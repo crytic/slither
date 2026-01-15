@@ -1,4 +1,3 @@
-# pylint: disable=redefined-outer-name
 import os
 import shutil
 import tempfile
@@ -59,9 +58,9 @@ def solc_binary_path(shared_directory):
 
 
 @pytest.fixture
-def slither_from_source(solc_binary_path):
+def slither_from_solidity_source(solc_binary_path):
     @contextmanager
-    def inner(source_code: str, solc_version: str = "0.8.19"):
+    def inner(source_code: str, solc_version: str = "0.8.19", legacy: bool = False):
         """Yields a Slither instance using source_code string and solc_version.
         Creates a temporary file and compiles with solc_version.
         """
@@ -72,7 +71,27 @@ def slither_from_source(solc_binary_path):
                 fname = f.name
                 f.write(source_code)
             solc_path = solc_binary_path(solc_version)
-            yield Slither(fname, solc=solc_path)
+            yield Slither(fname, solc=solc_path, force_legacy=legacy)
+        finally:
+            Path(fname).unlink()
+
+    return inner
+
+
+@pytest.fixture
+def slither_from_vyper_source():
+    @contextmanager
+    def inner(source_code: str):
+        """Yields a Slither instance using source_code string.
+        Creates a temporary file and compiles with vyper.
+        """
+
+        fname = ""
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".vy", delete=False) as f:
+                fname = f.name
+                f.write(source_code)
+            yield Slither(fname)
         finally:
             Path(fname).unlink()
 

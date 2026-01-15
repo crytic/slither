@@ -1,7 +1,7 @@
 from slither.core.declarations.solidity_variables import SOLIDITY_FUNCTIONS
 from slither.core.expressions import BinaryOperationType, UnaryOperationType
 
-# taken from https://github.com/ethereum/solidity/blob/356cc91084114f840da66804b2a9fc1ac2846cff/libevmasm/Instruction.cpp#L180
+# taken from https://github.com/ethereum/solidity/blob/e11b9ed9f2c254bc894d844c0a64a0eb76bbb4fd/libevmasm/Instruction.cpp#L184
 evm_opcodes = [
     "STOP",
     "ADD",
@@ -26,6 +26,7 @@ evm_opcodes = [
     "SHL",
     "SHR",
     "SAR",
+    "CLZ",
     "ADDMOD",
     "MULMOD",
     "SIGNEXTEND",
@@ -45,6 +46,7 @@ evm_opcodes = [
     "EXTCODECOPY",
     "RETURNDATASIZE",
     "RETURNDATACOPY",
+    "MCOPY",
     "EXTCODEHASH",
     "BLOCKHASH",
     "COINBASE",
@@ -55,12 +57,17 @@ evm_opcodes = [
     "GASLIMIT",
     "CHAINID",
     "SELFBALANCE",
+    "BASEFEE",
+    "BLOBHASH",
+    "BLOBBASEFEE",
     "POP",
     "MLOAD",
     "MSTORE",
     "MSTORE8",
     "SLOAD",
     "SSTORE",
+    "TLOAD",
+    "TSTORE",
     "JUMP",
     "JUMPI",
     "PC",
@@ -172,6 +179,7 @@ builtins = [
 # "identifier": [input_count, output_count]
 function_args = {
     "byte": [2, 1],
+    "clz": [1, 1],
     "addmod": [3, 1],
     "mulmod": [3, 1],
     "signextend": [2, 1],
@@ -183,11 +191,16 @@ function_args = {
     "mstore8": [2, 0],
     "sload": [1, 1],
     "sstore": [2, 0],
+    "tload": [1, 1],
+    "tstore": [2, 0],
     "msize": [1, 1],
     "gas": [0, 1],
     "address": [0, 1],
     "balance": [1, 1],
     "selfbalance": [0, 1],
+    "basefee": [0, 1],
+    "blobhash": [1, 1],
+    "blobbasefee": [0, 1],
     "caller": [0, 1],
     "callvalue": [0, 1],
     "calldataload": [1, 1],
@@ -199,6 +212,7 @@ function_args = {
     "extcodecopy": [4, 0],
     "returndatasize": [0, 1],
     "returndatacopy": [3, 0],
+    "mcopy": [3, 0],
     "extcodehash": [1, 1],
     "create": [3, 1],
     "create2": [4, 1],
@@ -266,7 +280,7 @@ binary_ops = {
 }
 
 
-class YulBuiltin:  # pylint: disable=too-few-public-methods
+class YulBuiltin:
     def __init__(self, name: str) -> None:
         self._name = name
 

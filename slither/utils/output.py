@@ -4,10 +4,10 @@ import logging
 import os
 import zipfile
 from collections import OrderedDict
+from importlib import metadata
 from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 
-from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -18,6 +18,7 @@ from slither.core.declarations import (
     Structure,
     Pragma,
     FunctionContract,
+    CustomError,
 )
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -160,7 +161,7 @@ def output_to_sarif(
                     "driver": {
                         "name": "Slither",
                         "informationUri": "https://github.com/crytic/slither",
-                        "version": require("slither-analyzer")[0].version,
+                        "version": metadata.version("slither-analyzer"),
                         "rules": [],
                     }
                 },
@@ -359,7 +360,6 @@ def _create_parent_element(
         Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
     ],
 ]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations.contract_level import ContractLevel
 
     if isinstance(element, FunctionContract):
@@ -410,7 +410,7 @@ class Output:
         self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
-        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
+        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf8")).hexdigest()
 
         if standard_format:
             to_add = [i for i in info if not isinstance(i, str)]
@@ -438,6 +438,8 @@ class Output:
             self.add_event(add, additional_fields=additional_fields)
         elif isinstance(add, Structure):
             self.add_struct(add, additional_fields=additional_fields)
+        elif isinstance(add, CustomError):
+            self.add_custom_error(add, additional_fields=additional_fields)
         elif isinstance(add, Pragma):
             self.add_pragma(add, additional_fields=additional_fields)
         elif isinstance(add, Node):
@@ -579,6 +581,32 @@ class Output:
             "event",
             event.name,
             event.source_mapping.to_json(),
+            type_specific_fields,
+            additional_fields,
+        )
+
+        self._data["elements"].append(element)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region CustomError
+    ###################################################################################
+    ###################################################################################
+
+    def add_custom_error(
+        self, custom_error: CustomError, additional_fields: Optional[Dict] = None
+    ) -> None:
+        if additional_fields is None:
+            additional_fields = {}
+        type_specific_fields = {
+            "parent": _create_parent_element(custom_error),
+            "signature": custom_error.full_name,
+        }
+        element = _create_base_element(
+            "custom_error",
+            custom_error.name,
+            custom_error.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 # used to pass --cov=$path and --cov-append to pytest
 if [ "$1" != "" ]; then
     pytest "$1" tests/e2e/ -n auto

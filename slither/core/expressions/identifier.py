@@ -27,7 +27,6 @@ class Identifier(Expression):
     ) -> None:
         super().__init__()
 
-        # pylint: disable=import-outside-toplevel
         from slither.core.declarations import Contract, SolidityVariable, SolidityFunction
         from slither.solc_parsing.yul.evm_functions import YulBuiltin
 
@@ -79,3 +78,6 @@ class Identifier(Expression):
 
     def __str__(self) -> str:
         return str(self._value)
+
+    def expression(self):
+        return self

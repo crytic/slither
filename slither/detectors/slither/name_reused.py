@@ -1,6 +1,8 @@
 from collections import defaultdict
 from typing import List
 
+from crytic_compile.platform import Type as PlatformType
+
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
 from slither.detectors.abstract_detector import (
@@ -57,10 +59,11 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    # pylint: disable=too-many-locals,too-many-branches
     def _detect(self) -> List[Output]:
         results = []
         compilation_unit = self.compilation_unit
+        if compilation_unit.core.crytic_compile.platform != PlatformType.TRUFFLE:
+            return []
 
         all_contracts = compilation_unit.contracts
         all_contracts_name = [c.name for c in all_contracts]

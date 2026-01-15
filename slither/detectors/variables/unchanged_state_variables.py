@@ -1,6 +1,7 @@
 """
 Module detecting state variables that could be declared as constant
 """
+
 from typing import Set, List
 from packaging import version
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -25,7 +26,7 @@ def _is_valid_type(v: StateVariable) -> bool:
 
 
 def _valid_candidate(v: StateVariable) -> bool:
-    return _is_valid_type(v) and not (v.is_constant or v.is_immutable)
+    return _is_valid_type(v)
 
 
 def _is_constant_var(v: Variable) -> bool:
@@ -92,7 +93,7 @@ class UnchangedStateVariables:
             variables = []
             functions = []
 
-            variables.append(c.state_variables)
+            variables.append(c.storage_variables_ordered)
             functions.append(c.all_functions_called)
 
             valid_candidates: Set[StateVariable] = {

@@ -1,6 +1,7 @@
 """
-    Event module
+Event module
 """
+
 from typing import Dict, TYPE_CHECKING, Union
 
 from slither.core.cfg.node import NodeType
@@ -93,6 +94,8 @@ class ModifierSolc(FunctionSolc):
         self._rewrite_ternary_as_if_else()
         self._remove_alone_endif()
 
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
         # self._analyze_read_write()
         # self._analyze_calls()
 

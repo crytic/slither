@@ -1,6 +1,7 @@
 """
 Module detecting tautologies and contradictions based on types in comparison operations over integers
 """
+
 from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node
@@ -99,7 +100,7 @@ contract A {
 }
 ```
 `x` is a `uint256`, so `x >= 0` will be always true.
-`y` is a `uint8`, so `y <512` will be always true.  
+`y` is a `uint8`, so `y <512` will be always true.
 """
     # endregion wiki_exploit_scenario
 
@@ -126,7 +127,7 @@ contract A {
         allInts = Int + Uint
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
+        for function in contract.functions_declared:
             f_results = set()
 
             for node in function.nodes:
@@ -163,7 +164,7 @@ contract A {
         for contract in self.contracts:
             tautologies = self.detect_type_based_tautologies(contract)
             if tautologies:
-                for (func, nodes) in tautologies:
+                for func, nodes in tautologies:
                     for node in nodes:
                         info = [func, " contains a tautology or contradiction:\n"]
                         info += ["\t- ", node, "\n"]

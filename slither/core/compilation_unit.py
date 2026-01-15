@@ -1,4 +1,5 @@
 import math
+from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from crytic_compile import CompilationUnit, CryticCompile
@@ -15,6 +16,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
@@ -29,25 +31,40 @@ if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
+class Language(Enum):
+    SOLIDITY = "solidity"
+    VYPER = "vyper"
+
+    @staticmethod
+    def from_str(label: str):
+        if label == "solc":
+            return Language.SOLIDITY
+        if label == "vyper":
+            return Language.VYPER
+
+        raise ValueError(f"Unknown language: {label}")
+
+
 class SlitherCompilationUnit(Context):
     def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
         super().__init__()
 
         self._core = core
         self._crytic_compile_compilation_unit = crytic_compilation_unit
+        self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
         self.contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
+        self._events_top_level: List[EventTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
         self._using_for_top_level: List[UsingForTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomErrorTopLevel] = []
-        self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
+        self._type_aliases: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -55,7 +72,8 @@ class SlitherCompilationUnit(Context):
         # Memoize
         self._all_state_variables: Optional[Set[StateVariable]] = None
 
-        self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
+        self._persistent_storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
+        self._transient_storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
         self._contract_with_missing_inheritance: Set[Contract] = set()
 
@@ -81,6 +99,17 @@ class SlitherCompilationUnit(Context):
     # region Compiler
     ###################################################################################
     ###################################################################################
+    @property
+    def language(self) -> Language:
+        return self._language
+
+    @property
+    def is_vyper(self) -> bool:
+        return self._language == Language.VYPER
+
+    @property
+    def is_solidity(self) -> bool:
+        return self._language == Language.SOLIDITY
 
     @property
     def compiler_version(self) -> CompilerVersion:
@@ -166,6 +195,10 @@ class SlitherCompilationUnit(Context):
         return self.functions + self.modifiers
 
     def propagate_function_calls(self) -> None:
+        """This info is used to compute the rvalues of Phi operations in `fix_phi` and ultimately
+        is responsible for the `read` property of Phi operations which is vital to
+        propagating taints inter-procedurally
+        """
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -204,6 +237,10 @@ class SlitherCompilationUnit(Context):
         return self._enums_top_level
 
     @property
+    def events_top_level(self) -> List[EventTopLevel]:
+        return self._events_top_level
+
+    @property
     def variables_top_level(self) -> List[TopLevelVariable]:
         return self._variables_top_level
 
@@ -220,8 +257,8 @@ class SlitherCompilationUnit(Context):
         return self._custom_errors
 
     @property
-    def user_defined_value_types(self) -> Dict[str, TypeAliasTopLevel]:
-        return self._user_defined_value_types
+    def type_aliases(self) -> Dict[str, TypeAliasTopLevel]:
+        return self._type_aliases
 
     # endregion
     ###################################################################################
@@ -259,36 +296,65 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def compute_storage_layout(self) -> None:
+        assert self.is_solidity
+
         for contract in self.contracts_derived:
-            self._storage_layouts[contract.name] = {}
+            self._compute_storage_layout(
+                contract.name,
+                contract.storage_variables_ordered,
+                False,
+                contract.custom_storage_layout,
+            )
+            self._compute_storage_layout(
+                contract.name, contract.transient_variables_ordered, True, None
+            )
 
+    def _compute_storage_layout(
+        self,
+        contract_name: str,
+        state_variables_ordered: List[StateVariable],
+        is_transient: bool,
+        custom_storage_layout: Optional[int],
+    ):
+        if is_transient:
             slot = 0
-            offset = 0
-            for var in contract.state_variables_ordered:
-                if var.is_constant or var.is_immutable:
-                    continue
+            self._transient_storage_layouts[contract_name] = {}
+        else:
+            slot = custom_storage_layout if custom_storage_layout else 0
+            self._persistent_storage_layouts[contract_name] = {}
 
-                assert var.type
-                size, new_slot = var.type.storage_size
+        offset = 0
+        for var in state_variables_ordered:
+            assert var.type
+            size, new_slot = var.type.storage_size
 
-                if new_slot:
-                    if offset > 0:
-                        slot += 1
-                        offset = 0
-                elif size + offset > 32:
+            if new_slot:
+                if offset > 0:
                     slot += 1
                     offset = 0
+            elif size + offset > 32:
+                slot += 1
+                offset = 0
 
-                self._storage_layouts[contract.name][var.canonical_name] = (
+            if is_transient:
+                self._transient_storage_layouts[contract_name][var.canonical_name] = (
                     slot,
                     offset,
                 )
-                if new_slot:
-                    slot += math.ceil(size / 32)
-                else:
-                    offset += size
+            else:
+                self._persistent_storage_layouts[contract_name][var.canonical_name] = (
+                    slot,
+                    offset,
+                )
+
+            if new_slot:
+                slot += math.ceil(size / 32)
+            else:
+                offset += size
 
     def storage_layout_of(self, contract: Contract, var: StateVariable) -> Tuple[int, int]:
-        return self._storage_layouts[contract.name][var.canonical_name]
+        if var.is_stored:
+            return self._persistent_storage_layouts[contract.name][var.canonical_name]
+        return self._transient_storage_layouts[contract.name][var.canonical_name]
 
     # endregion

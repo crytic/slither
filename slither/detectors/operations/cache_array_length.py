@@ -17,7 +17,7 @@ class CacheArrayLength(AbstractDetector):
     ARGUMENT = "cache-array-length"
     HELP = (
         "Detects `for` loops that use `length` member of some storage array in their loop condition and don't "
-        "modify it. "
+        "modify it."
     )
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
@@ -34,8 +34,8 @@ class CacheArrayLength(AbstractDetector):
 contract C
 {
     uint[] array;
-    
-    function f() public 
+
+    function f() public
     {
         for (uint i = 0; i < array.length; i++)
         {
@@ -50,8 +50,8 @@ Since the `for` loop in `f` doesn't modify `array.length`, it is more gas effici
 contract C
 {
     uint[] array;
-    
-    function f() public 
+
+    function f() public
     {
         uint array_length = array.length;
         for (uint i = 0; i < array_length; i++)
@@ -216,9 +216,8 @@ contract C
         for usage in non_optimal_array_len_usages:
             info = [
                 "Loop condition ",
-                f"`{usage.source_mapping.content}` ",
-                f"({usage.source_mapping}) ",
-                "should use cached array length instead of referencing `length` member "
+                usage,
+                " should use cached array length instead of referencing `length` member "
                 "of the storage array.\n ",
             ]
             res = self.generate_result(info)

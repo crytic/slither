@@ -1,10 +1,12 @@
 """
-    Function module
+Function module
 """
-from typing import Dict, List, Tuple, TYPE_CHECKING
+
+from typing import Dict, List, Tuple, TYPE_CHECKING, Optional
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
+from slither.utils.using_for import USING_FOR, merge_using_for
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -16,10 +18,24 @@ class FunctionTopLevel(Function, TopLevel):
     def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__(compilation_unit)
         self._scope: "FileScope" = scope
+        self._using_for_complete: Optional[USING_FOR] = None
 
     @property
     def file_scope(self) -> "FileScope":
         return self._scope
+
+    @property
+    def using_for_complete(self) -> USING_FOR:
+        """
+        USING_FOR: Dict of top level directive
+        """
+
+        if self._using_for_complete is None:
+            result = {}
+            for uftl in self.file_scope.using_for_directives:
+                result = merge_using_for(result, uftl.using_for)
+            self._using_for_complete = result
+        return self._using_for_complete
 
     @property
     def canonical_name(self) -> str:
@@ -82,7 +98,6 @@ class FunctionTopLevel(Function, TopLevel):
     def generate_slithir_ssa(
         self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
     ) -> None:
-        # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,

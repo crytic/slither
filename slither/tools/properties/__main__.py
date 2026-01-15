@@ -46,18 +46,14 @@ def _all_properties() -> MyPrettyTable:
     return table
 
 
-class ListScenarios(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListScenarios(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         logger.info(_all_scenarios())
         parser.exit()
 
 
-class ListProperties(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListProperties(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         logger.info(_all_properties())
         parser.exit()
 
@@ -68,13 +64,13 @@ def parse_args() -> argparse.Namespace:
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Demo",
-        usage="slither-demo filename",
+        description="Generates code properties (e.g., invariants) that can be tested with unit tests or Echidna, entirely automatically.",
+        usage="slither-prop filename",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
+        "filename", help="The filename of the contract or project directory to analyze."
     )
 
     parser.add_argument("--contract", help="The targeted contract.")

@@ -40,6 +40,7 @@ from slither.core.solidity_types import (
 )
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
+from slither.core.variables.variable import Variable
 from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
@@ -52,7 +53,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("ExpressionParsing")
 
-# pylint: disable=anomalous-backslash-in-string,import-outside-toplevel,too-many-branches,too-many-locals
 
 # region Filtering
 ###################################################################################
@@ -103,7 +103,7 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
-# pylint: disable=too-many-statements
+
 def parse_call(
     expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
 ) -> Union[
@@ -175,11 +175,12 @@ def parse_call(
         called = parse_expression(children[0], caller_context)
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
-    if isinstance(called, SuperCallExpression):
+    if isinstance(called, SuperIdentifier):
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp
-    call_expression = CallExpression(called, arguments, type_return)
+    names = expression["names"] if "names" in expression and len(expression["names"]) > 0 else None
+    call_expression = CallExpression(called, arguments, type_return, names=names)
     call_expression.set_offset(src, caller_context.compilation_unit)
 
     # Only available if the syntax {gas:, value:} was used
@@ -255,7 +256,6 @@ def _user_defined_op_call(
 
 
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
-    # pylint: disable=too-many-nested-blocks,too-many-statements
     """
 
     Returns:
@@ -429,7 +429,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return assignement
 
     if name == "Literal":
-
         subdenomination = None
 
         assert "children" not in expression
@@ -486,25 +485,28 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         t = None
 
+        referenced_declaration = None
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
+            if "referencedDeclaration" in expression["attributes"]:
+                referenced_declaration = expression["attributes"]["referencedDeclaration"]
 
         if t:
-            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(
+                r"(?:struct|enum|function|modifier) \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t
+            )
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
 
-        if "referencedDeclaration" in expression:
-            referenced_declaration = expression["referencedDeclaration"]
-        else:
-            referenced_declaration = None
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
@@ -575,7 +577,14 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
-        if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
+        # Only convert to SolidityVariableComposed if the base expression is NOT
+        # a user-defined variable. This prevents a mistake like a parameter struct
+        # named "self" in a function with a balance field being treated as Vyper's self.balance.
+        is_user_defined = isinstance(member_expression, Identifier) and isinstance(
+            member_expression.value,
+            Variable,
+        )
+        if str(member_access) in SOLIDITY_VARIABLES_COMPOSED and not is_user_defined:
             id_idx = Identifier(SolidityVariableComposed(str(member_access)))
             id_idx.set_offset(src, caller_context.compilation_unit)
             return id_idx
@@ -586,7 +595,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # NewExpression is not a root expression, it's always the child of another expression
     if name == "NewExpression":
-
         if is_compact_ast:
             type_name = expression["typeName"]
         else:
@@ -612,25 +620,13 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         assert type_name[caller_context.get_key()] == "UserDefinedTypeName"
 
-        if is_compact_ast:
-
-            # Changed introduced in Solidity 0.8
-            # see https://github.com/crytic/slither/issues/794
-
-            # TODO explore more the changes introduced in 0.8 and the usage of pathNode/IdentifierPath
-            if "name" not in type_name:
-                assert "pathNode" in type_name and "name" in type_name["pathNode"]
-                contract_name = type_name["pathNode"]["name"]
-            else:
-                contract_name = type_name["name"]
-        else:
-            contract_name = type_name["attributes"]["name"]
-        new = NewContract(contract_name)
+        contract_type = parse_type(type_name, caller_context)
+        assert isinstance(contract_type, UserDefinedType)
+        new = NewContract(contract_type)
         new.set_offset(src, caller_context.compilation_unit)
         return new
 
     if name == "ModifierInvocation":
-
         if is_compact_ast:
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
@@ -656,7 +652,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # Introduced with solc 0.8
     if name == "IdentifierPath":
-
         if caller_context.is_compact_ast:
             value = expression["name"]
 

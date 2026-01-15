@@ -2,6 +2,7 @@ import logging
 from typing import Union, List, TYPE_CHECKING, Any
 
 from slither.core import expressions
+from slither.core.scope.scope import FileScope
 from slither.core.declarations import (
     Function,
     SolidityVariable,
@@ -11,6 +12,9 @@ from slither.core.declarations import (
     EnumContract,
     EnumTopLevel,
     Enum,
+    SolidityImportPlaceHolder,
+    Import,
+    Structure,
 )
 from slither.core.expressions import (
     AssignmentOperation,
@@ -50,6 +54,7 @@ from slither.slithir.operations import (
     Member,
     TypeConversion,
     Unary,
+    UnaryType,
     Unpack,
     Return,
     SolidityCall,
@@ -109,6 +114,13 @@ _binary_to_binary = {
     BinaryOperationType.OROR: BinaryType.OROR,
 }
 
+
+_unary_to_unary = {
+    UnaryOperationType.BANG: UnaryType.BANG,
+    UnaryOperationType.TILD: UnaryType.TILD,
+}
+
+
 _signed_to_unsigned = {
     BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION,
     BinaryOperationType.MODULO_SIGNED: BinaryType.MODULO,
@@ -151,10 +163,8 @@ def convert_assignment(
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-
-    # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
-        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
+        from slither.core.cfg.node import NodeType
 
         self._expression = expression
         self._node = node
@@ -175,7 +185,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         if isinstance(left, list):  # tuple expression:
-            if isinstance(right, list):  # unbox assigment
+            if isinstance(right, list):  # unbox assignment
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
@@ -197,12 +207,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
-                        # The following test is probably always true?
-                        if (
-                            isinstance(left[idx], LocalVariableInitFromTuple)
-                            and left[idx].tuple_index is not None
-                        ):
-                            index = left[idx].tuple_index
                         operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
@@ -220,19 +224,49 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, None)
         else:
-            # Init of array, like
-            # uint8[2] var = [1,2];
+            # For `InitArray`, the rhs is a list or singleton of `TupleExpression` elements.
+            # Init of array e.g. uint8[2] var = [1,2];
             if isinstance(right, list):
                 operation = InitArray(right, left)
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
-            elif isinstance(left.type, ArrayType):
-                # Special case for init of array, when the right has only one element
+
+            # Special case for init of array, when the right has only one element e.g. arr = [1];
+            elif isinstance(left.type, ArrayType) and not isinstance(right.type, ArrayType):
                 operation = InitArray([right], left)
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
+
+            elif (
+                isinstance(left.type, UserDefinedType)
+                and isinstance(left.type.type, Structure)
+                and isinstance(right, TupleVariable)
+            ):
+                # This will result in a `NewStructure` operation where
+                # each field is assigned the value unpacked from the tuple
+                # (see `slither.vyper_parsing.type_parsing.parse_type`)
+                args = []
+                for idx, elem in enumerate(left.type.type.elems.values()):
+                    temp = TemporaryVariable(self._node)
+                    temp.type = elem.type
+                    args.append(temp)
+                    operation = Unpack(temp, right, idx)
+                    operation.set_expression(expression)
+                    self._result.append(operation)
+
+                for arg in args:
+                    op = Argument(arg)
+                    op.set_expression(expression)
+                    self._result.append(op)
+
+                operation = TmpCall(
+                    left.type.type, len(left.type.type.elems), left, left.type.type.name
+                )
+                operation.set_expression(expression)
+                self._result.append(operation)
+
             else:
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
@@ -280,9 +314,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         set_val(expression, val)
 
-    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
-
         assert isinstance(expression, CallExpression)
 
         expression_called = expression.called
@@ -304,7 +336,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
-            internal_call = InternalCall(called, len(args), val, expression.type_call)
+            internal_call = InternalCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             internal_call.set_expression(expression)
             self._result.append(internal_call)
             set_val(expression, val)
@@ -366,6 +400,29 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(var)
             set_val(expression, val)
 
+        elif (
+            called.name in ["sload(uint256)", "sstore(uint256,uint256)"]
+            and len(args) > 0
+            and isinstance(args[0], StateVariable)
+        ):
+            # parse_yul._parse_yul_magic_suffixes does a best effort tentative to retrieve
+            # the right state variable on .slot access
+            #
+            # Solidity does not allow state variable to be directly used through sstore/sload
+            # As you need to specify the slot number (ex you can't do " sload(some_state_variable)")
+            #
+            # So we can make the assumption that if a state variable appear on the first argument
+            # of sstore/sload, we can convert the call to sstore to a normal assignment / read
+
+            if called.name == "sload(uint256)":
+                val = TemporaryVariable(self._node)
+                var = Assignment(val, args[0], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, val)
+            else:
+                var = Assignment(args[0], args[1], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, args[0])
         else:
             # If tuple
             if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
@@ -373,7 +430,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 val = TemporaryVariable(self._node)
 
-            message_call = TmpCall(called, len(args), val, expression.type_call)
+            message_call = TmpCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             message_call.set_expression(expression)
             # Gas/value are only accessible here if the syntax {gas: , value: }
             # Is used over .gas().value()
@@ -390,7 +449,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, val)
 
     def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
-        raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
+        raise SlithIRError(f"Ternary operator are not convertible to SlithIR {expression}")
 
     def _post_elementary_type_name_expression(
         self,
@@ -406,17 +465,32 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         # Left can be a type for abi.decode(var, uint[2])
-        if isinstance(left, (Type, Contract, Enum)):
+        if isinstance(left, (Type, Contract, Enum, Structure)):
             # Nested type are not yet supported by abi.decode, so the assumption
             # Is that the right variable must be a constant
             assert isinstance(right, Constant)
             # Case for abi.decode(var, I[2]) where I is an interface/contract or an enum
-            if isinstance(left, (Contract, Enum)):
+            if isinstance(left, (Contract, Enum, Structure)):
                 left = UserDefinedType(left)
             t = ArrayType(left, int(right.value))
             set_val(expression, t)
             return
         val = ReferenceVariable(self._node)
+
+        if (
+            isinstance(left, LocalVariable)
+            and isinstance(left.type, UserDefinedType)
+            and isinstance(left.type.type, Structure)
+        ):
+            # We rewrite the index access to a tuple variable as
+            # an access to its field i.e. the 0th element is the field "_0"
+            # (see `slither.vyper_parsing.type_parsing.parse_type`)
+            operation = Member(left, Constant("_" + str(right)), val)
+            operation.set_expression(expression)
+            self._result.append(operation)
+            set_val(expression, val)
+            return
+
         # access to anonymous array
         # such as [0,1][x]
         if isinstance(left, list):
@@ -426,6 +500,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             operation = InitArray(init_array_right, init_array_val)
             operation.set_expression(expression)
             self._result.append(operation)
+
         operation = Index(val, left, right)
         operation.set_expression(expression)
         self._result.append(operation)
@@ -443,6 +518,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
+
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -462,10 +538,22 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         constant_type = type_found
                     else:
                         # type(enum).max/min
-                        assert isinstance(type_expression_found, Identifier)
-                        type_found_in_expression = type_expression_found.value
-                        assert isinstance(type_found_in_expression, (EnumContract, EnumTopLevel))
-                        type_found = UserDefinedType(type_found_in_expression)
+                        # Case when enum is in another contract e.g. type(C.E).max
+                        if isinstance(type_expression_found, MemberAccess):
+                            contract = type_expression_found.expression.value
+                            assert isinstance(contract, Contract)
+                            for enum in contract.enums:
+                                if enum.name == type_expression_found.member_name:
+                                    type_found_in_expression = enum
+                                    type_found = UserDefinedType(enum)
+                                    break
+                        else:
+                            assert isinstance(type_expression_found, Identifier)
+                            type_found_in_expression = type_expression_found.value
+                            assert isinstance(
+                                type_found_in_expression, (EnumContract, EnumTopLevel)
+                            )
+                            type_found = UserDefinedType(type_found_in_expression)
                         constant_type = None
                         min_value = type_found_in_expression.min
                         max_value = type_found_in_expression.max
@@ -516,12 +604,25 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # contract A { type MyInt is int}
             # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
             # The logic is handled by _post_call_expression
-            if expression.member_name in expr.file_scope.user_defined_types:
-                set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
+            if expression.member_name in expr.type_aliases_as_dict:
+                set_val(expression, expr.type_aliases_as_dict[expression.member_name])
                 return
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
                 set_val(expression, expr.custom_errors_as_dict[expression.member_name])
+                return
+            # Lookup enums when in a different contract e.g. C.E
+            if str(expression) in expr.enums_as_dict:
+                set_val(expression, expr.enums_as_dict[str(expression)])
+                return
+
+        if isinstance(expr, (SolidityImportPlaceHolder, Import)):
+            scope = (
+                expr.import_directive.scope
+                if isinstance(expr, SolidityImportPlaceHolder)
+                else expr.scope
+            )
+            if self._check_elem_in_scope(expression.member_name, scope, expression):
                 return
 
         val_ref = ReferenceVariable(self._node)
@@ -529,6 +630,61 @@ class ExpressionToSlithIR(ExpressionVisitor):
         member.set_expression(expression)
         self._result.append(member)
         set_val(expression, val_ref)
+
+    def _check_elem_in_scope(self, elem: str, scope: FileScope, expression: MemberAccess) -> bool:
+        if elem in scope.renaming:
+            self._check_elem_in_scope(scope.renaming[elem], scope, expression)
+            return True
+
+        if elem in scope.contracts:
+            set_val(expression, scope.contracts[elem])
+            return True
+
+        if elem in scope.structures:
+            set_val(expression, scope.structures[elem])
+            return True
+
+        if elem in scope.variables:
+            set_val(expression, scope.variables[elem])
+            return True
+
+        if elem in scope.enums:
+            set_val(expression, scope.enums[elem])
+            return True
+
+        if elem in scope.type_aliases:
+            set_val(expression, scope.type_aliases[elem])
+            return True
+
+        for import_directive in scope.imports:
+            if elem == import_directive.alias:
+                set_val(expression, import_directive)
+                return True
+
+        for custom_error in scope.custom_errors:
+            if custom_error.name == elem:
+                set_val(expression, custom_error)
+                return True
+
+        if str(expression.type).startswith("function "):
+            # This is needed to handle functions overloading
+            signature_to_seaarch = (
+                str(expression.type)
+                .replace("function ", elem)
+                .replace("pure ", "")
+                .replace("view ", "")
+                .replace("struct ", "")
+                .replace("enum ", "")
+                .replace(" memory", "")
+                .split(" returns", maxsplit=1)[0]
+            )
+
+            for function in scope.functions:
+                if signature_to_seaarch == function.full_name:
+                    set_val(expression, function)
+                    return True
+
+        return False
 
     def _post_new_array(self, expression: NewArray) -> None:
         val = TemporaryVariable(self._node)
@@ -572,20 +728,19 @@ class ExpressionToSlithIR(ExpressionVisitor):
         expr = get(expression.expression)
         val = TemporaryVariable(self._node)
         expression_type = expression.type
-        assert isinstance(expression_type, (TypeAlias, UserDefinedType, ElementaryType))
+        assert isinstance(expression_type, (TypeAlias, UserDefinedType, ElementaryType, ArrayType))
         operation = TypeConversion(val, expr, expression_type)
         val.set_type(expression.type)
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)
 
-    # pylint: disable=too-many-statements
     def _post_unary_operation(self, expression: UnaryOperation) -> None:
         value = get(expression.expression)
         operation: Operation
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
-            operation = Unary(lvalue, value, expression.type)
+            operation = Unary(lvalue, value, _unary_to_unary[expression.type])
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)

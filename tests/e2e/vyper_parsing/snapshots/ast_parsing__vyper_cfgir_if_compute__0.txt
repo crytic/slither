@@ -1,0 +1,172 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+a = p
+
+IRs:
+a(uint256) := p(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+b = 1
+
+IRs:
+b(uint256) := 1(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+c = 0
+
+IRs:
+c(uint256) := 0(uint256)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+b > 0
+
+IRs:
+TMP_0(bool) = b > 0
+CONDITION TMP_0"];
+4->6[label="True"];
+4->5[label="False"];
+5[label="Node Type: END_IF 5
+"];
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+old_a = 1
+
+IRs:
+old_a(uint256) := 1(uint256)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+old_c = 2
+
+IRs:
+old_c(uint256) := 2(uint256)"];
+7->8;
+8[label="Node Type: IF 8
+
+EXPRESSION:
+p > old_a
+
+IRs:
+TMP_1(bool) = p > old_a
+CONDITION TMP_1"];
+8->10[label="True"];
+8->15[label="False"];
+9[label="Node Type: END_IF 9
+"];
+9->20;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+c = unsafe_div()(old_a * 10 ** 18,p)
+
+IRs:
+TMP_2(uint256) = 10 (c)** 18
+TMP_3(uint256) = old_a (c)* TMP_2
+TMP_4(None) = SOLIDITY_CALL unsafe_div()(TMP_3,p)
+c(uint256) := TMP_4(None)"];
+10->11;
+11[label="Node Type: IF 11
+
+EXPRESSION:
+c < 10 ** 36 / 1
+
+IRs:
+TMP_5(uint256) = 10 (c)** 36
+TMP_6(uint256) = TMP_5 (c)/ 1
+TMP_7(bool) = c < TMP_6
+CONDITION TMP_7"];
+11->13[label="True"];
+11->12[label="False"];
+12[label="Node Type: END_IF 12
+"];
+12->9;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+a = unsafe_div()(old_a * 1,10 ** 18)
+
+IRs:
+TMP_8(uint256) = old_a (c)* 1
+TMP_9(uint256) = 10 (c)** 18
+TMP_10(None) = SOLIDITY_CALL unsafe_div()(TMP_8,TMP_9)
+a(uint256) := TMP_10(None)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+c = 10 ** 36 / 1
+
+IRs:
+TMP_11(uint256) = 10 (c)** 36
+TMP_12(uint256) = TMP_11 (c)/ 1
+c(uint256) := TMP_12(uint256)"];
+14->12;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+c = unsafe_div()(p * 10 ** 18,old_a)
+
+IRs:
+TMP_13(uint256) = 10 (c)** 18
+TMP_14(uint256) = p (c)* TMP_13
+TMP_15(None) = SOLIDITY_CALL unsafe_div()(TMP_14,old_a)
+c(uint256) := TMP_15(None)"];
+15->16;
+16[label="Node Type: IF 16
+
+EXPRESSION:
+c < 10 ** 36 / 1
+
+IRs:
+TMP_16(uint256) = 10 (c)** 36
+TMP_17(uint256) = TMP_16 (c)/ 1
+TMP_18(bool) = c < TMP_17
+CONDITION TMP_18"];
+16->18[label="True"];
+16->17[label="False"];
+17[label="Node Type: END_IF 17
+"];
+17->9;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+a = unsafe_div()(old_a * 10 ** 18,1)
+
+IRs:
+TMP_19(uint256) = 10 (c)** 18
+TMP_20(uint256) = old_a (c)* TMP_19
+TMP_21(None) = SOLIDITY_CALL unsafe_div()(TMP_20,1)
+a(uint256) := TMP_21(None)"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+c = 10 ** 36 / 1
+
+IRs:
+TMP_22(uint256) = 10 (c)** 36
+TMP_23(uint256) = TMP_22 (c)/ 1
+c(uint256) := TMP_23(uint256)"];
+19->17;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+c = 1
+
+IRs:
+c(uint256) := 1(uint256)"];
+20->5;
+}

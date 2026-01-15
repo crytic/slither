@@ -30,7 +30,7 @@ class UncheckedTransfer(UnusedReturnValues):
 contract Token {
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
 }
-contract MyBank{  
+contract MyBank{
     mapping(address => uint) balances;
     Token token;
     function deposit(uint amount) public{
@@ -46,7 +46,7 @@ Several tokens do not revert in case of failure and return false. If one of thes
         "Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checked."
     )
 
-    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+    def _is_instance(self, ir: Operation) -> bool:
         return (
             isinstance(ir, HighLevelCall)
             and isinstance(ir.function, Function)

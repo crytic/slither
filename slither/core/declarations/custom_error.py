@@ -17,6 +17,7 @@ class CustomError(SourceMapping):
 
         self._solidity_signature: Optional[str] = None
         self._full_name: Optional[str] = None
+        self._pattern = "error"
 
     @property
     def name(self) -> str:

@@ -1,46 +1,59 @@
 import abc
 import logging
-from enum import Enum
-from typing import Optional, Dict
-
+from pathlib import Path
+from typing import Optional, Dict, Tuple, List, Union, Set
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.tools.mutator.utils.testing_generated_mutant import test_patch
+from slither.core.declarations import Contract
+from slither.utils.colors import red
 
-logger = logging.getLogger("Slither")
+logger = logging.getLogger("Slither-Mutate")
 
 
 class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class FaultClass(Enum):
-    Assignement = 0
-    Checking = 1
-    Interface = 2
-    Algorithm = 3
-    Undefined = 100
-
-
-class FaultNature(Enum):
-    Missing = 0
-    Wrong = 1
-    Extraneous = 2
-    Undefined = 100
-
-
-class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
+class AbstractMutator(metaclass=abc.ABCMeta):
     NAME = ""
     HELP = ""
-    FAULTCLASS = FaultClass.Undefined
-    FAULTNATURE = FaultNature.Undefined
 
     def __init__(
-        self, compilation_unit: SlitherCompilationUnit, rate: int = 10, seed: Optional[int] = None
-    ):
+        self,
+        compilation_unit: SlitherCompilationUnit,
+        timeout: int,
+        testing_command: str,
+        testing_directory: str,
+        contract_instance: Contract,
+        solc_remappings: Union[str, None],
+        verbose: bool,
+        output_folder: Path,
+        dont_mutate_line: List[int],
+        rate: int = 10,
+        seed: Optional[int] = None,
+        target_selectors: Optional[Set[int]] = None,
+        target_modifiers: Optional[Set[str]] = None,
+    ) -> None:
         self.compilation_unit = compilation_unit
         self.slither = compilation_unit.core
         self.seed = seed
         self.rate = rate
+        self.test_command = testing_command
+        self.test_directory = testing_directory
+        self.timeout = timeout
+        self.solc_remappings = solc_remappings
+        self.verbose = verbose
+        self.output_folder = output_folder
+        self.contract = contract_instance
+        self.in_file = self.contract.source_mapping.filename.absolute
+        self.dont_mutate_line = dont_mutate_line
+        self.target_selectors = target_selectors
+        self.target_modifiers = target_modifiers
+        # total revert/comment/tweak mutants that were generated and compiled
+        self.total_mutant_counts = [0, 0, 0]
+        # total caught revert/comment/tweak mutants
+        self.caught_mutant_counts = [0, 0, 0]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -52,45 +65,108 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
                 f"HELP is not initialized {self.__class__.__name__}"
             )
 
-        if self.FAULTCLASS == FaultClass.Undefined:
-            raise IncorrectMutatorInitialization(
-                f"FAULTCLASS is not initialized {self.__class__.__name__}"
-            )
-
-        if self.FAULTNATURE == FaultNature.Undefined:
-            raise IncorrectMutatorInitialization(
-                f"FAULTNATURE is not initialized {self.__class__.__name__}"
-            )
-
         if rate < 0 or rate > 100:
             raise IncorrectMutatorInitialization(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
 
+    def should_mutate_node(self, node) -> bool:
+        return (
+            not node.source_mapping.lines[0] in self.dont_mutate_line
+            and node.source_mapping.filename.absolute == self.in_file
+        )
+
+    def should_mutate_function(self, function) -> bool:
+        """Check if function/modifier should be mutated based on target_selectors"""
+        if self.target_selectors is None:
+            return True  # No filter, mutate all
+
+        from slither.utils.function import get_function_id
+        from slither.core.declarations import Modifier
+
+        if isinstance(function, Modifier):
+            # For modifiers, check if in target_modifiers set
+            return bool(self.target_modifiers and function.name in self.target_modifiers)
+
+        # For functions, check selector
+        try:
+            func_selector = get_function_id(function.solidity_signature)
+            return func_selector in self.target_selectors
+        except Exception:  # pylint: disable=broad-except
+            return False
+
     @abc.abstractmethod
     def _mutate(self) -> Dict:
-        """TODO Documentation"""
+        """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
-    def mutate(self) -> None:
-        all_patches = self._mutate()
+    def mutate(self) -> Tuple[List[int], List[int], List[int]]:
+        all_patches: Dict = {}
+
+        # call _mutate implementation of different mutation types
+        try:
+            (all_patches) = self._mutate()
+        except Exception as e:
+            logger.error(red("%s mutator failed in %s: %s"), self.NAME, self.contract.name, str(e))
 
         if "patches" not in all_patches:
-            logger.debug(f"No patches found by {self.NAME}")
-            return
+            logger.debug("No patches found by %s", self.NAME)
+            return [0, 0, 0], [0, 0, 0], self.dont_mutate_line
 
-        for file in all_patches["patches"]:
+        for file in all_patches["patches"]:  # Note: This should only loop over a single file
             original_txt = self.slither.source_code[file].encode("utf8")
-            patched_txt = original_txt
-            offset = 0
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
-            if not all(patches[i]["end"] <= patches[i + 1]["end"] for i in range(len(patches) - 1)):
-                logger.info(f"Impossible to generate patch; patches collisions: {patches}")
-                continue
             for patch in patches:
-                patched_txt, offset = apply_patch(patched_txt, patch, offset)
-            diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
-            if not diff:
-                logger.info(f"Impossible to generate patch; empty {patches}")
-            print(diff)
+                # test the patch
+                patch_was_caught = test_patch(
+                    self.output_folder,
+                    file,
+                    patch,
+                    self.test_command,
+                    self.NAME,
+                    self.timeout,
+                    self.solc_remappings,
+                    self.verbose,
+                )
+
+                # skip mutants that couldn't compile
+                if patch_was_caught == 2:
+                    continue
+
+                # Add all mutants that could compile to the totals by type
+                if self.NAME == "RR":
+                    self.total_mutant_counts[0] += 1
+                elif self.NAME == "CR":
+                    self.total_mutant_counts[1] += 1
+                else:
+                    self.total_mutant_counts[2] += 1
+
+                # count caught mutants
+                if patch_was_caught == 1:
+                    if self.NAME == "RR":
+                        self.caught_mutant_counts[0] += 1
+                    elif self.NAME == "CR":
+                        self.caught_mutant_counts[1] += 1
+                    else:
+                        self.caught_mutant_counts[2] += 1
+
+                # record uncaught mutants to skip known-under-tested lines
+                if patch_was_caught == 0:
+                    if self.NAME == "RR":
+                        self.dont_mutate_line.append(patch["line_number"])
+                    elif self.NAME == "CR":
+                        self.dont_mutate_line.append(patch["line_number"])
+
+                    patched_txt, _ = apply_patch(original_txt, patch, 0)
+                    diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
+                    if not diff:
+                        logger.info(f"Impossible to generate patch; empty {patches}")
+
+                    # add uncaught mutant patches to a output file
+                    with (self.output_folder / "patches_files.txt").open(
+                        "a", encoding="utf8"
+                    ) as patches_file:
+                        patches_file.write(diff + "\n")
+
+        return self.total_mutant_counts, self.caught_mutant_counts, self.dont_mutate_line

@@ -1,10 +1,10 @@
 import re
-from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
 from slither.core.context.context import Context
+from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
 
-# pylint: disable=too-many-instance-attributes
+
 class Source:
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         self.start: int = 0
@@ -57,7 +57,6 @@ class Source:
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
     def _get_lines_str(self, line_descr: str = "") -> str:
-
         line_prefix = self.compilation_unit.core.line_prefix
 
         lines = self.lines
@@ -73,13 +72,20 @@ class Source:
         """
         Return the txt content of the Source
 
-        Returns:
+        Use this property instead of eg source_code[start:end]
+        Above will return incorrect content if source_code contains any unicode
+        because self.start and self.end are byte offsets, not char offsets
 
+        Returns: str
         """
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit
-        return self.compilation_unit.core.source_code[self.filename.absolute][self.start : self.end]
+        return (
+            self.compilation_unit.core.source_code[self.filename.absolute]
+            .encode("utf8")[self.start : self.end]
+            .decode("utf8")
+        )
 
     @property
     def content_hash(self) -> str:
@@ -99,21 +105,25 @@ class Source:
         return f"{filename_short}{lines}"
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash(
+            (
+                self.start,
+                self.length,
+                self.filename.relative,
+                self.end,
+            )
+        )
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
+        try:
+            return (
+                self.start == other.start
+                and self.filename.relative == other.filename.relative
+                and self.is_dependency == other.is_dependency
+                and self.end == other.end
+            )
+        except AttributeError:
             return NotImplemented
-        return (
-            self.start == other.start
-            and self.length == other.length
-            and self.filename == other.filename
-            and self.is_dependency == other.is_dependency
-            and self.lines == other.lines
-            and self.starting_column == other.starting_column
-            and self.ending_column == other.ending_column
-            and self.end == other.end
-        )
 
 
 def _compute_line(
@@ -129,15 +139,24 @@ def _compute_line(
     start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
         filename, start
     )
-    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
-        filename, start + length
-    )
+    try:
+        end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+            filename, start + length
+        )
+    except KeyError:
+        # This error may occur when the build is not synchronised with the source code on disk.
+        # See the GitHub issue https://github.com/crytic/slither/issues/2296
+        msg = f"""The source code appears to be out of sync with the build artifacts on disk.
+        This discrepancy can occur after recent modifications to {filename.short}. To resolve this
+        issue, consider executing the clean command of the build system (e.g. forge clean).
+        """
+        # We still re-raise the exception as a SlitherException here
+        raise SlitherException(msg) from None
+
     return list(range(start_line, end_line + 1)), starting_column, ending_column
 
 
-def _convert_source_mapping(
-    offset: str, compilation_unit: "SlitherCompilationUnit"
-) -> Source:  # pylint: disable=too-many-locals
+def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUnit") -> Source:
     """
     Convert a text offset to a real offset
     see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
@@ -183,11 +202,13 @@ def _convert_source_mapping(
     return new_source
 
 
-class SourceMapping(Context, metaclass=ABCMeta):
+class SourceMapping(Context):
     def __init__(self) -> None:
         super().__init__()
         self.source_mapping: Optional[Source] = None
         self.references: List[Source] = []
+
+        self._pattern: Union[str, None] = None
 
     def set_offset(
         self, offset: Union["Source", str], compilation_unit: "SlitherCompilationUnit"
@@ -204,3 +225,11 @@ class SourceMapping(Context, metaclass=ABCMeta):
     ) -> None:
         s = _convert_source_mapping(offset, compilation_unit)
         self.references.append(s)
+
+    @property
+    def pattern(self) -> str:
+        if self._pattern is None:
+            # Add " " to look after the first solidity keyword
+            return f" {self.name}"
+
+        return self._pattern

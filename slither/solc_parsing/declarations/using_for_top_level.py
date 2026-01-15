@@ -1,6 +1,7 @@
 """
-    Using For Top Level module
+Using For Top Level module
 """
+
 import logging
 from typing import TYPE_CHECKING, Dict, Union
 
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("UsingForTopLevelSolc")
 
 
-class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class UsingForTopLevelSolc(CallerContextExpression):
     """
     UsingFor class
     """
@@ -152,7 +153,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         if self._global:
             for scope in self.compilation_unit.scopes.values():
                 if isinstance(type_name, TypeAliasTopLevel):
-                    for alias in scope.user_defined_types.values():
+                    for alias in scope.type_aliases.values():
                         if alias == type_name:
                             scope.using_for_directives.add(self._using_for)
                 elif isinstance(type_name, UserDefinedType):

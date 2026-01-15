@@ -9,6 +9,7 @@ from slither.core.declarations.function import (
     ModifierStatements,
     FunctionType,
 )
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
@@ -42,11 +43,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
-
-
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
 
     def __init__(
@@ -63,11 +60,14 @@ class FunctionSolc(CallerContextExpression):
         # Only present if compact AST
         if self.is_compact_ast:
             self._function.name = function_data["name"]
-            if "id" in function_data:
-                self._function.id = function_data["id"]
         else:
             self._function.name = function_data["attributes"][self.get_key()]
+
+        if "id" in function_data:
+            self._function.id = function_data["id"]
+
         self._functionNotParsed = function_data
+        self._returnsNotParsed: List[dict] = []
         self._params_was_analyzed = False
         self._content_was_analyzed = False
 
@@ -159,9 +159,9 @@ class FunctionSolc(CallerContextExpression):
                 known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
-        self._function.variables_as_dict[
-            local_var_parser.underlying_variable.name
-        ] = local_var_parser.underlying_variable
+        self._function.variables_as_dict[local_var_parser.underlying_variable.name] = (
+            local_var_parser.underlying_variable
+        )
         self._local_variables_parser.append(local_var_parser)
 
     # endregion
@@ -207,8 +207,6 @@ class FunctionSolc(CallerContextExpression):
         else:
             attributes = self._functionNotParsed["attributes"]
 
-        if "payable" in attributes:
-            self._function.payable = attributes["payable"]
         if "stateMutability" in attributes:
             if attributes["stateMutability"] == "payable":
                 self._function.payable = True
@@ -241,6 +239,34 @@ class FunctionSolc(CallerContextExpression):
 
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
+
+        if "baseFunctions" in attributes:
+            overrides_ids = attributes["baseFunctions"]
+            if len(overrides_ids) > 0:
+                for f_id in overrides_ids:
+                    funcs = self.slither_parser.functions_by_id[f_id]
+                    for f in funcs:
+                        # Do not consider leaf contracts as overrides.
+                        # B is A { function a() override {} } and C is A { function a() override {} } override A.a(), not each other.
+                        if (
+                            f.contract == self._function.contract
+                            or f.contract in self._function.contract.inheritance
+                        ):
+                            self._function.overrides.append(f)
+                            f.overridden_by.append(self._function)
+
+        # Attaches reference to override specifier e.g. X is referenced by `function a() override(X)`
+        if "overrides" in attributes and isinstance(attributes["overrides"], dict):
+            for override in attributes["overrides"].get("overrides", []):
+                refId = override["referencedDeclaration"]
+                overridden_contract = self.slither_parser.contracts_by_id.get(refId, None)
+                if overridden_contract:
+                    overridden_contract.add_reference_from_raw_source(
+                        override["src"], self.compilation_unit
+                    )
+
+        if "virtual" in attributes:
+            self._function.is_virtual = attributes["virtual"]
 
     def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
@@ -280,6 +306,7 @@ class FunctionSolc(CallerContextExpression):
 
         if self.is_compact_ast:
             body = self._functionNotParsed.get("body", None)
+            return_params = self._functionNotParsed.get("returnParameters", None)
 
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
@@ -290,6 +317,7 @@ class FunctionSolc(CallerContextExpression):
 
         else:
             children = self._functionNotParsed[self.get_children("children")]
+            return_params = children[1]
             self._function.is_implemented = False
             for child in children[2:]:
                 if child[self.get_key()] == "Block":
@@ -314,6 +342,12 @@ class FunctionSolc(CallerContextExpression):
         self._rewrite_ternary_as_if_else()
 
         self._remove_alone_endif()
+
+        if return_params:
+            self._fix_implicit_return(return_params)
+
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
 
     # endregion
     ###################################################################################
@@ -425,7 +459,7 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endWhile
 
-    def _parse_for_compact_ast(  # pylint: disable=no-self-use
+    def _parse_for_compact_ast(
         self, statement: Dict
     ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         body = statement["body"]
@@ -598,7 +632,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
-
         node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], scope)
         condition_scope = Scope(scope.is_checked, False, scope)
 
@@ -634,7 +667,6 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
 
-    # pylint: disable=no-self-use
     def _construct_try_expression(self, externalCall: Dict, parameters_list: Dict) -> Dict:
         # if the parameters are more than 1 we make the leftHandSide of the Assignment node
         # a TupleExpression otherwise an Identifier
@@ -815,19 +847,26 @@ class FunctionSolc(CallerContextExpression):
                             new_node = self._parse_variable_definition_init_tuple(
                                 new_statement, i, new_node, scope
                             )
+                        else:
+                            variables.append(None)
                         i = i + 1
 
                     var_identifiers = []
                     # craft of the expression doing the assignement
                     for v in variables:
-                        identifier = {
-                            "nodeType": "Identifier",
-                            "src": v["src"],
-                            "name": v["name"],
-                            "referencedDeclaration": v["id"],
-                            "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
-                        }
-                        var_identifiers.append(identifier)
+                        if v is not None:
+                            identifier = {
+                                "nodeType": "Identifier",
+                                "src": v["src"],
+                                "name": v["name"],
+                                "referencedDeclaration": v["id"],
+                                "typeDescriptions": {
+                                    "typeString": v["typeDescriptions"]["typeString"]
+                                },
+                            }
+                            var_identifiers.append(identifier)
+                        else:
+                            var_identifiers.append(None)
 
                     tuple_expression = {
                         "nodeType": "TupleExpression",
@@ -983,7 +1022,9 @@ class FunctionSolc(CallerContextExpression):
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
-                node = exitpoint
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(exitpoint, end_assembly)
+                node = end_assembly
             else:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"], scope)
                 self._function.contains_assembly = True
@@ -991,7 +1032,9 @@ class FunctionSolc(CallerContextExpression):
                 if "operations" in statement:
                     asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
-                node = asm_node
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(asm_node, end_assembly)
+                node = end_assembly
         elif name == "DoWhileStatement":
             node = self._parse_dowhile(statement, node, scope)
         # For Continue / Break / Return / Throw
@@ -1100,8 +1143,16 @@ class FunctionSolc(CallerContextExpression):
             node = self._parse_statement(statement, node, new_scope)
         return node
 
-    def _parse_cfg(self, cfg: Dict) -> None:
+    def _update_reachability(self, node: Node) -> None:
+        worklist = [node]
+        while worklist:
+            current = worklist.pop()
+            # fix point
+            if not current.is_reachable:
+                current.set_is_reachable(True)
+                worklist.extend(current.sons)
 
+    def _parse_cfg(self, cfg: Dict) -> None:
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1149,16 +1200,38 @@ class FunctionSolc(CallerContextExpression):
 
         return None
 
-    def _find_start_loop(self, node: Node, visited: List[Node]) -> Optional[Node]:
+    def _find_if_loop(self, node: Node, visited: List[Node], skip_if_loop: int) -> Optional[Node]:
         if node in visited:
             return None
 
+        # If skip_if_loop is not 0 it means we are in a nested situation
+        # and we have to skip the closer n loop headers.
+        # If in the fathers there is an EXPRESSION node it's a for loop
+        # and it's the index increment expression
+        if node.type == NodeType.IFLOOP:
+            if skip_if_loop == 0:
+                for father in node.fathers:
+                    if father.type == NodeType.EXPRESSION:
+                        return father
+                return node
+
+        # skip_if_loop works as explained above.
+        # This handle when a for loop doesn't have a condition
+        # e.g. for (;;) {}
+        # and decrement skip_if_loop since we are out of the nested loop
         if node.type == NodeType.STARTLOOP:
-            return node
+            if skip_if_loop == 0:
+                return node
+            skip_if_loop -= 1
+
+        # If we find an ENDLOOP means we are in a nested loop
+        # we increment skip_if_loop counter
+        if node.type == NodeType.ENDLOOP:
+            skip_if_loop += 1
 
         visited = visited + [node]
         for father in node.fathers:
-            ret = self._find_start_loop(father, visited)
+            ret = self._find_if_loop(father, visited, skip_if_loop)
             if ret:
                 return ret
 
@@ -1181,15 +1254,22 @@ class FunctionSolc(CallerContextExpression):
         end_node.add_father(node)
 
     def _fix_continue_node(self, node: Node) -> None:
-        start_node = self._find_start_loop(node, [])
+        if_loop_node = self._find_if_loop(node, [], 0)
 
-        if not start_node:
+        if not if_loop_node:
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for son in node.sons:
             son.remove_father(node)
-        node.set_sons([start_node])
-        start_node.add_father(node)
+        node.set_sons([if_loop_node])
+        if_loop_node.add_father(node)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Try-Catch
+    ###################################################################################
+    ###################################################################################
 
     def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
@@ -1203,12 +1283,20 @@ class FunctionSolc(CallerContextExpression):
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node and son not in visited:
+                # If the son is a TRY node it will be fixed later when _fix_try is called with that node
+                # otherwise we try to fix it multiple times. It can happen in the case of nested try-catch blocks.
+                if son != end_node and son not in visited and son.type != NodeType.TRY:
                     visited.add(son)
                     self._fix_catch(son, end_node, visited)
 
-    def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Params, Returns, Modifiers
+    ###################################################################################
+    ###################################################################################
 
+    def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1228,7 +1316,6 @@ class FunctionSolc(CallerContextExpression):
         return local_var_parser
 
     def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
-
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.compilation_unit)
@@ -1254,17 +1341,16 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
-            returns = returns["parameters"]
+            self._returnsNotParsed = returns["parameters"]
         else:
-            returns = returns[self.get_children("children")]
+            self._returnsNotParsed = returns[self.get_children("children")]
 
-        for ret in returns:
+        for ret in self._returnsNotParsed:
             assert ret[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(ret)
             self._function.add_return(local_var.underlying_variable)
@@ -1278,7 +1364,7 @@ class FunctionSolc(CallerContextExpression):
             return
 
         for m in ExportValues(m).result():
-            if isinstance(m, Function):
+            if isinstance(m, Modifier):
                 node_parser = self._new_node(
                     NodeType.EXPRESSION, modifier["src"], self.underlying_function
                 )
@@ -1317,6 +1403,138 @@ class FunctionSolc(CallerContextExpression):
                         nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
+
+    def _fix_implicit_return(self, return_params: Dict) -> None:
+        """
+        Creates an artificial return node iff a function has a named return variable declared in its signature.
+        Finds all leaf nodes in the CFG which are not return nodes, and links them to the artificial return node.
+        """
+        does_not_have_return_params = len(self.underlying_function.returns) == 0
+        does_not_have_named_returns = all(
+            ret.name == "" for ret in self.underlying_function.returns
+        )
+        not_implemented = not self._function.is_implemented
+
+        if does_not_have_return_params or does_not_have_named_returns or not_implemented:
+            return
+
+        return_node = self._new_node(
+            NodeType.RETURN, return_params["src"], self.underlying_function
+        )
+        for node, node_solc in self._node_to_nodesolc.items():
+            if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
+                link_underlying_nodes(node_solc, return_node)
+
+        for _, yul_block in self._node_to_yulobject.items():
+            for yul_node in yul_block.nodes:
+                node = yul_node.underlying_node
+                if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
+                    link_underlying_nodes(yul_node, return_node)
+
+        if self.is_compact_ast:
+            self._add_return_exp_compact(return_node, return_params)
+        else:
+            self._add_return_exp_legacy(return_node, return_params)
+
+        return_node.analyze_expressions(self)
+
+    def _add_return_exp_compact(self, return_node: NodeSolc, return_params: Dict) -> None:
+        if len(self.underlying_function.returns) == 1:
+            return_arg = self.underlying_function.returns[0]
+            if return_arg.name != "":
+                (refId, refSrc, refType) = next(
+                    (ret["id"], ret["src"], ret["typeDescriptions"])
+                    for ret in self._returnsNotParsed
+                    if ret["name"] == return_arg.name
+                )
+                return_node.add_unparsed_expression(
+                    {
+                        "name": return_arg.name,
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": refId,
+                        "src": refSrc,
+                        "typeDescriptions": refType,
+                    }
+                )
+        else:
+            expression = {
+                "components": [],
+                "isConstant": False,
+                "isInlineArray": False,
+                "isLValue": False,
+                "isPure": False,
+                "lValueRequested": False,
+                "nodeType": "TupleExpression",
+                "src": return_params["src"],
+                "typeDescriptions": {},
+            }
+            type_ids = []
+            type_strs = []
+            for return_arg in self.underlying_function.returns:
+                # For each named return variable, we add an identifier to the tuple.
+                if return_arg.name != "":
+                    (refId, refSrc, refType) = next(
+                        (ret["id"], ret["src"], ret["typeDescriptions"])
+                        for ret in self._returnsNotParsed
+                        if ret["name"] == return_arg.name
+                    )
+                    type_ids.append(refType["typeIdentifier"])
+                    type_strs.append(refType["typeString"])
+                    expression["components"].append(
+                        {
+                            "name": return_arg.name,
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": refId,
+                            "src": refSrc,
+                            "typeDescriptions": refType,
+                        }
+                    )
+            expression["typeDescriptions"]["typeIdentifier"] = (
+                "t_tuple$_" + "_$_".join(type_ids) + "_$"
+            )
+            expression["typeDescriptions"]["typeString"] = "tuple(" + ",".join(type_strs) + ")"
+            return_node.add_unparsed_expression(expression)
+
+    def _add_return_exp_legacy(self, return_node: NodeSolc, return_params: Dict) -> None:
+        if len(self.underlying_function.returns) == 1:
+            return_arg = self.underlying_function.returns[0]
+            if return_arg.name != "":
+                (refSrc, refType) = next(
+                    (ret["src"], ret["attributes"]["type"])
+                    for ret in self._returnsNotParsed
+                    if ret["attributes"]["name"] == return_arg.name
+                )
+                return_node.add_unparsed_expression(
+                    {
+                        "attributes": {"type": refType, "value": return_arg.name},
+                        "name": "Identifier",
+                        "src": refSrc,
+                    }
+                )
+        else:
+            expression = {
+                "children": [],
+                "name": "TupleExpression",
+                "src": return_params["src"],
+            }
+            for return_arg in self.underlying_function.returns:
+                # For each named return variable, we add an identifier to the tuple.
+                if return_arg.name != "":
+                    (refSrc, refType) = next(
+                        (ret["src"], ret["attributes"]["type"])
+                        for ret in self._returnsNotParsed
+                        if ret["attributes"]["name"] == return_arg.name
+                    )
+                    expression["children"].append(
+                        {
+                            "attributes": {"type": refType, "value": return_arg.name},
+                            "name": "Identifier",
+                            "src": refSrc,
+                        }
+                    )
+            return_node.add_unparsed_expression(expression)
 
     # endregion
     ###################################################################################

@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+(address(BORROWED_TOKEN),address(COLLATERAL_TOKEN))[i]
+
+IRs:
+TMP_2 = CONVERT BORROWED_TOKEN to address
+TMP_3 = CONVERT COLLATERAL_TOKEN to address
+TMP_4(address[2]) = ['TMP_2(address)', 'TMP_3(address)']
+REF_0(address) -> TMP_4[i]
+RETURN REF_0"];
+}
