@@ -96,10 +96,36 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
 
 
 def test_type_alias(solc_binary_path) -> None:
-    """verify support for TypeAliasTop"""
+    """verify support for TypeAliasTopLevel"""
     solc_path = solc_binary_path(version="0.8.10")
-    slither = Slither(Path(TEST_DATA_DIR, "typealiastest.sol").as_posix())
-    c = slither.get_contract_from_name("C")
-    srs = SlitherReadStorage(c, 20)
+    slither = Slither(Path(TEST_DATA_DIR, "typealiastest.sol").as_posix(), solc=solc_path)
+    contracts = slither.get_contract_from_name("C")
+    srs = SlitherReadStorage(contracts, 20)
     srs.get_all_storage_variables()
     srs.get_storage_layout()
+
+    # Verify struct variable 's' was found and processed
+    assert "s" in srs.slot_info, "Struct variable 's' should be in slot_info"
+    s_info = srs.slot_info["s"]
+
+    # Struct should be in slot 0
+    assert s_info.slot == 0, f"Expected slot 0, got {s_info.slot}"
+
+    # Verify struct members (both MyUint64 fields) are correctly packed
+    assert "y" in s_info.elems, "Struct should have member 'y'"
+    assert "z" in s_info.elems, "Struct should have member 'z'"
+
+    y_info = s_info.elems["y"]
+    z_info = s_info.elems["z"]
+
+    # Both should be 64 bits
+    assert y_info.size == 64, f"Expected y.size=64, got {y_info.size}"
+    assert z_info.size == 64, f"Expected z.size=64, got {z_info.size}"
+
+    # Both should be in slot 0 (correctly packed together)
+    assert y_info.slot == 0, f"Expected y.slot=0, got {y_info.slot}"
+    assert z_info.slot == 0, f"Expected z.slot=0, got {z_info.slot}"
+
+    # y at offset 0, z at offset 64
+    assert y_info.offset == 0, f"Expected y.offset=0, got {y_info.offset}"
+    assert z_info.offset == 64, f"Expected z.offset=64, got {z_info.offset}"

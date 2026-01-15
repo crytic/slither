@@ -591,6 +591,7 @@ class SlitherReadStorage:
             if isinstance(var_type, ElementaryType) or is_type_alias:
                 if is_type_alias:
                     size, _ = var_type.storage_size
+                    size = size * 8  # Convert bytes to bits
                 else:
                     size = var_type.size
                 if size > (256 - offset):
