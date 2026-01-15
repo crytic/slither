@@ -36,39 +36,41 @@ class PrinterInheritance(AbstractPrinter):
         result = {"child_to_base": {}}
 
         for child in self.contracts:
-            info += blue(f"\n+ {child.name}\n")
+            info += blue(f"\n+ {child.name}")
             result["child_to_base"][child.name] = {"immediate": [], "not_immediate": []}
             if child.inheritance:
 
                 immediate = child.immediate_inheritance
                 not_immediate = [i for i in child.inheritance if i not in immediate]
 
-                info += " -> " + green(", ".join(map(str, immediate))) + "\n"
+                info += " -> " + green(", ".join(map(str, immediate)))
                 result["child_to_base"][child.name]["immediate"] = list(map(str, immediate))
                 if not_immediate:
-                    info += ", [" + green(", ".join(map(str, not_immediate))) + "]\n"
+                    info += ", [" + green(", ".join(map(str, not_immediate))) + "]"
                     result["child_to_base"][child.name]["not_immediate"] = list(
                         map(str, not_immediate)
                     )
 
-        info += green("\n\nBase_Contract -> ") + blue("Immediate_Child_Contracts") + "\n"
-        info += blue(" [Not_Immediate_Child_Contracts]") + "\n"
+        info += green("\n\nBase_Contract -> ") + blue("Immediate_Child_Contracts")
+        info += blue(" [Not_Immediate_Child_Contracts]")
 
         result["base_to_child"] = {}
         for base in self.contracts:
-            info += green(f"\n+ {base.name}") + "\n"
+            info += green(f"\n+ {base.name}")
             children = list(self._get_child_contracts(base))
 
             result["base_to_child"][base.name] = {"immediate": [], "not_immediate": []}
             if children:
                 immediate = [child for child in children if base in child.immediate_inheritance]
-                not_immediate = [child for child in children if not child in immediate]
+                not_immediate = [child for child in children if child not in immediate]
 
-                info += " -> " + blue(", ".join(map(str, immediate))) + "\n"
+                info += " -> " + blue(", ".join(map(str, immediate)))
                 result["base_to_child"][base.name]["immediate"] = list(map(str, immediate))
                 if not_immediate:
-                    info += ", [" + blue(", ".join(map(str, not_immediate))) + "]" + "\n"
-                    result["base_to_child"][base.name]["not_immediate"] = list(map(str, immediate))
+                    info += ", [" + blue(", ".join(map(str, not_immediate))) + "]"
+                    result["base_to_child"][base.name]["not_immediate"] = list(map(str, not_immediate))
+
+        info += "\n"
         self.info(info)
 
         res = self.generate_output(info, additional_fields=result)
