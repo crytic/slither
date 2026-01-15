@@ -1,6 +1,7 @@
 """
-    Main module
+Main module
 """
+
 import json
 import logging
 import os
@@ -8,7 +9,7 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union, Tuple
+from typing import Optional, Dict, List, Set, Union, Tuple, TypeVar
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
@@ -36,7 +37,6 @@ def _relative_path_format(path: str) -> str:
     return path.split("..")[-1].strip(".").strip("/")
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCore(Context):
     """
     Slither static analyzer
@@ -92,6 +92,7 @@ class SlitherCore(Context):
         self._contracts: List[Contract] = []
         self._contracts_derived: List[Contract] = []
 
+        self._offset_to_min_offset: Optional[Dict[Filename, Dict[int, Set[int]]]] = None
         self._offset_to_objects: Optional[Dict[Filename, Dict[int, Set[SourceMapping]]]] = None
         self._offset_to_references: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
         self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
@@ -199,69 +200,69 @@ class SlitherCore(Context):
                 for f in c.functions:
                     f.cfg_to_dot(os.path.join(d, f"{c.name}.{f.name}.dot"))
 
-    def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
-        if self._offset_to_objects is None:
-            self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
-        return self._offset_to_objects[filename][offset]
-
     def _compute_offsets_from_thing(self, thing: SourceMapping):
         definition = get_definition(thing, self.crytic_compile)
         references = get_references(thing)
         implementations = get_all_implementations(thing, self.contracts)
 
+        # Create the offset mapping
         for offset in range(definition.start, definition.end + 1):
-            if (
-                isinstance(thing, (TopLevel, Contract))
-                or (
-                    isinstance(thing, FunctionContract)
-                    and thing.contract_declarer == thing.contract
-                )
-                or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
-            ):
+            self._offset_to_min_offset[definition.filename][offset].add(definition.start)
 
-                self._offset_to_objects[definition.filename][offset].add(thing)
+        is_declared_function = (
+            isinstance(thing, FunctionContract) and thing.contract_declarer == thing.contract
+        )
 
-            self._offset_to_definitions[definition.filename][offset].add(definition)
-            self._offset_to_implementations[definition.filename][offset].update(implementations)
-            self._offset_to_references[definition.filename][offset] |= set(references)
+        should_add_to_objects = (
+            isinstance(thing, (TopLevel, Contract))
+            or is_declared_function
+            or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
+        )
+
+        if should_add_to_objects:
+            self._offset_to_objects[definition.filename][definition.start].add(thing)
+
+        self._offset_to_definitions[definition.filename][definition.start].add(definition)
+        self._offset_to_implementations[definition.filename][definition.start].update(
+            implementations
+        )
+        self._offset_to_references[definition.filename][definition.start] |= set(references)
+
+        # For references
+        should_add_to_objects = (
+            isinstance(thing, TopLevel)
+            or is_declared_function
+            or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
+        )
 
         for ref in references:
             for offset in range(ref.start, ref.end + 1):
-                is_declared_function = (
-                    isinstance(thing, FunctionContract)
-                    and thing.contract_declarer == thing.contract
-                )
+                self._offset_to_min_offset[definition.filename][offset].add(ref.start)
+
+            if should_add_to_objects:
+                self._offset_to_objects[definition.filename][ref.start].add(thing)
+
+            if is_declared_function:
+                # Only show the nearest lexical definition for declared contract-level functions
                 if (
-                    isinstance(thing, TopLevel)
-                    or is_declared_function
-                    or (
-                        isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
-                    )
+                    thing.contract.source_mapping.start
+                    < ref.start
+                    < thing.contract.source_mapping.end
                 ):
-                    self._offset_to_objects[definition.filename][offset].add(thing)
+                    self._offset_to_definitions[ref.filename][ref.start].add(definition)
 
-                if is_declared_function:
-                    # Only show the nearest lexical definition for declared contract-level functions
-                    if (
-                        thing.contract.source_mapping.start
-                        < offset
-                        < thing.contract.source_mapping.end
-                    ):
+            else:
+                self._offset_to_definitions[ref.filename][ref.start].add(definition)
 
-                        self._offset_to_definitions[ref.filename][offset].add(definition)
+            self._offset_to_implementations[ref.filename][ref.start].update(implementations)
+            self._offset_to_references[ref.filename][ref.start] |= set(references)
 
-                else:
-                    self._offset_to_definitions[ref.filename][offset].add(definition)
-
-                self._offset_to_implementations[ref.filename][offset].update(implementations)
-                self._offset_to_references[ref.filename][offset] |= set(references)
-
-    def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
+    def _compute_offsets_to_ref_impl_decl(self):
         self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))
         self._offset_to_objects = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_min_offset = defaultdict(lambda: defaultdict(lambda: set()))
 
         for compilation_unit in self._compilation_units:
             for contract in compilation_unit.contracts:
@@ -312,23 +313,59 @@ class SlitherCore(Context):
             for pragma in compilation_unit.pragma_directives:
                 self._compute_offsets_from_thing(pragma)
 
+    T = TypeVar("T", Source, SourceMapping)
+
+    def _get_offset(
+        self, mapping: Dict[Filename, Dict[int, Set[T]]], filename_str: str, offset: int
+    ) -> Set[T]:
+        """Get the Source/SourceMapping referenced by the offset.
+
+        For performance reasons, references are only stored once at the lowest offset.
+        It uses the _offset_to_min_offset mapping to retrieve the correct offsets.
+        As multiple definitions can be related to the same offset, we retrieve all of them.
+
+        :param mapping: Mapping to search for (objects. references, ...)
+        :param filename_str: Filename to consider
+        :param offset: Look-up offset
+        :raises IndexError: When the start offset is not found
+        :return: The corresponding set of Source/SourceMapping
+        """
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+
+        start_offsets = self._offset_to_min_offset[filename][offset]
+        if not start_offsets:
+            msg = f"Unable to find reference for offset {offset}"
+            raise IndexError(msg)
+
+        results = set()
+        for start_offset in start_offsets:
+            results |= mapping[filename][start_offset]
+
+        return results
+
     def offset_to_references(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_references is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
-        return self._offset_to_references[filename][offset]
+
+        return self._get_offset(self._offset_to_references, filename_str, offset)
 
     def offset_to_implementations(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_implementations is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
-        return self._offset_to_implementations[filename][offset]
+
+        return self._get_offset(self._offset_to_implementations, filename_str, offset)
 
     def offset_to_definitions(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_definitions is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
-        return self._offset_to_definitions[filename][offset]
+
+        return self._get_offset(self._offset_to_definitions, filename_str, offset)
+
+    def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
+        if self._offset_to_objects is None:
+            self._compute_offsets_to_ref_impl_decl()
+
+        return self._get_offset(self._offset_to_objects, filename_str, offset)
 
     # endregion
     ###################################################################################
@@ -375,7 +412,6 @@ class SlitherCore(Context):
         # The first time we check a file, find all start/end ignore comments and memoize them.
         line_number = 1
         while True:
-
             line_text = self.crytic_compile.get_code_from_line(file, line_number)
             if line_text is None:
                 break
@@ -433,7 +469,6 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
-
             # Check if result is within an ignored range.
             ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
             for start, end in ignore_ranges:
@@ -526,6 +561,7 @@ class SlitherCore(Context):
 
     def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
+        self.write_results_to_hide()
 
     def add_path_to_filter(self, path: str):
         """

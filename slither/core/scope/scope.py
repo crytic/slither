@@ -25,7 +25,6 @@ def _dict_contain(d1: Dict, d2: Dict) -> bool:
     return all(item in d2_keys for item in d1.keys())
 
 
-# pylint: disable=too-many-instance-attributes
 class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
@@ -58,7 +57,7 @@ class FileScope:
         # Name -> type alias
         self.type_aliases: Dict[str, TypeAlias] = {}
 
-    def add_accessible_scopes(self) -> bool:  # pylint: disable=too-many-branches
+    def add_accessible_scopes(self) -> bool:
         """
         Add information from accessible scopes. Return true if new information was obtained
         :return:
@@ -126,7 +125,6 @@ class FileScope:
         name: str,
         getter: Callable[[SourceUnit], Dict[str, AbstractReturnType]],
     ) -> Optional[AbstractReturnType]:
-
         assert self.filename in crytic_compile_compilation_unit.source_units
 
         source_unit = crytic_compile_compilation_unit.source_unit(self.filename)

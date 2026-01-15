@@ -20,7 +20,6 @@ class HighLevelCall(Call, OperationWithLValue):
     High level message call
     """
 
-    # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(
         self,
         destination: SourceMapping,

@@ -12,7 +12,6 @@ logger = logging.getLogger("Slither-simil")
 
 
 def test(args: Namespace) -> None:
-
     try:
         model = args.model
         model = load_model(model)
@@ -47,7 +46,7 @@ def test(args: Namespace) -> None:
             score = str(round(score, 3))
             logger.info(format_table.format(*(list(x) + [score])))
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

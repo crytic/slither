@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, Union, Optional
 
-# pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
+
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -36,7 +36,6 @@ from slither.core.solidity_types.elementary_type import (
 )
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.type_alias import TypeAliasTopLevel, TypeAlias
-from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -81,7 +80,7 @@ from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElement
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
 from slither.slithir.variables import TupleVariable
-from slither.utils.function import get_function_id
+from slither.utils.function import get_function_id, get_event_id
 from slither.utils.type import export_nested_types_from_variable
 from slither.utils.using_for import USING_FOR
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
@@ -197,7 +196,7 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
         size = len(hex_val) // 2
         return [f"bytes{size}"]
     # val is a str
-    length = len(val.encode("utf-8"))
+    length = len(val.encode("utf8"))
     return [f"bytes{f}" for f in range(length, 33)] + ["bytes"]
 
 
@@ -277,20 +276,6 @@ def is_temporary(ins: Operation) -> bool:
         ins,
         (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
-
-
-def _make_function_type(func: Function) -> FunctionType:
-    parameters = []
-    returns = []
-    for parameter in func.parameters:
-        v = FunctionTypeVariable()
-        v.name = parameter.name
-        parameters.append(v)
-    for return_var in func.returns:
-        v = FunctionTypeVariable()
-        v.name = return_var.name
-        returns.append(v)
-    return FunctionType(parameters, returns)
 
 
 # endregion
@@ -394,8 +379,8 @@ def get_declared_param_names(
         HighLevelCall,
         InternalDynamicCall,
         EventCall,
-    ]
-) -> Optional[List[str]]:
+    ],
+) -> Optional[List[List[str]]]:
     """
     Given a call operation, return the list of parameter names, in the order
     listed in the function declaration.
@@ -403,26 +388,31 @@ def get_declared_param_names(
     ins -
         The call instruction
     #### Possible Returns
-    List[str] -
-        A list of the parameters in declaration order
+    List[List[str]] -
+        A list of list of parameters in declaration order. Note only if it's a Function there can be multiple list
     None -
         Workaround: Unable to obtain list of parameters in declaration order
     """
     if isinstance(ins, NewStructure):
-        return [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
+        return [
+            [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
+        ]
     if isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
         if isinstance(ins.function, Function):
-            return [p.name for p in ins.function.parameters]
+            res = [[p.name for p in ins.function.parameters]]
+            for f in ins.function.overrides:
+                res.append([p.name for p in f.parameters])
+            return res
         return None
     if isinstance(ins, InternalDynamicCall):
-        return [p.name for p in ins.function_type.params]
+        return [[p.name for p in ins.function_type.params]]
 
     assert isinstance(ins, (EventCall, NewContract))
     return None
 
 
 def reorder_arguments(
-    args: List[Variable], call_names: List[str], decl_names: List[str]
+    args: List[Variable], call_names: List[str], decl_names: List[List[str]]
 ) -> List[Variable]:
     """
     Reorder named struct constructor arguments so that they match struct declaration ordering rather
@@ -434,16 +424,35 @@ def reorder_arguments(
     names -
         Parameter names in call order
     decl_names -
-        Parameter names in declaration order
+        List of list of parameter names in declaration order
     #### Returns
     Reordered arguments to constructor call, now in declaration order
     """
     assert len(args) == len(call_names)
-    assert len(call_names) == len(decl_names)
+    for names in decl_names:
+        assert len(call_names) == len(names)
 
     args_ret = []
-    for n in decl_names:
-        ind = call_names.index(n)
+    index_seen = []  # Will have the correct index order
+
+    # We search for declaration of parameters that is fully compatible with the call arguments
+    # that is why if a arg name is not present in the call name we break and clear index_seen
+    # Known issue if the overridden function reuse the same parameters' name but in different positions
+    for names in decl_names:
+        if len(index_seen) == len(args):
+            break
+
+        for n in names:
+            try:
+                ind = call_names.index(n)
+                if ind in index_seen:
+                    continue
+            except ValueError:
+                index_seen.clear()
+                break
+            index_seen.append(ind)
+
+    for ind in index_seen:
         args_ret.append(args[ind])
 
     return args_ret
@@ -482,7 +491,7 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
             call_data.remove(ins.variable)
 
         if isinstance(ins, Argument):
-            # In case of dupplicate arguments we overwrite the value
+            # In case of duplicate arguments we overwrite the value
             # This can happen because of addr.call.value(1).value(2)
             if ins.get_type() in [ArgumentType.GAS]:
                 calls_gas[ins.call_id] = ins.argument
@@ -591,7 +600,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):
     # propagate the type
     node_function = node.function
 
@@ -793,12 +802,29 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     assignment.set_node(ir.node)
                     assignment.lvalue.set_type(ElementaryType("bytes4"))
                     return assignment
-                if ir.variable_right == "selector" and isinstance(
-                    ir.variable_left.type, (Function)
+                if ir.variable_right == "selector" and isinstance(ir.variable_left, (Event)):
+                    # the event selector returns a bytes32, which is different from the error/function selector
+                    # which returns a bytes4
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(
+                            str(get_event_id(ir.variable_left.full_name)), ElementaryType("bytes32")
+                        ),
+                        ElementaryType("bytes32"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes32"))
+                    return assignment
+                if ir.variable_right == "selector" and (
+                    isinstance(ir.variable_left.type, (Function))
                 ):
                     assignment = Assignment(
                         ir.lvalue,
-                        Constant(str(get_function_id(ir.variable_left.type.full_name))),
+                        Constant(
+                            str(get_function_id(ir.variable_left.type.full_name)),
+                            ElementaryType("bytes4"),
+                        ),
                         ElementaryType("bytes4"),
                     )
                     assignment.set_expression(ir.expression)
@@ -826,10 +852,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     targeted_function = next(
                         (x for x in ir_func.contract.functions if x.name == str(ir.variable_right))
                     )
-                    t = _make_function_type(targeted_function)
-                    ir.lvalue.set_type(t)
+                    ir.lvalue.set_type(targeted_function)
                 elif isinstance(left, (Variable, SolidityVariable)):
-                    t = ir.variable_left.type
+                    t = left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
                     t = UserDefinedType(left)
                 # can be None due to temporary operation
@@ -846,10 +871,10 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                                     ir.lvalue.set_type(elems[elem].type)
                         else:
                             assert isinstance(type_t, Contract)
-                            # Allow type propagtion as a Function
+                            # Allow type propagation as a Function
                             # Only for reference variables
                             # This allows to track the selector keyword
-                            # We dont need to check for function collision, as solc prevents the use of selector
+                            # We don't need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
                                 (f for f in type_t.functions if f.name == ir.variable_right),
@@ -858,7 +883,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                             if f:
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's name
+                                # Allow propagation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next(
                                     (
@@ -915,7 +940,6 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
     return None
 
 
-# pylint: disable=too-many-locals
 def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, Nop]:
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
@@ -995,7 +1019,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
             # Support for library call where the parameter is a function
             # We could merge this with the standard library handling
             # Except that we will have some troubles with using_for
-            # As the type of the funciton will not match function()
+            # As the type of the function will not match function()
             # Additionally we do not have a correct view on the parameters of the tmpcall
             # At this level
             #
@@ -1234,10 +1258,14 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
 
 def convert_to_low_level(
     ir: HighLevelCall,
-) -> Union[Send, LowLevelCall, Transfer,]:
+) -> Union[
+    Send,
+    LowLevelCall,
+    Transfer,
+]:
     """
     Convert to a transfer/send/or low level call
-    The funciton assume to receive a correct IR
+    The function assume to receive a correct IR
     The checks must be done by the caller
 
     Must be called after can_be_low_level
@@ -1416,7 +1444,15 @@ def convert_to_push_set_val(
 
 def convert_to_push(
     ir: HighLevelCall, node: "Node"
-) -> List[Union[Length, Assignment, Binary, Index, InitArray,]]:
+) -> List[
+    Union[
+        Length,
+        Assignment,
+        Binary,
+        Index,
+        InitArray,
+    ]
+]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1510,7 +1546,12 @@ def look_for_library_or_top_level(
         str,
         TypeAliasTopLevel,
     ],
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1560,7 +1601,12 @@ def look_for_library_or_top_level(
 
 def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     t = ir.destination.type
     if t in using_for:
         new_ir = look_for_library_or_top_level(ir, using_for, t)
@@ -1591,7 +1637,7 @@ def get_type(
     t: Union[
         UserDefinedType,
         ElementaryType,
-    ]
+    ],
 ) -> str:
     """
     Convert a type to a str
@@ -1802,7 +1848,6 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type:
-
         # If the return type is a structure, but the lvalue is a tuple
         # We convert the type of the structure to a list of element
         # TODO: explore to replace all tuple variables by structures
@@ -2002,7 +2047,6 @@ def convert_delete(irs: List[Operation]) -> None:
 
 def _find_source_mapping_references(irs: List[Operation]) -> None:
     for ir in irs:
-
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 

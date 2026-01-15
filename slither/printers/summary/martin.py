@@ -1,14 +1,15 @@
 """
-    Robert "Uncle Bob" Martin - Agile software metrics
-    https://en.wikipedia.org/wiki/Software_package_metrics
+Robert "Uncle Bob" Martin - Agile software metrics
+https://en.wikipedia.org/wiki/Software_package_metrics
 
-    Efferent Coupling (Ce): Number of contracts that the contract depends on
-    Afferent Coupling (Ca): Number of contracts that depend on a contract
-    Instability (I): Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))
-    Abstractness (A): Number of abstract contracts / total number of contracts
-    Distance from the Main Sequence (D):  abs(A + I - 1)
+Efferent Coupling (Ce): Number of contracts that the contract depends on
+Afferent Coupling (Ca): Number of contracts that depend on a contract
+Instability (I): Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))
+Abstractness (A): Number of abstract contracts / total number of contracts
+Distance from the Main Sequence (D):  abs(A + I - 1)
 
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.martin import MartinMetrics
 from slither.utils.output import Output

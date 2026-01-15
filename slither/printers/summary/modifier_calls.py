@@ -1,5 +1,5 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 
 from slither.core.declarations import Function
@@ -8,7 +8,6 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 class Modifiers(AbstractPrinter):
-
     ARGUMENT = "modifiers"
     HELP = "Print the modifiers called by each function"
 
@@ -29,12 +28,12 @@ class Modifiers(AbstractPrinter):
             table = MyPrettyTable(["Function", "Modifiers"])
             for function in contract.functions:
                 modifiers = function.modifiers
-                for call in function.all_internal_calls():
-                    if isinstance(call, Function):
-                        modifiers += call.modifiers
-                for (_, call) in function.all_library_calls():
-                    if isinstance(call, Function):
-                        modifiers += call.modifiers
+                for ir in function.all_internal_calls():
+                    if isinstance(ir.function, Function):
+                        modifiers += ir.function.modifiers
+                for ir in function.all_library_calls():
+                    if isinstance(ir.function, Function):
+                        modifiers += ir.function.modifiers
                 table.add_row([function.name, sorted([m.name for m in set(modifiers)])])
             txt += "\n" + str(table)
             self.info(txt)
