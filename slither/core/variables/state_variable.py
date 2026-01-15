@@ -35,6 +35,22 @@ class StateVariable(ContractLevel, Variable):
         """
         return self._location
 
+    @property
+    def is_stored(self) -> bool:
+        """
+        Checks if the state variable is stored, based on it not being constant or immutable or transient.
+        """
+        return (
+            not self._is_constant and not self._is_immutable and not self._location == "transient"
+        )
+
+    @property
+    def is_transient(self) -> bool:
+        """
+        Checks if the state variable is transient. A transient variable can not be constant or immutable.
+        """
+        return self._location == "transient"
+
     # endregion
     ###################################################################################
     ###################################################################################

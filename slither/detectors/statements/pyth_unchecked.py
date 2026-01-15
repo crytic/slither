@@ -13,24 +13,23 @@ class PythUnchecked(AbstractDetector):
     Documentation: This detector finds deprecated Pyth function calls
     """
 
-    # To be overriden in the derived class
+    # To be overridden in the derived class
     PYTH_FUNCTIONS = []
     PYTH_FIELD = ""
 
-    # pylint: disable=too-many-nested-blocks
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:
                 if target_contract.name == "IPyth" and ir.function_name in self.PYTH_FUNCTIONS:
-                    # We know for sure the second IR in the node is an Assignment operation of the TMP variable. Example:
+                    # We know for sure the last IR in the node is an Assignment operation of the TMP variable. Example:
                     # 	Expression: price = pyth.getEmaPriceNoOlderThan(id,age)
                     #   IRs:
                     #      TMP_0(PythStructs.Price) = HIGH_LEVEL_CALL, dest:pyth(IPyth), function:getEmaPriceNoOlderThan, arguments:['id', 'age']
                     #      price(PythStructs.Price) := TMP_0(PythStructs.Price)
-                    assert isinstance(ir.node.irs[1], Assignment)
-                    return_variable = ir.node.irs[1].lvalue
+                    assert isinstance(ir.node.irs[len(ir.node.irs) - 1], Assignment)
+                    return_variable = ir.node.irs[len(ir.node.irs) - 1].lvalue
                     checked = False
 
                     possible_unchecked_variable_ir = None

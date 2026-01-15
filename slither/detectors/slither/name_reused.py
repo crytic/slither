@@ -59,7 +59,6 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    # pylint: disable=too-many-locals,too-many-branches
     def _detect(self) -> List[Output]:
         results = []
         compilation_unit = self.compilation_unit

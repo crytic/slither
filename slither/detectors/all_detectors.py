@@ -1,4 +1,3 @@
-# pylint: disable=unused-import,relative-beyond-top-level
 from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
 from .variables.uninitialized_storage_variables import UninitializedStorageVars
@@ -86,7 +85,6 @@ from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
-from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity
 from .operations.cache_array_length import CacheArrayLength
 from .statements.incorrect_using_for import IncorrectUsingFor
@@ -104,6 +102,7 @@ from .statements.pyth_unchecked_publishtime import PythUncheckedPublishTime
 from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
 from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
+from .attributes.unindexed_event_address import UnindexedEventAddress
 from .statements.unused_custom_errors import UnusedCustomErrors
 
 # from .statements.unused_import import UnusedImport

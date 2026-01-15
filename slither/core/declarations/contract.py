@@ -1,6 +1,7 @@
-""""
-    Contract module
+""" "
+Contract module
 """
+
 import logging
 from collections import defaultdict
 from pathlib import Path
@@ -27,7 +28,7 @@ from slither.utils.erc import (
 )
 from slither.utils.tests_pattern import is_test_contract
 
-# pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
+
 if TYPE_CHECKING:
     from slither.core.declarations import (
         Enum,
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("Contract")
 
 
-class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
+class Contract(SourceMapping):
     """
     Contract class
     """
@@ -62,6 +63,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._id: Optional[int] = None
         self._inheritance: List["Contract"] = []  # all contract inherited, c3 linearization
         self._immediate_inheritance: List["Contract"] = []  # immediate inheritance
+        # Start slot for the persistent storage if custom layout used
+        self._custom_storage_layout: Optional[int] = None
 
         # Constructors called on contract's definition
         # contract B is A(1) { ..
@@ -227,6 +230,19 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @is_abstract.setter
     def is_abstract(self, is_abstract: bool):
         self._is_abstract = is_abstract
+
+    @property
+    def custom_storage_layout(self) -> Optional[int]:
+        """
+        Return the persistent storage slot starting position if a custom storage layout is used.
+        Otherwise None.
+        int: Storage slot starting position.
+        """
+        return self._custom_storage_layout
+
+    @custom_storage_layout.setter
+    def custom_storage_layout(self, slot: int):
+        self._custom_storage_layout = slot
 
     # endregion
     ###################################################################################
@@ -440,38 +456,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def state_variables(self) -> List["StateVariable"]:
         """
         Returns all the accessible variables (do not include private variable from inherited contract).
-        Use state_variables_ordered for all the variables following the storage order
+        Use stored_state_variables_ordered for all the storage variables following the storage order
+        Use transient_state_variables_ordered for all the transient variables following the storage order
 
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
-
-    @property
-    def stored_state_variables(self) -> List["StateVariable"]:
-        """
-        Returns state variables with storage locations, excluding private variables from inherited contracts.
-        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations.
-        """
-        return [variable for variable in self.state_variables if variable.is_stored]
-
-    @property
-    def stored_state_variables_ordered(self) -> List["StateVariable"]:
-        """
-        list(StateVariable): List of the state variables with storage locations by order of declaration.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
-        """
-        return [variable for variable in self.state_variables_ordered if variable.is_stored]
 
     @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
@@ -485,10 +475,24 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list(StateVariable): List of the state variables by order of declaration.
         """
-        return list(self._variables_ordered)
+        return self._variables_ordered
 
-    def add_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
+    def add_state_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
         self._variables_ordered += new_vars
+
+    @property
+    def storage_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in storage location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_stored]
+
+    @property
+    def transient_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in transient location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_transient]
 
     @property
     def state_variables_inherited(self) -> List["StateVariable"]:
@@ -527,9 +531,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         if self._state_variables_used_in_reentrant_targets is None:
             reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
-            variables_used: Dict[
-                StateVariable, Set[Union[StateVariable, "Function"]]
-            ] = defaultdict(set)
+            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = (
+                defaultdict(set)
+            )
             for function in reentrant_functions:
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
@@ -1054,7 +1058,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(StateVariable): List all of the state variables written
         """
         all_state_variables_writtens = [
-            f.all_state_variables_written() for f in self.functions + self.modifiers  # type: ignore
+            f.all_state_variables_written()
+            for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_written = [
             item for sublist in all_state_variables_writtens for item in sublist
@@ -1067,7 +1072,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(StateVariable): List all of the state variables read
         """
         all_state_variables_reads = [
-            f.all_state_variables_read() for f in self.functions + self.modifiers  # type: ignore
+            f.all_state_variables_read()
+            for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_read = [
             item for sublist in all_state_variables_reads for item in sublist
@@ -1385,8 +1391,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             else:
                 for contract in self.inheritance + [self]:
                     # This might lead to false positive
-                    # Not sure why pylint is having a trouble here
-                    # pylint: disable=no-member
                     lower_name = contract.name.lower()
                     if "upgradeable" in lower_name or "upgradable" in lower_name:
                         self._is_upgradeable = True
@@ -1460,9 +1464,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)  # type: ignore
@@ -1490,9 +1493,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             counter += 1
                     break
 
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES

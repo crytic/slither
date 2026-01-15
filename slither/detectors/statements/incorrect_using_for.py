@@ -165,7 +165,7 @@ class IncorrectUsingFor(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-using-for-usage"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-usage-of-using-for-statement"
 
     WIKI_TITLE = "Incorrect usage of using-for statement"
     WIKI_DESCRIPTION = (
@@ -181,7 +181,7 @@ class IncorrectUsingFor(AbstractDetector):
     library L {
         function f(bool) public pure {}
     }
-    
+
     using L for uint;
     ```
     Such a code will compile despite the fact that `L` has no function with `uint` as its first argument."""
