@@ -10,5 +10,6 @@ updates:
     directory: "tests/e2e/compilation/test_data/test_node_modules/"
     schedule:
       interval: "weekly"
-    exclude-paths:
-      - "**/*"
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "*"
