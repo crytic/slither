@@ -3,9 +3,9 @@ name: pip-audit
 
 on:
   push:
-    branches: [dev, master]
+    branches: [master]
   pull_request:
-    branches: [dev, master]
+    branches: [master]
   schedule: [cron: "0 7 * * 2"]
 
 concurrency:
