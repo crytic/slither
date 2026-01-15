@@ -3,7 +3,6 @@ from slither.detectors.oracles.oracle_detector import OracleDetector
 
 
 class SequencerCheck(OracleDetector):
-
     """
     Documentation
     """

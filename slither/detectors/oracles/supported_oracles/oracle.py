@@ -7,6 +7,7 @@ from slither.slithir.operations import (
 from slither.detectors.oracles.supported_oracles.help_functions import check_revert, return_boolean
 from slither.slithir.variables.constant import Constant
 
+
 # This class was created to store variable and all conditional nodes where it is used
 class VarInCondition:  # pylint: disable=too-few-public-methods
     def __init__(self, _var, _nodes):

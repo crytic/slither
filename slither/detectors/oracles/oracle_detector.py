@@ -51,11 +51,7 @@ class OracleDetector(AbstractDetector):
 
     @staticmethod
     def check_var_condition_match(var, node) -> bool:
-        for (
-            var2
-        ) in (
-            node.variables_read
-        ):  # This iterates through all variables which are read in node, what means that they are used in condition
+        for var2 in node.variables_read:  # This iterates through all variables which are read in node, what means that they are used in condition
             if var is None or var2 is None:
                 return False
             if var.name == var2.name:
@@ -135,7 +131,7 @@ class OracleDetector(AbstractDetector):
                             values_returned.remove((remove[0], None))
                         values_returned.remove(remove)
         returned_vars_used_indexes = []
-        for (value, index) in used_returned_vars:
+        for value, index in used_returned_vars:
             returned_vars_used_indexes.append((nodes_origin[value].node, index))
         return oracles, returned_vars_used_indexes
 

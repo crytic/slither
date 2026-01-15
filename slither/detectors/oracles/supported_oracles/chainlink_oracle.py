@@ -77,7 +77,7 @@ class ChainlinkOracle(Oracle):
         vars_order = self.find_which_vars_are_used()
         problems = []
         # Iterating through all oracle variables which were returned by the oracle call
-        for (index, var) in vars_order.items():
+        for index, var in vars_order.items():
             if not self.is_needed_to_check_conditions(var):
                 continue
             # Second variable is the price value

@@ -6,6 +6,7 @@ from slither.slithir.variables.constant import Constant
 
 # Helpfull functions
 
+
 # Check if the node's sons contain a revert statement
 def check_revert(node: Node) -> bool:
     for n in node.sons:
