@@ -22,7 +22,7 @@ class ReentrancyReadBeforeWritten(Reentrancy):
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1"
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2"
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
