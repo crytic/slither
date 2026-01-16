@@ -92,9 +92,7 @@ class RpcInfo:
 
 
 class SlitherReadStorage:
-    def __init__(
-        self, contracts: list[Contract], max_depth: int, rpc_info: RpcInfo = None
-    ) -> None:
+    def __init__(self, contracts: list[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
         self._checksum_address: ChecksumAddress | None = None
         self._contracts: list[Contract] = contracts
         self._log: str = ""
@@ -154,12 +152,8 @@ class SlitherReadStorage:
             info = self.get_storage_slot(var, contract)
             if info:
                 tmp[var.name] = info
-                if isinstance(type_, UserDefinedType) and isinstance(
-                    type_.type, Structure
-                ):
-                    tmp[var.name].elems = self._all_struct_slots(
-                        var, type_.type, contract
-                    )
+                if isinstance(type_, UserDefinedType) and isinstance(type_.type, Structure):
+                    tmp[var.name].elems = self._all_struct_slots(var, type_.type, contract)
 
                 elif isinstance(type_, ArrayType):
                     elems = self._all_array_slots(var, contract, type_, info.slot)
@@ -236,9 +230,7 @@ class SlitherReadStorage:
         info: str
         var_log_name = target_variable.name
         try:
-            int_slot, size, offset, type_to = self.get_variable_info(
-                contract, target_variable
-            )
+            int_slot, size, offset, type_to = self.get_variable_info(contract, target_variable)
         except KeyError:
             # Only the child contract of a parent contract will show up in the storage layout when inheritance is used
             logger.info(
@@ -268,16 +260,12 @@ class SlitherReadStorage:
             )
             self.log += info
 
-        elif (
-            isinstance(target_variable_type, UserDefinedType) and struct_var is not None
-        ):
+        elif isinstance(target_variable_type, UserDefinedType) and struct_var is not None:
             var_log_name = f"{var_log_name}.{struct_var}"
             target_variable_type_type = target_variable_type.type
             assert isinstance(target_variable_type_type, Structure)
             elems = target_variable_type_type.elems_ordered
-            info, type_to, slot, size, offset = self._find_struct_var_slot(
-                elems, slot, struct_var
-            )
+            info, type_to, slot, size, offset = self._find_struct_var_slot(elems, slot, struct_var)
             self.log += info
 
         elif isinstance(target_variable_type, MappingType) and key:
@@ -317,9 +305,7 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
-    def find_constant_slot_storage_type(
-        self, var: StateVariable
-    ) -> tuple[str | None, int | None]:
+    def find_constant_slot_storage_type(self, var: StateVariable) -> tuple[str | None, int | None]:
         """
         Given a constant bytes32 StateVariable, tries to determine which variable type is stored there, using the
         heuristic that if a function reads from the slot and returns a value, it probably stores that type of value.
@@ -439,9 +425,7 @@ class SlitherReadStorage:
                 if hardcoded_slot is not None:
                     self._constant_storage_slots.append((contract, hardcoded_slot))
 
-    def find_hardcoded_slot_in_fallback(
-        self, contract: Contract
-    ) -> StateVariable | None:
+    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> StateVariable | None:
         """
         Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
         `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
@@ -466,9 +450,7 @@ class SlitherReadStorage:
             visited.append(node)
             queue.extend(son for son in node.sons if son not in visited)
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
-                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(
-                    node.inline_asm, contract
-                )
+                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm, contract)
             if node.type == NodeType.EXPRESSION:
                 sv = self.find_hardcoded_slot_in_exp(node.expression, contract)
                 if sv is not None:
@@ -476,9 +458,7 @@ class SlitherReadStorage:
         return None
 
     @staticmethod
-    def find_hardcoded_slot_in_asm_str(
-        inline_asm: str, contract: Contract
-    ) -> StateVariable | None:
+    def find_hardcoded_slot_in_asm_str(inline_asm: str, contract: Contract) -> StateVariable | None:
         """
         Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
         Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
@@ -522,11 +502,7 @@ class SlitherReadStorage:
             exp = exp.expression_right
         while isinstance(exp, BinaryOperation):
             exp = next(
-                (
-                    e
-                    for e in exp.expressions
-                    if isinstance(e, (CallExpression, BinaryOperation))
-                ),
+                (e for e in exp.expressions if isinstance(e, (CallExpression, BinaryOperation))),
                 exp.expression_left,
             )
         while isinstance(exp, CallExpression) and len(exp.arguments) > 0:
@@ -585,9 +561,7 @@ class SlitherReadStorage:
         :param slot_info:
         """
         field_names = [
-            field.name
-            for field in dataclasses.fields(SlotInfo)
-            if field.name != "elems"
+            field.name for field in dataclasses.fields(SlotInfo) if field.name != "elems"
         ]
         if not self.table:
             self.table = MyPrettyTable(field_names)
@@ -632,9 +606,7 @@ class SlitherReadStorage:
                     break  # found struct var
                 offset += size
             else:
-                logger.info(
-                    f"{type(var_type)} is current not implemented in _find_struct_var_slot"
-                )
+                logger.info(f"{type(var_type)} is current not implemented in _find_struct_var_slot")
 
         slot_as_bytes = int.to_bytes(slot, 32, byteorder="big")
         info = f"\nStruct Variable: {struct_var}"
@@ -713,8 +685,8 @@ class SlitherReadStorage:
                     )
                 elems = target_variable_type_type.type.elems_ordered
                 slot = int.to_bytes(slot_int, 32, byteorder="big")
-                info_tmp, type_to, slot, size, offset = (
-                    SlitherReadStorage._find_struct_var_slot(elems, slot, struct_var)
+                info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
+                    elems, slot, struct_var
                 )
                 info += info_tmp
 
@@ -733,8 +705,8 @@ class SlitherReadStorage:
                 return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
             elems = target_variable_type_type.type.elems_ordered
             slot = int.to_bytes(slot_int, 32, byteorder="big")
-            info_tmp, type_to, slot, size, offset = (
-                SlitherReadStorage._find_struct_var_slot(elems, slot, struct_var)
+            info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
+                elems, slot, struct_var
             )
             info += info_tmp
 
@@ -785,17 +757,15 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(
-            encode([key_type, "uint256"], [key, decode(["uint256"], slot)[0]])
-        )
+        slot = keccak(encode([key_type, "uint256"], [key, decode(["uint256"], slot)[0]]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure
         ):  # mapping(elem => struct)
             assert struct_var
             elems = target_variable_type.type_to.type.elems_ordered
-            info_tmp, type_to, slot, size, offset = (
-                SlitherReadStorage._find_struct_var_slot(elems, slot, struct_var)
+            info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
+                elems, slot, struct_var
             )
             info += info_tmp
 
@@ -821,16 +791,14 @@ class SlitherReadStorage:
             size = byte_size * 8  # bits
             offset = 0
 
-            if isinstance(
-                target_variable_type_type_to_type_to, UserDefinedType
-            ) and isinstance(
+            if isinstance(target_variable_type_type_to_type_to, UserDefinedType) and isinstance(
                 target_variable_type_type_to_type_to.type, Structure
             ):  # mapping(elem => mapping(elem => struct))
                 assert struct_var
                 elems = target_variable_type_type_to_type_to.type.elems_ordered
                 # If map struct, will be bytes32(uint256(keccak256(abi.encode(key1, keccak256(abi.encode(key0, uint(slot)))))) + structFieldDepth);
-                info_tmp, type_to, slot, size, offset = (
-                    SlitherReadStorage._find_struct_var_slot(elems, slot, struct_var)
+                info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
+                    elems, slot, struct_var
                 )
                 info += info_tmp
 
@@ -858,9 +826,7 @@ class SlitherReadStorage:
         type_to = str(target_variable.type)
         byte_size, _ = target_variable.type.storage_size
         size = byte_size * 8  # bits
-        (int_slot, offset) = contract.compilation_unit.storage_layout_of(
-            contract, target_variable
-        )
+        (int_slot, offset) = contract.compilation_unit.storage_layout_of(contract, target_variable)
         offset *= 8  # bits
         logger.info(
             f"\nContract '{contract.name}'\n{target_variable.canonical_name} with type {target_variable.type} is located at slot: {int_slot}\n"
@@ -930,12 +896,8 @@ class SlitherReadStorage:
             if info:
                 elems[str(i)] = info
 
-                if isinstance(
-                    target_variable_type, ArrayType
-                ):  # multidimensional array
-                    array_length = self._get_array_length(
-                        target_variable_type, info.slot
-                    )
+                if isinstance(target_variable_type, ArrayType):  # multidimensional array
+                    array_length = self._get_array_length(target_variable_type, info.slot)
 
                     for j in range(min(array_length, self.max_depth)):
                         info = self.get_storage_slot(
