@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Ruff linter
-        uses: astral-sh/ruff-action@2b984f020b2806c04b79876e6911b787fa3e4a48  # v3
+        uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1  # v3
         with:
           args: "check slither/ tests/ scripts/"
 
@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@f06b870e0a91d23284a3013acc55e6f88ab4b904  # v7
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           enable-cache: true
 
