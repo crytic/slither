@@ -1,14 +1,48 @@
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
+from slither.core.declarations import Contract, SolidityVariable
 from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
     AssignmentOperationType,
 )
+from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.member_access import MemberAccess
 from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
+
+
+def _is_external_call(call: CallExpression) -> bool:
+    """
+    Determine if a call expression represents a true external call.
+
+    External calls are calls that create a new message/call frame.
+    This excludes:
+    - Internal function calls (Identifier)
+    - Solidity builtins like abi.encode, msg.sender (SolidityVariable)
+    - Library calls (Contract that is_library)
+    """
+    called = call.called
+
+    # Internal calls are identified by a simple Identifier
+    if isinstance(called, Identifier):
+        return False
+
+    # Check for member access patterns like abi.encode, msg.value, library.func
+    if isinstance(called, MemberAccess):
+        expr = called.expression
+        if isinstance(expr, Identifier):
+            value = expr.value
+            # Solidity builtins (abi, msg, block, tx, etc.)
+            if isinstance(value, SolidityVariable):
+                return False
+            # Library calls
+            if isinstance(value, Contract) and value.is_library:
+                return False
+
+    return True
 
 
 class NodeVyper:
@@ -56,8 +90,8 @@ class NodeVyper:
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
             self._node.external_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if _is_external_call(c)
             ]
             self._node.internal_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if not _is_external_call(c)
             ]
