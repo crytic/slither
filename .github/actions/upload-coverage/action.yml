@@ -28,3 +28,4 @@ runs:
           .coverage.*
           *.lcov
         if-no-files-found: ignore
+        include-hidden-files: true

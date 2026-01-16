@@ -86,7 +86,7 @@ def _detect_write_after_write(
 
     explored.add(node)
 
-    # We could report write after write for, but this lead to a lot of FP due to the initilization to zero pattern:
+    # We could report write after write for, but this lead to a lot of FP due to the initialization to zero pattern:
     # uint a = 0;
     # a = 10;
     # To do better, we could filter out if the variable is init to zero
@@ -123,7 +123,7 @@ class WriteAfterWrite(AbstractDetector):
         }
     }
     ```
-    `a` is first asigned to `b`, and then to `c`. As a result the first write does nothing."""
+    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing."""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""

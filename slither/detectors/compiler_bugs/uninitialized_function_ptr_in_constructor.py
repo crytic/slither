@@ -1,6 +1,7 @@
 """
 Module detecting uninitialized function pointer calls in constructors
 """
+
 from typing import Any, List, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -122,7 +123,7 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
                 node_info: DETECTOR_INFO = [
                     "\t ",
                     node,
-                    " is an unintialized function pointer call in a constructor\n",
+                    " is an uninitialized function pointer call in a constructor\n",
                 ]
                 json = self.generate_result(contract_info + node_info)
                 results.append(json)

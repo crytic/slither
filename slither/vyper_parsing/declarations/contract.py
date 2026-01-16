@@ -32,11 +32,10 @@ if TYPE_CHECKING:
     from slither.vyper_parsing.vyper_compilation_unit import VyperCompilationUnit
 
 
-class ContractVyper:  # pylint: disable=too-many-instance-attributes
+class ContractVyper:
     def __init__(
         self, slither_parser: "VyperCompilationUnit", contract: Contract, module: Module
     ) -> None:
-
         self._contract: Contract = contract
         self._slither_parser: "VyperCompilationUnit" = slither_parser
         self._data = module
@@ -426,7 +425,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
                 contract_parser = ContractVyper(self._slither_parser, contract, node)
                 self._contract.file_scope.contracts[contract.name] = contract
-                # pylint: disable=protected-access
+
                 self._slither_parser._underlying_contract_to_parser[contract] = contract_parser
 
             elif isinstance(node, AnnAssign):  # implements: ERC20
@@ -470,7 +469,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
             assert var.name
             self._contract.variables_as_dict[var.name] = var
-            self._contract.add_variables_ordered([var])
+            self._contract.add_state_variables_ordered([var])
             # Interfaces can refer to constants
             self._contract.file_scope.variables[var.name] = var
 
@@ -487,7 +486,6 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
             self._contract.events_as_dict[event.full_name] = event
 
     def parse_functions(self) -> None:
-
         for function in self._functionsNotParsed:
             func = FunctionContract(self._contract.compilation_unit)
             func.set_offset(function.src, self._contract.compilation_unit)
@@ -507,7 +505,6 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
             var_parser.analyze(self._contract)
 
     def analyze(self) -> None:
-
         for struct_parser in self._structures_parser:
             struct_parser.analyze(self._contract)
 

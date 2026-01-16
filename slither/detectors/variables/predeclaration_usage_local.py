@@ -1,6 +1,7 @@
 """
 Module detecting any path leading to usage of a local variable before it is declared.
 """
+
 from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node
@@ -53,7 +54,7 @@ contract C {
     }
 }
 ```
-In the case above, the variable `x` is used before its declaration, which may result in unintended consequences. 
+In the case above, the variable `x` is used before its declaration, which may result in unintended consequences.
 Additionally, the for-loop uses the variable `max`, which is declared in a previous scope that may not always be reached. This could lead to unintended consequences if the user mistakenly uses a variable prior to any intended declaration assignment. It also may indicate that the user intended to reference a different variable."""
     # endregion wiki_exploit_scenario
 
@@ -144,13 +145,13 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Each set contains the already declared variables saw in one path
         # If a path has the same set as a path already explored
         # We don't need to continue
-        # pylint: disable=attribute-defined-outside-init
+
         self.fix_point_information = {}
 
         for contract in self.contracts:
             predeclared_usages = self.detect_predeclared_in_contract(contract)
             if predeclared_usages:
-                for (predeclared_usage_function, predeclared_usage_nodes) in predeclared_usages:
+                for predeclared_usage_function, predeclared_usage_nodes in predeclared_usages:
                     for (
                         predeclared_usage_node,
                         predeclared_usage_local_variable,

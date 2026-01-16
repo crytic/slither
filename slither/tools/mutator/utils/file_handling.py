@@ -41,7 +41,7 @@ def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
             # delete elements from the global dict
             del backuped_files[original_path]
 
-    except FileNotFoundError as e:  # pylint: disable=broad-except
+    except FileNotFoundError as e:
         logger.error("Error transferring content: %s", e)
 
 
@@ -75,7 +75,7 @@ def create_mutant_file(output_folder: Path, file: str, rule: str) -> None:
         with open(file, "w", encoding="utf8") as source_file:
             source_file.write(duplicate_content)
 
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         logger.error(f"Error creating mutant: {e}")
         traceback_str = traceback.format_exc()
         logger.error(traceback_str)  # Log the stack trace
@@ -91,7 +91,7 @@ def reset_file(file: str) -> None:
         with open(file, "w", encoding="utf8") as source_file:
             source_file.write(duplicate_content)
 
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         logger.error("Error resetting file: %s", e)
 
 
@@ -111,7 +111,7 @@ def get_sol_file_list(codebase: Path, ignore_paths: Union[List[str], None]) -> L
     # if input is folder
     if codebase.is_dir():
         for file_name in codebase.rglob("*.sol"):
-            if not any(part in ignore_paths for part in file_name.parts):
+            if file_name.is_file() and not any(part in ignore_paths for part in file_name.parts):
                 sol_file_list.append(file_name.as_posix())
 
     return sol_file_list

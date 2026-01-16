@@ -1,6 +1,7 @@
 """
-    Using For Top Level module
+Using For Top Level module
 """
+
 import logging
 from typing import TYPE_CHECKING, Dict, Union
 
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("UsingForTopLevelSolc")
 
 
-class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class UsingForTopLevelSolc(CallerContextExpression):
     """
     UsingFor class
     """
