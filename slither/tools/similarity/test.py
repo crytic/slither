@@ -11,7 +11,6 @@ logger = logging.getLogger("Slither-simil")
 
 
 def test(**kwargs) -> None:
-
     try:
         model = kwargs.get("model")
         model = load_model(model)

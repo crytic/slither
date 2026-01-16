@@ -11,7 +11,6 @@ from slither.utils.command_line import SlitherState
 def kspec_coverage(
     contract: str, kspec: str, ctx: typer.Context, output_json: Union[bool, Path] = False
 ) -> None:
-
     state = ctx.ensure_object(SlitherState)
     slither = Slither(contract, **state)
 

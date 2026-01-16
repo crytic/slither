@@ -370,7 +370,7 @@ def main_callback(
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
-        to_log = f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run'
+        to_log = f"{len(json_results['detectors'])} findings, {number_detectors_run} detectors run"
         logger.info(to_log)
         if state.get("output_format") == OutputFormat.JSON:
             output_to_json(state.get("output_file").as_posix(), None, json_results)

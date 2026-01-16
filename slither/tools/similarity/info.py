@@ -11,9 +11,7 @@ logger = logging.getLogger("Slither-simil")
 
 
 def info(**kwargs) -> None:
-
     try:
-
         model = kwargs.get("model")
         if os.path.isfile(model):
             model = load_model(model)

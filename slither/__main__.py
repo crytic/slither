@@ -106,7 +106,6 @@ def process_all(
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-
     try:
         compilations = compile_all(target, **state)
     except InvalidCompilation:
@@ -836,7 +835,6 @@ def handle_target(
     detectors_to_run: Optional[List[Type[AbstractDetector]]] = None,
     printers_to_run: Optional[List[Type[AbstractPrinter]]] = None,
 ):
-
     if detectors_to_run is None:
         detectors_to_run = []
 

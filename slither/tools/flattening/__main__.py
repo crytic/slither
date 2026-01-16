@@ -49,7 +49,6 @@ def main_callback(
     slither = Slither(target.target, **state)
 
     for compilation_unit in slither.compilation_units:
-
         flat = Flattening(
             compilation_unit,
             external_to_public=convert_external,

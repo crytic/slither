@@ -171,7 +171,6 @@ class SlitherApp(typer.Typer):
         if self.default_method is not None and not any(
             command in sys.argv for command in self.app_commands
         ):
-
             main_command_args = []
             other_command_args = []
 
@@ -235,7 +234,6 @@ def format_crytic_help(ctx: typer.Context):
     cryticparser.init(parser)
 
     for action_group in parser._action_groups:
-
         if action_group.title in ("positional arguments", "options"):
             continue
 
@@ -298,7 +296,6 @@ def read_config_file(config_file: Union[None, Path]) -> Dict[str, Any]:
 
     state: Dict[str, Any] = defaults_flag_in_config
     if config_path.is_file():
-
         with config_path.open(encoding="utf-8") as f:
             try:
                 config = json.load(f)
@@ -360,7 +357,7 @@ class MarkdownRoot(click.ParamType):
                 "Replacing 'tree' with 'blob' in markdown_root url for better code referencing"
             )
             positions = match.span(4)
-            markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
+            markdown_root = f"{markdown_root[: positions[0]]}blob{markdown_root[positions[1] :]}"
 
         return markdown_root
 
@@ -423,7 +420,7 @@ class Target:
     - *0x..* : a contract address on mainnet
     
     - *NETWORK:0x..*: a contract on a different network.
-      Supported networks: {', '.join(x[:-1] for x in SUPPORTED_NETWORK)}
+      Supported networks: {", ".join(x[:-1] for x in SUPPORTED_NETWORK)}
     """
     )
 

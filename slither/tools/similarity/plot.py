@@ -23,7 +23,6 @@ logger = logging.getLogger("Slither-simil")
 
 
 def plot(**kwargs) -> None:  # pylint: disable=too-many-locals
-
     if decomposition is None or plt is None:
         logger.error(
             "ERROR: In order to use plot mode in slither-simil, you need to install sklearn and matplotlib:"
@@ -32,7 +31,6 @@ def plot(**kwargs) -> None:  # pylint: disable=too-many-locals
         sys.exit(-1)
 
     try:
-
         model = load_model(kwargs.get("model"))
         # contract = args.contract
         contract, fname = parse_target(kwargs.get("fname"))
@@ -68,7 +66,7 @@ def plot(**kwargs) -> None:  # pylint: disable=too-many-locals
         logger.info("Plotting data..")
         plt.figure(figsize=(20, 10))
         assert len(tdata) == len(fs)
-        for ([x, y], l) in zip(tdata, fs):
+        for [x, y], l in zip(tdata, fs):
             x = random.gauss(0, 0.01) + x
             y = random.gauss(0, 0.01) + y
             plt.scatter(x, y, c="blue")

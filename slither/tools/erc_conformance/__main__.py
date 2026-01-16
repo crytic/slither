@@ -74,7 +74,6 @@ def main_callback(
     output_file = state.get("output_file", Path("-"))
 
     if erc_arg.upper() in ERCS:
-
         contracts = slither.get_contract_from_name(contract_name)
 
         if len(contracts) != 1:

@@ -1,6 +1,7 @@
 """
 Tool to read on-chain storage from EVM
 """
+
 import json
 from pathlib import Path
 from typing import Annotated, List, Optional

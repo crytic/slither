@@ -11,7 +11,6 @@ logger = logging.getLogger("Slither-simil")
 
 
 def train(**kwargs) -> None:  # pylint: disable=too-many-locals
-
     try:
         last_data_train_filename = "last_data_train.txt"
         model_filename = kwargs.get("model")

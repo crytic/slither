@@ -42,7 +42,11 @@ class TestMainHelp:
         assert result.exit_code == 0
 
         # demo should be hidden
-        assert "demo" not in result.output.lower().split("commands")[1] if "commands" in result.output.lower() else True
+        assert (
+            "demo" not in result.output.lower().split("commands")[1]
+            if "commands" in result.output.lower()
+            else True
+        )
 
 
 class TestDetectSubcommand:
