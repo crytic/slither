@@ -12,6 +12,6 @@ Version constraint 0.6.10 contains known severe issues (https://solidity.readthe
 	- KeccakCaching
 	- EmptyByteArrayCopy
 	- DynamicArrayCleanup.
- It is used by:
-	- tests/e2e/detectors/test_data/solc-version/0.6.10/static.sol#1
+It is used by:
+	- 0.6.10 (tests/e2e/detectors/test_data/solc-version/0.6.10/static.sol#1)
 

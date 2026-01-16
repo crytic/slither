@@ -105,15 +105,17 @@ def _handle_function(
     ):
         return overwrite
     prompt = "Create a natpsec documentation for this solidity code with only notice and dev.\n"
-    src_mapping = function.source_mapping
-    content = function.compilation_unit.core.source_code[src_mapping.filename.absolute]
-    start = src_mapping.start
-    end = src_mapping.start + src_mapping.length
-    prompt += content[start:end]
+    srcmap = function.source_mapping
+    src = function.compilation_unit.core.source_code[srcmap.filename.absolute]
+    first_char_index = len(
+        src.encode("utf8")[: srcmap.start].decode("utf8")
+    )  # convert byte offset to char offset
+    prev_char = src[first_char_index - 1]
+    prompt += srcmap.content
 
-    use_tab = _use_tab(content[start - 1])
-    if use_tab is None and src_mapping.starting_column > 1:
-        logger.info(f"Non standard space indentation found {content[start - 1:end]}")
+    use_tab = _use_tab(prev_char)
+    if use_tab is None and srcmap.starting_column > 1:
+        logger.info(f"Non standard indentation found: '{prev_char}'")
         if overwrite:
             logger.info("Disable overwrite to avoid mistakes")
             overwrite = False
@@ -140,7 +142,7 @@ def _handle_function(
         if logging_file:
             log_codex(logging_file, "A: " + str(answer))
 
-        answer_processed = _handle_codex(answer, src_mapping.starting_column, use_tab, force)
+        answer_processed = _handle_codex(answer, srcmap.starting_column, use_tab, force)
         if answer_processed:
             break
 
@@ -152,7 +154,9 @@ def _handle_function(
     if not answer_processed:
         return overwrite
 
-    create_patch(all_patches, src_mapping.filename.absolute, start, start, "", answer_processed)
+    create_patch(
+        all_patches, srcmap.filename.absolute, srcmap.start, srcmap.start, "", answer_processed
+    )
 
     return overwrite
 

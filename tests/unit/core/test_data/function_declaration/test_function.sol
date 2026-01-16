@@ -54,6 +54,10 @@ contract TestFunction {
     function public_pure() public pure returns (bool) {
         return true;
     }
+
+    modifier m(uint y) { _; }
+    function helper_to_test_q() internal pure returns(uint) { return 3; }
+    function q() public pure m(helper_to_test_q()) {}
 }
 
 contract TestFunctionCanSendEth {

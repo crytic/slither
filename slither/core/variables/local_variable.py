@@ -50,7 +50,7 @@ class LocalVariable(Variable):
         Returns:
             (bool)
         """
-        # pylint: disable=import-outside-toplevel
+
         from slither.core.solidity_types.array_type import ArrayType
 
         if self.location == "memory":

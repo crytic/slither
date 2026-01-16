@@ -10,8 +10,8 @@ Version constraint 0.6.11 contains known severe issues (https://solidity.readthe
 	- KeccakCaching
 	- EmptyByteArrayCopy
 	- DynamicArrayCleanup.
- It is used by:
-	- tests/e2e/detectors/test_data/solc-version/0.6.11/static.sol#1
+It is used by:
+	- 0.6.11 (tests/e2e/detectors/test_data/solc-version/0.6.11/static.sol#1)
 
 solc-0.6.11 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
 

@@ -46,7 +46,7 @@ def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variabl
         (nodes)
     """
     ret = set()
-    # pylint: disable=too-many-nested-blocks
+
     for node in func.nodes:
         for ir in node.irs_ssa:
             if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
@@ -111,7 +111,7 @@ contract Game {
     }
 }
 ```
-Eve is a miner. Eve calls `guessing` and re-orders the block containing the transaction. 
+Eve is a miner. Eve calls `guessing` and re-orders the block containing the transaction.
 As a result, Eve wins the game."""
     # endregion wiki_exploit_scenario
 
@@ -125,7 +125,6 @@ As a result, Eve wins the game."""
         for c in self.compilation_unit.contracts_derived:
             values = detect_bad_PRNG(c)
             for func, nodes in values:
-
                 for node in nodes:
                     info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
                     res = self.generate_result(info)

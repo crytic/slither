@@ -45,10 +45,19 @@ class Assignment(OperationWithLValue):
 
     def __str__(self) -> str:
         lvalue = self.lvalue
+
+        # When rvalues are functions, we want to properly display their return type
+        # Fix: https://github.com/crytic/slither/issues/2266
+        if isinstance(self.rvalue.type, list):
+            rvalue_type = ",".join(f"{rvalue_type}" for rvalue_type in self.rvalue.type)
+        else:
+            rvalue_type = f"{self.rvalue.type}"
+
         assert lvalue
         if lvalue and isinstance(lvalue, ReferenceVariable):
             points = lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return f"{lvalue}({lvalue.type}) (->{points}) := {self.rvalue}({self.rvalue.type})"
-        return f"{lvalue}({lvalue.type}) := {self.rvalue}({self.rvalue.type})"
+            return f"{lvalue}({lvalue.type}) (->{points}) := {self.rvalue}({rvalue_type})"
+
+        return f"{lvalue}({lvalue.type}) := {self.rvalue}({rvalue_type})"

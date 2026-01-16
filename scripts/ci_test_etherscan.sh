@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 ### Test etherscan integration
+
+# Skip when API key is not present
+if [ "$GITHUB_ETHERSCAN" = "" ]; then
+    echo "Skipped, no Etherscan API key provided"
+    exit
+fi
 
 mkdir etherscan
 cd etherscan || exit 255
@@ -12,10 +19,4 @@ if ! slither detect 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apike
 fi
 echo "::endgroup::"
 
-# Perform a small sleep when API key is not available (e.g. on PR CI from external contributor)
-if [ "$GITHUB_ETHERSCAN" = "" ]; then
-    sleep $(( ( RANDOM % 5 )  + 1 ))s
-fi
-
 exit 0
-
