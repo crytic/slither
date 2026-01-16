@@ -219,48 +219,55 @@ def _find_function_from_parameter(
     type_args: List[str]
     for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
+            # If the argument is an array literal (list of IR variables), the type is a fixed array.
+            # We resolve the complete fixed array type here (e.g., 'struct B[2]') and store it in type_args.
             type_args = [f"{get_type(arg[0].type)}[{len(arg)}]"]
         elif isinstance(arg, Function):
             type_args = [arg.signature_str]
         else:
             type_args = [get_type(arg.type)]
 
-        arg_type = arg.type
-        if isinstance(
-            arg_type, ElementaryType
-        ) and arg_type.type in ElementaryTypeInt + Uint + Byte + ["string"]:
-            if isinstance(arg, Constant):
-                value = arg.value
-                can_be_uint = True
-                can_be_int = True
-            else:
-                value = MaxValues[arg_type.type]
-                can_be_uint = False
-                can_be_int = False
-                if arg_type.type in ElementaryTypeInt:
-                    can_be_int = True
-                elif arg_type.type in Uint:
+        # --- Array Instantiation Guard ---
+        # If the argument was an array literal (list), its type was definitively resolved above.
+        # We must skip the subsequent logic, which attempts implicit type conversions
+        # designed only for single ElementaryTypes (uint/int/bytes).
+        if not isinstance(arg, (list,)):
+            arg_type = arg.type
+            if isinstance(
+                arg_type, ElementaryType
+            ) and arg_type.type in ElementaryTypeInt + Uint + Byte + ["string"]:
+                if isinstance(arg, Constant):
+                    value = arg.value
                     can_be_uint = True
+                    can_be_int = True
+                else:
+                    value = MaxValues[arg_type.type]
+                    can_be_uint = False
+                    can_be_int = False
+                    if arg_type.type in ElementaryTypeInt:
+                        can_be_int = True
+                    elif arg_type.type in Uint:
+                        can_be_uint = True
 
-            if arg_type.type in ElementaryTypeInt + Uint:
-                type_args = _fits_under_integer(value, can_be_int, can_be_uint)
-            elif value is None and arg_type.type in ["bytes", "string"]:
-                type_args = ["bytes", "string"]
-            else:
-                type_args = _fits_under_byte(value)
-                if arg_type.type == "string":
-                    type_args += ["string"]
+                if arg_type.type in ElementaryTypeInt + Uint:
+                    type_args = _fits_under_integer(value, can_be_int, can_be_uint)
+                elif value is None and arg_type.type in ["bytes", "string"]:
+                    type_args = ["bytes", "string"]
+                else:
+                    type_args = _fits_under_byte(value)
+                    if arg_type.type == "string":
+                        type_args += ["string"]
 
-        not_found = True
+        found = False
         candidates_kept: List[Function] = []
         for type_arg in type_args:
-            if not not_found:
+            if found:
                 break
             candidates_kept = []
             for candidate in candidates:
                 param = get_type(candidate.parameters[idx].type)
                 if param == type_arg:
-                    not_found = False
+                    found = True
                     candidates_kept.append(candidate)
 
             if len(candidates_kept) == 1 and not full_comparison:
