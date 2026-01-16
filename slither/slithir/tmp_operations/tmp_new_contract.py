@@ -8,9 +8,7 @@ if TYPE_CHECKING:
 
 
 class TmpNewContract(OperationWithLValue):
-    def __init__(
-        self, contract_type: "UserDefinedType", lvalue: TemporaryVariable
-    ) -> None:
+    def __init__(self, contract_type: "UserDefinedType", lvalue: TemporaryVariable) -> None:
         super().__init__()
         self._contract_type: "UserDefinedType" = contract_type
         self._lvalue = lvalue
