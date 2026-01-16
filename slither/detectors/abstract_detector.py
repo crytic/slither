@@ -135,10 +135,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 f"WIKI_RECOMMENDATION is not initialized {self.__class__.__name__}"
             )
 
-        if (
-            self.VULNERABLE_SOLC_VERSIONS is not None
-            and not self.VULNERABLE_SOLC_VERSIONS
-        ):
+        if self.VULNERABLE_SOLC_VERSIONS is not None and not self.VULNERABLE_SOLC_VERSIONS:
             raise IncorrectDetectorInitialization(
                 f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
             )
@@ -219,9 +216,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                         continue
                     result["patches_diff"] = {}
                     for file in result["patches"]:
-                        original_txt = self.compilation_unit.core.source_code[
-                            file
-                        ].encode("utf8")
+                        original_txt = self.compilation_unit.core.source_code[file].encode("utf8")
                         patched_txt = original_txt
                         offset = 0
                         patches = result["patches"][file]
@@ -235,21 +230,15 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             )
                             continue
                         for patch in patches:
-                            patched_txt, offset = apply_patch(
-                                patched_txt, patch, offset
-                            )
-                        diff = create_diff(
-                            self.compilation_unit, original_txt, patched_txt, file
-                        )
+                            patched_txt, offset = apply_patch(patched_txt, patch, offset)
+                        diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
                         if not diff:
                             self._log(f"Impossible to generate patch; empty {result}")
                         else:
                             result["patches_diff"][file] = diff
 
                 except FormatImpossible as exception:
-                    self._log(
-                        f"\nImpossible to patch:\n\t{result['description']}\t{exception}"
-                    )
+                    self._log(f"\nImpossible to patch:\n\t{result['description']}\t{exception}")
 
         if results and self.slither.triage_mode:
             while True:
@@ -268,21 +257,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 try:
                     indexes_converted = [int(i) for i in indexes.split(",")]
                     self.slither.save_results_to_hide(
-                        [
-                            r
-                            for (idx, r) in enumerate(results)
-                            if idx in indexes_converted
-                        ]
+                        [r for (idx, r) in enumerate(results) if idx in indexes_converted]
                     )
-                    return [
-                        r
-                        for (idx, r) in enumerate(results)
-                        if idx not in indexes_converted
-                    ]
+                    return [r for (idx, r) in enumerate(results) if idx not in indexes_converted]
                 except ValueError:
-                    self.logger.error(
-                        yellow("Malformed input. Example of valid input: 0,1,2,3")
-                    )
+                    self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
         results = sorted(results, key=lambda x: x["id"])
 
         return results
