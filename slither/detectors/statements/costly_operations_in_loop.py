@@ -55,8 +55,8 @@ def costly_operations_in_loop(
                 )
                 calls_stack.pop()
 
-    for son in node.sons:
-        costly_operations_in_loop(son, in_loop_counter, visited, calls_stack, ret)
+    for successor in node.successors:
+        costly_operations_in_loop(successor, in_loop_counter, visited, calls_stack, ret)
 
 
 class CostlyOperationsInLoop(AbstractDetector):

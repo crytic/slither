@@ -46,8 +46,8 @@ def visit_node(node, visited):
 
     node.function.compilation_unit.context[KEY] = list(set(taints))
 
-    for son in node.sons:
-        visit_node(son, visited)
+    for successor in node.successors:
+        visit_node(successor, visited)
 
 
 def check_call(func, taints):

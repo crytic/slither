@@ -656,12 +656,12 @@ class FunctionSolc(CallerContextExpression):
 
         link_underlying_nodes(node, node_startDoWhile)
         # empty block, loop from the start to the condition
-        if not node_condition.underlying_node.sons:
+        if not node_condition.underlying_node.successors:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
             link_nodes(
                 node_startDoWhile.underlying_node,
-                node_condition.underlying_node.sons[0],
+                node_condition.underlying_node.successors[0],
             )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
@@ -1150,7 +1150,7 @@ class FunctionSolc(CallerContextExpression):
             # fix point
             if not current.is_reachable:
                 current.set_is_reachable(True)
-                worklist.extend(current.sons)
+                worklist.extend(current.successors)
 
     def _parse_cfg(self, cfg: Dict) -> None:
         assert cfg[self.get_key()] == "Block"
@@ -1193,8 +1193,8 @@ class FunctionSolc(CallerContextExpression):
             counter += 1
 
         visited = visited + [node]
-        for son in node.sons:
-            ret = self._find_end_loop(son, visited, counter)
+        for successor in node.successors:
+            ret = self._find_end_loop(successor, visited, counter)
             if ret:
                 return ret
 
@@ -1248,7 +1248,7 @@ class FunctionSolc(CallerContextExpression):
             if not end_node:
                 raise ParsingError(f"Break in no-loop context {node.function}")
 
-        for son in node.sons:
+        for successor in node.successors:
             son.remove_father(node)
         node.set_sons([end_node])
         end_node.add_father(node)
@@ -1259,7 +1259,7 @@ class FunctionSolc(CallerContextExpression):
         if not if_loop_node:
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
-        for son in node.sons:
+        for successor in node.successors:
             son.remove_father(node)
         node.set_sons([if_loop_node])
         if_loop_node.add_father(node)
@@ -1272,22 +1272,24 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _fix_try(self, node: Node) -> None:
-        end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
+        end_node = next(
+            (son for successor in node.successors if successor.type != NodeType.CATCH), None
+        )
         if end_node:
-            for son in node.sons:
-                if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node, set())
+            for successor in node.successors:
+                if successor.type == NodeType.CATCH:
+                    self._fix_catch(successor, end_node, set())
 
     def _fix_catch(self, node: Node, end_node: Node, visited: Set[Node]) -> None:
-        if not node.sons:
+        if not node.successors:
             link_nodes(node, end_node)
         else:
-            for son in node.sons:
+            for successor in node.successors:
                 # If the son is a TRY node it will be fixed later when _fix_try is called with that node
                 # otherwise we try to fix it multiple times. It can happen in the case of nested try-catch blocks.
-                if son != end_node and son not in visited and son.type != NodeType.TRY:
+                if successor != end_node and son not in visited and son.type != NodeType.TRY:
                     visited.add(son)
-                    self._fix_catch(son, end_node, visited)
+                    self._fix_catch(successor, end_node, visited)
 
     # endregion
     ###################################################################################
@@ -1422,13 +1424,13 @@ class FunctionSolc(CallerContextExpression):
             NodeType.RETURN, return_params["src"], self.underlying_function
         )
         for node, node_solc in self._node_to_nodesolc.items():
-            if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
+            if len(node.successors) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                 link_underlying_nodes(node_solc, return_node)
 
         for _, yul_block in self._node_to_yulobject.items():
             for yul_node in yul_block.nodes:
                 node = yul_node.underlying_node
-                if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
+                if len(node.successors) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                     link_underlying_nodes(yul_node, return_node)
 
         if self.is_compact_ast:
@@ -1546,7 +1548,7 @@ class FunctionSolc(CallerContextExpression):
     def _remove_incorrect_edges(self):
         for node in self._node_to_nodesolc:
             if node.type in [NodeType.RETURN, NodeType.THROW]:
-                for son in node.sons:
+                for successor in node.successors:
                     son.remove_father(node)
                 node.set_sons([])
             if node.type in [NodeType.BREAK]:
@@ -1563,14 +1565,20 @@ class FunctionSolc(CallerContextExpression):
             if node.type in [NodeType.STARTLOOP]:
                 # can we prune? only if after pruning, we have at least one son that isn't itself
                 if (
-                    len([son for son in node.sons if son.type != NodeType.ENDLOOP and son != node])
+                    len(
+                        [
+                            son
+                            for successor in node.successors
+                            if successor.type != NodeType.ENDLOOP and son != node
+                        ]
+                    )
                     == 0
                 ):
                     continue
 
                 new_sons = []
-                for son in node.sons:
-                    if son.type != NodeType.ENDLOOP:
+                for successor in node.successors:
+                    if successor.type != NodeType.ENDLOOP:
                         new_sons.append(son)
                         continue
                     son.remove_father(node)
@@ -1601,7 +1609,7 @@ class FunctionSolc(CallerContextExpression):
             to_remove: List[Node] = []
             for node in self._node_to_nodesolc:
                 if node.type == NodeType.ENDIF and not node.fathers:
-                    for son in node.sons:
+                    for successor in node.successors:
                         son.remove_father(node)
                     node.set_sons([])
                     to_remove.append(node)
@@ -1677,7 +1685,7 @@ class FunctionSolc(CallerContextExpression):
             father.replace_son(node, condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
-        for son in node.sons:
+        for successor in node.successors:
             son.remove_father(node)
             son.add_father(endif_node.underlying_node)
             endif_node.underlying_node.add_son(son)

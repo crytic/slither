@@ -109,7 +109,7 @@ class AbstractState:
     def merge_fathers(
         self, node: Node, skip_father: Optional[Node], detector: "Reentrancy"
     ) -> None:
-        for father in node.fathers:
+        for father in node.predecessors:
             if detector.KEY in father.context:
                 self._send_eth = union_dict(
                     self._send_eth,
@@ -249,36 +249,36 @@ class Reentrancy(AbstractDetector):
         if node is None:
             return
 
-        fathers_context = AbstractState()
-        fathers_context.merge_fathers(node, skip_father, self)
+        predecessors_context = AbstractState()
+        predecessors_context.merge_fathers(node, skip_father, self)
 
-        # Exclude path that dont bring further information
+        # Exclude path that don't bring further information
         if node in self.visited_all_paths:
-            if self.visited_all_paths[node].does_not_bring_new_info(fathers_context):
+            if self.visited_all_paths[node].does_not_bring_new_info(predecessors_context):
                 return
         else:
             self.visited_all_paths[node] = AbstractState()
 
-        self.visited_all_paths[node].add(fathers_context)
+        self.visited_all_paths[node].add(predecessors_context)
 
-        node.context[self.KEY] = fathers_context
+        node.context[self.KEY] = predecessors_context
 
-        contains_call = fathers_context.analyze_node(node, self)
-        node.context[self.KEY] = fathers_context
+        contains_call = predecessors_context.analyze_node(node, self)
+        node.context[self.KEY] = predecessors_context
 
-        sons = node.sons
+        successors = node.successors
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
             if _filter_if(node):
-                son = sons[0]
-                self._explore(son, skip_father=node)
-                sons = sons[1:]
+                successor = successors[0]
+                self._explore(successor, skip_father=node)
+                successors = successors[1:]
             else:
-                son = sons[1]
-                self._explore(son, skip_father=node)
-                sons = [sons[0]]
+                successor = successors[1]
+                self._explore(successor, skip_father=node)
+                successors = [successors[0]]
 
-        for son in sons:
-            self._explore(son)
+        for successor in successors:
+            self._explore(successor)
 
     def detect_reentrancy(self, contract: Contract) -> None:
         for function in contract.functions_and_modifiers_declared:

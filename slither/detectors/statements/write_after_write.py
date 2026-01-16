@@ -94,10 +94,10 @@ def _detect_write_after_write(
         for ir in node.irs:
             _handle_ir(ir, written, ret)
 
-    if len(node.sons) > 1:
+    if len(node.successors) > 1:
         written = {}
-    for son in node.sons:
-        _detect_write_after_write(son, explored, dict(written), ret)
+    for successor in node.successors:
+        _detect_write_after_write(successor, explored, dict(written), ret)
 
 
 class WriteAfterWrite(AbstractDetector):

@@ -94,8 +94,8 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
             return True
 
         # Check recursively in all the parent nodes
-        for father in node.fathers:
-            if self._zero_address_validation(var, father, explored):
+        for predecessor in node.predecessors:
+            if self._zero_address_validation(var, predecessor, explored):
                 return True
         return False
 

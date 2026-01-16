@@ -431,7 +431,7 @@ class SlitherReadStorage:
         while len(queue) > 0:
             node = queue.pop(0)
             visited.append(node)
-            queue.extend(son for son in node.sons if son not in visited)
+            queue.extend(son for son in node.successors if son not in visited)
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
                 return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm, contract)
             if node.type == NodeType.EXPRESSION:

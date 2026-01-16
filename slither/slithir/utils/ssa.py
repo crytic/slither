@@ -224,7 +224,7 @@ def generate_ssa_irs(
         return
 
     if node.type in [NodeType.ENDIF, NodeType.ENDLOOP] and any(
-        father not in visited for father in node.fathers
+        predecessor not in visited for predecessor in node.predecessors
     ):
         return
 
@@ -397,9 +397,9 @@ def is_used_later(
                 for v in node.state_variables_written
             ):
                 return False
-        for son in node.sons:
-            if son not in explored:
-                to_explore.add(son)
+        for successor in node.successors:
+            if successor not in explored:
+                to_explore.add(successor)
 
     return False
 

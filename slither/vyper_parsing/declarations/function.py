@@ -247,8 +247,8 @@ class FunctionVyper:
         if node.is_reachable:
             return
         node.set_is_reachable(True)
-        for son in node.sons:
-            self._update_reachability(son)
+        for successor in node.successors:
+            self._update_reachability(successor)
 
     def _parse_cfg(self, cfg: List[ASTNode]) -> None:
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)

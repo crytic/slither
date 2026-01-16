@@ -27,10 +27,10 @@ def _get_false_son(node: Node) -> Node:
     Following this node stays on the outer scope of the function
     """
     if node.type == NodeType.IF:
-        return node.sons[1]
+        return node.successors[1]
 
     if node.type == NodeType.IFLOOP:
-        return next(s for s in node.sons if s.type == NodeType.ENDLOOP)
+        return next(s for s in node.successors if s.type == NodeType.ENDLOOP)
 
     return None
 
@@ -84,14 +84,14 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                         break
 
                     # Move down, staying on the outer scope in branches
-                    if len(node.sons) > 0:
+                    if len(node.successors) > 0:
                         if node.contains_if():
                             node = _get_false_son(node)
                         else:
-                            if node.sons[0] in node_seen:
-                                node = node.sons[1]
+                            if node.successors[0] in node_seen:
+                                node = node.successors[1]
                             else:
-                                node = node.sons[0]
+                                node = node.successors[0]
                     else:
                         node = None
                 else:

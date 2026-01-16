@@ -154,7 +154,7 @@ def ssa_phi_node_properties(f: Function) -> None:
             if isinstance(ssa, Phi):
                 n = len(ssa.read)
                 if not isinstance(ssa.lvalue, StateIRVariable):
-                    assert len(node.fathers) == n
+                    assert len(node.predecessors) == n
 
 
 # TODO (hbrodin): This should probably go into another file, not specific to SSA
@@ -167,13 +167,13 @@ def dominance_properties(f: Function) -> None:
 
     def find_path(from_node: Node, to: Node) -> bool:
         visited = set()
-        worklist = list(from_node.sons)
+        worklist = list(from_node.successors)
         while worklist:
             first, *worklist = worklist
             if first == to:
                 return True
             visited.add(first)
-            for successor in first.sons:
+            for successor in first.successors:
                 if successor not in visited:
                     worklist.append(successor)
         return False
@@ -1092,8 +1092,8 @@ def test_issue_1846_ternary_in_if(slither_from_solidity_source):
         f = c.functions[0]
         node = f.nodes[1]
         assert node.type == NodeType.IF
-        assert node.son_true.type == NodeType.IF
-        assert node.son_false.type == NodeType.EXPRESSION
+        assert node.successor_true.type == NodeType.IF
+        assert node.successor_false.type == NodeType.EXPRESSION
 
 
 def test_issue_1846_ternary_in_ternary(slither_from_solidity_source):
@@ -1109,8 +1109,8 @@ def test_issue_1846_ternary_in_ternary(slither_from_solidity_source):
         f = c.functions[0]
         node = f.nodes[1]
         assert node.type == NodeType.IF
-        assert node.son_true.type == NodeType.IF
-        assert node.son_false.type == NodeType.EXPRESSION
+        assert node.successor_true.type == NodeType.IF
+        assert node.successor_false.type == NodeType.EXPRESSION
 
 
 def test_issue_2016(slither_from_solidity_source):

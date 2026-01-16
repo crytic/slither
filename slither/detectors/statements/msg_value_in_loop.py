@@ -66,8 +66,8 @@ def msg_value_in_loop(
             )
             calls_stack.pop()
 
-    for son in node.sons:
-        msg_value_in_loop(son, in_loop_counter, visited, calls_stack, results)
+    for successor in node.successors:
+        msg_value_in_loop(successor, in_loop_counter, visited, calls_stack, results)
 
 
 class MsgValueInLoop(AbstractDetector):

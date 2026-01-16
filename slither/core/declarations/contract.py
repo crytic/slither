@@ -1487,8 +1487,8 @@ class Contract(SourceMapping):
                                 constructor_variable, counter, v, prev_node.scope
                             )
                             v.node_initialization = next_node
-                            prev_node.add_son(next_node)
-                            next_node.add_father(prev_node)
+                            prev_node.add_successor(next_node)
+                            next_node.add_predecessor(prev_node)
                             prev_node = next_node
                             counter += 1
                     break
@@ -1518,8 +1518,8 @@ class Contract(SourceMapping):
                                 constructor_variable, counter, v, prev_node.scope
                             )
                             v.node_initialization = next_node
-                            prev_node.add_son(next_node)
-                            next_node.add_father(prev_node)
+                            prev_node.add_successor(next_node)
+                            next_node.add_predecessor(prev_node)
                             prev_node = next_node
                             counter += 1
 

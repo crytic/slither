@@ -1401,8 +1401,8 @@ class Function(SourceMapping, metaclass=ABCMeta):
             f.write("digraph{\n")
             for node in self.nodes:
                 f.write(f'{node.node_id}[label="{node!s}"];\n')
-                for son in node.sons:
-                    f.write(f"{node.node_id}->{son.node_id};\n")
+                for successor in node.successors:
+                    f.write(f"{node.node_id}->{successor.node_id};\n")
 
             f.write("}\n")
 
@@ -1457,15 +1457,15 @@ class Function(SourceMapping, metaclass=ABCMeta):
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
             content += f'{node.node_id}[label="{label}"];\n'
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
-                true_node = node.son_true
+                true_node = node.successor_true
                 if true_node:
                     content += f'{node.node_id}->{true_node.node_id}[label="True"];\n'
-                false_node = node.son_false
+                false_node = node.successor_false
                 if false_node:
                     content += f'{node.node_id}->{false_node.node_id}[label="False"];\n'
             else:
-                for son in node.sons:
-                    content += f"{node.node_id}->{son.node_id};\n"
+                for successor in node.successors:
+                    content += f"{node.node_id}->{successor.node_id};\n"
 
         content += "}\n"
         return content
@@ -1766,8 +1766,8 @@ class Function(SourceMapping, metaclass=ABCMeta):
                         ret[name] = set()
                     ret[name] |= instances
 
-            for son in node.sons:
-                to_explore.append((son, dict(values)))
+            for successor in node.successors:
+                to_explore.append((successor, dict(values)))
 
         return ret
 

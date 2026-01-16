@@ -216,7 +216,7 @@ class Node(SourceMapping):
 
     @property
     def will_return(self) -> bool:
-        if not self.sons and self.type != NodeType.THROW:
+        if not self.successors and self.type != NodeType.THROW:
             solidity_calls = [ir.function for ir in self.solidity_calls]
             if SolidityFunction("revert()") not in solidity_calls:
                 if SolidityFunction("revert(string)") not in solidity_calls:
@@ -1083,7 +1083,7 @@ def link_nodes(node1: Node, node2: Node) -> None:
 
 
 def insert_node(origin: Node, node_inserted: Node) -> None:
-    sons = origin.sons
+    sons = origin.successors
     link_nodes(origin, node_inserted)
     for son in sons:
         son.remove_father(origin)
@@ -1098,14 +1098,14 @@ def recheable(node: Node) -> Set[Node]:
     :param node:
     :return: set(Node)
     """
-    nodes = node.sons
+    nodes = node.successors
     visited = set()
     while nodes:
         next_node = nodes[0]
         nodes = nodes[1:]
         if next_node not in visited:
             visited.add(next_node)
-            for son in next_node.sons:
+            for son in next_node.successors:
                 if son not in visited:
                     nodes.append(son)
     return visited

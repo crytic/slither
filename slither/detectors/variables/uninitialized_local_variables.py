@@ -49,44 +49,49 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
         visited = visited + [node]
 
-        fathers_context = []
+        predecessors_context = []
 
-        for father in node.fathers:
-            if self.key in father.context:
-                fathers_context += father.context[self.key]
+        for predecessor in node.predecessors:
+            if self.key in predecessor.context:
+                predecessors_context += predecessor.context[self.key]
 
         # Exclude path that dont bring further information
         if node in self.visited_all_paths:
-            if all(f_c in self.visited_all_paths[node] for f_c in fathers_context):
+            if all(f_c in self.visited_all_paths[node] for f_c in predecessors_context):
                 return
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
+        self.visited_all_paths[node] = list(
+            set(self.visited_all_paths[node] + predecessors_context)
+        )
 
         # Remove a local variable declared in a for loop header
         if (
             node.type == NodeType.VARIABLE
-            and len(node.sons) == 1  # Should always be true for a node that has a STARTLOOP son
-            and node.sons[0].type == NodeType.STARTLOOP
+            and len(node.successors)
+            == 1  # Should always be true for a node that has a STARTLOOP successor
+            and node.successors[0].type == NodeType.STARTLOOP
         ):
-            if node.variable_declaration in fathers_context:
-                fathers_context.remove(node.variable_declaration)
+            if node.variable_declaration in predecessors_context:
+                predecessors_context.remove(node.variable_declaration)
 
         if self.key in node.context:
-            fathers_context += node.context[self.key]
+            predecessors_context += node.context[self.key]
 
         variables_read = node.variables_read
-        for uninitialized_local_variable in fathers_context:
+        for uninitialized_local_variable in predecessors_context:
             if uninitialized_local_variable in variables_read:
                 self.results.append((function, uninitialized_local_variable))
 
         # Only save the local variables that are not yet written
-        uninitialized_local_variables = list(set(fathers_context) - set(node.variables_written))
+        uninitialized_local_variables = list(
+            set(predecessors_context) - set(node.variables_written)
+        )
         node.context[self.key] = uninitialized_local_variables
 
-        for son in node.sons:
-            self._detect_uninitialized(function, son, visited)
+        for successor in node.successors:
+            self._detect_uninitialized(function, successor, visited)
 
     def _detect(self) -> List[Output]:
         """Detect uninitialized local variables
