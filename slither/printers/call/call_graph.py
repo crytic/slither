@@ -24,7 +24,11 @@ def _contract_subgraph(contract: Contract) -> str:
 
 # return unique id for contract function to use as node name
 def _function_node(contract: Contract, function: Function | Variable) -> str:
-    return f"{contract.id}_{function.name}"
+    # Use full_name for Functions to distinguish overloaded functions
+    if isinstance(function, Function):
+        return f"{contract.id}_{function.full_name}"
+    # Variables use solidity_signature which includes parameter types
+    return f"{contract.id}_{function.solidity_signature}"
 
 
 # return unique id for solidity function to use as node name
@@ -96,7 +100,9 @@ def _render_internal_calls(
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str]) -> str:
+def _render_solidity_calls(
+    solidity_functions: set[str], solidity_calls: set[str]
+) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -150,8 +156,10 @@ def _process_function(
     external_calls: set[str],
     all_contracts: set[Contract],
 ) -> None:
+    # Use full_name as label to distinguish overloaded functions
+    label = function.full_name if isinstance(function, Function) else function.name
     contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
+        _node(_function_node(contract, function), label),
     )
 
     for internal_call in function.internal_calls:
@@ -180,7 +188,9 @@ def _process_functions(functions: Sequence[Function]) -> str:
     contract_functions: dict[Contract, set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: dict[Contract, set[str]] = defaultdict(set)  # contract -> contract calls edges
+    contract_calls: dict[Contract, set[str]] = defaultdict(
+        set
+    )  # contract -> contract calls edges
 
     solidity_functions: set[str] = set()  # solidity function nodes
     solidity_calls: set[str] = set()  # solidity calls edges
@@ -221,7 +231,9 @@ class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = "call-graph"
     HELP = "Export the call-graph of the contracts to a dot file"
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
+    )
 
     def output(self, filename: str) -> Output:
         """
@@ -248,7 +260,8 @@ class PrinterCallGraph(AbstractPrinter):
 
             # Avoid duplicate functions due to different compilation unit
             all_functionss = [
-                compilation_unit.functions for compilation_unit in self.slither.compilation_units
+                compilation_unit.functions
+                for compilation_unit in self.slither.compilation_units
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
@@ -265,7 +278,9 @@ class PrinterCallGraph(AbstractPrinter):
             results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
+            derived_output_filename = (
+                f"{filename}{derived_contract.name}.call-graph.dot"
+            )
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
