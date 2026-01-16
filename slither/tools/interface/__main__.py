@@ -10,11 +10,11 @@ logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 logger = logging.getLogger("Slither-Interface")
 logger.setLevel(logging.INFO)
 
-from slither import Slither
-from slither.utils.code_generation import generate_interface
+from slither import Slither  # noqa: E402
+from slither.utils.code_generation import generate_interface  # noqa: E402
 
-from slither.__main__ import app
-from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic  # noqa: E402
 
 interface_cmd: SlitherApp = SlitherApp()
 app.add_typer(interface_cmd, name="interface")

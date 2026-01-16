@@ -11,24 +11,24 @@ logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
-from slither import Slither
-from slither.core.declarations import Contract
-from slither.exceptions import SlitherException
-from slither.utils.colors import red
-from slither.utils.output import output_to_json, OutputFormat
-from slither.tools.upgradeability.checks import all_checks
-from slither.tools.upgradeability.checks.abstract_checks import (
+from slither import Slither  # noqa: E402
+from slither.core.declarations import Contract  # noqa: E402
+from slither.exceptions import SlitherException  # noqa: E402
+from slither.utils.colors import red  # noqa: E402
+from slither.utils.output import output_to_json, OutputFormat  # noqa: E402
+from slither.tools.upgradeability.checks import all_checks  # noqa: E402
+from slither.tools.upgradeability.checks.abstract_checks import (  # noqa: E402
     AbstractCheck,
     CheckClassification,
 )
-from slither.tools.upgradeability.utils.command_line import (
+from slither.tools.upgradeability.utils.command_line import (  # noqa: E402
     output_detectors_json,
     output_wiki,
     output_detectors,
 )
 
-from slither.__main__ import app
-from slither.utils.command_line import (
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import (  # noqa: E402
     target_type,
     SlitherState,
     SlitherApp,

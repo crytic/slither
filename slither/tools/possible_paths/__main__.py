@@ -8,17 +8,17 @@ logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 
-from slither import Slither
-from slither.core.declarations import FunctionContract
-from slither.utils.colors import red
-from slither.tools.possible_paths.possible_paths import (
+from slither import Slither  # noqa: E402
+from slither.core.declarations import FunctionContract  # noqa: E402
+from slither.utils.colors import red  # noqa: E402
+from slither.tools.possible_paths.possible_paths import (  # noqa: E402
     find_target_paths,
     resolve_functions,
     ResolveFunctionException,
 )
 
-from slither.__main__ import app
-from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic  # noqa: E402
 
 possible_paths_app: SlitherApp = SlitherApp()
 app.add_typer(possible_paths_app, name="find-paths")

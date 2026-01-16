@@ -13,16 +13,16 @@ logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 logger = logging.getLogger("Slither-conformance")
 logger.setLevel(logging.INFO)
 
-from slither import Slither
-from slither.core.declarations import Contract
-from slither.utils.erc import ERCS
-from slither.utils.output import output_to_json, OutputFormat
-from .erc.erc1155 import check_erc1155
-from .erc.erc20 import check_erc20
-from .erc.ercs import generic_erc_checks
+from slither import Slither  # noqa: E402
+from slither.core.declarations import Contract  # noqa: E402
+from slither.utils.erc import ERCS  # noqa: E402
+from slither.utils.output import output_to_json, OutputFormat  # noqa: E402
+from .erc.erc1155 import check_erc1155  # noqa: E402
+from .erc.erc20 import check_erc20  # noqa: E402
+from .erc.ercs import generic_erc_checks  # noqa: E402
 
-from slither.__main__ import app
-from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic  # noqa: E402
 
 conformance: SlitherApp = SlitherApp()
 app.add_typer(conformance, name="check-erc")
