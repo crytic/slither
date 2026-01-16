@@ -1,3 +1,5 @@
+# slither-check-erc
+
 `slither-check-erc` checks for ERC's conformance.
 
 ## Features
@@ -26,15 +28,15 @@
 - [ERC2612](https://eips.ethereum.org/EIPS/eip-2612): Permit Extension for EIP-20 Signed Approvals
 - [ERC4626](https://eips.ethereum.org/EIPS/eip-4626): Tokenized Vaults
 
-## Usage:
+## Usage
 
-```
+```sh
 slither-check-erc contract.sol ContractName
 ```
 
 For example, on
 
-```Solidity
+```solidity
 contract ERC20{
 
     event Transfer(address indexed,address,uint256);
@@ -49,15 +51,15 @@ contract ERC20{
 
 The tool will report:
 
-```
+```text
 # Check ERC20
 
 ## Check functions
 [ ] totalSupply() is missing
 [ ] balanceOf(address) is missing
 [✓] transfer(address,uint256) is present
-	[ ] transfer(address,uint256) -> () should return bool
-	[✓] Transfer(address,address,uint256) is emitted
+ [ ] transfer(address,uint256) -> () should return bool
+ [✓] Transfer(address,address,uint256) is emitted
 [ ] transferFrom(address,address,uint256) is missing
 [ ] approve(address,uint256) is missing
 [ ] allowance(address,address) is missing
@@ -67,7 +69,7 @@ The tool will report:
 
 ## Check events
 [✓] Transfer(address,address,uint256) is present
-	[✓] parameter 0 is indexed
-	[ ] parameter 1 should be indexed
+ [✓] parameter 0 is indexed
+ [ ] parameter 1 should be indexed
 [ ] Approval(address,address,uint256) is missing
 ```

@@ -44,7 +44,7 @@ dependencies = [
 # Development dependencies using PEP 735 dependency-groups
 [dependency-groups]
 lint = [
-    "ruff==0.14.10",
+    "ruff==0.14.13",
     "yamllint==1.37.1"
 ]
 test = [
