@@ -112,6 +112,12 @@ def parse_args() -> argparse.Namespace:
         help="Include unstructured storage slots",
     )
 
+    parser.add_argument(
+        "--include-immutable",
+        action="store_true",
+        help="Include immutable and constant variables in output",
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -144,6 +150,7 @@ def main() -> None:
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
     srs.unstructured = bool(args.unstructured)
+    srs.include_immutable = bool(args.include_immutable)
     # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
     address = target[target.find(":") + 1 :]
     # Default to implementation address unless a storage address is given.
