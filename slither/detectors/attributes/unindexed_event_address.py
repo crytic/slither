@@ -50,8 +50,6 @@ Off-chain tools cannot efficiently filter transfers by sender or recipient addre
         "to enable efficient off-chain filtering."
     )
 
-    STANDARD_JSON = False
-
     @staticmethod
     def _has_unindexed_address(event: Event) -> bool:
         """
