@@ -477,9 +477,9 @@ class SlitherCore(Context):
         # Use POSIX-style paths so that filter_paths|include_paths works across different
         # OSes. Convert to a list so elements don't get consumed and are lost
         # while evaluating the first pattern
-        source_mapping_elements = list(
-            map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
-        )
+        source_mapping_elements = [
+            pathlib.Path(x).resolve().as_posix() if x else x for x in source_mapping_elements
+        ]
         (matching, paths, msg_err) = (
             (True, self._paths_to_include, "--include-paths")
             if self._paths_to_include

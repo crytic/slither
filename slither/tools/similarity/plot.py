@@ -52,7 +52,7 @@ def plot(args: argparse.Namespace) -> None:
         data = []
         fs = []
 
-        logger.info("Procesing data..")
+        logger.info("Processing data..")
         for (f, c, n), y in cache.items():
             if (c == contract or contract is None) and n == fname:
                 fs.append(f)

@@ -37,7 +37,7 @@ class UserDefinedType(Type):
         if isinstance(self._type, Contract):
             return 20, False
         if isinstance(self._type, Enum):
-            return int(math.ceil(math.log2(len(self._type.values)) / 8)), False
+            return math.ceil(math.log2(len(self._type.values)) / 8), False
         if isinstance(self._type, Structure):
             # todo there's some duplicate logic here and slither_core, can we refactor this?
             slot = 0

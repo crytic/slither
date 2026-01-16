@@ -219,7 +219,7 @@ class FunctionSolc(CallerContextExpression):
         if "constant" in attributes:
             self._function.view = attributes["constant"]
 
-        if "isConstructor" in attributes and attributes["isConstructor"]:
+        if attributes.get("isConstructor"):
             self._function.function_type = FunctionType.CONSTRUCTOR
 
         if "kind" in attributes:
@@ -403,7 +403,7 @@ class FunctionSolc(CallerContextExpression):
             trueStatement = self._parse_statement(
                 if_statement["trueBody"], condition_node, true_scope
             )
-            if "falseBody" in if_statement and if_statement["falseBody"]:
+            if if_statement.get("falseBody"):
                 false_scope = Scope(scope.is_checked, False, scope)
                 falseStatement = self._parse_statement(
                     if_statement["falseBody"], condition_node, false_scope
@@ -463,9 +463,9 @@ class FunctionSolc(CallerContextExpression):
         self, statement: Dict
     ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         body = statement["body"]
-        init_expression = statement.get("initializationExpression", None)
-        condition = statement.get("condition", None)
-        loop_expression = statement.get("loopExpression", None)
+        init_expression = statement.get("initializationExpression")
+        condition = statement.get("condition")
+        loop_expression = statement.get("loopExpression")
 
         return init_expression, condition, loop_expression, body
 
@@ -490,7 +490,7 @@ class FunctionSolc(CallerContextExpression):
             # handle the second trivial case - if there is only one child we know there are no expressions
             pre, cond, post = None, None, None
         else:
-            attributes = statement.get("attributes", None)
+            attributes = statement.get("attributes")
 
             def has_hint(key):
                 return key in attributes and not attributes[key]
@@ -678,7 +678,7 @@ class FunctionSolc(CallerContextExpression):
 
         ret: Dict = {"nodeType": "Assignment", "operator": "=", "src": parameters_list["src"]}
 
-        parameters = parameters_list.get("parameters", None)
+        parameters = parameters_list.get("parameters")
 
         # if the name is "" it means the return variable is not used
         if len(parameters) == 1:
@@ -731,7 +731,7 @@ class FunctionSolc(CallerContextExpression):
         return ret
 
     def _parse_try_catch(self, statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
-        externalCall = statement.get("externalCall", None)
+        externalCall = statement.get("externalCall")
 
         if externalCall is None:
             raise ParsingError(f"Try/Catch not correctly parsed by Slither {statement}")
@@ -761,7 +761,7 @@ class FunctionSolc(CallerContextExpression):
     def _parse_catch(
         self, statement: Dict, node: NodeSolc, scope: Scope, add_param: bool
     ) -> NodeSolc:
-        block = statement.get("block", None)
+        block = statement.get("block")
 
         if block is None:
             raise ParsingError(f"Catch not correctly parsed by Slither {statement}")
@@ -772,7 +772,7 @@ class FunctionSolc(CallerContextExpression):
 
         if add_param:
             if self.is_compact_ast:
-                params = statement.get("parameters", None)
+                params = statement.get("parameters")
             else:
                 params = statement[self.get_children("children")]
 
@@ -1051,7 +1051,7 @@ class FunctionSolc(CallerContextExpression):
             return_node = self._new_node(NodeType.RETURN, statement["src"], scope)
             link_underlying_nodes(node, return_node)
             if self.is_compact_ast:
-                if statement.get("expression", None):
+                if statement.get("expression"):
                     return_node.add_unparsed_expression(statement["expression"])
             else:
                 if (

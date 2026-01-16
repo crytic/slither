@@ -619,7 +619,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
             for node in self.nodes:
                 # if node.type == NodeType.OTHER_ENTRYPOINT:
-                if not node in self._nodes_ordered_dominators:
+                if node not in self._nodes_ordered_dominators:
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators
@@ -1400,7 +1400,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write(f'{node.node_id}[label="{str(node)}"];\n')
+                f.write(f'{node.node_id}[label="{node!s}"];\n')
                 for successor in node.successors:
                     f.write(f"{node.node_id}->{successor.node_id};\n")
 
@@ -1581,7 +1581,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         if not all_entry_points:
             return True
         return not all(
-            (reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points)
+            reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points
         )
 
     # endregion

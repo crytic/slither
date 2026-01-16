@@ -52,10 +52,8 @@ def msg_value_in_loop(
                     if ir.read[0] == SolidityVariableComposed("msg.value")
                     else ir.read[0]
                 )
-                if (
-                    isinstance(compared_to, Constant)
-                    and compared_to.value == 0
-                    or isinstance(compared_to, Variable)
+                if (isinstance(compared_to, Constant) and compared_to.value == 0) or (
+                    isinstance(compared_to, Variable)
                     and isinstance(compared_to.expression, Literal)
                     and str(compared_to.expression.value) == "0"
                 ):

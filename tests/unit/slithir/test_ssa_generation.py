@@ -206,13 +206,10 @@ def phi_values_inserted(f: Function) -> None:
         non_ssa = var.non_ssa_version
         for ssa in node.irs_ssa:
             if isinstance(ssa, Phi):
-                if non_ssa in map(
-                    lambda ssa_var: ssa_var.non_ssa_version,
-                    [
-                        r
-                        for r in ssa.read
-                        if isinstance(r, (StateIRVariable, LocalIRVariable, TemporaryVariableSSA))
-                    ],
+                if non_ssa in (
+                    r.non_ssa_version
+                    for r in ssa.read
+                    if isinstance(r, (StateIRVariable, LocalIRVariable, TemporaryVariableSSA))
                 ):
                     return True
         return False
@@ -730,7 +727,7 @@ def test_shadow_local(slither_from_solidity_source):
 
         # Ensure all assignments are to a variable of index 1
         # not using the same IR var.
-        assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, Assignment)))
+        assert all(x.lvalue.index == 1 for x in get_ssa_of_type(f, Assignment))
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
@@ -755,10 +752,8 @@ def test_multiple_named_args_returns(slither_from_solidity_source):
 
         # Ensure all LocalIRVariables (not TemporaryVariables) have index 1
         assert all(
-            map(
-                lambda x: x.lvalue.index == 1 or not isinstance(x.lvalue, LocalIRVariable),
-                get_ssa_of_type(f, OperationWithLValue),
-            )
+            x.lvalue.index == 1 or not isinstance(x.lvalue, LocalIRVariable)
+            for x in get_ssa_of_type(f, OperationWithLValue)
         )
 
 

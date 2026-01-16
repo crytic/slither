@@ -1,0 +1,4 @@
+# Custom runner labels for actionlint
+self-hosted-runner:
+  labels:
+    - ubuntu-slim

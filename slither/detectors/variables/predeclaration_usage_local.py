@@ -86,7 +86,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         if node.variable_declaration:
             already_declared = already_declared | {node.variable_declaration}
 
-        if not node in self.fix_point_information:
+        if node not in self.fix_point_information:
             self.fix_point_information[node] = []
 
         # If we already explored this node with the same information

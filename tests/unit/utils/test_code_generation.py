@@ -17,7 +17,7 @@ def test_interface_generation(solc_binary_path) -> None:
     actual = generate_interface(sl.get_contract_from_name("TestContract")[0])
     expected_path = Path(TEST_DATA_DIR, "TEST_generated_code.sol").as_posix()
 
-    with open(expected_path, "r", encoding="utf-8") as file:
+    with open(expected_path, encoding="utf-8") as file:
         expected = file.read()
 
     assert actual == expected
@@ -25,7 +25,7 @@ def test_interface_generation(solc_binary_path) -> None:
     actual = generate_interface(sl.get_contract_from_name("TestContract")[0], unroll_structs=False)
     expected_path = os.path.join(TEST_DATA_DIR, "TEST_generated_code_not_unrolled.sol")
 
-    with open(expected_path, "r", encoding="utf-8") as file:
+    with open(expected_path, encoding="utf-8") as file:
         expected = file.read()
 
     assert actual == expected

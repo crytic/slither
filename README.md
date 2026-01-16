@@ -10,7 +10,7 @@
 > Join the Empire Hacking Slack
 >
 > [![Slack Status](https://slack.empirehacking.nyc/badge.svg)](https://slack.empirehacking.nyc/)
-> > <sub><i>- Discussions and Support </i></sub>
+> > _- Discussions and Support_
 
 **Slither** is a Solidity & Vyper static analysis framework written in Python3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
 
@@ -67,7 +67,7 @@ slither tests/uninitialized.sol
 
 ## How to install
 
-> **Note** <br />
+> **Note**
 > Slither requires Python 3.9+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
