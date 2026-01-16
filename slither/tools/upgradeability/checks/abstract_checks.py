@@ -66,13 +66,19 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         self.contract_v2 = contract_v2
 
         if not self.ARGUMENT:
-            raise IncorrectCheckInitialization(f"NAME is not initialized {self.__class__.__name__}")
+            raise IncorrectCheckInitialization(
+                f"NAME is not initialized {self.__class__.__name__}"
+            )
 
         if not self.HELP:
-            raise IncorrectCheckInitialization(f"HELP is not initialized {self.__class__.__name__}")
+            raise IncorrectCheckInitialization(
+                f"HELP is not initialized {self.__class__.__name__}"
+            )
 
         if not self.WIKI:
-            raise IncorrectCheckInitialization(f"WIKI is not initialized {self.__class__.__name__}")
+            raise IncorrectCheckInitialization(
+                f"WIKI is not initialized {self.__class__.__name__}"
+            )
 
         if not self.WIKI_TITLE:
             raise IncorrectCheckInitialization(
@@ -136,7 +142,8 @@ class AbstractCheck(metaclass=abc.ABCMeta):
                 info = "\n"
                 for result in all_results:
                     info += result["description"]
-                info += f"Reference: {self.WIKI}"
+                info += f"Reference: {self.WIKI}\n"
+                info += f"Use --exclude {self.ARGUMENT} to suppress this check."
                 self._log(info)
         return all_results
 
@@ -146,7 +153,9 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         additional_fields: dict | None = None,
     ) -> Output:
         output = Output(
-            info, additional_fields, markdown_root=self.contract.compilation_unit.core.markdown_root
+            info,
+            additional_fields,
+            markdown_root=self.contract.compilation_unit.core.markdown_root,
         )
 
         output.data["check"] = self.ARGUMENT
