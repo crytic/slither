@@ -396,9 +396,9 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
 
         if not match.group(4):
             logger.warning(
-                "Appending 'tree/master/' in markdown_root url for better code referencing"
+                "Appending 'blob/HEAD/' in markdown_root url for better code referencing"
             )
-            markdown_root = markdown_root + "tree/master/"
+            markdown_root = markdown_root + "blob/HEAD/"
         # Use blob/HEAD so that we get the default branch regardless of its name
         elif match.group(4) == "tree":
             logger.warning(
