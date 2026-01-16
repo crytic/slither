@@ -100,9 +100,7 @@ def _render_internal_calls(
     return "\n".join(lines)
 
 
-def _render_solidity_calls(
-    solidity_functions: set[str], solidity_calls: set[str]
-) -> str:
+def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str]) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -188,9 +186,7 @@ def _process_functions(functions: Sequence[Function]) -> str:
     contract_functions: dict[Contract, set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: dict[Contract, set[str]] = defaultdict(
-        set
-    )  # contract -> contract calls edges
+    contract_calls: dict[Contract, set[str]] = defaultdict(set)  # contract -> contract calls edges
 
     solidity_functions: set[str] = set()  # solidity function nodes
     solidity_calls: set[str] = set()  # solidity calls edges
@@ -231,9 +227,7 @@ class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = "call-graph"
     HELP = "Export the call-graph of the contracts to a dot file"
 
-    WIKI = (
-        "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
-    )
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
 
     def output(self, filename: str) -> Output:
         """
@@ -260,8 +254,7 @@ class PrinterCallGraph(AbstractPrinter):
 
             # Avoid duplicate functions due to different compilation unit
             all_functionss = [
-                compilation_unit.functions
-                for compilation_unit in self.slither.compilation_units
+                compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
@@ -278,9 +271,7 @@ class PrinterCallGraph(AbstractPrinter):
             results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = (
-                f"{filename}{derived_contract.name}.call-graph.dot"
-            )
+            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
