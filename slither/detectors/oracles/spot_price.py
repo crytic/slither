@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import HighLevelCall, Operation, LibraryCall, Assignment
@@ -98,36 +98,30 @@ class SpotPriceDetector(AbstractDetector):
             return ir.arguments
         return []
 
-    # Check if the address of the destination is different
     @staticmethod
-    def different_address(first_ir: Operation, second_ir: Operation):
+    def different_address(first_ir: Operation, second_ir: Operation) -> bool:
         if (
             hasattr(first_ir, "destination")
-            and hasattr(first_ir, "destination")
+            and hasattr(second_ir, "destination")
             and first_ir.destination != second_ir.destination
         ):
             return True
         return False
 
-    # Detect oracle call
     def detect_oracle_call(
-        self, function: FunctionContract, function_names, interface_names
-    ) -> (Node, str):
-        nodes = []
+        self, function: FunctionContract, function_names: List[str], interface_names: List[str]
+    ) -> Tuple[List[Tuple[Node, str]], List[Node]]:
+        """Detect oracle calls in a function."""
+        nodes: List[Tuple[Node, str]] = []
         first_node = None
-        first_arguments = []
-        swap_indicators = []
-        # For finding next node
+        first_arguments: List = []
+        swap_indicators: List[Node] = []
         counter = 0
         for node in function.nodes:
             for ir in node.irs:
-                for i in range(len(function_names)):  # pylint: disable=consider-using-enumerate
-                    function_name = function_names[i]
-                    interface_name = interface_names[i]
-
-                    # Ignore functions related to calculation of TWAP
+                for function_name, interface_name in zip(function_names, interface_names):
                     if self.ignore_function(ir):
-                        return []
+                        return ([], [])
                     # Detect UniswapV3 or UniswapV2
                     if self.instance_of_call(ir, function_name, interface_name):
                         if interface_name == "IUniswapV3Pool" and not self.slot0_returned_price(
@@ -234,15 +228,14 @@ class SpotPriceDetector(AbstractDetector):
                 return True
         return False
 
-    # Check getReserves vars
-    # reserve0 and reserve1 are of type uint112 or someone could directly cast them to uint256
     @staticmethod
     def check_reserve_var(var) -> bool:
-        return hasattr(var, "type") and str(var.type) == "uint112" or str(var.type) == "uint256"
+        """Check if var is a reserve variable (uint112 or uint256 type)."""
+        return hasattr(var, "type") and (str(var.type) == "uint112" or str(var.type) == "uint256")
 
-    # Track if the variable was assigned to different variable without change
     @staticmethod
-    def track_var(variable, node) -> bool:
+    def track_var(variable, node):
+        """Track if the variable was assigned to a different variable without change."""
         temp_variable = None
         for ir in node.irs:
             if isinstance(ir, Assignment):
@@ -254,7 +247,6 @@ class SpotPriceDetector(AbstractDetector):
             for v in node.variables_written:
                 if str(v) == str(temp_variable):
                     variable = v
-        print(variable)
         return variable
 
     @staticmethod
@@ -378,9 +370,9 @@ class SpotPriceDetector(AbstractDetector):
                     spot_price.node, spot_price.interface
                 )
                 if nodes:
-                    for i in range(len(nodes)):  # pylint: disable=consider-using-enumerate
-                        only_return = self.only_return(return_functions[i])
-                        messages.append(self.generate_calc_messages(nodes[i], only_return))
+                    for calc_node, return_func in zip(nodes, return_functions):
+                        only_return = self.only_return(return_func)
+                        messages.append(self.generate_calc_messages(calc_node, only_return))
 
             # It can contain duplication, sorted and unique messages.
             # Sorting due to testing purposes
