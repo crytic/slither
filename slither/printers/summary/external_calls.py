@@ -4,6 +4,7 @@ Module printing the high level calls
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import Output
 
 
 class ExternalCallPrinter(AbstractPrinter):
@@ -12,7 +13,7 @@ class ExternalCallPrinter(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#external-calls"
 
-    def output(self, _):
+    def output(self, _filename: str) -> Output:
         """Computes and returns the list of external calls performed."""
 
         all_txt = "External calls"
@@ -30,10 +31,10 @@ class ExternalCallPrinter(AbstractPrinter):
                     continue
 
                 for node in function.nodes:
-                    for target_contract, target_function in node.high_level_calls:
+                    for target_contract, high_level_call in node.high_level_calls:
                         row = [
                             f"{function.canonical_name} {node.source_mapping.to_detailed_str()}",
-                            f"{target_contract.name}.{target_function}",
+                            f"{target_contract.name}.{high_level_call.function}",
                         ]
 
                         if function.all_reachable_from_functions:
