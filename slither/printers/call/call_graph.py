@@ -11,6 +11,7 @@ from collections.abc import Sequence
 
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.slithir.operations import HighLevelCall, InternalCall
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
@@ -32,6 +33,11 @@ def _solidity_function_node(solidity_function: SolidityFunction) -> str:
     return f"{solidity_function.name}"
 
 
+# return unique id for top level function to use as node name
+def _toplevel_function_node(function: FunctionTopLevel) -> str:
+    return f"toplevel_{function.name}"
+
+
 # return dot language string to add graph edge
 def _edge(from_node: str, to_node: str) -> str:
     return f'"{from_node}" -> "{to_node}"'
@@ -48,27 +54,47 @@ def _node(node: str, label: str | None = None) -> str:
 
 
 def _process_internal_call(
-    contract: Contract,
+    contract: Contract | None,
     function: Function,
     internal_call: InternalCall,
     contract_calls: dict[Contract, set[str]],
     solidity_functions: set[str],
     solidity_calls: set[str],
+    toplevel_functions: set[str],
+    toplevel_calls: set[str],
 ) -> None:
-    if isinstance(internal_call.function, (Function)):
+    # Determine the caller's node
+    if isinstance(function, FunctionTopLevel):
+        caller_node = _toplevel_function_node(function)
+    else:
+        caller_node = _function_node(contract, function)
+
+    if isinstance(internal_call.function, FunctionTopLevel):
+        # Call to a top-level function
+        toplevel_functions.add(
+            _node(
+                _toplevel_function_node(internal_call.function),
+                internal_call.function.name,
+            ),
+        )
+        toplevel_calls.add(
+            _edge(caller_node, _toplevel_function_node(internal_call.function))
+        )
+    elif isinstance(internal_call.function, FunctionContract):
+        # Call to a contract function
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function),
+                caller_node,
                 _function_node(contract, internal_call.function),
             )
         )
-    elif isinstance(internal_call.function, (SolidityFunction)):
+    elif isinstance(internal_call.function, SolidityFunction):
         solidity_functions.add(
             _node(_solidity_function_node(internal_call.function)),
         )
         solidity_calls.add(
             _edge(
-                _function_node(contract, function),
+                caller_node,
                 _solidity_function_node(internal_call.function),
             )
         )
@@ -96,7 +122,9 @@ def _render_internal_calls(
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str]) -> str:
+def _render_solidity_calls(
+    solidity_functions: set[str], solidity_calls: set[str]
+) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -104,6 +132,22 @@ def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str
 
     lines.extend(solidity_functions)
     lines.extend(solidity_calls)
+
+    lines.append("}")
+
+    return "\n".join(lines)
+
+
+def _render_toplevel_calls(
+    toplevel_functions: set[str], toplevel_calls: set[str]
+) -> str:
+    lines = []
+
+    lines.append("subgraph cluster_toplevel {")
+    lines.append('label = "[Top Level]"')
+
+    lines.extend(toplevel_functions)
+    lines.extend(toplevel_calls)
 
     lines.append("}")
 
@@ -141,7 +185,7 @@ def _process_external_call(
 
 
 def _process_function(
-    contract: Contract,
+    contract: Contract | None,
     function: Function,
     contract_functions: dict[Contract, set[str]],
     contract_calls: dict[Contract, set[str]],
@@ -149,10 +193,17 @@ def _process_function(
     solidity_calls: set[str],
     external_calls: set[str],
     all_contracts: set[Contract],
+    toplevel_functions: set[str],
+    toplevel_calls: set[str],
 ) -> None:
-    contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
-    )
+    if isinstance(function, FunctionTopLevel):
+        toplevel_functions.add(
+            _node(_toplevel_function_node(function), function.name),
+        )
+    else:
+        contract_functions[contract].add(
+            _node(_function_node(contract, function), function.name),
+        )
 
     for internal_call in function.internal_calls:
         _process_internal_call(
@@ -162,6 +213,8 @@ def _process_function(
             contract_calls,
             solidity_functions,
             solidity_calls,
+            toplevel_functions,
+            toplevel_calls,
         )
     for external_call in function.high_level_calls:
         _process_external_call(
@@ -175,22 +228,25 @@ def _process_function(
 
 
 def _process_functions(functions: Sequence[Function]) -> str:
-    # TODO  add support for top level function
-
     contract_functions: dict[Contract, set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: dict[Contract, set[str]] = defaultdict(set)  # contract -> contract calls edges
+    contract_calls: dict[Contract, set[str]] = defaultdict(
+        set
+    )  # contract -> contract calls edges
 
     solidity_functions: set[str] = set()  # solidity function nodes
     solidity_calls: set[str] = set()  # solidity calls edges
     external_calls: set[str] = set()  # external calls edges
+    toplevel_functions: set[str] = set()  # top level function nodes
+    toplevel_calls: set[str] = set()  # top level calls edges
 
-    all_contracts = set()
+    all_contracts: set[Contract] = set()
 
     for function in functions:
         if isinstance(function, FunctionContract):
             all_contracts.add(function.contract_declarer)
+
     for function in functions:
         if isinstance(function, FunctionContract):
             _process_function(
@@ -202,6 +258,21 @@ def _process_functions(functions: Sequence[Function]) -> str:
                 solidity_calls,
                 external_calls,
                 all_contracts,
+                toplevel_functions,
+                toplevel_calls,
+            )
+        elif isinstance(function, FunctionTopLevel):
+            _process_function(
+                None,
+                function,
+                contract_functions,
+                contract_calls,
+                solidity_functions,
+                solidity_calls,
+                external_calls,
+                all_contracts,
+                toplevel_functions,
+                toplevel_calls,
             )
 
     render_internal_calls = ""
@@ -214,14 +285,23 @@ def _process_functions(functions: Sequence[Function]) -> str:
 
     render_external_calls = _render_external_calls(external_calls)
 
-    return render_internal_calls + render_solidity_calls + render_external_calls
+    render_toplevel_calls = _render_toplevel_calls(toplevel_functions, toplevel_calls)
+
+    return (
+        render_internal_calls
+        + render_solidity_calls
+        + render_external_calls
+        + render_toplevel_calls
+    )
 
 
 class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = "call-graph"
     HELP = "Export the call-graph of the contracts to a dot file"
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
+    )
 
     def output(self, filename: str) -> Output:
         """
@@ -248,7 +328,8 @@ class PrinterCallGraph(AbstractPrinter):
 
             # Avoid duplicate functions due to different compilation unit
             all_functionss = [
-                compilation_unit.functions for compilation_unit in self.slither.compilation_units
+                compilation_unit.functions
+                for compilation_unit in self.slither.compilation_units
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
@@ -265,7 +346,9 @@ class PrinterCallGraph(AbstractPrinter):
             results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
+            derived_output_filename = (
+                f"{filename}{derived_contract.name}.call-graph.dot"
+            )
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
