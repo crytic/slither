@@ -52,11 +52,11 @@ jobs:
           cd /
 
           echo "::group::Via module"
-          python3 -m slither.tools.doctor .
+          python3 -m slither.tools.doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
           echo "::group::Via binary"
-          slither-doctor .
+          slither-doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
       - name: Try venv Slither
@@ -72,9 +72,9 @@ jobs:
           cd /
 
           echo "::group::Via module"
-          python3 -m slither.tools.doctor .
+          python3 -m slither.tools.doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
           echo "::group::Via binary"
-          slither-doctor .
+          slither-doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
