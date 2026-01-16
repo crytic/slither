@@ -29,6 +29,10 @@ class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: list[FileScope] = []
+        # Exported symbols in order of import precedence. When multiple files export
+        # symbols with the same name, the first occurrence in this list takes precedence.
+        # Using a list (not set) preserves insertion order for correct name resolution.
+        # See: https://github.com/crytic/slither/issues/2477
         self.exported_symbols: list[int] = []
 
         self.contracts: dict[str, Contract] = {}
