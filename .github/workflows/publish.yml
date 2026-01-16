@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
@@ -30,7 +30,7 @@ jobs:
           path: dist/
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment: release
     permissions:
       id-token: write  # For trusted publishing + codesigning.
