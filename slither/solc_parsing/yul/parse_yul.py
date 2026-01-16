@@ -8,6 +8,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import (
     Function,
     SolidityFunction,
+    SolidityVariable,
     Contract,
 )
 from slither.core.declarations.function import FunctionLanguage
@@ -19,6 +20,7 @@ from slither.core.expressions import (
     AssignmentOperationType,
     Identifier,
     CallExpression,
+    MemberAccess,
     TupleExpression,
     BinaryOperation,
     UnaryOperation,
@@ -40,6 +42,37 @@ from slither.solc_parsing.expressions.find_variable import find_top_level
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
+
+
+def _is_external_call(call: CallExpression) -> bool:
+    """
+    Determine if a call expression represents a true external call.
+
+    External calls are calls that create a new message/call frame.
+    This excludes:
+    - Internal function calls (Identifier)
+    - Solidity builtins like abi.encode, msg.sender (SolidityVariable)
+    - Library calls (Contract that is_library)
+    """
+    called = call.called
+
+    # Internal calls are identified by a simple Identifier
+    if isinstance(called, Identifier):
+        return False
+
+    # Check for member access patterns like abi.encode, msg.value, library.func
+    if isinstance(called, MemberAccess):
+        expr = called.expression
+        if isinstance(expr, Identifier):
+            value = expr.value
+            # Solidity builtins (abi, msg, block, tx, etc.)
+            if isinstance(value, SolidityVariable):
+                return False
+            # Library calls
+            if isinstance(value, Contract) and value.is_library:
+                return False
+
+    return True
 
 
 class YulNode:
@@ -78,7 +111,8 @@ class YulNode:
                         variable_declaration.type,
                     )
                     _expression.set_offset(
-                        self._node.expression.source_mapping, self._node.compilation_unit
+                        self._node.expression.source_mapping,
+                        self._node.compilation_unit,
                     )
                     self._node.add_expression(_expression, bypass_verif_empty=True)
 
@@ -92,10 +126,10 @@ class YulNode:
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
             self._node.external_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if _is_external_call(c)
             ]
             self._node.internal_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if not _is_external_call(c)
             ]
 
 

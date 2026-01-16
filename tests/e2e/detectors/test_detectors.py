@@ -1362,6 +1362,11 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.DeadCode,
+        "dead-code-library.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.WriteAfterWrite,
         "write-after-write.sol",
         "0.8.0",
