@@ -18,7 +18,7 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
     try:
         crytic_compile.CryticCompile(file_path, solc_remaps=mappings)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -37,15 +37,14 @@ def run_test_cmd(
     if "forge test" in cmd and "--fail-fast" not in cmd:
         cmd += " --fail-fast"
     # add --bail for hardhat and truffle tests, to exit after first failure
-    elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
+    elif "hardhat test" in cmd or ("truffle test" in cmd and "--bail" not in cmd):
         cmd += " --bail"
 
     try:
         result = subprocess.run(
             cmd,
             shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             timeout=timeout,
             check=False,  # True: Raises a CalledProcessError if the return code is non-zero
         )

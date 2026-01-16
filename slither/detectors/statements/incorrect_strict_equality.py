@@ -104,11 +104,7 @@ contract Crowdsale{
         function: FunctionContract,
     ) -> bool:
         return any(
-            (
-                is_dependent_ssa(var, taint, function.contract)
-                for var in variables
-                for taint in taints
-            )
+            is_dependent_ssa(var, taint, function.contract) for var in variables for taint in taints
         )
 
     def taint_balance_equalities(
@@ -187,7 +183,7 @@ contract Crowdsale{
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results
-            ret = sorted(list(ret.items()), key=lambda x: x[0].name)
+            ret = sorted(ret.items(), key=lambda x: x[0].name)
             for f, nodes in ret:
                 func_info = [f, " uses a dangerous strict equality:\n"]
 

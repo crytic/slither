@@ -124,7 +124,7 @@ def output_to_markdown(
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         help_info = extract_help(detector)
         impact = detector.IMPACT
@@ -237,7 +237,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         check = detector.ARGUMENT
         impact = classification_txt[detector.IMPACT]

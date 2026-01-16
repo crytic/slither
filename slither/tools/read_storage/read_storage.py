@@ -185,7 +185,7 @@ class SlitherReadStorage:
                     )
                     self.log += (
                         f"\nSlot Name: {var_name}\nType: bytes32"
-                        f"\nStorage Type: {type_string}\nSlot: {str(exp)}\n"
+                        f"\nStorage Type: {type_string}\nSlot: {exp!s}\n"
                     )
                     logger.info(self.log)
                     self.log = ""
@@ -213,9 +213,9 @@ class SlitherReadStorage:
             (`SlotInfo`) | None : A dictionary of the slot information.
         """
 
-        key: Optional[int] = kwargs.get("key", None)
-        deep_key: Optional[int] = kwargs.get("deep_key", None)
-        struct_var: Optional[str] = kwargs.get("struct_var", None)
+        key: Optional[int] = kwargs.get("key")
+        deep_key: Optional[int] = kwargs.get("deep_key")
+        struct_var: Optional[str] = kwargs.get("struct_var")
         info: str
         var_log_name = target_variable.name
         try:

@@ -9,13 +9,21 @@ on:
   push:
     branches: [master]
   pull_request:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    paths:
+      - 'slither/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/scripts/**'
+      - '.github/actions/**'
+      - '.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -29,30 +37,35 @@ jobs:
           ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.14"]'))
           || fromJSON('["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
       - name: Install uv and Python ${{ matrix.python }}
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           python-version: ${{ matrix.python }}
           activate-environment: true
+          enable-cache: true
 
       - name: Install dependencies
         run: |
           uv sync --group test
 
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238  # v6
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
       - name: Install test dependencies
+        env:
+          TEST_TYPE: ${{ matrix.type }}
         run: |
-          if [ ${{ matrix.type }} = "tool" ]; then
+          if [ "$TEST_TYPE" = "tool" ]; then
             # Setup Ganache for slither-read-storage tests.
             npm install --global ganache
-          elif [ ${{ matrix.type }} = "integration" ]; then
+          elif [ "$TEST_TYPE" = "integration" ]; then
             # Setup Hardhat for compilation tests.
             pushd tests/e2e/compilation/test_data/test_node_modules/ || exit
             npm install hardhat
@@ -78,11 +91,12 @@ jobs:
       - name: Run ${{ matrix.type }} tests
         env:
           TEST_TYPE: ${{ matrix.type }}
+          MATRIX_OS: ${{ matrix.os }}
         # Only run coverage on ubuntu-latest.
         run: |
-          if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
+          if [ "$MATRIX_OS" = "ubuntu-latest" ]; then
             TEST_ARGS=(--cov=slither --cov-append)
-          elif [ ${{ matrix.os }} = "windows-2025" ]; then
+          elif [ "$MATRIX_OS" = "windows-2025" ]; then
             TEST_ARGS=()
           fi
           bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
@@ -101,17 +115,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           python-version: "3.9"
           activate-environment: true
+          enable-cache: true
 
       - run: uv pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7
         with:
           pattern: coverage-data-*
           merge-multiple: true

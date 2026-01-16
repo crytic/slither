@@ -36,7 +36,7 @@ class MappingType(Type):
         return True
 
     def __str__(self) -> str:
-        return f"mapping({str(self._from)} => {str(self._to)})"
+        return f"mapping({self._from!s} => {self._to!s})"
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MappingType):

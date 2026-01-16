@@ -780,13 +780,13 @@ class Node(SourceMapping):
         :return: list(nodes)
         """
         # Explore direct dominance
-        to_explore = sorted(list(self.dominator_successors), key=lambda x: x.node_id)
+        to_explore = sorted(self.dominator_successors, key=lambda x: x.node_id)
 
         # Explore dominance frontier
         # The frontier is the limit where this node dominates
         # We need to explore it because the sub of the direct dominance
         # Might not be dominator of their own sub
-        to_explore += sorted(list(self.dominance_frontier), key=lambda x: x.node_id)
+        to_explore += sorted(self.dominance_frontier, key=lambda x: x.node_id)
         return to_explore
 
     # endregion
@@ -881,7 +881,7 @@ class Node(SourceMapping):
             if isinstance(ir, InternalCall):
                 self._internal_calls.append(ir)
             if isinstance(ir, SolidityCall):
-                # TODO: consider removing dependancy of solidity_call to internal_call
+                # TODO: consider removing dependency of solidity_call to internal_call
                 self._solidity_calls.append(ir)
                 self._internal_calls.append(ir)
             if isinstance(ir, LowLevelCall):

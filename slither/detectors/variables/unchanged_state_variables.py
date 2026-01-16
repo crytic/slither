@@ -62,7 +62,7 @@ def _constant_initial_expression(v: Variable) -> bool:
     if not values:
         return True
 
-    return all((val in valid_solidity_function or _is_constant_var(val) for val in values))
+    return all(val in valid_solidity_function or _is_constant_var(val) for val in values)
 
 
 class UnchangedStateVariables:

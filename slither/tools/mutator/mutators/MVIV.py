@@ -27,7 +27,7 @@ class MVIV(AbstractMutator):
                     old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         create_patch_with_line(
                             result,
                             self.in_file,
@@ -48,7 +48,7 @@ class MVIV(AbstractMutator):
                     old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         create_patch_with_line(
                             result,
                             self.in_file,

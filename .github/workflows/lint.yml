@@ -1,0 +1,95 @@
+---
+name: Lint
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths:
+      - "docs/**/*.md"
+      - "**/*.py"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "pyproject.toml"
+      - ".github/workflows/lint.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ruff:
+    name: ruff
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
+
+      - name: Run Ruff linter
+        uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1  # v3
+        with:
+          args: "check slither/ tests/ scripts/"
+
+      - name: Run Ruff formatter check
+        run: |
+          echo "::group::Checking formatting with Ruff"
+          ruff format --check slither/ tests/ scripts/ || FORMAT_EXIT=$?
+          echo "::endgroup::"
+          if [ "${FORMAT_EXIT:-0}" -ne 0 ]; then
+            echo "❌ Formatting check failed. Run 'make reformat' or 'ruff format' locally to fix formatting."
+            exit "$FORMAT_EXIT"
+          fi
+          echo "✅ Formatting check passed"
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        with:
+          enable-cache: true
+
+      - name: Run yamllint
+        run: |
+          echo "::group::Running yamllint"
+          uvx yamllint .github/ || YAML_EXIT=$?
+          echo "::endgroup::"
+          if [ "${YAML_EXIT:-0}" -ne 0 ]; then
+            echo "❌ YAML linting failed. Fix the YAML syntax errors shown above."
+            exit "$YAML_EXIT"
+          fi
+          echo "✅ YAML linting passed"
+
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
+
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@07035fd053f7be764496c0f8d8f9f41f98305101  # v22
+        with:
+          globs: "docs/**/*.md"
+          config: .github/linters/.markdownlint.json

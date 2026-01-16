@@ -87,7 +87,7 @@ def _output_result_to_sarif(
     elif detector["impact"] == "Low":
         risk = "3.0"
 
-    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
+    detector_class = next(d for d in detectors_classes if detector["check"] == d.ARGUMENT)
     check_id = (
         str(detector_class.IMPACT.value)
         + "-"
@@ -240,7 +240,7 @@ def _convert_to_description(d: Union[str, SourceMappingT], exclude_location: boo
         raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
 
     if isinstance(d, Node):
-        first_part = f"{d.expression}" if d.expression else f"{str(d)}"
+        first_part = f"{d.expression}" if d.expression else f"{d!s}"
     elif hasattr(d, "canonical_name"):
         first_part = f"{d.canonical_name}"
     elif hasattr(d, "name"):
@@ -263,7 +263,7 @@ def _convert_to_markdown(d: str, markdown_root: str, exclude_location: bool = Fa
 
     first_part: str
     if isinstance(d, Node):
-        first_part = f"[{d.expression}]" if d.expression else f"[{str(d)}]"
+        first_part = f"[{d.expression}]" if d.expression else f"[{d!s}]"
     elif hasattr(d, "canonical_name"):
         first_part = f"[{d.canonical_name}]"
     elif hasattr(d, "name"):
@@ -292,7 +292,7 @@ def _convert_to_id(d: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+        return f"{d!s} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
         return f"{d} ({d.source_mapping})"

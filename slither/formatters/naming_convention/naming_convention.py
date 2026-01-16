@@ -129,7 +129,7 @@ SOLIDITY_KEYWORDS += ElementaryTypeName
 
 def _name_already_use(slither: SlitherCompilationUnit, name: str) -> bool:
     # Do not convert to a name used somewhere else
-    if not KEY in slither.context:
+    if KEY not in slither.context:
         all_names: Set[str] = set()
         for contract in slither.contracts_derived:
             all_names = all_names.union({st.name for st in contract.structures})
@@ -502,14 +502,14 @@ def _explore_variables_declaration(
                         idx_beginning += -func.source_mapping.starting_column + 1
                         idx_beginning += -sum(len(c) for c in potential_comments)
 
-                        old_comment = f"@param {old_str}".encode("utf8")
+                        old_comment = f"@param {old_str}".encode()
 
                         for line in potential_comments:
                             idx = line.find(old_comment)
                             if idx >= 0:
                                 loc_start = idx + idx_beginning
                                 loc_end = loc_start + len(old_comment)
-                                new_comment = f"@param {new_str}".encode("utf8")
+                                new_comment = f"@param {new_str}".encode()
 
                                 create_patch(
                                     result,
@@ -622,7 +622,7 @@ def _explore_irs(
                     full_txt_start:full_txt_end
                 ]
 
-                if not target.name.encode("utf8") in full_txt:
+                if target.name.encode("utf8") not in full_txt:
                     raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
 
                 old_str = target.name.encode("utf8")
@@ -632,7 +632,7 @@ def _explore_irs(
                 # Can be found multiple time on the same IR
                 # We patch one by one
                 while old_str in full_txt:
-                    target_found_at = full_txt.find((old_str))
+                    target_found_at = full_txt.find(old_str)
 
                     full_txt = full_txt[target_found_at + 1 :]
                     counter += target_found_at

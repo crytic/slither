@@ -6,7 +6,7 @@ Our goal is to create a script that ensures all public and external functions ca
 
 ## Proposed Algorithm
 
-```
+```text
 Create a whitelist of signatures
 Explore all the functions
     If the function is in the whitelist of signatures:

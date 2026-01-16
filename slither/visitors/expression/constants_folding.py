@@ -252,8 +252,10 @@ class ConstantFolding(ExpressionVisitor):
             and len(expression.arguments) == 1
             and (
                 isinstance(expression.arguments[0], ElementaryTypeNameExpression)
-                or isinstance(expression.arguments[0], Identifier)
-                and isinstance(expression.arguments[0].value, Enum)
+                or (
+                    isinstance(expression.arguments[0], Identifier)
+                    and isinstance(expression.arguments[0].value, Enum)
+                )
             )
         ):
             # Returning early to support type(ElemType).max/min or type(MyEnum).max/min
