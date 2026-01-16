@@ -46,4 +46,4 @@ class Argument(Operation):
         call_id = "none"
         if self.call_id:
             call_id = f"(id ({self.call_id}))"
-        return f"ARG_{self._type.name} {str(self._argument)} {call_id}"
+        return f"ARG_{self._type.name} {self._argument!s} {call_id}"

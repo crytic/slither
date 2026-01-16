@@ -56,12 +56,12 @@ contract Token
 
     WIKI_RECOMMENDATION = "Special control characters must not be allowed."
 
-    RTLO_CHARACTER_ENCODED = "\u202e".encode("utf8")
+    RTLO_CHARACTER_ENCODED = "\u202e".encode()
     STANDARD_JSON = False
 
     def _detect(self) -> List[Output]:
         results = []
-        pattern = re.compile(".*\u202e.*".encode("utf8"))
+        pattern = re.compile(".*\u202e.*".encode())
 
         for filename, source in self.slither.source_code.items():
             # Attempt to find all RTLO characters in this source file.

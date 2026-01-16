@@ -30,8 +30,8 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     Returns:
         list(list(nodes))
     """
-    visited = {n: False for n in function.nodes}
-    assigned = {n: False for n in function.nodes}
+    visited = dict.fromkeys(function.nodes, False)
+    assigned = dict.fromkeys(function.nodes, False)
     components = []
     l = []
 

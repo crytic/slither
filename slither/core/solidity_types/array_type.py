@@ -68,7 +68,7 @@ class ArrayType(Type):
 
     def __str__(self) -> str:
         if self._length:
-            return str(self._type) + f"[{str(self._length_value)}]"
+            return str(self._type) + f"[{self._length_value!s}]"
         return str(self._type) + "[]"
 
     def __eq__(self, other: Any) -> bool:

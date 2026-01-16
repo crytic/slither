@@ -40,7 +40,7 @@ def _timestamp(func: Function) -> List[Node]:
                         ret.add(node)
                     if is_dependent(var_read, SolidityVariable("now"), node):
                         ret.add(node)
-    return sorted(list(ret), key=lambda x: x.node_id)
+    return sorted(ret, key=lambda x: x.node_id)
 
 
 def _detect_dangerous_timestamp(

@@ -25,10 +25,8 @@ def _detect_token_reentrant(contract: Contract) -> Dict[Function, List[Node]]:
                     if not function.parameters:
                         continue
                     if any(
-                        (
-                            is_dependent(ir.destination, parameter, function)
-                            for parameter in function.parameters
-                        )
+                        is_dependent(ir.destination, parameter, function)
+                        for parameter in function.parameters
                     ):
                         ret[function].append(ir.node)
                     if is_dependent(

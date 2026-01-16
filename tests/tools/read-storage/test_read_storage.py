@@ -13,7 +13,7 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 def get_source_file(file_path) -> str:
-    with open(file_path, "r", encoding="utf8") as f:
+    with open(file_path, encoding="utf8") as f:
         source = f.read()
 
     return source
@@ -73,9 +73,9 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
 
     expected_file = Path(TEST_DATA_DIR, f"TEST_{storage_file}.json").as_posix()
 
-    with open(expected_file, "r", encoding="utf8") as f:
+    with open(expected_file, encoding="utf8") as f:
         expected = json.load(f)
-    with open(actual_file, "r", encoding="utf8") as f:
+    with open(actual_file, encoding="utf8") as f:
         actual = json.load(f)
 
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")

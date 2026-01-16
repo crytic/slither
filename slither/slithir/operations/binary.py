@@ -154,6 +154,6 @@ class Binary(OperationWithLValue):
             points = lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return f"{str(lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
+            return f"{lvalue!s}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
 
-        return f"{str(lvalue)}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"
+        return f"{lvalue!s}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"
