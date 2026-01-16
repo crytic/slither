@@ -44,6 +44,7 @@ all:
 
 .PHONY: dev
 dev: $(VENV)/pyvenv.cfg
+	prek install
 
 .PHONY: run
 run: $(VENV)/pyvenv.cfg
@@ -58,12 +59,15 @@ $(VENV)/pyvenv.cfg: pyproject.toml
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
 		ruff check $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE) && \
-		yamllint .github/
+		yamllint -c .yamllint .github/ && \
+		actionlint .github/workflows/ && \
+		zizmor .github/workflows/
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		ruff check --fix $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE)
+		ruff check --fix $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE) && \
+		ruff format $(PY_MODULE) $(TEST_MODULE) $(SCRIPT_MODULE)
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg

@@ -19,7 +19,6 @@ class Example(AbstractDetector):
     WIKI_RECOMMENDATION = "Customize the detector"
 
     def _detect(self):
-
         info = "This is an example!"
 
         json = self.generate_result(info)
