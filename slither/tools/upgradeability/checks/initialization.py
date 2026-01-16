@@ -7,6 +7,7 @@ from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
 )
 from slither.utils.colors import red
+from slither.exceptions import SlitherError
 
 logger = logging.getLogger("Slither-check-upgradeability")
 
@@ -18,7 +19,7 @@ class MultipleInitTarget(Exception):
 def _has_initialize_modifier(function: Function):
     if not function.modifiers:
         return False
-    return any((m.name == "initializer") for m in function.modifiers)
+    return any((m.name in ("initializer", "reinitializer")) for m in function.modifiers)
 
 
 def _get_initialize_functions(contract):
@@ -42,7 +43,7 @@ def _get_most_derived_init(contract):
     init_functions = [f for f in contract.functions if not f.is_shadowed and f.name == "initialize"]
     if len(init_functions) > 1:
         if len([f for f in init_functions if f.contract_declarer == contract]) == 1:
-            return next((f for f in init_functions if f.contract_declarer == contract))
+            return next(f for f in init_functions if f.contract_declarer == contract)
         raise MultipleInitTarget
     if init_functions:
         return init_functions[0]
@@ -164,7 +165,7 @@ class MissingInitializerModifier(AbstractCheck):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Detect if `Initializable.initializer()` is called.
+Detect if `Initializable.initializer()` or `Initializable.reinitializer(uint64)` is called.
 """
     # endregion wiki_description
 
@@ -178,13 +179,13 @@ contract Contract{
 }
 
 ```
-`initialize` should have the `initializer` modifier to prevent someone from initializing the contract multiple times.  
+`initialize` should have the `initializer` modifier to prevent someone from initializing the contract multiple times.
 """
     # endregion wiki_exploit_scenario
 
     # region wiki_recommendation
     WIKI_RECOMMENDATION = """
-Use `Initializable.initializer()`.
+Use `Initializable.initializer()` or `Initializable.reinitializer(uint64)`.
 """
     # endregion wiki_recommendation
 
@@ -199,15 +200,18 @@ Use `Initializable.initializer()`.
         if initializable not in self.contract.inheritance:
             return []
         initializer = self.contract.get_modifier_from_canonical_name("Initializable.initializer()")
+        reinitializer = self.contract.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
         # InitializableInitializer
-        if initializer is None:
+        if initializer is None and reinitializer is None:
             return []
 
         results = []
         all_init_functions = _get_initialize_functions(self.contract)
         for f in all_init_functions:
-            if initializer not in f.modifiers:
-                info = [f, " does not call the initializer modifier.\n"]
+            if initializer not in f.modifiers and reinitializer not in f.modifiers:
+                info = [f, " does not call the initializer or reinitializer modifier.\n"]
                 json = self.generate_result(info)
                 results.append(json)
         return results
@@ -242,7 +246,7 @@ contract Derived is Base{
 }
 
 ```
-`Derived.initialize` does not call `Base.initialize` leading the contract to not be correctly initialized.  
+`Derived.initialize` does not call `Base.initialize` leading the contract to not be correctly initialized.
 """
     # endregion wiki_exploit_scenario
 
@@ -269,8 +273,11 @@ Ensure all the initialize functions are reached by the most derived initialize f
 
         all_init_functions = _get_initialize_functions(self.contract)
         all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
-        missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
+        missing_calls = [f for f in all_init_functions if f not in all_init_functions_called]
         for f in missing_calls:
+            # we don't account reinitializers
+            if any((m.name == "reinitializer") for m in f.modifiers):
+                continue
             info = ["Missing call to ", f, " in ", most_derived_init, ".\n"]
             json = self.generate_result(info)
             results.append(json)
@@ -361,7 +368,7 @@ class InitializeTarget(AbstractCheck):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Show the function that must be called at deployment. 
+Show the function that must be called at deployment.
 
 This finding does not have an immediate security impact and is informative.
 """
@@ -376,7 +383,6 @@ Ensure that the function is called at deployment.
     REQUIRE_CONTRACT = True
 
     def _check(self):
-
         # TODO: handle MultipleInitTarget
         try:
             most_derived_init = _get_most_derived_init(self.contract)
@@ -396,3 +402,106 @@ Ensure that the function is called at deployment.
         ]
         json = self.generate_result(info)
         return [json]
+
+
+class MultipleReinitializers(AbstractCheck):
+    ARGUMENT = "multiple-new-reinitializers"
+    IMPACT = CheckClassification.LOW
+
+    HELP = "Multiple new reinitializers in the updated contract"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Upgradeability-Checks#multiple-new-reinitializers"
+    )
+    WIKI_TITLE = "Multiple new reinitializers in the updated contract"
+
+    # region wiki_description
+    WIKI_DESCRIPTION = """
+Detect multiple new reinitializers in the updated contract`.
+"""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
+    WIKI_EXPLOIT_SCENARIO = """
+```solidity
+contract Counter is Initializable {
+    uint256 public x;
+
+    function initialize(uint256 _x) public initializer {
+        x = _x;
+    }
+
+    function changeX() public {
+        x++;
+    }
+}
+
+contract CounterV2 is Initializable {
+    uint256 public x;
+    uint256 public y;
+    uint256 public z;
+
+    function initializeV2(uint256 _y) public reinitializer(2) {
+        y = _y;
+    }
+
+    function initializeV3(uint256 _z) public reinitializer(3) {
+        z = _z;
+    }
+
+    function changeX() public {
+        x = x + y + z;
+    }
+}
+```
+`CounterV2` has two reinitializers with new versions `2` and `3`. If `initializeV3()` is called first, the `initializeV2()` can't be called to initialize `y`, which may brings security risks.
+"""
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
+    WIKI_RECOMMENDATION = """
+Do not use multiple reinitializers with higher versions in the updated contract. Please consider combining new reinitializers into a single one.
+"""
+    # endregion wiki_recommendation
+
+    REQUIRE_CONTRACT = True
+    REQUIRE_CONTRACT_V2 = True
+
+    def _check(self):
+        contract_v1 = self.contract
+        contract_v2 = self.contract_v2
+
+        if contract_v2 is None:
+            raise SlitherError("multiple-new-reinitializers requires a V2 contract")
+
+        initializerV1 = contract_v1.get_modifier_from_canonical_name("Initializable.initializer()")
+        reinitializerV1 = contract_v1.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
+        reinitializerV2 = contract_v2.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
+
+        # contractV1 has initializer or reinitializer
+        if initializerV1 is None and reinitializerV1 is None:
+            return []
+        # contractV2 has reinitializer
+        if reinitializerV2 is None:
+            return []
+
+        initializer_funcs_v1 = _get_initialize_functions(contract_v1)
+        initializer_funcs_v2 = _get_initialize_functions(contract_v2)
+        new_reinitializer_funcs = []
+        for fv2 in initializer_funcs_v2:
+            if not any((fv2.full_name == fv1.full_name) for fv1 in initializer_funcs_v1):
+                new_reinitializer_funcs.append(fv2)
+
+        results = []
+        if len(new_reinitializer_funcs) > 1:
+            for f in new_reinitializer_funcs:
+                info = [
+                    f,
+                    " multiple new reinitializers which should be combined into one per upgrade.\n",
+                ]
+                json = self.generate_result(info)
+                results.append(json)
+        return results

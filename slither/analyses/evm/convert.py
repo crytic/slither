@@ -14,7 +14,6 @@ def get_evm_instructions(obj):
     assert isinstance(obj, (Function, Contract, Node))
 
     if KEY_EVM_INS not in obj.context:
-
         CFG = load_evm_cfg_builder()
 
         slither = obj.slither
@@ -133,13 +132,11 @@ def _get_evm_instructions_node(node_info):
     contract_file = (
         node_info["slither"]
         .source_code[node_info["contract"].source_mapping.filename.absolute]
-        .encode("utf-8")
+        .encode("utf8")
     )
 
     # Get evm instructions corresponding to node's source line number
-    node_source_line = (
-        contract_file[0 : node_info["node"].source_mapping.start].count("\n".encode("utf-8")) + 1
-    )
+    node_source_line = contract_file[0 : node_info["node"].source_mapping.start].count(b"\n") + 1
     node_pcs = contract_pcs.get(node_source_line, [])
     node_ins = []
     for pc in node_pcs:
@@ -159,7 +156,6 @@ def _get_function_evm(cfg, function_name, function_hash):
     return None
 
 
-# pylint: disable=too-many-locals
 def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither, filename):
     """
     Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions
@@ -169,7 +165,7 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
     """
 
     source_to_evm_mapping = {}
-    file_source = slither.source_code[filename].encode("utf-8")
+    file_source = slither.source_code[filename].encode("utf8")
     prev_mapping = []
 
     for idx, mapping in enumerate(srcmap_runtime):
@@ -193,7 +189,7 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
             # See https://github.com/ethereum/solidity/issues/6119#issuecomment-467797635
             continue
 
-        line_number = file_source[0 : int(offset)].count("\n".encode("utf-8")) + 1
+        line_number = file_source[0 : int(offset)].count(b"\n") + 1
 
         # Append evm instructions to the corresponding source line number
         # Note: Some evm instructions in mapping are not necessarily in program execution order

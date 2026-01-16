@@ -83,7 +83,7 @@ Uint = [
 ]
 
 Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2**256 - 1 for i, k in enumerate(Uint)}
-Min_Uint = {k: 0 for k in Uint}
+Min_Uint = dict.fromkeys(Uint, 0)
 
 
 Byte = [
@@ -127,7 +127,7 @@ Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
 Max_Byte["bytes"] = None
 Max_Byte["string"] = None
 Max_Byte["byte"] = 255
-Min_Byte = {k: 0 for k in Byte}
+Min_Byte = dict.fromkeys(Byte, 0)
 Min_Byte["bytes"] = 0x0
 Min_Byte["string"] = 0x0
 Min_Byte["byte"] = 0x0
@@ -189,9 +189,9 @@ class ElementaryType(Type):
         if t.startswith("int"):
             return int(t[len("int") :])
         if t == "bool":
-            return int(8)
+            return 8
         if t == "address":
-            return int(160)
+            return 160
         if t.startswith("bytes") and t != "bytes":
             return int(t[len("bytes") :]) * 8
         raise SlitherException(f"{t} does not have a size")

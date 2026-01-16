@@ -1,6 +1,7 @@
 """
-    Compute the data depenency between all the SSA variables
+Compute the data depenency between all the SSA variables
 """
+
 from collections import defaultdict
 from typing import Union, Set, Dict, TYPE_CHECKING, List
 
@@ -365,7 +366,6 @@ def compute_dependency_contract(
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
         propagate_function(contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
-        # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
             [compilation_unit.context[KEY_INPUT].add(p) for p in function.parameters]
             [compilation_unit.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
@@ -380,8 +380,8 @@ def propagate_function(
     transitive_close_dependencies(function, context_key, context_key_non_ssa)
     # Propage data dependency
     data_depencencies = function.context[context_key]
-    for (key, values) in data_depencencies.items():
-        if not key in contract.context[context_key]:
+    for key, values in data_depencencies.items():
+        if key not in contract.context[context_key]:
             contract.context[context_key][key] = set(values)
         else:
             contract.context[context_key][key].union(values)
@@ -413,7 +413,7 @@ def propagate_contract(contract: Contract, context_key: str, context_key_non_ssa
 
 
 def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_protected: bool) -> None:
-    if not lvalue in function.context[KEY_SSA]:
+    if lvalue not in function.context[KEY_SSA]:
         function.context[KEY_SSA][lvalue] = set()
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
@@ -489,13 +489,13 @@ def convert_variable_to_non_ssa(v: SUPPORTED_TYPES) -> SUPPORTED_TYPES:
 
 
 def convert_to_non_ssa(
-    data_depencies: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]
+    data_depencies: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]],
 ) -> Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]:
     # Need to create new set() as its changed during iteration
     ret: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]] = {}
-    for (k, values) in data_depencies.items():
+    for k, values in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
-        if not var in ret:
+        if var not in ret:
             ret[var] = set()
         ret[var] = ret[var].union({convert_variable_to_non_ssa(v) for v in values})
 

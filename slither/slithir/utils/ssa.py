@@ -77,7 +77,7 @@ logger = logging.getLogger("SSA_Conversion")
 
 
 def transform_slithir_vars_to_ssa(
-    function: Union[FunctionContract, Modifier, FunctionTopLevel]
+    function: Union[FunctionContract, Modifier, FunctionTopLevel],
 ) -> None:
     """
     Transform slithIR vars to SSA (TemporaryVariable, ReferenceVariable, TupleVariable)
@@ -85,18 +85,18 @@ def transform_slithir_vars_to_ssa(
     variables = []
     for node in function.nodes:
         for ir in node.irs_ssa:
-            if isinstance(ir, OperationWithLValue) and not ir.lvalue in variables:
+            if isinstance(ir, OperationWithLValue) and ir.lvalue not in variables:
                 variables += [ir.lvalue]
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx, _ in enumerate(tmp_variables):
-        tmp_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        tmp_variables[idx].index = idx
     ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
     for idx, _ in enumerate(ref_variables):
-        ref_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        ref_variables[idx].index = idx
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx, _ in enumerate(tuple_variables):
-        tuple_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
+        tuple_variables[idx].index = idx
 
 
 ###################################################################################
@@ -104,8 +104,6 @@ def transform_slithir_vars_to_ssa(
 # region SSA conversion
 ###################################################################################
 ###################################################################################
-
-# pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
 
 def add_ssa_ir(
@@ -137,7 +135,7 @@ def add_ssa_ir(
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
-    for (_, variable_instance) in all_state_variables_instances.items():
+    for _, variable_instance in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
@@ -145,13 +143,13 @@ def add_ssa_ir(
     add_phi_origins(function.entry_point, init_definition, {})
 
     for node in function.nodes:
-        for (variable, nodes) in node.phi_origins_local_variables.values():
+        for variable, nodes in node.phi_origins_local_variables.values():
             if len(nodes) < 2:
                 continue
             if not is_used_later(node, variable):
                 continue
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
-        for (variable, nodes) in node.phi_origins_state_variables.values():
+        for variable, nodes in node.phi_origins_state_variables.values():
             if len(nodes) < 2:
                 continue
             # if not is_used_later(node, variable.name, []):
@@ -222,12 +220,11 @@ def generate_ssa_irs(
     init_local_variables_instances: Dict[str, LocalIRVariable],
     visited: List[Node],
 ) -> None:
-
     if node in visited:
         return
 
     if node.type in [NodeType.ENDIF, NodeType.ENDLOOP] and any(
-        not father in visited for father in node.fathers
+        father not in visited for father in node.fathers
     ):
         return
 
@@ -275,7 +272,6 @@ def generate_ssa_irs(
         )
 
         if new_ir:
-
             node.add_ssa_ir(new_ir)
 
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
@@ -298,13 +294,13 @@ def generate_ssa_irs(
                         if isinstance(new_ir.rvalue, ReferenceVariable):
                             refers_to = new_ir.rvalue.points_to_origin
                             new_ir.lvalue.add_refers_to(refers_to)
-                        # Discard Constant
+                        # Discard Constant and TopLevelVariable
                         # This can happen on yul, like
                         # assembly { var.slot = some_value }
                         # Here we do not keep track of the references as we do not track
                         # such low level manipulation
                         # However we could extend our storage model to do so in the future
-                        elif not isinstance(new_ir.rvalue, Constant):
+                        elif not isinstance(new_ir.rvalue, (Constant, TopLevelVariable)):
                             new_ir.lvalue.add_refers_to(new_ir.rvalue)
 
     for succ in node.dominator_successors:
@@ -345,7 +341,10 @@ def last_name(
         LocalIRVariable,
     ],
     init_vars: Dict[str, LocalIRVariable],
-) -> Union[StateIRVariable, LocalIRVariable,]:
+) -> Union[
+    StateIRVariable,
+    LocalIRVariable,
+]:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:
@@ -399,7 +398,7 @@ def is_used_later(
             ):
                 return False
         for son in node.sons:
-            if not son in explored:
+            if son not in explored:
                 to_explore.add(son)
 
     return False
@@ -538,7 +537,6 @@ def add_phi_origins(
     local_variables_definition: Dict[str, Tuple[LocalVariable, Node]],
     state_variables_definition: Dict[str, Tuple[StateVariable, Node]],
 ) -> None:
-
     # Add new key to local_variables_definition
     # The key is the variable_name
     # The value is (variable_instance, the node where its written)
@@ -556,7 +554,7 @@ def add_phi_origins(
     # For unini variable declaration
     if (
         node.variable_declaration
-        and not node.variable_declaration.name in local_variables_definition
+        and node.variable_declaration.name not in local_variables_definition
     ):
         local_variables_definition[node.variable_declaration.name] = (
             node.variable_declaration,
@@ -609,7 +607,7 @@ def get(
     if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
         return state_variables_instances[variable.canonical_name]
     if isinstance(variable, ReferenceVariable):
-        if not variable.index in reference_variables_instances:
+        if variable.index not in reference_variables_instances:
             new_variable = ReferenceVariableSSA(variable)
             if variable.points_to:
                 new_variable.points_to = get(
@@ -625,13 +623,13 @@ def get(
             reference_variables_instances[variable.index] = new_variable
         return reference_variables_instances[variable.index]
     if isinstance(variable, TemporaryVariable):
-        if not variable.index in temporary_variables_instances:
+        if variable.index not in temporary_variables_instances:
             new_variable = TemporaryVariableSSA(variable)
             new_variable.set_type(variable.type)
             temporary_variables_instances[variable.index] = new_variable
         return temporary_variables_instances[variable.index]
     if isinstance(variable, TupleVariable):
-        if not variable.index in tuple_variables_instances:
+        if variable.index not in tuple_variables_instances:
             new_variable = TupleVariableSSA(variable)
             new_variable.set_type(variable.type)
             tuple_variables_instances[variable.index] = new_variable
@@ -655,7 +653,6 @@ def get(
 
 
 def get_variable(ir: Operation, f: Callable, *instances):
-    # pylint: disable=no-value-for-parameter
     variable = f(ir)
     variable = get(variable, *instances)
     return variable
@@ -663,7 +660,7 @@ def get_variable(ir: Operation, f: Callable, *instances):
 
 def _get_traversal(values: List[Any], *instances) -> List[Any]:
     ret = []
-    # pylint: disable=no-value-for-parameter
+
     for v in values:
         if isinstance(v, list):
             v = _get_traversal(v, *instances)

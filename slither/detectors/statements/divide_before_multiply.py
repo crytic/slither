@@ -1,6 +1,7 @@
 """
 Module detecting possible loss of precision due to divide before multiple
 """
+
 from collections import defaultdict
 from typing import DefaultDict, List, Tuple
 
@@ -56,17 +57,16 @@ def is_assert(node: Node) -> bool:
     # Old Solidity code where using an internal 'assert(bool)' function
     # While we dont check that this function is correct, we assume it is
     # To avoid too many FP
-    if "assert(bool)" in [c.full_name for c in node.internal_calls]:
+    if "assert(bool)" in [ir.function.full_name for ir in node.internal_calls]:
         return True
     return False
 
 
-# pylint: disable=too-many-branches
 def _explore(
     to_explore: List[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
 ) -> None:
     explored = set()
-    while to_explore:  # pylint: disable=too-many-nested-blocks
+    while to_explore:
         node = to_explore.pop()
 
         if node in explored:
@@ -178,8 +178,8 @@ contract A {
     }
 }
 ```
-If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
-If `(oldSupply * interest / n)` was used, `coins` would have been `1`.   
+If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.
+If `(oldSupply * interest / n)` was used, `coins` would have been `1`.
 In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous."""
     # endregion wiki_exploit_scenario
 
@@ -193,8 +193,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
         for contract in self.contracts:
             divisions_before_multiplications = detect_divide_before_multiply(contract)
             if divisions_before_multiplications:
-                for (func, nodes) in divisions_before_multiplications:
-
+                for func, nodes in divisions_before_multiplications:
                     info: DETECTOR_INFO = [
                         func,
                         " performs a multiplication on the result of a division:\n",

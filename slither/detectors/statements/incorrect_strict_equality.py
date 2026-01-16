@@ -1,7 +1,8 @@
 """
-    Module detecting dangerous strict equality
+Module detecting dangerous strict equality
 
 """
+
 from typing import Any, Dict, List, Union
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
@@ -103,11 +104,7 @@ contract Crowdsale{
         function: FunctionContract,
     ) -> bool:
         return any(
-            (
-                is_dependent_ssa(var, taint, function.contract)
-                for var in variables
-                for taint in taints
-            )
+            is_dependent_ssa(var, taint, function.contract) for var in variables for taint in taints
         )
 
     def taint_balance_equalities(
@@ -155,7 +152,6 @@ contract Crowdsale{
                 continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
-
                     # Filter to only tainted equality (==) comparisons
                     if (
                         self.is_direct_comparison(ir)
@@ -187,9 +183,8 @@ contract Crowdsale{
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results
-            ret = sorted(list(ret.items()), key=lambda x: x[0].name)
+            ret = sorted(ret.items(), key=lambda x: x[0].name)
             for f, nodes in ret:
-
                 func_info = [f, " uses a dangerous strict equality:\n"]
 
                 # sort the nodes to get deterministic results

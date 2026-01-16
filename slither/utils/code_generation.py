@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from slither.core.variables.structure_variable import StructureVariable
 
 
-# pylint: disable=too-many-arguments,too-many-locals,too-many-branches
 def generate_interface(
     contract: "Contract",
     unroll_structs: bool = True,
@@ -62,7 +61,7 @@ def generate_interface(
         structs = contract.structures + contract.compilation_unit.structures_top_level
         # Function signatures may reference other structures as well
         # Include structures defined in libraries used for them
-        for _for in contract.using_for.keys():
+        for _for in contract.using_for:
             if (
                 isinstance(_for, UserDefinedType)
                 and isinstance(_for.type, StructureContract)
@@ -184,7 +183,7 @@ def generate_interface_function_signature(
             )
         if isinstance(var.type, UserDefinedType):
             if isinstance(var.type.type, Structure):
-                return f"{str(var.type.type)} memory"
+                return f"{var.type.type!s} memory"
             if isinstance(var.type.type, Enum):
                 return str(var.type.type)
             if isinstance(var.type.type, Contract):

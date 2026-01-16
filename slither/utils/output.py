@@ -87,7 +87,7 @@ def _output_result_to_sarif(
     elif detector["impact"] == "Low":
         risk = "3.0"
 
-    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
+    detector_class = next(d for d in detectors_classes if detector["check"] == d.ARGUMENT)
     check_id = (
         str(detector_class.IMPACT.value)
         + "-"
@@ -239,7 +239,7 @@ def _convert_to_description(d: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+        return f"{d!s} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
         return f"{d.canonical_name} ({d.source_mapping})"
@@ -260,7 +260,7 @@ def _convert_to_markdown(d: str, markdown_root: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
+        return f"[{d!s}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
         return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
@@ -286,7 +286,7 @@ def _convert_to_id(d: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+        return f"{d!s} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
         return f"{d} ({d.source_mapping})"
@@ -360,7 +360,6 @@ def _create_parent_element(
         Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
     ],
 ]:
-    # pylint: disable=import-outside-toplevel
     from slither.core.declarations.contract_level import ContractLevel
 
     if isinstance(element, FunctionContract):
@@ -411,7 +410,7 @@ class Output:
         self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
-        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
+        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf8")).hexdigest()
 
         if standard_format:
             to_add = [i for i in info if not isinstance(i, str)]

@@ -1,6 +1,7 @@
 """
-    Function module
+Function module
 """
+
 import logging
 from abc import abstractmethod, ABCMeta
 from collections import namedtuple
@@ -28,22 +29,21 @@ from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 
-# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
-
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        LowLevelCallType,
-        HighLevelCallType,
-        LibraryCallType,
-    )
     from slither.core.declarations import Contract, FunctionContract
     from slither.core.cfg.node import Node, NodeType
     from slither.core.variables.variable import Variable
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.slithir.variables import LocalIRVariable
     from slither.core.expressions.expression import Expression
-    from slither.slithir.operations import Operation
+    from slither.slithir.operations import (
+        HighLevelCall,
+        InternalCall,
+        LibraryCall,
+        LowLevelCall,
+        SolidityCall,
+        Operation,
+    )
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
 
@@ -109,7 +109,7 @@ class FunctionLanguage(Enum):
     Vyper = 2
 
 
-class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
+class Function(SourceMapping, metaclass=ABCMeta):
     """
     Function class
     """
@@ -149,11 +149,11 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._vars_read_or_written: List["Variable"] = []
         self._solidity_vars_read: List["SolidityVariable"] = []
         self._state_vars_written: List["StateVariable"] = []
-        self._internal_calls: List["InternalCallType"] = []
-        self._solidity_calls: List["SolidityFunction"] = []
-        self._low_level_calls: List["LowLevelCallType"] = []
-        self._high_level_calls: List["HighLevelCallType"] = []
-        self._library_calls: List["LibraryCallType"] = []
+        self._internal_calls: List["InternalCall"] = []
+        self._solidity_calls: List["SolidityCall"] = []
+        self._low_level_calls: List["LowLevelCall"] = []
+        self._high_level_calls: List[Tuple["Contract", "HighLevelCall"]] = []
+        self._library_calls: List["LibraryCall"] = []
         self._external_calls_as_expressions: List["Expression"] = []
         self._expression_vars_read: List["Expression"] = []
         self._expression_vars_written: List["Expression"] = []
@@ -169,11 +169,11 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self._all_expressions: Optional[List["Expression"]] = None
         self._all_slithir_operations: Optional[List["Operation"]] = None
-        self._all_internals_calls: Optional[List["InternalCallType"]] = None
-        self._all_high_level_calls: Optional[List["HighLevelCallType"]] = None
-        self._all_library_calls: Optional[List["LibraryCallType"]] = None
-        self._all_low_level_calls: Optional[List["LowLevelCallType"]] = None
-        self._all_solidity_calls: Optional[List["SolidityFunction"]] = None
+        self._all_internals_calls: Optional[List["InternalCall"]] = None
+        self._all_high_level_calls: Optional[List[Tuple["Contract", "HighLevelCall"]]] = None
+        self._all_library_calls: Optional[List["LibraryCall"]] = None
+        self._all_low_level_calls: Optional[List["LowLevelCall"]] = None
+        self._all_solidity_calls: Optional[List["SolidityCall"]] = None
         self._all_variables_read: Optional[List["Variable"]] = None
         self._all_variables_written: Optional[List["Variable"]] = None
         self._all_state_variables_read: Optional[List["StateVariable"]] = None
@@ -619,7 +619,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             for node in self.nodes:
                 # if node.type == NodeType.OTHER_ENTRYPOINT:
-                if not node in self._nodes_ordered_dominators:
+                if node not in self._nodes_ordered_dominators:
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators
@@ -776,14 +776,14 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def variables(self) -> List[LocalVariable]:
         """
         Return all local variables
-        Include paramters and return values
+        Include parameters and return values
         """
         return list(self._variables.values())
 
     @property
     def local_variables(self) -> List[LocalVariable]:
         """
-        Return all local variables (dont include paramters and return values)
+        Return all local variables (dont include parameters and return values)
         """
         return list(set(self.variables) - set(self.returns) - set(self.parameters))
 
@@ -857,43 +857,42 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List["InternalCallType"]:
+    def internal_calls(self) -> List["InternalCall"]:
         """
-        list(Function or SolidityFunction): List of function calls (that does not create a transaction)
+        list(InternalCall): List of IR operations for internal calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityFunction]:
+    def solidity_calls(self) -> List["SolidityCall"]:
         """
-        list(SolidityFunction): List of Soldity calls
+        list(SolidityCall): List of IR operations for Solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List["HighLevelCallType"]:
+    def high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
         """
-        list((Contract, Function|Variable)):
-        List of high level calls (external calls).
+        list(Tuple(Contract, "HighLevelCall")): List of call target contract and IR of the high level call
         A variable is called in case of call to a public state variable
         Include library calls
         """
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List["LibraryCallType"]:
+    def library_calls(self) -> List["LibraryCall"]:
         """
-        list((Contract, Function)):
+        list(LibraryCall): List of IR operations for library calls
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List["LowLevelCallType"]:
+    def low_level_calls(self) -> List["LowLevelCall"]:
         """
-        list((Variable|SolidityVariable, str)): List of low_level call
+        list(LowLevelCall): List of IR operations for low level calls
         A low level call is defined by
         - the variable called
-        - the name of the function (call/delegatecall/codecall)
+        - the name of the function (call/delegatecall/callcode)
         """
         return list(self._low_level_calls)
 
@@ -938,7 +937,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._return_values is None:
             return_values = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [  # pylint: disable=expression-not-assigned
+            [
                 return_values.extend(ir.values)
                 for node in returns
                 for ir in node.irs
@@ -959,7 +958,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._return_values_ssa is None:
             return_values_ssa = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [  # pylint: disable=expression-not-assigned
+            [
                 return_values_ssa.extend(ir.values)
                 for node in returns
                 for ir in node.irs_ssa
@@ -1121,10 +1120,14 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         values = f_new_values(self)
         explored = [self]
         to_explore = [
-            c for c in self.internal_calls if isinstance(c, Function) and c not in explored
+            ir.function
+            for ir in self.internal_calls
+            if isinstance(ir.function, Function) and ir.function not in explored
         ]
         to_explore += [
-            c for (_, c) in self.library_calls if isinstance(c, Function) and c not in explored
+            ir.function
+            for ir in self.library_calls
+            if isinstance(ir.function, Function) and ir.function not in explored
         ]
         to_explore += [m for m in self.modifiers if m not in explored]
 
@@ -1138,14 +1141,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             values += f_new_values(f)
 
             to_explore += [
-                c
-                for c in f.internal_calls
-                if isinstance(c, Function) and c not in explored and c not in to_explore
+                ir.function
+                for ir in f.internal_calls
+                if isinstance(ir.function, Function)
+                and ir.function not in explored
+                and ir.function not in to_explore
             ]
             to_explore += [
-                c
-                for (_, c) in f.library_calls
-                if isinstance(c, Function) and c not in explored and c not in to_explore
+                ir.function
+                for ir in f.library_calls
+                if isinstance(ir.function, Function)
+                and ir.function not in explored
+                and ir.function not in to_explore
             ]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -1210,31 +1217,31 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             )
         return self._all_state_variables_written
 
-    def all_internal_calls(self) -> List["InternalCallType"]:
+    def all_internal_calls(self) -> List["InternalCall"]:
         """recursive version of internal_calls"""
         if self._all_internals_calls is None:
             self._all_internals_calls = self._explore_functions(lambda x: x.internal_calls)
         return self._all_internals_calls
 
-    def all_low_level_calls(self) -> List["LowLevelCallType"]:
+    def all_low_level_calls(self) -> List["LowLevelCall"]:
         """recursive version of low_level calls"""
         if self._all_low_level_calls is None:
             self._all_low_level_calls = self._explore_functions(lambda x: x.low_level_calls)
         return self._all_low_level_calls
 
-    def all_high_level_calls(self) -> List["HighLevelCallType"]:
+    def all_high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
         """recursive version of high_level calls"""
         if self._all_high_level_calls is None:
             self._all_high_level_calls = self._explore_functions(lambda x: x.high_level_calls)
         return self._all_high_level_calls
 
-    def all_library_calls(self) -> List["LibraryCallType"]:
+    def all_library_calls(self) -> List["LibraryCall"]:
         """recursive version of library calls"""
         if self._all_library_calls is None:
             self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
 
-    def all_solidity_calls(self) -> List[SolidityFunction]:
+    def all_solidity_calls(self) -> List["SolidityCall"]:
         """recursive version of solidity calls"""
         if self._all_solidity_calls is None:
             self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
@@ -1287,7 +1294,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self, include_loop: bool = True
     ) -> List[SolidityVariable]:
         """
-        Return the Soldiity variables directly used in a condtion
+        Return the Solidity variables directly used in a condition
 
         Use of the IR to filter index access
         Assumption: the solidity vars are used directly in the conditional node
@@ -1329,7 +1336,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def all_solidity_variables_used_as_args(self) -> List[SolidityVariable]:
         """
-        Return the Soldiity variables directly used in a call
+        Return the Solidity variables directly used in a call
 
         Use of the IR to filter index access
         Used to catch check(msg.sender)
@@ -1393,7 +1400,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write(f'{node.node_id}[label="{str(node)}"];\n')
+                f.write(f'{node.node_id}[label="{node!s}"];\n')
                 for son in node.sons:
                     f.write(f"{node.node_id}->{son.node_id};\n")
 
@@ -1574,7 +1581,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if not all_entry_points:
             return True
         return not all(
-            (reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points)
+            reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points
         )
 
     # endregion
@@ -1653,7 +1660,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         internal_calls = [item for sublist in internal_calls for item in sublist]
         self._internal_calls = list(set(internal_calls))
 
-        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
+        self._solidity_calls = [
+            ir for ir in internal_calls if isinstance(ir.function, SolidityFunction)
+        ]
 
         low_level_calls = [x.low_level_calls for x in self.nodes]
         low_level_calls = [x for x in low_level_calls if x]
@@ -1707,7 +1716,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def _get_last_ssa_variable_instances(
         self, target_state: bool, target_local: bool
     ) -> Dict[str, Set["SlithIRVariable"]]:
-        # pylint: disable=too-many-locals,too-many-branches
         from slither.slithir.variables import ReferenceVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
@@ -1783,30 +1791,51 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             return True
         return ir.rvalues[0] == ir.lvalue
 
+    def _fix_phi_entry(
+        self,
+        node: "Node",
+        last_state_variables_instances: Dict[str, List["StateVariable"]],
+        initial_state_variables_instances: Dict[str, "StateVariable"],
+    ) -> None:
+        from slither.slithir.variables import Constant, StateIRVariable, LocalIRVariable
+
+        for ir in node.irs_ssa:
+            if isinstance(ir.lvalue, StateIRVariable):
+                additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                additional += last_state_variables_instances[ir.lvalue.canonical_name]
+                ir.rvalues = list(set(additional + ir.rvalues))
+            # function parameter that are storage pointer
+            else:
+                # find index of the parameter
+                idx = self.parameters.index(ir.lvalue.non_ssa_version)
+                # find non ssa version of that index
+                additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                additional = unroll(additional)
+                additional = [a for a in additional if not isinstance(a, Constant)]
+                ir.rvalues = list(set(additional + ir.rvalues))
+
+                if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+                    # Update the refers_to to point to the phi rvalues
+                    # This basically means that the local variable is a storage that point to any
+                    # state variable that the storage pointer alias analysis found
+                    ir.lvalue.refers_to = [
+                        rvalue for rvalue in ir.rvalues if isinstance(rvalue, StateIRVariable)
+                    ]
+
     def fix_phi(
         self,
         last_state_variables_instances: Dict[str, List["StateVariable"]],
         initial_state_variables_instances: Dict[str, "StateVariable"],
     ) -> None:
-        from slither.slithir.operations import InternalCall, PhiCallback
-        from slither.slithir.variables import Constant, StateIRVariable
+        from slither.slithir.operations import InternalCall, PhiCallback, Phi
+        from slither.slithir.variables import StateIRVariable, LocalIRVariable
 
         for node in self.nodes:
+            if node == self.entry_point:
+                self._fix_phi_entry(
+                    node, last_state_variables_instances, initial_state_variables_instances
+                )
             for ir in node.irs_ssa:
-                if node == self.entry_point:
-                    if isinstance(ir.lvalue, StateIRVariable):
-                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
-                        additional += last_state_variables_instances[ir.lvalue.canonical_name]
-                        ir.rvalues = list(set(additional + ir.rvalues))
-                    # function parameter
-                    else:
-                        # find index of the parameter
-                        idx = self.parameters.index(ir.lvalue.non_ssa_version)
-                        # find non ssa version of that index
-                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
-                        additional = unroll(additional)
-                        additional = [a for a in additional if not isinstance(a, Constant)]
-                        ir.rvalues = list(set(additional + ir.rvalues))
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
@@ -1819,10 +1848,28 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
 
+                # Propage storage ref information if it does not exist
+                # This can happen if the refers_to variable was discovered through the phi operator on function parameter
+                # aka you have storage pointer as function parameter
+                # instead of having a storage pointer for which the aliases belong to the function body
+                if (
+                    isinstance(ir, Phi)
+                    and isinstance(ir.lvalue, LocalIRVariable)
+                    and ir.lvalue.is_storage
+                    and not ir.lvalue.refers_to
+                ):
+                    refers_to = []
+                    for candidate in ir.rvalues:
+                        if isinstance(candidate, StateIRVariable):
+                            refers_to.append(candidate)
+                        if isinstance(candidate, LocalIRVariable) and candidate.is_storage:
+                            refers_to += candidate.refers_to
+
+                    ir.lvalue.refers_to = refers_to
+
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
-
         for node in self.nodes:
             node.slithir_generation()
 

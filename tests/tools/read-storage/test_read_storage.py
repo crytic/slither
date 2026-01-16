@@ -13,7 +13,7 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 def get_source_file(file_path) -> str:
-    with open(file_path, "r", encoding="utf8") as f:
+    with open(file_path, encoding="utf8") as f:
         source = f.read()
 
     return source
@@ -22,24 +22,23 @@ def get_source_file(file_path) -> str:
 def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
     """Deploy contract to the local ganache network"""
     signed_txn = w3.eth.account.sign_transaction(
-        dict(
-            nonce=w3.eth.get_transaction_count(ganache.eth_address),
-            maxFeePerGas=20000000000,
-            maxPriorityFeePerGas=1,
-            gas=15000000,
-            to=b"",
-            data="0x" + contract_bin,
-            chainId=1,
-        ),
+        {
+            "nonce": w3.eth.get_transaction_count(ganache.eth_address),
+            "maxFeePerGas": 20000000000,
+            "maxPriorityFeePerGas": 1,
+            "gas": 15000000,
+            "to": b"",
+            "data": "0x" + contract_bin,
+            "chainId": 1,
+        },
         ganache.eth_privkey,
     )
-    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
     address = w3.eth.get_transaction_receipt(tx_hash)["contractAddress"]
     contract = w3.eth.contract(address, abi=contract_abi)
     return contract
 
 
-# pylint: disable=too-many-locals
 @pytest.mark.parametrize(
     "test_contract, storage_file",
     [("StorageLayout", "storage_layout"), ("UnstructuredStorageLayout", "unstructured_storage")],
@@ -74,9 +73,9 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
 
     expected_file = Path(TEST_DATA_DIR, f"TEST_{storage_file}.json").as_posix()
 
-    with open(expected_file, "r", encoding="utf8") as f:
+    with open(expected_file, encoding="utf8") as f:
         expected = json.load(f)
-    with open(actual_file, "r", encoding="utf8") as f:
+    with open(actual_file, encoding="utf8") as f:
         actual = json.load(f)
 
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")

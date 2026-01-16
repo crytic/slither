@@ -16,76 +16,65 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   slither-doctor:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        exclude:
-          # strange failure
-          - os: windows-2022
-            python: 3.8
+        os: ["ubuntu-latest", "windows-2025"]
+        python: ["3.9", "3.14"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6
         with:
           python-version: ${{ matrix.python }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        with:
+          enable-cache: true
 
       - name: Try system-wide Slither
         run: |
           echo "::group::Install slither"
-          pip3 install .
+          uv pip install --system .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module
           cd /
 
           echo "::group::Via module"
-          python3 -m slither.tools.doctor .
+          python3 -m slither.tools.doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
           echo "::group::Via binary"
-          slither-doctor .
-          echo "::endgroup::"
-
-      - name: Try user Slither
-        run: |
-          echo "::group::Install slither"
-          pip3 install --user .
-          echo "::endgroup::"
-
-          # escape cwd so python doesn't pick up local module
-          cd /
-
-          echo "::group::Via module"
-          python3 -m slither.tools.doctor .
-          echo "::endgroup::"
-
-          echo "::group::Via binary"
-          slither-doctor .
+          slither-doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
       - name: Try venv Slither
         run: |
           echo "::group::Install slither"
-          python3 -m venv venv
-          source venv/bin/activate || source venv/Scripts/activate
+          uv venv
+          uv pip install .
+          source .venv/bin/activate || source .venv/Scripts/activate
           hash -r
-          pip3 install .
           echo "::endgroup::"
 
           # escape cwd so python doesn't pick up local module
           cd /
 
           echo "::group::Via module"
-          python3 -m slither.tools.doctor .
+          python3 -m slither.tools.doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"
 
           echo "::group::Via binary"
-          slither-doctor .
+          slither-doctor "$GITHUB_WORKSPACE"
           echo "::endgroup::"

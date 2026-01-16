@@ -14,7 +14,7 @@ class Constant(SlithIRVariable):
         val: str,
         constant_type: Optional[ElementaryType] = None,
         subdenomination: Optional[str] = None,
-    ) -> None:  # pylint: disable=too-many-branches
+    ) -> None:
         super().__init__()
         assert isinstance(val, str)
 
@@ -24,7 +24,7 @@ class Constant(SlithIRVariable):
         if subdenomination:
             val = str(convert_subdenomination(val, subdenomination))
 
-        if constant_type:  # pylint: disable=too-many-nested-blocks
+        if constant_type:
             assert isinstance(constant_type, ElementaryType)
             self._type = constant_type
             if constant_type.type in Int + Uint + ["address"]:
@@ -77,7 +77,7 @@ class Constant(SlithIRVariable):
         return self.value < other  # type: ignore
 
     def __repr__(self) -> str:
-        return f"{str(self.value)}"
+        return f"{self.value!s}"
 
     def __hash__(self) -> int:
         return self._val.__hash__()

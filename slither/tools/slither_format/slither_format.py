@@ -31,7 +31,7 @@ all_detectors: Dict[str, Type[AbstractDetector]] = {
 }
 
 
-def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable=too-many-locals
+def slither_format(slither: Slither, **kwargs: Dict) -> None:
     """'
     Keyword Args:
         detectors_to_run (str): Comma-separated list of detectors, defaults to all
@@ -59,28 +59,23 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable
     logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
 
     for result in detector_results:
-        if not "patches" in result:
+        if "patches" not in result:
             continue
         one_line_description = result["description"].split("\n")[0]
 
         export_result = Path(export, f"{counter_result}")
         export_result.mkdir(parents=True, exist_ok=True)
         counter_result += 1
-        counter = 0
 
         logger.info(f"Issue: {one_line_description}")
         logger.info(f"Generated: ({export_result})")
 
-        for (
-            _,
-            diff,
-        ) in result["patches_diff"].items():
+        for counter, (_, diff) in enumerate(result["patches_diff"].items()):
             filename = f"fix_{counter}.patch"
             path = Path(export_result, filename)
             logger.info(f"\t- {filename}")
             with open(path, "w", encoding="utf8") as f:
                 f.write(diff)
-            counter += 1
 
 
 # endregion

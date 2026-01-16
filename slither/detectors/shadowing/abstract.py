@@ -2,6 +2,7 @@
 Module detecting shadowing variables on abstract contract
 Recursively check the called functions
 """
+
 from typing import List
 
 from slither.core.declarations import Contract

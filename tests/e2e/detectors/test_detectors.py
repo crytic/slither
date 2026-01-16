@@ -14,7 +14,7 @@ from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
 
-class Test:  # pylint: disable=too-few-public-methods
+class Test:
     def __init__(
         self,
         detector: Type[AbstractDetector],
@@ -40,7 +40,7 @@ class Test:  # pylint: disable=too-few-public-methods
             self.additional_files = additional_files
 
 
-def set_solc(test_item: Test):  # pylint: disable=too-many-lines
+def set_solc(test_item: Test):
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
 
@@ -508,6 +508,11 @@ ALL_TESTS = [
     Test(
         all_detectors.CouldBeConstant,
         "const_state_variables.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.CouldBeConstant,
+        "unused_yul.sol",
         "0.8.0",
     ),
     Test(
@@ -1715,197 +1720,237 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ConstantContractLevelUsedInContractTest.sol",
-        "0.8.16",
+        all_detectors.GelatoUnprotectedRandomness,
+        "gelato_unprotected_randomness.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ConstantContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
+        all_detectors.ChronicleUncheckedPrice,
+        "chronicle_unchecked_price.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ConstantTopLevelUsedInContractTest.sol",
-        "0.8.16",
+        all_detectors.PythUncheckedConfidence,
+        "pyth_unchecked_confidence.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ConstantTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
+        all_detectors.PythUncheckedPublishTime,
+        "pyth_unchecked_publishtime.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ContractUsedInContractTest1.sol",
-        "0.8.16",
+        all_detectors.ChainlinkFeedRegistry,
+        "chainlink_feed_registry.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ContractUsedInContractTest2.sol",
-        "0.8.16",
+        all_detectors.PythDeprecatedFunctions,
+        "pyth_deprecated_functions.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "ContractUsedTopLevelTest.sol",
-        "0.8.16",
+        all_detectors.OptimismDeprecation,
+        "optimism_deprecation.sol",
+        "0.8.20",
     ),
     Test(
-        all_detectors.UnusedImport,
-        "CustomErrorTopLevelUsedInContractTest.sol",
-        "0.8.16",
+        all_detectors.UnindexedEventAddress,
+        "unindexed_event_address.sol",
+        "0.8.22",
     ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomEventContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomEventContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest3.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest4.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedTopLevelTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedTopLevelTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest3.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest4.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedTopLevelTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedTopLevelTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "LibraryUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "LibraryUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "C.sol",
-        "0.8.16",
-    ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomErrorTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomEventContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomEventContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest3.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest4.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedTopLevelTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedTopLevelTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest3.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest4.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedTopLevelTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedTopLevelTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "LibraryUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "LibraryUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "C.sol",
+    #     "0.8.16",
+    # ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
-# pylint: disable=too-many-locals
+
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(

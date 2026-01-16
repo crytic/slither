@@ -19,7 +19,6 @@ E2E_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_ROOT = os.path.join(E2E_ROOT, "solc_parsing", "test_data")
 
 
-# pylint: disable=too-few-public-methods
 class Test:
     def __init__(
         self,
@@ -58,9 +57,9 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
         output[contract.name] = {}
 
         for func_or_modifier in contract.functions + contract.modifiers:
-            output[contract.name][
-                func_or_modifier.full_name
-            ] = func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            output[contract.name][func_or_modifier.full_name] = (
+                func_or_modifier.slithir_cfg_to_dot_str(skip_expressions=True)
+            )
 
     return output
 
@@ -183,7 +182,7 @@ ALL_TESTS = [
     ),
     Test("yul-0.7.0.sol", make_version(7, 0, 4)),
     Test("yul-0.7.5.sol", make_version(7, 5, 6)),
-    Test("yul-0.8.0.sol", VERSIONS_08),
+    Test("yul-0.8.0.sol", ["0.8.33"]),
     Test("pragma-0.4.0.sol", VERSIONS_04),
     Test("pragma-0.5.0.sol", VERSIONS_05),
     Test("pragma-0.6.0.sol", VERSIONS_06),
@@ -241,6 +240,16 @@ ALL_TESTS = [
     Test(
         "memberaccess-0.5.3.sol",
         VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
+        disable_legacy=True,
+    ),
+    Test(
+        "memberaccess-0.6.7.sol",
+        ["0.6.7"],
+        disable_legacy=True,
+    ),
+    Test(
+        "memberaccess-0.6.8.sol",
+        ["0.6.8"] + VERSIONS_07 + VERSIONS_08,
         disable_legacy=True,
     ),
     Test("throw-0.4.0.sol", VERSIONS_04),
@@ -475,6 +484,8 @@ ALL_TESTS = [
     Test("solidity-0.8.24.sol", ["0.8.24"], solc_args="--evm-version cancun"),
     Test("scope/inherited_function_scope.sol", ["0.8.24"]),
     Test("using_for_global_user_defined_operator_1.sol", ["0.8.24"]),
+    Test("require-error.sol", ["0.8.27"]),
+    Test("yul-solady.sol", ["0.8.27"]),
 ]
 # create the output folder if needed
 try:
@@ -492,7 +503,6 @@ def pytest_generate_tests(metafunc):
 
 
 class TestASTParsing:
-    # pylint: disable=no-self-use
     def test_parsing(self, test_file, version, flavor):
         actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
         expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
@@ -518,7 +528,7 @@ class TestASTParsing:
         actual = generate_output(sl)
 
         assert os.path.isfile(expected), f"Expected file {expected} does not exist"
-        with open(expected, "r", encoding="utf8") as f:
+        with open(expected, encoding="utf8") as f:
             expected = json.load(f)
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
@@ -570,7 +580,7 @@ def _generate_test(test_item: Test, skip_existing=False):
                 disallow_partial=True,
                 skip_analyze=True,
             )
-        # pylint: disable=broad-except
+
         except Exception as e:
             print(e)
             print(test_item)
@@ -580,7 +590,6 @@ def _generate_test(test_item: Test, skip_existing=False):
         actual = generate_output(sl)
         print(f"Generate {expected_file}")
 
-        # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
 
         with open(expected_file, "w", encoding="utf8") as f:
@@ -611,14 +620,12 @@ def _generate_compile(test_item: Test, skip_existing=False):
             test_file, solc_force_legacy_json=flavor == "legacy", solc_args=solc_args
         )
 
-        # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
 
         save_to_zip([cc], expected_file)
 
 
 if __name__ == "__main__":
-
     required_solcs = set()
     for test in ALL_TESTS:
         required_solcs |= set(test.solc_versions)

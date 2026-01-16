@@ -13,7 +13,6 @@ from slither.utils.type import (
 logger = logging.getLogger("Slither-conformance")
 
 
-# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
     name = erc_function.name
     parameters = erc_function.parameters
@@ -22,18 +21,18 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
     required = erc_function.required
     events = erc_function.events
 
-    sig = f'{name}({",".join(parameters)})'
+    sig = f"{name}({','.join(parameters)})"
     function = contract.get_function_from_signature(sig)
 
     if not function:
         # The check on state variable is needed until we have a better API to handle state variable getters
         state_variable_as_function = contract.get_state_variable_from_name(name)
 
-        if not state_variable_as_function or not state_variable_as_function.visibility in [
+        if not state_variable_as_function or state_variable_as_function.visibility not in [
             "public",
             "external",
         ]:
-            txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
+            txt = f"[ ] {sig} is missing {'' if required else '(optional)'}"
             logger.info(txt)
             missing_func = output.Output(
                 txt, additional_fields={"function": sig, "required": required}
@@ -45,7 +44,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
         types = [str(x) for x in export_nested_types_from_variable(state_variable_as_function)]
 
         if types != parameters:
-            txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
+            txt = f"[ ] {sig} is missing {'' if required else '(optional)'}"
             logger.info(txt)
             missing_func = output.Output(
                 txt, additional_fields={"function": sig, "required": required}
@@ -59,8 +58,8 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
 
         function_view = True
     else:
-        function_return_type = function.return_type  # pylint: disable=no-member
-        function_view = function.view  # pylint: disable=no-member
+        function_return_type = function.return_type
+        function_view = function.view
 
     txt = f"[✓] {sig} is present"
     logger.info(txt)
@@ -113,9 +112,9 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
             should_be_view.add(function)
             ret["should_be_view"].append(should_be_view.data)
 
-    if events:  # pylint: disable=too-many-nested-blocks
+    if events:
         for event in events:
-            event_sig = f'{event.name}({",".join(event.parameters)})'
+            event_sig = f"{event.name}({','.join(event.parameters)})"
 
             if not function:
                 txt = f"\t[ ] Must emit be view {event_sig}"
@@ -154,7 +153,7 @@ def _check_events(erc_event: ERC_EVENT, contract: Contract, ret: Dict[str, List]
     parameters = erc_event.parameters
     indexes = erc_event.indexes
 
-    sig = f'{name}({",".join(parameters)})'
+    sig = f"{name}({','.join(parameters)})"
     event = contract.get_event_from_signature(sig)
 
     if not event:
@@ -190,7 +189,6 @@ def generic_erc_checks(
     ret: Dict[str, List],
     explored: Optional[Set[Contract]] = None,
 ) -> None:
-
     if explored is None:
         explored = set()
 

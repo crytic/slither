@@ -13,6 +13,7 @@ from slither.core.declarations.solidity_variables import (
 from slither.core.expressions import NewContract
 from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import TypeAlias
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -68,7 +69,7 @@ def _extract_solidity_variable_usage(
     return ret
 
 
-def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
+def _is_constant(f: Function) -> bool:
     """
     Heuristic:
     - If view/pure with Solidity >= 0.4 -> Return true
@@ -138,17 +139,12 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     """
     ret: Dict[str, Dict[str, List[Dict]]] = {}
     for contract in contracts:
-        functions_using_assert = []  # Dict[str, List[Dict]] = defaultdict(list)
+        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for v in f.all_solidity_calls():
-                if v == SolidityFunction("assert(bool)"):
-                    functions_using_assert.append(_get_name(f))
-                    break
-            # Revert https://github.com/crytic/slither/pull/2105 until format is supported by echidna.
-            # for node in f.all_nodes():
-            #     if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
-            #         func_name = _get_name(f)
-            #         functions_using_assert[func_name].append(node.source_mapping.to_json())
+            for ir in f.all_solidity_calls():
+                if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
+                    func_name = _get_name(f)
+                    functions_using_assert[func_name].append(ir.node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -156,15 +152,17 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
 
 # Create a named tuple that is serialization in json
 def json_serializable(cls):
+    my_super = super
+
     def as_dict(self):
-        yield dict(zip(self._fields, super(cls, self).__iter__()))
+        yield dict(zip(self._fields, my_super(cls, self).__iter__()))
 
     cls.__iter__ = as_dict
     return cls
 
 
 @json_serializable
-class ConstantValue(NamedTuple):  # pylint: disable=inherit-non-class,too-few-public-methods
+class ConstantValue(NamedTuple):
     # Here value should be  Union[str, int, bool]
     # But the json lib in Echidna does not handle large integer in json
     # So we convert everything to string
@@ -172,7 +170,66 @@ class ConstantValue(NamedTuple):  # pylint: disable=inherit-non-class,too-few-pu
     type: str
 
 
-def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-nested-blocks
+def _extract_constant_from_read(
+    ir: Operation,
+    r: SourceMapping,
+    all_cst_used: List[ConstantValue],
+    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
+    context_explored: Set[Node],
+) -> None:
+    var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
+    # Do not report struct_name in a.struct_name
+    if isinstance(ir, Member):
+        return
+    if isinstance(var_read, Variable) and var_read.is_constant:
+        # In case of type conversion we use the destination type
+        if isinstance(ir, TypeConversion):
+            if isinstance(ir.type, TypeAlias):
+                value_type = ir.type.type
+            else:
+                value_type = ir.type
+        else:
+            value_type = var_read.type
+        try:
+            value = ConstantFolding(var_read.expression, value_type).result()
+            all_cst_used.append(ConstantValue(str(value), str(value_type)))
+        except NotConstant:
+            pass
+    if isinstance(var_read, Constant):
+        all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
+    if isinstance(var_read, StateVariable):
+        if var_read.node_initialization:
+            if var_read.node_initialization.irs:
+                if var_read.node_initialization in context_explored:
+                    return
+                context_explored.add(var_read.node_initialization)
+                _extract_constants_from_irs(
+                    var_read.node_initialization.irs,
+                    all_cst_used,
+                    all_cst_used_in_binary,
+                    context_explored,
+                )
+
+
+def _extract_constant_from_binary(
+    ir: Binary,
+    all_cst_used: List[ConstantValue],
+    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
+):
+    for r in ir.read:
+        if isinstance(r, Constant):
+            all_cst_used_in_binary[str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
+        if isinstance(ir.variable_left, Constant) or isinstance(ir.variable_right, Constant):
+            if ir.lvalue:
+                try:
+                    type_ = ir.lvalue.type
+                    cst = ConstantFolding(ir.expression, type_).result()
+                    all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
+                except NotConstant:
+                    pass
+
+
+def _extract_constants_from_irs(
     irs: List[Operation],
     all_cst_used: List[ConstantValue],
     all_cst_used_in_binary: Dict[str, List[ConstantValue]],
@@ -180,21 +237,7 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
 ) -> None:
     for ir in irs:
         if isinstance(ir, Binary):
-            for r in ir.read:
-                if isinstance(r, Constant):
-                    all_cst_used_in_binary[str(ir.type)].append(
-                        ConstantValue(str(r.value), str(r.type))
-                    )
-                if isinstance(ir.variable_left, Constant) or isinstance(
-                    ir.variable_right, Constant
-                ):
-                    if ir.lvalue:
-                        try:
-                            type_ = ir.lvalue.type
-                            cst = ConstantFolding(ir.expression, type_).result()
-                            all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
-                        except NotConstant:
-                            pass
+            _extract_constant_from_binary(ir, all_cst_used, all_cst_used_in_binary)
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
                 if isinstance(ir.type, TypeAlias):
@@ -215,24 +258,9 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             except ValueError:  # index could fail; should never happen in working solidity code
                 pass
         for r in ir.read:
-            var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
-            # Do not report struct_name in a.struct_name
-            if isinstance(ir, Member):
-                continue
-            if isinstance(var_read, Constant):
-                all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
-            if isinstance(var_read, StateVariable):
-                if var_read.node_initialization:
-                    if var_read.node_initialization.irs:
-                        if var_read.node_initialization in context_explored:
-                            continue
-                        context_explored.add(var_read.node_initialization)
-                        _extract_constants_from_irs(
-                            var_read.node_initialization.irs,
-                            all_cst_used,
-                            all_cst_used_in_binary,
-                            context_explored,
-                        )
+            _extract_constant_from_read(
+                ir, r, all_cst_used, all_cst_used_in_binary, context_explored
+            )
 
 
 def _extract_constants(
@@ -290,10 +318,10 @@ def _extract_function_relations(
                 "is_impacted_by": [],
             }
             for candidate, varsWritten in written.items():
-                if any((r in varsWritten for r in function.all_state_variables_read())):
+                if any(r in varsWritten for r in function.all_state_variables_read()):
                     ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
             for candidate, varsRead in read.items():
-                if any((r in varsRead for r in function.all_state_variables_written())):
+                if any(r in varsRead for r in function.all_state_variables_written()):
                     ret[contract.name][_get_name(function)]["impacts"].append(candidate)
     return ret
 
@@ -359,7 +387,7 @@ def _call_a_parameter(slither: SlitherCore, contracts: List[Contract]) -> Dict[s
     """
     # contract -> [ (function, idx, interface_called) ]
     ret: Dict[str, List[Dict]] = defaultdict(list)
-    for contract in contracts:  # pylint: disable=too-many-nested-blocks
+    for contract in contracts:
         for function in contract.functions_entry_points:
             try:
                 for ir in function.all_slithir_operations():
@@ -396,7 +424,7 @@ class Echidna(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#echidna"
 
-    def output(self, filename: str) -> Output:  # pylint: disable=too-many-locals
+    def output(self, filename: str) -> Output:
         """
         Output the inheritance relation
 

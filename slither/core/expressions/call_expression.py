@@ -3,7 +3,7 @@ from typing import Any, Optional, List
 from slither.core.expressions.expression import Expression
 
 
-class CallExpression(Expression):  # pylint: disable=too-many-instance-attributes
+class CallExpression(Expression):
     def __init__(
         self,
         called: Expression,
@@ -91,7 +91,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
                 options = [gas, value, salt]
                 txt += "{" + ",".join([o for o in options if o != ""]) + "}"
         args = (
-            "{" + ",".join([f"{n}:{str(a)}" for (a, n) in zip(self._arguments, self._names)]) + "}"
+            "{" + ",".join([f"{n}:{a!s}" for (a, n) in zip(self._arguments, self._names)]) + "}"
             if self._names is not None
             else ",".join([str(a) for a in self._arguments])
         )

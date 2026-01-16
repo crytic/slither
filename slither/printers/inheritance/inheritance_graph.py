@@ -1,9 +1,9 @@
 """
-    Module printing the inheritance graph
+Module printing the inheritance graph
 
-    The inheritance graph shows the relation between the contracts
-    and their functions/modifiers/public variables.
-    The output is a dot file named filename.dot
+The inheritance graph shows the relation between the contracts
+and their functions/modifiers/public variables.
+The output is a dot file named filename.dot
 """
 
 from slither.core.declarations.contract import Contract
@@ -182,10 +182,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             ret += f"{private_variables}"
 
         if indirect_shadowing_information:
-            ret += (
-                '<TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">%s</font></TD></TR>'
-                % indirect_shadowing_information.replace("\n", "<BR/>")
-            )
+            ret += f'<TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">{indirect_shadowing_information.replace(chr(10), "<BR/>")}</font></TD></TR>'
         ret += "</TABLE> >];\n"
 
         return ret

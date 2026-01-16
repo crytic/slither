@@ -1,9 +1,10 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import defaultdict
 from typing import Set, Dict, List, Tuple, Optional
 
@@ -22,16 +23,16 @@ def union_dict(d1: Dict, d2: Dict) -> Dict:
 
 
 def dict_are_equal(d1: Dict, d2: Dict) -> bool:
-    if set(list(d1.keys())) != set(list(d2.keys())):
+    if set(d1.keys()) != set(d2.keys()):
         return False
-    return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
+    return all(set(d1[k]) == set(d2[k]) for k in d1)
 
 
 def is_subset(
     new_info: Dict,
     old_info: Dict,
 ) -> bool:
-    for k in new_info.keys():
+    for k in new_info:
         if k not in old_info:
             return False
         if not new_info[k].issubset(old_info[k]):
@@ -40,9 +41,7 @@ def is_subset(
 
 
 def to_hashable(d: Dict[Node, Set[Node]]) -> Tuple:
-    list_tuple = list(
-        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
-    )
+    list_tuple = [(k, tuple(sorted(values, key=lambda x: x.node_id))) for k, values in d.items()]
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
 
@@ -145,15 +144,16 @@ class AbstractState:
         )
         slithir_operations = []
         # Add the state variables written in internal calls
-        for internal_call in node.internal_calls:
+        for ir in node.internal_calls:
             # Filter to Function, as internal_call can be a solidity call
-            if isinstance(internal_call, Function):
-                for internal_node in internal_call.all_nodes():
+            function = ir.function
+            if isinstance(function, Function):
+                for internal_node in function.all_nodes():
                     for read in internal_node.state_variables_read:
                         state_vars_read[read].add(internal_node)
                     for write in internal_node.state_variables_written:
                         state_vars_written[write].add(internal_node)
-                slithir_operations += internal_call.all_slithir_operations()
+                slithir_operations += function.all_slithir_operations()
 
         contains_call = False
 
@@ -195,7 +195,7 @@ class AbstractState:
 
 def _filter_if(node: Node) -> bool:
     """
-    Check if the node is a condtional node where
+    Check if the node is a conditional node where
     there is an external call checked
     Heuristic:
         - The call is a IF node
@@ -296,7 +296,7 @@ class Reentrancy(AbstractDetector):
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
+        self.visited_all_paths = {}
 
         for c in self.contracts:
             self.detect_reentrancy(c)

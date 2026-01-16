@@ -27,9 +27,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-# pylint: disable=anomalous-backslash-in-string
-
-
 def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
     for element in elements:
@@ -40,7 +37,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
         if convention == "l_O_I_should_not_be_used":
             # l_O_I_should_not_be_used cannot be automatically patched
             logger.info(
-                f'The following naming convention cannot be patched: \n{result["description"]}'
+                f"The following naming convention cannot be patched: \n{result['description']}"
             )
             continue
 
@@ -132,7 +129,7 @@ SOLIDITY_KEYWORDS += ElementaryTypeName
 
 def _name_already_use(slither: SlitherCompilationUnit, name: str) -> bool:
     # Do not convert to a name used somewhere else
-    if not KEY in slither.context:
+    if KEY not in slither.context:
         all_names: Set[str] = set()
         for contract in slither.contracts_derived:
             all_names = all_names.union({st.name for st in contract.structures})
@@ -339,10 +336,13 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     :return:
     """
     v = "var "
-    return slither.core.source_code[filename][start : start + len(v)] == v
+    return (
+        slither.core.source_code[filename].encode("utf8")[start : start + len(v)].decode("utf8")
+        == v
+    )
 
 
-def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+def _explore_type(
     slither: SlitherCompilationUnit,
     result: Dict,
     target: TARGET_TYPE,
@@ -401,7 +401,6 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
             custom_type.type_from,
             custom_type.type_to,
         ]:
-
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.core.source_code[filename_source_code].encode("utf8")[
@@ -443,7 +442,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 )
 
 
-def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+def _explore_variables_declaration(
     slither: SlitherCompilationUnit,
     variables: Sequence[Variable],
     result: Dict,
@@ -503,14 +502,14 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
                         idx_beginning += -func.source_mapping.starting_column + 1
                         idx_beginning += -sum(len(c) for c in potential_comments)
 
-                        old_comment = f"@param {old_str}".encode("utf8")
+                        old_comment = f"@param {old_str}".encode()
 
                         for line in potential_comments:
                             idx = line.find(old_comment)
                             if idx >= 0:
                                 loc_start = idx + idx_beginning
                                 loc_end = loc_start + len(old_comment)
-                                new_comment = f"@param {new_str}".encode("utf8")
+                                new_comment = f"@param {new_str}".encode()
 
                                 create_patch(
                                     result,
@@ -606,7 +605,6 @@ def _explore_irs(
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
-    # pylint: disable=too-many-locals
     if not irs:
         return
     for ir in irs:
@@ -624,7 +622,7 @@ def _explore_irs(
                     full_txt_start:full_txt_end
                 ]
 
-                if not target.name.encode("utf8") in full_txt:
+                if target.name.encode("utf8") not in full_txt:
                     raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
 
                 old_str = target.name.encode("utf8")
@@ -634,7 +632,7 @@ def _explore_irs(
                 # Can be found multiple time on the same IR
                 # We patch one by one
                 while old_str in full_txt:
-                    target_found_at = full_txt.find((old_str))
+                    target_found_at = full_txt.find(old_str)
 
                     full_txt = full_txt[target_found_at + 1 :]
                     counter += target_found_at

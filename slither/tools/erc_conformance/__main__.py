@@ -71,7 +71,7 @@ def parse_args() -> argparse.Namespace:
 
 def _log_error(err: Any, args: argparse.Namespace) -> None:
     if args.json:
-        output_to_json(args.json, str(err), {"upgradeability-check": []})
+        output_to_json(args.json, str(err), {"erc-conformance": []})
 
     logger.error(err)
 
@@ -85,7 +85,6 @@ def main() -> None:
     ret: Dict[str, List] = defaultdict(list)
 
     if args.erc.upper() in ERCS:
-
         contracts = slither.get_contract_from_name(args.contract_name)
 
         if len(contracts) != 1:
@@ -106,7 +105,7 @@ def main() -> None:
         return
 
     if args.json:
-        output_to_json(args.json, None, {"upgradeability-check": ret})
+        output_to_json(args.json, None, {"erc-conformance": ret})
 
 
 if __name__ == "__main__":

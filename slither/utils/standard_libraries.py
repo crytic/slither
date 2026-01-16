@@ -68,7 +68,7 @@ def is_openzeppelin(contract: "Contract") -> bool:
 
 
 def is_openzeppelin_strict(contract: "Contract") -> bool:
-    source_hash = sha1(contract.source_mapping.content.encode("utf-8")).hexdigest()
+    source_hash = sha1(contract.source_mapping.content.encode("utf8")).hexdigest()
     return source_hash in oz_hashes
 
 
@@ -211,7 +211,7 @@ def _is_ds(contract: "Contract", name: str) -> bool:
 def _is_dappdhub_ds(contract: "Contract", name: str) -> bool:
     if not contract.is_from_dependency():
         return False
-    if not dapphubs[name] in Path(contract.source_mapping.filename.absolute).parts:
+    if dapphubs[name] not in Path(contract.source_mapping.filename.absolute).parts:
         return False
     return _is_ds(contract, name)
 

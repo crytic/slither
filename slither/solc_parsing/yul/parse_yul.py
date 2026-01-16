@@ -122,9 +122,9 @@ class YulScope(metaclass=abc.ABCMeta):
     __slots__ = [
         "_contract",
         "_id",
-        "_yul_local_variables",
-        "_yul_local_functions",
         "_parent_func",
+        "_yul_local_functions",
+        "_yul_local_variables",
     ]
 
     def __init__(
@@ -188,8 +188,8 @@ class YulScope(metaclass=abc.ABCMeta):
         )
 
 
-class YulLocalVariable:  # pylint: disable=too-few-public-methods
-    __slots__ = ["_variable", "_root"]
+class YulLocalVariable:
+    __slots__ = ["_root", "_variable"]
 
     def __init__(self, var: LocalVariable, root: YulScope, ast: Dict) -> None:
         assert ast["nodeType"] == "YulTypedName"
@@ -211,7 +211,7 @@ class YulLocalVariable:  # pylint: disable=too-few-public-methods
 
 
 class YulFunction(YulScope):
-    __slots__ = ["_function", "_root", "_ast", "_nodes", "_entrypoint", "node_scope"]
+    __slots__ = ["_ast", "_entrypoint", "_function", "_nodes", "_root", "node_scope"]
 
     def __init__(
         self, func: Function, root: YulScope, ast: Dict, node_scope: Union[Function, Scope]
@@ -297,8 +297,7 @@ class YulBlock(YulScope):
 
     """
 
-    # pylint: disable=redefined-slots-in-subclass
-    __slots__ = ["_entrypoint", "_parent_func", "_nodes", "node_scope"]
+    __slots__ = ["_entrypoint", "_nodes", "_parent_func", "node_scope"]
 
     def __init__(
         self,
@@ -451,7 +450,7 @@ def convert_yul_if(
     src = ast["src"]
     condition_ast = ast["condition"]
     true_body_ast = ast["body"]
-    false_body_ast = ast["false_body"] if "false_body" in ast else None
+    false_body_ast = ast.get("false_body")
 
     condition = root.new_node(NodeType.IF, src)
     end = root.new_node(NodeType.ENDIF, src)
@@ -541,7 +540,7 @@ def convert_yul_switch(
         }
 
         if last_if:
-            last_if["false_body"] = current_if  # pylint: disable=unsupported-assignment-operation
+            last_if["false_body"] = current_if
         else:
             rewritten_switch["statements"].append(current_if)
 
@@ -746,7 +745,7 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
     if isinstance(ident.value, SolidityFunction):
         return CallExpression(ident, args, vars_to_typestr(ident.value.return_type))
 
-    raise SlitherException(f"unexpected function call target type {str(type(ident.value))}")
+    raise SlitherException(f"unexpected function call target type {type(ident.value)!s}")
 
 
 def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optional[Identifier]:
@@ -791,26 +790,11 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
     return None
 
 
-# pylint: disable=too-many-branches
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 
     if name in builtins:
         return Identifier(YulBuiltin(name))
-
-    # check function-scoped variables
-    parent_func = root.parent_func
-    if parent_func:
-        local_variable = parent_func.get_local_variable_from_name(name)
-        if local_variable:
-            return Identifier(local_variable)
-
-        if isinstance(parent_func, FunctionContract):
-            # Variables must be looked from the contract declarer
-            assert parent_func.contract_declarer
-            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
-            if state_variable:
-                return Identifier(state_variable)
 
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
@@ -818,7 +802,6 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(variable.underlying)
 
     # check yul-scoped function
-
     func = root.get_yul_local_function_from_name(name)
     if func:
         return Identifier(func.underlying)
@@ -839,6 +822,20 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         func = yul_block.get_yul_local_function_from_name(name)
         if func:
             return Identifier(func.underlying)
+
+    # check function-scoped variables
+    parent_func = root.parent_func
+    if parent_func:
+        local_variable = parent_func.get_local_variable_from_name(name)
+        if local_variable:
+            return Identifier(local_variable)
+
+        if isinstance(parent_func, FunctionContract):
+            # Variables must be looked from the contract declarer
+            assert parent_func.contract_declarer
+            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
+            if state_variable:
+                return Identifier(state_variable)
 
     magic_suffix = _parse_yul_magic_suffixes(name, root)
     if magic_suffix:

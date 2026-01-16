@@ -3,37 +3,42 @@ name: pip-audit
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [master]
   pull_request:
-    branches: [ dev, master ]
-  schedule: [ cron: "0 7 * * 2" ]
+    branches: [master]
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/pip-audit.yml'
+  schedule: [cron: "0 7 * * 2"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
 
-      - name: Install Python
-        uses: actions/setup-python@v5
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           python-version: "3.10"
+          enable-cache: true
 
-      - name: Install Slither
-        run: |
-          python -m venv /tmp/pip-audit-env
-          source /tmp/pip-audit-env/bin/activate
-
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .
+      - name: Export dependencies
+        run: uv export --format requirements-txt --no-emit-project > requirements.txt
 
       - name: Run pip-audit
-        uses: pypa/gh-action-pip-audit@v1.0.8
+        uses: pypa/gh-action-pip-audit@1220774d901786e6f652ae159f7b6bc8fea6d266  # v1.1.0
         with:
-          virtual-environment: /tmp/pip-audit-env
+          inputs: requirements.txt

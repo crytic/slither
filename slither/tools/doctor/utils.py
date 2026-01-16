@@ -19,7 +19,7 @@ def report_section(title: str) -> None:
     print(bold(f"## {title}"), end="\n\n")
     try:
         yield
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         with snip_section(
             "slither-doctor failed unexpectedly! Please report this on the Slither GitHub issue tracker, and include the output below:"
         ):

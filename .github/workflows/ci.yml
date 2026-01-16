@@ -9,15 +9,21 @@ on:
   push:
     branches:
       - master
-      - dev
   pull_request:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    paths:
+      - 'slither/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/ci.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -25,53 +31,54 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               "path_filtering",
-               # "embark",
-               "erc",
-               # "etherlime",
-               "etherscan",
-               "find_paths",
-               "flat",
-               "interface",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+        os: >-
+          ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]'))
+          || fromJSON('["ubuntu-latest", "windows-2025"]') }}
+        python: >-
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.14"]'))
+          || fromJSON('["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]') }}
+        type: >-
+          ${{ (github.event_name == 'pull_request'
+          && fromJSON('["data_dependency", "path_filtering", "erc", "find_paths",
+          "flat", "interface", "printers", "slither_config", "upgradability"]'))
+          || fromJSON('["data_dependency", "path_filtering", "erc", "find_paths",
+          "flat", "interface", "printers", "slither_config", "upgradability",
+          "cli", "dapp", "etherscan", "kspec", "simil", "truffle"]') }}
         exclude:
           # Requires nix
-          - os: windows-2022
+          - os: windows-2025
             type: dapp
           # Requires nvm
-          - os: windows-2022
+          - os: windows-2025
             type: truffle
+          # fasttext fails to install on Windows
+          - os: windows-2025
+            type: simil
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           python-version: ${{ matrix.python }}
+          activate-environment: true
+          enable-cache: true
       - name: Install dependencies
         run: |
-          pip install ".[test]"
-          solc-select use 0.4.25 --always-install
+          uv sync --group test
           solc-select use 0.8.0 --always-install
+          solc-select use 0.7.0 --always-install
           solc-select use 0.5.1 --always-install
+          solc-select use 0.4.25 --always-install
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@V27
+        uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15  # v31
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@0fc020193b5a1fa3ac4575aa3a7d3aa6a35435ad  # v16
         with:
           name: dapp
 
