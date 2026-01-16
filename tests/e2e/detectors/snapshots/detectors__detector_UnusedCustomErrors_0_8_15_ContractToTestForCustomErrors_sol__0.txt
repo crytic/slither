@@ -1,11 +1,10 @@
-The following unused error(s) should be removed:
-	-UnusedErrorLibConsumerErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ErrorLibConsumer.sol)
+ParentContract.UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#10) is declared but never used.
 
-	-UnusedLibError() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/CustomErrorsLib.sol)
+UnusedTopLevelErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#4) is declared but never used.
 
-	-UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
+Lib.UnusedLibError() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/CustomErrorsLib.sol#5) is declared but never used.
 
-	-UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
+ParentContract.UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#11) is declared but never used.
 
-	-UnusedTopLevelErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
+ErrorLibConsumer.UnusedErrorLibConsumerErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ErrorLibConsumer.sol#7) is declared but never used.
 

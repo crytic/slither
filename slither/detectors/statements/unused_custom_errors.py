@@ -4,7 +4,6 @@ Module detecting unused custom errors
 
 from typing import List, Set
 from slither.core.declarations.custom_error import CustomError
-from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -69,27 +68,27 @@ class UnusedCustomErrors(AbstractDetector):
                     if isinstance(internal_call.function, SolidityCustomRevert):
                         custom_reverts.add(internal_call.function)
 
+        # Also check top-level functions
+        for function in self.compilation_unit.functions_top_level:
+            for internal_call in function.internal_calls:
+                if isinstance(internal_call.function, SolidityCustomRevert):
+                    custom_reverts.add(internal_call.function)
+
+        # Get the set of actually used custom errors
+        used_custom_errors: Set[CustomError] = {
+            custom_revert.custom_error for custom_revert in custom_reverts
+        }
+
         # Find unused custom errors
-        for declared_error in declared_custom_errors:
-            if not any(
-                declared_error.name in custom_revert.name for custom_revert in custom_reverts
-            ):
-                unused_custom_errors.append(declared_error)
+        unused_custom_errors = list(declared_custom_errors - used_custom_errors)
 
         # Sort by error name
         unused_custom_errors = sorted(unused_custom_errors, key=lambda err: err.name)
 
-        # Format results
+        # Format results - one finding per unused error
         results = []
-        if len(unused_custom_errors) > 0:
-            info: DETECTOR_INFO = ["The following unused error(s) should be removed:"]
-            for custom_error in unused_custom_errors:
-                file_scope = (
-                    custom_error.file_scope
-                    if isinstance(custom_error, CustomErrorTopLevel)
-                    else custom_error.contract.file_scope
-                )
-                info += ["\n\t-", custom_error.full_name, " (", file_scope.filename.short, ")\n"]
+        for custom_error in unused_custom_errors:
+            info: DETECTOR_INFO = [custom_error, " is declared but never used.\n"]
             results.append(self.generate_result(info))
 
         return results
