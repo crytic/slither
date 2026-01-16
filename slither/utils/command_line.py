@@ -312,9 +312,7 @@ def read_config_file(config_file: Union[None, Path]) -> Dict[str, Any]:
                     try:
                         elem = FailOnLevel(elem)
                     except ValueError:
-                        logger.warning(
-                            yellow(f"Invalid fail_on value: {elem}, using default")
-                        )
+                        logger.warning(yellow(f"Invalid fail_on value: {elem}, using default"))
                         continue
 
                 state[key] = elem
