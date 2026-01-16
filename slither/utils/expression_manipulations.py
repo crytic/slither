@@ -4,7 +4,7 @@ as they should be immutable
 """
 
 import copy
-from typing import Union, Callable
+from collections.abc import Callable
 
 from slither.all_exceptions import SlitherException
 from slither.core.expressions import UnaryOperation
@@ -26,8 +26,8 @@ from slither.core.expressions.new_elementary_type import NewElementaryType
 
 
 def f_expressions(
-    e: Union[AssignmentOperation, BinaryOperation, TupleExpression],
-    x: Union[Identifier, Literal, MemberAccess, IndexAccess],
+    e: AssignmentOperation | BinaryOperation | TupleExpression,
+    x: Identifier | Literal | MemberAccess | IndexAccess,
 ) -> None:
     e._expressions.append(x)
 
@@ -44,7 +44,7 @@ def f_call_gas(e: CallExpression, x):
     e._gas = x
 
 
-def f_expression(e: Union[TypeConversion, UnaryOperation, MemberAccess], x: CallExpression) -> None:
+def f_expression(e: TypeConversion | UnaryOperation | MemberAccess, x: CallExpression) -> None:
     e._expression = x
 
 
@@ -53,7 +53,7 @@ def f_called(e: CallExpression, x: Identifier) -> None:
 
 
 class SplitTernaryExpression:
-    def __init__(self, expression: Union[AssignmentOperation, ConditionalExpression]) -> None:
+    def __init__(self, expression: AssignmentOperation | ConditionalExpression) -> None:
         if isinstance(expression, ConditionalExpression):
             self.true_expression = copy.copy(expression.then_expression)
             self.false_expression = copy.copy(expression.else_expression)
@@ -67,8 +67,8 @@ class SplitTernaryExpression:
     def conditional_not_ahead(
         self,
         next_expr: Expression,
-        true_expression: Union[AssignmentOperation, MemberAccess],
-        false_expression: Union[AssignmentOperation, MemberAccess],
+        true_expression: AssignmentOperation | MemberAccess,
+        false_expression: AssignmentOperation | MemberAccess,
         f: Callable,
     ) -> bool:
         # look ahead for parenthetical expression (.. ? .. : ..)
@@ -140,7 +140,7 @@ class SplitTernaryExpression:
 
     def convert_expressions(
         self,
-        expression: Union[AssignmentOperation, BinaryOperation, TupleExpression],
+        expression: AssignmentOperation | BinaryOperation | TupleExpression,
         true_expression: Expression,
         false_expression: Expression,
     ) -> None:

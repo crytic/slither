@@ -1,4 +1,3 @@
-from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, Output
 from slither.core.scope.scope import FileScope
 
@@ -63,8 +62,8 @@ class UnusedImport(AbstractDetector):
                 return False
         return True
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
         # This is computed lazily and then memoized so we need to trigger the computation.
         self.slither._compute_offsets_to_ref_impl_decl()
 

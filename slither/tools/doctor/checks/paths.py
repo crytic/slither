@@ -1,13 +1,11 @@
 from pathlib import Path
-from typing import List, Optional, Tuple
 import shutil
-import sys
 import sysconfig
 
 from slither.utils.colors import yellow, green, red
 
 
-def check_path_config(name: str) -> Tuple[bool, Optional[Path], List[Path]]:
+def check_path_config(name: str) -> tuple[bool, Path | None, list[Path]]:
     """
     Check if a given Python binary/script is in PATH.
     :return: Returns if the binary on PATH corresponds to this installation,
@@ -26,8 +24,8 @@ def check_path_config(name: str) -> Tuple[bool, Optional[Path], List[Path]]:
 
     binary_here = False
     if binary_path is not None:
-        binary_path = Path(binary_path)
-        this_code = Path(__file__)
+        binary_path = Path(binary_path).resolve()
+        this_code = Path(__file__).resolve()
         this_binary = list(filter(lambda x: this_code.is_relative_to(x[1]), possible_paths))
         binary_here = len(this_binary) > 0 and all(
             binary_path.is_relative_to(script) for script, _ in this_binary

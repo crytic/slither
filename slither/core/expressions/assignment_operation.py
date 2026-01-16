@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Optional, TYPE_CHECKING, List
+from typing import Optional, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
@@ -91,10 +91,10 @@ class AssignmentOperation(Expression):
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
         self._type: AssignmentOperationType = expression_type
-        self._expression_return_type: Optional["Type"] = expression_return_type
+        self._expression_return_type: Type | None = expression_return_type
 
     @property
-    def expressions(self) -> List[Expression]:
+    def expressions(self) -> list[Expression]:
         return self._expressions
 
     @property

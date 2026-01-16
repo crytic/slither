@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 class StateVariable(ContractLevel, Variable):
     def __init__(self) -> None:
         super().__init__()
-        self._node_initialization: Optional["Node"] = None
-        self._location: Optional[str] = None
+        self._node_initialization: Node | None = None
+        self._location: str | None = None
 
     def is_declared_by(self, contract: "Contract") -> bool:
         """
@@ -26,7 +26,7 @@ class StateVariable(ContractLevel, Variable):
         self._location = loc
 
     @property
-    def location(self) -> Optional[str]:
+    def location(self) -> str | None:
         """
             Variable Location
             Can be default or transient
@@ -40,9 +40,7 @@ class StateVariable(ContractLevel, Variable):
         """
         Checks if the state variable is stored, based on it not being constant or immutable or transient.
         """
-        return (
-            not self._is_constant and not self._is_immutable and not self._location == "transient"
-        )
+        return not self._is_constant and not self._is_immutable and self._location != "transient"
 
     @property
     def is_transient(self) -> bool:

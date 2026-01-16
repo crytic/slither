@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional, List
 
 from slither.core.expressions.expression import Expression
 from slither.slithir.operations.operation import Operation
@@ -17,14 +16,14 @@ class Argument(Operation):
         super().__init__()
         self._argument = argument
         self._type = ArgumentType.CALL
-        self._callid: Optional[str] = None
+        self._callid: str | None = None
 
     @property
     def argument(self) -> Expression:
         return self._argument
 
     @property
-    def call_id(self) -> Optional[str]:
+    def call_id(self) -> str | None:
         return self._callid
 
     @call_id.setter
@@ -32,7 +31,7 @@ class Argument(Operation):
         self._callid = c
 
     @property
-    def read(self) -> List[Expression]:
+    def read(self) -> list[Expression]:
         return [self.argument]
 
     def set_type(self, t: ArgumentType) -> None:
@@ -46,4 +45,4 @@ class Argument(Operation):
         call_id = "none"
         if self.call_id:
             call_id = f"(id ({self.call_id}))"
-        return f"ARG_{self._type.name} {str(self._argument)} {call_id}"
+        return f"ARG_{self._type.name} {self._argument!s} {call_id}"

@@ -1,4 +1,3 @@
-from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -34,9 +33,9 @@ Alice approves this contract to spend her ERC20 tokens. Bob can call `a` and spe
 Use `msg.sender` as `from` in transferFrom.
 """
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
-        results: List[Output] = []
+        results: list[Output] = []
 
         arbitrary_sends = ArbitrarySendErc20(self.compilation_unit)
         arbitrary_sends.detect()

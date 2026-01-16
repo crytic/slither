@@ -2,8 +2,6 @@
 Module detecting the incorrect use of unary expressions
 """
 
-from typing import List
-
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
@@ -71,7 +69,7 @@ contract Bug{
 
     WIKI_RECOMMENDATION = "Remove the unary expression."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect the incorrect use of unary expressions
         """

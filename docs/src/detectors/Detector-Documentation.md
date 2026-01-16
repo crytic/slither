@@ -14,7 +14,7 @@ List of public detectors
 
 `solc` versions `0.4.7`-`0.5.9` contain a [compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs) leading to incorrect ABI encoder usage.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
@@ -45,7 +45,7 @@ Use a compiler >= `0.5.10`.
 
 Detect when `msg.sender` is not used as `from` in transferFrom.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function a(address from, address to, uint256 amount) public {
@@ -71,7 +71,7 @@ Use `msg.sender` as `from` in transferFrom.
 
 Detect arrays passed to a function that expects reference to a storage array
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Memory {
@@ -111,7 +111,7 @@ Ensure the correct usage of `memory` and `storage` in the function parameters. M
 
 Detect collision due to dynamic type usages in `abi.encodePacked`
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Sign {
@@ -130,7 +130,7 @@ Do not use more than one dynamic type in `abi.encodePacked()`
 (see the [Solidity documentation](https://solidity.readthedocs.io/en/v0.5.10/abi-spec.html?highlight=abi.encodePacked#non-standard-packed-modeDynamic)).
 Use `abi.encode()`, preferably.
 
-## Incorrect shift in assembly.
+## Incorrect shift in assembly
 
 ### Configuration
 
@@ -142,7 +142,7 @@ Use `abi.encode()`, preferably.
 
 Detect if the values in a shift operation are reversed
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -172,7 +172,7 @@ Swap the order of parameters.
 
 Detect multiple constructor definitions in the same contract (using new and old schemes).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
@@ -209,7 +209,7 @@ Only declare one constructor, preferably using the new scheme `constructor(...)`
 If a codebase has two contracts the similar names, the compilation artifacts
 will not contain one of the contracts with the duplicate name.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 Bob's `truffle` codebase has two contracts named `ERC20`.
 When `truffle compile` runs, only one of the two contracts will generate artifacts in `build/contracts`.
@@ -231,7 +231,7 @@ Rename the contract.
 
 Detect unprotected variable that are marked protected
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Buggy{
@@ -267,7 +267,7 @@ Add access controls to the vulnerable function
 
 Prior to Solidity 0.5, a public mapping with nested structures returned [incorrect values](https://github.com/ethereum/solidity/issues/5520).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 Bob interacts with a contract that has a public mapping with nested structures. The values returned by the mapping are incorrect, breaking Bob's usage
 
@@ -287,7 +287,7 @@ Do not use public mapping with nested structures.
 
 An attacker can manipulate the logic of the contract by using a right-to-left-override character (`U+202E)`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Token
@@ -302,13 +302,13 @@ contract Token
         address payable d = msg.sender;
         tokens[msg.sender] = 0;
         _withdraw(/*owner‮/*noitanitsed*/ d, o/*‭
-		        /*value */, amount);
+          /*value */, amount);
     }
 
     function _withdraw(address payable fee_receiver, address payable destination, uint value) internal
     {
-		fee_receiver.transfer(1);
-		destination.transfer(value);
+  fee_receiver.transfer(1);
+  destination.transfer(value);
     }
 }
 ```
@@ -331,7 +331,7 @@ Special control characters must not be allowed.
 
 Detection of state variables shadowed.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract BaseContract{
@@ -375,7 +375,7 @@ Remove the state variable shadowing.
 
 Unprotected call to a function executing `selfdestruct`/`suicide`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Suicidal{
@@ -403,7 +403,7 @@ Protect access to all sensitive functions.
 
 Uninitialized state variables.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Uninitialized{
@@ -433,7 +433,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 
 An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Uninitialized{
@@ -468,7 +468,7 @@ Initialize all storage variables.
 
 Detects logic contract that can be destructed.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Buggy is Initializable{
@@ -503,7 +503,7 @@ Add a constructor to ensure `initialize` cannot be called on the logic contract.
 
 Detect when `msg.sender` is not used as `from` in transferFrom and permit is used.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function bad(address from, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address to) public {
@@ -530,7 +530,7 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
 
 Unprotected call to a function sending Ether to an arbitrary address.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract ArbitrarySendEth{
@@ -563,23 +563,23 @@ Ensure that an arbitrary user cannot withdraw unauthorized funds.
 
 Detects the direct assignment of an array's length.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	uint[] testArray; // dynamic size array
+ uint[] testArray; // dynamic size array
 
-	function f(uint usersCount) public {
-		// ...
-		testArray.length = usersCount;
-		// ...
-	}
+ function f(uint usersCount) public {
+  // ...
+  testArray.length = usersCount;
+  // ...
+ }
 
-	function g(uint userIndex, uint val) public {
-		// ...
-		testArray[userIndex] = val;
-		// ...
-	}
+ function g(uint userIndex, uint val) public {
+  // ...
+  testArray[userIndex] = val;
+  // ...
+ }
 }
 ```
 
@@ -605,7 +605,7 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
 
 `Delegatecall` or `callcode` to an address controlled by the user.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Delegatecall{
@@ -633,7 +633,7 @@ Avoid using `delegatecall`. Use only trusted destinations.
 
 Detect the use of `delegatecall` inside a loop in a payable function.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract DelegatecallInLoop{
@@ -671,7 +671,7 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
 
 Detect use of bitwise `xor ^` instead of exponential `**`
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Bug{
@@ -698,7 +698,7 @@ Use the correct operator `**` for exponentiation.
 
 Detect if `return` in an assembly block halts unexpectedly the execution.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -734,7 +734,7 @@ Use the `leave` statement.
 
 Detect the use of `msg.value` inside a loop.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract MsgValueInLoop{
@@ -767,7 +767,7 @@ Provide an explicit array of amounts alongside the receivers array, and check th
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Do not report reentrancies that don't involve Ether (see `reentrancy-no-eth`)
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function withdrawBalance(){
@@ -798,7 +798,7 @@ Apply the [`check-effects-interactions pattern`](http://solidity.readthedocs.io/
 
 Detect if a `return` is used where a `leave` should be used.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -830,20 +830,20 @@ Use the `leave` statement.
 `solc` versions `0.4.7`-`0.5.9` contain [a compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs)
 leading to incorrect values in signed integer arrays.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	int[3] ether_balances; // storage signed integer array
-	function bad0() private {
-		// ...
-		ether_balances = [-1, -1, -1];
-		// ...
-	}
+ int[3] ether_balances; // storage signed integer array
+ function bad0() private {
+  // ...
+  ether_balances = [-1, -1, -1];
+  // ...
+ }
 }
 ```
 
-`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.  
+`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.
 `-1` is supposed to indicate uninitialized values but the Solidity bug makes these as `1`, which could be exploited by the accounts.
 
 ### Recommendation
@@ -862,7 +862,7 @@ Use a compiler version >= `0.5.10`.
 
 The return value of an external transfer/transferFrom call is not checked
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Token {
@@ -896,7 +896,7 @@ Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checke
 
 Weak PRNG due to a modulo on `block.timestamp`, `now` or `blockhash`. These can be influenced by miners to some extent so they should be avoided.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Game {
@@ -928,7 +928,7 @@ Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness
 
 An ERC20 token has a function whose signature collides with EIP-2612's DOMAIN_SEPARATOR(), causing unanticipated behavior for contracts using `permit` functionality.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -954,7 +954,7 @@ Remove or rename the function that collides with DOMAIN_SEPARATOR().
 
 Detect out-of-range `enum` conversion (`solc` < `0.4.5`).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     pragma solidity 0.4.2;
@@ -986,7 +986,7 @@ Use a recent compiler version. If `solc` <`0.4.5` is required, check the `enum` 
 
 Incorrect return values for `ERC20` functions. A contract compiled with Solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Token{
@@ -1013,7 +1013,7 @@ Set the appropriate return values and types for the defined `ERC20` functions.
 
 Incorrect return values for `ERC721` functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Token{
@@ -1040,7 +1040,7 @@ Set the appropriate return values and vtypes for the defined `ERC721` functions.
 
 Use of strict equalities that can be easily manipulated by an attacker.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Crowdsale{
@@ -1068,7 +1068,7 @@ Don't use strict equality to determine if an account has enough Ether or tokens.
 
 Contract with a `payable` function, but without a withdrawal capacity.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 pragma solidity 0.4.24;
@@ -1096,7 +1096,7 @@ Remove the payable attribute or add a withdraw function.
 
 A deletion in a structure containing a mapping will not delete the mapping (see the [Solidity documentation](https://solidity.readthedocs.io/en/latest/types.html##delete)). The remaining data may be used to compromise the contract.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     struct BalancesStruct{
@@ -1129,7 +1129,7 @@ Use a lock mechanism instead of a deletion to disable structure containing a map
 
 Detect when a Pyth deprecated function is used
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
@@ -1154,7 +1154,7 @@ The function `A` uses the deprecated `getPrice` Pyth function.
 
 ### Recommendation
 
-Do not use deprecated Pyth functions. Visit https://api-reference.pyth.network/.
+Do not use deprecated Pyth functions. Visit <https://api-reference.pyth.network/>.
 
 ## Pyth unchecked confidence level
 
@@ -1168,7 +1168,7 @@ Do not use deprecated Pyth functions. Visit https://api-reference.pyth.network/.
 
 Detect when the confidence level of a Pyth price is not checked
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
@@ -1192,7 +1192,7 @@ The function `A` uses the price without checking its confidence level.
 
 ### Recommendation
 
-Check the confidence level of a Pyth price. Visit https://docs.pyth.network/price-feeds/best-practices#confidence-intervals for more information.
+Check the confidence level of a Pyth price. Visit <https://docs.pyth.network/price-feeds/best-practices#confidence-intervals> for more information.
 
 ## Pyth unchecked publishTime
 
@@ -1206,7 +1206,7 @@ Check the confidence level of a Pyth price. Visit https://docs.pyth.network/pric
 
 Detect when the publishTime of a Pyth price is not checked
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
@@ -1244,7 +1244,7 @@ Check the publishTime of a Pyth price.
 
 Detection of state variables shadowed from abstract contracts.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract BaseContract{
@@ -1274,7 +1274,7 @@ Remove the state variable shadowing.
 
 A variable compared to itself is probably an error as it will always return `true` for `==`, `>=`, `<=` and always `false` for `<`, `>` and `!=`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function check(uint a) external returns(bool){
@@ -1300,23 +1300,23 @@ Remove comparison or compare to different value.
 
 Detects expressions that are tautologies or contradictions.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	function f(uint x) public {
-		// ...
+ function f(uint x) public {
+  // ...
         if (x >= 0) { // bad -- always true
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 
-	function g(uint8 y) public returns (bool) {
-		// ...
+ function g(uint8 y) public returns (bool) {
+  // ...
         return (y < 512); // bad!
-		// ...
-	}
+  // ...
+ }
 }
 ```
 
@@ -1339,19 +1339,20 @@ Fix the incorrect comparison by changing the value type or the comparison.
 
 Detects variables that are written but never read and written again.
 
-### Exploit Scenario:
+### Exploit Scenario
 
-    ```solidity
-    contract Buggy{
-        function my_func() external initializer{
-            // ...
-            a = b;
-            a = c;
-            // ..
-        }
+```solidity
+contract Buggy{
+    function my_func() external initializer{
+        // ...
+        a = b;
+        a = c;
+        // ..
     }
-    ```
-    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
+}
+```
+
+`a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 
@@ -1369,23 +1370,23 @@ Fix or remove the writes.
 
 Detects the misuse of a Boolean constant.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	function f(uint x) public {
-		// ...
+ function f(uint x) public {
+  // ...
         if (false) { // bad!
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 
-	function g(bool b) public returns (bool) {
-		// ...
+ function g(bool b) public returns (bool) {
+  // ...
         return (b || true); // bad!
-		// ...
-	}
+  // ...
+ }
 }
 ```
 
@@ -1406,9 +1407,9 @@ Verify and simplify the condition.
 
 ### Description
 
-Chronicle oracle is used and the price returned is not checked to be valid. For more information https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated.
+Chronicle oracle is used and the price returned is not checked to be valid. For more information visit <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -1446,7 +1447,7 @@ Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses t
 
 As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Constant{
@@ -1482,7 +1483,7 @@ Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses t
 
 As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Constant{
@@ -1513,18 +1514,18 @@ Ensure that attributes of contracts compiled prior to Solidity 0.5.0 are correct
 
 Solidity's integer division truncates. Thus, performing division before multiplication can lead to precision loss.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	function f(uint n) public {
+ function f(uint n) public {
         coins = (oldSupply / n) * interest;
     }
 }
 ```
 
-If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
-If `(oldSupply * interest / n)` was used, `coins` would have been `1`.  
+If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.
+If `(oldSupply * interest / n)` was used, `coins` would have been `1`.
 In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous.
 
 ### Recommendation
@@ -1543,7 +1544,7 @@ Consider ordering multiplication before division.
 
 Detect calls to `_requestRandomness` within an unprotected function.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C is GelatoVRFConsumerBase {
@@ -1579,7 +1580,7 @@ Function that request randomness should be allowed only to authorized users.
 
 Out-of-order retryable transactions
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract L1 {
@@ -1632,7 +1633,7 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
 Do not rely on the order or successful execution of retryable tickets.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities no ETH
 
 ### Configuration
 
@@ -1645,7 +1646,7 @@ Do not rely on the order or successful execution of retryable tickets.
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Do not report reentrancies that involve Ether (see `reentrancy-eth`).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function bug(){
@@ -1673,7 +1674,7 @@ Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/
 
 Detects if the same base constructor is called with arguments from two different locations in the same inheritance hierarchy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 pragma solidity ^0.4.0;
@@ -1724,7 +1725,7 @@ Remove the duplicate constructor call.
 
 `tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract TxOrigin {
@@ -1753,7 +1754,7 @@ Do not use `tx.origin` for authorization.
 
 The return value of a low-level call is not checked.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract MyConc{
@@ -1782,7 +1783,7 @@ Ensure that the return value of a low-level call is checked or logged.
 
 The return value of a `send` is not checked.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract MyConc{
@@ -1811,7 +1812,7 @@ Ensure that the return value of `send` is checked or logged.
 
 Uninitialized local variables.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Uninitialized is Owner{
@@ -1840,7 +1841,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 
 The return value of an external call is not stored in a local or state variable.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract MyConc{
@@ -1869,7 +1870,7 @@ Ensure that all the return values of the function calls are used.
 
 Detect when Chainlink Feed Registry is used. At the moment is only available on Ethereum Mainnet.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 import "chainlink/contracts/src/v0.8/interfaces/FeedRegistryInteface.sol"
@@ -1907,7 +1908,7 @@ Do not use Chainlink Feed Registry outside of Ethereum Mainnet.
 
 If a modifier does not execute `_` or revert, the execution of the function will return the default value, which can be misleading for the caller.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     modidfier myModif(){
@@ -1938,7 +1939,7 @@ All the paths in a modifier must execute `_` or revert.
 
 Detect when deprecated Optimism predeploy or function is used.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 interface GasPriceOracle {
@@ -1972,7 +1973,7 @@ Do not use the deprecated components.
 
 Detection of shadowing built-in symbols using local variables, state variables, functions, modifiers, or events.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 pragma solidity ^0.4.24;
@@ -2008,7 +2009,7 @@ Rename the local variables, state variables, functions, modifiers, and events th
 
 Detection of shadowing using local variables.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 pragma solidity ^0.4.24;
@@ -2047,7 +2048,7 @@ Rename the local variables that shadow another component.
 
 solc versions `0.4.5`-`0.4.26` and `0.5.0`-`0.5.8` contain a compiler bug leading to unexpected behavior when calling uninitialized function pointers in constructors.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract bad0 {
@@ -2079,7 +2080,7 @@ Initialize function pointers before calling. Avoid function pointers if possible
 
 Detects the possible usage of a variable before the declaration is stepped over (either because it is later declared, or declared in another scope).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -2121,7 +2122,7 @@ Move all variable declarations prior to any usage of the variable, and ensure th
 
 Detect the call to a constructor that is not implemented
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A{}
@@ -2148,7 +2149,7 @@ Remove the constructor call.
 
 Calls inside a loop might lead to a denial-of-service attack.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract CallsInLoop{
@@ -2186,7 +2187,7 @@ Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-o
 
 Detect missing events for critical access control parameters
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -2220,7 +2221,7 @@ Emit an event for critical parameter changes.
 
 Detect missing events for critical arithmetic parameters.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -2258,7 +2259,7 @@ Emit an event for critical parameter changes.
 
 Unary expressions such as `x=+1` probably typos.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```Solidity
 contract Bug{
@@ -2289,7 +2290,7 @@ Remove the unary expression.
 
 Detect missing zero address validation.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {
@@ -2311,7 +2312,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
 Check that the address is not zero.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities benign
 
 ### Configuration
 
@@ -2324,7 +2325,7 @@ Check that the address is not zero.
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentrancy-no-eth`).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function callme(){
@@ -2341,7 +2342,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
 Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities events
 
 ### Configuration
 
@@ -2353,19 +2354,19 @@ Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/
 
 Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy) that allow manipulation of the order or value of events.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract ReentrantContract {
-	function f() external {
-		if (BugReentrancyEvents(msg.sender).counter() == 1) {
-			BugReentrancyEvents(msg.sender).count(this);
-		}
-	}
+ function f() external {
+  if (BugReentrancyEvents(msg.sender).counter() == 1) {
+   BugReentrancyEvents(msg.sender).count(this);
+  }
+ }
 }
 contract Counter {
-	uint public counter;
-	event Counter(uint);
+ uint public counter;
+ event Counter(uint);
 
 }
 contract BugReentrancyEvents is Counter {
@@ -2376,7 +2377,7 @@ contract BugReentrancyEvents is Counter {
     }
 }
 contract NoReentrancyEvents is Counter {
-	function count(ReentrantContract d) external {
+ function count(ReentrantContract d) external {
         counter += 1;
         emit Counter(counter);
         d.f();
@@ -2403,7 +2404,7 @@ Apply the [`check-effects-interactions` pattern](https://docs.soliditylang.org/e
 
 A low level callee may consume all callers gas unexpectedly.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 //Modified from https://github.com/nomad-xyz/ExcessivelySafeCall
@@ -2454,7 +2455,7 @@ Avoid unlimited implicit decoding of returndata.
 
 Dangerous usage of `block.timestamp`. `block.timestamp` can be manipulated by miners.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 "Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract.
 
@@ -2490,7 +2491,7 @@ Do not use `evm` assembly.
 
 Incorrect use of `assert()`. See Solidity best [practices](https://solidity.readthedocs.io/en/latest/control-structures.html#id4).
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
@@ -2521,17 +2522,17 @@ Use `require` for invariants modifying the state.
 
 Detects the comparison to boolean constants.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract A {
-	function f(bool x) public {
-		// ...
+ function f(bool x) public {
+  // ...
         if (x == true) { // bad!
            // ...
         }
-		// ...
-	}
+  // ...
+ }
 }
 ```
 
@@ -2569,7 +2570,7 @@ Reduce cyclomatic complexity by splitting the function into several smaller subr
 
 Detect the usage of deprecated standards.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract ContractWithDeprecatedReferences {
@@ -2615,7 +2616,7 @@ Replace all uses of deprecated symbols.
 
 Detects whether events defined by the `ERC20` specification that should have some parameters as `indexed` are missing the `indexed` keyword.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract ERC20Bad {
@@ -2646,7 +2647,7 @@ Add the `indexed` keyword to event parameters that should include it, according 
 
 Detects the immediate initialization of state variables through function calls that are not pure/constant, or that use non-constant state variable.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract StateVarInitFromFunction {
@@ -2692,16 +2693,17 @@ Remove any initialization of state variables via non-constant state variables or
 
 In Solidity, it is possible to use libraries for certain types, by the `using-for` statement (`using <library> for <type>`). However, the Solidity compiler doesn't check whether a given library has at least one function matching a given type. If it doesn't, such a statement has no effect and may be confusing.
 
-### Exploit Scenario:
+### Exploit Scenario
 
-    ```solidity
-    library L {
-        function f(bool) public pure {}
-    }
+```solidity
+library L {
+    function f(bool) public pure {}
+}
 
-    using L for uint;
-    ```
-    Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
+using L for uint;
+```
+
+Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
 
 ### Recommendation
 
@@ -2735,7 +2737,7 @@ Avoid low-level calls. Check the call success. If the call is meant for a contra
 
 Detect missing inheritance.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 interface ISomething {
@@ -2804,7 +2806,7 @@ Use one Solidity version.
 
 Detect the usage of redundant statements that have no effect.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract RedundantStatementsContract {
@@ -2862,7 +2864,7 @@ Consider using the latest version of Solidity for testing.
 
 Detect functions that are not implemented on derived-most contracts.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 interface BaseInterface {
@@ -2917,7 +2919,7 @@ Remove unused state variables.
 
 Costly operations inside a loop might waste gas, so optimizations are justified.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract CostlyOperationsInLoop{
@@ -2959,7 +2961,7 @@ Use a local variable to hold the loop computation result.
 
 Functions that are not used.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -2973,7 +2975,7 @@ contract Contract{
 
 Remove unused functions.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities unlimited gas
 
 ### Configuration
 
@@ -2986,7 +2988,7 @@ Remove unused functions.
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Only report reentrancy that is based on `transfer` or `send`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
     function callme(){
@@ -3013,7 +3015,7 @@ Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/
 
 Literals with many digits are difficult to read and review. Use scientific notation or suffixes to make the code more readable.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract MyContract{
@@ -3043,7 +3045,7 @@ Use:
 
 Detects `for` loops that use `length` member of some storage array in their loop condition and don't modify it.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C
@@ -3142,7 +3144,7 @@ Add the `immutable` attribute to state variables that never change or are set on
 
 The contract reads its own variable using `this`, adding overhead of an unnecessary STATICCALL.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract C {

@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -32,7 +30,7 @@ contract B is A{
 When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed."""
     # endregion wiki_exploit_scenario
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         results = []
         for c in self.contracts:

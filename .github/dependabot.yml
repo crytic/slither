@@ -3,6 +3,29 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "dev"
+    target-branch: "master"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all:
+        patterns: ["*"]
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all:
+        patterns: ["*"]
+
+  - package-ecosystem: "npm"
+    directory: "tests/e2e/compilation/test_data/test_node_modules/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "*"

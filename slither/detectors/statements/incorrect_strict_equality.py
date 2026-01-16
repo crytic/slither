@@ -3,7 +3,7 @@ Module detecting dangerous strict equality
 
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -89,31 +89,25 @@ contract Crowdsale{
 
     @staticmethod
     def is_any_tainted(
-        variables: List[
-            Union[
-                Constant,
-                LocalIRVariable,
-                TemporaryVariableSSA,
-                SolidityVariableComposed,
-                SolidityVariable,
-            ]
+        variables: list[
+            Constant
+            | LocalIRVariable
+            | TemporaryVariableSSA
+            | SolidityVariableComposed
+            | SolidityVariable
         ],
-        taints: List[
-            Union[LocalIRVariable, SolidityVariable, SolidityVariableComposed, TemporaryVariableSSA]
+        taints: list[
+            LocalIRVariable | SolidityVariable | SolidityVariableComposed | TemporaryVariableSSA
         ],
         function: FunctionContract,
     ) -> bool:
         return any(
-            (
-                is_dependent_ssa(var, taint, function.contract)
-                for var in variables
-                for taint in taints
-            )
+            is_dependent_ssa(var, taint, function.contract) for var in variables for taint in taints
         )
 
     def taint_balance_equalities(
-        self, functions: List[Union[FunctionContract, Any]]
-    ) -> List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]:
+        self, functions: list[FunctionContract | Any]
+    ) -> list[LocalIRVariable | TemporaryVariableSSA | Any]:
         taints = []
         for func in functions:
             for node in func.nodes:
@@ -144,9 +138,9 @@ contract Crowdsale{
     # Retrieve all tainted (node, function) pairs
     def tainted_equality_nodes(
         self,
-        funcs: List[Union[FunctionContract, Any]],
-        taints: List[Union[LocalIRVariable, TemporaryVariableSSA, Any]],
-    ) -> Dict[FunctionContract, List[Node]]:
+        funcs: list[FunctionContract | Any],
+        taints: list[LocalIRVariable | TemporaryVariableSSA | Any],
+    ) -> dict[FunctionContract, list[Node]]:
         results = {}
         taints += self.sources_taint
 
@@ -169,7 +163,7 @@ contract Crowdsale{
 
         return results
 
-    def detect_strict_equality(self, contract: Contract) -> Dict[FunctionContract, List[Node]]:
+    def detect_strict_equality(self, contract: Contract) -> dict[FunctionContract, list[Node]]:
         funcs = contract.all_functions_called + contract.modifiers
 
         # Taint all BALANCE accesses
@@ -180,14 +174,14 @@ contract Crowdsale{
 
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for c in self.compilation_unit.contracts_derived:
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results
-            ret = sorted(list(ret.items()), key=lambda x: x[0].name)
+            ret = sorted(ret.items(), key=lambda x: x[0].name)
             for f, nodes in ret:
                 func_info = [f, " uses a dangerous strict equality:\n"]
 

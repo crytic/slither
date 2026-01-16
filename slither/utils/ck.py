@@ -32,7 +32,6 @@ These are also included in the output:
 """
 
 from collections import OrderedDict
-from typing import Tuple, List, Dict
 from dataclasses import dataclass, field
 from slither.utils.colors import bold
 from slither.core.declarations import Contract
@@ -79,17 +78,17 @@ def has_auth(func) -> bool:
 # Utility classes for calculating CK metrics
 
 
-@dataclass
+@dataclass(slots=True)
 class CKContractMetrics:
     """Class to hold the CK metrics for a single contract."""
 
     contract: Contract
 
     # Used to calculate CBO - should be passed in as a constructor arg
-    martin_metrics: Dict
+    martin_metrics: dict
 
     # Used to calculate NOC
-    dependents: Dict
+    dependents: dict
 
     state_variables: int = 0
     constants: int = 0
@@ -134,7 +133,7 @@ class CKContractMetrics:
             public = func.visibility == "public"
             internal = func.visibility == "internal"
             private = func.visibility == "private"
-            external_public_mutating = external or public and mutating
+            external_public_mutating = external or (public and mutating)
             external_no_auth = external_public_mutating and not has_auth(func)
             external_no_modifiers = external_public_mutating and len(func.modifiers) == 0
             if external or public:
@@ -207,7 +206,7 @@ class CKContractMetrics:
         # self.public is used count public functions not public variables
         self.rfc = public_getter_count
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Return the metrics as a dictionary."""
         return OrderedDict(
             {
@@ -233,7 +232,7 @@ class CKContractMetrics:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class SectionInfo:
     """Class to hold the information for a section of the report."""
 
@@ -242,7 +241,7 @@ class SectionInfo:
     txt: str
 
 
-@dataclass
+@dataclass(slots=True)
 class CKMetrics:
     """Class to hold the CK metrics for all contracts. Contains methods useful for reporting.
 
@@ -254,7 +253,7 @@ class CKMetrics:
     5. CK metrics (RFC, NOC, DIT, CBO)
     """
 
-    contracts: List[Contract] = field(default_factory=list)
+    contracts: list[Contract] = field(default_factory=list)
     contract_metrics: OrderedDict = field(default_factory=OrderedDict)
     title: str = "CK complexity metrics"
     full_text: str = ""
@@ -291,7 +290,7 @@ class CKMetrics:
         "DIT",
         "CBO",
     )
-    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (
+    SECTIONS: tuple[tuple[str, str, tuple[str]]] = (
         ("Variables", "auxiliary1", AUXILIARY1_KEYS),
         ("Function visibility", "auxiliary2", AUXILIARY2_KEYS),
         ("State mutability", "auxiliary3", AUXILIARY3_KEYS),

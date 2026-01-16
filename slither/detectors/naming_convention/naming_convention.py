@@ -1,5 +1,4 @@
 import re
-from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -71,7 +70,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         info: DETECTOR_INFO
         for contract in self.contracts:

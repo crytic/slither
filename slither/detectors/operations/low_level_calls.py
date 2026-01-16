@@ -2,7 +2,6 @@
 Module detecting usage of low level calls
 """
 
-from typing import List, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -42,7 +41,7 @@ class LowLevelCalls(AbstractDetector):
 
     def detect_low_level_calls(
         self, contract: Contract
-    ) -> List[Tuple[FunctionContract, List[Node]]]:
+    ) -> list[tuple[FunctionContract, list[Node]]]:
         ret = []
         for f in [f for f in contract.functions if contract == f.contract_declarer]:
             low_level_nodes = [ir.node for ir in f.low_level_calls]
@@ -50,7 +49,7 @@ class LowLevelCalls(AbstractDetector):
                 ret.append((f, low_level_nodes))
         return ret
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect the functions that use low level calls"""
         results = []
         for c in self.contracts:

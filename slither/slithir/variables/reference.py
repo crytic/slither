@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
 from slither.core.variables.variable import Variable
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ReferenceVariable(Variable):
-    def __init__(self, node: "Node", index: Optional[int] = None) -> None:
+    def __init__(self, node: "Node", index: int | None = None) -> None:
         super().__init__()
         if index is None:
             self._index = node.compilation_unit.counter_slithir_reference

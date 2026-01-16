@@ -25,7 +25,7 @@ from slither.exceptions import SlitherError
 logger = logging.getLogger("ExpressionVisitor")
 
 
-@lru_cache()
+@lru_cache
 def get_visitor_mapping():
     """Returns a visitor mapping from expression type to visiting functions."""
     return {

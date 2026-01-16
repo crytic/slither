@@ -1,7 +1,7 @@
 import re
 import logging
 
-from typing import List, Set, Dict, Union, Optional, Callable, Type, Sequence
+from collections.abc import Callable, Sequence
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.variables import Variable
@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
+def custom_format(compilation_unit: SlitherCompilationUnit, result: dict) -> None:
     elements = result["elements"]
     for element in elements:
         target = element["additional_fields"]["target"]
@@ -129,8 +129,8 @@ SOLIDITY_KEYWORDS += ElementaryTypeName
 
 def _name_already_use(slither: SlitherCompilationUnit, name: str) -> bool:
     # Do not convert to a name used somewhere else
-    if not KEY in slither.context:
-        all_names: Set[str] = set()
+    if KEY not in slither.context:
+        all_names: set[str] = set()
         for contract in slither.contracts_derived:
             all_names = all_names.union({st.name for st in contract.structures})
             all_names = all_names.union({f.name for f in contract.functions_and_modifiers})
@@ -160,9 +160,7 @@ def _convert_CapWords(original_name: str, slither: SlitherCompilationUnit) -> st
     return name
 
 
-def _convert_mixedCase(
-    original_name: Union[str, bytes], compilation_unit: SlitherCompilationUnit
-) -> str:
+def _convert_mixedCase(original_name: str | bytes, compilation_unit: SlitherCompilationUnit) -> str:
     if isinstance(original_name, bytes):
         name = original_name.decode("utf8")
     else:
@@ -191,10 +189,10 @@ def _convert_UPPER_CASE_WITH_UNDERSCORES(
     return name.upper()
 
 
-TARGET_TYPE = Union[Contract, Variable, Function]
+TARGET_TYPE = Contract | Variable | Function
 CONVENTION_F_TYPE = Callable[[str, SlitherCompilationUnit], str]
 
-conventions: Dict[str, CONVENTION_F_TYPE] = {
+conventions: dict[str, CONVENTION_F_TYPE] = {
     "CapWords": _convert_CapWords,
     "mixedCase": _convert_mixedCase,
     "UPPER_CASE_WITH_UNDERSCORES": _convert_UPPER_CASE_WITH_UNDERSCORES,
@@ -210,7 +208,7 @@ conventions: Dict[str, CONVENTION_F_TYPE] = {
 
 
 def _get_from_contract(
-    compilation_unit: SlitherCompilationUnit, element: Dict, name: str, getter: str
+    compilation_unit: SlitherCompilationUnit, element: dict, name: str, getter: str
 ) -> TARGET_TYPE:
     scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
     contract_name = element["type_specific_fields"]["parent"]["name"]
@@ -227,11 +225,11 @@ def _get_from_contract(
 
 
 def _patch(
-    compilation_unit: SlitherCompilationUnit, result: Dict, element: Dict, _target: str
+    compilation_unit: SlitherCompilationUnit, result: dict, element: dict, _target: str
 ) -> None:
     scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
 
-    target: Optional[TARGET_TYPE] = None
+    target: TARGET_TYPE | None = None
 
     if _target == "contract":
         target = scope.get_contract_from_name(element["name"])
@@ -344,10 +342,10 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
 
 def _explore_type(
     slither: SlitherCompilationUnit,
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
-    custom_type: Optional[Union[Type, List[Type]]],
+    custom_type: type | list[type] | None,
     filename_source_code: str,
     start: int,
     end: int,
@@ -445,7 +443,7 @@ def _explore_type(
 def _explore_variables_declaration(
     slither: SlitherCompilationUnit,
     variables: Sequence[Variable],
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
     patch_comment: bool = False,
@@ -502,14 +500,14 @@ def _explore_variables_declaration(
                         idx_beginning += -func.source_mapping.starting_column + 1
                         idx_beginning += -sum(len(c) for c in potential_comments)
 
-                        old_comment = f"@param {old_str}".encode("utf8")
+                        old_comment = f"@param {old_str}".encode()
 
                         for line in potential_comments:
                             idx = line.find(old_comment)
                             if idx >= 0:
                                 loc_start = idx + idx_beginning
                                 loc_end = loc_start + len(old_comment)
-                                new_comment = f"@param {new_str}".encode("utf8")
+                                new_comment = f"@param {new_str}".encode()
 
                                 create_patch(
                                     result,
@@ -527,7 +525,7 @@ def _explore_variables_declaration(
 def _explore_structures_declaration(
     slither: SlitherCompilationUnit,
     structures: Sequence[Structure],
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -559,7 +557,7 @@ def _explore_structures_declaration(
 def _explore_events_declaration(
     slither: SlitherCompilationUnit,
     events: Sequence[Event],
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -580,7 +578,7 @@ def _explore_events_declaration(
             create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
-def get_ir_variables(ir: Operation) -> List[Union[Variable, Function]]:
+def get_ir_variables(ir: Operation) -> list[Variable | Function]:
     all_vars = ir.read
 
     if isinstance(ir, (InternalCall, InternalDynamicCall, HighLevelCall)):
@@ -600,8 +598,8 @@ def get_ir_variables(ir: Operation) -> List[Union[Variable, Function]]:
 
 def _explore_irs(
     slither: SlitherCompilationUnit,
-    irs: List[Operation],
-    result: Dict,
+    irs: list[Operation],
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -622,7 +620,7 @@ def _explore_irs(
                     full_txt_start:full_txt_end
                 ]
 
-                if not target.name.encode("utf8") in full_txt:
+                if target.name.encode("utf8") not in full_txt:
                     raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
 
                 old_str = target.name.encode("utf8")
@@ -632,7 +630,7 @@ def _explore_irs(
                 # Can be found multiple time on the same IR
                 # We patch one by one
                 while old_str in full_txt:
-                    target_found_at = full_txt.find((old_str))
+                    target_found_at = full_txt.find(old_str)
 
                     full_txt = full_txt[target_found_at + 1 :]
                     counter += target_found_at
@@ -652,8 +650,8 @@ def _explore_irs(
 
 def _explore_functions(
     slither: SlitherCompilationUnit,
-    functions: List[Function],
-    result: Dict,
+    functions: list[Function],
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -687,7 +685,7 @@ def _explore_functions(
 def _explore_enums(
     slither: SlitherCompilationUnit,
     enums: Sequence[Enum],
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -715,7 +713,7 @@ def _explore_enums(
 def _explore_contract(
     slither: SlitherCompilationUnit,
     contract: Contract,
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
@@ -747,7 +745,7 @@ def _explore_contract(
 
 def _explore(
     compilation_unit: SlitherCompilationUnit,
-    result: Dict,
+    result: dict,
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:

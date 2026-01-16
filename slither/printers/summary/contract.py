@@ -3,7 +3,6 @@ Module printing summary of the contract
 """
 
 import collections
-from typing import Dict, List
 
 from slither.core.declarations import FunctionContract
 from slither.printers.abstract_printer import AbstractPrinter
@@ -60,7 +59,7 @@ class ContractSummary(AbstractPrinter):
                 for f in c.functions
                 if (not f.is_shadowed and not f.is_constructor_variables)
             ]
-            collect: Dict[str, List[FunctionContract]] = collections.defaultdict(list)
+            collect: dict[str, list[FunctionContract]] = collections.defaultdict(list)
             for a, b in public_function:
                 collect[a].append(b)
 

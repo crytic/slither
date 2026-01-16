@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DETECTOR_INFO,
@@ -17,8 +15,8 @@ class PythUnchecked(AbstractDetector):
     PYTH_FUNCTIONS = []
     PYTH_FIELD = ""
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:

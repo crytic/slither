@@ -9,8 +9,6 @@ The heuristic checks:
 Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
 
-from typing import List, Tuple
-
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables import Variable
@@ -62,7 +60,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     # endregion wiki_recommendation
 
     @staticmethod
-    def _written_variables(contract: Contract) -> List[StateVariable]:
+    def _written_variables(contract: Contract) -> list[StateVariable]:
         ret = []
 
         for f in contract.all_functions_called + contract.modifiers:
@@ -97,8 +95,8 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         self.__variables_written_in_proxy = list({v.name for v in variables_written_in_proxy})
         return self.__variables_written_in_proxy
 
-    def _written_variables_in_proxy(self, contract: Contract) -> List[StateVariable]:
-        variables: List[StateVariable] = []
+    def _written_variables_in_proxy(self, contract: Contract) -> list[StateVariable]:
+        variables: list[StateVariable] = []
         if contract.is_upgradeable:
             variables_name_written_in_proxy = self._variable_written_in_proxy()
             if variables_name_written_in_proxy:
@@ -110,7 +108,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         return list(set(variables))
 
     @staticmethod
-    def _read_variables(contract: Contract) -> List[StateVariable]:
+    def _read_variables(contract: Contract) -> list[StateVariable]:
         ret = []
         for f in contract.all_functions_called:
             if isinstance(f, Function):
@@ -119,7 +117,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret += m.state_variables_read
         return ret
 
-    def _detect_uninitialized(self, contract: Contract) -> List[Tuple[Variable, List[Function]]]:
+    def _detect_uninitialized(self, contract: Contract) -> list[tuple[Variable, list[Function]]]:
         written_variables = self._written_variables(contract)
         written_variables += self._written_variables_in_proxy(contract)
         read_variables = self._read_variables(contract)
@@ -131,7 +129,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             and variable in read_variables
         ]
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect uninitialized state variables
 
         Recursively visit the calls

@@ -1,7 +1,6 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Tuple, List, Union, Set
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
@@ -26,14 +25,14 @@ class AbstractMutator(metaclass=abc.ABCMeta):
         testing_command: str,
         testing_directory: str,
         contract_instance: Contract,
-        solc_remappings: Union[str, None],
+        solc_remappings: str | None,
         verbose: bool,
         output_folder: Path,
-        dont_mutate_line: List[int],
+        dont_mutate_line: list[int],
         rate: int = 10,
-        seed: Optional[int] = None,
-        target_selectors: Optional[Set[int]] = None,
-        target_modifiers: Optional[Set[str]] = None,
+        seed: int | None = None,
+        target_selectors: set[int] | None = None,
+        target_modifiers: set[str] | None = None,
     ) -> None:
         self.compilation_unit = compilation_unit
         self.slither = compilation_unit.core
@@ -72,7 +71,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):
 
     def should_mutate_node(self, node) -> bool:
         return (
-            not node.source_mapping.lines[0] in self.dont_mutate_line
+            node.source_mapping.lines[0] not in self.dont_mutate_line
             and node.source_mapping.filename.absolute == self.in_file
         )
 
@@ -96,12 +95,12 @@ class AbstractMutator(metaclass=abc.ABCMeta):
             return False
 
     @abc.abstractmethod
-    def _mutate(self) -> Dict:
+    def _mutate(self) -> dict:
         """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
-    def mutate(self) -> Tuple[List[int], List[int], List[int]]:
-        all_patches: Dict = {}
+    def mutate(self) -> tuple[list[int], list[int], list[int]]:
+        all_patches: dict = {}
 
         # call _mutate implementation of different mutation types
         try:

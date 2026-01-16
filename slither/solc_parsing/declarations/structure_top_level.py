@@ -2,7 +2,7 @@
 Structure module
 """
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -24,7 +24,7 @@ class StructureTopLevelSolc(CallerContextExpression):
     def __init__(
         self,
         st: StructureTopLevel,
-        struct: Dict,
+        struct: dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
         if slither_parser.is_compact_ast:

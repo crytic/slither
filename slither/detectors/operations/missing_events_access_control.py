@@ -3,8 +3,6 @@ Module detecting missing events for critical contract parameters set by owners a
 
 """
 
-from typing import List, Tuple
-
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
@@ -59,7 +57,7 @@ contract C {
     @staticmethod
     def _detect_missing_events(
         contract: Contract,
-    ) -> List[Tuple[FunctionContract, List[Tuple[Node, StateVariable, Modifier]]]]:
+    ) -> list[tuple[FunctionContract, list[tuple[Node, StateVariable, Modifier]]]]:
         """
         Detects if critical contract parameters set by owners and used in access control are missing events
         :param contract: The contract to check
@@ -93,7 +91,7 @@ contract C {
                 results.append((function, nodes))
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect missing events for critical contract parameters set by owners and used in access control
         Returns:
             list: {'(function, node)'}

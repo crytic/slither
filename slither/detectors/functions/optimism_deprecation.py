@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -43,7 +41,7 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
 
     WIKI_RECOMMENDATION = "Do not use the deprecated components."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         deprecated_predeploys = [
@@ -54,7 +52,7 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
         ]
 
         for contract in self.compilation_unit.contracts_derived:
-            use_deprecated: List[Node] = []
+            use_deprecated: list[Node] = []
 
             for _, ir in contract.all_high_level_calls:
                 # To avoid FPs we assume predeploy contracts are always assigned to a constant and typecasted to an interface

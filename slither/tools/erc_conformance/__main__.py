@@ -1,7 +1,8 @@
 import argparse
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Callable
+from typing import Any
+from collections.abc import Callable
 
 from crytic_compile import cryticparser
 
@@ -26,7 +27,7 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-ADDITIONAL_CHECKS: Dict[str, Callable[[Contract, Dict[str, List]], Dict[str, List]]] = {
+ADDITIONAL_CHECKS: dict[str, Callable[[Contract, dict[str, list]], dict[str, list]]] = {
     "ERC20": check_erc20,
     "ERC1155": check_erc1155,
 }
@@ -71,7 +72,7 @@ def parse_args() -> argparse.Namespace:
 
 def _log_error(err: Any, args: argparse.Namespace) -> None:
     if args.json:
-        output_to_json(args.json, str(err), {"upgradeability-check": []})
+        output_to_json(args.json, str(err), {"erc-conformance": []})
 
     logger.error(err)
 
@@ -82,7 +83,7 @@ def main() -> None:
     # Perform slither analysis on the given filename
     slither = Slither(args.project, **vars(args))
 
-    ret: Dict[str, List] = defaultdict(list)
+    ret: dict[str, list] = defaultdict(list)
 
     if args.erc.upper() in ERCS:
         contracts = slither.get_contract_from_name(args.contract_name)
@@ -105,7 +106,7 @@ def main() -> None:
         return
 
     if args.json:
-        output_to_json(args.json, None, {"upgradeability-check": ret})
+        output_to_json(args.json, None, {"erc-conformance": ret})
 
 
 if __name__ == "__main__":

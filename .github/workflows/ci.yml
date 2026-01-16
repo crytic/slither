@@ -9,15 +9,21 @@ on:
   push:
     branches:
       - master
-      - dev
   pull_request:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    paths:
+      - 'slither/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/ci.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -29,8 +35,8 @@ jobs:
           ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]'))
           || fromJSON('["ubuntu-latest", "windows-2025"]') }}
         python: >-
-          ${{ (github.event_name == 'pull_request' && fromJSON('["3.9", "3.14"]'))
-          || fromJSON('["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]') }}
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.10", "3.14"]'))
+          || fromJSON('["3.10", "3.11", "3.12", "3.13", "3.14"]') }}
         type: >-
           ${{ (github.event_name == 'pull_request'
           && fromJSON('["data_dependency", "path_filtering", "erc", "find_paths",
@@ -49,12 +55,15 @@ jobs:
           - os: windows-2025
             type: simil
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          persist-credentials: false
       - name: Install uv and Python ${{ matrix.python }}
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
         with:
           python-version: ${{ matrix.python }}
           activate-environment: true
+          enable-cache: true
       - name: Install dependencies
         run: |
           uv sync --group test
@@ -65,11 +74,11 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15  # v31
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v16
+        uses: cachix/cachix-action@0fc020193b5a1fa3ac4575aa3a7d3aa6a35435ad  # v16
         with:
           name: dapp
 

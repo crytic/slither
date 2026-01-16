@@ -1,6 +1,7 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict, ValuesView
+from typing import TYPE_CHECKING, Union
+from collections.abc import ValuesView
 
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
@@ -41,11 +42,11 @@ class UnknownType:
 
 def _find_from_type_name(
     name: str,
-    functions_direct_access: List["Function"],
-    contracts_direct_access: List["Contract"],
-    structures_direct_access: List["Structure"],
+    functions_direct_access: list["Function"],
+    contracts_direct_access: list["Contract"],
+    structures_direct_access: list["Structure"],
     all_structures: ValuesView["Structure"],
-    enums_direct_access: List["Enum"],
+    enums_direct_access: list["Enum"],
     all_enums: ValuesView["Enum"],
 ) -> Type:
     name_elementary = name.split(" ")[0]
@@ -203,7 +204,7 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
-    t: Union[Dict, UnknownType],
+    t: dict | UnknownType,
     caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
 ) -> Type:
     """
@@ -230,16 +231,16 @@ def parse_type(
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
     from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
 
-    sl: "SlitherCompilationUnit"
-    renaming: Dict[str, str]
-    type_aliases: Dict[str, TypeAlias]
-    enums_direct_access: List["Enum"] = []
+    sl: SlitherCompilationUnit
+    renaming: dict[str, str]
+    type_aliases: dict[str, TypeAlias]
+    enums_direct_access: list[Enum] = []
     # Note: for convenience top level functions use the same parser as function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
-        structures_direct_access: List["Structure"]
+        structures_direct_access: list[Structure]
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
@@ -468,8 +469,8 @@ def parse_type(
         assert params[key] == "ParameterList"
         assert return_values[key] == "ParameterList"
 
-        params_vars: List[FunctionTypeVariable] = []
-        return_values_vars: List[FunctionTypeVariable] = []
+        params_vars: list[FunctionTypeVariable] = []
+        return_values_vars: list[FunctionTypeVariable] = []
         for p in params[index]:
             var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.compilation_unit)

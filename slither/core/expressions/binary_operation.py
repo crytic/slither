@@ -1,6 +1,5 @@
 import logging
 from enum import Enum
-from typing import List
 
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
@@ -160,7 +159,7 @@ class BinaryOperation(Expression):
         self._type: BinaryOperationType = expression_type
 
     @property
-    def expressions(self) -> List[Expression]:
+    def expressions(self) -> list[Expression]:
         return self._expressions
 
     @property

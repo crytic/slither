@@ -1,4 +1,4 @@
-from typing import List, Set, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Phi(OperationWithLValue):
     def __init__(
-        self, left_variable: Union[LocalIRVariable, StateIRVariable], nodes: Set["Node"]
+        self, left_variable: LocalIRVariable | StateIRVariable, nodes: set["Node"]
     ) -> None:
         # When Phi operations are created the
         # correct indexes of the variables are not yet computed
@@ -29,9 +29,7 @@ class Phi(OperationWithLValue):
     @property
     def read(
         self,
-    ) -> List[
-        Union[SolidityVariableComposed, LocalIRVariable, TemporaryVariableSSA, StateIRVariable]
-    ]:
+    ) -> list[SolidityVariableComposed | LocalIRVariable | TemporaryVariableSSA | StateIRVariable]:
         return self.rvalues
 
     @property
@@ -43,7 +41,7 @@ class Phi(OperationWithLValue):
         self._rvalues = vals
 
     @property
-    def nodes(self) -> Set["Node"]:
+    def nodes(self) -> set["Node"]:
         return self._nodes
 
     def __str__(self):

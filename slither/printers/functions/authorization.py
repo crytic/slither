@@ -2,8 +2,6 @@
 Module printing summary of the contract
 """
 
-from typing import List
-
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
 from slither.utils.myprettytable import MyPrettyTable
@@ -17,7 +15,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization"
 
     @staticmethod
-    def get_msg_sender_checks(function: Function) -> List[str]:
+    def get_msg_sender_checks(function: Function) -> list[str]:
         all_functions = [
             ir.function for ir in function.all_internal_calls() if isinstance(ir.function, Function)
         ] + [function]

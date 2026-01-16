@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -44,7 +42,7 @@ If the contract is deployed on a different chain than Ethereum Mainnet the `getP
 
     WIKI_RECOMMENDATION = "Do not use Chainlink Feed Registry outside of Ethereum Mainnet."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         # https://github.com/smartcontractkit/chainlink/blob/8ca41fc8f722accfccccb4b1778db2df8fef5437/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol
         registry_functions = [
             "decimals",

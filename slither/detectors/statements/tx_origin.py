@@ -2,8 +2,6 @@
 Module detecting usage of `tx.origin` in a conditional node
 """
 
-from typing import List, Tuple
-
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -62,7 +60,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
             )
         return False
 
-    def detect_tx_origin(self, contract: Contract) -> List[Tuple[FunctionContract, List[Node]]]:
+    def detect_tx_origin(self, contract: Contract) -> list[tuple[FunctionContract, list[Node]]]:
         ret = []
         for f in contract.functions:
             nodes = f.nodes
@@ -76,7 +74,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
                 ret.append((f, bad_tx_nodes))
         return ret
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect the functions that use tx.origin in a conditional node"""
         results = []
         for c in self.contracts:

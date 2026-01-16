@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.solidity_types.elementary_type import ElementaryType
 
@@ -12,7 +10,7 @@ class TmpNewElementaryType(OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def read(self) -> List:
+    def read(self) -> list:
         return []
 
     @property

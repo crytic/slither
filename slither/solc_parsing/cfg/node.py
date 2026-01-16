@@ -1,4 +1,4 @@
-from typing import Union, Optional, Dict, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
@@ -19,14 +19,14 @@ if TYPE_CHECKING:
 
 class NodeSolc:
     def __init__(self, node: Node) -> None:
-        self._unparsed_expression: Optional[Dict] = None
+        self._unparsed_expression: dict | None = None
         self._node = node
 
     @property
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict) -> None:
+    def add_unparsed_expression(self, expression: dict) -> None:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 

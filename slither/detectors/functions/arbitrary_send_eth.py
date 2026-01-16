@@ -10,7 +10,7 @@ To avoid FP, it does not report:
 TODO: dont report if the value is tainted by msg.value
 """
 
-from typing import Any, Tuple, Union, List
+from typing import Any
 
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.cfg.node import Node
@@ -37,14 +37,14 @@ from slither.core.variables.state_variable import StateVariable
 from slither.utils.output import Output
 
 
-def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
+def arbitrary_send(func: Function) -> bool | list[Node]:
     if func.is_protected():
         return []
 
-    ret: List[Node] = []
+    ret: list[Node] = []
     for node in func.nodes:
         func = node.function
-        deps_target: Union[Contract, Function] = (
+        deps_target: Contract | Function = (
             func.contract if isinstance(func, FunctionContract) else func
         )
         for ir in node.irs:
@@ -87,7 +87,7 @@ def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
 
 def detect_arbitrary_send(
     contract: Contract,
-) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
+) -> list[tuple[FunctionContract, list[Node]] | Any]:
     """
         Detect arbitrary send
     Args:
@@ -133,7 +133,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
 
     WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         results = []
 

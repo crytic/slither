@@ -3,8 +3,6 @@ Module detecting missing events for critical contract parameters set by owners a
 
 """
 
-from typing import List, Tuple
-
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
@@ -62,7 +60,7 @@ contract C {
     @staticmethod
     def _detect_unprotected_use(
         contract: Contract, sv: StateVariable
-    ) -> List[Tuple[Node, FunctionContract]]:
+    ) -> list[tuple[Node, FunctionContract]]:
         unprotected_functions = [
             function for function in contract.functions_declared if not function.is_protected()
         ]
@@ -75,7 +73,7 @@ contract C {
 
     def _detect_missing_events(
         self, contract: Contract
-    ) -> List[Tuple[FunctionContract, List[Tuple[Node, List[Tuple[Node, FunctionContract]]]]]]:
+    ) -> list[tuple[FunctionContract, list[tuple[Node, list[tuple[Node, FunctionContract]]]]]]:
         """
         Detects if critical contract parameters set by owners and used in arithmetic are missing events
         :param contract: The contract to check
@@ -116,7 +114,7 @@ contract C {
                 results.append((function, nodes))
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect missing events for critical contract parameters set by owners and used in arithmetic
         Returns:
             list: {'(function, node)'}

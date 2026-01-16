@@ -3,7 +3,6 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Tuple
 
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
@@ -23,15 +22,15 @@ class Test:
     def __init__(
         self,
         test_file: str,
-        solc_versions: List[str],
+        solc_versions: list[str],
         disable_legacy: bool = False,
-        solc_args: str = None,
+        solc_args: str | None = None,
     ):
         self.solc_versions = solc_versions
         self.test_file = test_file
         self.disable_legacy = disable_legacy
 
-        versions_with_flavors: List[Tuple[str, str, str]] = []
+        versions_with_flavors: list[tuple[str, str, str]] = []
         flavors = ["compact"]
         if not self.disable_legacy:
             flavors += ["legacy"]
@@ -51,7 +50,7 @@ class Test:
         self.versions_with_flavors = versions_with_flavors
 
 
-def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
+def generate_output(sl: Slither) -> dict[str, dict[str, str]]:
     output = {}
     for contract in sl.contracts:
         output[contract.name] = {}
@@ -64,7 +63,7 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
     return output
 
 
-def make_version(minor: int, patch_min: int, patch_max: int) -> List[str]:
+def make_version(minor: int, patch_min: int, patch_max: int) -> list[str]:
     return [f"0.{minor}.{x}" for x in range(patch_min, patch_max + 1)]
 
 
@@ -528,7 +527,7 @@ class TestASTParsing:
         actual = generate_output(sl)
 
         assert os.path.isfile(expected), f"Expected file {expected} does not exist"
-        with open(expected, "r", encoding="utf8") as f:
+        with open(expected, encoding="utf8") as f:
             expected = json.load(f)
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")

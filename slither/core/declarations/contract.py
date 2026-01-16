@@ -5,7 +5,8 @@ Contract module
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
+from typing import Optional, TYPE_CHECKING, Union, Any
+from collections.abc import Callable
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -59,67 +60,67 @@ class Contract(SourceMapping):
     def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__()
 
-        self._name: Optional[str] = None
-        self._id: Optional[int] = None
-        self._inheritance: List["Contract"] = []  # all contract inherited, c3 linearization
-        self._immediate_inheritance: List["Contract"] = []  # immediate inheritance
+        self._name: str | None = None
+        self._id: int | None = None
+        self._inheritance: list[Contract] = []  # all contract inherited, c3 linearization
+        self._immediate_inheritance: list[Contract] = []  # immediate inheritance
         # Start slot for the persistent storage if custom layout used
-        self._custom_storage_layout: Optional[int] = None
+        self._custom_storage_layout: int | None = None
 
         # Constructors called on contract's definition
         # contract B is A(1) { ..
-        self._explicit_base_constructor_calls: List["Contract"] = []
+        self._explicit_base_constructor_calls: list[Contract] = []
 
-        self._enums: Dict[str, "EnumContract"] = {}
-        self._structures: Dict[str, "StructureContract"] = {}
-        self._events: Dict[str, "EventContract"] = {}
+        self._enums: dict[str, EnumContract] = {}
+        self._structures: dict[str, StructureContract] = {}
+        self._events: dict[str, EventContract] = {}
         # map accessible variable from name -> variable
         # do not contain private variables inherited from contract
-        self._variables: Dict[str, "StateVariable"] = {}
-        self._variables_ordered: List["StateVariable"] = []
+        self._variables: dict[str, StateVariable] = {}
+        self._variables_ordered: list[StateVariable] = []
         # Reference id -> variable declaration (only available for compact AST)
-        self._state_variables_by_ref_id: Dict[int, "StateVariable"] = {}
-        self._modifiers: Dict[str, "Modifier"] = {}
-        self._functions: Dict[str, "FunctionContract"] = {}
-        self._linearizedBaseContracts: List[int] = []
-        self._custom_errors: Dict[str, "CustomErrorContract"] = {}
-        self._type_aliases: Dict[str, "TypeAliasContract"] = {}
+        self._state_variables_by_ref_id: dict[int, StateVariable] = {}
+        self._modifiers: dict[str, Modifier] = {}
+        self._functions: dict[str, FunctionContract] = {}
+        self._linearizedBaseContracts: list[int] = []
+        self._custom_errors: dict[str, CustomErrorContract] = {}
+        self._type_aliases: dict[str, TypeAliasContract] = {}
 
         # The only str is "*"
         self._using_for: USING_FOR = {}
-        self._using_for_complete: Optional[USING_FOR] = None
-        self._kind: Optional[str] = None
+        self._using_for_complete: USING_FOR | None = None
+        self._kind: str | None = None
         self._is_interface: bool = False
         self._is_library: bool = False
         self._is_fully_implemented: bool = False
         self._is_abstract: bool = False
 
-        self._signatures: Optional[List[str]] = None
-        self._signatures_declared: Optional[List[str]] = None
+        self._signatures: list[str] | None = None
+        self._signatures_declared: list[str] | None = None
 
-        self._fallback_function: Optional["FunctionContract"] = None
-        self._receive_function: Optional["FunctionContract"] = None
+        self._fallback_function: FunctionContract | None = None
+        self._receive_function: FunctionContract | None = None
 
-        self._is_upgradeable: Optional[bool] = None
-        self._is_upgradeable_proxy: Optional[bool] = None
-        self._upgradeable_version: Optional[str] = None
+        self._is_upgradeable: bool | None = None
+        self._is_upgradeable_proxy: bool | None = None
+        self._upgradeable_version: str | None = None
 
-        self._initial_state_variables: List["StateVariable"] = []  # ssa
+        self._initial_state_variables: list[StateVariable] = []  # ssa
 
         self._is_incorrectly_parsed: bool = False
 
-        self._available_functions_as_dict: Optional[Dict[str, "Function"]] = None
-        self._all_functions_called: Optional[List["Function"]] = None
+        self._available_functions_as_dict: dict[str, Function] | None = None
+        self._all_functions_called: list[Function] | None = None
 
-        self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
-        self.file_scope: "FileScope" = scope
+        self.compilation_unit: SlitherCompilationUnit = compilation_unit
+        self.file_scope: FileScope = scope
 
         # memoize
-        self._state_variables_used_in_reentrant_targets: Optional[
-            Dict["StateVariable", Set[Union["StateVariable", "Function"]]]
-        ] = None
+        self._state_variables_used_in_reentrant_targets: (
+            dict[StateVariable, set[StateVariable | Function]] | None
+        ) = None
 
-        self._comments: Optional[str] = None
+        self._comments: str | None = None
 
     ###################################################################################
     ###################################################################################
@@ -149,7 +150,7 @@ class Contract(SourceMapping):
         self._id = new_id
 
     @property
-    def contract_kind(self) -> Optional[str]:
+    def contract_kind(self) -> str | None:
         """
         contract_kind can be None if the legacy ast format is used
         :return:
@@ -177,7 +178,7 @@ class Contract(SourceMapping):
         self._is_library = is_library
 
     @property
-    def comments(self) -> Optional[str]:
+    def comments(self) -> str | None:
         """
         Return the comments associated with the contract.
 
@@ -232,7 +233,7 @@ class Contract(SourceMapping):
         self._is_abstract = is_abstract
 
     @property
-    def custom_storage_layout(self) -> Optional[int]:
+    def custom_storage_layout(self) -> int | None:
         """
         Return the persistent storage slot starting position if a custom storage layout is used.
         Otherwise None.
@@ -252,28 +253,28 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def structures(self) -> List["StructureContract"]:
+    def structures(self) -> list["StructureContract"]:
         """
         list(Structure): List of the structures
         """
         return list(self._structures.values())
 
     @property
-    def structures_inherited(self) -> List["StructureContract"]:
+    def structures_inherited(self) -> list["StructureContract"]:
         """
         list(Structure): List of the inherited structures
         """
         return [s for s in self.structures if s.contract != self]
 
     @property
-    def structures_declared(self) -> List["StructureContract"]:
+    def structures_declared(self) -> list["StructureContract"]:
         """
         list(Structues): List of the structures declared within the contract (not inherited)
         """
         return [s for s in self.structures if s.contract == self]
 
     @property
-    def structures_as_dict(self) -> Dict[str, "StructureContract"]:
+    def structures_as_dict(self) -> dict[str, "StructureContract"]:
         return self._structures
 
     # endregion
@@ -284,25 +285,25 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def enums(self) -> List["EnumContract"]:
+    def enums(self) -> list["EnumContract"]:
         return list(self._enums.values())
 
     @property
-    def enums_inherited(self) -> List["EnumContract"]:
+    def enums_inherited(self) -> list["EnumContract"]:
         """
         list(Enum): List of the inherited enums
         """
         return [e for e in self.enums if e.contract != self]
 
     @property
-    def enums_declared(self) -> List["EnumContract"]:
+    def enums_declared(self) -> list["EnumContract"]:
         """
         list(Enum): List of the enums declared within the contract (not inherited)
         """
         return [e for e in self.enums if e.contract == self]
 
     @property
-    def enums_as_dict(self) -> Dict[str, "EnumContract"]:
+    def enums_as_dict(self) -> dict[str, "EnumContract"]:
         return self._enums
 
     # endregion
@@ -313,28 +314,28 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def events(self) -> List["EventContract"]:
+    def events(self) -> list["EventContract"]:
         """
         list(Event): List of the events
         """
         return list(self._events.values())
 
     @property
-    def events_inherited(self) -> List["EventContract"]:
+    def events_inherited(self) -> list["EventContract"]:
         """
         list(Event): List of the inherited events
         """
         return [e for e in self.events if e.contract != self]
 
     @property
-    def events_declared(self) -> List["EventContract"]:
+    def events_declared(self) -> list["EventContract"]:
         """
         list(Event): List of the events declared within the contract (not inherited)
         """
         return [e for e in self.events if e.contract == self]
 
     @property
-    def events_as_dict(self) -> Dict[str, "EventContract"]:
+    def events_as_dict(self) -> dict[str, "EventContract"]:
         return self._events
 
     # endregion
@@ -370,28 +371,28 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def custom_errors(self) -> List["CustomErrorContract"]:
+    def custom_errors(self) -> list["CustomErrorContract"]:
         """
         list(CustomErrorContract): List of the contract's custom errors
         """
         return list(self._custom_errors.values())
 
     @property
-    def custom_errors_inherited(self) -> List["CustomErrorContract"]:
+    def custom_errors_inherited(self) -> list["CustomErrorContract"]:
         """
         list(CustomErrorContract): List of the inherited custom errors
         """
         return [s for s in self.custom_errors if s.contract != self]
 
     @property
-    def custom_errors_declared(self) -> List["CustomErrorContract"]:
+    def custom_errors_declared(self) -> list["CustomErrorContract"]:
         """
         list(CustomErrorContract): List of the custom errors declared within the contract (not inherited)
         """
         return [s for s in self.custom_errors if s.contract == self]
 
     @property
-    def custom_errors_as_dict(self) -> Dict[str, "CustomErrorContract"]:
+    def custom_errors_as_dict(self) -> dict[str, "CustomErrorContract"]:
         return self._custom_errors
 
     # endregion
@@ -402,28 +403,28 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def type_aliases(self) -> List["TypeAliasContract"]:
+    def type_aliases(self) -> list["TypeAliasContract"]:
         """
         list(TypeAliasContract): List of the contract's custom errors
         """
         return list(self._type_aliases.values())
 
     @property
-    def type_aliases_inherited(self) -> List["TypeAliasContract"]:
+    def type_aliases_inherited(self) -> list["TypeAliasContract"]:
         """
         list(TypeAliasContract): List of the inherited custom errors
         """
         return [s for s in self.type_aliases if s.contract != self]
 
     @property
-    def type_aliases_declared(self) -> List["TypeAliasContract"]:
+    def type_aliases_declared(self) -> list["TypeAliasContract"]:
         """
         list(TypeAliasContract): List of the custom errors declared within the contract (not inherited)
         """
         return [s for s in self.type_aliases if s.contract == self]
 
     @property
-    def type_aliases_as_dict(self) -> Dict[str, "TypeAliasContract"]:
+    def type_aliases_as_dict(self) -> dict[str, "TypeAliasContract"]:
         return self._type_aliases
 
     # endregion
@@ -433,14 +434,14 @@ class Contract(SourceMapping):
     ###################################################################################
     ###################################################################################
     @property
-    def state_variables_by_ref_id(self) -> Dict[int, "StateVariable"]:
+    def state_variables_by_ref_id(self) -> dict[int, "StateVariable"]:
         """
         Returns the state variables by reference id (only available for compact AST).
         """
         return self._state_variables_by_ref_id
 
     @property
-    def variables(self) -> List["StateVariable"]:
+    def variables(self) -> list["StateVariable"]:
         """
         Returns all the accessible variables (do not include private variable from inherited contract)
 
@@ -449,11 +450,11 @@ class Contract(SourceMapping):
         return list(self.state_variables)
 
     @property
-    def variables_as_dict(self) -> Dict[str, "StateVariable"]:
+    def variables_as_dict(self) -> dict[str, "StateVariable"]:
         return self._variables
 
     @property
-    def state_variables(self) -> List["StateVariable"]:
+    def state_variables(self) -> list["StateVariable"]:
         """
         Returns all the accessible variables (do not include private variable from inherited contract).
         Use stored_state_variables_ordered for all the storage variables following the storage order
@@ -464,52 +465,52 @@ class Contract(SourceMapping):
         return list(self._variables.values())
 
     @property
-    def state_variables_entry_points(self) -> List["StateVariable"]:
+    def state_variables_entry_points(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables that are public.
         """
         return [var for var in self._variables.values() if var.visibility == "public"]
 
     @property
-    def state_variables_ordered(self) -> List["StateVariable"]:
+    def state_variables_ordered(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables by order of declaration.
         """
         return self._variables_ordered
 
-    def add_state_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
+    def add_state_variables_ordered(self, new_vars: list["StateVariable"]) -> None:
         self._variables_ordered += new_vars
 
     @property
-    def storage_variables_ordered(self) -> List["StateVariable"]:
+    def storage_variables_ordered(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables in storage location by order of declaration.
         """
         return [v for v in self._variables_ordered if v.is_stored]
 
     @property
-    def transient_variables_ordered(self) -> List["StateVariable"]:
+    def transient_variables_ordered(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables in transient location by order of declaration.
         """
         return [v for v in self._variables_ordered if v.is_transient]
 
     @property
-    def state_variables_inherited(self) -> List["StateVariable"]:
+    def state_variables_inherited(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the inherited state variables
         """
         return [s for s in self.state_variables if s.contract != self]
 
     @property
-    def state_variables_declared(self) -> List["StateVariable"]:
+    def state_variables_declared(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables declared within the contract (not inherited)
         """
         return [s for s in self.state_variables if s.contract == self]
 
     @property
-    def slithir_variables(self) -> List["SlithIRVariable"]:
+    def slithir_variables(self) -> list["SlithIRVariable"]:
         """
         List all of the slithir variables (non SSA)
         """
@@ -520,7 +521,7 @@ class Contract(SourceMapping):
     @property
     def state_variables_used_in_reentrant_targets(
         self,
-    ) -> Dict["StateVariable", Set[Union["StateVariable", "Function"]]]:
+    ) -> dict["StateVariable", set[Union["StateVariable", "Function"]]]:
         """
         Returns the state variables used in reentrant targets. Heuristics:
         - Variable used (read/write) in entry points that are reentrant
@@ -531,9 +532,7 @@ class Contract(SourceMapping):
 
         if self._state_variables_used_in_reentrant_targets is None:
             reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
-            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = (
-                defaultdict(set)
-            )
+            variables_used: dict[StateVariable, set[StateVariable | Function]] = defaultdict(set)
             for function in reentrant_functions:
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
@@ -580,14 +579,14 @@ class Contract(SourceMapping):
         )
 
     @property
-    def constructors(self) -> List["FunctionContract"]:
+    def constructors(self) -> list["FunctionContract"]:
         """
         Return the list of constructors (including inherited)
         """
         return [func for func in self.functions if func.is_constructor]
 
     @property
-    def explicit_base_constructor_calls(self) -> List["Function"]:
+    def explicit_base_constructor_calls(self) -> list["Function"]:
         """
         list(Function): List of the base constructors called explicitly by this contract definition.
 
@@ -607,7 +606,7 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def functions_signatures(self) -> List[str]:
+    def functions_signatures(self) -> list[str]:
         """
         Return the signatures of all the public/eterxnal functions/state variables
         :return: list(string) the signatures of all the functions that can be called
@@ -622,7 +621,7 @@ class Contract(SourceMapping):
         return self._signatures
 
     @property
-    def functions_signatures_declared(self) -> List[str]:
+    def functions_signatures_declared(self) -> list[str]:
         """
         Return the signatures of the public/eterxnal functions/state variables that are declared by this contract
         :return: list(string) the signatures of all the functions that can be called and are declared by this contract
@@ -643,13 +642,13 @@ class Contract(SourceMapping):
         return self._signatures_declared
 
     @property
-    def functions(self) -> List["FunctionContract"]:
+    def functions(self) -> list["FunctionContract"]:
         """
         list(Function): List of the functions
         """
         return list(self._functions.values())
 
-    def available_functions_as_dict(self) -> Dict[str, "Function"]:
+    def available_functions_as_dict(self) -> dict[str, "Function"]:
         if self._available_functions_as_dict is None:
             self._available_functions_as_dict = {
                 f.full_name: f for f in self._functions.values() if not f.is_shadowed
@@ -659,7 +658,7 @@ class Contract(SourceMapping):
     def add_function(self, func: "FunctionContract") -> None:
         self._functions[func.canonical_name] = func
 
-    def set_functions(self, functions: Dict[str, "FunctionContract"]) -> None:
+    def set_functions(self, functions: dict[str, "FunctionContract"]) -> None:
         """
         Set the functions
 
@@ -669,41 +668,41 @@ class Contract(SourceMapping):
         self._functions = functions
 
     @property
-    def functions_inherited(self) -> List["FunctionContract"]:
+    def functions_inherited(self) -> list["FunctionContract"]:
         """
         list(Function): List of the inherited functions
         """
         return [f for f in self.functions if f.contract_declarer != self]
 
     @property
-    def functions_declared(self) -> List["FunctionContract"]:
+    def functions_declared(self) -> list["FunctionContract"]:
         """
         list(Function): List of the functions defined within the contract (not inherited)
         """
         return [f for f in self.functions if f.contract_declarer == self]
 
     @property
-    def functions_entry_points(self) -> List["FunctionContract"]:
+    def functions_entry_points(self) -> list["FunctionContract"]:
         """
         list(Functions): List of public and external functions
         """
         return [
             f
             for f in self.functions
-            if f.visibility in ["public", "external"] and not f.is_shadowed or f.is_fallback
+            if (f.visibility in ["public", "external"] and not f.is_shadowed) or f.is_fallback
         ]
 
     @property
-    def modifiers(self) -> List["Modifier"]:
+    def modifiers(self) -> list["Modifier"]:
         """
         list(Modifier): List of the modifiers
         """
         return list(self._modifiers.values())
 
-    def available_modifiers_as_dict(self) -> Dict[str, "Modifier"]:
+    def available_modifiers_as_dict(self) -> dict[str, "Modifier"]:
         return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
 
-    def set_modifiers(self, modifiers: Dict[str, "Modifier"]) -> None:
+    def set_modifiers(self, modifiers: dict[str, "Modifier"]) -> None:
         """
         Set the modifiers
 
@@ -713,35 +712,35 @@ class Contract(SourceMapping):
         self._modifiers = modifiers
 
     @property
-    def modifiers_inherited(self) -> List["Modifier"]:
+    def modifiers_inherited(self) -> list["Modifier"]:
         """
         list(Modifier): List of the inherited modifiers
         """
         return [m for m in self.modifiers if m.contract_declarer != self]
 
     @property
-    def modifiers_declared(self) -> List["Modifier"]:
+    def modifiers_declared(self) -> list["Modifier"]:
         """
         list(Modifier): List of the modifiers defined within the contract (not inherited)
         """
         return [m for m in self.modifiers if m.contract_declarer == self]
 
     @property
-    def functions_and_modifiers(self) -> List["Function"]:
+    def functions_and_modifiers(self) -> list["Function"]:
         """
         list(Function|Modifier): List of the functions and modifiers
         """
         return self.functions + self.modifiers  # type: ignore
 
     @property
-    def functions_and_modifiers_inherited(self) -> List["Function"]:
+    def functions_and_modifiers_inherited(self) -> list["Function"]:
         """
         list(Function|Modifier): List of the inherited functions and modifiers
         """
         return self.functions_inherited + self.modifiers_inherited  # type: ignore
 
     @property
-    def functions_and_modifiers_declared(self) -> List["Function"]:
+    def functions_and_modifiers_declared(self) -> list["Function"]:
         """
         list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         """
@@ -767,9 +766,9 @@ class Contract(SourceMapping):
 
     def available_elements_from_inheritances(
         self,
-        elements: Dict[str, "Function"],
-        getter_available: Callable[["Contract"], List["FunctionContract"]],
-    ) -> Dict[str, "Function"]:
+        elements: dict[str, "Function"],
+        getter_available: Callable[["Contract"], list["FunctionContract"]],
+    ) -> dict[str, "Function"]:
         """
 
         :param elements: dict(canonical_name -> elements)
@@ -779,11 +778,11 @@ class Contract(SourceMapping):
         # keep track of the contracts visited
         # to prevent an ovveride due to multiple inheritance of the same contract
         # A is B, C, D is C, --> the second C was already seen
-        inherited_elements: Dict[str, "FunctionContract"] = {}
+        inherited_elements: dict[str, FunctionContract] = {}
         accessible_elements = {}
         contracts_visited = []
         for father in self.inheritance_reverse:
-            functions: Dict[str, "FunctionContract"] = {
+            functions: dict[str, FunctionContract] = {
                 v.full_name: v
                 for v in getter_available(father)
                 if v.contract not in contracts_visited
@@ -806,21 +805,21 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def inheritance(self) -> List["Contract"]:
+    def inheritance(self) -> list["Contract"]:
         """
         list(Contract): Inheritance list. Order: the first elem is the first father to be executed
         """
         return list(self._inheritance)
 
     @property
-    def immediate_inheritance(self) -> List["Contract"]:
+    def immediate_inheritance(self) -> list["Contract"]:
         """
         list(Contract): List of contracts immediately inherited from (fathers). Order: order of declaration.
         """
         return list(self._immediate_inheritance)
 
     @property
-    def inheritance_reverse(self) -> List["Contract"]:
+    def inheritance_reverse(self) -> list["Contract"]:
         """
         list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         """
@@ -828,16 +827,16 @@ class Contract(SourceMapping):
 
     def set_inheritance(
         self,
-        inheritance: List["Contract"],
-        immediate_inheritance: List["Contract"],
-        called_base_constructor_contracts: List["Contract"],
+        inheritance: list["Contract"],
+        immediate_inheritance: list["Contract"],
+        called_base_constructor_contracts: list["Contract"],
     ) -> None:
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
         self._explicit_base_constructor_calls = called_base_constructor_contracts
 
     @property
-    def derived_contracts(self) -> List["Contract"]:
+    def derived_contracts(self) -> list["Contract"]:
         """
         list(Contract): Return the list of contracts derived from self
         """
@@ -851,15 +850,15 @@ class Contract(SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def get_functions_reading_from_variable(self, variable: "Variable") -> List["Function"]:
+    def get_functions_reading_from_variable(self, variable: "Variable") -> list["Function"]:
         """
         Return the functions reading the variable
         """
         return [f for f in self.functions if f.is_reading(variable)]
 
-    def get_functions_writing_to_variable(self, variable: "Variable") -> List["Function"]:
+    def get_functions_writing_to_variable(self, variable: "Variable") -> list["Function"]:
         """
-        Return the functions writting the variable
+        Return the functions writing the variable
         """
         return [f for f in self.functions if f.is_writing(variable)]
 
@@ -1008,7 +1007,7 @@ class Contract(SourceMapping):
         """
         return next((e for e in self.enums if e.canonical_name == enum_name), None)
 
-    def get_functions_overridden_by(self, function: "Function") -> List["Function"]:
+    def get_functions_overridden_by(self, function: "Function") -> list["Function"]:
         """
             Return the list of functions overridden by the function
         Args:
@@ -1027,7 +1026,7 @@ class Contract(SourceMapping):
     ###################################################################################
 
     @property
-    def all_functions_called(self) -> List["Function"]:
+    def all_functions_called(self) -> list["Function"]:
         """
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
@@ -1053,7 +1052,7 @@ class Contract(SourceMapping):
         return self._all_functions_called
 
     @property
-    def all_state_variables_written(self) -> List["StateVariable"]:
+    def all_state_variables_written(self) -> list["StateVariable"]:
         """
         list(StateVariable): List all of the state variables written
         """
@@ -1067,7 +1066,7 @@ class Contract(SourceMapping):
         return list(set(all_state_variables_written))
 
     @property
-    def all_state_variables_read(self) -> List["StateVariable"]:
+    def all_state_variables_read(self) -> list["StateVariable"]:
         """
         list(StateVariable): List all of the state variables read
         """
@@ -1081,7 +1080,7 @@ class Contract(SourceMapping):
         return list(set(all_state_variables_read))
 
     @property
-    def all_library_calls(self) -> List["LibraryCall"]:
+    def all_library_calls(self) -> list["LibraryCall"]:
         """
         list(LibraryCall): List all of the libraries func called
         """
@@ -1090,7 +1089,7 @@ class Contract(SourceMapping):
         return list(set(all_high_level_calls))
 
     @property
-    def all_high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
+    def all_high_level_calls(self) -> list[tuple["Contract", "HighLevelCall"]]:
         """
         list(Tuple("Contract", "HighLevelCall")): List all of the external high level calls
         """
@@ -1107,7 +1106,7 @@ class Contract(SourceMapping):
 
     def get_summary(
         self, include_shadowed: bool = True
-    ) -> Tuple[str, List[str], List[str], List, List]:
+    ) -> tuple[str, list[str], list[str], list, list]:
         """Return the function summary
 
         :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
@@ -1143,7 +1142,7 @@ class Contract(SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def ercs(self) -> List[str]:
+    def ercs(self) -> list[str]:
         """
         Return the ERC implemented
         :return: list of string
@@ -1434,7 +1433,7 @@ class Contract(SourceMapping):
         self._is_upgradeable_proxy = upgradeable_proxy
 
     @property
-    def upgradeable_version(self) -> Optional[str]:
+    def upgradeable_version(self) -> str | None:
         return self._upgradeable_version
 
     @upgradeable_version.setter
@@ -1526,7 +1525,7 @@ class Contract(SourceMapping):
                     break
 
     def _create_node(
-        self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]
+        self, func: Function, counter: int, variable: "Variable", scope: Scope | Function
     ) -> "Node":
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
@@ -1585,8 +1584,8 @@ class Contract(SourceMapping):
             func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
     def fix_phi(self) -> None:
-        last_state_variables_instances: Dict[str, List["StateVariable"]] = {}
-        initial_state_variables_instances: Dict[str, "StateVariable"] = {}
+        last_state_variables_instances: dict[str, list[StateVariable]] = {}
+        initial_state_variables_instances: dict[str, StateVariable] = {}
         for v in self._initial_state_variables:
             last_state_variables_instances[v.canonical_name] = []
             initial_state_variables_instances[v.canonical_name] = v

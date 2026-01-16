@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, List, Union, Set
 
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import DetectorClassification
@@ -56,7 +55,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     @staticmethod
-    def can_callback(ir: Union[Member, Return, HighLevelCall]) -> bool:
+    def can_callback(ir: Member | Return | HighLevelCall) -> bool:
         """
         Same as Reentrancy, but also consider Send and Transfer
 
@@ -65,8 +64,8 @@ Only report reentrancy that is based on `transfer` or `send`."""
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
-        result: DefaultDict[FindingKey, Set[FindingValue]] = defaultdict(set)
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
+        result: defaultdict[FindingKey, set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
@@ -103,7 +102,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
 
         super()._detect()
@@ -111,10 +110,10 @@ Only report reentrancy that is based on `transfer` or `send`."""
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0][0].name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0][0].name)
         for (func, calls, send_eth), varsWrittenOrEvent in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]

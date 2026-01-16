@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union, Tuple
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionVyper"],
-) -> Optional[Variable]:
+) -> Variable | None:
     if function_parser is None:
         return None
     func_variables = function_parser.variables_as_dict
@@ -33,9 +33,9 @@ def _find_variable_in_function_parser(
 
 def _find_in_contract(
     var_name: str,
-    contract: Optional[Contract],
-    contract_declarer: Optional[Contract],
-) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
+    contract: Contract | None,
+    contract_declarer: Contract | None,
+) -> Variable | Function | Contract | Event | Enum | Structure | CustomError | None:
     if contract is None or contract_declarer is None:
         return None
 
@@ -71,19 +71,10 @@ def _find_in_contract(
 
 def find_variable(
     var_name: str,
-    caller_context: Union[FunctionContract, Contract],
+    caller_context: FunctionContract | Contract,
     is_self: bool = False,
-) -> Tuple[
-    Union[
-        Variable,
-        Function,
-        Contract,
-        SolidityVariable,
-        SolidityFunction,
-        Event,
-        Enum,
-        Structure,
-    ]
+) -> tuple[
+    Variable | Function | Contract | SolidityVariable | SolidityFunction | Event | Enum | Structure
 ]:
     """
     Return the variable found and a boolean indicating if the variable was created
@@ -110,7 +101,7 @@ def find_variable(
         current_scope = caller_context.contract.file_scope
         next_context = caller_context.contract
 
-    function_parser: Optional[FunctionVyper] = (
+    function_parser: FunctionVyper | None = (
         caller_context if isinstance(caller_context, FunctionContract) else None
     )
 

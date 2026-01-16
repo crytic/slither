@@ -2,7 +2,7 @@
 Function module
 """
 
-from typing import Dict, List, Tuple, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 class FunctionTopLevel(Function, TopLevel):
     def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__(compilation_unit)
-        self._scope: "FileScope" = scope
-        self._using_for_complete: Optional[USING_FOR] = None
+        self._scope: FileScope = scope
+        self._using_for_complete: USING_FOR | None = None
 
     @property
     def file_scope(self) -> "FileScope":
@@ -58,7 +58,7 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
 
     @property
-    def functions_shadowed(self) -> List["Function"]:
+    def functions_shadowed(self) -> list["Function"]:
         return []
 
     # endregion
@@ -70,7 +70,7 @@ class FunctionTopLevel(Function, TopLevel):
 
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
+    ) -> tuple[str, str, str, list[str], list[str], list[str], list[str], list[str]]:
         """
             Return the function summary
         Returns:
@@ -96,7 +96,7 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
 
     def generate_slithir_ssa(
-        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
+        self, all_ssa_state_variables_instances: dict[str, "StateIRVariable"]
     ) -> None:
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (

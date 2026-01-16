@@ -1,11 +1,10 @@
 from collections import namedtuple
-from typing import List
 
 ERC = namedtuple("ERC", ["name", "parameters", "return_type", "view", "required", "events"])
 ERC_EVENT = namedtuple("ERC_EVENT", ["name", "parameters", "indexes"])
 
 
-def erc_to_signatures(erc: List[ERC]):
+def erc_to_signatures(erc: list[ERC]):
     """
     Return the list of mandatory signatures
     :param erc:
@@ -85,7 +84,7 @@ ERC223_signatures = erc_to_signatures(ERC223)
 # Final
 # https://eips.ethereum.org/EIPS/eip-165
 
-ERC165_EVENTS: List = []
+ERC165_EVENTS: list = []
 
 ERC165 = [ERC("supportsInterface", ["bytes4"], "bool", True, True, [])]
 ERC165_signatures = erc_to_signatures(ERC165)
@@ -157,7 +156,7 @@ ERC721_signatures = erc_to_signatures(ERC721)
 
 # Final
 # https://eips.ethereum.org/EIPS/eip-1820
-ERC1820_EVENTS: List = []
+ERC1820_EVENTS: list = []
 ERC1820 = [
     ERC(
         "canImplementInterfaceForAddress",

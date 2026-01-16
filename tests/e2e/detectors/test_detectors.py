@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import sys
-from typing import Type, Optional, List
 
 import pytest
 from crytic_compile import CryticCompile, save_to_zip
@@ -17,10 +16,10 @@ from slither.detectors import all_detectors
 class Test:
     def __init__(
         self,
-        detector: Type[AbstractDetector],
+        detector: type[AbstractDetector],
         test_file: str,
         solc_ver: str,
-        additional_files: Optional[List[str]] = None,
+        additional_files: list[str] | None = None,
     ):
         """
 
@@ -1758,6 +1757,11 @@ ALL_TESTS = [
         all_detectors.OptimismDeprecation,
         "optimism_deprecation.sol",
         "0.8.20",
+    ),
+    Test(
+        all_detectors.UnindexedEventAddress,
+        "unindexed_event_address.sol",
+        "0.8.22",
     ),
     # Test(
     #     all_detectors.UnusedImport,

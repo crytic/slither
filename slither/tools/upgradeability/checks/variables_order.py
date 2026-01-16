@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.declarations import Contract
 from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
@@ -51,7 +49,7 @@ Do not change the order of the state variables in the updated contract.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         contract1 = self.contract
         contract2 = self.contract_v2
 
@@ -112,14 +110,14 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
         assert self.proxy
         return self.proxy
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
 
-        results: List[Output] = []
+        results: list[Output] = []
 
         def _check_internal(
-            contract1: Contract, contract2: Contract, results: List[Output], is_transient: bool
+            contract1: Contract, contract2: Contract, results: list[Output], is_transient: bool
         ):
             if is_transient:
                 order1 = contract1.transient_variables_ordered
@@ -247,14 +245,14 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
         assert self.proxy
         return self.proxy
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
 
-        results: List[Output] = []
+        results: list[Output] = []
 
         def _check_internal(
-            contract1: Contract, contract2: Contract, results: List[Output], is_transient: bool
+            contract1: Contract, contract2: Contract, results: list[Output], is_transient: bool
         ):
             if is_transient:
                 order1 = contract1.transient_variables_ordered

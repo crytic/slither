@@ -11,9 +11,9 @@ import pstats
 import sys
 import traceback
 from importlib import metadata
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import Any
+from collections.abc import Sequence
 
-import importlib_metadata
 from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile.platform.standard import generate_standard_export
@@ -24,7 +24,6 @@ from slither.exceptions import SlitherException
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils import codex
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     DEFAULT_JSON_OUTPUT_TYPES,
@@ -63,11 +62,11 @@ logger = logging.getLogger("Slither")
 
 
 def process_single(
-    target: Union[str, CryticCompile],
+    target: str | CryticCompile,
     args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+) -> tuple[Slither, list[dict], list[Output], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -90,9 +89,9 @@ def process_single(
 def process_all(
     target: str,
     args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[List[Slither], List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+) -> tuple[list[Slither], list[dict], list[Output], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -119,9 +118,9 @@ def process_all(
 
 def _process(
     slither: Slither,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+) -> tuple[Slither, list[dict], list[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -156,8 +155,8 @@ def _process(
 ###################################################################################
 
 
-def get_detectors_and_printers() -> Tuple[
-    List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
+def get_detectors_and_printers() -> tuple[
+    list[type[AbstractDetector]], list[type[AbstractPrinter]]
 ]:
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
@@ -166,7 +165,7 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
+    entry_points = metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
@@ -190,8 +189,8 @@ def get_detectors_and_printers() -> Tuple[
 
 
 def choose_detectors(
-    args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
-) -> List[Type[AbstractDetector]]:
+    args: argparse.Namespace, all_detector_classes: list[type[AbstractDetector]]
+) -> list[type[AbstractDetector]]:
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
@@ -232,10 +231,10 @@ def choose_detectors(
 
 
 def __include_detectors(
-    detectors_to_run: Set[Type[AbstractDetector]],
+    detectors_to_run: set[type[AbstractDetector]],
     detectors_to_include: str,
-    detectors: Dict[str, Type[AbstractDetector]],
-) -> List[Type[AbstractDetector]]:
+    detectors: dict[str, type[AbstractDetector]],
+) -> list[type[AbstractDetector]]:
     include_detectors = detectors_to_include.split(",")
 
     for detector in include_detectors:
@@ -248,8 +247,8 @@ def __include_detectors(
 
 
 def choose_printers(
-    args: argparse.Namespace, all_printer_classes: List[Type[AbstractPrinter]]
-) -> List[Type[AbstractPrinter]]:
+    args: argparse.Namespace, all_printer_classes: list[type[AbstractPrinter]]
+) -> list[type[AbstractPrinter]]:
     printers_to_run = []
 
     # disable default printer
@@ -276,7 +275,7 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
+def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> list[str]:
     paths = args.filter_paths if filter_path else args.include_paths
     if paths:
         return paths.split(",")
@@ -284,7 +283,7 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
 
 
 def parse_args(
-    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
+    detector_classes: list[type[AbstractDetector]], printer_classes: list[type[AbstractPrinter]]
 ) -> argparse.Namespace:
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
@@ -701,7 +700,7 @@ class OutputMarkdown(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> None:
         detectors, printers = get_detectors_and_printers()
@@ -715,7 +714,7 @@ class OutputWiki(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> None:
         detectors, _ = get_detectors_and_printers()
@@ -762,8 +761,8 @@ def main() -> None:
 
 
 def main_impl(
-    all_detector_classes: List[Type[AbstractDetector]],
-    all_printer_classes: List[Type[AbstractPrinter]],
+    all_detector_classes: list[type[AbstractDetector]],
+    all_printer_classes: list[type[AbstractPrinter]],
 ) -> None:
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
@@ -773,7 +772,7 @@ def main_impl(
     logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
 
-    cp: Optional[cProfile.Profile] = None
+    cp: cProfile.Profile | None = None
     if args.perf:
         cp = cProfile.Profile()
         cp.enable()
@@ -782,7 +781,7 @@ def main_impl(
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
-    json_results: Dict[str, Any] = {}
+    json_results: dict[str, Any] = {}
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == "-"
@@ -825,13 +824,13 @@ def main_impl(
 
     console_handler.setFormatter(FormatterCryticCompile())
 
-    crytic_compile_error = logging.getLogger(("CryticCompile"))
+    crytic_compile_error = logging.getLogger("CryticCompile")
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
-    results_detectors: List[Dict] = []
-    results_printers: List[Output] = []
+    results_detectors: list[dict] = []
+    results_printers: list[Output] = []
     try:
         filename = args.filename
 

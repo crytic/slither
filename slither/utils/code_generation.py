@@ -1,5 +1,5 @@
 # Functions for generating Solidity code
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from slither.utils.type import (
     convert_type_for_solidity_signature_to_string,
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
     from slither.core.variables.state_variable import StateVariable
     from slither.core.variables.local_variable import LocalVariable
-    from slither.core.variables.structure_variable import StructureVariable
 
 
 def generate_interface(
@@ -61,7 +60,7 @@ def generate_interface(
         structs = contract.structures + contract.compilation_unit.structures_top_level
         # Function signatures may reference other structures as well
         # Include structures defined in libraries used for them
-        for _for in contract.using_for.keys():
+        for _for in contract.using_for:
             if (
                 isinstance(_for, UserDefinedType)
                 and isinstance(_for.type, StructureContract)
@@ -108,7 +107,7 @@ def generate_interface(
 
 def generate_interface_variable_signature(
     var: "StateVariable", unroll_structs: bool = True
-) -> Optional[str]:
+) -> str | None:
     if var.visibility in ["private", "internal"]:
         return None
     if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Structure):
@@ -149,7 +148,7 @@ def generate_interface_variable_signature(
 
 def generate_interface_function_signature(
     func: "FunctionContract", unroll_structs: bool = True
-) -> Optional[str]:
+) -> str | None:
     """
     Generates a string of the form:
         func_name(type1,type2) external {payable/view/pure} returns (type3)
@@ -183,7 +182,7 @@ def generate_interface_function_signature(
             )
         if isinstance(var.type, UserDefinedType):
             if isinstance(var.type.type, Structure):
-                return f"{str(var.type.type)} memory"
+                return f"{var.type.type!s} memory"
             if isinstance(var.type.type, Enum):
                 return str(var.type.type)
             if isinstance(var.type.type, Contract):

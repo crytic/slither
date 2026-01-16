@@ -3,7 +3,7 @@ Compute the data depenency between all the SSA variables
 """
 
 from collections import defaultdict
-from typing import Union, Set, Dict, TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -43,14 +43,14 @@ if TYPE_CHECKING:
 ###################################################################################
 
 
-SUPPORTED_TYPES = Union[Variable, SolidityVariable]
+SUPPORTED_TYPES = Variable | SolidityVariable
 
 # TODO refactor the data deps to be better suited for top level function object
 # Right now we allow to pass a node to ease the API, but we need something
 # better
 # The deps propagation for top level elements is also not working as expected
-Context_types_API = Union[Contract, Function, Node]
-Context_types = Union[Contract, Function]
+Context_types_API = Contract | Function | Node
+Context_types = Contract | Function
 
 
 def is_dependent(
@@ -204,7 +204,7 @@ def get_dependencies(
     variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
-) -> Set[Variable]:
+) -> set[Variable]:
     """
     Return the variables for which `variable` depends on.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -227,7 +227,7 @@ def get_dependencies(
 
 def get_all_dependencies(
     context: Context_types_API, only_unprotected: bool = False
-) -> Dict[Variable, Set[Variable]]:
+) -> dict[Variable, set[Variable]]:
     """
     Return the dictionary of dependencies.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -251,7 +251,7 @@ def get_dependencies_ssa(
     variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
-) -> Set[Variable]:
+) -> set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -274,7 +274,7 @@ def get_dependencies_ssa(
 
 def get_all_dependencies_ssa(
     context: Context_types_API, only_unprotected: bool = False
-) -> Dict[Variable, Set[Variable]]:
+) -> dict[Variable, set[Variable]]:
     """
     Return the dictionary of dependencies.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -381,7 +381,7 @@ def propagate_function(
     # Propage data dependency
     data_depencencies = function.context[context_key]
     for key, values in data_depencencies.items():
-        if not key in contract.context[context_key]:
+        if key not in contract.context[context_key]:
             contract.context[context_key][key] = set(values)
         else:
             contract.context[context_key][key].union(values)
@@ -413,11 +413,11 @@ def propagate_contract(contract: Contract, context_key: str, context_key_non_ssa
 
 
 def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_protected: bool) -> None:
-    if not lvalue in function.context[KEY_SSA]:
+    if lvalue not in function.context[KEY_SSA]:
         function.context[KEY_SSA][lvalue] = set()
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
-    read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
+    read: list[LVALUE | SolidityVariableComposed] | list[SlithIRVariable]
     if isinstance(ir, Index):
         read = [ir.variable_left]
     elif isinstance(ir, InternalCall) and ir.function:
@@ -489,13 +489,13 @@ def convert_variable_to_non_ssa(v: SUPPORTED_TYPES) -> SUPPORTED_TYPES:
 
 
 def convert_to_non_ssa(
-    data_depencies: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]],
-) -> Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]:
+    data_depencies: dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]],
+) -> dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]]:
     # Need to create new set() as its changed during iteration
-    ret: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]] = {}
+    ret: dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]] = {}
     for k, values in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
-        if not var in ret:
+        if var not in ret:
             ret[var] = set()
         ret[var] = ret[var].union({convert_variable_to_non_ssa(v) for v in values})
 

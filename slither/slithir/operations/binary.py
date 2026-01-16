@@ -1,6 +1,5 @@
 import logging
 from enum import Enum
-from typing import List, Union
 
 from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
@@ -104,8 +103,8 @@ class Binary(OperationWithLValue):
     def __init__(
         self,
         result: Variable,
-        left_variable: Union[RVALUE, Function],
-        right_variable: Union[RVALUE, Function],
+        left_variable: RVALUE | Function,
+        right_variable: RVALUE | Function,
         operation_type: BinaryType,
     ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
@@ -122,19 +121,19 @@ class Binary(OperationWithLValue):
             result.set_type(left_variable.type)
 
     @property
-    def read(self) -> List[Union[RVALUE, LVALUE, Function]]:
+    def read(self) -> list[RVALUE | LVALUE | Function]:
         return [self.variable_left, self.variable_right]
 
     @property
-    def get_variable(self) -> List[Union[RVALUE, Function]]:
+    def get_variable(self) -> list[RVALUE | Function]:
         return self._variables
 
     @property
-    def variable_left(self) -> Union[RVALUE, Function]:
+    def variable_left(self) -> RVALUE | Function:
         return self._variables[0]  # type: ignore
 
     @property
-    def variable_right(self) -> Union[RVALUE, Function]:
+    def variable_right(self) -> RVALUE | Function:
         return self._variables[1]  # type: ignore
 
     @property
@@ -154,6 +153,6 @@ class Binary(OperationWithLValue):
             points = lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return f"{str(lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
+            return f"{lvalue!s}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
 
-        return f"{str(lvalue)}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"
+        return f"{lvalue!s}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"

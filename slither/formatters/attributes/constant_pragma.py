@@ -1,5 +1,4 @@
 import re
-from typing import Dict, List, Union
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatImpossible
@@ -18,9 +17,9 @@ REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
-def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
+def custom_format(slither: SlitherCompilationUnit, result: dict) -> None:
     elements = result["elements"]
-    versions_used: List[str] = []
+    versions_used: list[str] = []
     for element in elements:
         versions_used.append("".join(element["type_specific_fields"]["directive"][1:]))
     solc_version_replace = _analyse_versions(versions_used)
@@ -35,7 +34,7 @@ def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
         )
 
 
-def _analyse_versions(used_solc_versions: List[str]) -> str:
+def _analyse_versions(used_solc_versions: list[str]) -> str:
     replace_solc_versions = []
     for version in used_solc_versions:
         replace_solc_versions.append(_determine_solc_version_replacement(version))
@@ -68,9 +67,9 @@ def _determine_solc_version_replacement(used_solc_version: str) -> str:
 
 def _patch(
     slither: SlitherCompilationUnit,
-    result: Dict,
+    result: dict,
     in_file: str,
-    pragma: Union[str, bytes],
+    pragma: str | bytes,
     modify_loc_start: int,
     modify_loc_end: int,
 ) -> None:

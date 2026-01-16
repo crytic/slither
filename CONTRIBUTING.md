@@ -14,34 +14,17 @@ Questions can be submitted to the "Discussions" page, and you may also join our 
 
 ## Code
 
-Slither uses the pull request contribution model. Please make an account on GitHub, fork this repository, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
+Submit contributions via pull request.
 
-Some pull request guidelines:
-
-- Work from the [`dev`](https://github.com/crytic/slither/tree/dev) branch. We performed extensive tests prior to merging anything to `master`, working from `dev` will allow us to merge your work faster.
-- Minimize irrelevant changes (formatting, whitespace, etc) to code that would otherwise not be touched by this patch. Save formatting or style corrections for a separate pull request that does not make any semantic changes.
-- When possible, large changes should be split up into smaller focused pull requests.
-- Fill out the pull request description with a summary of what your patch does, key changes that have been made, and any further points of discussion, if applicable.
-- Title your pull request with a brief description of what it's changing. "Fixes #123" is a good comment to add to the description, but makes for an unclear title on its own.
+- Minimize irrelevant changes (formatting, whitespace). Save style fixes for separate PRs.
+- Split large changes into smaller focused PRs.
+- PR description: summarize changes. For bug fixes, explain root cause.
+- PR title: describe what it's changing (not just "Fixes #123").
+- Commit messages: ≤72 char subject, prefix with `fix:`, `feat:`, `docs:`, `test:`, `refactor:`.
 
 ## Directory Structure
 
-Below is a rough outline of slither's design:
-
-```text
-.
-├── analyses # Provides additional info such as data dependency 
-├── core # Ties everything together
-├── detectors # Rules that define and identify issues 
-├── slither.py # Main entry point
-├── slithir # Contains the semantics of slither's intermediate representation
-├── solc_parsing # Responsible for parsing the solc AST
-├── tools # Miscellaneous tools built on top of slither
-├── visitors # Parses expressions and converts to slithir
-└── ...
-```
-
-A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSluU).
+See the Architecture section in [CLAUDE.md](CLAUDE.md) for directory layout. A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSluU).
 
 ## Development Environment
 
@@ -54,62 +37,32 @@ For development setup, we use [uv](https://github.com/astral-sh/uv):
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Setup development environment
-make dev  # Creates venv and installs all dependencies
+make dev  # Installs dependencies and pre-commit hooks
 ```
 
-To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`. The names of tests can be obtained with `pytest tests --collect-only`.
+Run `make test` for all tests, or `make test TESTS=$name` for specific tests. List test names with `pytest tests --collect-only`.
 
 ### Linters
 
-Several linters and security checkers are run on the PRs.
-
-To run them locally in the root dir of the repository:
-
-- `make lint`
-
-> Note, this only validates but does not modify the code.
-
-To automatically reformat the code:
-
-- `make reformat`
-
-We use ruff (latest 0.x version) for linting and formatting, and yamllint for YAML files.
+Run `make lint` to check and `make reformat` to auto-fix. We use ruff for Python and yamllint for YAML.
 
 #### Pre-commit Hooks (Recommended)
 
-We recommend using pre-commit hooks to automatically check and fix code before committing:
+We use [prek](https://github.com/j178/prek), a fast Rust-based pre-commit runner:
 
 ```bash
-# Install pre-commit hooks (one-time setup)
-pre-commit install
-
-# Run manually on all files
-pre-commit run --all-files
-
-# Run on specific files
-pre-commit run --files slither/core/*.py
-
-# Update hook versions
-pre-commit autoupdate
+prek install               # One-time setup
+prek run --all-files       # Run manually
+prek auto-update --cooldown-days 7  # Update hook versions
 ```
-
-The pre-commit hooks will automatically:
-- Fix linting issues with ruff
-- Check YAML syntax
-- Remove trailing whitespace
-- Fix end-of-file issues
-- Check for merge conflicts
-- Prevent large files from being committed
 
 ### Testing
 
-Slither's test suite is divided into three categories end-to-end (`tests/e2e`), unit (`tests/unit`), and tools (`tests/tools/`).
+Slither's test suite has three categories:
 
-How do I know what kind of test(s) to write?
-
-- End-to-end: functionality that requires invoking `Slither` and inspecting some output such as printers and detectors.
-- Unit: additions and modifications to objects should be accompanied by a unit test that defines the expected behavior. Aim to write functions in as pure a way as possible such that they are easier to test.
-- Tools: tools built on top of Slither (`slither/tools`) but not apart of its core functionality
+- **End-to-end** (`tests/e2e`): Invoke Slither and check output (printers, detectors).
+- **Unit** (`tests/unit`): Test individual objects and functions.
+- **Tools** (`tests/tools`): Tests for `slither/tools`.
 
 #### Adding detector tests
 
@@ -122,12 +75,7 @@ For each new detector, at least one regression tests must be present.
 5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
 6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
 
-> ##### Helpful commands for detector tests
->
-> - To see the tests coverage, run `pytest tests/e2e/detectors/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
-> - To run tests for a specific detector, run `pytest tests/e2e/detectors/test_detectors.py -k ReentrancyReadBeforeWritten`(the detector's class name is the argument).
-> - To run tests for a specific version, run `pytest tests/e2e/detectors/test_detectors.py -k 0.7.6`.
-> - The IDs of tests can be inspected using `pytest tests/e2e/detectors/test_detectors.py --collect-only`.
+> **Tip:** Filter with `-k ReentrancyReadBeforeWritten` (class) or `-k 0.7.6` (version). Add `--cov=slither/detectors --cov-report=html` for coverage.
 
 #### Adding parsing tests
 
@@ -137,20 +85,16 @@ For each new detector, at least one regression tests must be present.
 4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
 5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
-> ##### Helpful commands for parsing tests
->
-> - To see the tests coverage, run `pytest  tests/e2e/solc_parsing/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
-> - To run tests for a specific test case, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
-> - To run tests for a specific version, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k 0.8.12`.
-> - To run tests for a specific compiler json format, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k legacy` (can be legacy or compact).
-> - The IDs of tests can be inspected using `pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
+> **Tip:** Filter with `-k user_defined_value_type` (filename), `-k 0.8.12` (version), or `-k legacy` (format). Add `--cov=slither/solc_parsing --cov-report=html` for coverage.
 
-### Synchronization with crytic-compile
+### Coordinating Changes with crytic-compile
 
-By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`pyproject.toml`](./pyproject.toml). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+Slither depends on [crytic-compile](https://github.com/crytic/crytic-compile) for compilation. When making changes that require updates to both repos:
 
-- Update `slither/pyproject.toml` to point to the related crytic-compile's branch
-- Create a PR in `slither` and ensure it passes the CI
-- Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
-
-The `slither`'s PR can either be merged while using a crytic-compile non-`master` branch, or kept open until the breaking changes are available in `crytic-compile@master`.
+1. Create a branch in crytic-compile with your changes
+2. Update slither's `pyproject.toml` to point to that branch:
+   ```
+   "crytic-compile @ git+https://github.com/crytic/crytic-compile.git@your-branch"
+   ```
+3. Create a PR in slither and verify CI passes
+4. After crytic-compile merges, update slither to use the released version

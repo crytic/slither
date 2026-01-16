@@ -1,5 +1,3 @@
-from typing import List, Optional, Union
-
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
@@ -16,8 +14,8 @@ class NewStructure(Call, OperationWithLValue):
     def __init__(
         self,
         structure: StructureContract,
-        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
-        names: Optional[List[str]] = None,
+        lvalue: TemporaryVariableSSA | TemporaryVariable,
+        names: list[str] | None = None,
     ) -> None:
         """
         #### Parameters
@@ -33,7 +31,7 @@ class NewStructure(Call, OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def read(self) -> List[Union[TemporaryVariableSSA, TemporaryVariable, Constant]]:
+    def read(self) -> list[TemporaryVariableSSA | TemporaryVariable | Constant]:
         return self._unroll(self.arguments)
 
     @property

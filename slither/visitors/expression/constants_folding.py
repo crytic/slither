@@ -1,5 +1,4 @@
 from fractions import Fraction
-from typing import Union
 from Crypto.Hash import keccak
 
 from slither.core import expressions
@@ -28,31 +27,31 @@ class NotConstant(Exception):
 
 KEY = "ConstantFolding"
 
-CONSTANT_TYPES_OPERATIONS = Union[
-    Literal,
-    BinaryOperation,
-    UnaryOperation,
-    Identifier,
-    TupleExpression,
-    TypeConversion,
-    MemberAccess,
-]
+CONSTANT_TYPES_OPERATIONS = (
+    Literal
+    | BinaryOperation
+    | UnaryOperation
+    | Identifier
+    | TupleExpression
+    | TypeConversion
+    | MemberAccess
+)
 
 
-def get_val(expression: CONSTANT_TYPES_OPERATIONS) -> Union[bool, int, Fraction, str]:
+def get_val(expression: CONSTANT_TYPES_OPERATIONS) -> bool | int | Fraction | str:
     val = expression.context[KEY]
     # we delete the item to reduce memory use
     del expression.context[KEY]
     return val
 
 
-def set_val(expression: CONSTANT_TYPES_OPERATIONS, val: Union[bool, int, Fraction, str]) -> None:
+def set_val(expression: CONSTANT_TYPES_OPERATIONS, val: bool | int | Fraction | str) -> None:
     expression.context[KEY] = val
 
 
 class ConstantFolding(ExpressionVisitor):
     def __init__(
-        self, expression: CONSTANT_TYPES_OPERATIONS, custom_type: Union[str, "ElementaryType"]
+        self, expression: CONSTANT_TYPES_OPERATIONS, custom_type: str | ElementaryType
     ) -> None:
         if isinstance(custom_type, str):
             custom_type = ElementaryType(custom_type)
@@ -252,8 +251,10 @@ class ConstantFolding(ExpressionVisitor):
             and len(expression.arguments) == 1
             and (
                 isinstance(expression.arguments[0], ElementaryTypeNameExpression)
-                or isinstance(expression.arguments[0], Identifier)
-                and isinstance(expression.arguments[0].value, Enum)
+                or (
+                    isinstance(expression.arguments[0], Identifier)
+                    and isinstance(expression.arguments[0].value, Enum)
+                )
             )
         ):
             # Returning early to support type(ElemType).max/min or type(MyEnum).max/min
@@ -308,7 +309,7 @@ class ConstantFolding(ExpressionVisitor):
                 if expression.expression.called.value == SolidityFunction("type()"):
                     assert len(expression.expression.arguments) == 1
                     type_expression_found = expression.expression.arguments[0]
-                    type_found: Union[ElementaryType, UserDefinedType]
+                    type_found: ElementaryType | UserDefinedType
                     if isinstance(type_expression_found, ElementaryTypeNameExpression):
                         type_expression_found_type = type_expression_found.type
                         assert isinstance(type_expression_found_type, ElementaryType)

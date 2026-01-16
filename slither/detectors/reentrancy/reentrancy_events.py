@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, List, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
@@ -72,7 +71,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -104,7 +103,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         super()._detect()
 
@@ -112,10 +111,10 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0][0].name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0][0].name)
         for (func, calls, send_eth), events in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

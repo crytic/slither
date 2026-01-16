@@ -1,4 +1,3 @@
-from typing import List, Union
 from slither.core.declarations import Contract, Function, Event
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
@@ -17,7 +16,7 @@ class Member(OperationWithLValue):
         self,
         variable_left: SourceMapping,
         variable_right: Constant,
-        result: Union[ReferenceVariable, ReferenceVariableSSA],
+        result: ReferenceVariable | ReferenceVariableSSA,
     ) -> None:
         # Function can happen for something like
         # library FunctionExtensions {
@@ -47,31 +46,37 @@ class Member(OperationWithLValue):
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super().__init__()
-        self._variable_left: Union[
-            RVALUE,
-            Contract,
-            Enum,
-            Function,
-            Event,
-            CustomError,
-            SolidityImportPlaceHolder,
-            ElementaryType,
-        ] = variable_left
+        self._variable_left: (
+            RVALUE
+            | Contract
+            | Enum
+            | Function
+            | Event
+            | CustomError
+            | SolidityImportPlaceHolder
+            | ElementaryType
+        ) = variable_left
         self._variable_right = variable_right
         self._lvalue = result
         self._gas = None
         self._value = None
 
     @property
-    def read(self) -> List[SourceMapping]:
+    def read(self) -> list[SourceMapping]:
         return [self.variable_left, self.variable_right]
 
     @property
     def variable_left(
         self,
-    ) -> Union[
-        RVALUE, Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType
-    ]:
+    ) -> (
+        RVALUE
+        | Contract
+        | Enum
+        | Function
+        | CustomError
+        | SolidityImportPlaceHolder
+        | ElementaryType
+    ):
         return self._variable_left
 
     @property
