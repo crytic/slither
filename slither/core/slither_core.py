@@ -19,6 +19,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.top_level import TopLevel
+from slither.core.filtering import FilteringRule, FilteringAction
 from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
@@ -63,6 +64,9 @@ class SlitherCore(Context):
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
         self._paths_to_include: Set[str] = set()
+
+        self.filters: List[FilteringRule] = []
+        self.default_action: FilteringAction = FilteringAction.ALLOW
 
         self._crytic_compile: Optional[CryticCompile] = None
 
@@ -369,6 +373,40 @@ class SlitherCore(Context):
     # region Filtering results
     ###################################################################################
     ###################################################################################
+    def filter_contract(self, contract: Contract) -> bool:
+        """Check within the filters if we should exclude the contract.
+        Returns True if the contract is excluded, False otherwise
+        """
+        action: FilteringAction = self.default_action
+        for element_filter in self.filters:
+            if element_filter.match_contract(contract):
+                action = (
+                    FilteringAction.ALLOW
+                    if element_filter.type == FilteringAction.ALLOW
+                    else FilteringAction.REJECT
+                )
+
+        if action == FilteringAction.ALLOW:
+            return False
+
+        return True
+
+    def filter_function(self, function: "FunctionContract") -> bool:
+        """Checks within the filter if this function should be excluded."""
+
+        action: FilteringAction = self.default_action
+        for element_filter in self.filters:
+            if element_filter.match_function(function):
+                action = (
+                    FilteringAction.ALLOW
+                    if element_filter.type == FilteringAction.ALLOW
+                    else FilteringAction.REJECT
+                )
+
+        if action == FilteringAction.ALLOW:
+            return False
+
+        return True
 
     def parse_ignore_comments(self, file: str) -> None:
         # The first time we check a file, find all start/end ignore comments and memoize them.
@@ -467,42 +505,6 @@ class SlitherCore(Context):
         if r["id"] in self._currently_seen_resuts:
             return False
         self._currently_seen_resuts.add(r["id"])
-
-        source_mapping_elements = [
-            elem["source_mapping"].get("filename_absolute", "unknown")
-            for elem in r["elements"]
-            if "source_mapping" in elem
-        ]
-
-        # Use POSIX-style paths so that filter_paths|include_paths works across different
-        # OSes. Convert to a list so elements don't get consumed and are lost
-        # while evaluating the first pattern
-        source_mapping_elements = [
-            pathlib.Path(x).resolve().as_posix() if x else x for x in source_mapping_elements
-        ]
-        (matching, paths, msg_err) = (
-            (True, self._paths_to_include, "--include-paths")
-            if self._paths_to_include
-            else (False, self._paths_to_filter, "--filter-paths")
-        )
-
-        for path in paths:
-            try:
-                if any(
-                    bool(re.search(_relative_path_format(path), src_mapping))
-                    for src_mapping in source_mapping_elements
-                ):
-                    matching = not matching
-                    break
-            except re.error:
-                logger.error(
-                    f"Incorrect regular expression for {msg_err} {path}."
-                    "\nSlither supports the Python re format"
-                    ": https://docs.python.org/3/library/re.html"
-                )
-
-        if r["elements"] and matching:
-            return False
 
         if self._show_ignored_findings:
             return True

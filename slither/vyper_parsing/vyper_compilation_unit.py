@@ -37,7 +37,7 @@ class VyperCompilationUnit:
     def parse_contracts(self):
         for contract, contract_parser in self._underlying_contract_to_parser.items():
             self._contracts_by_id[contract.id] = contract
-            self._compilation_unit.contracts.append(contract)
+            self._compilation_unit.add_contract(contract)
 
             contract_parser.parse_enums()
             contract_parser.parse_structs()

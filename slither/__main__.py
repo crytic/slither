@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import cProfile
 import glob
@@ -8,6 +7,7 @@ import json
 import logging
 import os
 import pstats
+import re
 import sys
 import traceback
 from importlib import metadata
@@ -18,6 +18,7 @@ from crytic_compile import cryticparser, CryticCompile, compile_all, is_supporte
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile.platform.standard import generate_standard_export
 
+from slither.core.filtering import FilteringRule, FilteringAction
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherException
@@ -50,6 +51,8 @@ from slither.utils.output import (
 )
 from slither.utils.output_capture import StandardOutputCapture
 
+
+# pylint: disable=too-many-lines
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -274,13 +277,62 @@ def choose_printers(
 # region Command line parsing
 ###################################################################################
 ###################################################################################
+def parse_filter_paths(args: argparse.Namespace) -> List[FilteringRule]:
+    """Parses the include/exclude/filter options from command line."""
+    regex = re.compile(
+        r"^(?P<type>[+-])?(?P<path>[^:]+?)(?::(?P<contract>[^.])(?:\.(?P<function>.+)?)?)?$"
+    )
 
+    def parse_option(element: str, option: str) -> FilteringRule:
+        match = regex.match(element)
+        if match:
+            filtering_type = FilteringAction.ALLOW
+            if match.group("type") == "-" or option == "remove":
+                filtering_type = FilteringAction.REJECT
 
-def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
-    paths = args.filter_paths if filter_path else args.include_paths
-    if paths:
-        return paths.split(",")
-    return []
+            try:
+                return FilteringRule(
+                    type=filtering_type,
+                    path=re.compile(match.group("path")) if match.group("path") else None,
+                    contract=re.compile(match.group("contract"))
+                    if match.group("contract")
+                    else None,
+                    function=re.compile(match.group("function"))
+                    if match.group("function")
+                    else None,
+                )
+            except re.error as exc:
+                raise ValueError(f"Unable to parse option {element}, invalid regex.") from exc
+
+        raise ValueError(f"Unable to parse option {element}")
+
+    filters = []
+    if args.include_paths:
+        logger.info("--include-paths is deprecated, use --include instead.")
+        filters.extend(
+            [
+                FilteringRule(type=FilteringAction.ALLOW, path=re.compile(path))
+                for path in args.include_paths.split(",")
+            ]
+        )
+
+    elif args.filter_paths:
+        logger.info("--filter-paths is deprecated, use --remove instead.")
+        filters.extend(
+            [
+                FilteringRule(type=FilteringAction.REJECT, path=re.compile(path))
+                for path in args.filter_paths.split(",")
+            ]
+        )
+
+    else:
+        for arg_name in ["include", "remove", "filter"]:
+            args_value = getattr(args, arg_name)
+            if not args_value:
+                continue
+            filters.extend([parse_option(element, arg_name) for element in args_value.split(",")])
+
+    return filters
 
 
 def parse_args(
@@ -315,7 +367,23 @@ def parse_args(
         "Checklist (consider using https://github.com/crytic/slither-action)"
     )
     group_misc = parser.add_argument_group("Additional options")
-    group_filters = parser.add_mutually_exclusive_group()
+    group_filters = parser.add_argument_group(
+        "Filtering",
+        description="""
+            The following options allow to control which files will be analyzed by Slither.
+            While the initial steps (parsing, generating the IR) are done on the full project,
+            the target for the detectors and/or printers can be restricted using these options.
+
+            The filtering allow to to select directories, files, contract and functions. Each part 
+            is compiled as a regex (so A*.sol) will match every file that starts with A and ends with .sol. 
+            Examples :
+
+                - `sub1/A.sol:A.constructor` will analyze only the function named constructor in the contract A
+                found in file A.sol a directory sub1.
+                - `sub1/.*` will analyze all files found in the directory sub1/
+                - `.*:A` will analyze all the contract named A 
+        """,
+    )
 
     group_detector.add_argument(
         "--detect",
@@ -596,21 +664,45 @@ def parse_args(
         default=defaults_flag_in_config["no_fail"],
     )
 
+    # Deprecated
     group_filters.add_argument(
         "--filter-paths",
-        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
+        help=argparse.SUPPRESS,
         action="store",
         dest="filter_paths",
         default=defaults_flag_in_config["filter_paths"],
     )
 
+    # Deprecated
     group_filters.add_argument(
         "--include-paths",
-        help="Regex filter to include detector results matching file path e.g. (src/|contracts/). Opposite of --filter-paths",
+        help=argparse.SUPPRESS,
         action="store",
         dest="include_paths",
         default=defaults_flag_in_config["include_paths"],
     )
+
+    group_filters.add_argument(
+        "--include",
+        help="Include directory/files/contract/functions and only run the analysis on the specified elements.",
+        dest="include",
+        default=defaults_flag_in_config["include"],
+    )
+
+    group_filters.add_argument(
+        "--remove",
+        help="Exclude directory/files/contract/functions and only run the analysis on the specified elements.",
+        dest="remove",
+        default=defaults_flag_in_config["remove"],
+    )
+    group_filters.add_argument(
+        "--filter",
+        help="Include/Exclude directory/files/contract/functions and only run the analysis on the specified elements. Prefix by +_(or nothing) to include, and by - to exclude.",
+        dest="filter",
+        default=defaults_flag_in_config["filter"],
+    )
+
+    codex.init_parser(parser)
 
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
@@ -661,9 +753,7 @@ def parse_args(
 
     args = parser.parse_args()
     read_config_file(args)
-
-    args.filter_paths = parse_filter_paths(args, True)
-    args.include_paths = parse_filter_paths(args, False)
+    args.filters = parse_filter_paths(args)
 
     # Verify our json-type output is valid
     args.json_types = set(args.json_types.split(","))  # type:ignore

@@ -1,10 +1,12 @@
 import logging
-from typing import Union, List, Type, Dict, Optional
+from typing import Union, List, Type, Dict, Optional, Set
 
 from crytic_compile import CryticCompile, InvalidCompilation
+from crytic_compile.utils.naming import Filename
 
 
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.filtering import FilteringRule, FilteringAction
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
@@ -35,13 +37,19 @@ def _check_common_things(
 
 def _update_file_scopes(
     sol_parser: SlitherCompilationUnitSolc,
-):
+    analyzed_files: Set[Filename],
+):  # pylint: disable=too-many-branches, disable=too-many-locals
     """
     Since all definitions in a file are exported by default, including definitions from its (transitive) dependencies,
     we can identify all top level items that could possibly be referenced within the file from its exportedSymbols.
     It is not as straightforward for user defined types and functions as well as aliasing. See add_accessible_scopes for more details.
     """
-    candidates = sol_parser.compilation_unit.scopes.values()
+    # First, lets remove the filtered candidates
+    candidates = [
+        scope
+        for scope in sol_parser.compilation_unit.scopes.values()
+        if scope.filename in analyzed_files
+    ]
     learned_something = False
     # Because solc's import allows cycle in the import graph, iterate until we aren't adding new information to the scope.
     while True:
@@ -97,7 +105,7 @@ class Slither(SlitherCore):
             disable_solc_warnings (bool): True to disable solc warnings (default false)
             solc_args (str): solc arguments (default '')
             ast_format (str): ast format (default '--ast-compact-json')
-            filter_paths (list(str)): list of path to filter (default [])
+            filters: list of FilteredElements (default [])
             triage_mode (bool): if true, switch to triage mode (default false)
             exclude_dependencies (bool): if true, exclude results that are only related to dependencies
             generate_patches (bool): if true, patches are generated (json output only)
@@ -123,6 +131,11 @@ class Slither(SlitherCore):
         self.codex_organization: Optional[str] = kwargs.get("codex_organization")
 
         self.no_fail = kwargs.get("no_fail", False)
+
+        # Initialize the filtering system
+        self.filters: List[FilteringRule] = kwargs.get("filters", [])
+        if any(filter.type == FilteringAction.ALLOW for filter in self.filters):
+            self.default_action = FilteringAction.REJECT
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
@@ -152,7 +165,21 @@ class Slither(SlitherCore):
                     sol_parser.parse_top_level_items(ast, path)
                     self.add_source_code(path)
 
+                # Get all the files that are matched by the current set of filters.
+                # Don't forget considering transitive dependencies
+                files_to_analyze = set()
                 for contract in sol_parser._underlying_contract_to_parser:
+                    if self.filter_contract(contract):
+                        continue
+
+                    files_to_analyze.add(contract.file_scope.filename)
+                    files_to_analyze |= contract.file_scope.get_all_files(set())
+
+                for contract in sol_parser._underlying_contract_to_parser:
+                    if contract.file_scope.filename not in files_to_analyze:
+                        logger.debug("Filtering out %s", contract.file_scope.filename)
+                        continue
+
                     if contract.name.startswith("SlitherInternalTopLevelContract"):
                         raise SlitherError(
                             # region multi-line-string
@@ -161,9 +188,9 @@ class Slither(SlitherCore):
                             # endregion multi-line
                         )
                     sol_parser._contracts_by_id[contract.id] = contract
-                    sol_parser._compilation_unit.contracts.append(contract)
+                    sol_parser._compilation_unit.add_contract(contract)
 
-                _update_file_scopes(sol_parser)
+                _update_file_scopes(sol_parser, files_to_analyze)
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
@@ -172,14 +199,6 @@ class Slither(SlitherCore):
 
         self._detectors = []
         self._printers = []
-
-        filter_paths = kwargs.get("filter_paths", [])
-        for p in filter_paths:
-            self.add_path_to_filter(p)
-
-        include_paths = kwargs.get("include_paths", [])
-        for p in include_paths:
-            self.add_path_to_include(p)
 
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 

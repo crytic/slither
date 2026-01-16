@@ -54,7 +54,7 @@ class SlitherCompilationUnit(Context):
         self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
-        self.contracts: List[Contract] = []
+        self._contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
         self._events_top_level: List[EventTopLevel] = []
@@ -151,6 +151,24 @@ class SlitherCompilationUnit(Context):
     # region Contracts
     ###################################################################################
     ###################################################################################
+
+    @property
+    def contracts(self) -> List[Contract]:
+        filtered_contracts = [
+            contract for contract in self._contracts if self.core.filter_contract(contract) is False
+        ]
+        return filtered_contracts
+
+    def add_contract(self, contract: Contract) -> None:
+        """Add a contract to the compilation unit.
+
+        This method is created, so we don't modify the view only `contracts` property defined above.
+        """
+        self._contracts.append(contract)
+
+    @contracts.setter
+    def contracts(self, contracts: List[Contract]) -> None:
+        self._contracts = contracts
 
     @property
     def contracts_derived(self) -> List[Contract]:

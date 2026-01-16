@@ -647,12 +647,19 @@ class Contract(SourceMapping):
         """
         list(Function): List of the functions
         """
-        return list(self._functions.values())
+        functions = [
+            function
+            for function in self._functions.values()
+            if not self.compilation_unit.core.filter_function(function)
+        ]
+        return functions
 
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
         if self._available_functions_as_dict is None:
             self._available_functions_as_dict = {
-                f.full_name: f for f in self._functions.values() if not f.is_shadowed
+                f.full_name: f
+                for f in self._functions.values()
+                if not f.is_shadowed and not self.compilation_unit.core.filter_function(f)
             }
         return self._available_functions_as_dict
 
