@@ -2,7 +2,6 @@ import logging
 import operator
 import sys
 import traceback
-from argparse import Namespace
 
 from slither.tools.similarity.encode import encode_contract, load_and_encode, parse_target
 from slither.tools.similarity.model import load_model
@@ -11,27 +10,27 @@ from slither.tools.similarity.similarity import similarity
 logger = logging.getLogger("Slither-simil")
 
 
-def test(args: Namespace) -> None:
+def test(**kwargs) -> None:
     try:
-        model = args.model
+        model = kwargs.get("model")
         model = load_model(model)
-        filename = args.filename
-        contract, fname = parse_target(args.fname)
-        infile = args.input
-        ntop = args.ntop
+        filename = kwargs.get("filename")
+        contract, fname = parse_target(kwargs.get("fname"))
+        infile = kwargs.get("input")
+        ntop = kwargs.get("ntop")
 
         if filename is None or contract is None or fname is None or infile is None:
             logger.error("The test mode requires filename, contract, fname and input parameters.")
             sys.exit(-1)
 
-        irs = encode_contract(filename, **vars(args))
+        irs = encode_contract(filename, **kwargs)
         if len(irs) == 0:
             sys.exit(-1)
 
         y = " ".join(irs[(filename, contract, fname)])
 
         fvector = model.get_sentence_vector(y)
-        cache = load_and_encode(infile, model, **vars(args))
+        cache = load_and_encode(infile, model, **kwargs)
         # save_cache("cache.npz", cache)
 
         r = {}
@@ -46,7 +45,7 @@ def test(args: Namespace) -> None:
             score = str(round(score, 3))
             logger.info(format_table.format(*(list(x) + [score])))
 
-    except Exception:
-        logger.error(f"Error in {args.filename}")
+    except Exception:  # pylint: disable=broad-except
+        logger.error(f"Error in {kwargs.get('filename')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

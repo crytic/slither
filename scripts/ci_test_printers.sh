@@ -10,7 +10,7 @@ ALL_PRINTERS="cfg,constructor-calls,contract-summary,data-dependency,echidna,fun
 
 # Only test 0.5.17 to limit test time
 for file in *0.5.17-compact.zip; do
-  if ! slither "$file" --print "$ALL_PRINTERS" ; then
+  if ! slither print "$file" --print "$ALL_PRINTERS" ; then
     echo "Printer failed"
     echo "$file"
     exit 1
@@ -19,7 +19,7 @@ done
 
 # Only test 0.8.12 to limit test time
 for file in *0.8.12-compact.zip; do
-  if ! slither "$file" --print "declaration" ; then
+  if ! slither print "$file" --print "declaration" ; then
     echo "Printer failed"
     echo "$file"
     exit 1
@@ -30,6 +30,6 @@ cd ../../.. || exit
 # Needed for evm printer
 pip install evm-cfg-builder
 solc-select use "0.5.1"
-if ! slither examples/scripts/test_evm_api.sol --print evm; then
+if ! slither print examples/scripts/test_evm_api.sol --print evm; then
   echo "EVM printer failed"
 fi

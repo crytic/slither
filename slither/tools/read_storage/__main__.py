@@ -3,176 +3,172 @@ Tool to read on-chain storage from EVM
 """
 
 import json
-import argparse
+from pathlib import Path
+from typing import Annotated, List, Optional
 
-from crytic_compile import cryticparser
+import typer
 
 from slither import Slither
 from slither.exceptions import SlitherError
-from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
+import slither.tools.read_storage as rs
+from slither.__main__ import app
+from slither.utils.command_line import SlitherState, SlitherApp, GroupWithCrytic
 
 
-def parse_args() -> argparse.Namespace:
-    """Parse the underlying arguments for the program.
-    Returns:
-        The arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Read a variable's value from storage for a deployed contract",
-        usage=(
-            "\nTo retrieve a single variable's value:\n"
-            + "\tslither-read-storage $TARGET address --variable-name $NAME\n"
-            + "To retrieve a contract's storage layout:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json\n"
-            + "To retrieve a contract's storage layout and values:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json --value\n"
-            + "TARGET can be a contract address or project directory"
+read_storage: SlitherApp = SlitherApp()
+app.add_typer(read_storage, name="read-storage")
+
+
+@read_storage.callback(cls=GroupWithCrytic)
+def main_callback(
+    ctx: typer.Context,
+    contract_source: Annotated[
+        List[str],
+        typer.Argument(
+            ...,
+            help="The deployed contract address if verified on etherscan or prepend project "
+            "directory for unverified contracts.",
         ),
-    )
+    ],
+    variable_name: Annotated[
+        Optional[str],
+        typer.Option(
+            "--variable-name", help="The name of the variable whose value will be returned."
+        ),
+    ] = None,
+    rpc_url: Annotated[
+        Optional[str], typer.Option("--rpc-url", help="An endpoint for web3 requests.")
+    ] = None,
+    key: Annotated[
+        Optional[str],
+        typer.Option(
+            "--key", help="The key/index whose value will be returned from a mapping or array."
+        ),
+    ] = None,
+    deep_key: Annotated[
+        Optional[str],
+        typer.Option(
+            "--deep-key",
+            help="The key/index whose value will be returned from a deep mapping or multidimensional array.",
+        ),
+    ] = None,
+    struct_var: Annotated[
+        Optional[str],
+        typer.Option(
+            "--struct-var",
+            help="The name of the variable whose value will be returned from a struct.",
+        ),
+    ] = None,
+    storage_address: Annotated[
+        Optional[str],
+        typer.Option(
+            "--storage-address",
+            help="The address of the storage contract if a proxy pattern is used.",
+        ),
+    ] = None,
+    contract_name: Annotated[
+        Optional[str], typer.Option("--contract-name", help="The name of the logic contract.")
+    ] = None,
+    value: Annotated[
+        bool, typer.Option("--value", help="Toggle used to include values in output.", is_flag=True)
+    ] = False,
+    table: Annotated[
+        bool, typer.Option("--table", help="Print table view of storage layout.", is_flag=True)
+    ] = False,
+    silent: Annotated[
+        bool, typer.Option("--silent", help="Silence log outputs.", is_flag=True)
+    ] = False,
+    max_depth: Annotated[
+        int, typer.Option("--max-depth", help="Max depth to search in data structure.")
+    ] = 20,
+    block: Annotated[
+        str,
+        typer.Option(
+            "--block",
+            help="The block number to read storage from. Requires an archive node to be provided as "
+            "the RPC url.",
+        ),
+    ] = "latest",
+    unstructured: Annotated[
+        bool,
+        typer.Option("--unstructured", help="Include unstructured storage slots.", is_flag=True),
+    ] = False,
+) -> None:
+    """Read a variable's value from storage for a deployed contract.
 
-    parser.add_argument(
-        "contract_source",
-        help="The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.",
-        nargs="+",
-    )
+    To retrieve a single variable's value:
+        slither read-storage $TARGET address --variable-name $NAME
+    To retrieve a contract's storage layout:
+        slither read-storage $TARGET address --contract-name $NAME --json storage_layout.json
+    To retrieve a contract's storage layout and values:
+        slither read-storage $TARGET address --contract-name $NAME --json storage_layout.json --value
+    """
 
-    parser.add_argument(
-        "--variable-name",
-        help="The name of the variable whose value will be returned.",
-        default=None,
-    )
+    state = ctx.ensure_object(SlitherState)
 
-    parser.add_argument("--rpc-url", help="An endpoint for web3 requests.")
-
-    parser.add_argument(
-        "--key",
-        help="The key/ index whose value will be returned from a mapping or array.",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--deep-key",
-        help="The key/ index whose value will be returned from a deep mapping or multidimensional array.",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--struct-var",
-        help="The name of the variable whose value will be returned from a struct.",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--storage-address",
-        help="The address of the storage contract (if a proxy pattern is used).",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--contract-name",
-        help="The name of the logic contract.",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--json",
-        action="store",
-        help="Save the result in a JSON file.",
-    )
-
-    parser.add_argument(
-        "--value",
-        action="store_true",
-        help="Toggle used to include values in output.",
-    )
-
-    parser.add_argument(
-        "--table",
-        action="store_true",
-        help="Print table view of storage layout",
-    )
-
-    parser.add_argument(
-        "--silent",
-        action="store_true",
-        help="Silence log outputs",
-    )
-
-    parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
-
-    parser.add_argument(
-        "--block",
-        help="The block number to read storage from. Requires an archive node to be provided as the RPC url.",
-        default="latest",
-    )
-
-    parser.add_argument(
-        "--unstructured",
-        action="store_true",
-        help="Include unstructured storage slots",
-    )
-
-    cryticparser.init(parser)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-
-    if len(args.contract_source) == 2:
+    if len(contract_source) == 2:
         # Source code is file.sol or project directory
-        source_code, target = args.contract_source
-        slither = Slither(source_code, **vars(args))
+        source_code, target = contract_source
+        slither = Slither(source_code, **state)
     else:
         # Source code is published and retrieved via etherscan
-        target = args.contract_source[0]
-        slither = Slither(target, **vars(args))
+        target = contract_source[0]
+        slither = Slither(target, **state)
 
-    if args.contract_name:
-        contracts = slither.get_contract_from_name(args.contract_name)
+    if contract_name:
+        contracts = slither.get_contract_from_name(contract_name)
         if len(contracts) == 0:
-            raise SlitherError(f"Contract {args.contract_name} not found.")
+            raise SlitherError(f"Contract {contract_name} not found.")
     else:
         contracts = slither.contracts
 
     rpc_info = None
-    if args.rpc_url:
+    if rpc_url:
         valid = ["latest", "earliest", "pending", "safe", "finalized"]
-        block = args.block if args.block in valid else int(args.block)
-        rpc_info = RpcInfo(args.rpc_url, block)
+        block = block if block in valid else int(block)
+        rpc_info = rs.RpcInfo(rpc_url, block)
 
-    srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
-    srs.unstructured = bool(args.unstructured)
+    srs = rs.SlitherReadStorage(contracts, max_depth, rpc_info)
+    srs.unstructured = unstructured
     # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
     address = target[target.find(":") + 1 :]
     # Default to implementation address unless a storage address is given.
-    if not args.storage_address:
-        args.storage_address = address
-    srs.storage_address = args.storage_address
+    if not storage_address:
+        storage_address = address
+    srs.storage_address = storage_address
 
-    if args.variable_name:
+    if variable_name:
         # Use a lambda func to only return variables that have same name as target.
         # x is a tuple (`Contract`, `StateVariable`).
-        srs.get_all_storage_variables(lambda x: bool(x[1].name == args.variable_name))
-        srs.get_target_variables(**vars(args))
+        srs.get_all_storage_variables(lambda x: bool(x[1].name == variable_name))
+        # FIXME: Dirty way of passing all needed values.
+        srs.get_target_variables(**locals())
     else:
         srs.get_all_storage_variables()
         srs.get_storage_layout()
 
     # To retrieve slot values an rpc url is required.
-    if args.value:
-        assert args.rpc_url
+    if value:
+        assert rpc_url
         srs.walk_slot_info(srs.get_slot_values)
 
-    if args.table:
+    if table:
         srs.walk_slot_info(srs.convert_slot_info_to_rows)
         print(srs.table)
 
-    if args.json:
-        with open(args.json, "w", encoding="utf8") as file:
-            slot_infos_json = srs.to_json()
-            json.dump(slot_infos_json, file, indent=4)
+    from slither.utils.output import OutputFormat
+
+    if state.get("output_format") == OutputFormat.JSON:
+        output_file = state.get("output_file")
+        if output_file != Path("-"):
+            with open(output_file, "w", encoding="utf-8") as file:
+                slot_infos_json = srs.to_json()
+                json.dump(slot_infos_json, file, indent=4)
+
+
+def main():
+    """Entry point for the slither-read-storage CLI."""
+    read_storage()
 
 
 if __name__ == "__main__":

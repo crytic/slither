@@ -1,59 +1,76 @@
 #!/usr/bin/env python3
-
-import argparse
 import cProfile
 import glob
 import inspect
 import json
 import logging
 import os
-import pstats
 import sys
+import textwrap
 import traceback
+from functools import lru_cache
 from importlib import metadata
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
+from pathlib import Path
+from typing import Tuple, Optional, List, Dict, Type, Union, Any
+import warnings
 
-import importlib_metadata
-from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
-from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
-from crytic_compile.platform.standard import generate_standard_export
+# pylint: disable=wrong-import-position
+# We want to disable the warnings thrown by any package when using the completion
+if os.environ.get("_TYPER_COMPLETE_ARGS", False):
+    warnings.filterwarnings("ignore")
 
-from slither.detectors import all_detectors
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.exceptions import SlitherException
-from slither.printers import all_printers
-from slither.printers.abstract_printer import AbstractPrinter
-from slither.slither import Slither
-from slither.utils import codex
-from slither.utils.colors import red, set_colorization_enabled
-from slither.utils.command_line import (
-    DEFAULT_JSON_OUTPUT_TYPES,
-    JSON_OUTPUT_TYPES,
-    FailOnLevel,
-    check_and_sanitize_markdown_root,
-    defaults_flag_in_config,
+# Configure logging BEFORE importing crytic_compile to suppress INFO messages
+logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+
+import typer  # noqa: E402
+from typing_extensions import Annotated  # noqa: E402
+
+from crytic_compile import CryticCompile, InvalidCompilation  # noqa: E402
+from crytic_compile import compile_all, is_supported  # noqa: E402
+
+from slither.detectors import all_detectors  # noqa: E402
+from slither.detectors.abstract_detector import AbstractDetector  # noqa: E402
+from slither.detectors.classification import DetectorClassification  # noqa: E402
+from slither.printers import all_printers  # noqa: E402
+from slither.printers.abstract_printer import AbstractPrinter  # noqa: E402
+from slither.slither import Slither  # noqa: E402
+from slither.utils.output import (  # noqa: E402
+    Output,
+    ZipType,
+    OutputFormat,
+    format_output,
+    output_to_markdown,
+    output_wiki,
     output_detectors,
     output_detectors_json,
     output_printers,
-    output_printers_json,
-    output_results_to_markdown,
-    output_to_markdown,
-    output_wiki,
+)
+from slither.utils.output_capture import StandardOutputCapture  # noqa: E402
+from slither.utils.colors import red, set_colorization_enabled  # noqa: E402
+from slither.utils.command_line import (  # noqa: E402
+    FailOnLevel,
+    defaults_flag_in_config,
+    DEFAULT_JSON_OUTPUT_TYPES,
+    SlitherApp,
+    slither_end_callback,
+    SlitherState,
+    version_callback,
+    MarkdownRoot,
+    CommaSeparatedValueParser,
+    long_help,
+    Target,
+    target_type,
     read_config_file,
 )
-from slither.utils.output import (
-    ZIP_TYPES_ACCEPTED,
-    Output,
-    output_to_json,
-    output_to_sarif,
-    output_to_zip,
-)
-from slither.utils.output_capture import StandardOutputCapture
+from slither.exceptions import SlitherException  # noqa: E402
 
-
-logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+app = SlitherApp("detect", rich_markup_mode="markdown", result_callback=slither_end_callback)
+
+# Because the app will be used by the tools to add commands, we need to define it before importing them
+import slither.tools  # noqa: E402  # pylint: disable=unused-import,wrong-import-position
 
 ###################################################################################
 ###################################################################################
@@ -64,7 +81,7 @@ logger = logging.getLogger("Slither")
 
 def process_single(
     target: Union[str, CryticCompile],
-    args: argparse.Namespace,
+    state: Dict[str, Any],
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Output], int]:
@@ -74,40 +91,43 @@ def process_single(
     Returns:
         list(result), int: Result list and number of contracts analyzed
     """
-    ast = "--ast-compact-json"
-    if args.legacy_ast:
-        ast = "--ast-json"
-    slither = Slither(target, ast_format=ast, **vars(args))
+    ast = "--ast-compact-json" if not state.get("legacy_ast", False) else "--ast-json"
+    slither_ = Slither(target, ast_format=ast, **state)
 
-    if args.sarif_input:
-        slither.sarif_input = args.sarif_input
-    if args.sarif_triage:
-        slither.sarif_triage = args.sarif_triage
+    if state.get("sarif_input"):
+        slither_.sarif_input = state.get("sarif_input")
+    if state.get("sarif_triage"):
+        slither_.sarif_triage = state.get("sarif_triage")
 
-    return _process(slither, detector_classes, printer_classes)
+    return _process(slither_, detector_classes, printer_classes)
 
 
 def process_all(
     target: str,
-    args: argparse.Namespace,
+    state: Dict,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-    compilations = compile_all(target, **vars(args))
+    try:
+        compilations = compile_all(target, **state)
+    except InvalidCompilation:
+        logger.error("Unable to compile all targets.")
+        raise typer.Exit(code=2)
+
     slither_instances = []
     results_detectors = []
     results_printers = []
     analyzed_contracts_count = 0
     for compilation in compilations:
         (
-            slither,
+            slither_,
             current_results_detectors,
             current_results_printers,
             current_analyzed_count,
-        ) = process_single(compilation, args, detector_classes, printer_classes)
+        ) = process_single(compilation, state, detector_classes, printer_classes)
         results_detectors.extend(current_results_detectors)
         results_printers.extend(current_results_printers)
-        slither_instances.append(slither)
+        slither_instances.append(slither_)
         analyzed_contracts_count += current_analyzed_count
     return (
         slither_instances,
@@ -118,33 +138,33 @@ def process_all(
 
 
 def _process(
-    slither: Slither,
+    slither_: Slither,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Output], int]:
     for detector_cls in detector_classes:
-        slither.register_detector(detector_cls)
+        slither_.register_detector(detector_cls)
 
     for printer_cls in printer_classes:
-        slither.register_printer(printer_cls)
+        slither_.register_printer(printer_cls)
 
-    analyzed_contracts_count = len(slither.contracts)
+    analyzed_contracts_count = len(slither_.contracts)
 
     results_detectors = []
     results_printers = []
 
     if not printer_classes:
-        detector_resultss = slither.run_detectors()
+        detector_resultss = slither_.run_detectors()
         detector_resultss = [x for x in detector_resultss if x]  # remove empty results
         detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
     else:
-        printer_results = slither.run_printers()
+        printer_results = slither_.run_printers()
         printer_results = [x for x in printer_results if x]  # remove empty results
         results_printers.extend(printer_results)
 
-    return slither, results_detectors, results_printers, analyzed_contracts_count
+    return slither_, results_detectors, results_printers, analyzed_contracts_count
 
 
 # endregion
@@ -156,6 +176,7 @@ def _process(
 ###################################################################################
 
 
+@lru_cache
 def get_detectors_and_printers() -> Tuple[
     List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
 ]:
@@ -166,21 +187,34 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
+    if sys.version_info >= (3, 10):
+        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
+    else:
+        # Use importlib_metadata backport for Python < 3.10
+        import importlib_metadata  # pylint: disable=import-outside-toplevel
+
+        entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
 
         plugin_detectors, plugin_printers = make_plugin()
 
-        detector = None
-        if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
+        not_detectors = {
+            detector for detector in plugin_detectors if not issubclass(detector, AbstractDetector)
+        }
+        if not_detectors:
             raise ValueError(
-                f"Error when loading plugin {entry_point}, {detector} is not a detector"
+                f"Error when loading plugin {entry_point}, {not_detectors} are not detectors"
             )
-        printer = None
-        if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise ValueError(f"Error when loading plugin {entry_point}, {printer} is not a printer")
+
+        not_printers = {
+            printer for printer in plugin_printers if not issubclass(printer, AbstractPrinter)
+        }
+        if not_printers:
+            raise ValueError(
+                f"Error when loading plugin {entry_point}, {not_printers} are not printers"
+            )
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -189,78 +223,80 @@ def get_detectors_and_printers() -> Tuple[
     return detectors, printers
 
 
+# pylint: disable=too-many-branches,too-many-arguments
 def choose_detectors(
-    args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
+    arg_detector_to_run: str,
+    arg_detector_exclude: str,
+    exclude_low: bool = False,
+    exclude_medium: bool = False,
+    exclude_high: bool = False,
+    exclude_optimization: bool = False,
+    exclude_informational: bool = False,
 ) -> List[Type[AbstractDetector]]:
-    # If detectors are specified, run only these ones
+    # If detectors are specified, run only these
+
+    all_detector_classes: List[Type[AbstractDetector]] = DETECTORS
+    if all_detector_classes is None:
+        return []
 
     detectors_to_run = []
-    detectors = {d.ARGUMENT: d for d in all_detector_classes}
+    local_detectors = {d.ARGUMENT: d for d in all_detector_classes}
 
-    if args.detectors_to_run == "all":
-        detectors_to_run = all_detector_classes
+    if arg_detector_to_run == "all":
+        detectors_to_run = list(all_detector_classes)
+        if arg_detector_exclude:
+            detectors_excluded = arg_detector_exclude.split(",")
+            for detector in local_detectors:
+                if detector in detectors_excluded:
+                    detectors_to_run.remove(local_detectors[detector])
     else:
-        detectors_to_run = __include_detectors(
-            set(detectors_to_run), args.detectors_to_run, detectors
-        )
+        for detector in arg_detector_to_run.split(","):
+            if detector in local_detectors:
+                detectors_to_run.append(local_detectors[detector])
+            else:
+                raise ValueError(f"Error: {detector} is not a detector")
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
-    classification_map = {
-        DetectorClassification.HIGH: args.exclude_high,
-        DetectorClassification.MEDIUM: args.exclude_medium,
-        DetectorClassification.LOW: args.exclude_low,
-        DetectorClassification.INFORMATIONAL: args.exclude_informational,
-        DetectorClassification.OPTIMIZATION: args.exclude_optimization,
-    }
-    excluded_classification = [
-        classification for classification, included in classification_map.items() if included
-    ]
-    detectors_to_run = [d for d in detectors_to_run if d.IMPACT not in excluded_classification]
-
-    if args.detectors_to_exclude:
+    if exclude_optimization:
         detectors_to_run = [
-            d for d in detectors_to_run if d.ARGUMENT not in args.detectors_to_exclude
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
         ]
 
-    if args.detectors_to_include:
-        detectors_to_run = __include_detectors(
-            set(detectors_to_run), args.detectors_to_include, detectors
-        )
+    if exclude_informational:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
+        ]
+    if exclude_low:
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
+    if exclude_medium:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
+        ]
+    if exclude_high:
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
+    if arg_detector_exclude:
+        detectors_to_run = [d for d in detectors_to_run if d.ARGUMENT not in arg_detector_exclude]
 
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
-    return detectors_to_run
-
-
-def __include_detectors(
-    detectors_to_run: Set[Type[AbstractDetector]],
-    detectors_to_include: str,
-    detectors: Dict[str, Type[AbstractDetector]],
-) -> List[Type[AbstractDetector]]:
-    include_detectors = detectors_to_include.split(",")
-
-    for detector in include_detectors:
-        if detector in detectors:
-            detectors_to_run.add(detectors[detector])
-        else:
-            raise ValueError(f"Error: {detector} is not a detector")
 
     return detectors_to_run
 
 
 def choose_printers(
-    args: argparse.Namespace, all_printer_classes: List[Type[AbstractPrinter]]
+    arg_printer_to_run: Union[None, str] = None,
 ) -> List[Type[AbstractPrinter]]:
     printers_to_run = []
 
     # disable default printer
-    if args.printers_to_run is None:
+    if arg_printer_to_run is None:
         return []
 
-    if args.printers_to_run == "all":
-        return all_printer_classes
+    if arg_printer_to_run == "all":
+        return PRINTERS
 
-    printers = {p.ARGUMENT: p for p in all_printer_classes}
-    for printer in args.printers_to_run.split(","):
+    printers = {p.ARGUMENT: p for p in PRINTERS}
+    for printer in arg_printer_to_run.split(","):
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
@@ -276,452 +312,56 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
-    paths = args.filter_paths if filter_path else args.include_paths
-    if paths:
-        return paths.split(",")
-    return []
+def list_detectors_json(ctx: typer.Context, value: bool):
+    if not value or ctx.resilient_parsing:
+        return
 
+    detector_types_json = output_detectors_json(DETECTORS)
+    print(json.dumps(detector_types_json))
+    raise typer.Exit(code=0)
 
-def parse_args(
-    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
-) -> argparse.Namespace:
-    usage = "slither target [flag]\n"
-    usage += "\ntarget can be:\n"
-    usage += "\t- file.sol // a Solidity file\n"
-    usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
-    usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x for x in SUPPORTED_NETWORK)}\n"
 
-    parser = argparse.ArgumentParser(
-        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
-        usage=usage,
-    )
+def list_detectors_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
 
-    parser.add_argument("filename", help=argparse.SUPPRESS)
+    state = ctx.ensure_object(SlitherState)
+    output_format: OutputFormat = state.get("output_format", OutputFormat.TEXT)
+    if output_format == OutputFormat.JSON:
+        StandardOutputCapture.disable()
+        list_detectors_json(ctx, True)
 
-    cryticparser.init(parser)
+    if output_format != OutputFormat.TEXT:
+        StandardOutputCapture.disable()
+        logger.error("Unable to output detectors in another format than TEXT or JSON.")
+        raise typer.Exit(code=1)
 
-    parser.add_argument(
-        "--version",
-        help="displays the current version",
-        version=metadata.version("slither-analyzer"),
-        action="version",
-    )
+    output_detectors(DETECTORS)
+    raise typer.Exit()
 
-    group_detector = parser.add_argument_group("Detectors")
-    group_printer = parser.add_argument_group("Printers")
-    group_checklist = parser.add_argument_group(
-        "Checklist (consider using https://github.com/crytic/slither-action)"
-    )
-    group_misc = parser.add_argument_group("Additional options")
-    group_filters = parser.add_mutually_exclusive_group()
 
-    group_detector.add_argument(
-        "--detect",
-        help="Comma-separated list of detectors, defaults to all, "
-        f"available detectors: {', '.join(d.ARGUMENT for d in detector_classes)}",
-        action="store",
-        dest="detectors_to_run",
-        default=defaults_flag_in_config["detectors_to_run"],
-    )
+def list_printers_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
 
-    group_printer.add_argument(
-        "--print",
-        help="Comma-separated list of contract information printers, "
-        f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
-        action="store",
-        dest="printers_to_run",
-        default=defaults_flag_in_config["printers_to_run"],
-    )
+    output_printers(PRINTERS)
+    raise typer.Exit()
 
-    group_printer.add_argument(
-        "--include-interfaces",
-        help="Include interfaces from inheritance-graph printer",
-        action="store_true",
-        dest="include_interfaces",
-        default=False,
-    )
 
-    group_detector.add_argument(
-        "--list-detectors",
-        help="List available detectors",
-        action=ListDetectors,
-        nargs=0,
-        default=False,
-    )
+def output_markdown_action(ctx: typer.Context, value: Union[str, None]) -> None:
+    if value is None or ctx.resilient_parsing:
+        return
 
-    group_printer.add_argument(
-        "--list-printers",
-        help="List available printers",
-        action=ListPrinters,
-        nargs=0,
-        default=False,
-    )
+    output_to_markdown(DETECTORS, PRINTERS, value)
+    raise typer.Exit()
 
-    group_detector.add_argument(
-        "--exclude",
-        help="Comma-separated list of detectors that should be excluded",
-        action="store",
-        dest="detectors_to_exclude",
-        default=defaults_flag_in_config["detectors_to_exclude"],
-    )
 
-    group_detector.add_argument(
-        "--exclude-dependencies",
-        help="Exclude results that are only related to dependencies",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_dependencies"],
-    )
+def output_wiki_action(ctx: typer.Context, _: str, value: Union[str, None] = None):
+    if ctx.resilient_parsing or value is None:
+        return
 
-    group_detector.add_argument(
-        "--exclude-optimization",
-        help="Exclude optimization analyses",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_optimization"],
-    )
-
-    group_detector.add_argument(
-        "--exclude-informational",
-        help="Exclude informational impact analyses",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_informational"],
-    )
-
-    group_detector.add_argument(
-        "--exclude-low",
-        help="Exclude low impact analyses",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_low"],
-    )
-
-    group_detector.add_argument(
-        "--exclude-medium",
-        help="Exclude medium impact analyses",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_medium"],
-    )
-
-    group_detector.add_argument(
-        "--exclude-high",
-        help="Exclude high impact analyses",
-        action="store_true",
-        default=defaults_flag_in_config["exclude_high"],
-    )
-
-    group_detector.add_argument(
-        "--include-detectors",
-        help="Comma-separated list of detectors that should be included",
-        action="store",
-        dest="detectors_to_include",
-        default=defaults_flag_in_config["detectors_to_include"],
-    )
-
-    fail_on_group = group_detector.add_mutually_exclusive_group()
-    fail_on_group.add_argument(
-        "--fail-pedantic",
-        help="Fail if any findings are detected",
-        action="store_const",
-        dest="fail_on",
-        const=FailOnLevel.PEDANTIC,
-    )
-    fail_on_group.add_argument(
-        "--fail-low",
-        help="Fail if any low or greater impact findings are detected",
-        action="store_const",
-        dest="fail_on",
-        const=FailOnLevel.LOW,
-    )
-    fail_on_group.add_argument(
-        "--fail-medium",
-        help="Fail if any medium or greater impact findings are detected",
-        action="store_const",
-        dest="fail_on",
-        const=FailOnLevel.MEDIUM,
-    )
-    fail_on_group.add_argument(
-        "--fail-high",
-        help="Fail if any high impact findings are detected",
-        action="store_const",
-        dest="fail_on",
-        const=FailOnLevel.HIGH,
-    )
-    fail_on_group.add_argument(
-        "--fail-none",
-        "--no-fail-pedantic",
-        help="Do not return the number of findings in the exit code",
-        action="store_const",
-        dest="fail_on",
-        const=FailOnLevel.NONE,
-    )
-    fail_on_group.set_defaults(fail_on=FailOnLevel.PEDANTIC)
-
-    group_detector.add_argument(
-        "--show-ignored-findings",
-        help="Show all the findings",
-        action="store_true",
-        default=defaults_flag_in_config["show_ignored_findings"],
-    )
-
-    group_checklist.add_argument(
-        "--checklist",
-        help="Generate a markdown page with the detector results",
-        action="store_true",
-        default=False,
-    )
-
-    group_checklist.add_argument(
-        "--checklist-limit",
-        help="Limit the number of results per detector in the markdown file",
-        action="store",
-        default="",
-    )
-
-    group_checklist.add_argument(
-        "--markdown-root",
-        type=check_and_sanitize_markdown_root,
-        help="URL for markdown generation",
-        action="store",
-        default="",
-    )
-
-    group_misc.add_argument(
-        "--json",
-        help='Export the results as a JSON file ("--json -" to export to stdout)',
-        action="store",
-        default=defaults_flag_in_config["json"],
-    )
-
-    group_misc.add_argument(
-        "--sarif",
-        help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
-        action="store",
-        default=defaults_flag_in_config["sarif"],
-    )
-
-    group_misc.add_argument(
-        "--sarif-input",
-        help="Sarif input (beta)",
-        action="store",
-        default=defaults_flag_in_config["sarif_input"],
-    )
-
-    group_misc.add_argument(
-        "--sarif-triage",
-        help="Sarif triage (beta)",
-        action="store",
-        default=defaults_flag_in_config["sarif_triage"],
-    )
-
-    group_misc.add_argument(
-        "--json-types",
-        help="Comma-separated list of result types to output to JSON, defaults to "
-        + f"{','.join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. "
-        + f"Available types: {','.join(output_type for output_type in JSON_OUTPUT_TYPES)}",
-        action="store",
-        default=defaults_flag_in_config["json-types"],
-    )
-
-    group_misc.add_argument(
-        "--zip",
-        help="Export the results as a zipped JSON file",
-        action="store",
-        default=defaults_flag_in_config["zip"],
-    )
-
-    group_misc.add_argument(
-        "--zip-type",
-        help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
-        action="store",
-        default=defaults_flag_in_config["zip_type"],
-    )
-
-    group_misc.add_argument(
-        "--disable-color",
-        help="Disable output colorization",
-        action="store_true",
-        default=defaults_flag_in_config["disable_color"],
-    )
-
-    group_misc.add_argument(
-        "--triage-mode",
-        help="Run triage mode (save results in triage database)",
-        action="store_true",
-        dest="triage_mode",
-        default=False,
-    )
-
-    group_misc.add_argument(
-        "--triage-database",
-        help="File path to the triage database (default: slither.db.json)",
-        action="store",
-        dest="triage_database",
-        default=defaults_flag_in_config["triage_database"],
-    )
-
-    group_misc.add_argument(
-        "--config-file",
-        help="Provide a config file (default: slither.config.json)",
-        action="store",
-        dest="config_file",
-        default=None,
-    )
-
-    group_misc.add_argument(
-        "--change-line-prefix",
-        help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
-        action="store",
-        dest="change_line_prefix",
-        default="#",
-    )
-
-    group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
-    )
-
-    group_misc.add_argument(
-        "--generate-patches",
-        help="Generate patches (json output only)",
-        action="store_true",
-        default=False,
-    )
-
-    group_misc.add_argument(
-        "--no-fail",
-        help="Do not fail in case of parsing (echidna mode only)",
-        action="store_true",
-        default=defaults_flag_in_config["no_fail"],
-    )
-
-    group_filters.add_argument(
-        "--filter-paths",
-        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
-        action="store",
-        dest="filter_paths",
-        default=defaults_flag_in_config["filter_paths"],
-    )
-
-    group_filters.add_argument(
-        "--include-paths",
-        help="Regex filter to include detector results matching file path e.g. (src/|contracts/). Opposite of --filter-paths",
-        action="store",
-        dest="include_paths",
-        default=defaults_flag_in_config["include_paths"],
-    )
-
-    # debugger command
-    parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
-
-    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    parser.add_argument(
-        "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
-    )
-
-    parser.add_argument(
-        "--list-detectors-json",
-        help=argparse.SUPPRESS,
-        action=ListDetectorsJson,
-        nargs=0,
-        default=False,
-    )
-
-    parser.add_argument(
-        "--legacy-ast",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["legacy_ast"],
-    )
-
-    parser.add_argument(
-        "--skip-assembly",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["skip_assembly"],
-    )
-
-    parser.add_argument(
-        "--perf",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=False,
-    )
-
-    # Disable the throw/catch on partial analyses
-    parser.add_argument(
-        "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
-    )
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    args = parser.parse_args()
-    read_config_file(args)
-
-    args.filter_paths = parse_filter_paths(args, True)
-    args.include_paths = parse_filter_paths(args, False)
-
-    # Verify our json-type output is valid
-    args.json_types = set(args.json_types.split(","))  # type:ignore
-    for json_type in args.json_types:
-        if json_type not in JSON_OUTPUT_TYPES:
-            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
-
-    return args
-
-
-class ListDetectors(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        detectors, _ = get_detectors_and_printers()
-        output_detectors(detectors)
-        parser.exit()
-
-
-class ListDetectorsJson(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        detectors, _ = get_detectors_and_printers()
-        detector_types_json = output_detectors_json(detectors)
-        print(json.dumps(detector_types_json))
-        parser.exit()
-
-
-class ListPrinters(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        _, printers = get_detectors_and_printers()
-        output_printers(printers)
-        parser.exit()
-
-
-class OutputMarkdown(argparse.Action):
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> None:
-        detectors, printers = get_detectors_and_printers()
-        assert isinstance(values, str)
-        output_to_markdown(detectors, printers, values)
-        parser.exit()
-
-
-class OutputWiki(argparse.Action):
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> None:
-        detectors, _ = get_detectors_and_printers()
-        assert isinstance(values, str)
-        output_wiki(detectors, values)
-        parser.exit()
+    output_wiki(DETECTORS, value)
+    raise typer.Exit()
 
 
 # endregion
@@ -752,105 +392,546 @@ class FormatterCryticCompile(logging.Formatter):
 ###################################################################################
 
 
-def main() -> None:
-    # Codebase with complex domninators can lead to a lot of SSA recursive call
-    sys.setrecursionlimit(1500)
-
-    detectors, printers = get_detectors_and_printers()
-
-    main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+# Find all detectors and printers
+DETECTORS, PRINTERS = get_detectors_and_printers()
 
 
-def main_impl(
-    all_detector_classes: List[Type[AbstractDetector]],
-    all_printer_classes: List[Type[AbstractPrinter]],
+def complete_detectors(incomplete: str) -> List[str]:
+    """Autocomplete for detector names."""
+    return [d.ARGUMENT for d in DETECTORS if d.ARGUMENT.startswith(incomplete)]
+
+
+def complete_printers(incomplete: str) -> List[str]:
+    """Autocomplete for printer names."""
+    return [p.ARGUMENT for p in PRINTERS if p.ARGUMENT.startswith(incomplete)]
+
+
+def _run_detection(
+    ctx: typer.Context,
+    target: Any,
+    detector_classes: List[Type[AbstractDetector]],
+    fail_on: FailOnLevel,
+    solc_ast: bool,
+    json_types: Optional[str],
+    checklist: bool,
+    checklist_limit: int,
+    show_ignored_findings: bool,
 ) -> None:
-    """
-    :param all_detector_classes: A list of all detectors that can be included/excluded.
-    :param all_printer_classes: A list of all printers that can be included.
-    """
-    # Set logger of Slither to info, to catch warnings related to the arg parsing
-    logger.setLevel(logging.INFO)
-    args = parse_args(all_detector_classes, all_printer_classes)
+    """Execute detection and handle output."""
+    state = ctx.ensure_object(SlitherState)
 
-    cp: Optional[cProfile.Profile] = None
-    if args.perf:
-        cp = cProfile.Profile()
-        cp.enable()
+    slither_instances, results_detectors, _, output_errors, number_contracts = handle_target(
+        ctx,
+        target,
+        solc_ast=solc_ast,
+        detectors_to_run=detector_classes,
+    )
 
-    # Set colorization option
-    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
+    if number_contracts == 0:
+        logger.warning(red("No contract was analyzed"))
+    else:
+        logger.info(
+            "%s analyzed (%d contracts with %d detectors), %d result(s) found",
+            target.target,
+            number_contracts,
+            len(detector_classes),
+            len(results_detectors),
+        )
 
-    # Define some variables for potential JSON output
-    json_results: Dict[str, Any] = {}
-    output_error = None
-    outputting_json = args.json is not None
-    outputting_json_stdout = args.json == "-"
-    outputting_sarif = args.sarif is not None
-    outputting_sarif_stdout = args.sarif == "-"
-    outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f"Zip type not accepted, it must be one of {','.join(ZIP_TYPES_ACCEPTED.keys())}"
-        logger.error(to_log)
+    format_output(
+        state.get("output_format"),
+        state.get("output_file"),
+        slither_instances,
+        results_detectors,
+        [],
+        output_errors,
+        runned_detectors=detector_classes,
+        json_types=json_types,
+        zip_type=state.get("zip_type"),
+        checklist=checklist,
+        checklist_limit=checklist_limit,
+        show_ignored_findings=show_ignored_findings,
+        all_detectors=DETECTORS,
+    )
 
-    # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
-    # output.
-    if outputting_json or outputting_sarif:
-        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
+    fail_on_detection = _check_fail_condition(fail_on, results_detectors)
 
-    printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
+    if output_errors or fail_on_detection:
+        raise typer.Exit(1)
 
-    default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for l_name, l_level in [
-        ("Slither", default_log),
-        ("Contract", default_log),
-        ("Function", default_log),
-        ("Node", default_log),
-        ("Parsing", default_log),
-        ("Detectors", default_log),
-        ("FunctionSolc", default_log),
-        ("ExpressionParsing", default_log),
-        ("TypeParsing", default_log),
-        ("SSA_Conversion", default_log),
-        ("Printers", default_log),
-        # ('CryticCompile', default_log)
-    ]:
-        logger_level = logging.getLogger(l_name)
-        logger_level.setLevel(l_level)
+def _check_fail_condition(fail_on: FailOnLevel, results_detectors: List[Dict]) -> bool:
+    """Determine if detection results should cause a failure."""
+    if fail_on == FailOnLevel.HIGH:
+        return any(result["impact"] == "High" for result in results_detectors)
+    if fail_on == FailOnLevel.MEDIUM:
+        return any(result["impact"] in ["Medium", "High"] for result in results_detectors)
+    if fail_on == FailOnLevel.LOW:
+        return any(result["impact"] in ["Low", "Medium", "High"] for result in results_detectors)
+    if fail_on == FailOnLevel.PEDANTIC:
+        return bool(results_detectors)
+    return False
+
+
+def _resolve_fail_level(
+    fail_on: FailOnLevel,
+    fail_pedantic: bool,
+    fail_low: bool,
+    fail_medium: bool,
+    fail_high: bool,
+    fail_none: bool,
+) -> FailOnLevel:
+    """Resolve the fail level from deprecated flags or the main --fail-on option."""
+    if fail_on != FailOnLevel.PEDANTIC:
+        return fail_on
+
+    fail_flags = {
+        FailOnLevel.PEDANTIC: fail_pedantic,
+        FailOnLevel.LOW: fail_low,
+        FailOnLevel.MEDIUM: fail_medium,
+        FailOnLevel.HIGH: fail_high,
+        FailOnLevel.NONE: fail_none,
+    }
+    active_flags = [level for level, active in fail_flags.items() if active]
+
+    if len(active_flags) == 1:
+        print("Deprecated way of setting levels.")
+        return active_flags[0]
+    if len(active_flags) > 1:
+        raise typer.BadParameter("Only one fail level is allowed.")
+    return FailOnLevel.PEDANTIC
+
+
+# pylint: disable=unused-argument,too-many-locals
+@app.command(
+    help="Run slither detectors on the target.",
+)
+def detect(
+    ctx: typer.Context,
+    target: target_type,
+    help_long: Annotated[
+        bool,
+        typer.Option(
+            "--help-long",
+            help="Help for crytic compile options.",
+            is_eager=True,
+            callback=long_help,
+        ),
+    ] = False,
+    list_json_detector: Annotated[
+        Optional[bool],
+        typer.Option("--list-detectors-json", callback=list_detectors_json, hidden=True),
+    ] = None,
+    list_detectors: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--list-detectors",
+            help="List available detectors.",
+            callback=list_detectors_action,
+            rich_help_panel="Detectors",
+            is_eager=True,
+        ),
+    ] = None,
+    detectors_to_run: Annotated[
+        Optional[str],
+        typer.Option(
+            "--detect",
+            help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in DETECTORS)}",
+            rich_help_panel="Detectors",
+            autocompletion=complete_detectors,
+        ),
+    ] = defaults_flag_in_config["detectors_to_run"],
+    detectors_to_exclude: Annotated[
+        Optional[str],
+        typer.Option(
+            "--exclude",
+            help="Comma-separated list of detectors that should be excluded or all.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["detectors_to_exclude"],
+    exclude_dependencies: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-dependencies",
+            help="Exclude results that are only related to dependencies.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_dependencies"],
+    exclude_optimization: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-optimization",
+            help="Exclude optimization analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_optimization"],
+    exclude_informational: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-informational",
+            help="Exclude informational impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_informational"],
+    exclude_low: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-low",
+            help="Exclude low impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_low"],
+    exclude_medium: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-medium",
+            help="Exclude medium impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_medium"],
+    exclude_high: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-high",
+            help="Exclude high impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_high"],
+    show_ignored_findings: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--show-ignored-findings",
+            help="Show all the findings.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["show_ignored_findings"],
+    checklist: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--checklist",
+            help="Generate a markdown page with the detector results.",
+            rich_help_panel="Detectors",
+        ),
+    ] = False,
+    checklist_limit: Annotated[
+        Optional[int],
+        typer.Option(
+            "--checklist-limit",
+            help="Limit the number of results per detector in the markdown file.",
+            rich_help_panel="Detectors",
+        ),
+    ] = 0,
+    markdown_root: Annotated[
+        Optional[str],
+        typer.Option(
+            "--markdown-root",
+            help="URL for markdown generation.",
+            rich_help_panel="Detectors",
+            click_type=MarkdownRoot(),
+        ),
+    ] = None,
+    sarif_input: Annotated[
+        Path,
+        typer.Option(
+            "--sarif-input",
+            help="Sarif input (beta).",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["sarif_input"],
+    sarif_triage: Annotated[
+        Path,
+        typer.Option(
+            "--sarif-triage",
+            help="Sarif triage (beta).",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["sarif_triage"],
+    triage_mode: Annotated[
+        bool,
+        typer.Option(
+            "--triage-mode",
+            help="Run triage mode (save results in triage database).",
+            rich_help_panel="Detectors",
+        ),
+    ] = False,
+    triage_database: Annotated[
+        Path,
+        typer.Option(
+            "--triage-database",
+            help="File path to the triage database.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["triage_database"],
+    change_line_prefix: Annotated[
+        str,
+        typer.Option(
+            "--change-line-prefix",
+            help="Change the line prefix for the displayed source codes (i.e. file.sol:1).",
+            rich_help_panel="Detectors",
+        ),
+    ] = ":",
+    solc_ast: Annotated[bool, typer.Option(hidden=True)] = False,
+    json_types: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Types to include in the JSON output.", click_type=CommaSeparatedValueParser()
+        ),
+    ] = ",".join(DEFAULT_JSON_OUTPUT_TYPES),
+    generate_patches: Annotated[
+        bool,
+        typer.Option(
+            "--generate-patches",
+            help="Generate patches (json output only).",
+            rich_help_panel="Detectors",
+        ),
+    ] = False,
+    fail_pedantic: Annotated[
+        bool,
+        typer.Option(
+            "--fail-pedantic",
+            help="Fail if any findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_low: Annotated[
+        bool,
+        typer.Option(
+            "--fail-low",
+            help="Fail if any low or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_medium: Annotated[
+        bool,
+        typer.Option(
+            "--fail-medium",
+            help="Fail if any medium or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_high: Annotated[
+        bool,
+        typer.Option(
+            "--fail-high",
+            help="Fail if any high or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_none: Annotated[
+        bool,
+        typer.Option(
+            "--fail-none",
+            "--no-fail-pedantic",
+            help="Do not return the number of findings in the exit code.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_on: Annotated[
+        FailOnLevel,
+        typer.Option(
+            "--fail-on",
+            help=textwrap.dedent(
+                """
+                Fail level:
+                - *pedantic* : Fail if any findings are detected.
+
+                - *none*: Do not return the number of findings in the exit code.
+
+                - *low*: Fail if any low or greater impact findings are detected.
+
+                - *medium*: Fail if any medium or greater impact findings are detected.
+
+                - *high*: Fail if any high or greater impact findings are detected.
+                """
+            ),
+            rich_help_panel="Reporting mode",
+        ),
+    ] = FailOnLevel.PEDANTIC.value,
+    # Filtering
+    filter_paths: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--filter-paths",
+            help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/).",
+            click_type=CommaSeparatedValueParser(),
+            rich_help_panel="Filtering",
+        ),
+    ] = defaults_flag_in_config["filter_paths"],
+    include_paths: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--include-paths",
+            help="Regex filter to include detector results matching file path e.g. (src/|contracts/).",
+            click_type=CommaSeparatedValueParser(),
+            rich_help_panel="Filtering",
+        ),
+    ] = defaults_flag_in_config["include_paths"],
+):
+    """Run detectors and report findings."""
+    state = ctx.ensure_object(SlitherState)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
-
     console_handler.setFormatter(FormatterCryticCompile())
-
     crytic_compile_error = logging.getLogger("CryticCompile")
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
+    # Handle filter_paths and include_paths from config file
+    if filter_paths is None:
+        config_filter = state.get("filter_paths")
+        if config_filter is not None:
+            filter_paths = [config_filter] if isinstance(config_filter, str) else config_filter
+    if include_paths is None:
+        config_include = state.get("include_paths")
+        if config_include is not None:
+            include_paths = [config_include] if isinstance(config_include, str) else config_include
+
+    state.update({
+        "markdown_root": markdown_root,
+        "sarif_input": sarif_input,
+        "sarif_triage": sarif_triage,
+        "triage_mode": triage_mode,
+        "triage_database": triage_database,
+        "change_line_prefix": change_line_prefix,
+        "generate_patches": generate_patches,
+        "filter_paths": filter_paths,
+        "include_paths": include_paths,
+    })
+
+    detector_classes = choose_detectors(
+        detectors_to_run or "all",
+        detectors_to_exclude or "",
+        exclude_low or False,
+        exclude_medium or False,
+        exclude_high or False,
+        exclude_optimization or False,
+        exclude_informational or False,
+    )
+
+    resolved_fail_on = _resolve_fail_level(
+        fail_on, fail_pedantic, fail_low, fail_medium, fail_high, fail_none
+    )
+
+    _run_detection(
+        ctx,
+        target,
+        detector_classes,
+        resolved_fail_on,
+        solc_ast,
+        json_types,
+        checklist or False,
+        checklist_limit or 0,
+        show_ignored_findings or False,
+    )
+
+
+@app.command(name="print", help="Run printers on the target.")
+def printer_command(
+    ctx: typer.Context,
+    target: target_type,
+    list_printers: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--list-printers",
+            help="List available printers.",
+            callback=list_printers_action,
+            rich_help_panel="Printers",
+            is_eager=True,
+        ),
+    ] = False,
+    printers_to_run: Annotated[
+        Optional[str],
+        typer.Option(
+            "--print",
+            help="Comma-separated list of contract information printers, "
+            f"available printers: {', '.join(d.ARGUMENT for d in PRINTERS)}",
+            rich_help_panel="Printers",
+            autocompletion=complete_printers,
+        ),
+    ] = defaults_flag_in_config["printers_to_run"],
+    no_fail: Annotated[
+        bool,
+        typer.Option(
+            "--no-fail",
+            help="Do not fail in case of parsing (echidna mode only).",
+            rich_help_panel="Printers",
+        ),
+    ] = defaults_flag_in_config["no_fail"],
+):
+    state = ctx.ensure_object(SlitherState)
+    state["no_fail"] = no_fail
+
+    choosen_printers = choose_printers(printers_to_run)
+
+    slither_instances, _, results_printers, output_errors, number_contracts = handle_target(
+        ctx,
+        target,
+        printers_to_run=choosen_printers,
+    )
+
+    state = ctx.ensure_object(SlitherState)
+    format_output(
+        output_format=state.get("output_format"),
+        output_file=state.get("output_file"),
+        slither_instances=slither_instances,
+        results_detectors=[],
+        results_printers=results_printers,
+        output_error=output_errors,
+        all_printers=PRINTERS,
+    )
+
+    if number_contracts == 0:
+        logger.warning(red("No contract was analyzed"))
+    else:
+        logger.info("%s analyzed (%d contracts)", target.target, number_contracts)
+
+
+# pylint: disable=too-many-locals
+def handle_target(
+    ctx: typer.Context,
+    target: Target,
+    solc_ast: bool = False,
+    detectors_to_run: Optional[List[Type[AbstractDetector]]] = None,
+    printers_to_run: Optional[List[Type[AbstractPrinter]]] = None,
+):
+    if detectors_to_run is None:
+        detectors_to_run = []
+
+    if printers_to_run is None:
+        printers_to_run = []
+
+    state = ctx.ensure_object(SlitherState)
+
     results_detectors: List[Dict] = []
     results_printers: List[Output] = []
-    try:
-        filename = args.filename
+    output_error: Union[str, None] = None
+    slither_instances = []
 
-        # Determine if we are handling ast from solc
-        if args.solc_ast or (filename.endswith(".json") and not is_supported(filename)):
+    try:
+        filename = target.target
+
+        if solc_ast or (filename.endswith(".json") and not is_supported(filename)):
             globbed_filenames = glob.glob(filename, recursive=True)
+
             filenames = glob.glob(os.path.join(filename, "*.json"))
             if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
 
-            slither_instances = []
             for filename in filenames:
                 (
                     slither_instance,
                     results_detectors_tmp,
                     results_printers_tmp,
                     number_contracts_tmp,
-                ) = process_single(filename, args, detector_classes, printer_classes)
+                ) = process_single(filename, state, detectors_to_run, printers_to_run)
                 number_contracts += number_contracts_tmp
                 results_detectors += results_detectors_tmp
                 results_printers += results_printers_tmp
@@ -863,57 +944,7 @@ def main_impl(
                 results_detectors,
                 results_printers,
                 number_contracts,
-            ) = process_all(filename, args, detector_classes, printer_classes)
-
-        # Determine if we are outputting JSON
-        if outputting_json or outputting_zip or output_to_sarif:
-            # Add our compilation information to JSON
-            if "compilations" in args.json_types:
-                compilation_results = []
-                for slither_instance in slither_instances:
-                    assert slither_instance.crytic_compile
-                    compilation_results.append(
-                        generate_standard_export(slither_instance.crytic_compile)
-                    )
-                json_results["compilations"] = compilation_results
-
-            # Add our detector results to JSON if desired.
-            if results_detectors and "detectors" in args.json_types:
-                json_results["detectors"] = results_detectors
-
-            # Add our printer results to JSON if desired.
-            if results_printers and "printers" in args.json_types:
-                json_results["printers"] = results_printers
-
-            # Add our detector types to JSON
-            if "list-detectors" in args.json_types:
-                detectors, _ = get_detectors_and_printers()
-                json_results["list-detectors"] = output_detectors_json(detectors)
-
-            # Add our detector types to JSON
-            if "list-printers" in args.json_types:
-                _, printers = get_detectors_and_printers()
-                json_results["list-printers"] = output_printers_json(printers)
-
-        # Output our results to markdown if we wish to compile a checklist.
-        if args.checklist:
-            output_results_to_markdown(
-                results_detectors, args.checklist_limit, args.show_ignored_findings
-            )
-
-        # Don't print the number of result for printers
-        if number_contracts == 0:
-            logger.warning(red("No contract was analyzed"))
-        if printer_classes:
-            logger.info("%s analyzed (%d contracts)", filename, number_contracts)
-        else:
-            logger.info(
-                "%s analyzed (%d contracts with %d detectors), %d result(s) found",
-                filename,
-                number_contracts,
-                len(detector_classes),
-                len(results_detectors),
-            )
+            ) = process_all(filename, state, detectors_to_run, printers_to_run)
 
     except SlitherException as slither_exception:
         output_error = str(slither_exception)
@@ -922,54 +953,222 @@ def main_impl(
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
 
-    # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
-    if outputting_json:
-        if "console" in args.json_types:
-            json_results["console"] = {
-                "stdout": StandardOutputCapture.get_stdout_output(),
-                "stderr": StandardOutputCapture.get_stderr_output(),
-            }
-        StandardOutputCapture.disable()
-        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
+    return slither_instances, results_detectors, results_printers, output_error, number_contracts
 
-    if outputting_sarif:
-        StandardOutputCapture.disable()
-        output_to_sarif(
-            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
-        )
 
-    if outputting_zip:
-        output_to_zip(args.zip, output_error, json_results, args.zip_type)
+@app.callback(invoke_without_command=True, no_args_is_help=True)
+def main_callback(
+    ctx: typer.Context,
+    version: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--version",
+            callback=version_callback,
+            help="Displays the current version.",
+            is_eager=True,
+        ),
+    ] = None,
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--output-format", help="Output format.", rich_help_panel="Formatting"),
+    ] = OutputFormat.TEXT,
+    output_file: Annotated[
+        Path, typer.Option("--output-file", help="Output file. Use - for stdout.")
+    ] = "-",
+    zip_: Annotated[
+        Optional[str],
+        typer.Option(
+            "--zip",
+            hidden=True,
+            help="Export the results as a zipped JSON file.",
+            rich_help_panel="Formatting",
+        ),
+    ] = None,
+    json_: Annotated[
+        Optional[str],
+        typer.Option(
+            "--json",
+            hidden=True,
+            help="Print results in JSON format.",
+            rich_help_panel="Formatting",
+        ),
+    ] = None,
+    sarif: Annotated[
+        Optional[str],
+        typer.Option(
+            "--sarif",
+            hidden=True,
+            help="Print results in SARIF format.",
+            rich_help_panel="Formatting",
+        ),
+    ] = None,
+    zip_type: Annotated[
+        Optional[ZipType],
+        typer.Option(
+            "--zip-type",
+            help="Zip compression type.",
+            rich_help_panel="Formatting",
+        ),
+    ] = defaults_flag_in_config["zip_type"],
+    disable_color: Annotated[
+        bool,
+        typer.Option(
+            "--disable-color",
+            help=f"Disable output colorization. "
+            f"Implicit if the output format is not {OutputFormat.TEXT.value}.",
+            rich_help_panel="Formatting",
+        ),
+    ] = defaults_flag_in_config["disable_color"],
+    # Misc
+    config_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config-file",
+            "--config",
+            help="Configuration file. Any argument specified on the command line overrides the one "
+            "specified in the configuration file.",
+            rich_help_panel="Misc",
+            show_default="slither.config.json",
+        ),
+    ] = None,
+    debug: Annotated[bool, typer.Option(hidden=True)] = False,
+    markdown: Annotated[
+        Optional[str], typer.Option(hidden=True, callback=output_markdown_action)
+    ] = None,
+    wiki_detectors: Annotated[
+        Optional[str],
+        typer.Option(
+            hidden=True,
+            help="Print each detectors information that matches the pattern.",
+            callback=output_wiki_action,
+        ),
+    ] = None,
+    legacy_ast: Annotated[bool, typer.Option(hidden=True)] = False,
+    skip_assembly: Annotated[bool, typer.Option(hidden=True)] = False,
+    perf: Annotated[bool, typer.Option(help="Profile slither execution.", hidden=True)] = False,
+    disallow_partial: Annotated[bool, typer.Option(hidden=True)] = False,
+):
+    """Slither is a static Solidity/Vyper/Yul analyzer.
 
-    if args.perf and cp:
-        cp.disable()
-        stats = pstats.Stats(cp).sort_stats("cumtime")
-        stats.print_stats()
+    Maintained by Trail of Bits.
+    [https://github.com/crytic/slither](https://github.com/crytic/slither)
+    """
+    state = ctx.ensure_object(SlitherState)
 
-    fail_on = FailOnLevel(args.fail_on)
-    if fail_on == FailOnLevel.HIGH:
-        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
-    elif fail_on == FailOnLevel.MEDIUM:
-        fail_on_detection = any(
-            result["impact"] in ["Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.LOW:
-        fail_on_detection = any(
-            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.PEDANTIC:
-        fail_on_detection = bool(results_detectors)
-    else:
-        fail_on_detection = False
+    if perf:
+        print("PERF ENABLED")
+        state["perf"] = cProfile.Profile()
+        state["perf"].enable()
 
-    # Exit with them appropriate status code
-    if output_error or fail_on_detection:
-        sys.exit(-1)
-    else:
-        sys.exit(0)
+    # Formatting configuration
+    if zip_ or sarif or json_:
+        if output_format != OutputFormat.TEXT:
+            raise typer.BadParameter("Only specify the output format once.")
+
+        options_set = [bool(zip_), bool(sarif), bool(json_)]
+        if options_set.count(True) > 1:
+            raise typer.BadParameter("Mutually excluding formatting options set.")
+
+        if zip_ is not None:
+            output_format = OutputFormat.ZIP
+            output_file = Path(zip_)
+        elif sarif is not None:
+            output_format = OutputFormat.SARIF
+            output_file = Path(sarif)
+        elif json_ is not None:
+            output_format = OutputFormat.JSON
+            output_file = Path(json_)
+
+    if output_format != OutputFormat.TEXT:
+        disable_color = True
+
+    set_colorization_enabled(False if disable_color else sys.stdout.isatty())
+
+    if output_format in (OutputFormat.JSON, OutputFormat.SARIF):
+        StandardOutputCapture.enable(output_file == Path("-"))
+
+    config = read_config_file(config_file)
+
+    # Set default_map for subcommand parameters from config file
+    # Click/Typer will use these as defaults if not provided on command line
+    # Note: filter_paths and include_paths are excluded because they use CommaSeparatedValueParser
+    # which has compatibility issues with default_map. They are handled in detect() via state.
+    ctx.default_map = ctx.default_map or {}
+    detect_config_params = {
+        "fail_on",
+        "detectors_to_run",
+        "detectors_to_exclude",
+        "exclude_informational",
+        "exclude_optimization",
+        "exclude_low",
+        "exclude_medium",
+        "exclude_high",
+    }
+    detect_defaults = {}
+    for k, v in config.items():
+        if k in detect_config_params:
+            # Convert FailOnLevel enum back to string for Typer validation
+            if k == "fail_on" and isinstance(v, FailOnLevel):
+                detect_defaults[k] = v.value
+            else:
+                detect_defaults[k] = v
+    ctx.default_map["detect"] = detect_defaults
+    ctx.default_map["print"] = {
+        k: v for k, v in config.items() if k in {"printers_to_run", "no_fail"}
+    }
+
+    log_level = logging.INFO if not debug else logging.DEBUG
+    configure_logger(log_level)
+
+    # Update the state with the current
+    locals_vars = locals()
+    for option in config:
+        if option in locals_vars:
+            state[option] = locals_vars[option]
+        else:
+            state[option] = config[option]
+
+    state["output_format"] = output_format
+    state["output_file"] = output_file
+
+
+def configure_logger(log_level: int = logging.INFO):
+    """Configure slither loggers."""
+    for logger_name in [
+        "Slither",
+        "Contract",
+        "Function",
+        "Node",
+        "Parsing",
+        "Detectors",
+        "FunctionSolc",
+        "ExpressionParsing",
+        "TypeParsing",
+        "SSA_Conversion",
+        "Printers",
+    ]:
+        logging.getLogger(logger_name).setLevel(log_level)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)
+
+    console_handler.setFormatter(FormatterCryticCompile())
+
+    crytic_compile_error = logging.getLogger("CryticCompile")
+    # Clear any existing handlers to prevent duplicate or lower-level logging
+    crytic_compile_error.handlers.clear()
+    crytic_compile_error.addHandler(console_handler)
+    crytic_compile_error.propagate = False
+    crytic_compile_error.setLevel(logging.WARNING)
+
+
+def main():
+    """Entry point for the slither CLI."""
+    logger.setLevel(logging.INFO)
+    # Codebase with complex dominators can lead to a lot of SSA recursive call
+    sys.setrecursionlimit(1500)
+    app()
 
 
 if __name__ == "__main__":
     main()
-
-# endregion

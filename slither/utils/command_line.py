@@ -1,22 +1,44 @@
 import argparse
+import cProfile
 import enum
 import json
 import os
+import pstats
 import re
 import logging
-from collections import defaultdict
-from typing import Dict, List, Type, Union
+import sys
+import textwrap
+from dataclasses import dataclass
+from functools import lru_cache
+from importlib import metadata
+from pathlib import Path
+from typing import Dict, List, Union, Any, Optional, Callable, Sequence, Tuple
 
+import typer.core
+from click import Context
+from typer.models import CommandFunctionType
+from typing_extensions import Annotated
+
+import click
+import typer
+
+from crytic_compile import cryticparser
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 )
+from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 
-from slither.detectors.abstract_detector import classification_txt, AbstractDetector
-from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import yellow, red
-from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import ZipType
 
 logger = logging.getLogger("Slither")
+
+
+class SlitherState(dict):
+    """Used to keep the internal state of the application."""
+
+    pass
+
 
 DEFAULT_JSON_OUTPUT_TYPES = ["detectors", "printers"]
 JSON_OUTPUT_TYPES = [
@@ -37,6 +59,196 @@ class FailOnLevel(enum.Enum):
     NONE = "none"
 
 
+class GroupWithCrytic(typer.core.TyperGroup):
+    def invoke(self, ctx: Context) -> Any:
+        if ctx.args or ctx.protected_args:
+            # If we have additional parameters to parse with crytic, they will be stored here.
+            # We could have a better solution when this issue is solved in Typer
+            # https://github.com/tiangolo/typer/issues/119
+            crytic_args, remaining_args = handle_crytic_args(
+                ctx.protected_args + ctx.args, no_error=True
+            )
+
+            # Remove handled arguments from ctx.args
+            # Note: protected_args is read-only in newer Click versions
+            ctx.args = [arg for arg in ctx.args if arg in remaining_args]
+
+            if crytic_args:
+                state = ctx.ensure_object(SlitherState)
+                state.update(crytic_args)
+
+        return super().invoke(ctx)
+
+
+class CommandWithCrytic(typer.core.TyperCommand):
+    """Command that allow crytic compile arguments."""
+
+    def invoke(self, ctx: Context) -> Any:
+        """Command invocation
+
+        Before invoking the command, handle any crytic parameters passed on the command line.
+        """
+        if ctx.args:
+            crytic_args, _ = handle_crytic_args(ctx.args)
+
+            if crytic_args:
+                state = ctx.ensure_object(SlitherState)
+                state.update(crytic_args)
+
+        return super().invoke(ctx)
+
+
+class SlitherApp(typer.Typer):
+    def __init__(self, default_method: Union[None, str] = None, *args, **kwargs) -> None:
+        super().__init__(*args, no_args_is_help=True, **kwargs)
+        self.default_method: Union[None, str] = default_method
+
+    @property
+    @lru_cache  # noqa: B019  # Intentional caching of click app, no memory leak concern
+    def click_app(self) -> Union[GroupWithCrytic, click.Command]:
+        return typer.main.get_command(self)
+
+    @property
+    def app_commands(self) -> Sequence[str]:
+        """Return the app registered commands if we have any."""
+
+        try:
+            return self.click_app.commands.keys()
+        except AttributeError:
+            return []
+
+    def command(self, *args, **kwargs) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """Passthrough command to allow extra options.
+
+        This is used to parse crytic compile arguments.
+        """
+        context_settings = kwargs.get("context_settings", {})
+        context_settings.update(
+            {
+                "ignore_unknown_options": True,
+                "allow_extra_args": True,
+            }
+        )
+
+        return super().command(
+            *args, context_settings=context_settings, cls=CommandWithCrytic, **kwargs
+        )
+
+    def callback(self, *args, **kwargs) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """A modified version of the callback accepting extra options tailored for Slither usage."""
+        context_settings = kwargs.get("context_settings", {})
+        context_settings.update(
+            {
+                "ignore_unknown_options": True,
+                "allow_extra_args": True,
+            }
+        )
+
+        kwargs["context_settings"] = context_settings
+        kwargs["invoke_without_command"] = kwargs.get("invoke_without_command", True)
+
+        return super().callback(*args, **kwargs)
+
+    def original_command(
+        self, *args, **kwargs
+    ) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """Direct wrapper of the original command."""
+        return super().command(*args, **kwargs)
+
+    def original_callback(
+        self, *args, **kwargs
+    ) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """Direct wrapper to the original callback commnand."""
+        return super().callback(*args, **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        """Overrides Typer command handling.
+
+        We override the calling mechanism here to allow a smooth transition from the previous CLI
+        interface to the new sub command based one.
+        """
+
+        if self.default_method is not None and not any(
+            command in sys.argv for command in self.app_commands
+        ):
+            main_command_args = []
+            other_command_args = []
+
+            take_next: bool = False
+            main_args = {option: param for param in self.click_app.params for option in param.opts}
+
+            command_args = sys.argv[1:]
+            for idx, arg in enumerate(command_args):
+                if take_next:
+                    take_next = False
+                    continue
+
+                # The help command is not listed in the main_args directly, so we consider it
+                # ourselves
+                if arg == "--help":
+                    main_command_args.append(arg)
+                    continue
+
+                if arg in main_args:
+                    main_command_args.append(arg)
+                    if not main_args[arg].is_flag:
+                        main_command_args.append(command_args[idx + 1])
+                        take_next = True
+                else:
+                    other_command_args.append(arg)
+
+            if other_command_args:
+                sys.argv = [
+                    sys.argv[0],
+                    *main_command_args,
+                    self.default_method,
+                    *other_command_args,
+                ]
+                logger.info(
+                    "Deprecation Notice: Slither CLI has moved to a subcommand based interface. "
+                    "This command has been automatically transposed to: %s",
+                    " ".join(sys.argv),
+                )
+
+        super().__call__(*args, **kwargs)
+
+        return
+
+
+@click.pass_context
+def slither_end_callback(ctx: click.Context, *args, **kwargs) -> None:
+    """End execution callback."""
+
+    # If we have asked for the perf object
+    ctx.state = ctx.ensure_object(SlitherState)
+    perf: Union[cProfile.Profile, None] = ctx.state.get("perf", None)
+    if perf is not None:
+        perf.disable()
+        stats = pstats.Stats(perf).sort_stats("cumtime")
+        stats.print_stats()
+
+
+def format_crytic_help(ctx: typer.Context):
+    """"""
+    parser = argparse.ArgumentParser()
+    cryticparser.init(parser)
+
+    for action_group in parser._action_groups:
+        if action_group.title in ("positional arguments", "options"):
+            continue
+
+        for action in action_group._group_actions:
+            param = click.Option(
+                action.option_strings,
+                help=action.help,
+                hidden=False,  # TODO(dm)
+                show_default=False,
+            )
+            param.rich_help_panel = action_group.title
+
+            ctx.command.params.append(param)
+
+
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
     "codex": False,
@@ -48,7 +260,6 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
-    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
@@ -67,7 +278,7 @@ defaults_flag_in_config = {
     "skip_assembly": False,
     "legacy_ast": False,
     "zip": None,
-    "zip_type": "lzma",
+    "zip_type": ZipType.LZMA,
     "show_ignored_findings": False,
     "no_fail": False,
     "sarif_input": "export.sarif",
@@ -77,319 +288,69 @@ defaults_flag_in_config = {
 }
 
 
-def read_config_file(args: argparse.Namespace) -> None:
-    # No config file was provided as an argument
-    if args.config_file is None:
-        # Check whether the default config file is present
-        if os.path.exists("slither.config.json"):
-            # The default file exists, use it
-            args.config_file = "slither.config.json"
-        else:
-            return
-
-    if os.path.isfile(args.config_file):
-        try:
-            with open(args.config_file, encoding="utf8") as f:
-                config = json.load(f)
-                for key, elem in config.items():
-                    if key not in defaults_flag_in_config:
-                        logger.info(
-                            yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
-                        )
-                        continue
-                    if getattr(args, key) == defaults_flag_in_config[key]:
-                        setattr(args, key, elem)
-        except json.decoder.JSONDecodeError as e:
-            logger.error(red(f"Impossible to read {args.config_file}, please check the file {e}"))
+def read_config_file(config_file: Union[None, Path]) -> Dict[str, Any]:
+    if config_file is None:
+        config_path = Path("slither.config.json")
     else:
-        logger.error(red(f"File {args.config_file} is not a file or does not exist"))
+        config_path = config_file
+
+    state: Dict[str, Any] = defaults_flag_in_config
+    if config_path.is_file():
+        with config_path.open(encoding="utf-8") as f:
+            try:
+                config = json.load(f)
+            except json.JSONDecodeError as exc:
+                logger.error(red(f"Impossible to read {config_file}, please check the file {exc}"))
+
+            for key, elem in config.items():
+                if key not in defaults_flag_in_config:
+                    logger.info(yellow(f"{config_file} has an unknown key: {key} : {elem}"))
+                    continue
+
+                # Convert fail_on string to enum
+                if key == "fail_on" and isinstance(elem, str):
+                    try:
+                        elem = FailOnLevel(elem)
+                    except ValueError:
+                        logger.warning(yellow(f"Invalid fail_on value: {elem}, using default"))
+                        continue
+
+                state[key] = elem
+
+    elif config_file is not None:
+        logger.error(red(f"File {config_file} is not a file or does not exist"))
         logger.error(yellow("Falling back to the default settings..."))
 
-
-def output_to_markdown(
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-    filter_wiki: str,
-) -> None:
-    def extract_help(cls: Union[Type[AbstractDetector], Type[AbstractPrinter]]) -> str:
-        if cls.WIKI == "":
-            return cls.HELP
-        return f"[{cls.HELP}]({cls.WIKI})"
-
-    detectors_list = []
-    print(filter_wiki)
-    for detector in detector_classes:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        if argument == "backdoor":
-            continue
-        if filter_wiki not in detector.WIKI:
-            continue
-        help_info = extract_help(detector)
-        impact = detector.IMPACT
-        confidence = classification_txt[detector.CONFIDENCE]
-        detectors_list.append((argument, help_info, impact, confidence))
-
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[3], element[0])
-    )
-    idx = 1
-    for argument, help_info, impact, confidence in detectors_list:
-        print(f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {confidence}")
-        idx = idx + 1
-
-    print()
-    printers_list = []
-    for printer in printer_classes:
-        argument = printer.ARGUMENT
-        help_info = extract_help(printer)
-        printers_list.append((argument, help_info))
-
-    # Sort by impact, confidence, and name
-    printers_list = sorted(printers_list, key=lambda element: (element[0]))
-    idx = 1
-    for argument, help_info in printers_list:
-        print(f"{idx} | `{argument}` | {help_info}")
-        idx = idx + 1
+    return state
 
 
-def get_level(l: str) -> int:
-    tab = l.count("\t") + 1
-    if l.replace("\t", "").startswith(" -"):
-        tab = tab + 1
-    if l.replace("\t", "").startswith("-"):
-        tab = tab + 1
-    return tab
+def version_callback(ctx: typer.Context, value: bool) -> None:
+    """Callback called when the --version flag is used."""
+    if not value or ctx.resilient_parsing:
+        return
+
+    print(metadata.version("slither-analyzer"))
+    raise typer.Exit(code=0)
 
 
-def convert_result_to_markdown(txt: str) -> str:
-    # -1 to remove the last \n
-    lines = txt[0:-1].split("\n")
-    ret = []
-    level = 0
-    for l in lines:
-        next_level = get_level(l)
-        prefix = "<li>"
-        if next_level < level:
-            prefix = "</ul>" * (level - next_level) + prefix
-        if next_level > level:
-            prefix = "<ul>" * (next_level - level) + prefix
-        level = next_level
-        ret.append(prefix + l)
+class MarkdownRoot(click.ParamType):
+    """Type definition for MarkdownRoot."""
 
-    return "".join(ret)
+    name = "MarkdownRoot"
 
+    def convert(self, markdown_root: Union[None, str], param, ctx) -> Union[str, None]:
+        """Convert and validates the markdown root option"""
+        if markdown_root is None or ctx.resilient_parsing:
+            return
 
-def output_results_to_markdown(
-    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
-) -> None:
-    checks = defaultdict(list)
-    info: Dict = defaultdict(dict)
-    for results_ in all_results:
-        checks[results_["check"]].append(results_)
-        info[results_["check"]] = {
-            "impact": results_["impact"],
-            "confidence": results_["confidence"],
-        }
-
-    if not show_ignored_findings:
-        print(
-            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        # Regex to check whether the markdown_root is a GitHub URL
+        match = re.search(
+            r"(https://)github.com/([a-zA-Z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
+            markdown_root,
         )
+        if not match:
+            self.fail(f"{markdown_root!r} is invalid.", param, ctx)
 
-    print("Summary")
-    for check_ in checks:
-        print(
-            f" - [{check_}](#{check_}) ({len(checks[check_])} results) ({info[check_]['impact']})"
-        )
-
-    counter = 0
-    for check, results in checks.items():
-        print(f"## {check}")
-        print(f"Impact: {info[check]['impact']}")
-        print(f"Confidence: {info[check]['confidence']}")
-        additional = False
-        if checklistlimit and len(results) > 5:
-            results = results[0:5]
-            additional = True
-        for result in results:
-            print(" - [ ] ID-" + f"{counter}")
-            counter = counter + 1
-            print(result["markdown"])
-            if result["first_markdown_element"]:
-                print(result["first_markdown_element"])
-                print("\n")
-        if additional:
-            print(f"**More results were found, check [{checklistlimit}]({checklistlimit})**")
-
-
-def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str) -> None:
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detector_classes,
-        key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT),
-    )
-
-    for detector in detectors_list:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        if argument == "backdoor":
-            continue
-        if filter_wiki not in detector.WIKI:
-            continue
-        check = detector.ARGUMENT
-        impact = classification_txt[detector.IMPACT]
-        confidence = classification_txt[detector.CONFIDENCE]
-        title = detector.WIKI_TITLE
-        description = detector.WIKI_DESCRIPTION
-        exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
-        recommendation = detector.WIKI_RECOMMENDATION
-
-        print(f"\n## {title}")
-        print("### Configuration")
-        print(f"* Check: `{check}`")
-        print(f"* Severity: `{impact}`")
-        print(f"* Confidence: `{confidence}`")
-        print("\n### Description")
-        print(description)
-        if exploit_scenario:
-            print("\n### Exploit Scenario:")
-            print(exploit_scenario)
-        print("\n### Recommendation")
-        print(recommendation)
-
-
-def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
-    detectors_list = []
-    for detector in detector_classes:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        if argument == "backdoor":
-            continue
-        help_info = detector.HELP
-        impact = detector.IMPACT
-        confidence = classification_txt[detector.CONFIDENCE]
-        detectors_list.append((argument, help_info, impact, confidence))
-    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Confidence"])
-
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[3], element[0])
-    )
-    idx = 1
-    for argument, help_info, impact, confidence in detectors_list:
-        table.add_row([str(idx), argument, help_info, classification_txt[impact], confidence])
-        idx = idx + 1
-    print(table)
-
-
-def output_detectors_json(
-    detector_classes: List[Type[AbstractDetector]],
-) -> List[Dict]:
-    detectors_list = []
-    for detector in detector_classes:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        if argument == "backdoor":
-            continue
-        help_info = detector.HELP
-        impact = detector.IMPACT
-        confidence = classification_txt[detector.CONFIDENCE]
-        wiki_url = detector.WIKI
-        wiki_description = detector.WIKI_DESCRIPTION
-        wiki_exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
-        wiki_recommendation = detector.WIKI_RECOMMENDATION
-        detectors_list.append(
-            (
-                argument,
-                help_info,
-                impact,
-                confidence,
-                wiki_url,
-                wiki_description,
-                wiki_exploit_scenario,
-                wiki_recommendation,
-            )
-        )
-
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[3], element[0])
-    )
-    idx = 1
-    table = []
-    for (
-        argument,
-        help_info,
-        impact,
-        confidence,
-        wiki_url,
-        description,
-        exploit,
-        recommendation,
-    ) in detectors_list:
-        table.append(
-            {
-                "index": idx,
-                "check": argument,
-                "title": help_info,
-                "impact": classification_txt[impact],
-                "confidence": confidence,
-                "wiki_url": wiki_url,
-                "description": description,
-                "exploit_scenario": exploit,
-                "recommendation": recommendation,
-            }
-        )
-        idx = idx + 1
-    return table
-
-
-def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
-    printers_list = []
-    for printer in printer_classes:
-        argument = printer.ARGUMENT
-        help_info = printer.HELP
-        printers_list.append((argument, help_info))
-    table = MyPrettyTable(["Num", "Printer", "What it Does"])
-
-    # Sort by impact, confidence, and name
-    printers_list = sorted(printers_list, key=lambda element: (element[0]))
-    idx = 1
-    for argument, help_info in printers_list:
-        # Clean multi line HELP info
-        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
-        idx = idx + 1
-
-    print(table)
-
-
-def output_printers_json(printer_classes: List[Type[AbstractPrinter]]) -> List[Dict]:
-    printers_list = []
-    for printer in printer_classes:
-        argument = printer.ARGUMENT
-        help_info = printer.HELP
-
-        printers_list.append((argument, help_info))
-
-    # Sort by name
-    printers_list = sorted(printers_list, key=lambda element: (element[0]))
-    idx = 1
-    table = []
-    for argument, help_info in printers_list:
-        table.append({"index": idx, "check": argument, "title": help_info})
-        idx = idx + 1
-    return table
-
-
-def check_and_sanitize_markdown_root(markdown_root: str) -> str:
-    # Regex to check whether the markdown_root is a GitHub URL
-    match = re.search(
-        r"(https://)github.com/([a-zA-Z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
-        markdown_root,
-    )
-    if match:
         if markdown_root[-1] != "/":
             logger.warning("Appending '/' in markdown_root url for better code referencing")
             markdown_root = markdown_root + "/"
@@ -406,4 +367,86 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
             positions = match.span(4)
             markdown_root = f"{markdown_root[: positions[0]]}blob{markdown_root[positions[1] :]}"
 
-    return markdown_root
+        return markdown_root
+
+
+class CommaSeparatedValueParser(click.ParamType):
+    name = "CommaSeparatedValue"
+
+    help = "A comma-separated list of values."
+
+    def convert(self, value: Union[str, List[str], None], param, ctx) -> List[str]:
+        if value is None or ctx.resilient_parsing:
+            return []
+
+        # If value is already a list (e.g., from default_map), return it as-is
+        if isinstance(value, list):
+            return value
+
+        paths = value.split(",")
+        return paths
+
+
+def long_help(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+
+    format_crytic_help(ctx)
+    ctx.get_help()
+    raise typer.Exit()
+
+
+def handle_crytic_args(args: List[str], no_error: bool = False) -> Tuple[Dict[str, str], List[str]]:
+    """Handle the crytic arguments passed and not handled by slither."""
+
+    crytic_args = {}
+    if args:
+        parser = argparse.ArgumentParser(allow_abbrev=False, add_help=False)
+        cryticparser.init(parser)
+
+        crytic_args, remaining_args = parser.parse_known_args(args)
+        arg_mapping = {key: value for key, value in vars(crytic_args).items()}
+        if remaining_args and not no_error:
+            msg = "Unknown arguments: %s" % remaining_args
+            raise typer.BadParameter(msg)
+
+        return arg_mapping, remaining_args
+
+    return crytic_args, []
+
+
+@dataclass
+class Target:
+    target: Union[str, Path]
+
+    HELP: str = textwrap.dedent(
+        f"""
+    Target can be:
+
+    - *file.sol*: a Solidity file
+    
+    - *project_directory*: a project directory. 
+      See the [documentation](https://github.com/crytic/crytic-compile/#crytic-compile) for the supported 
+      platforms.
+    
+    - *0x..* : a contract address on mainnet
+    
+    - *NETWORK:0x..*: a contract on a different network.
+      Supported networks: {", ".join(x[:-1] for x in SUPPORTED_NETWORK)}
+    """
+    )
+
+
+class TargetParam(click.ParamType):
+    name = "Target"
+
+    def convert(self, value: Union[str, Path], param, ctx) -> Union[Target, None]:
+        if ctx.resilient_parsing:
+            return None
+
+        return Target(value)
+
+
+target_type = Annotated[
+    Optional[Target], typer.Argument(..., help=Target.HELP, click_type=TargetParam())
+]

@@ -5,7 +5,7 @@ set -euo pipefail
 
 solc-select use 0.7.0
 
-if ! slither "tests/e2e/config/test_json_config/test.sol" --config "tests/e2e/config/test_json_config/slither.config.json"; then
+if ! slither --config-file "tests/e2e/config/test_json_config/slither.config.json" detect "tests/e2e/config/test_json_config/test.sol"; then
     echo "Config failed"
     exit 1
 fi

@@ -1,4 +1,3 @@
-import argparse
 import logging
 import sys
 import os.path
@@ -11,19 +10,19 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
 
-def info(args: argparse.Namespace) -> None:
+def info(**kwargs) -> None:
     try:
-        model = args.model
+        model = kwargs.get("model")
         if os.path.isfile(model):
             model = load_model(model)
         else:
             model = None
 
-        filename = args.filename
-        contract, fname = parse_target(args.fname)
+        filename = kwargs.get("filename")
+        contract, fname = parse_target(kwargs.get("fname"))
 
         if filename is None and contract is None and fname is None:
-            logger.info("%s uses the following words:", args.model)
+            logger.info("%s uses the following words:", kwargs.get("model"))
             for word in model.get_words():
                 logger.info(word)
             sys.exit(0)
@@ -32,7 +31,7 @@ def info(args: argparse.Namespace) -> None:
             logger.error("The encode mode requires filename, contract and fname parameters.")
             sys.exit(-1)
 
-        irs = encode_contract(filename, **vars(args))
+        irs = encode_contract(filename, **kwargs)
         if len(irs) == 0:
             sys.exit(-1)
 
@@ -46,8 +45,8 @@ def info(args: argparse.Namespace) -> None:
             fvector = model.get_sentence_vector(y)
             logger.info(fvector)
 
-    except Exception:
-        to_log = f"Error in {args.filename}"
+    except Exception:  # pylint: disable=broad-except
+        to_log = f"Error in {kwargs.get('filename')}"
         logger.error(to_log)
         logger.error(traceback.format_exc())
         sys.exit(-1)

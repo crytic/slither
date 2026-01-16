@@ -173,13 +173,16 @@ class Slither(SlitherCore):
         self._detectors = []
         self._printers = []
 
-        filter_paths = kwargs.get("filter_paths", [])
-        for p in filter_paths:
-            self.add_path_to_filter(p)
+        # The default value for filters_paths / include_paths is None (and not [])
+        filter_paths: Optional[List[str]] = kwargs.get("filter_paths", None)
+        if filter_paths is not None:
+            for p in filter_paths:
+                self.add_path_to_filter(p)
 
-        include_paths = kwargs.get("include_paths", [])
-        for p in include_paths:
-            self.add_path_to_include(p)
+        include_paths: Optional[List[str]] = kwargs.get("include_paths", None)
+        if include_paths is not None:
+            for p in include_paths:
+                self.add_path_to_include(p)
 
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 

@@ -1,6 +1,6 @@
 import logging
 import re
-from argparse import Namespace
+from pathlib import Path
 from typing import Set, Tuple, List, Dict, Union, Optional, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -116,7 +116,9 @@ def _generate_output_unresolved(
 
 
 def _run_coverage_analysis(
-    args: Namespace, slither: SlitherCompilationUnit, kspec_functions: Set[Tuple[str, str]]
+    slither: SlitherCompilationUnit,
+    kspec_functions: Set[Tuple[str, str]],
+    output_json: Union[bool, Path] = False,
 ) -> None:
     # Collect all slither functions
     slither_functions = _get_slither_functions(slither)
@@ -138,27 +140,27 @@ def _run_coverage_analysis(
             kspec_missing.append(slither_func)
 
     logger.info("## Check for functions coverage")
-    json_kspec_present = _generate_output(kspec_present, "[✓]", green, args.json)
+    json_kspec_present = _generate_output(kspec_present, "[✓]", green, output_json is not False)
     json_kspec_missing_functions = _generate_output(
         [f for f in kspec_missing if isinstance(f, FunctionContract)],
         "[ ] (Missing function)",
         red,
-        args.json,
+        output_json is not False,
     )
     json_kspec_missing_variables = _generate_output(
         [f for f in kspec_missing if isinstance(f, StateVariable)],
         "[ ] (Missing variable)",
         yellow,
-        args.json,
+        output_json is not False,
     )
     json_kspec_unresolved = _generate_output_unresolved(
-        kspec_functions_unresolved, "[ ] (Unresolved)", yellow, args.json
+        kspec_functions_unresolved, "[ ] (Unresolved)", yellow, output_json is not False
     )
 
     # Handle unresolved kspecs
-    if args.json:
+    if output_json is not False:
         output.output_to_json(
-            args.json,
+            output_json.as_posix(),
             None,
             {
                 "functions_present": json_kspec_present,
@@ -169,7 +171,9 @@ def _run_coverage_analysis(
         )
 
 
-def run_analysis(args: Namespace, slither: SlitherCompilationUnit, kspec_arg: str) -> None:
+def run_analysis(
+    slither: SlitherCompilationUnit, kspec_arg: str, output_json: Union[bool, Path] = False
+) -> None:
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     if "," in kspec_arg:
         kspecs = kspec_arg.split(",")
@@ -180,4 +184,4 @@ def run_analysis(args: Namespace, slither: SlitherCompilationUnit, kspec_arg: st
         kspec_functions = _get_all_covered_kspec_functions(kspec_arg)
 
     # Run coverage analysis
-    _run_coverage_analysis(args, slither, kspec_functions)
+    _run_coverage_analysis(slither, kspec_functions, output_json)

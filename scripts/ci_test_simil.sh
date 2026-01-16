@@ -10,16 +10,16 @@ else
 fi
 $PIP install fasttext
 
-### Test slither-simil
+### Test slither simil
 
 solc-select use "0.4.25"
 
 DIR_TESTS="tests/tools/simil"
-slither-simil info "" --filename $DIR_TESTS/../../unit/core/test_data/complex_func.sol --fname Complex.complexExternalWrites 2>&1 | tee test_1.txt
+slither simil info "" --filename tests/unit/core/test_data/complex_func.sol --fname Complex.complexExternalWrites 2>&1 | tee test_1.txt
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")
 if [  "$DIFF" != "" ]
 then
-    echo "slither-simil failed"
+    echo "slither simil failed"
     cat test_1.txt
     cat "$DIR_TESTS/test_1.txt"
     exit 255

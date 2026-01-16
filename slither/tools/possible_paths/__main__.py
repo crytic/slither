@@ -1,60 +1,49 @@
-import sys
-
 import logging
-from argparse import ArgumentParser, Namespace
+from typing import Annotated, List
 
-from crytic_compile import cryticparser
-from slither import Slither
-from slither.core.declarations import FunctionContract
-from slither.utils.colors import red
-from slither.tools.possible_paths.possible_paths import (
+import typer
+
+# Configure logging before slither imports to suppress CryticCompile INFO messages
+logging.basicConfig()
+logging.getLogger("Slither").setLevel(logging.INFO)
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+
+from slither import Slither  # noqa: E402
+from slither.core.declarations import FunctionContract  # noqa: E402
+from slither.utils.colors import red  # noqa: E402
+from slither.tools.possible_paths.possible_paths import (  # noqa: E402
     find_target_paths,
     resolve_functions,
     ResolveFunctionException,
 )
 
-logging.basicConfig()
-logging.getLogger("Slither").setLevel(logging.INFO)
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic  # noqa: E402
+
+possible_paths_app: SlitherApp = SlitherApp()
+app.add_typer(possible_paths_app, name="find-paths")
 
 
-def parse_args() -> Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser: ArgumentParser = ArgumentParser(
-        description="PossiblePaths",
-        usage="possible_paths.py filename [contract.function targets]",
-    )
-
-    parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
-    )
-
-    parser.add_argument("targets", nargs="+")
-
-    cryticparser.init(parser)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    # ------------------------------
-    # PossiblePaths.py
-    #       Usage: python3 possible_paths.py filename targets
-    #       Example: python3 possible_paths.py contract.sol contract1.function1 contract2.function2 contract3.function3
-    # ------------------------------
-    # Parse all arguments
-    args = parse_args()
-
-    # Perform slither analysis on the given filename
-    slither = Slither(args.filename, **vars(args))
+@possible_paths_app.callback(cls=GroupWithCrytic)
+def main_callback(
+    ctx: typer.Context,
+    target: target_type,
+    functions: Annotated[
+        List[str],
+        typer.Argument(
+            help="Function to analyze. Should be noted as contract.function. Can be repeated."
+        ),
+    ],
+) -> None:
+    """Find the possible paths."""
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
     try:
-        targets = resolve_functions(slither, args.targets)
-    except ResolveFunctionException as resolvefunction:
-        print(red(resolvefunction))
-        sys.exit(-1)
+        targets = resolve_functions(slither, functions)
+    except ResolveFunctionException as resolve_function:
+        print(red(resolve_function))
+        raise typer.Exit(1)
 
     # Print out all target functions.
     print("Target functions:")
@@ -86,6 +75,13 @@ def main() -> None:
     print("The following paths reach the specified targets:")
     for reaching_path in sorted(reaching_paths_str):
         print(f"{reaching_path}\n")
+
+    raise typer.Exit(0)
+
+
+def main():
+    """Entry point for the slither-find-paths CLI."""
+    possible_paths_app()
 
 
 if __name__ == "__main__":

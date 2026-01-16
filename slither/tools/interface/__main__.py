@@ -1,88 +1,65 @@
-import argparse
 import logging
 from pathlib import Path
+from typing import Annotated
 
-from crytic_compile import cryticparser
+import typer
 
-from slither import Slither
-from slither.utils.code_generation import generate_interface
-
+# Configure logging before slither imports to suppress CryticCompile INFO messages
 logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 logger = logging.getLogger("Slither-Interface")
 logger.setLevel(logging.INFO)
 
+from slither import Slither  # noqa: E402
+from slither.utils.code_generation import generate_interface  # noqa: E402
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Generates code for a Solidity interface from contract",
-        usage=("slither-interface <ContractName> <source file or deployment address>"),
-    )
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic  # noqa: E402
 
-    parser.add_argument(
-        "contract_source",
-        help="The name of the contract (case sensitive) followed by the deployed contract address if verified on etherscan or project directory/filename for local contracts.",
-        nargs="+",
-    )
-
-    parser.add_argument(
-        "--unroll-structs",
-        help="Whether to use structures' underlying types instead of the user-defined type",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-events",
-        help="Excludes event signatures in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-errors",
-        help="Excludes custom error signatures in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-enums",
-        help="Excludes enum definitions in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-structs",
-        help="Exclude struct definitions in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    cryticparser.init(parser)
-
-    return parser.parse_args()
+interface_cmd: SlitherApp = SlitherApp()
+app.add_typer(interface_cmd, name="interface")
 
 
-def main() -> None:
-    args = parse_args()
+@interface_cmd.callback(cls=GroupWithCrytic)
+def main_callback(
+    ctx: typer.Context,
+    contract_name: Annotated[
+        str, typer.Argument(help="The name of the contract (case sensitive).")
+    ],
+    target: target_type,
+    unroll_structs: Annotated[
+        bool,
+        typer.Option(
+            help="Whether to use structures' underlying types instead of the user-defined type."
+        ),
+    ] = False,
+    exclude_events: Annotated[
+        bool, typer.Option(help="Excludes event signatures in the interface.")
+    ] = False,
+    exclude_errors: Annotated[
+        bool, typer.Option(help="Excludes custom errors signatures in the interface.")
+    ] = False,
+    exclude_enums: Annotated[
+        bool, typer.Option(help="Excludes enum definitions in the interface.")
+    ] = False,
+    exclude_structs: Annotated[
+        bool, typer.Option(help="Excludes structs definitions in the interface.")
+    ] = False,
+) -> None:
+    """Generates code for a Solidity interface from contract"""
 
-    contract_name, target = args.contract_source
-    slither = Slither(target, **vars(args))
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
     _contract = slither.get_contract_from_name(contract_name)[0]
 
     interface = generate_interface(
         contract=_contract,
-        unroll_structs=args.unroll_structs,
-        include_events=not args.exclude_events,
-        include_errors=not args.exclude_errors,
-        include_enums=not args.exclude_enums,
-        include_structs=not args.exclude_structs,
+        unroll_structs=unroll_structs,
+        include_events=not exclude_events,
+        include_errors=not exclude_errors,
+        include_enums=not exclude_enums,
+        include_structs=not exclude_structs,
     )
 
     # add version pragma
@@ -100,6 +77,13 @@ def main() -> None:
     logger.info(f" Interface exported to {path}")
     with open(path, "w", encoding="utf8") as f:
         f.write(interface)
+
+    raise typer.Exit(0)
+
+
+def main():
+    """Entry point for the slither-interface CLI."""
+    interface_cmd()
 
 
 if __name__ == "__main__":

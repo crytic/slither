@@ -1,142 +1,44 @@
-import argparse
 import inspect
 import json
 import logging
-import sys
-from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
+from typing import List, Type, Dict, Tuple, Union, Optional, Annotated
 
-from crytic_compile import cryticparser
+import typer
 
-
-from slither import Slither
-from slither.core.declarations import Contract
-from slither.exceptions import SlitherException
-from slither.utils.colors import red
-from slither.utils.output import output_to_json
-from slither.tools.upgradeability.checks import all_checks
-from slither.tools.upgradeability.checks.abstract_checks import (
-    AbstractCheck,
-    CheckClassification,
-)
-from slither.tools.upgradeability.utils.command_line import (
-    output_detectors_json,
-    output_wiki,
-    output_detectors,
-    output_to_markdown,
-)
-
+# Configure logging before slither imports to suppress CryticCompile INFO messages
 logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
+from slither import Slither  # noqa: E402
+from slither.core.declarations import Contract  # noqa: E402
+from slither.exceptions import SlitherException  # noqa: E402
+from slither.utils.colors import red  # noqa: E402
+from slither.utils.output import output_to_json, OutputFormat  # noqa: E402
+from slither.tools.upgradeability.checks import all_checks  # noqa: E402
+from slither.tools.upgradeability.checks.abstract_checks import (  # noqa: E402
+    AbstractCheck,
+    CheckClassification,
+)
+from slither.tools.upgradeability.utils.command_line import (  # noqa: E402
+    output_detectors_json,
+    output_wiki,
+    output_detectors,
+)
 
-def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
-        usage="slither-check-upgradeability contract.sol ContractName",
-    )
+from slither.__main__ import app  # noqa: E402
+from slither.utils.command_line import (  # noqa: E402
+    target_type,
+    SlitherState,
+    SlitherApp,
+    GroupWithCrytic,
+    MarkdownRoot,
+)
 
-    group_checks = parser.add_argument_group("Checks")
 
-    parser.add_argument("contract.sol", help="Codebase to analyze")
-    parser.add_argument("ContractName", help="Contract name (logic contract)")
-
-    parser.add_argument("--proxy-name", help="Proxy name")
-    parser.add_argument("--proxy-filename", help="Proxy filename (if different)")
-
-    parser.add_argument("--new-contract-name", help="New contract name (if changed)")
-    parser.add_argument(
-        "--new-contract-filename", help="New implementation filename (if different)"
-    )
-
-    parser.add_argument(
-        "--json",
-        help='Export the results as a JSON file ("--json -" to export to stdout)',
-        action="store",
-        default=False,
-    )
-
-    group_checks.add_argument(
-        "--detect",
-        help="Comma-separated list of detectors, defaults to all, "
-        f"available detectors: {', '.join(d.ARGUMENT for d in check_classes)}",
-        action="store",
-        dest="detectors_to_run",
-        default="all",
-    )
-
-    group_checks.add_argument(
-        "--list-detectors",
-        help="List available detectors",
-        action=ListDetectors,
-        nargs=0,
-        default=False,
-    )
-
-    group_checks.add_argument(
-        "--exclude",
-        help="Comma-separated list of detectors that should be excluded",
-        action="store",
-        dest="detectors_to_exclude",
-        default=None,
-    )
-
-    group_checks.add_argument(
-        "--exclude-informational",
-        help="Exclude informational impact analyses",
-        action="store_true",
-        default=False,
-    )
-
-    group_checks.add_argument(
-        "--exclude-low",
-        help="Exclude low impact analyses",
-        action="store_true",
-        default=False,
-    )
-
-    group_checks.add_argument(
-        "--exclude-medium",
-        help="Exclude medium impact analyses",
-        action="store_true",
-        default=False,
-    )
-
-    group_checks.add_argument(
-        "--exclude-high",
-        help="Exclude high impact analyses",
-        action="store_true",
-        default=False,
-    )
-
-    parser.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
-    )
-
-    parser.add_argument(
-        "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
-    )
-
-    parser.add_argument(
-        "--list-detectors-json",
-        help=argparse.SUPPRESS,
-        action=ListDetectorsJson,
-        nargs=0,
-        default=False,
-    )
-
-    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    cryticparser.init(parser)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    return parser.parse_args()
+upgradeability_app: SlitherApp = SlitherApp()
+app.add_typer(upgradeability_app, name="check-upgradeability")
 
 
 ###################################################################################
@@ -144,6 +46,17 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
 # region checks
 ###################################################################################
 ###################################################################################
+
+
+def list_detectors_json(ctx: typer.Context, value: bool) -> None:
+    """Action: list detectors in JSON"""
+    if not value or ctx.resilient_parsing:
+        return
+
+    checks = _get_checks()
+    detector_types_json = output_detectors_json(checks)
+    print(json.dumps(detector_types_json))
+    raise typer.Exit(code=0)
 
 
 def _get_checks() -> List[Type[AbstractCheck]]:
@@ -155,83 +68,66 @@ def _get_checks() -> List[Type[AbstractCheck]]:
 
 
 def choose_checks(
-    args: argparse.Namespace, all_check_classes: List[Type[AbstractCheck]]
+    arg_checks_to_run: str,
+    arg_checks_exclude: str,
+    exclude_low: bool = False,
+    exclude_medium: bool = False,
+    exclude_high: bool = False,
+    exclude_informational: bool = False,
+    all_check_classes: List[Type[AbstractCheck]] = None,
 ) -> List[Type[AbstractCheck]]:
-    detectors_to_run = []
-    detectors = {d.ARGUMENT: d for d in all_check_classes}
+    checks_to_run = []
 
-    if args.detectors_to_run == "all":
-        detectors_to_run = all_check_classes
-        if args.detectors_to_exclude:
-            detectors_excluded = args.detectors_to_exclude.split(",")
-            for detector in detectors:
-                if detector in detectors_excluded:
-                    detectors_to_run.remove(detectors[detector])
+    if all_check_classes is None:
+        return []
+
+    checks = {d.ARGUMENT: d for d in all_check_classes}
+
+    if arg_checks_to_run == "all":
+        checks_to_run = all_check_classes
+        if arg_checks_exclude:
+            checks_excluded = arg_checks_exclude.split(",")
+            for check in checks:
+                if check in checks_excluded:
+                    checks_to_run.remove(checks[check])
     else:
-        for detector in args.detectors_to_run.split(","):
-            if detector in detectors:
-                detectors_to_run.append(detectors[detector])
+        for check in arg_checks_to_run.split(","):
+            if check in checks:
+                checks_to_run.append(checks[check])
             else:
-                raise Exception(f"Error: {detector} is not a detector")
-        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
-        return detectors_to_run
+                raise Exception(f"Error: {check} is not a detector")
+        checks_to_run = sorted(checks_to_run, key=lambda x: x.IMPACT)
+        return checks_to_run
 
-    if args.exclude_informational:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.INFORMATIONAL
-        ]
-    if args.exclude_low:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW]
-    if args.exclude_medium:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM]
-    if args.exclude_high:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
+    if exclude_informational:
+        checks_to_run = [d for d in checks_to_run if d.IMPACT != CheckClassification.INFORMATIONAL]
+    if exclude_low:
+        checks_to_run = [d for d in checks_to_run if d.IMPACT != CheckClassification.LOW]
+    if exclude_medium:
+        checks_to_run = [d for d in checks_to_run if d.IMPACT != CheckClassification.MEDIUM]
+    if exclude_high:
+        checks_to_run = [d for d in checks_to_run if d.IMPACT != CheckClassification.HIGH]
 
     # detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
-    return detectors_to_run
+    return checks_to_run
 
 
-class ListDetectors(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        checks = _get_checks()
-        output_detectors(checks)
-        parser.exit()
+def list_detectors_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+
+    checks = _get_checks()
+    output_detectors(checks)
+    raise typer.Exit()
 
 
-class ListDetectorsJson(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        checks = _get_checks()
-        detector_types_json = output_detectors_json(checks)
-        print(json.dumps(detector_types_json))
-        parser.exit()
+def output_wiki_action(ctx: typer.Context, _: str, value: Union[str, None] = None):
+    if ctx.resilient_parsing or value is None:
+        return
 
-
-class OutputMarkdown(argparse.Action):
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> None:
-        checks = _get_checks()
-        assert isinstance(values, str)
-        output_to_markdown(checks, values)
-        parser.exit()
-
-
-class OutputWiki(argparse.Action):
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> Any:
-        checks = _get_checks()
-        assert isinstance(values, str)
-        output_wiki(checks, values)
-        parser.exit()
+    checks = _get_checks()
+    output_wiki(checks, value)
+    raise typer.Exit()
 
 
 def _run_checks(detectors: List[AbstractCheck]) -> List[Dict]:
@@ -276,30 +172,141 @@ def _checks_on_contract_and_proxy(
 ###################################################################################
 
 
-def main() -> None:
+# pylint: disable=too-many-statements,too-many-branches,too-many-locals
+@upgradeability_app.callback(cls=GroupWithCrytic, invoke_without_command=True)
+def main_callback(
+    ctx: typer.Context,
+    target: target_type,
+    contract_name: Annotated[str, typer.Argument(help="Contract name")],
+    proxy_name: Annotated[Optional[str], typer.Option(help="Proxy name")] = None,
+    proxy_filename: Annotated[
+        Optional[str], typer.Option(help="Proxy filename (if different).")
+    ] = None,
+    new_contract_name: Annotated[
+        Optional[str], typer.Option(help="New contract name (if changed)")
+    ] = None,
+    new_contract_filename: Annotated[
+        Optional[str], typer.Option(help="New implementation filename (if different)")
+    ] = None,
+    list_json_detector: Annotated[
+        Optional[bool],
+        typer.Option("--list-detectors-json", callback=list_detectors_json, hidden=True),
+    ] = None,
+    list_detectors: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--list-detectors",
+            help="List available detectors.",
+            callback=list_detectors_action,
+            rich_help_panel="Checks",
+            is_eager=True,
+        ),
+    ] = None,
+    detectors_to_run: Annotated[
+        Optional[str],
+        typer.Option(
+            "--detect",
+            help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in _get_checks())}",
+            rich_help_panel="Checks",
+        ),
+    ] = "all",
+    detectors_to_exclude: Annotated[
+        Optional[str],
+        typer.Option(
+            "--exclude",
+            help="Comma-separated list of detectors that should be excluded or all.",
+            rich_help_panel="Checks",
+        ),
+    ] = "",
+    exclude_informational: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-informational",
+            help="Exclude informational impact analyses.",
+            rich_help_panel="Checks",
+        ),
+    ] = False,
+    exclude_low: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-low",
+            help="Exclude low impact analyses.",
+            rich_help_panel="Checks",
+        ),
+    ] = False,
+    exclude_medium: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-medium",
+            help="Exclude medium impact analyses.",
+            rich_help_panel="Checks",
+        ),
+    ] = False,
+    exclude_high: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-high",
+            help="Exclude high impact analyses.",
+            rich_help_panel="Checks",
+        ),
+    ] = False,
+    markdown_root: Annotated[
+        Optional[str],
+        typer.Option(
+            "--markdown-root",
+            help="URL for markdown generation.",
+            rich_help_panel="Check",
+            click_type=MarkdownRoot(),
+        ),
+    ] = None,
+    wiki_detectors: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Print each detectors information that matches the pattern.",
+            callback=output_wiki_action,
+            rich_help_panel="Check",
+        ),
+    ] = None,
+) -> None:
+    """Slither Upgradeability Checks.
+
+    For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.
+    """
     json_results: Dict = {
         "proxy-present": False,
         "contract_v2-present": False,
         "detectors": [],
     }
 
-    detectors = _get_checks()
-    args = parse_args(detectors)
-    detectors_to_run = choose_checks(args, detectors)
-    v1_filename = vars(args)["contract.sol"]
+    checks = _get_checks()
+
+    detectors_to_run = choose_checks(
+        arg_checks_to_run=detectors_to_run,
+        arg_checks_exclude=detectors_to_exclude,
+        exclude_low=exclude_low,
+        exclude_medium=exclude_medium,
+        exclude_high=exclude_high,
+        exclude_informational=exclude_informational,
+        all_check_classes=checks,
+    )
+
+    v1_filename = target.target
+    state = ctx.ensure_object(SlitherState)
+
     number_detectors_run = 0
     try:
-        variable1 = Slither(v1_filename, **vars(args))
+        variable1 = Slither(v1_filename, **state)
 
         # Analyze logic contract
-        v1_name = args.ContractName
+        v1_name = contract_name
         v1_contracts = variable1.get_contract_from_name(v1_name)
         if len(v1_contracts) != 1:
             info = f"Contract {v1_name} not found in {variable1.filename}"
             logger.error(red(info))
-            if args.json:
-                output_to_json(args.json, str(info), json_results)
-            return
+            if state.get("output_format") == OutputFormat.JSON:
+                output_to_json(state.get("output_file").as_posix(), str(info), json_results)
+            raise typer.Exit(1)
+
         v1_contract = v1_contracts[0]
 
         detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v1_contract)
@@ -308,19 +315,19 @@ def main() -> None:
 
         # Analyze Proxy
         proxy_contract = None
-        if args.proxy_name:
-            if args.proxy_filename:
-                proxy = Slither(args.proxy_filename, **vars(args))
+        if proxy_name:
+            if proxy_filename:
+                proxy = Slither(proxy_filename, **state)
             else:
                 proxy = variable1
 
-            proxy_contracts = proxy.get_contract_from_name(args.proxy_name)
+            proxy_contracts = proxy.get_contract_from_name(proxy_name)
             if len(proxy_contracts) != 1:
-                info = f"Proxy {args.proxy_name} not found in {proxy.filename}"
+                info = f"Proxy {proxy_name} not found in {proxy.filename}"
                 logger.error(red(info))
-                if args.json:
-                    output_to_json(args.json, str(info), json_results)
-                return
+                if state.get("output_format") == OutputFormat.JSON:
+                    output_to_json(state.get("output_file").as_posix(), str(info), json_results)
+                raise typer.Exit(1)
             proxy_contract = proxy_contracts[0]
             json_results["proxy-present"] = True
 
@@ -330,21 +337,19 @@ def main() -> None:
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
         # Analyze new version
-        if args.new_contract_name:
-            if args.new_contract_filename:
-                variable2 = Slither(args.new_contract_filename, **vars(args))
+        if new_contract_name:
+            if new_contract_filename:
+                variable2 = Slither(new_contract_filename, **state)
             else:
                 variable2 = variable1
 
-            v2_contracts = variable2.get_contract_from_name(args.new_contract_name)
+            v2_contracts = variable2.get_contract_from_name(new_contract_name)
             if len(v2_contracts) != 1:
-                info = (
-                    f"New logic contract {args.new_contract_name} not found in {variable2.filename}"
-                )
+                info = f"New logic contract {new_contract_name} not found in {variable2.filename}"
                 logger.error(red(info))
-                if args.json:
-                    output_to_json(args.json, str(info), json_results)
-                return
+                if state.get("output_format") == OutputFormat.JSON:
+                    output_to_json(state.get("output_file").as_posix(), str(info), json_results)
+                raise typer.Exit(1)
             v2_contract = v2_contracts[0]
             json_results["contract_v2-present"] = True
 
@@ -368,14 +373,27 @@ def main() -> None:
 
         to_log = f"{len(json_results['detectors'])} findings, {number_detectors_run} detectors run"
         logger.info(to_log)
-        if args.json:
-            output_to_json(args.json, None, json_results)
+        if state.get("output_format") == OutputFormat.JSON:
+            output_to_json(state.get("output_file").as_posix(), None, json_results)
 
     except SlitherException as slither_exception:
         logger.error(str(slither_exception))
-        if args.json:
-            output_to_json(args.json, str(slither_exception), json_results)
-        return
+        if state.get("output_format") == OutputFormat.JSON:
+            output_to_json(
+                state.get("output_file").as_posix(), str(slither_exception), json_results
+            )
+        raise typer.Exit(1)
+
+    raise typer.Exit(0)
 
 
 # endregion
+
+
+def main():
+    """Entry point for the slither-check-upgradeability CLI."""
+    upgradeability_app()
+
+
+if __name__ == "__main__":
+    main()

@@ -6,7 +6,6 @@ try:
 except ImportError:
     print("ERROR: in order to use slither-simil, you need to install numpy")
     print("$ pip3 install numpy --user\n")
-    sys.exit(-1)
 
 
 def load_cache(infile: str, nsamples: Optional[int] = None) -> Dict:

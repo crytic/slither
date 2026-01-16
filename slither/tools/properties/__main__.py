@@ -1,9 +1,6 @@
-import argparse
 import logging
-import sys
-from typing import Any
-
-from crytic_compile import cryticparser
+from typing import Annotated
+import typer
 
 from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
@@ -15,15 +12,25 @@ from slither.tools.properties.addresses.address import (
 )
 from slither.utils.myprettytable import MyPrettyTable
 
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
+
+properties_app: SlitherApp = SlitherApp()
+app.add_typer(properties_app, name="prop")
+
+
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
-logger = logging.getLogger("Slither")
+# Use a tool-specific logger to avoid affecting other tools
+logger = logging.getLogger("Slither-properties")
+logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")
+ch.setFormatter(formatter)
 logger.addHandler(ch)
-logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
 
@@ -46,104 +53,90 @@ def _all_properties() -> MyPrettyTable:
     return table
 
 
-class ListScenarios(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        logger.info(_all_scenarios())
-        parser.exit()
+def list_scenarios_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+
+    logger.info(_all_scenarios())
+    raise typer.Exit()
 
 
-class ListProperties(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        logger.info(_all_properties())
-        parser.exit()
+def list_properties_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+
+    logger.info(_all_properties())
+    raise typer.Exit()
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Generates code properties (e.g., invariants) that can be tested with unit tests or Echidna, entirely automatically.",
-        usage="slither-prop filename",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-
-    parser.add_argument(
-        "filename", help="The filename of the contract or project directory to analyze."
-    )
-
-    parser.add_argument("--contract", help="The targeted contract.")
-
-    parser.add_argument(
-        "--scenario",
-        help="Test a specific scenario. Use --list-scenarios to see the available scenarios. Default Transferable",
-        default="Transferable",
-    )
-
-    parser.add_argument(
-        "--list-scenarios",
-        help="List available scenarios",
-        action=ListScenarios,
-        nargs=0,
-        default=False,
-    )
-
-    parser.add_argument(
-        "--list-properties",
-        help="List available properties",
-        action=ListProperties,
-        nargs=0,
-        default=False,
-    )
-
-    parser.add_argument(
-        "--address-owner", help=f"Owner address. Default {OWNER_ADDRESS}", default=None
-    )
-
-    parser.add_argument(
-        "--address-user", help=f"Owner address. Default {USER_ADDRESS}", default=None
-    )
-
-    parser.add_argument(
-        "--address-attacker",
-        help=f"Attacker address. Default {ATTACKER_ADDRESS}",
-        default=None,
-    )
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
+@properties_app.callback(cls=GroupWithCrytic)
+def main_callback(
+    ctx: typer.Context,
+    target: target_type,
+    contract: Annotated[str, typer.Option(help="The targeted contract.")],
+    scenario: Annotated[
+        str,
+        typer.Option(
+            help="Test a specific scenario. Use --list-scenarios to see the available scenarios."
+        ),
+    ] = "Transferable",
+    list_scenarios: Annotated[
+        bool,
+        typer.Option(
+            "--list-scenarios",
+            help="List available scenarios",
+            callback=list_scenarios_action,
+            is_eager=True,
+        ),
+    ] = False,
+    list_properties: Annotated[
+        bool,
+        typer.Option(
+            "--list-properties",
+            help="List available properties",
+            callback=list_properties_action,
+            is_eager=True,
+        ),
+    ] = False,
+    address_owner: Annotated[
+        str, typer.Option("--address-owner", help="Owner address.")
+    ] = OWNER_ADDRESS,
+    address_user: Annotated[
+        str, typer.Option("--address-user", help="User address.")
+    ] = USER_ADDRESS,
+    address_attacker: Annotated[
+        str, typer.Option("--address-attacker", help="Attacker address.")
+    ] = ATTACKER_ADDRESS,
+) -> None:
+    """Generates code properties (e.g., invariants) that can be tested with unit tests or Echidna,
+    entirely automatically."""
 
     # Perform slither analysis on the given filename
-    slither = Slither(args.filename, **vars(args))
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
-    contracts = slither.get_contract_from_name(args.contract)
+    contracts = slither.get_contract_from_name(contract)
     if len(contracts) != 1:
         if len(slither.contracts) == 1:
             contract = slither.contracts[0]
         else:
-            if args.contract is None:
+            if contract is None:
                 to_log = "Specify the target: --contract ContractName"
             else:
-                to_log = f"{args.contract} not found"
+                to_log = f"{contract} not found"
             logger.error(to_log)
-            return
+            raise typer.Exit(1)
     else:
         contract = contracts[0]
 
-    addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
+    addresses = Addresses(address_owner, address_user, address_attacker)
 
-    generate_erc20(contract, args.scenario, addresses)
+    generate_erc20(contract, scenario, addresses)
+
+
+def main():
+    """Entry point for the slither-prop CLI."""
+    properties_app()
 
 
 if __name__ == "__main__":

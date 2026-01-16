@@ -1,4 +1,3 @@
-import argparse
 import logging
 import random
 import sys
@@ -9,7 +8,6 @@ try:
 except ImportError:
     print("ERROR: in order to use slither-simil, you need to install numpy:")
     print("$ pip3 install numpy --user\n")
-    sys.exit(-1)
 
 from slither.tools.similarity.encode import load_and_encode, parse_target
 from slither.tools.similarity.model import load_model
@@ -24,7 +22,7 @@ except ImportError:
 logger = logging.getLogger("Slither-simil")
 
 
-def plot(args: argparse.Namespace) -> None:
+def plot(**kwargs) -> None:  # pylint: disable=too-many-locals
     if decomposition is None or plt is None:
         logger.error(
             "ERROR: In order to use plot mode in slither-simil, you need to install sklearn and matplotlib:"
@@ -33,12 +31,11 @@ def plot(args: argparse.Namespace) -> None:
         sys.exit(-1)
 
     try:
-        model = args.model
-        model = load_model(model)
+        model = load_model(kwargs.get("model"))
         # contract = args.contract
-        contract, fname = parse_target(args.fname)
+        contract, fname = parse_target(kwargs.get("fname"))
         # solc = args.solc
-        infile = args.input
+        infile = kwargs.get("input")
         # ext = args.filter
         # nsamples = args.nsamples
 
@@ -47,12 +44,12 @@ def plot(args: argparse.Namespace) -> None:
             sys.exit(-1)
 
         logger.info("Loading data..")
-        cache = load_and_encode(infile, **vars(args))
+        cache = load_and_encode(infile, **kwargs)
 
         data = []
         fs = []
 
-        logger.info("Processing data..")
+        logger.info("Procesing data..")
         for (f, c, n), y in cache.items():
             if (c == contract or contract is None) and n == fname:
                 fs.append(f)
@@ -78,7 +75,7 @@ def plot(args: argparse.Namespace) -> None:
         logger.info("Saving figure to plot.png..")
         plt.savefig("plot.png", bbox_inches="tight")
 
-    except Exception:
-        logger.error(f"Error in {args.filename}")
+    except Exception:  # pylint: disable=broad-except
+        logger.error(f"Error in {kwargs.get('filename')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

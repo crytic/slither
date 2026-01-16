@@ -35,13 +35,11 @@ logger.setLevel(logging.INFO)
 Patch = namedtuple("PatchExternal", ["index", "patch_type"])
 
 
-class Strategy(PythonEnum):
-    MostDerived = 0
-    OneFile = 1
-    LocalImport = 2
+class Strategy(str, PythonEnum):
+    MostDerived = "most-derived"
+    OneFile = "one-file"
+    LocalImport = "local-import"
 
-
-STRATEGIES_NAMES = ",".join([i.name for i in Strategy])
 
 DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
 

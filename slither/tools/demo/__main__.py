@@ -1,7 +1,11 @@
-import argparse
 import logging
-from crytic_compile import cryticparser
 from slither import Slither
+
+import typer
+
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -9,31 +13,22 @@ logging.getLogger("Slither").setLevel(logging.INFO)
 logger = logging.getLogger("Slither-demo")
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(description="Demo", usage="slither-demo filename")
-
-    parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
-    )
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    return parser.parse_args()
+demo_app = SlitherApp(help="Demo tool.")
+app.add_typer(demo_app, name="demo", hidden=True)
 
 
-def main() -> None:
-    args = parse_args()
+@demo_app.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    target: target_type,
+) -> None:
+    state = ctx.ensure_object(SlitherState)
 
     # Perform slither analysis on the given filename
-    _slither = Slither(args.filename, **vars(args))
+    _slither = Slither(target.target, **state)
 
     logger.info("Analysis done!")
 
 
 if __name__ == "__main__":
-    main()
+    demo_app()

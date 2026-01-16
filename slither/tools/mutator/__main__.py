@@ -1,13 +1,12 @@
-import argparse
 import inspect
 import logging
 import os
 import shutil
-import sys
 import time
 from pathlib import Path
-from typing import Type, List, Any, Optional, Union, Set
-from crytic_compile import cryticparser
+import typer
+from typing import Type, List, Optional, Annotated, Union, Set
+
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.mutators import all_mutators
@@ -19,98 +18,28 @@ from .utils.file_handling import (
     backup_source_file,
     get_sol_file_list,
 )
+from slither.__main__ import app
+from slither.utils.command_line import (
+    target_type,
+    SlitherState,
+    SlitherApp,
+    GroupWithCrytic,
+    CommaSeparatedValueParser,
+)
+
+mutate_cmd: SlitherApp = SlitherApp()
+app.add_typer(mutate_cmd, name="mutate")
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-Mutate")
 logger.setLevel(logging.INFO)
+
 
 ###################################################################################
 ###################################################################################
 # region Cli Arguments
 ###################################################################################
 ###################################################################################
-
-
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    Returns: The arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597",
-        usage="slither-mutate <codebase> --test-cmd <test command> <options>",
-    )
-
-    parser.add_argument("codebase", help="Codebase to analyze (.sol file, project directory, ...)")
-
-    parser.add_argument(
-        "--list-mutators",
-        help="List available detectors",
-        action=ListMutators,
-        nargs=0,
-        default=False,
-    )
-
-    # argument to add the test command
-    parser.add_argument("--test-cmd", help="Command to run the tests for your project")
-
-    # argument to add the test directory - containing all the tests
-    parser.add_argument("--test-dir", help="Tests directory")
-
-    # argument to ignore the interfaces, libraries
-    parser.add_argument("--ignore-dirs", help="Directories to ignore")
-
-    # time out argument
-    parser.add_argument("--timeout", help="Set timeout for test command (by default 30 seconds)")
-
-    # output directory argument
-    parser.add_argument(
-        "--output-dir", help="Name of output directory (by default 'mutation_campaign')"
-    )
-
-    # to print just all the mutants
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help="log mutants that are caught, uncaught, and fail to compile",
-        action="store_true",
-        default=False,
-    )
-
-    # select list of mutators to run
-    parser.add_argument(
-        "--mutators-to-run",
-        help="mutant generators to run",
-    )
-
-    # list of contract names you want to mutate
-    parser.add_argument(
-        "--contract-names",
-        help="list of contract names you want to mutate",
-    )
-
-    # target specific functions by selector
-    parser.add_argument(
-        "--target-functions",
-        help="Comma-separated list of function selectors (hex like 0xa9059cbb or signature like transfer(address,uint256))",
-    )
-
-    # flag to run full mutation based revert mutator output
-    parser.add_argument(
-        "--comprehensive",
-        help="continue testing minor mutations if severe mutants are uncaught",
-        action="store_true",
-        default=False,
-    )
-
-    # Initiate all the crytic config cli options
-    cryticparser.init(parser)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    return parser.parse_args()
 
 
 def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMutator]]:
@@ -128,11 +57,14 @@ def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMu
     return detectors
 
 
-class ListMutators(argparse.Action):
-    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
-        checks = _get_mutators(None)
-        output_mutators(checks)
-        parser.exit()
+def list_mutator_action(ctx: typer.Context, value: bool) -> None:
+    """List mutators."""
+    if not value or ctx.resilient_parsing:
+        return
+
+    checks = _get_mutators(None)
+    output_mutators(checks)
+    raise typer.Exit()
 
 
 # endregion
@@ -144,7 +76,7 @@ class ListMutators(argparse.Action):
 
 
 def parse_target_selectors(selector_str: str) -> Set[int]:
-    """Parse comma-separated selectors (hex or signature format)
+    """Parse comma-separated selectors (hex or signature format).
 
     Handles signatures with commas like transfer(address,uint256) by
     only splitting on commas outside of parentheses.
@@ -179,12 +111,12 @@ def parse_target_selectors(selector_str: str) -> Set[int]:
             # Hex format: 0xa9059cbb
             if len(s) != 10:
                 logger.error(f"Invalid selector format: {s} (must be 0x + 8 hex chars)")
-                sys.exit(1)
+                raise typer.Exit(code=1)
             try:
                 selectors.add(int(s, 16))
             except ValueError:
                 logger.error(f"Invalid hex selector: {s}")
-                sys.exit(1)
+                raise typer.Exit(code=1)
         else:
             # Signature format: transfer(address,uint256)
             selectors.add(get_function_id(s))
@@ -199,48 +131,68 @@ def parse_target_selectors(selector_str: str) -> Set[int]:
 ###################################################################################
 
 
-def main() -> None:
-    args = parse_args()
+@mutate_cmd.callback(cls=GroupWithCrytic)
+def main_callback(
+    ctx: typer.Context,
+    codebase: Annotated[Path, typer.Argument(help="Codebase directory.")],
+    test_command: Annotated[
+        str, typer.Option("--test-cmd", help="Command to run the tests for your project.")
+    ],
+    test_directory: Annotated[
+        Optional[str], typer.Option("--test-dir", help="Tests directory.")
+    ] = None,
+    output_dir: Annotated[
+        Optional[Path], typer.Option("--output-dir", help="Output directory.")
+    ] = Path("mutation_campaign"),
+    paths_to_ignore: Annotated[
+        Optional[str], typer.Option("--ignore-dirs", help="Directories to ignore.")
+    ] = None,
+    timeout: Annotated[int, typer.Option("--timeout", help="Test timeout.")] = 30,
+    list_mutators: Annotated[
+        bool,
+        typer.Option(
+            "--list-mutators", is_eager=True, help="List mutators.", callback=list_mutator_action
+        ),
+    ] = False,
+    mutators_to_run: Annotated[
+        Optional[str], typer.Option(help="Mutant generators to run.")
+    ] = None,
+    verbose_count: Annotated[int, typer.Option("--verbose", "-v", count=True, max=2)] = 0,
+    contract_names: Annotated[
+        List[str],
+        typer.Option(
+            help="List of contract names you want to mutate", click_type=CommaSeparatedValueParser()
+        ),
+    ] = None,
+    comprehensive_flag: Annotated[
+        bool, typer.Option(help="Continue testing minor mutations if severe mutants are uncaught.")
+    ] = False,
+) -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+    """Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597."""
 
-    # arguments
-    test_command: str = args.test_cmd
-    test_directory: Optional[str] = args.test_dir
-    paths_to_ignore: Optional[str] = args.ignore_dirs
-    output_dir: Optional[str] = args.output_dir
-    timeout: Optional[int] = args.timeout
-    solc_remappings: Optional[str] = args.solc_remaps
-    verbose: Optional[bool] = args.verbose
-    mutators_to_run: Optional[List[str]] = args.mutators_to_run
-    comprehensive_flag: Optional[bool] = args.comprehensive
+    state = ctx.ensure_object(SlitherState)
+    solc_remappings: Optional[str] = state.get("solc_remaps")
 
-    logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
+    verbose = False
+    very_verbose = False
+    if verbose_count >= 1:
+        verbose = True
+    if verbose_count >= 2:
+        very_verbose = True
+
+    logger.info(blue(f"Starting mutation campaign in {codebase}"))
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
+        logger.info(blue(f"Ignored paths - {', '.join(paths_to_ignore_list)}"))
     else:
         paths_to_ignore_list = []
 
-    contract_names: List[str] = []
-    if args.contract_names:
-        contract_names = args.contract_names.split(",")
-
-    target_selectors: Optional[Set[int]] = None
-    if args.target_functions:
-        target_selectors = parse_target_selectors(args.target_functions)
-
     # get all the contracts as a list from given codebase
-    sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
-
-    if not contract_names:
-        logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
-    else:
-        logger.info(blue("Preparing to mutate contracts:\n- " + "\n- ".join(contract_names)))
+    sol_file_list: List[str] = get_sol_file_list(codebase, paths_to_ignore_list)
 
     # folder where backup files and uncaught mutants are saved
-    if output_dir is None:
-        output_dir = "./mutation_campaign"
-
-    output_folder = Path(output_dir).resolve()
+    output_folder = output_dir.resolve()
     if output_folder.is_dir():
         shutil.rmtree(output_folder)
 
@@ -292,25 +244,22 @@ def main() -> None:
     # Keep a list of all already mutated contracts so we don't mutate them twice
     mutated_contracts: List[str] = []
 
-    for filename in sol_file_list:
+    for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
         file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
-        sl = Slither(filename, **vars(args))
+        sl = Slither(filename, **state)
         # create a backup files
         files_dict = backup_source_file(sl.source_code, output_folder)
         # total revert/comment/tweak mutants that were generated and compiled
         total_mutant_counts = [0, 0, 0]
-        # total caught revert/comment/tweak mutants
-        caught_mutant_counts = [0, 0, 0]
+        # total uncaught revert/comment/tweak mutants
+        uncaught_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
-        # perform mutations on {target_contract} in file {file_name}
-        # setup placeholder val to signal whether we need to skip if no target_contract is found
-        skip_flag = "SLITHER_SKIP_MUTATIONS"
-        target_contract = skip_flag if contract_names else ""
+        # mutation
+        target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
         try:
-            # loop through all contracts in file_name
             for compilation_unit_of_main_file in sl.compilation_units:
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract.name in contract_names and contract.name not in mutated_contracts:
@@ -326,7 +275,8 @@ def main() -> None:
                     )
                     continue
 
-                if target_contract == skip_flag:
+                if target_contract == "SLITHER_SKIP_MUTATIONS":
+                    logger.debug(f"Skipping mutations in {filename}")
                     continue
 
                 if target_contract.is_interface:
@@ -336,35 +286,6 @@ def main() -> None:
                 # Add our target to the mutation list
                 mutated_contracts.append(target_contract.name)
                 logger.info(blue(f"Mutating contract {target_contract}"))
-
-                # Validate target selectors and collect target modifiers
-                target_modifiers: Optional[Set[str]] = None
-                if target_selectors:
-                    from slither.utils.function import get_function_id
-
-                    matching_functions = []
-                    target_modifiers = set()
-
-                    for func in target_contract.functions_declared:
-                        func_selector = get_function_id(func.solidity_signature)
-                        if func_selector in target_selectors:
-                            matching_functions.append(func)
-                            # Collect modifiers used by this function
-                            for mod in func.modifiers:
-                                target_modifiers.add(mod.name)
-
-                    if not matching_functions:
-                        logger.error(
-                            f"No functions in {target_contract.name} match selectors: {[hex(s) for s in target_selectors]}"
-                        )
-                        sys.exit(1)
-
-                    logger.info(
-                        blue(f"Targeting functions: {[f.name for f in matching_functions]}")
-                    )
-                    if target_modifiers:
-                        logger.info(blue(f"Including modifiers: {list(target_modifiers)}"))
-
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
@@ -374,43 +295,42 @@ def main() -> None:
                         target_contract,
                         solc_remappings,
                         verbose,
+                        very_verbose,
                         output_folder,
                         dont_mutate_lines,
-                        target_selectors=target_selectors,
-                        target_modifiers=target_modifiers,
                     )
-                    (total_counts, caught_counts, lines_list) = m.mutate()
+                    (total_counts, uncaught_counts, lines_list) = m.mutate()
 
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
-                        caught_mutant_counts[0] += caught_counts[0]
+                        uncaught_mutant_counts[0] += uncaught_counts[0]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {caught_counts[0]} caught revert mutants (out of {total_counts[0]} that compile)"
+                                    f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"
                                 )
                             )
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
-                        caught_mutant_counts[1] += caught_counts[1]
+                        uncaught_mutant_counts[1] += uncaught_counts[1]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {caught_counts[1]} caught comment mutants (out of {total_counts[1]} that compile)"
+                                    f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"
                                 )
                             )
                     else:
                         total_mutant_counts[2] += total_counts[2]
-                        caught_mutant_counts[2] += caught_counts[2]
+                        uncaught_mutant_counts[2] += uncaught_counts[2]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {caught_counts[2]} caught tweak mutants (out of {total_counts[2]} that compile)"
+                                    f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"
                                 )
                             )
                             logger.info(
                                 magenta(
-                                    f"Running total: found {caught_mutant_counts[2]} caught tweak mutants (out of {total_mutant_counts[2]} that compile)"
+                                    f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"
                                 )
                             )
 
@@ -418,7 +338,7 @@ def main() -> None:
                     if comprehensive_flag:
                         dont_mutate_lines = []
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
             transfer_and_delete(files_dict)
 
@@ -430,16 +350,12 @@ def main() -> None:
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
 
-        if target_contract == skip_flag:
-            logger.debug(f"No target contracts found in {filename}, skipping")
-            continue
-
         # log results for this file
         logger.info(blue(f"Done mutating {target_contract}."))
         if total_mutant_counts[0] > 0:
             logger.info(
                 magenta(
-                    f"Revert mutants: {caught_mutant_counts[0]} caught of {total_mutant_counts[0]} ({round(100 * caught_mutant_counts[0] / total_mutant_counts[0], 1)}% caught)"
+                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0] / total_mutant_counts[0]}%)"
                 )
             )
         else:
@@ -448,7 +364,7 @@ def main() -> None:
         if total_mutant_counts[1] > 0:
             logger.info(
                 magenta(
-                    f"Comment mutants: {caught_mutant_counts[1]} caught of {total_mutant_counts[1]} ({round(100 * caught_mutant_counts[1] / total_mutant_counts[1], 1)}% caught)"
+                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1] / total_mutant_counts[1]}%)"
                 )
             )
         else:
@@ -457,19 +373,21 @@ def main() -> None:
         if total_mutant_counts[2] > 0:
             logger.info(
                 magenta(
-                    f"Tweak mutants: {caught_mutant_counts[2]} caught of {total_mutant_counts[2]} ({round(100 * caught_mutant_counts[2] / total_mutant_counts[2], 1)}% caught)"
+                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2] / total_mutant_counts[2]}%)\n"
                 )
             )
         else:
             logger.info(magenta("Zero Tweak mutants analyzed\n"))
 
         # Reset mutant counts before moving on to the next file
+        if very_verbose:
+            logger.info(blue("Reseting mutant counts to zero"))
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
-        caught_mutant_counts[0] = 0
-        caught_mutant_counts[1] = 0
-        caught_mutant_counts[2] = 0
+        uncaught_mutant_counts[0] = 0
+        uncaught_mutant_counts[1] = 0
+        uncaught_mutant_counts[2] = 0
 
     # Print the total time elapsed in a human-readable time format
     elapsed_time = round(time.time() - start_time)
@@ -482,9 +400,16 @@ def main() -> None:
     else:
         elapsed_string = f"{seconds} {'second' if seconds == 1 else 'seconds'}"
 
-    logger.info(
-        blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n")
-    )
+    logger.info(blue(f"Finished mutation testing assessment of '{codebase}' in {elapsed_string}\n"))
 
 
 # endregion
+
+
+def main():
+    """Entry point for the slither-mutate CLI."""
+    mutate_cmd()
+
+
+if __name__ == "__main__":
+    main()
