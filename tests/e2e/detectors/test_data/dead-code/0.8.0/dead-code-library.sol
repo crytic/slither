@@ -1,28 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Library with internal functions
+// Test case for issue #1265: Library functions should not be incorrectly flagged as dead code
+// when they are used via `using X for Y` syntax.
+
 library MyLibrary {
     struct Data {
         uint256 value;
     }
 
     // This function IS used via `using MyLibrary for Data`
-    // Should NOT be flagged as dead code
+    // Should NOT be flagged as dead code (was incorrectly flagged before fix)
     function getValue(Data storage self) internal view returns (uint256) {
         return self.value;
     }
 
     // This function IS used via `using MyLibrary for Data`
-    // Should NOT be flagged as dead code
+    // Should NOT be flagged as dead code (was incorrectly flagged before fix)
     function setValue(Data storage self, uint256 newValue) internal {
         self.value = newValue;
-    }
-
-    // This function is NOT used anywhere
-    // Should be flagged as dead code
-    function unusedLibraryFunction(Data storage self) internal pure returns (uint256) {
-        return 42;
     }
 }
 

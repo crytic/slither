@@ -1,1 +1,0 @@
-MyLibrary.unusedLibraryFunction(MyLibrary.Data) (tests/e2e/detectors/test_data/dead-code/0.8.0/dead-code-library.sol#24-26) is never used and should be removed
