@@ -75,8 +75,16 @@ class FunctionTopLevel(Function, TopLevel):
             Return the function summary
         Returns:
             (str, str, str, list(str), list(str), listr(str), list(str), list(str);
-            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
+            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls
         """
+        # Get true external calls by excluding library calls from high-level calls
+        # This is more accurate than external_calls_as_expressions which is set at parse time
+        # and cannot distinguish library calls via "using X for Y" syntax
+        library_call_irs = set(self.library_calls)
+        external_calls = [
+            (contract, ir) for contract, ir in self.high_level_calls if ir not in library_call_irs
+        ]
+
         return (
             "",
             self.full_name,
@@ -85,7 +93,7 @@ class FunctionTopLevel(Function, TopLevel):
             [str(x) for x in self.state_variables_read + self.solidity_variables_read],
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
-            [str(x) for x in self.external_calls_as_expressions],
+            [f"{contract.name}.{ir.function_name}()" for contract, ir in external_calls],
         )
 
     # endregion
