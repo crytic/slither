@@ -146,7 +146,7 @@ def test_c3_linearization_printer(solc_binary_path) -> None:
     assert "C3 Linearization for A" in output.data["description"]
 
     # Check JSON output structure for contract D (diamond inheritance)
-    linearizations = output.data["linearizations"]
+    linearizations = output.data["additional_fields"]["linearizations"]
     assert "D" in linearizations
 
     # D's linearization should be [D, C, B, A] per C3 algorithm
