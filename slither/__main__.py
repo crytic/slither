@@ -19,19 +19,23 @@ import warnings
 if os.environ.get("_TYPER_COMPLETE_ARGS", False):
     warnings.filterwarnings("ignore")
 
-import typer
-from typing_extensions import Annotated
+# Configure logging BEFORE importing crytic_compile to suppress INFO messages
+logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
 
-from crytic_compile import CryticCompile, InvalidCompilation
-from crytic_compile import compile_all, is_supported
+import typer  # noqa: E402
+from typing_extensions import Annotated  # noqa: E402
 
-from slither.detectors import all_detectors
-from slither.detectors.abstract_detector import AbstractDetector
-from slither.detectors.classification import DetectorClassification
-from slither.printers import all_printers
-from slither.printers.abstract_printer import AbstractPrinter
-from slither.slither import Slither
-from slither.utils.output import (
+from crytic_compile import CryticCompile, InvalidCompilation  # noqa: E402
+from crytic_compile import compile_all, is_supported  # noqa: E402
+
+from slither.detectors import all_detectors  # noqa: E402
+from slither.detectors.abstract_detector import AbstractDetector  # noqa: E402
+from slither.detectors.classification import DetectorClassification  # noqa: E402
+from slither.printers import all_printers  # noqa: E402
+from slither.printers.abstract_printer import AbstractPrinter  # noqa: E402
+from slither.slither import Slither  # noqa: E402
+from slither.utils.output import (  # noqa: E402
     Output,
     ZipType,
     OutputFormat,
@@ -42,9 +46,9 @@ from slither.utils.output import (
     output_detectors_json,
     output_printers,
 )
-from slither.utils.output_capture import StandardOutputCapture
-from slither.utils.colors import red, set_colorization_enabled
-from slither.utils.command_line import (
+from slither.utils.output_capture import StandardOutputCapture  # noqa: E402
+from slither.utils.colors import red, set_colorization_enabled  # noqa: E402
+from slither.utils.command_line import (  # noqa: E402
     FailOnLevel,
     defaults_flag_in_config,
     DEFAULT_JSON_OUTPUT_TYPES,
@@ -59,11 +63,9 @@ from slither.utils.command_line import (
     target_type,
     read_config_file,
 )
-from slither.exceptions import SlitherException
+from slither.exceptions import SlitherException  # noqa: E402
 
-logging.basicConfig()
 logger = logging.getLogger("Slither")
-
 
 app = SlitherApp("detect", rich_markup_mode="markdown", result_callback=slither_end_callback)
 
@@ -1097,14 +1099,14 @@ def configure_logger(log_level: int = logging.INFO):
         logging.getLogger(logger_name).setLevel(log_level)
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.WARNING)
 
     console_handler.setFormatter(FormatterCryticCompile())
 
     crytic_compile_error = logging.getLogger("CryticCompile")
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
-    crytic_compile_error.setLevel(logging.INFO)
+    crytic_compile_error.setLevel(logging.WARNING)
 
 
 def main():
