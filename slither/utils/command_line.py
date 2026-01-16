@@ -104,7 +104,7 @@ class SlitherApp(typer.Typer):
         self.default_method: Union[None, str] = default_method
 
     @property
-    @lru_cache
+    @lru_cache  # noqa: B019  # Intentional caching of click app, no memory leak concern
     def click_app(self) -> Union[GroupWithCrytic, click.Command]:
         return typer.main.get_command(self)
 
@@ -206,8 +206,8 @@ class SlitherApp(typer.Typer):
                     *other_command_args,
                 ]
                 logger.info(
-                    f"Deprecation Notice: Slither CLI has moved to a subcommand based interface. "
-                    f"This command has been automatically transposed to: %s",
+                    "Deprecation Notice: Slither CLI has moved to a subcommand based interface. "
+                    "This command has been automatically transposed to: %s",
                     " ".join(sys.argv),
                 )
 

@@ -68,7 +68,7 @@ logger = logging.getLogger("Slither")
 app = SlitherApp("detect", rich_markup_mode="markdown", result_callback=slither_end_callback)
 
 # Because the app will be used by the tools to add commands, we need to define it before importing them
-import slither.tools  # pylint: disable=unused-import,wrong-import-position
+import slither.tools  # noqa: E402  # pylint: disable=unused-import,wrong-import-position
 
 ###################################################################################
 ###################################################################################
