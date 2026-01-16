@@ -111,10 +111,10 @@ Only report reentrancy that is based on `transfer` or `send`."""
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0][0].name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0][0].name)
         for (func, calls, send_eth), varsWrittenOrEvent in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]

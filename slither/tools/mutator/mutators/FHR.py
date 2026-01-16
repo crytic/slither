@@ -26,7 +26,7 @@ class FHR(AbstractMutator):
             stop = start + function.source_mapping.content.find("{")
             old_str = function.source_mapping.content
             line_no = function.source_mapping.lines
-            if not line_no[0] in self.dont_mutate_line:
+            if line_no[0] not in self.dont_mutate_line:
                 for value in function_header_replacements:
                     left_value = value.split(" ==> ", maxsplit=1)[0]
                     right_value = value.split(" ==> ")[1]

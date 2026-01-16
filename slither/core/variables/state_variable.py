@@ -40,9 +40,7 @@ class StateVariable(ContractLevel, Variable):
         """
         Checks if the state variable is stored, based on it not being constant or immutable or transient.
         """
-        return (
-            not self._is_constant and not self._is_immutable and not self._location == "transient"
-        )
+        return not self._is_constant and not self._is_immutable and self._location != "transient"
 
     @property
     def is_transient(self) -> bool:

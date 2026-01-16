@@ -25,7 +25,7 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
     INTERFACE_PATTERN = re.compile(r"interface\s+([^\r\n]+)")
 
     # Read the file contents
-    with open(target, "r", encoding="utf8") as target_file:
+    with open(target, encoding="utf8") as target_file:
         lines = target_file.readlines()
 
     # Loop for each line, if a line matches our behaviour regex, and the next one matches our interface regex,

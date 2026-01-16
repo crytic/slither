@@ -528,7 +528,7 @@ class TestASTParsing:
         actual = generate_output(sl)
 
         assert os.path.isfile(expected), f"Expected file {expected} does not exist"
-        with open(expected, "r", encoding="utf8") as f:
+        with open(expected, encoding="utf8") as f:
             expected = json.load(f)
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")

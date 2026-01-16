@@ -690,7 +690,7 @@ class Contract(SourceMapping):
         return [
             f
             for f in self.functions
-            if f.visibility in ["public", "external"] and not f.is_shadowed or f.is_fallback
+            if (f.visibility in ["public", "external"] and not f.is_shadowed) or f.is_fallback
         ]
 
     @property

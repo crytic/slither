@@ -233,10 +233,6 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-if TYPE_CHECKING:
-    pass
-
-
 def _user_defined_op_call(
     caller_context: CallerContextExpression, src, function_id: int, args: List[Any], type_call: str
 ) -> CallExpression:
@@ -436,7 +432,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         if is_compact_ast:
             value = expression.get("value", None)
             if value:
-                if "subdenomination" in expression and expression["subdenomination"]:
+                if expression.get("subdenomination"):
                     subdenomination = expression["subdenomination"]
             elif not value and value != "":
                 value = "0x" + expression["hexValue"]
