@@ -14,7 +14,13 @@ from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from slither.core.declarations import Contract, Structure
-from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    MappingType,
+    TypeAlias,
+    UserDefinedType,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
@@ -182,7 +188,11 @@ class SlitherReadStorage:
                 type_string, size = self.find_constant_slot_storage_type(var)
                 if type_string:
                     tmp[var.name] = SlotInfo(
-                        name=var_name, type_string=type_string, slot=slot, size=size, offset=offset
+                        name=var_name,
+                        type_string=type_string,
+                        slot=slot,
+                        size=size,
+                        offset=offset,
                     )
                     self.log += (
                         f"\nSlot Name: {var_name}\nType: bytes32"
@@ -232,7 +242,11 @@ class SlitherReadStorage:
 
         target_variable_type = target_variable.type
 
-        if isinstance(target_variable_type, ElementaryType):
+        # Handle TypeAlias (user-defined value types like `type MyUint is uint64`)
+        if isinstance(target_variable_type, TypeAlias):
+            type_to = target_variable_type.underlying_type.name
+
+        elif isinstance(target_variable_type, ElementaryType):
             type_to = target_variable_type.name
 
         elif isinstance(target_variable_type, ArrayType) and key is not None:
@@ -256,7 +270,11 @@ class SlitherReadStorage:
 
         elif isinstance(target_variable_type, MappingType) and key:
             info, type_to, slot, size, offset = self._find_mapping_slot(
-                target_variable_type, slot, key, struct_var=struct_var, deep_key=deep_key
+                target_variable_type,
+                slot,
+                key,
+                struct_var=struct_var,
+                deep_key=deep_key,
             )
             self.log += info
 
@@ -575,6 +593,9 @@ class SlitherReadStorage:
         size = 0
         for var in elems:
             var_type = var.type
+            # Unwrap TypeAlias to get the underlying ElementaryType
+            if isinstance(var_type, TypeAlias):
+                var_type = var_type.underlying_type
             if isinstance(var_type, ElementaryType):
                 size = var_type.size
                 if size > (256 - offset):
@@ -655,7 +676,13 @@ class SlitherReadStorage:
             ):  # struct[i]
                 type_to = target_variable_type_type.type.name
                 if not struct_var:
-                    return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
+                    return (
+                        info,
+                        type_to,
+                        int.to_bytes(slot_int, 32, "big"),
+                        size,
+                        offset,
+                    )
                 elems = target_variable_type_type.type.elems_ordered
                 slot = int.to_bytes(slot_int, 32, byteorder="big")
                 info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
@@ -822,7 +849,11 @@ class SlitherReadStorage:
         return value
 
     def _all_struct_slots(
-        self, var: StateVariable, st: Structure, contract: Contract, key: int | None = None
+        self,
+        var: StateVariable,
+        st: Structure,
+        contract: Contract,
+        key: int | None = None,
     ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
