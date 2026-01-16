@@ -66,19 +66,13 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         self.contract_v2 = contract_v2
 
         if not self.ARGUMENT:
-            raise IncorrectCheckInitialization(
-                f"NAME is not initialized {self.__class__.__name__}"
-            )
+            raise IncorrectCheckInitialization(f"NAME is not initialized {self.__class__.__name__}")
 
         if not self.HELP:
-            raise IncorrectCheckInitialization(
-                f"HELP is not initialized {self.__class__.__name__}"
-            )
+            raise IncorrectCheckInitialization(f"HELP is not initialized {self.__class__.__name__}")
 
         if not self.WIKI:
-            raise IncorrectCheckInitialization(
-                f"WIKI is not initialized {self.__class__.__name__}"
-            )
+            raise IncorrectCheckInitialization(f"WIKI is not initialized {self.__class__.__name__}")
 
         if not self.WIKI_TITLE:
             raise IncorrectCheckInitialization(
