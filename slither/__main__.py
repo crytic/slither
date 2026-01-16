@@ -141,9 +141,7 @@ def _process(
     if not printer_classes:
         detector_resultss = slither.run_detectors()
         detector_resultss = [x for x in detector_resultss if x]  # remove empty results
-        detector_results = [
-            item for sublist in detector_resultss for item in sublist
-        ]  # flatten
+        detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
         # Report unused ignore comments if enabled
@@ -190,18 +188,14 @@ def _process(
 ###################################################################################
 
 
-def get_detectors_and_printers() -> (
-    tuple[list[type[AbstractDetector]], list[type[AbstractPrinter]]]
-):
+def get_detectors_and_printers() -> tuple[
+    list[type[AbstractDetector]], list[type[AbstractPrinter]]
+]:
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
-    detectors = [
-        d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)
-    ]
+    detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
 
     printers_ = [getattr(all_printers, name) for name in dir(all_printers)]
-    printers = [
-        p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)
-    ]
+    printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
     entry_points = metadata.entry_points(group="slither_analyzer.plugin")
@@ -212,17 +206,13 @@ def get_detectors_and_printers() -> (
         plugin_detectors, plugin_printers = make_plugin()
 
         detector = None
-        if not all(
-            issubclass(detector, AbstractDetector) for detector in plugin_detectors
-        ):
+        if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
             raise ValueError(
                 f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise ValueError(
-                f"Error when loading plugin {entry_point}, {printer} is not a printer"
-            )
+            raise ValueError(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -255,13 +245,9 @@ def choose_detectors(
         DetectorClassification.OPTIMIZATION: args.exclude_optimization,
     }
     excluded_classification = [
-        classification
-        for classification, included in classification_map.items()
-        if included
+        classification for classification, included in classification_map.items() if included
     ]
-    detectors_to_run = [
-        d for d in detectors_to_run if d.IMPACT not in excluded_classification
-    ]
+    detectors_to_run = [d for d in detectors_to_run if d.IMPACT not in excluded_classification]
 
     if args.detectors_to_exclude:
         detectors_to_run = [
@@ -674,13 +660,9 @@ def parse_args(
     )
 
     # debugger command
-    parser.add_argument(
-        "--debug", help=argparse.SUPPRESS, action="store_true", default=False
-    )
+    parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
-    parser.add_argument(
-        "--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False
-    )
+    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
 
     parser.add_argument(
         "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
@@ -741,9 +723,7 @@ def parse_args(
     args.json_types = set(args.json_types.split(","))  # type:ignore
     for json_type in args.json_types:
         if json_type not in JSON_OUTPUT_TYPES:
-            raise ValueError(
-                f'Error: "{json_type}" is not a valid JSON result output type.'
-            )
+            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
 
     return args
 
@@ -1012,9 +992,7 @@ def main_impl(
         traceback.print_exc()
         logging.error(red("Error:"))
         logging.error(red(output_error))
-        logging.error(
-            "Please report an issue to https://github.com/crytic/slither/issues"
-        )
+        logging.error("Please report an issue to https://github.com/crytic/slither/issues")
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
@@ -1024,9 +1002,7 @@ def main_impl(
                 "stderr": StandardOutputCapture.get_stderr_output(),
             }
         StandardOutputCapture.disable()
-        output_to_json(
-            None if outputting_json_stdout else args.json, output_error, json_results
-        )
+        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
     if outputting_sarif:
         StandardOutputCapture.disable()
@@ -1053,17 +1029,14 @@ def main_impl(
 
     fail_on = FailOnLevel(args.fail_on)
     if fail_on == FailOnLevel.HIGH:
-        fail_on_detection = any(
-            result["impact"] == "High" for result in results_detectors
-        )
+        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
     elif fail_on == FailOnLevel.MEDIUM:
         fail_on_detection = any(
             result["impact"] in ["Medium", "High"] for result in results_detectors
         )
     elif fail_on == FailOnLevel.LOW:
         fail_on_detection = any(
-            result["impact"] in ["Low", "Medium", "High"]
-            for result in results_detectors
+            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
         )
     elif fail_on == FailOnLevel.PEDANTIC:
         fail_on_detection = bool(results_detectors)
