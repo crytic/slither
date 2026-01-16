@@ -136,7 +136,8 @@ class AbstractCheck(metaclass=abc.ABCMeta):
                 info = "\n"
                 for result in all_results:
                     info += result["description"]
-                info += f"Reference: {self.WIKI}"
+                info += f"Reference: {self.WIKI}\n"
+                info += f"Use --exclude {self.ARGUMENT} to suppress this check."
                 self._log(info)
         return all_results
 
@@ -146,7 +147,9 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         additional_fields: dict | None = None,
     ) -> Output:
         output = Output(
-            info, additional_fields, markdown_root=self.contract.compilation_unit.core.markdown_root
+            info,
+            additional_fields,
+            markdown_root=self.contract.compilation_unit.core.markdown_root,
         )
 
         output.data["check"] = self.ARGUMENT
