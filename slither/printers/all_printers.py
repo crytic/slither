@@ -3,6 +3,7 @@ from .summary.contract import ContractSummary
 from .summary.loc import LocPrinter
 from .inheritance.inheritance import PrinterInheritance
 from .inheritance.inheritance_graph import PrinterInheritanceGraph
+from .inheritance.c3_linearization import PrinterC3Linearization
 from .call.call_graph import PrinterCallGraph
 from .functions.authorization import PrinterWrittenVariablesAndAuthorization
 from .summary.slithir import PrinterSlithIR
