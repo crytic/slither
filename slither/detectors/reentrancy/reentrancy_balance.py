@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, Set, List
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy
@@ -88,8 +87,8 @@ The `balanceBefore` variable could be outdated if the external call reenter the 
 
         return False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
-        result: DefaultDict[FindingKey, Set[FindingValue]] = defaultdict(set)
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
+        result: defaultdict[FindingKey, set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
@@ -142,20 +141,20 @@ The `balanceBefore` variable could be outdated if the external call reenter the 
 
         return False
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         super()._detect()
         reentrancies = self.find_reentrancies()
 
         results = []
 
         result_sorted = sorted(
-            list(reentrancies.items()),
+            reentrancies.items(),
             key=lambda x: (x[0].function.name, x[0].call_node.node_id),
         )
         for (func, call_node, external_calls, balance_node), findings in result_sorted:
             findings = sorted(findings, key=lambda x: (x.variable.name, x.guard_node.node_id))
 
-            info: List = ["Reentrancy in ", func, ":\n"]
+            info: list = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal call allowing reentrancy:\n"]
             info += ["\t- ", call_node, "\n"]
