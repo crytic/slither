@@ -82,7 +82,7 @@ class FileScope:
             # To get around this bug for aliases https://github.com/ethereum/solidity/pull/11881,
             # we propagate the exported_symbols from the imported file to the importing file
             # See tests/e2e/solc_parsing/test_data/top-level-nested-import-0.7.1.sol
-            if not set(new_scope.exported_symbols).issubset(self.exported_symbols):
+            if any(s not in self.exported_symbols for s in new_scope.exported_symbols):
                 # We are using lists and specifically extending them to keep the order in which
                 # elements are added. This will come handy when we have name collisions.
                 # See issue : https://github.com/crytic/slither/issues/2477

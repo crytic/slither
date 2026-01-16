@@ -104,4 +104,4 @@ from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
 from .attributes.unindexed_event_address import UnindexedEventAddress
 
-# from .statements.unused_import import UnusedImport
+from .statements.unused_import import UnusedImport
