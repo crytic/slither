@@ -1,0 +1,13 @@
+DerivedContract_good does not implement functions:
+	- BaseInterface3.get(uint256)
+
+DerivedContract_bad2 does not implement functions:
+	- BaseInterface3.get(uint256)
+
+DerivedContract_bad0 does not implement functions:
+	- BaseInterface.f2()
+	- BaseInterface2.f3()
+
+AbstractContract_bad1 does not implement functions:
+	- AbstractContract_bad1.f1()
+

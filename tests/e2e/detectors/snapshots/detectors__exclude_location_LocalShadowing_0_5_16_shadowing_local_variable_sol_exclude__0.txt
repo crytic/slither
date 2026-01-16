@@ -1,0 +1,23 @@
+FurtherExtendedContract.shadowingParent(uint256).x shadows:
+	- FurtherExtendedContract.x (state variable)
+	- ExtendedContract.x (state variable)
+	- BaseContract.x (state variable)
+
+LocalReturnVariables.shadowedState().state shadows:
+	- LocalReturnVariables.state (state variable)
+
+FurtherExtendedContract.shadowingParent(uint256).y shadows:
+	- BaseContract.y (state variable)
+
+FurtherExtendedContract.shadowingParent(uint256).v shadows:
+	- ExtendedContract.v() (event)
+
+FurtherExtendedContract.shadowingParent(uint256).w shadows:
+	- FurtherExtendedContract.w() (modifier)
+
+LocalReturnVariables.shadowedReturn().local_scope_0 shadows:
+	- LocalReturnVariables.shadowedReturn().local (return variable)
+
+FurtherExtendedContract.shadowingParent(uint256).z shadows:
+	- ExtendedContract.z() (function)
+

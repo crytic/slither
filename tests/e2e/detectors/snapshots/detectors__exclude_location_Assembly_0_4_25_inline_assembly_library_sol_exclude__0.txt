@@ -1,0 +1,6 @@
+VectorSum.sumPureAsm(uint256[]) uses assembly
+	- INLINE ASM
+
+VectorSum.sumAsm(uint256[]) uses assembly
+	- INLINE ASM
+

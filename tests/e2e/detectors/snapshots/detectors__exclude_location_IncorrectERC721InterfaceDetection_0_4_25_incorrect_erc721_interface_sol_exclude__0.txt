@@ -1,0 +1,20 @@
+Token has incorrect ERC721 function interface:Token.getApproved(uint256)
+
+Token has incorrect ERC721 function interface:Token.approve(address,uint256)
+
+Token has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256)
+
+Token has incorrect ERC721 function interface:Token.balanceOf(address)
+
+Token has incorrect ERC721 function interface:Token.ownerOf(uint256)
+
+Token has incorrect ERC721 function interface:Token.transferFrom(address,address,uint256)
+
+Token has incorrect ERC721 function interface:IERC165.supportsInterface(bytes4)
+
+Token has incorrect ERC721 function interface:Token.setApprovalForAll(address,bool)
+
+Token has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256,bytes)
+
+Token has incorrect ERC721 function interface:Token.isApprovedForAll(address,address)
+

@@ -1,0 +1,4 @@
+Internal.buggy() should have Internal.onlyOwner() to protect Internal.owner
+
+ReentrancyAndWrite.set_not_protected() should have ReentrancyAndWrite.onlyOwner() to protect ReentrancyAndWrite.external_contract
+

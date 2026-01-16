@@ -1,0 +1,9 @@
+Reentrancy in TestWithBug.withdraw(uint256):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}()
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount
+	TestWithBug.balances can be used in cross function reentrancies:
+	- TestWithBug.withdraw(uint256)
+	- TestWithBug.withdrawFiltered(uint256)
+

@@ -1,0 +1,12 @@
+Redundant expression "bool" inRedundantStatementsContract
+
+Redundant expression "uint256" inRedundantStatementsContract
+
+Redundant expression "test" inRedundantStatementsContract
+
+Redundant expression "RedundantStatementsContract" inRedundantStatementsContract
+
+Redundant expression "uint256" inRedundantStatementsContract
+
+Redundant expression "assert(bool)" inRedundantStatementsContract
+

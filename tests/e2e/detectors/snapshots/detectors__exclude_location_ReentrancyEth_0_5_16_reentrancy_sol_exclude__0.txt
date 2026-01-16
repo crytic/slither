@@ -1,0 +1,28 @@
+Reentrancy in Reentrancy.withdrawBalance():
+	External calls:
+	- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])()
+	State variables written after the call(s):
+	- userBalance[msg.sender] = 0
+	Reentrancy.userBalance can be used in cross function reentrancies:
+	- Reentrancy.addToBalance()
+	- Reentrancy.constructor()
+	- Reentrancy.getBalance(address)
+	- Reentrancy.withdrawBalance()
+	- Reentrancy.withdrawBalance_fixed()
+	- Reentrancy.withdrawBalance_fixed_2()
+	- Reentrancy.withdrawBalance_fixed_3()
+
+Reentrancy in Reentrancy.withdrawBalance_fixed_3():
+	External calls:
+	- (ret,mem) = msg.sender.call.value(amount)()
+	State variables written after the call(s):
+	- userBalance[msg.sender] = amount
+	Reentrancy.userBalance can be used in cross function reentrancies:
+	- Reentrancy.addToBalance()
+	- Reentrancy.constructor()
+	- Reentrancy.getBalance(address)
+	- Reentrancy.withdrawBalance()
+	- Reentrancy.withdrawBalance_fixed()
+	- Reentrancy.withdrawBalance_fixed_2()
+	- Reentrancy.withdrawBalance_fixed_3()
+

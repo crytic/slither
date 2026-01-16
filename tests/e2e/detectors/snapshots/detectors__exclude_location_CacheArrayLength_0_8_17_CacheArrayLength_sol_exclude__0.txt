@@ -1,0 +1,20 @@
+Loop condition k_scope_17 < array2.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i_scope_23 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition j_scope_11 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i_scope_4 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i_scope_22 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition k_scope_9 < array2.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i_scope_6 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition j_scope_15 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition i_scope_21 < array.length should use cached array length instead of referencing `length` member of the storage array.
+ 

@@ -103,6 +103,7 @@ class Slither(SlitherCore):
             generate_patches (bool): if true, patches are generated (json output only)
             change_line_prefix (str): Change the line prefix (default #)
                 for the displayed source codes (i.e. file.sol#1).
+            exclude_location (bool): if true, exclude locations from detector output (default false)
 
         """
         super().__init__()
@@ -182,6 +183,7 @@ class Slither(SlitherCore):
             self.add_path_to_include(p)
 
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
+        self.exclude_location = kwargs.get("exclude_location", False)
 
         triage_mode = kwargs.get("triage_mode", False)
         triage_database = kwargs.get("triage_database", "slither.db.json")

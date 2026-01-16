@@ -1,0 +1,2 @@
+Uninitialized.bad().ret is a storage variable never initialized
+

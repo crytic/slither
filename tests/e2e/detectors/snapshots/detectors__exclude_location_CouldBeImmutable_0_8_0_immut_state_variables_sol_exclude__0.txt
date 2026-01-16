@@ -1,0 +1,8 @@
+Bad.should_be_immutable_5 should be immutable 
+
+Bad.should_be_immutable_2 should be immutable 
+
+Bad.should_be_immutable should be immutable 
+
+Bad.should_be_immutable_3 should be immutable 
+

@@ -1,0 +1,9 @@
+ArrayLengthAssignment contract sets array length with a user-controlled value:
+	- b.subStruct.x.length = param + 1
+
+ArrayLengthAssignment contract sets array length with a user-controlled value:
+	- a.x.length = param
+
+ArrayLengthAssignment contract sets array length with a user-controlled value:
+	- arr.length = param
+

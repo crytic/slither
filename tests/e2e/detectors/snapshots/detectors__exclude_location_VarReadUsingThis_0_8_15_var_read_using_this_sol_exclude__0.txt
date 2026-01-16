@@ -1,0 +1,8 @@
+The function VarReadUsingThis.bad2() reads this.erc20() with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad1(uint256) reads this.myMap(x) with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad4() reads local = this.erc20() with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad3() reads this.erc20() == address(0) with `this` which adds an extra STATICCALL.
+

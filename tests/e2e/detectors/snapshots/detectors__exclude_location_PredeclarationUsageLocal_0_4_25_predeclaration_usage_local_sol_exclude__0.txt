@@ -1,0 +1,10 @@
+Variable 'C.f(uint256).i' in C.f(uint256) potentially used before declaration: i --
+
+Variable 'C.f(uint256).i' in C.f(uint256) potentially used before declaration: x += i
+
+Variable 'C.f(uint256).i' in C.f(uint256) potentially used before declaration: i > 0
+
+Variable 'C.f(uint256).i' in C.f(uint256) potentially used before declaration: i = 10
+
+Variable 'C.f(uint256).x' in C.f(uint256) potentially used before declaration: y = x + 9 + z
+

@@ -1,0 +1,9 @@
+Test.bad1() has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - UINT_MAX = 2 ^ 256 - 1
+
+Test.bad0(uint256) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - a ^ 2
+
+Derived.slitherConstructorVariables() has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - my_var = 2 ^ 256 - 1
+

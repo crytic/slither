@@ -52,6 +52,7 @@ defaults_flag_in_config = {
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
+    "exclude_location": False,
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,

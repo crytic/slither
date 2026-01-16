@@ -1,0 +1,3 @@
+Void constructor called in D.constructor():
+	- C()
+

@@ -1,0 +1,8 @@
+CallInLoop.bad3_internal(address,uint256) has external calls inside a loop: address(uint160(a)).transfer(i)
+
+CallInLoopBase.bad_base() has external calls inside a loop: address(uint160(destinations_base[i])).transfer(i)
+
+CallInLoop.bad() has external calls inside a loop: address(uint160(destinations[i])).transfer(i)
+
+CallInLoop.bad2() has external calls inside a loop: address(uint160(destinations[i])).transfer(i)
+

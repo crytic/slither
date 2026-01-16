@@ -1,0 +1,9 @@
+Lib.deleteSt(Lib.MyStruct[1]) deletes Lib.MyStruct which contains a mapping:
+	-delete st[0]
+
+Balances.deleteBalance(uint256) deletes Balances.BalancesStruct which contains a mapping:
+	-delete stackBalance[idx]
+
+Balances.deleteNestedBalance() deletes Balances.BalancesStruct which contains a mapping:
+	-delete nestedStackBalance
+

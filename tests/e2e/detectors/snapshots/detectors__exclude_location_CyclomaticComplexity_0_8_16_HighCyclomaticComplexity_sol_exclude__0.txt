@@ -1,0 +1,2 @@
+HighCyclomaticComplexity.highCC() has a high cyclomatic complexity (12).
+
