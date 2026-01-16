@@ -64,7 +64,7 @@ def main_callback(
             "ext": ext,
             "nsamples": nsamples,
             "ntop": ntop,
-            "input_": input_,
+            "input": input_,
         }
     )
 

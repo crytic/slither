@@ -30,7 +30,7 @@ def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
     try:
         files_dict_copy = files_dict.copy()
         for original_path, hashed_path in files_dict_copy.items():
-            with open(hashed_path, "r", encoding="utf8") as duplicated_file:
+            with open(hashed_path, encoding="utf8") as duplicated_file:
                 content = duplicated_file.read()
 
             with open(original_path, "w", encoding="utf8") as original_file:
@@ -85,7 +85,7 @@ def reset_file(file: str) -> None:
     """function to reset the file"""
     try:
         # reset the file
-        with open(backuped_files[file], "r", encoding="utf8") as duplicated_file:
+        with open(backuped_files[file], encoding="utf8") as duplicated_file:
             duplicate_content = duplicated_file.read()
 
         with open(file, "w", encoding="utf8") as source_file:

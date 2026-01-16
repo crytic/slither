@@ -186,7 +186,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             for result in results:
                 try:
                     self._format(self.compilation_unit, result)
-                    if not "patches" in result:
+                    if "patches" not in result:
                         continue
                     result["patches_diff"] = {}
                     for file in result["patches"]:

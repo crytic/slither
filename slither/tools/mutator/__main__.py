@@ -170,8 +170,6 @@ def main_callback(
 ) -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     """Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597."""
 
-    # arguments
-    # test_command: str = args.test_cmd
     state = ctx.ensure_object(SlitherState)
     solc_remappings: Optional[str] = state.get("solc_remaps")
 
@@ -281,9 +279,7 @@ def main_callback(
                     logger.debug(f"Skipping mutations in {filename}")
                     continue
 
-                # TODO: find a more specific way to omit interfaces
-                # Ideally, we wouldn't depend on naming conventions
-                if target_contract.name.startswith("I"):
+                if target_contract.is_interface:
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 

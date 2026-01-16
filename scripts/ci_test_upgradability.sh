@@ -183,7 +183,7 @@ then
     exit 255
 fi
 
-slither-check-upgradeability --proxy-filename "$DIR_TESTS/proxy.sol" --proxy-name Proxy "$DIR_TESTS/contract_initialization.sol" Contract_no_bug_reinitializer > test_14.txt 2>&1
+slither check-upgradeability --proxy-filename "$DIR_TESTS/proxy.sol" --proxy-name Proxy "$DIR_TESTS/contract_initialization.sol" Contract_no_bug_reinitializer > test_14.txt 2>&1
 DIFF=$(diff test_14.txt "$DIR_TESTS/test_14.txt")
 if [  "$DIFF" != "" ]
 then
@@ -196,7 +196,7 @@ then
     exit 255
 fi
 
-slither-check-upgradeability --new-contract-name Counter_reinitializer_V3_V4 "$DIR_TESTS/contract_initialization.sol" Contract_reinitializer_V2 > test_15.txt 2>&1
+slither check-upgradeability --new-contract-name Counter_reinitializer_V3_V4 "$DIR_TESTS/contract_initialization.sol" Contract_reinitializer_V2 > test_15.txt 2>&1
 DIFF=$(diff test_15.txt "$DIR_TESTS/test_15.txt")
 if [  "$DIFF" != "" ]
 then

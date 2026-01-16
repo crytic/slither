@@ -134,7 +134,7 @@ class CKContractMetrics:
             public = func.visibility == "public"
             internal = func.visibility == "internal"
             private = func.visibility == "private"
-            external_public_mutating = external or public and mutating
+            external_public_mutating = external or (public and mutating)
             external_no_auth = external_public_mutating and not has_auth(func)
             external_no_modifiers = external_public_mutating and len(func.modifiers) == 0
             if external or public:

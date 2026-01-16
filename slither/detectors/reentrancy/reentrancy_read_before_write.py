@@ -100,11 +100,11 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0].function.name)
         varsWritten: List[FindingValue]
         varsWrittenSet: Set[FindingValue]
         for (func, calls), varsWrittenSet in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

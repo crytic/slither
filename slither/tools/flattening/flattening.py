@@ -342,7 +342,7 @@ class Flattening:
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
-                    if ir.contract_created != contract and not ir.contract_created in exported:
+                    if ir.contract_created != contract and ir.contract_created not in exported:
                         self._export_list_used_contracts(
                             ir.contract_created, exported, list_contract, list_top_level
                         )
@@ -410,7 +410,7 @@ class Flattening:
             next_to_explore = contract_to_explore.pop(0)
 
             if not next_to_explore.inheritance or all(
-                (father in contract_seen for father in next_to_explore.inheritance)
+                father in contract_seen for father in next_to_explore.inheritance
             ):
                 content += "\n"
                 content += self._source_codes[next_to_explore]

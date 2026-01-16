@@ -243,7 +243,7 @@ def choose_detectors(
     local_detectors = {d.ARGUMENT: d for d in all_detector_classes}
 
     if arg_detector_to_run == "all":
-        detectors_to_run = all_detector_classes
+        detectors_to_run = list(all_detector_classes)
         if arg_detector_exclude:
             detectors_excluded = arg_detector_exclude.split(",")
             for detector in local_detectors:
@@ -404,6 +404,102 @@ def complete_detectors(incomplete: str) -> List[str]:
 def complete_printers(incomplete: str) -> List[str]:
     """Autocomplete for printer names."""
     return [p.ARGUMENT for p in PRINTERS if p.ARGUMENT.startswith(incomplete)]
+
+
+def _run_detection(
+    ctx: typer.Context,
+    target: Any,
+    detector_classes: List[Type[AbstractDetector]],
+    fail_on: FailOnLevel,
+    solc_ast: bool,
+    json_types: Optional[str],
+    checklist: bool,
+    checklist_limit: int,
+    show_ignored_findings: bool,
+) -> None:
+    """Execute detection and handle output."""
+    state = ctx.ensure_object(SlitherState)
+
+    slither_instances, results_detectors, _, output_errors, number_contracts = handle_target(
+        ctx,
+        target,
+        solc_ast=solc_ast,
+        detectors_to_run=detector_classes,
+    )
+
+    if number_contracts == 0:
+        logger.warning(red("No contract was analyzed"))
+    else:
+        logger.info(
+            "%s analyzed (%d contracts with %d detectors), %d result(s) found",
+            target.target,
+            number_contracts,
+            len(detector_classes),
+            len(results_detectors),
+        )
+
+    format_output(
+        state.get("output_format"),
+        state.get("output_file"),
+        slither_instances,
+        results_detectors,
+        [],
+        output_errors,
+        runned_detectors=detector_classes,
+        json_types=json_types,
+        zip_type=state.get("zip_type"),
+        checklist=checklist,
+        checklist_limit=checklist_limit,
+        show_ignored_findings=show_ignored_findings,
+        all_detectors=DETECTORS,
+    )
+
+    fail_on_detection = _check_fail_condition(fail_on, results_detectors)
+
+    if output_errors or fail_on_detection:
+        raise typer.Exit(1)
+
+
+def _check_fail_condition(fail_on: FailOnLevel, results_detectors: List[Dict]) -> bool:
+    """Determine if detection results should cause a failure."""
+    if fail_on == FailOnLevel.HIGH:
+        return any(result["impact"] == "High" for result in results_detectors)
+    if fail_on == FailOnLevel.MEDIUM:
+        return any(result["impact"] in ["Medium", "High"] for result in results_detectors)
+    if fail_on == FailOnLevel.LOW:
+        return any(result["impact"] in ["Low", "Medium", "High"] for result in results_detectors)
+    if fail_on == FailOnLevel.PEDANTIC:
+        return bool(results_detectors)
+    return False
+
+
+def _resolve_fail_level(
+    fail_on: FailOnLevel,
+    fail_pedantic: bool,
+    fail_low: bool,
+    fail_medium: bool,
+    fail_high: bool,
+    fail_none: bool,
+) -> FailOnLevel:
+    """Resolve the fail level from deprecated flags or the main --fail-on option."""
+    if fail_on != FailOnLevel.PEDANTIC:
+        return fail_on
+
+    fail_flags = {
+        FailOnLevel.PEDANTIC: fail_pedantic,
+        FailOnLevel.LOW: fail_low,
+        FailOnLevel.MEDIUM: fail_medium,
+        FailOnLevel.HIGH: fail_high,
+        FailOnLevel.NONE: fail_none,
+    }
+    active_flags = [level for level, active in fail_flags.items() if active]
+
+    if len(active_flags) == 1:
+        print("Deprecated way of setting levels.")
+        return active_flags[0]
+    if len(active_flags) > 1:
+        raise typer.BadParameter("Only one fail level is allowed.")
+    return FailOnLevel.PEDANTIC
 
 
 # pylint: disable=unused-argument,too-many-locals
@@ -677,11 +773,17 @@ def detect(
     ] = defaults_flag_in_config["include_paths"],
 ):
     """Run detectors and report findings."""
-
     state = ctx.ensure_object(SlitherState)
 
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(FormatterCryticCompile())
+    crytic_compile_error = logging.getLogger("CryticCompile")
+    crytic_compile_error.addHandler(console_handler)
+    crytic_compile_error.propagate = False
+    crytic_compile_error.setLevel(logging.INFO)
+
     # Handle filter_paths and include_paths from config file
-    # These use CommaSeparatedValueParser which has compatibility issues with default_map
     if filter_paths is None:
         config_filter = state.get("filter_paths")
         if config_filter is not None:
@@ -691,94 +793,43 @@ def detect(
         if config_include is not None:
             include_paths = [config_include] if isinstance(config_include, str) else config_include
 
-    # Update the state
-    state.update(
-        {
-            "markdown_root": markdown_root,
-            "sarif_input": sarif_input,
-            "sarif_triage": sarif_triage,
-            "triage_mode": triage_mode,
-            "triage_database": triage_database,
-            "change_line_prefix": change_line_prefix,
-            "generate_patches": generate_patches,
-            "filter_paths": filter_paths,
-            "include_paths": include_paths,
-        }
-    )
+    state.update({
+        "markdown_root": markdown_root,
+        "sarif_input": sarif_input,
+        "sarif_triage": sarif_triage,
+        "triage_mode": triage_mode,
+        "triage_database": triage_database,
+        "change_line_prefix": change_line_prefix,
+        "generate_patches": generate_patches,
+        "filter_paths": filter_paths,
+        "include_paths": include_paths,
+    })
 
     detector_classes = choose_detectors(
-        detectors_to_run,
-        detectors_to_exclude,
-        exclude_low,
-        exclude_medium,
-        exclude_high,
-        exclude_optimization,
-        exclude_informational,
+        detectors_to_run or "all",
+        detectors_to_exclude or "",
+        exclude_low or False,
+        exclude_medium or False,
+        exclude_high or False,
+        exclude_optimization or False,
+        exclude_informational or False,
     )
 
-    if fail_on == FailOnLevel.PEDANTIC:
-        fail_levels = {level: locals().get(f"fail_{level.value}") for level in FailOnLevel}
-        count = list(fail_levels.values()).count(True)
-        if count == 1:
-            print("Deprecated way of setting levels.")
-            fail_on = FailOnLevel([level for level in fail_levels if fail_levels[level]].pop())
-        elif count > 1:
-            raise typer.BadParameter("Only one fail level is allowed.")
-        else:
-            fail_on = FailOnLevel.PEDANTIC
+    resolved_fail_on = _resolve_fail_level(
+        fail_on, fail_pedantic, fail_low, fail_medium, fail_high, fail_none
+    )
 
-    slither_instances, results_detectors, _, output_errors, number_contracts = handle_target(
+    _run_detection(
         ctx,
         target,
-        solc_ast=solc_ast,
-        detectors_to_run=detector_classes,
+        detector_classes,
+        resolved_fail_on,
+        solc_ast,
+        json_types,
+        checklist or False,
+        checklist_limit or 0,
+        show_ignored_findings or False,
     )
-
-    if number_contracts == 0:
-        logger.warning(red("No contract was analyzed"))
-    else:
-        logger.info(
-            "%s analyzed (%d contracts with %d detectors), %d result(s) found",
-            target.target,
-            number_contracts,
-            len(detector_classes),
-            len(results_detectors),
-        )
-
-    format_output(
-        state.get("output_format"),
-        state.get("output_file"),
-        slither_instances,
-        results_detectors,
-        [],
-        output_errors,
-        runned_detectors=detector_classes,
-        json_types=json_types,
-        zip_type=state.get("zip_type"),
-        checklist=checklist,
-        checklist_limit=checklist_limit,
-        show_ignored_findings=show_ignored_findings,
-        all_detectors=DETECTORS,
-    )
-
-    if fail_on == FailOnLevel.HIGH:
-        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
-    elif fail_on == FailOnLevel.MEDIUM:
-        fail_on_detection = any(
-            result["impact"] in ["Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.LOW:
-        fail_on_detection = any(
-            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.PEDANTIC:
-        fail_on_detection = bool(results_detectors)
-    else:
-        fail_on_detection = False
-
-    # Exit with them appropriate status code
-    if output_errors or fail_on_detection:
-        raise typer.Exit(1)
 
 
 @app.command(name="print", help="Run printers on the target.")

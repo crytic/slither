@@ -61,7 +61,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
-                    if not self.KEY in node.context:
+                    if self.KEY not in node.context:
                         continue
                     if node.context[self.KEY].calls and node.context[self.KEY].send_eth:
                         if not any(n != node for n in node.context[self.KEY].send_eth):
@@ -105,12 +105,12 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0].function.name)
         varsWritten: List[FindingValue]
         varsWrittenSet: Set[FindingValue]
         for (func, calls, send_eth), varsWrittenSet in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

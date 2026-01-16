@@ -155,9 +155,7 @@ def json_serializable(cls):
     my_super = super
 
     def as_dict(self):
-        yield {
-            name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))
-        }
+        yield dict(zip(self._fields, my_super(cls, self).__iter__()))
 
     cls.__iter__ = as_dict
     return cls
@@ -318,10 +316,10 @@ def _extract_function_relations(
                 "is_impacted_by": [],
             }
             for candidate, varsWritten in written.items():
-                if any((r in varsWritten for r in function.all_state_variables_read())):
+                if any(r in varsWritten for r in function.all_state_variables_read()):
                     ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
             for candidate, varsRead in read.items():
-                if any((r in varsRead for r in function.all_state_variables_written())):
+                if any(r in varsRead for r in function.all_state_variables_written()):
                     ret[contract.name][_get_name(function)]["impacts"].append(candidate)
     return ret
 

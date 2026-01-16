@@ -93,7 +93,7 @@ def _visit(
     # - Before is none: its the first time we explored the node
     # - variables_written is not before: it means that this path has a configuration of set variables
     # that we haven't seen yet
-    before = state.nodes[node] if node in state.nodes else None
+    before = state.nodes.get(node)
     if before is None or variables_written not in before:
         state.nodes[node].append(variables_written)
         for son in node.sons:

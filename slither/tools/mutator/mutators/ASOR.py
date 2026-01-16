@@ -44,7 +44,7 @@ class ASOR(AbstractMutator):
                         alternative_ops = assignment_operators[:]
                         try:
                             alternative_ops.remove(ir.expression.type)
-                        except:
+                        except ValueError:
                             continue
                         for op in alternative_ops:
                             if op != ir.expression:

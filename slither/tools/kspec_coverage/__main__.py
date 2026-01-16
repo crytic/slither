@@ -38,7 +38,7 @@ def main_callback(
         output_json = state.get("output_file")
 
     kspec_coverage(
-        target,
+        target.target,
         kspec,
         ctx,
         output_json,
