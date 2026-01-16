@@ -27,7 +27,7 @@ jobs:
           echo "last_month=$first_day..$last_day" >> "$GITHUB_ENV"
 
       - name: Run issue-metrics tool
-        uses: github/issue-metrics@v3
+        uses: github/issue-metrics@6fa9041b3ea7b6a9dafbdc388d25d86d06b2b6af  # v3
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SEARCH_QUERY: >-
@@ -35,7 +35,7 @@ jobs:
             -reason:"not planned" -reason:"duplicate"
 
       - name: Create issue
-        uses: peter-evans/create-issue-from-file@v6
+        uses: peter-evans/create-issue-from-file@fca9117c27cdc29c6c4db3b86c48e4115a786710  # v6
         with:
           title: Monthly issue metrics report
           token: ${{ secrets.GITHUB_TOKEN }}
