@@ -41,6 +41,9 @@ dependencies = [
     "eth-utils>=5.0.0",
 ]
 
+[project.optional-dependencies]
+simil = ["fasttext>=0.9.0"]
+
 # Development dependencies using PEP 735 dependency-groups
 [dependency-groups]
 lint = [
