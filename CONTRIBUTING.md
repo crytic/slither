@@ -24,6 +24,25 @@ Some pull request guidelines:
 - Fill out the pull request description with a summary of what your patch does, key changes that have been made, and any further points of discussion, if applicable.
 - Title your pull request with a brief description of what it's changing. "Fixes #123" is a good comment to add to the description, but makes for an unclear title on its own.
 
+### PR descriptions
+
+- Explain root cause and include minimal code examples for bug fixes
+- Categorize changes for large refactoring PRs
+- Minimal descriptions are acceptable for trivial changes (typos, single-line fixes)
+
+### Commit messages
+
+- Use imperative mood, ≤72 char subject line
+- Prefix with `tests:` when only modifying test files
+- Prefix with `docs:` for documentation-only changes
+- Prefix with `fix:`, `feat:`, `chore:` as appropriate
+
+### Markdown documentation
+
+- Language specifiers on fenced code blocks (```python, ```solidity, etc.)
+- Proper heading hierarchy (don't skip levels)
+- Trailing newline at end of file
+
 ## Directory Structure
 
 Below is a rough outline of slither's design:
