@@ -33,6 +33,23 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
+
+class OutputConfig:
+    """Configuration settings for output formatting."""
+
+    EXCLUDE_LOCATION: bool = False
+
+
+def set_exclude_location(exclude: bool) -> None:
+    """Set whether to exclude location info from detector messages."""
+    OutputConfig.EXCLUDE_LOCATION = exclude
+
+
+def get_exclude_location() -> bool:
+    """Get whether location info should be excluded from detector messages."""
+    return OutputConfig.EXCLUDE_LOCATION
+
+
 ###################################################################################
 ###################################################################################
 # region Output
@@ -229,6 +246,13 @@ def output_to_zip(filename: str, error: str | None, results: dict, zip_type: str
 ###################################################################################
 
 
+def _format_with_location(name: str, source_mapping: SourceMapping) -> str:
+    """Format name with optional location based on OutputConfig.EXCLUDE_LOCATION."""
+    if OutputConfig.EXCLUDE_LOCATION:
+        return name
+    return f"{name} ({source_mapping})"
+
+
 def _convert_to_description(d: str) -> str:
     if isinstance(d, str):
         return d
@@ -238,14 +262,14 @@ def _convert_to_description(d: str) -> str:
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping})"
-        return f"{d!s} ({d.source_mapping})"
+            return _format_with_location(str(d.expression), d.source_mapping)
+        return _format_with_location(str(d), d.source_mapping)
 
     if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping})"
+        return _format_with_location(d.canonical_name, d.source_mapping)
 
     if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping})"
+        return _format_with_location(d.name, d.source_mapping)
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
