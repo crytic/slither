@@ -6,12 +6,13 @@ Static analyzer for Solidity smart contracts. Detects vulnerabilities, prints co
 
 ```
 slither/
+├── analyses/      # Data dependency, dominators, control flow
+├── core/          # Core classes: SlitherCore, Contract, Function
 ├── detectors/     # Security checks (subclass AbstractDetector)
 ├── printers/      # Output formatters (subclass AbstractPrinter)
 ├── slithir/       # Intermediate representation for analysis
 ├── solc_parsing/  # Solidity AST parsing
-├── tools/         # CLI tools (slither-read-storage, slither-mutate, etc.)
-└── core/          # Core classes: SlitherCore, Contract, Function
+└── tools/         # CLI tools (slither-read-storage, slither-mutate, etc.)
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed architecture and how to add detectors.
