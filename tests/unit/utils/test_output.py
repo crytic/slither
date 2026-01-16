@@ -1,6 +1,7 @@
 """
 Tests for slither/utils/output.py
 """
+
 from unittest.mock import MagicMock
 
 from slither.utils.output import (
