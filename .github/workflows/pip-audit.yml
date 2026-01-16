@@ -6,6 +6,10 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/pip-audit.yml'
   schedule: [cron: "0 7 * * 2"]
 
 concurrency:
@@ -31,9 +35,8 @@ jobs:
           python-version: "3.10"
           enable-cache: true
 
-      - name: Install Slither
-        run: |
-          uv export --format requirements-txt --no-emit-project > requirements.txt
+      - name: Export dependencies
+        run: uv export --format requirements-txt --no-emit-project > requirements.txt
 
       - name: Run pip-audit
         uses: pypa/gh-action-pip-audit@1220774d901786e6f652ae159f7b6bc8fea6d266  # v1.1.0
