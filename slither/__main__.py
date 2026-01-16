@@ -188,9 +188,10 @@ def get_detectors_and_printers() -> Tuple[
     if sys.version_info >= (3, 10):
         entry_points = metadata.entry_points(group="slither_analyzer.plugin")
     else:
-        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
+        # Use importlib_metadata backport for Python < 3.10
+        import importlib_metadata  # pylint: disable=import-outside-toplevel
 
-        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+        entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
