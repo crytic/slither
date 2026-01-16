@@ -1051,7 +1051,15 @@ def main_callback(
         "exclude_medium",
         "exclude_high",
     }
-    ctx.default_map["detect"] = {k: v for k, v in config.items() if k in detect_config_params}
+    detect_defaults = {}
+    for k, v in config.items():
+        if k in detect_config_params:
+            # Convert FailOnLevel enum back to string for Typer validation
+            if k == "fail_on" and isinstance(v, FailOnLevel):
+                detect_defaults[k] = v.value
+            else:
+                detect_defaults[k] = v
+    ctx.default_map["detect"] = detect_defaults
     ctx.default_map["print"] = {
         k: v for k, v in config.items() if k in {"printers_to_run", "no_fail"}
     }
