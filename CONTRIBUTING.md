@@ -48,10 +48,12 @@ Run `make lint` to check and `make reformat` to auto-fix. We use ruff for Python
 
 #### Pre-commit Hooks (Recommended)
 
+We use [prek](https://github.com/j178/prek), a fast Rust-based pre-commit runner:
+
 ```bash
-pre-commit install         # One-time setup
-pre-commit run --all-files # Run manually
-pre-commit autoupdate      # Update hook versions
+prek install               # One-time setup
+prek run --all-files       # Run manually
+prek auto-update --cooldown-days 7  # Update hook versions
 ```
 
 ### Testing

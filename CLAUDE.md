@@ -23,10 +23,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed architecture and how to add 
 |---------|---------------|
 | `uv`    | deps & venv   |
 | `ruff`  | lint & format |
+| `prek`  | pre-commit hooks |
 | `pytest`| tests         |
 
 ```bash
-make dev                    # Setup dev environment
+make dev                    # Setup dev environment + pre-commit hooks
 make lint                   # Run ruff check
 make reformat               # Run ruff format
 make test                   # Run all tests
