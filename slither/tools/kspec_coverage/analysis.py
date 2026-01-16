@@ -13,9 +13,6 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("Slither.kspec")
 
 
-# pylint: disable=anomalous-backslash-in-string
-
-
 def _refactor_type(targeted_type: str) -> str:
     return {"uint": "uint256", "int": "int256"}.get(targeted_type, targeted_type)
 
@@ -70,7 +67,7 @@ def _get_slither_functions(
             and not f.is_constructor_variables
         )
     ]
-    # Use list(set()) because same state variable instances can be shared accross contracts
+    # Use list(set()) because same state variable instances can be shared across contracts
     # TODO: integrate state variables
     all_functions_declared += list(
         {s for s in slither.state_variables if s.visibility in ["public", "external"]}

@@ -13,16 +13,16 @@ relational_operators = [
 ]
 
 
-class ROR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class ROR(AbstractMutator):
     NAME = "ROR"
     HELP = "Relational Operator Replacement"
 
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue

@@ -14,7 +14,6 @@ def get_evm_instructions(obj):
     assert isinstance(obj, (Function, Contract, Node))
 
     if KEY_EVM_INS not in obj.context:
-
         CFG = load_evm_cfg_builder()
 
         slither = obj.slither
@@ -159,7 +158,6 @@ def _get_function_evm(cfg, function_name, function_hash):
     return None
 
 
-# pylint: disable=too-many-locals
 def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither, filename):
     """
     Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions

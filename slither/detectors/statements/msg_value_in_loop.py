@@ -30,7 +30,6 @@ def msg_value_in_loop(
     calls_stack: List[str],
     results: Result,
 ) -> None:
-
     if node is None:
         return
 
