@@ -30,7 +30,7 @@ jobs:
           path: dist/
 
   publish:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     environment: release
     permissions:
       id-token: write  # For trusted publishing + codesigning.
