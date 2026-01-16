@@ -25,7 +25,8 @@ class ExternalCallPrinter(AbstractPrinter):
             if contract.is_interface or contract.is_abstract:
                 continue
 
-            for function in contract.functions:
+            # Use functions_declared to avoid processing inherited functions multiple times
+            for function in contract.functions_declared:
                 # Bail out early if this function does not perform high level calls
                 if not function.all_high_level_calls():
                     continue

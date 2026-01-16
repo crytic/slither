@@ -97,5 +97,17 @@ def test_external_call_printers(solc_binary_path) -> None:
     printer = ExternalCallPrinter(slither, None)
     output = printer.output("")
 
-    # The test is not great here, but they will soon be moved to a snapshot based system
     assert output is not None
+    description = output.data["description"]
+
+    # Verify A.foo() -> IERC20.balanceOf is detected
+    assert "A.foo()" in description
+    assert "IERC20.balanceOf" in description
+
+    # Verify C.pop() -> B.bar is detected
+    assert "C.pop()" in description
+    assert "B.bar" in description
+
+    # Verify no duplicate entries (each external call should appear once)
+    # Count occurrences of IERC20.balanceOf - should be exactly 1
+    assert description.count("IERC20.balanceOf") == 1
