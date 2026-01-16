@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
@@ -7,9 +9,9 @@ if TYPE_CHECKING:
 
 
 class NewContract(Expression):
-    def __init__(self, contract_type: "UserDefinedType") -> None:
+    def __init__(self, contract_type: UserDefinedType) -> None:
         super().__init__()
-        self._contract_type: "UserDefinedType" = contract_type
+        self._contract_type: UserDefinedType = contract_type
         self._gas = None
         self._value = None
         self._salt = None
@@ -20,7 +22,7 @@ class NewContract(Expression):
         return self._contract_type.type.name
 
     @property
-    def contract_type(self) -> "UserDefinedType":
+    def contract_type(self) -> UserDefinedType:
         """Return the UserDefinedType of the contract being created."""
         return self._contract_type
 
