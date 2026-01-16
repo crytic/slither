@@ -885,8 +885,12 @@ def main_impl(
         logger_level = logging.getLogger(l_name)
         logger_level.setLevel(l_level)
 
-    # Output to stdout instead of stderr for better Unix CLI compatibility
-    console_handler = logging.StreamHandler(sys.stdout)
+    # Output to stdout for better Unix CLI compatibility, but use stderr when
+    # JSON/SARIF is being output to stdout to avoid mixing logs with structured output
+    if outputting_json_stdout or outputting_sarif_stdout:
+        console_handler = logging.StreamHandler(sys.stderr)
+    else:
+        console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
 
     console_handler.setFormatter(FormatterCryticCompile())
