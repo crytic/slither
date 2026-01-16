@@ -6,9 +6,9 @@ List of public detectors
 
 ### Configuration
 
-- Check: `abiencoderv2-array`
-- Severity: `High`
-- Confidence: `High`
+* Check: `abiencoderv2-array`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -37,9 +37,9 @@ Use a compiler >= `0.5.10`.
 
 ### Configuration
 
-- Check: `arbitrary-send-erc20`
-- Severity: `High`
-- Confidence: `High`
+* Check: `arbitrary-send-erc20`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -63,9 +63,9 @@ Use `msg.sender` as `from` in transferFrom.
 
 ### Configuration
 
-- Check: `array-by-reference`
-- Severity: `High`
-- Confidence: `High`
+* Check: `array-by-reference`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -103,9 +103,9 @@ Ensure the correct usage of `memory` and `storage` in the function parameters. M
 
 ### Configuration
 
-- Check: `encode-packed-collision`
-- Severity: `High`
-- Confidence: `High`
+* Check: `encode-packed-collision`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -134,9 +134,9 @@ Use `abi.encode()`, preferably.
 
 ### Configuration
 
-- Check: `incorrect-shift`
-- Severity: `High`
-- Confidence: `High`
+* Check: `incorrect-shift`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -164,9 +164,9 @@ Swap the order of parameters.
 
 ### Configuration
 
-- Check: `multiple-constructors`
-- Severity: `High`
-- Confidence: `High`
+* Check: `multiple-constructors`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -200,9 +200,9 @@ Only declare one constructor, preferably using the new scheme `constructor(...)`
 
 ### Configuration
 
-- Check: `name-reused`
-- Severity: `High`
-- Confidence: `High`
+* Check: `name-reused`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -223,9 +223,9 @@ Rename the contract.
 
 ### Configuration
 
-- Check: `protected-vars`
-- Severity: `High`
-- Confidence: `High`
+* Check: `protected-vars`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -259,9 +259,9 @@ Add access controls to the vulnerable function
 
 ### Configuration
 
-- Check: `public-mappings-nested`
-- Severity: `High`
-- Confidence: `High`
+* Check: `public-mappings-nested`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -279,9 +279,9 @@ Do not use public mapping with nested structures.
 
 ### Configuration
 
-- Check: `rtlo`
-- Severity: `High`
-- Confidence: `High`
+* Check: `rtlo`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -323,9 +323,9 @@ Special control characters must not be allowed.
 
 ### Configuration
 
-- Check: `shadowing-state`
-- Severity: `High`
-- Confidence: `High`
+* Check: `shadowing-state`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -367,9 +367,9 @@ Remove the state variable shadowing.
 
 ### Configuration
 
-- Check: `suicidal`
-- Severity: `High`
-- Confidence: `High`
+* Check: `suicidal`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -395,9 +395,9 @@ Protect access to all sensitive functions.
 
 ### Configuration
 
-- Check: `uninitialized-state`
-- Severity: `High`
-- Confidence: `High`
+* Check: `uninitialized-state`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -425,9 +425,9 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 
 ### Configuration
 
-- Check: `uninitialized-storage`
-- Severity: `High`
-- Confidence: `High`
+* Check: `uninitialized-storage`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -460,9 +460,9 @@ Initialize all storage variables.
 
 ### Configuration
 
-- Check: `unprotected-upgrade`
-- Severity: `High`
-- Confidence: `High`
+* Check: `unprotected-upgrade`
+* Severity: `High`
+* Confidence: `High`
 
 ### Description
 
@@ -495,9 +495,9 @@ Add a constructor to ensure `initialize` cannot be called on the logic contract.
 
 ### Configuration
 
-- Check: `arbitrary-send-erc20-permit`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `arbitrary-send-erc20-permit`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -522,9 +522,9 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
 
 ### Configuration
 
-- Check: `arbitrary-send-eth`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `arbitrary-send-eth`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -555,9 +555,9 @@ Ensure that an arbitrary user cannot withdraw unauthorized funds.
 
 ### Configuration
 
-- Check: `controlled-array-length`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `controlled-array-length`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -597,9 +597,9 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
 
 ### Configuration
 
-- Check: `controlled-delegatecall`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `controlled-delegatecall`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -625,9 +625,9 @@ Avoid using `delegatecall`. Use only trusted destinations.
 
 ### Configuration
 
-- Check: `delegatecall-loop`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `delegatecall-loop`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -663,9 +663,9 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
 
 ### Configuration
 
-- Check: `incorrect-exp`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `incorrect-exp`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -690,9 +690,9 @@ Use the correct operator `**` for exponentiation.
 
 ### Configuration
 
-- Check: `incorrect-return`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `incorrect-return`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -726,9 +726,9 @@ Use the `leave` statement.
 
 ### Configuration
 
-- Check: `msg-value-loop`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `msg-value-loop`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -758,9 +758,49 @@ Provide an explicit array of amounts alongside the receivers array, and check th
 
 ### Configuration
 
-- Check: `reentrancy-eth`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `reentrancy-balance`
+* Severity: `High`
+* Confidence: `Medium`
+
+### Description
+
+Detects reentrancy vulnerabilities where a balance is saved (e.g., `balanceOf`) before an external call,
+and the same balance is checked again after the call. An attacker could manipulate the balance during the reentrant call,
+causing the post-call check to use an outdated value.
+
+### Exploit Scenario
+
+```solidity
+interface IERC20 {
+   function balanceOf(address account) external view returns (uint256);
+}
+
+interface I {
+  function pay(uint256 amount) external;
+}
+
+function mint(IERC20 tk) public {
+    uint amount_to_pay = 100;
+    uint balance_before = tk.balanceOf(address(this));
+    I(msg.sender).pay(amount_to_pay);
+    require(tk.balanceOf(address(this)) - balance_before >= amount_to_pay);
+    // Mint liquidity
+}
+```
+
+The `balanceBefore` variable could be outdated if the external call reenter the `mint` function N times, allowing to pay the funds only once.
+
+### Recommendation
+
+Use `transferFrom` to transfer funds of a standard ERC20 token, or use reentrancy guards to prevent reentering the function.
+
+## Reentrancy vulnerabilities
+
+### Configuration
+
+* Check: `reentrancy-eth`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -790,9 +830,9 @@ Apply the [`check-effects-interactions pattern`](http://solidity.readthedocs.io/
 
 ### Configuration
 
-- Check: `return-leave`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `return-leave`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -821,9 +861,9 @@ Use the `leave` statement.
 
 ### Configuration
 
-- Check: `storage-array`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `storage-array`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -854,9 +894,9 @@ Use a compiler version >= `0.5.10`.
 
 ### Configuration
 
-- Check: `unchecked-transfer`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `unchecked-transfer`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -888,9 +928,9 @@ Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checke
 
 ### Configuration
 
-- Check: `weak-prng`
-- Severity: `High`
-- Confidence: `Medium`
+* Check: `weak-prng`
+* Severity: `High`
+* Confidence: `Medium`
 
 ### Description
 
@@ -920,9 +960,9 @@ Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness
 
 ### Configuration
 
-- Check: `domain-separator-collision`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `domain-separator-collision`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -946,9 +986,9 @@ Remove or rename the function that collides with DOMAIN_SEPARATOR().
 
 ### Configuration
 
-- Check: `enum-conversion`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `enum-conversion`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -978,9 +1018,9 @@ Use a recent compiler version. If `solc` <`0.4.5` is required, check the `enum` 
 
 ### Configuration
 
-- Check: `erc20-interface`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `erc20-interface`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1005,9 +1045,9 @@ Set the appropriate return values and types for the defined `ERC20` functions.
 
 ### Configuration
 
-- Check: `erc721-interface`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `erc721-interface`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1032,9 +1072,9 @@ Set the appropriate return values and vtypes for the defined `ERC721` functions.
 
 ### Configuration
 
-- Check: `incorrect-equality`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `incorrect-equality`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1060,9 +1100,9 @@ Don't use strict equality to determine if an account has enough Ether or tokens.
 
 ### Configuration
 
-- Check: `locked-ether`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `locked-ether`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1088,9 +1128,9 @@ Remove the payable attribute or add a withdraw function.
 
 ### Configuration
 
-- Check: `mapping-deletion`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `mapping-deletion`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1121,9 +1161,9 @@ Use a lock mechanism instead of a deletion to disable structure containing a map
 
 ### Configuration
 
-- Check: `pyth-deprecated-functions`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `pyth-deprecated-functions`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1160,9 +1200,9 @@ Do not use deprecated Pyth functions. Visit <https://api-reference.pyth.network/
 
 ### Configuration
 
-- Check: `pyth-unchecked-confidence`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `pyth-unchecked-confidence`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1198,9 +1238,9 @@ Check the confidence level of a Pyth price. Visit <https://docs.pyth.network/pri
 
 ### Configuration
 
-- Check: `pyth-unchecked-publishtime`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `pyth-unchecked-publishtime`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1236,9 +1276,9 @@ Check the publishTime of a Pyth price.
 
 ### Configuration
 
-- Check: `shadowing-abstract`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `shadowing-abstract`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1266,9 +1306,9 @@ Remove the state variable shadowing.
 
 ### Configuration
 
-- Check: `tautological-compare`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `tautological-compare`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1292,9 +1332,9 @@ Remove comparison or compare to different value.
 
 ### Configuration
 
-- Check: `tautology`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `tautology`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1331,9 +1371,9 @@ Fix the incorrect comparison by changing the value type or the comparison.
 
 ### Configuration
 
-- Check: `write-after-write`
-- Severity: `Medium`
-- Confidence: `High`
+* Check: `write-after-write`
+* Severity: `Medium`
+* Confidence: `High`
 
 ### Description
 
@@ -1341,18 +1381,17 @@ Detects variables that are written but never read and written again.
 
 ### Exploit Scenario
 
-```solidity
-contract Buggy{
-    function my_func() external initializer{
-        // ...
-        a = b;
-        a = c;
-        // ..
+    ```solidity
+    contract Buggy{
+        function my_func() external initializer{
+            // ...
+            a = b;
+            a = c;
+            // ..
+        }
     }
-}
-```
-
-`a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
+    ```
+    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 
@@ -1362,9 +1401,9 @@ Fix or remove the writes.
 
 ### Configuration
 
-- Check: `boolean-cst`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `boolean-cst`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1401,13 +1440,13 @@ Verify and simplify the condition.
 
 ### Configuration
 
-- Check: `chronicle-unchecked-price`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `chronicle-unchecked-price`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
-Chronicle oracle is used and the price returned is not checked to be valid. For more information visit <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
+Chronicle oracle is used and the price returned is not checked to be valid. For more information <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
 
 ### Exploit Scenario
 
@@ -1434,9 +1473,9 @@ Validate that the price returned by the oracle is valid.
 
 ### Configuration
 
-- Check: `constant-function-asm`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `constant-function-asm`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1470,9 +1509,9 @@ Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct.
 
 ### Configuration
 
-- Check: `constant-function-state`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `constant-function-state`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1506,9 +1545,9 @@ Ensure that attributes of contracts compiled prior to Solidity 0.5.0 are correct
 
 ### Configuration
 
-- Check: `divide-before-multiply`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `divide-before-multiply`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1536,9 +1575,9 @@ Consider ordering multiplication before division.
 
 ### Configuration
 
-- Check: `gelato-unprotected-randomness`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `gelato-unprotected-randomness`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1572,9 +1611,9 @@ Function that request randomness should be allowed only to authorized users.
 
 ### Configuration
 
-- Check: `out-of-order-retryable`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `out-of-order-retryable`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1633,13 +1672,13 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
 Do not rely on the order or successful execution of retryable tickets.
 
-## Reentrancy vulnerabilities no ETH
+## Reentrancy vulnerabilities
 
 ### Configuration
 
-- Check: `reentrancy-no-eth`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `reentrancy-no-eth`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1666,9 +1705,9 @@ Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/
 
 ### Configuration
 
-- Check: `reused-constructor`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `reused-constructor`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1705,9 +1744,9 @@ contract E is B {
 
 The constructor of `A` is called multiple times in `D` and `E`:
 
-- `D` inherits from `B` and `C`, both of which construct `A`.
-- `E` only inherits from `B`, but `B` and `E` construct `A`.
-  .
+* `D` inherits from `B` and `C`, both of which construct `A`.
+* `E` only inherits from `B`, but `B` and `E` construct `A`.
+.
 
 ### Recommendation
 
@@ -1717,9 +1756,9 @@ Remove the duplicate constructor call.
 
 ### Configuration
 
-- Check: `tx-origin`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `tx-origin`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1746,9 +1785,9 @@ Do not use `tx.origin` for authorization.
 
 ### Configuration
 
-- Check: `unchecked-lowlevel`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `unchecked-lowlevel`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1775,9 +1814,9 @@ Ensure that the return value of a low-level call is checked or logged.
 
 ### Configuration
 
-- Check: `unchecked-send`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `unchecked-send`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1804,9 +1843,9 @@ Ensure that the return value of `send` is checked or logged.
 
 ### Configuration
 
-- Check: `uninitialized-local`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `uninitialized-local`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1833,9 +1872,9 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 
 ### Configuration
 
-- Check: `unused-return`
-- Severity: `Medium`
-- Confidence: `Medium`
+* Check: `unused-return`
+* Severity: `Medium`
+* Confidence: `Medium`
 
 ### Description
 
@@ -1862,9 +1901,9 @@ Ensure that all the return values of the function calls are used.
 
 ### Configuration
 
-- Check: `chainlink-feed-registry`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `chainlink-feed-registry`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -1900,9 +1939,9 @@ Do not use Chainlink Feed Registry outside of Ethereum Mainnet.
 
 ### Configuration
 
-- Check: `incorrect-modifier`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `incorrect-modifier`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -1931,9 +1970,9 @@ All the paths in a modifier must execute `_` or revert.
 
 ### Configuration
 
-- Check: `optimism-deprecation`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `optimism-deprecation`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -1965,9 +2004,9 @@ Do not use the deprecated components.
 
 ### Configuration
 
-- Check: `shadowing-builtin`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `shadowing-builtin`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -1995,15 +2034,15 @@ contract Bug {
 
 ### Recommendation
 
-Rename the local variables, state variables, functions, modifiers, and events that shadow a Built-in symbol.
+Rename the local variables, state variables, functions, modifiers, and events that shadow a built-in symbol.
 
 ## Local variable shadowing
 
 ### Configuration
 
-- Check: `shadowing-local`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `shadowing-local`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -2040,9 +2079,9 @@ Rename the local variables that shadow another component.
 
 ### Configuration
 
-- Check: `uninitialized-fptr-cst`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `uninitialized-fptr-cst`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -2072,9 +2111,9 @@ Initialize function pointers before calling. Avoid function pointers if possible
 
 ### Configuration
 
-- Check: `variable-scope`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `variable-scope`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -2114,9 +2153,9 @@ Move all variable declarations prior to any usage of the variable, and ensure th
 
 ### Configuration
 
-- Check: `void-cst`
-- Severity: `Low`
-- Confidence: `High`
+* Check: `void-cst`
+* Severity: `Low`
+* Confidence: `High`
 
 ### Description
 
@@ -2141,9 +2180,9 @@ Remove the constructor call.
 
 ### Configuration
 
-- Check: `calls-loop`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `calls-loop`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2179,9 +2218,9 @@ Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-o
 
 ### Configuration
 
-- Check: `events-access`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `events-access`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2213,9 +2252,9 @@ Emit an event for critical parameter changes.
 
 ### Configuration
 
-- Check: `events-maths`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `events-maths`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2251,9 +2290,9 @@ Emit an event for critical parameter changes.
 
 ### Configuration
 
-- Check: `incorrect-unary`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `incorrect-unary`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2282,9 +2321,9 @@ Remove the unary expression.
 
 ### Configuration
 
-- Check: `missing-zero-check`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `missing-zero-check`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2312,13 +2351,13 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
 Check that the address is not zero.
 
-## Reentrancy vulnerabilities benign
+## Reentrancy vulnerabilities
 
 ### Configuration
 
-- Check: `reentrancy-benign`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `reentrancy-benign`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2342,13 +2381,13 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
 Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).
 
-## Reentrancy vulnerabilities events
+## Reentrancy vulnerabilities
 
 ### Configuration
 
-- Check: `reentrancy-events`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `reentrancy-events`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2396,9 +2435,9 @@ Apply the [`check-effects-interactions` pattern](https://docs.soliditylang.org/e
 
 ### Configuration
 
-- Check: `return-bomb`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `return-bomb`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2447,9 +2486,9 @@ Avoid unlimited implicit decoding of returndata.
 
 ### Configuration
 
-- Check: `timestamp`
-- Severity: `Low`
-- Confidence: `Medium`
+* Check: `timestamp`
+* Severity: `Low`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2467,9 +2506,9 @@ Avoid relying on `block.timestamp`.
 
 ### Configuration
 
-- Check: `assembly`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `assembly`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2483,9 +2522,9 @@ Do not use `evm` assembly.
 
 ### Configuration
 
-- Check: `assert-state-change`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `assert-state-change`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2514,9 +2553,9 @@ Use `require` for invariants modifying the state.
 
 ### Configuration
 
-- Check: `boolean-equal`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `boolean-equal`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2546,9 +2585,9 @@ Remove the equality to the boolean constant.
 
 ### Configuration
 
-- Check: `cyclomatic-complexity`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `cyclomatic-complexity`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2562,9 +2601,9 @@ Reduce cyclomatic complexity by splitting the function into several smaller subr
 
 ### Configuration
 
-- Check: `deprecated-standards`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `deprecated-standards`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2608,9 +2647,9 @@ Replace all uses of deprecated symbols.
 
 ### Configuration
 
-- Check: `erc20-indexed`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `erc20-indexed`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2639,9 +2678,9 @@ Add the `indexed` keyword to event parameters that should include it, according 
 
 ### Configuration
 
-- Check: `function-init-state`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `function-init-state`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2685,9 +2724,9 @@ Remove any initialization of state variables via non-constant state variables or
 
 ### Configuration
 
-- Check: `incorrect-using-for`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `incorrect-using-for`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2695,15 +2734,14 @@ In Solidity, it is possible to use libraries for certain types, by the `using-fo
 
 ### Exploit Scenario
 
-```solidity
-library L {
-    function f(bool) public pure {}
-}
+    ```solidity
+    library L {
+        function f(bool) public pure {}
+    }
 
-using L for uint;
-```
-
-Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
+    using L for uint;
+    ```
+    Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
 
 ### Recommendation
 
@@ -2713,9 +2751,9 @@ Make sure that the libraries used in `using-for` statements have at least one fu
 
 ### Configuration
 
-- Check: `low-level-calls`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `low-level-calls`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2729,9 +2767,9 @@ Avoid low-level calls. Check the call success. If the call is meant for a contra
 
 ### Configuration
 
-- Check: `missing-inheritance`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `missing-inheritance`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2761,9 +2799,9 @@ Inherit from the missing interface or contract.
 
 ### Configuration
 
-- Check: `naming-convention`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `naming-convention`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2771,8 +2809,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
 #### Rule exceptions
 
-- Allow constant variable name/symbol/decimals to be lowercase (`ERC20`).
-- Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters.
+* Allow constant variable name/symbol/decimals to be lowercase (`ERC20`).
+* Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters.
 
 ### Recommendation
 
@@ -2782,9 +2820,9 @@ Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.
 
 ### Configuration
 
-- Check: `pragma`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `pragma`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2798,9 +2836,9 @@ Use one Solidity version.
 
 ### Configuration
 
-- Check: `redundant-statements`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `redundant-statements`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2836,9 +2874,9 @@ Remove redundant statements if they congest code but offer no value.
 
 ### Configuration
 
-- Check: `solc-version`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `solc-version`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2856,9 +2894,9 @@ Consider using the latest version of Solidity for testing.
 
 ### Configuration
 
-- Check: `unimplemented-functions`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `unimplemented-functions`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2891,13 +2929,45 @@ All unimplemented functions must be implemented on a contract that is meant to b
 
 Implement all unimplemented functions in any contract you intend to use directly (not simply inherit from).
 
+## Unindexed event address parameters
+
+### Configuration
+
+* Check: `unindexed-event-address`
+* Severity: `Informational`
+* Confidence: `High`
+
+### Description
+
+Detects events that have address-type parameters but no indexed parameters. Indexing event parameters enables efficient off-chain filtering.
+
+### Exploit Scenario
+
+```solidity
+contract Token {
+    event Transfer(address from, address to, uint256 value);
+
+    function transfer(address to, uint256 value) external {
+        // ...
+        emit Transfer(msg.sender, to, value);
+    }
+}
+```
+
+The `Transfer` event has address parameters but none are indexed.
+Off-chain tools cannot efficiently filter transfers by sender or recipient address.
+
+### Recommendation
+
+Add the `indexed` keyword to address parameters in events to enable efficient off-chain filtering.
+
 ## Unused state variable
 
 ### Configuration
 
-- Check: `unused-state`
-- Severity: `Informational`
-- Confidence: `High`
+* Check: `unused-state`
+* Severity: `Informational`
+* Confidence: `High`
 
 ### Description
 
@@ -2911,9 +2981,9 @@ Remove unused state variables.
 
 ### Configuration
 
-- Check: `costly-loop`
-- Severity: `Informational`
-- Confidence: `Medium`
+* Check: `costly-loop`
+* Severity: `Informational`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2953,9 +3023,9 @@ Use a local variable to hold the loop computation result.
 
 ### Configuration
 
-- Check: `dead-code`
-- Severity: `Informational`
-- Confidence: `Medium`
+* Check: `dead-code`
+* Severity: `Informational`
+* Confidence: `Medium`
 
 ### Description
 
@@ -2975,13 +3045,13 @@ contract Contract{
 
 Remove unused functions.
 
-## Reentrancy vulnerabilities unlimited gas
+## Reentrancy vulnerabilities
 
 ### Configuration
 
-- Check: `reentrancy-unlimited-gas`
-- Severity: `Informational`
-- Confidence: `Medium`
+* Check: `reentrancy-unlimited-gas`
+* Severity: `Informational`
+* Confidence: `Medium`
 
 ### Description
 
@@ -3007,9 +3077,9 @@ Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/
 
 ### Configuration
 
-- Check: `too-many-digits`
-- Severity: `Informational`
-- Confidence: `Medium`
+* Check: `too-many-digits`
+* Severity: `Informational`
+* Confidence: `Medium`
 
 ### Description
 
@@ -3029,17 +3099,17 @@ While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, it's likely
 
 Use:
 
-- [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
-- [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
-- [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
+* [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
+* [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
+* [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
 
 ## Cache array length
 
 ### Configuration
 
-- Check: `cache-array-length`
-- Severity: `Optimization`
-- Confidence: `High`
+* Check: `cache-array-length`
+* Severity: `Optimization`
+* Confidence: `High`
 
 ### Description
 
@@ -3088,9 +3158,9 @@ Cache the lengths of storage arrays if they are used and not modified in `for` l
 
 ### Configuration
 
-- Check: `constable-states`
-- Severity: `Optimization`
-- Confidence: `High`
+* Check: `constable-states`
+* Severity: `Optimization`
+* Confidence: `High`
 
 ### Description
 
@@ -3104,9 +3174,9 @@ Add the `constant` attribute to state variables that never change.
 
 ### Configuration
 
-- Check: `external-function`
-- Severity: `Optimization`
-- Confidence: `High`
+* Check: `external-function`
+* Severity: `Optimization`
+* Confidence: `High`
 
 ### Description
 
@@ -3120,9 +3190,9 @@ Use the `external` attribute for functions never called from the contract, and c
 
 ### Configuration
 
-- Check: `immutable-states`
-- Severity: `Optimization`
-- Confidence: `High`
+* Check: `immutable-states`
+* Severity: `Optimization`
+* Confidence: `High`
 
 ### Description
 
@@ -3136,9 +3206,9 @@ Add the `immutable` attribute to state variables that never change or are set on
 
 ### Configuration
 
-- Check: `var-read-using-this`
-- Severity: `Optimization`
-- Confidence: `High`
+* Check: `var-read-using-this`
+* Severity: `Optimization`
+* Confidence: `High`
 
 ### Description
 

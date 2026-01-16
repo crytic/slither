@@ -29,7 +29,7 @@ class ReentrancyNoGas(Reentrancy):
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4"
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-5"
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
