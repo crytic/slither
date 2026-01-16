@@ -1,7 +1,15 @@
 """Tests for slither standalone CLI entry points."""
 
+import re
+
 import pytest
 from typer.testing import CliRunner
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return ansi_escape.sub("", text)
 
 
 class TestStandaloneEntryPoints:
@@ -38,9 +46,10 @@ class TestStandaloneEntryPoints:
 
         runner = CliRunner()
         result = runner.invoke(app, ["--help"])
+        output = strip_ansi(result.output)
 
-        assert result.exit_code == 0, f"{module_path} --help failed: {result.output}"
-        assert expected_help_text.lower() in result.output.lower(), (
+        assert result.exit_code == 0, f"{module_path} --help failed: {output}"
+        assert expected_help_text.lower() in output.lower(), (
             f"Expected '{expected_help_text}' in {module_path} help output"
         )
 
@@ -91,8 +100,9 @@ class TestSimilarityEntryPoint:
 
             runner = CliRunner()
             result = runner.invoke(similarity, ["--help"])
+            output = strip_ansi(result.output)
             assert result.exit_code == 0
-            assert "similarity" in result.output.lower()
+            assert "similarity" in output.lower()
         except ImportError:
             pytest.skip("similarity dependencies not installed")
 
@@ -113,5 +123,6 @@ class TestMainEntryPoint:
 
         runner = CliRunner()
         result = runner.invoke(app, ["--help"])
+        output = strip_ansi(result.output)
         assert result.exit_code == 0
-        assert "slither" in result.output.lower() or "detect" in result.output.lower()
+        assert "slither" in output.lower() or "detect" in output.lower()
