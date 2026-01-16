@@ -8,7 +8,7 @@ logging.basicConfig()
 logger = logging.getLogger("Slither.kspec")
 logger.setLevel(logging.INFO)
 
-ch = logging.StreamHandler(sys.stdout)
+ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")
 logger.addHandler(ch)

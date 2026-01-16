@@ -19,7 +19,7 @@ logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
 logger = logging.getLogger("Slither")
-ch = logging.StreamHandler(sys.stdout)
+ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")
 logger.addHandler(ch)
