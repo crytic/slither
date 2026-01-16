@@ -28,6 +28,7 @@ from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import VariableLocation
 from slither.exceptions import SlitherException
 from slither.solc_parsing.yul.evm_functions import (
     format_function_descriptor,
@@ -203,7 +204,7 @@ class YulLocalVariable:
 
         var.name = _name_to_yul_name(ast["name"], root.id)
         var.set_type(ElementaryType("uint256"))
-        var.set_location("memory")
+        var.set_location(VariableLocation.MEMORY)
 
     @property
     def underlying(self) -> LocalVariable:
@@ -777,7 +778,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
         if variable_found:
             return variable_found
         var = root.function.get_local_variable_from_name(potential_name)
-        if var and var.location == "calldata":
+        if var and var.location == VariableLocation.CALLDATA:
             return Identifier(var)
     if name.endswith(".length"):
         # TODO: length should create a new IP operation LENGTH var
@@ -785,7 +786,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
         # Until we have a better support
         potential_name = name[:-7]
         var = root.function.get_local_variable_from_name(potential_name)
-        if var and var.location == "calldata":
+        if var and var.location == VariableLocation.CALLDATA:
             return Identifier(var)
     return None
 

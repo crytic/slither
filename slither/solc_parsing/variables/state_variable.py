@@ -2,6 +2,7 @@ from typing import Dict
 
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import VariableLocation
 
 
 class StateVariableSolc(VariableDeclarationSolc):
@@ -25,6 +26,6 @@ class StateVariableSolc(VariableDeclarationSolc):
             # We don't have to support legacy ast
             # as transient location was added in 0.8.28
             # and we know it must be default
-            self.underlying_variable.set_location("default")
+            self.underlying_variable.set_location(VariableLocation.DEFAULT)
 
         super()._analyze_variable_attributes(attributes)

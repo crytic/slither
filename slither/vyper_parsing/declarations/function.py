@@ -10,6 +10,7 @@ from slither.core.declarations.function import ModifierStatements
 from slither.core.declarations.modifier import Modifier
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import VariableLocation
 from slither.vyper_parsing.cfg.node import NodeVyper
 from slither.solc_parsing.exceptions import ParsingError
 from slither.vyper_parsing.variables.local_variable import LocalVariableVyper
@@ -531,8 +532,8 @@ class FunctionVyper:
         if initialized:
             local_var.initialized = True
 
-        if local_var.location == "default":
-            local_var.set_location("memory")
+        if local_var.location == VariableLocation.DEFAULT:
+            local_var.set_location(VariableLocation.MEMORY)
 
         self._add_local_variable(local_var_parser)
         return local_var_parser

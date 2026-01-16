@@ -1,11 +1,10 @@
-from typing import Optional, TYPE_CHECKING
-
-from slither.core.variables.variable import Variable
-from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.solidity_types.mapping_type import MappingType
-from slither.core.solidity_types.elementary_type import ElementaryType
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.structure import Structure
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.variables.variable import Variable, VariableLocation
 
 if TYPE_CHECKING:  # type: ignore
     from slither.core.declarations import Function
@@ -14,7 +13,7 @@ if TYPE_CHECKING:  # type: ignore
 class LocalVariable(Variable):
     def __init__(self) -> None:
         super().__init__()
-        self._location: Optional[str] = None
+        self._location: Optional[VariableLocation] = None
         self._function: Optional["Function"] = None
 
     def set_function(self, function: "Function") -> None:
@@ -25,16 +24,16 @@ class LocalVariable(Variable):
         assert self._function
         return self._function
 
-    def set_location(self, loc: str) -> None:
+    def set_location(self, loc: VariableLocation) -> None:
         self._location = loc
 
     @property
-    def location(self) -> Optional[str]:
+    def location(self) -> Optional[VariableLocation]:
         """
             Variable Location
             Can be storage/memory or default
         Returns:
-            (str)
+            (VariableLocation)
         """
         return self._location
 
@@ -53,14 +52,14 @@ class LocalVariable(Variable):
 
         from slither.core.solidity_types.array_type import ArrayType
 
-        if self.location == "memory":
+        if self.location == VariableLocation.MEMORY:
             return False
-        if self.location == "calldata":
+        if self.location == VariableLocation.CALLDATA:
             return False
         # Use by slithIR SSA
-        if self.location == "reference_to_storage":
+        if self.location == VariableLocation.REFERENCE_TO_STORAGE:
             return False
-        if self.location == "storage":
+        if self.location == VariableLocation.STORAGE:
             return True
 
         if isinstance(self.type, (ArrayType, MappingType)):

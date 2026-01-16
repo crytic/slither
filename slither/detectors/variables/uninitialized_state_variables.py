@@ -15,6 +15,7 @@ from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables import Variable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import VariableLocation
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -73,7 +74,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                         idx = 0
                         if ir.function:
                             for param in ir.function.parameters:
-                                if param.location == "storage":
+                                if param.location == VariableLocation.STORAGE:
                                     # If its a storage variable, add either the variable
                                     # Or the variable it points to if its a reference
                                     if isinstance(ir.arguments[idx], ReferenceVariable):

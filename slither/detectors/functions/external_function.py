@@ -4,7 +4,7 @@ from slither.core.declarations import Function, FunctionContract, Contract
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.variables.variable import Variable
+from slither.core.variables.variable import Variable, VariableLocation
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -166,7 +166,7 @@ class ExternalFunction(AbstractDetector):
                 # If all of the function arguments are non-reference type or calldata, we skip it.
                 reference_args = []
                 for arg in function.parameters:
-                    if self.is_reference_type(arg) and arg.location == "memory":
+                    if self.is_reference_type(arg) and arg.location == VariableLocation.MEMORY:
                         reference_args.append(arg)
                 if len(reference_args) == 0:
                     continue

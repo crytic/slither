@@ -3,6 +3,7 @@ Variable module
 """
 
 from typing import Optional, TYPE_CHECKING, List, Union, Tuple
+from enum import Enum
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
@@ -11,6 +12,18 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.core.declarations import Function
+
+
+class VariableLocation(Enum):
+    DEFAULT = "default"
+    MEMORY = "memory"
+    CALLDATA = "calldata"
+    STORAGE = "storage"
+    REFERENCE_TO_STORAGE = "reference_to_storage"
+    TRANSIENT = "transient"
+
+
+# pylint: disable=too-many-instance-attributes
 
 
 class Variable(SourceMapping):
