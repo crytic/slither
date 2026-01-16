@@ -1,4 +1,4 @@
-from typing import Union, Tuple, TYPE_CHECKING, Any
+from typing import Union, TYPE_CHECKING, Any
 
 from slither.core.solidity_types.type import Type
 
@@ -28,7 +28,7 @@ class MappingType(Type):
         return self._to
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         return 32, True
 
     @property

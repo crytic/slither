@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple, Dict
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.top_level import TopLevel
 from slither.core.declarations.contract_level import ContractLevel
@@ -30,7 +30,7 @@ class TypeAlias(Type):
         return self.underlying_type
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         return self.underlying_type.storage_size
 
     def __hash__(self) -> int:
@@ -44,9 +44,9 @@ class TypeAlias(Type):
 class TypeAliasTopLevel(TypeAlias, TopLevel):
     def __init__(self, underlying_type: ElementaryType, name: str, scope: "FileScope") -> None:
         super().__init__(underlying_type, name)
-        self.file_scope: "FileScope" = scope
+        self.file_scope: FileScope = scope
         # operators redefined
-        self.operators: Dict[str, "FunctionTopLevel"] = {}
+        self.operators: dict[str, FunctionTopLevel] = {}
 
     def __str__(self) -> str:
         return self.name
@@ -55,7 +55,7 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
 class TypeAliasContract(TypeAlias, ContractLevel):
     def __init__(self, underlying_type: ElementaryType, name: str, contract: "Contract") -> None:
         super().__init__(underlying_type, name)
-        self._contract: "Contract" = contract
+        self._contract: Contract = contract
 
     def __str__(self) -> str:
         return self.contract.name + "." + self.name

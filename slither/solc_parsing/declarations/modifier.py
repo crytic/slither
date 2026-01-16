@@ -2,7 +2,7 @@
 Event module
 """
 
-from typing import Dict, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union
 
 from slither.core.cfg.node import NodeType
 from slither.core.cfg.node import link_nodes
@@ -21,7 +21,7 @@ class ModifierSolc(FunctionSolc):
     def __init__(
         self,
         modifier: Modifier,
-        function_data: Dict,
+        function_data: dict,
         contract_parser: "ContractSolc",
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
@@ -100,7 +100,7 @@ class ModifierSolc(FunctionSolc):
         # self._analyze_calls()
 
     def _parse_statement(
-        self, statement: Dict, node: NodeSolc, scope: Union[Scope, "Function"]
+        self, statement: dict, node: NodeSolc, scope: Union[Scope, "Function"]
     ) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":

@@ -1,7 +1,8 @@
 import abc
 import re
 from logging import Logger
-from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit, Language
 from slither.core.declarations import Contract
@@ -29,7 +30,7 @@ class DetectorClassification(ComparableEnum):
     UNIMPLEMENTED = 999
 
 
-classification_colors: Dict[DetectorClassification, Callable[[str], str]] = {
+classification_colors: dict[DetectorClassification, Callable[[str], str]] = {
     DetectorClassification.INFORMATIONAL: green,
     DetectorClassification.OPTIMIZATION: green,
     DetectorClassification.LOW: green,
@@ -46,7 +47,7 @@ classification_txt = {
 }
 
 
-def make_solc_versions(minor: int, patch_min: int, patch_max: int) -> List[str]:
+def make_solc_versions(minor: int, patch_min: int, patch_max: int) -> list[str]:
     """
     Create a list of solc version: [0.minor.patch_min .... 0.minor.patch_max]
     """
@@ -59,7 +60,7 @@ ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
 ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
 # No VERSIONS_08 as it is still in dev
 
-DETECTOR_INFO = List[Union[str, SupportedOutput]]
+DETECTOR_INFO = list[str | SupportedOutput]
 
 
 class AbstractDetector(metaclass=abc.ABCMeta):
@@ -79,17 +80,17 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
     # If the detector is meant to run on all versions, use None
-    VULNERABLE_SOLC_VERSIONS: Optional[List[str]] = None
+    VULNERABLE_SOLC_VERSIONS: list[str] | None = None
     # If the detector is meant to run on all languages, use None
     # Otherwise, use `solidity` or `vyper`
-    LANGUAGE: Optional[str] = None
+    LANGUAGE: str | None = None
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
     ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
-        self.contracts: List[Contract] = compilation_unit.contracts
-        self.slither: "Slither" = slither
+        self.contracts: list[Contract] = compilation_unit.contracts
+        self.slither: Slither = slither
         # self.filename = slither.filename
         self.logger = logger
 
@@ -186,12 +187,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return True
 
     @abc.abstractmethod
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """TODO Documentation"""
         return []
 
-    def detect(self) -> List[Dict]:
-        results: List[Dict] = []
+    def detect(self) -> list[dict]:
+        results: list[dict] = []
 
         # check solc version
         if not self._is_applicable_detector():
@@ -269,7 +270,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def generate_result(
         self,
         info: DETECTOR_INFO,
-        additional_fields: Optional[Dict] = None,
+        additional_fields: dict | None = None,
     ) -> Output:
         output = Output(
             info,
@@ -285,11 +286,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(_compilation_unit: SlitherCompilationUnit, _result: Dict) -> None:
+    def _format(_compilation_unit: SlitherCompilationUnit, _result: dict) -> None:
         """Implement format"""
         return
 
-    def _log_result(self, results: List[Dict]) -> None:
+    def _log_result(self, results: list[dict]) -> None:
         info = "\n"
         info += f"Detector: {self.ARGUMENT}\n"
         for idx, result in enumerate(results):

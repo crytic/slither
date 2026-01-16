@@ -3,7 +3,6 @@ Check that the same pragma is used in all the files
 """
 
 from collections import OrderedDict
-from typing import List, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
@@ -31,7 +30,7 @@ class ConstantPragma(AbstractDetector):
     WIKI_DESCRIPTION = "Detect whether different Solidity versions are used."
     WIKI_RECOMMENDATION = "Use one Solidity version."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         pragma_directives_by_version = OrderedDict()
         for pragma in self.compilation_unit.pragma_directives:
@@ -58,5 +57,5 @@ class ConstantPragma(AbstractDetector):
         return results
 
     @staticmethod
-    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
+    def _format(slither: SlitherCompilationUnit, result: dict) -> None:
         custom_format(slither, result)

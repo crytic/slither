@@ -43,16 +43,16 @@ class Identifier(Expression):
             ),
         )
 
-        self._value: Union[
-            Variable,
-            "TopLevel",
-            "ContractLevel",
-            "Contract",
-            "SolidityVariable",
-            "SolidityFunction",
-            "YulBuiltin",
-        ] = value
-        self._type: Optional["Type"] = None
+        self._value: (
+            Variable
+            | TopLevel
+            | ContractLevel
+            | Contract
+            | SolidityVariable
+            | SolidityFunction
+            | YulBuiltin
+        ) = value
+        self._type: Type | None = None
 
     @property
     def type(self) -> Optional["Type"]:

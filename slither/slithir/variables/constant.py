@@ -1,5 +1,4 @@
 from functools import total_ordering
-from typing import Optional, Union
 
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.slithir.variables.variable import SlithIRVariable
@@ -12,8 +11,8 @@ class Constant(SlithIRVariable):
     def __init__(
         self,
         val: str,
-        constant_type: Optional[ElementaryType] = None,
-        subdenomination: Optional[str] = None,
+        constant_type: ElementaryType | None = None,
+        subdenomination: str | None = None,
     ) -> None:
         super().__init__()
         assert isinstance(val, str)
@@ -28,7 +27,7 @@ class Constant(SlithIRVariable):
             assert isinstance(constant_type, ElementaryType)
             self._type = constant_type
             if constant_type.type in Int + Uint + ["address"]:
-                self._val: Union[bool, int, str] = convert_string_to_int(val)
+                self._val: bool | int | str = convert_string_to_int(val)
             elif constant_type.type == "bool":
                 self._val = (val == "true") | (val == "True")
             else:
@@ -44,7 +43,7 @@ class Constant(SlithIRVariable):
         self._name = str(self._val)
 
     @property
-    def value(self) -> Union[bool, int, str]:
+    def value(self) -> bool | int | str:
         """
         Return the value.
         If the expression was an hexadecimal delcared as hex'...'

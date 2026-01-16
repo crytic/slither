@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
     AbstractCheck,
@@ -41,7 +39,7 @@ Using initialize functions to write initial values in state variables.
 
     REQUIRE_CONTRACT = True
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         results = []
         for s in self.contract.storage_variables_ordered:
             if s.initialized:

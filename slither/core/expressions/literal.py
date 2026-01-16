@@ -1,4 +1,4 @@
-from typing import Optional, Union, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class Literal(Expression):
     def __init__(
-        self, value: Union[int, str], custom_type: "Type", subdenomination: Optional[str] = None
+        self, value: int | str, custom_type: "Type", subdenomination: str | None = None
     ) -> None:
         super().__init__()
         self._value = value
@@ -19,11 +19,11 @@ class Literal(Expression):
         self._subdenomination = subdenomination
 
     @property
-    def value(self) -> Union[int, str]:
+    def value(self) -> int | str:
         return self._value
 
     @property
-    def converted_value(self) -> Union[int, str]:
+    def converted_value(self) -> int | str:
         """Return the value of the literal, accounting for subdenomination e.g. ether"""
         if self.subdenomination:
             return convert_subdenomination(self._value, self.subdenomination)
@@ -34,7 +34,7 @@ class Literal(Expression):
         return self._type
 
     @property
-    def subdenomination(self) -> Optional[str]:
+    def subdenomination(self) -> str | None:
         return self._subdenomination
 
     def __str__(self) -> str:

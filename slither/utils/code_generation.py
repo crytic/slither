@@ -1,5 +1,5 @@
 # Functions for generating Solidity code
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from slither.utils.type import (
     convert_type_for_solidity_signature_to_string,
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
     from slither.core.variables.state_variable import StateVariable
     from slither.core.variables.local_variable import LocalVariable
-    from slither.core.variables.structure_variable import StructureVariable
 
 
 def generate_interface(
@@ -108,7 +107,7 @@ def generate_interface(
 
 def generate_interface_variable_signature(
     var: "StateVariable", unroll_structs: bool = True
-) -> Optional[str]:
+) -> str | None:
     if var.visibility in ["private", "internal"]:
         return None
     if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Structure):
@@ -149,7 +148,7 @@ def generate_interface_variable_signature(
 
 def generate_interface_function_signature(
     func: "FunctionContract", unroll_structs: bool = True
-) -> Optional[str]:
+) -> str | None:
     """
     Generates a string of the form:
         func_name(type1,type2) external {payable/view/pure} returns (type3)

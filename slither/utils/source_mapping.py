@@ -1,4 +1,3 @@
-from typing import List, Set
 from crytic_compile import CryticCompile
 from slither.core.declarations import (
     Contract,
@@ -46,7 +45,7 @@ def get_implementation(target: SourceMapping) -> Source:
     return target.source_mapping
 
 
-def get_all_implementations(target: SourceMapping, contracts: List[Contract]) -> Set[Source]:
+def get_all_implementations(target: SourceMapping, contracts: list[Contract]) -> set[Source]:
     """
     Get all implementations of a contract or function, accounting for inheritance and overrides
     """
@@ -75,5 +74,5 @@ def get_all_implementations(target: SourceMapping, contracts: List[Contract]) ->
     return implementations
 
 
-def get_references(target: SourceMapping) -> List[Source]:
+def get_references(target: SourceMapping) -> list[Source]:
     return target.references

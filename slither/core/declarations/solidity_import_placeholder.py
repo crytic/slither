@@ -2,8 +2,6 @@
 Special variable to model import with renaming
 """
 
-from typing import Union
-
 from slither.core.declarations import Import
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.solidity_variables import SolidityVariable
@@ -32,7 +30,7 @@ class SolidityImportPlaceHolder(Variable):
     def type(self) -> ElementaryType:
         return ElementaryType("string")
 
-    def __eq__(self, other: Union[Contract, SolidityVariable]) -> bool:
+    def __eq__(self, other: Contract | SolidityVariable) -> bool:
         return (
             self.__class__ == other.__class__
             and self._import_directive.filename == self._import_directive.filename

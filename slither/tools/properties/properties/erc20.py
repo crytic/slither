@@ -1,7 +1,6 @@
 import logging
 from collections import namedtuple
 from pathlib import Path
-from typing import Tuple, List
 
 from crytic_compile.platform.abstract_platform import AbstractPlatform
 from crytic_compile.platform import Type as PlatformType
@@ -194,7 +193,7 @@ def _check_compatibility(contract):
     return errors
 
 
-def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Property]]:
+def _get_properties(contract, properties: list[Property]) -> tuple[str, list[Property]]:
     solidity_properties = ""
 
     if contract.compilation_unit.crytic_compile.type == PlatformType.TRUFFLE:

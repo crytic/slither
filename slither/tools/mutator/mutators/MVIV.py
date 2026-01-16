@@ -1,4 +1,3 @@
-from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
@@ -9,8 +8,8 @@ class MVIV(AbstractMutator):
     NAME = "MVIV"
     HELP = "variable initialization using a value"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
         variable: Variable
 
         # Create fault for state variables declaration

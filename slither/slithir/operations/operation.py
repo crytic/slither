@@ -1,5 +1,5 @@
 import abc
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 from slither.core.context.context import Context
 from slither.core.expressions.expression import Expression
 from slither.core.variables.variable import Variable
@@ -31,8 +31,8 @@ class AbstractOperation(abc.ABC):
 class Operation(Context, AbstractOperation):
     def __init__(self) -> None:
         super().__init__()
-        self._node: Optional["Node"] = None
-        self._expression: Optional[Expression] = None
+        self._node: Node | None = None
+        self._expression: Expression | None = None
 
     def set_node(self, node: "Node") -> None:
         self._node = node
@@ -47,7 +47,7 @@ class Operation(Context, AbstractOperation):
         return self.node.compilation_unit
 
     @property
-    def used(self) -> List[Variable]:
+    def used(self) -> list[Variable]:
         """
         By default used is all the variables read
         """
@@ -55,12 +55,12 @@ class Operation(Context, AbstractOperation):
 
     # if array inside the parameters
     @staticmethod
-    def _unroll(l: List[Any]) -> List[Any]:
+    def _unroll(l: list[Any]) -> list[Any]:
         return unroll(l)
 
     def set_expression(self, expression: Expression) -> None:
         self._expression = expression
 
     @property
-    def expression(self) -> Optional[Expression]:
+    def expression(self) -> Expression | None:
         return self._expression

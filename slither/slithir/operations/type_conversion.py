@@ -1,5 +1,3 @@
-from typing import List, Union
-
 from slither.core.declarations import Contract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type_alias import TypeAlias
@@ -15,9 +13,9 @@ from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 class TypeConversion(OperationWithLValue):
     def __init__(
         self,
-        result: Union[TemporaryVariableSSA, TemporaryVariable],
+        result: TemporaryVariableSSA | TemporaryVariable,
         variable: SourceMapping,
-        variable_type: Union[TypeAlias, UserDefinedType, ElementaryType],
+        variable_type: TypeAlias | UserDefinedType | ElementaryType,
     ) -> None:
         super().__init__()
         assert is_valid_rvalue(variable) or isinstance(variable, Contract)
@@ -25,7 +23,7 @@ class TypeConversion(OperationWithLValue):
         assert isinstance(variable_type, (TypeAlias, UserDefinedType, ElementaryType, ArrayType))
 
         self._variable = variable
-        self._type: Union[TypeAlias, UserDefinedType, ElementaryType, ArrayType] = variable_type
+        self._type: TypeAlias | UserDefinedType | ElementaryType | ArrayType = variable_type
         self._lvalue = result
 
     @property
@@ -35,15 +33,11 @@ class TypeConversion(OperationWithLValue):
     @property
     def type(
         self,
-    ) -> Union[
-        TypeAlias,
-        UserDefinedType,
-        ElementaryType,
-    ]:
+    ) -> TypeAlias | UserDefinedType | ElementaryType:
         return self._type
 
     @property
-    def read(self) -> List[SourceMapping]:
+    def read(self) -> list[SourceMapping]:
         return [self.variable]
 
     def __str__(self) -> str:

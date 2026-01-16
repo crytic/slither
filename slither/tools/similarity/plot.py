@@ -69,7 +69,7 @@ def plot(args: argparse.Namespace) -> None:
         logger.info("Plotting data..")
         plt.figure(figsize=(20, 10))
         assert len(tdata) == len(fs)
-        for [x, y], l in zip(tdata, fs):
+        for [x, y], l in zip(tdata, fs, strict=False):
             x = random.gauss(0, 0.01) + x
             y = random.gauss(0, 0.01) + y
             plt.scatter(x, y, c="blue")

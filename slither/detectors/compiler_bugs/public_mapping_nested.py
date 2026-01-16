@@ -2,7 +2,7 @@
 Module detecting public mappings with nested variables (returns incorrect values prior to 0.5.x)
 """
 
-from typing import Any, List, Union
+from typing import Any
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -16,7 +16,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.utils.output import Output
 
 
-def detect_public_nested_mappings(contract: Contract) -> List[Union[StateVariable, Any]]:
+def detect_public_nested_mappings(contract: Contract) -> list[StateVariable | Any]:
     """
     Detect any state variables that are initialized from an immediate function call (prior to constructor run).
     :param contract: The contract to detect state variable definitions for.
@@ -72,7 +72,7 @@ class PublicMappingNested(AbstractDetector):
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect public mappings with nested variables (returns incorrect values prior to 0.5.x)
 

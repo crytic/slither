@@ -2,8 +2,6 @@
 Module detecting assignment of array length
 """
 
-from typing import List, Set, Union
-
 from slither.core.variables import Variable
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -20,7 +18,7 @@ from slither.core.declarations.contract import Contract
 from slither.utils.output import Output, SupportedOutput
 
 
-def detect_array_length_assignment(contract: Contract) -> Set[Node]:
+def detect_array_length_assignment(contract: Contract) -> set[Node]:
     """
     Detects and returns all nodes which assign array length.
     :param contract: Contract to detect assignment within.
@@ -114,7 +112,7 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04 + ALL_SOLC_VERSIONS_05
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect array length assignments
         """
@@ -122,12 +120,12 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
         for contract in self.contracts:
             array_length_assignments = detect_array_length_assignment(contract)
             if array_length_assignments:
-                contract_info: List[Union[str, SupportedOutput]] = [
+                contract_info: list[str | SupportedOutput] = [
                     contract,
                     " contract sets array length with a user-controlled value:\n",
                 ]
                 for node in array_length_assignments:
-                    node_info: List[Union[str, SupportedOutput]] = contract_info + [
+                    node_info: list[str | SupportedOutput] = contract_info + [
                         "\t- ",
                         node,
                         "\n",

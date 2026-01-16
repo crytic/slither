@@ -4,10 +4,10 @@ Various utils for sarif/vscode
 
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any
+from typing import Any
 
 
-def _parse_index(key: str) -> Optional[Tuple[int, int]]:
+def _parse_index(key: str) -> tuple[int, int] | None:
     if key.count(":") != 2:
         return None
 
@@ -19,16 +19,16 @@ def _parse_index(key: str) -> Optional[Tuple[int, int]]:
         return None
 
 
-def _get_indexes(path_to_triage: Path) -> List[Tuple[int, int]]:
+def _get_indexes(path_to_triage: Path) -> list[tuple[int, int]]:
     try:
         with open(path_to_triage, encoding="utf8") as file_desc:
             triage = json.load(file_desc)
     except json.decoder.JSONDecodeError:
         return []
 
-    resultIdToNotes: Dict[str, Dict] = triage.get("resultIdToNotes", {})
+    resultIdToNotes: dict[str, dict] = triage.get("resultIdToNotes", {})
 
-    indexes: List[Tuple[int, int]] = []
+    indexes: list[tuple[int, int]] = []
     for key, data in resultIdToNotes.items():
         if "status" in data and data["status"] == 1:
             parsed = _parse_index(key)
@@ -38,24 +38,24 @@ def _get_indexes(path_to_triage: Path) -> List[Tuple[int, int]]:
     return indexes
 
 
-def read_triage_info(path_to_sarif: Path, path_to_triage: Path) -> List[str]:
+def read_triage_info(path_to_sarif: Path, path_to_triage: Path) -> list[str]:
     try:
         with open(path_to_sarif, encoding="utf8") as file_desc:
             sarif = json.load(file_desc)
     except json.decoder.JSONDecodeError:
         return []
 
-    runs: List[Dict[str, Any]] = sarif.get("runs", [])
+    runs: list[dict[str, Any]] = sarif.get("runs", [])
 
     # Don't support multiple runs for now
     if len(runs) != 1:
         return []
 
-    run_results: List[Dict] = runs[0].get("results", [])
+    run_results: list[dict] = runs[0].get("results", [])
 
     indexes = _get_indexes(path_to_triage)
 
-    ids: List[str] = []
+    ids: list[str] = []
     for run, index in indexes:
         # We dont support multiple runs for now
         if run != 0:

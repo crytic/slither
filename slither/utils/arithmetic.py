@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.exceptions import SlitherException
 from slither.utils.integer_conversion import convert_string_to_fraction
@@ -64,7 +64,7 @@ def _unchecked_arithemtic_usage(function: "Function") -> bool:
     return False
 
 
-def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
+def unchecked_arithemtic_usage(contract: "Contract") -> list["Function"]:
     """
     Return the list of function with some unchecked arithmetics
 
@@ -77,7 +77,7 @@ def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
 
     from slither.core.declarations import Function
 
-    ret: List[Function] = []
+    ret: list[Function] = []
     for function in contract.all_functions_called:
         if isinstance(function, Function) and _unchecked_arithemtic_usage(function):
             ret.append(function)

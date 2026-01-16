@@ -1,4 +1,3 @@
-from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -9,7 +8,7 @@ from slither.slithir.operations import LowLevelCall, InternalCall
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 
-Result = List[Tuple[Node, List[str]]]
+Result = list[tuple[Node, list[str]]]
 
 
 def detect_delegatecall_in_loop(contract: Contract) -> Result:
@@ -21,10 +20,10 @@ def detect_delegatecall_in_loop(contract: Contract) -> Result:
 
 
 def delegatecall_in_loop(
-    node: Optional[Node],
+    node: Node | None,
     in_loop_counter: int,
-    visited: List[Node],
-    calls_stack: List[str],
+    visited: list[Node],
+    calls_stack: list[str],
     results: Result,
 ) -> None:
     if node is None:
@@ -99,9 +98,9 @@ When calling `bad` the same `msg.value` amount will be accredited multiple times
 Carefully check that the function called by `delegatecall` is not payable/doesn't use `msg.value`.
 """
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
-        results: List[Output] = []
+        results: list[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_delegatecall_in_loop(c)
             for node, calls_stack in values:

@@ -1,5 +1,4 @@
 import logging
-from typing import Union, List, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -22,7 +21,7 @@ logger_printer = logging.getLogger("Printers")
 
 
 def _check_common_things(
-    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
+    thing_name: str, cls: type, base_cls: type, instances_list: list[type[AbstractDetector]]
 ) -> None:
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise SlitherError(
@@ -88,7 +87,7 @@ def _update_file_scopes(
 
 
 class Slither(SlitherCore):
-    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
+    def __init__(self, target: str | CryticCompile, **kwargs) -> None:
         """
         Args:
             target (str | CryticCompile)
@@ -120,11 +119,11 @@ class Slither(SlitherCore):
         self.codex_temperature = kwargs.get("codex_temperature", 0)
         self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
         self.codex_log = kwargs.get("codex_log", False)
-        self.codex_organization: Optional[str] = kwargs.get("codex_organization")
+        self.codex_organization: str | None = kwargs.get("codex_organization")
 
         self.no_fail = kwargs.get("no_fail", False)
 
-        self._parsers: List[SlitherCompilationUnitSolc] = []
+        self._parsers: list[SlitherCompilationUnitSolc] = []
         try:
             if isinstance(target, CryticCompile):
                 crytic_compile = target
@@ -240,7 +239,7 @@ class Slither(SlitherCore):
     def detectors_optimization(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
-    def register_detector(self, detector_class: Type[AbstractDetector]) -> None:
+    def register_detector(self, detector_class: type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -250,7 +249,7 @@ class Slither(SlitherCore):
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
-    def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
+    def unregister_detector(self, detector_class: type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -260,7 +259,7 @@ class Slither(SlitherCore):
                 self._detectors.remove(obj)
                 return
 
-    def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def register_printer(self, printer_class: type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -269,7 +268,7 @@ class Slither(SlitherCore):
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def unregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def unregister_printer(self, printer_class: type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -279,7 +278,7 @@ class Slither(SlitherCore):
                 self._printers.remove(obj)
                 return
 
-    def run_detectors(self) -> List[Dict]:
+    def run_detectors(self) -> list[dict]:
         """
         :return: List of registered detectors results.
         """
@@ -290,7 +289,7 @@ class Slither(SlitherCore):
         self.write_results_to_hide()
         return results
 
-    def run_printers(self) -> List[Output]:
+    def run_printers(self) -> list[Output]:
         """
         :return: List of registered printers outputs.
         """

@@ -1,5 +1,3 @@
-from typing import List, Set
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.expressions import BinaryOperation, Identifier, MemberAccess, UnaryOperation
@@ -97,7 +95,7 @@ contract C
 
     @staticmethod
     def _is_loop_referencing_array_length(
-        node: Node, visited: Set[Node], array: StateVariable, depth: int
+        node: Node, visited: set[Node], array: StateVariable, depth: int
     ) -> True:
         """
         For a given loop, checks if it references `array.length` at some point.
@@ -148,7 +146,7 @@ contract C
         return False
 
     @staticmethod
-    def _handle_loops(nodes: List[Node], non_optimal_array_len_usages: List[Node]) -> None:
+    def _handle_loops(nodes: list[Node], non_optimal_array_len_usages: list[Node]) -> None:
         """
         For each loop, checks if it has a comparison with `length` array member and, if it has, checks whether that
         array size could potentially change in that loop.
@@ -177,28 +175,28 @@ contract C
                 if array is None:
                     continue
 
-                visited: Set[Node] = set()
+                visited: set[Node] = set()
                 if not CacheArrayLength._is_loop_referencing_array_length(
                     if_node, visited, array, 1
                 ):
                     non_optimal_array_len_usages.append(if_node)
 
     @staticmethod
-    def _get_non_optimal_array_len_usages_for_function(f: Function) -> List[Node]:
+    def _get_non_optimal_array_len_usages_for_function(f: Function) -> list[Node]:
         """
         Finds non-optimal usages of array length in loop conditions in a given function.
         """
-        non_optimal_array_len_usages: List[Node] = []
+        non_optimal_array_len_usages: list[Node] = []
         CacheArrayLength._handle_loops(f.nodes, non_optimal_array_len_usages)
 
         return non_optimal_array_len_usages
 
     @staticmethod
-    def _get_non_optimal_array_len_usages(functions: List[Function]) -> List[Node]:
+    def _get_non_optimal_array_len_usages(functions: list[Function]) -> list[Node]:
         """
         Finds non-optimal usages of array length in loop conditions in given functions.
         """
-        non_optimal_array_len_usages: List[Node] = []
+        non_optimal_array_len_usages: list[Node] = []
 
         for f in functions:
             non_optimal_array_len_usages += (

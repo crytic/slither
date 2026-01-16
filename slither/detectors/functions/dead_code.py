@@ -2,8 +2,6 @@
 Module detecting dead code
 """
 
-from typing import List, Tuple
-
 from slither.core.declarations import Function, FunctionContract, Contract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -40,7 +38,7 @@ contract Contract{
 
     WIKI_RECOMMENDATION = "Remove unused functions."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         functions_used = set()
@@ -55,7 +53,7 @@ contract Contract{
                 f.canonical_name for f in all_functions_called if isinstance(f, Function)
             }
             all_libss_called = [f.all_library_calls() for f in contract.functions_entry_points]
-            all_libs_called: List[Tuple[Contract, Function]] = [
+            all_libs_called: list[tuple[Contract, Function]] = [
                 item.function for sublist in all_libss_called for item in sublist
             ]
             functions_used |= {

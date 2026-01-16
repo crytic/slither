@@ -8,8 +8,6 @@ Consider public state variables as implemented functions
 Do not consider fallback function or constructor
 """
 
-from typing import List, Set
-
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -69,7 +67,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
     def _match_state_variable(contract: Contract, f: FunctionContract) -> bool:
         return any(s.full_name == f.full_name for s in contract.state_variables)
 
-    def _detect_unimplemented_function(self, contract: Contract) -> Set[Function]:
+    def _detect_unimplemented_function(self, contract: Contract) -> set[Function]:
         """
         Detects any function definitions which are not implemented in the given contract.
         :param contract: The contract to search unimplemented functions for.
@@ -100,7 +98,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
                     unimplemented.add(f)
         return unimplemented
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect unimplemented functions
 
         Recursively visit the calls

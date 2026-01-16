@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -24,7 +22,7 @@ class Backdoor(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = ".."
     WIKI_RECOMMENDATION = ".."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

@@ -4,7 +4,7 @@ import uuid
 from collections import namedtuple
 from enum import Enum as PythonEnum
 from pathlib import Path
-from typing import List, Set, Dict, Optional, Sequence
+from collections.abc import Sequence
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import SolidityFunction, EnumContract, StructureContract
@@ -54,11 +54,11 @@ class Flattening:
         remove_assert=False,
         convert_library_to_internal=False,
         private_to_internal=False,
-        export_path: Optional[str] = None,
-        pragma_solidity: Optional[str] = None,
+        export_path: str | None = None,
+        pragma_solidity: str | None = None,
     ):
-        self._source_codes: Dict[Contract, str] = {}
-        self._source_codes_top_level: Dict[TopLevel, str] = {}
+        self._source_codes: dict[Contract, str] = {}
+        self._source_codes_top_level: dict[TopLevel, str] = {}
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
         self._external_to_public = external_to_public
         self._remove_assert = remove_assert
@@ -270,9 +270,9 @@ class Flattening:
         self,
         t: Type,
         contract: Contract,
-        exported: Set[str],
-        list_contract: Set[Contract],
-        list_top_level: Set[TopLevel],
+        exported: set[str],
+        list_contract: set[Contract],
+        list_top_level: set[TopLevel],
     ):
         if isinstance(t, UserDefinedType):
             t_type = t.type
@@ -298,9 +298,9 @@ class Flattening:
     def _export_list_used_contracts(
         self,
         contract: Contract,
-        exported: Set[str],
-        list_contract: Set[Contract],
-        list_top_level: Set[TopLevel],
+        exported: set[str],
+        list_contract: set[Contract],
+        list_top_level: set[TopLevel],
     ):
         # TODO: investigate why this happen
         if not isinstance(contract, Contract):
@@ -368,8 +368,8 @@ class Flattening:
         list_contract.add(contract)
 
     def _export_contract_with_inheritance(self, contract) -> Export:
-        list_contracts: Set[Contract] = set()  # will contain contract itself
-        list_top_level: Set[TopLevel] = set()
+        list_contracts: set[Contract] = set()  # will contain contract itself
+        list_top_level: set[TopLevel] = set()
         self._export_list_used_contracts(contract, set(), list_contracts, list_top_level)
         path = Path(self._export_path, f"{contract.name}_{uuid.uuid4()}.sol")
 
@@ -386,13 +386,13 @@ class Flattening:
 
         return Export(filename=path, content=content)
 
-    def _export_most_derived(self) -> List[Export]:
-        ret: List[Export] = []
+    def _export_most_derived(self) -> list[Export]:
+        ret: list[Export] = []
         for contract in self._compilation_unit.contracts_derived:
             ret.append(self._export_contract_with_inheritance(contract))
         return ret
 
-    def _export_all(self) -> List[Export]:
+    def _export_all(self) -> list[Export]:
         path = Path(self._export_path, "export.sol")
 
         content = ""
@@ -423,11 +423,11 @@ class Flattening:
 
         return [Export(filename=path, content=content)]
 
-    def _export_with_import(self) -> List[Export]:
-        exports: List[Export] = []
+    def _export_with_import(self) -> list[Export]:
+        exports: list[Export] = []
         for contract in self._compilation_unit.contracts:
-            list_contracts: Set[Contract] = set()  # will contain contract itself
-            list_top_level: Set[TopLevel] = set()
+            list_contracts: set[Contract] = set()  # will contain contract itself
+            list_top_level: set[TopLevel] = set()
             self._export_list_used_contracts(contract, set(), list_contracts, list_top_level)
 
             if list_top_level:
@@ -453,15 +453,15 @@ class Flattening:
     def export(
         self,
         strategy: Strategy,
-        target: Optional[str] = None,
-        json: Optional[str] = None,
-        zip: Optional[str] = None,
-        zip_type: Optional[str] = None,
+        target: str | None = None,
+        json: str | None = None,
+        zip: str | None = None,
+        zip_type: str | None = None,
     ):
         if not self._export_path.exists():
             self._export_path.mkdir(parents=True)
 
-        exports: List[Export] = []
+        exports: list[Export] = []
         if target is None:
             if strategy == Strategy.MostDerived:
                 exports = self._export_most_derived()

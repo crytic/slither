@@ -1,10 +1,8 @@
-from typing import Dict
-
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
+def custom_format(compilation_unit: SlitherCompilationUnit, result: dict) -> None:
     elements = result["elements"]
     for element in elements:
         if element["type"] == "variable":
@@ -17,7 +15,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
 
 
 def _patch(
-    compilation_unit: SlitherCompilationUnit, result: Dict, in_file: str, modify_loc_start: int
+    compilation_unit: SlitherCompilationUnit, result: dict, in_file: str, modify_loc_start: int
 ) -> None:
     in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:]

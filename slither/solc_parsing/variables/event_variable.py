@@ -1,11 +1,9 @@
-from typing import Dict
-
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.event_variable import EventVariable
 
 
 class EventVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: EventVariable, variable_data: Dict):
+    def __init__(self, variable: EventVariable, variable_data: dict):
         super().__init__(variable, variable_data)
 
     @property
@@ -14,7 +12,7 @@ class EventVariableSolc(VariableDeclarationSolc):
         assert isinstance(self._variable, EventVariable)
         return self._variable
 
-    def _analyze_variable_attributes(self, attributes: Dict) -> None:
+    def _analyze_variable_attributes(self, attributes: dict) -> None:
         """
         Analyze event variable attributes
         :param attributes: The event variable attributes to parse.

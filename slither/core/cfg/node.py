@@ -3,7 +3,7 @@ Node module
 """
 
 from enum import Enum
-from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING
 
 from slither.all_exceptions import SlitherException
 from slither.core.declarations import Contract, Function, FunctionContract
@@ -116,75 +116,75 @@ class Node(SourceMapping):
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
-        self._sons: List["Node"] = []
-        self._fathers: List["Node"] = []
+        self._sons: list[Node] = []
+        self._fathers: list[Node] = []
 
         ## Dominators info
         # Dominators nodes
-        self._dominators: Set["Node"] = set()
-        self._immediate_dominator: Optional["Node"] = None
+        self._dominators: set[Node] = set()
+        self._immediate_dominator: Node | None = None
         ## Nodes of the dominators tree
         # self._dom_predecessors = set()
-        self._dom_successors: Set["Node"] = set()
+        self._dom_successors: set[Node] = set()
         # Dominance frontier
-        self._dominance_frontier: Set["Node"] = set()
+        self._dominance_frontier: set[Node] = set()
         # Phi origin
         # key are variable name
-        self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
-        self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
+        self._phi_origins_state_variables: dict[str, tuple[StateVariable, set[Node]]] = {}
+        self._phi_origins_local_variables: dict[str, tuple[LocalVariable, set[Node]]] = {}
         # self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
-        self._expression: Optional[Expression] = None
-        self._variable_declaration: Optional[LocalVariable] = None
+        self._expression: Expression | None = None
+        self._variable_declaration: LocalVariable | None = None
         self._node_id: int = node_id
 
-        self._vars_written: List[Variable] = []
-        self._vars_read: List[Union[Variable, SolidityVariable]] = []
+        self._vars_written: list[Variable] = []
+        self._vars_read: list[Variable | SolidityVariable] = []
 
-        self._ssa_vars_written: List["SlithIRVariable"] = []
-        self._ssa_vars_read: List["SlithIRVariable"] = []
+        self._ssa_vars_written: list[SlithIRVariable] = []
+        self._ssa_vars_read: list[SlithIRVariable] = []
 
-        self._internal_calls: List[InternalCall] = []  # contains solidity calls
-        self._solidity_calls: List[SolidityCall] = []
-        self._high_level_calls: List[Tuple[Contract, HighLevelCall]] = []  # contains library calls
-        self._library_calls: List[LibraryCall] = []
-        self._low_level_calls: List[LowLevelCall] = []
-        self._external_calls_as_expressions: List[Expression] = []
-        self._internal_calls_as_expressions: List[Expression] = []
-        self._irs: List[Operation] = []
-        self._all_slithir_operations: Optional[List[Operation]] = None
-        self._irs_ssa: List[Operation] = []
+        self._internal_calls: list[InternalCall] = []  # contains solidity calls
+        self._solidity_calls: list[SolidityCall] = []
+        self._high_level_calls: list[tuple[Contract, HighLevelCall]] = []  # contains library calls
+        self._library_calls: list[LibraryCall] = []
+        self._low_level_calls: list[LowLevelCall] = []
+        self._external_calls_as_expressions: list[Expression] = []
+        self._internal_calls_as_expressions: list[Expression] = []
+        self._irs: list[Operation] = []
+        self._all_slithir_operations: list[Operation] | None = None
+        self._irs_ssa: list[Operation] = []
 
-        self._state_vars_written: List[StateVariable] = []
-        self._state_vars_read: List[StateVariable] = []
-        self._solidity_vars_read: List[SolidityVariable] = []
+        self._state_vars_written: list[StateVariable] = []
+        self._state_vars_read: list[StateVariable] = []
+        self._solidity_vars_read: list[SolidityVariable] = []
 
-        self._ssa_state_vars_written: List[StateIRVariable] = []
-        self._ssa_state_vars_read: List[StateIRVariable] = []
+        self._ssa_state_vars_written: list[StateIRVariable] = []
+        self._ssa_state_vars_read: list[StateIRVariable] = []
 
-        self._local_vars_read: List[LocalVariable] = []
-        self._local_vars_written: List[LocalVariable] = []
+        self._local_vars_read: list[LocalVariable] = []
+        self._local_vars_written: list[LocalVariable] = []
 
-        self._slithir_vars: Set[
-            Union["SlithIRVariable", ReferenceVariable, TemporaryVariable, TupleVariable]
+        self._slithir_vars: set[
+            SlithIRVariable | ReferenceVariable | TemporaryVariable | TupleVariable
         ] = set()  # non SSA
 
-        self._ssa_local_vars_read: List[LocalIRVariable] = []
-        self._ssa_local_vars_written: List[LocalIRVariable] = []
+        self._ssa_local_vars_read: list[LocalIRVariable] = []
+        self._ssa_local_vars_written: list[LocalIRVariable] = []
 
-        self._expression_vars_written: List[Expression] = []
-        self._expression_vars_read: List[Expression] = []
-        self._expression_calls: List[Expression] = []
+        self._expression_vars_written: list[Expression] = []
+        self._expression_vars_read: list[Expression] = []
+        self._expression_calls: list[Expression] = []
 
         # Computed on the fly, can be True of False
-        self._can_reenter: Optional[bool] = None
-        self._can_send_eth: Optional[bool] = None
+        self._can_reenter: bool | None = None
+        self._can_send_eth: bool | None = None
 
-        self._asm_source_code: Optional[Union[str, Dict]] = None
+        self._asm_source_code: str | dict | None = None
 
-        self.scope: Union["Scope", "Function"] = scope
-        self.file_scope: "FileScope" = file_scope
-        self._function: Optional["Function"] = None
+        self.scope: Scope | Function = scope
+        self.file_scope: FileScope = file_scope
+        self._function: Function | None = None
 
         self._is_reachable: bool = False
 
@@ -245,116 +245,116 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def variables_read(self) -> List[Union[Variable, SolidityVariable]]:
+    def variables_read(self) -> list[Variable | SolidityVariable]:
         """
         list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
-    def state_variables_read(self) -> List[StateVariable]:
+    def state_variables_read(self) -> list[StateVariable]:
         """
         list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
-    def local_variables_read(self) -> List[LocalVariable]:
+    def local_variables_read(self) -> list[LocalVariable]:
         """
         list(LocalVariable): Local variables read
         """
         return list(self._local_vars_read)
 
     @property
-    def solidity_variables_read(self) -> List[SolidityVariable]:
+    def solidity_variables_read(self) -> list[SolidityVariable]:
         """
         list(SolidityVariable): State variables read
         """
         return list(self._solidity_vars_read)
 
     @property
-    def ssa_variables_read(self) -> List["SlithIRVariable"]:
+    def ssa_variables_read(self) -> list["SlithIRVariable"]:
         """
         list(Variable): Variables read (local/state/solidity)
         """
         return list(self._ssa_vars_read)
 
     @property
-    def ssa_state_variables_read(self) -> List[StateIRVariable]:
+    def ssa_state_variables_read(self) -> list[StateIRVariable]:
         """
         list(StateVariable): State variables read
         """
         return list(self._ssa_state_vars_read)
 
     @property
-    def ssa_local_variables_read(self) -> List[LocalIRVariable]:
+    def ssa_local_variables_read(self) -> list[LocalIRVariable]:
         """
         list(LocalVariable): Local variables read
         """
         return list(self._ssa_local_vars_read)
 
     @property
-    def variables_read_as_expression(self) -> List[Expression]:
+    def variables_read_as_expression(self) -> list[Expression]:
         return self._expression_vars_read
 
     @variables_read_as_expression.setter
-    def variables_read_as_expression(self, exprs: List[Expression]) -> None:
+    def variables_read_as_expression(self, exprs: list[Expression]) -> None:
         self._expression_vars_read = exprs
 
     @property
     def slithir_variables(
         self,
-    ) -> List[Union["SlithIRVariable", ReferenceVariable, TemporaryVariable, TupleVariable]]:
+    ) -> list[Union["SlithIRVariable", ReferenceVariable, TemporaryVariable, TupleVariable]]:
         return list(self._slithir_vars)
 
     @property
-    def variables_written(self) -> List[Variable]:
+    def variables_written(self) -> list[Variable]:
         """
         list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
-    def state_variables_written(self) -> List[StateVariable]:
+    def state_variables_written(self) -> list[StateVariable]:
         """
         list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
-    def local_variables_written(self) -> List[LocalVariable]:
+    def local_variables_written(self) -> list[LocalVariable]:
         """
         list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
 
     @property
-    def ssa_variables_written(self) -> List["SlithIRVariable"]:
+    def ssa_variables_written(self) -> list["SlithIRVariable"]:
         """
         list(Variable): Variables written (local/state/solidity)
         """
         return list(self._ssa_vars_written)
 
     @property
-    def ssa_state_variables_written(self) -> List[StateIRVariable]:
+    def ssa_state_variables_written(self) -> list[StateIRVariable]:
         """
         list(StateVariable): State variables written
         """
         return list(self._ssa_state_vars_written)
 
     @property
-    def ssa_local_variables_written(self) -> List[LocalIRVariable]:
+    def ssa_local_variables_written(self) -> list[LocalIRVariable]:
         """
         list(LocalVariable): Local variables written
         """
         return list(self._ssa_local_vars_written)
 
     @property
-    def variables_written_as_expression(self) -> List[Expression]:
+    def variables_written_as_expression(self) -> list[Expression]:
         return self._expression_vars_written
 
     @variables_written_as_expression.setter
-    def variables_written_as_expression(self, exprs: List[Expression]) -> None:
+    def variables_written_as_expression(self, exprs: list[Expression]) -> None:
         self._expression_vars_written = exprs
 
     # endregion
@@ -365,21 +365,21 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List[InternalCall]:
+    def internal_calls(self) -> list[InternalCall]:
         """
         list(InternalCall): List of IR operations with internal/solidity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityCall]:
+    def solidity_calls(self) -> list[SolidityCall]:
         """
         list(SolidityCall): List of IR operations with solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List[HighLevelCall]:
+    def high_level_calls(self) -> list[HighLevelCall]:
         """
         list(HighLevelCall): List of IR operations with high level calls (external calls).
         Include library calls
@@ -387,50 +387,50 @@ class Node(SourceMapping):
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List[LibraryCall]:
+    def library_calls(self) -> list[LibraryCall]:
         """
         list(LibraryCall): List of IR operations with library calls.
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List[LowLevelCall]:
+    def low_level_calls(self) -> list[LowLevelCall]:
         """
         list(LowLevelCall): List of IR operations with low_level call
         """
         return list(self._low_level_calls)
 
     @property
-    def external_calls_as_expressions(self) -> List[Expression]:
+    def external_calls_as_expressions(self) -> list[Expression]:
         """
         list(CallExpression): List of message calls (that creates a transaction)
         """
         return self._external_calls_as_expressions
 
     @external_calls_as_expressions.setter
-    def external_calls_as_expressions(self, exprs: List[Expression]) -> None:
+    def external_calls_as_expressions(self, exprs: list[Expression]) -> None:
         self._external_calls_as_expressions = exprs
 
     @property
-    def internal_calls_as_expressions(self) -> List[Expression]:
+    def internal_calls_as_expressions(self) -> list[Expression]:
         """
         list(CallExpression): List of internal calls (that dont create a transaction)
         """
         return self._internal_calls_as_expressions
 
     @internal_calls_as_expressions.setter
-    def internal_calls_as_expressions(self, exprs: List[Expression]) -> None:
+    def internal_calls_as_expressions(self, exprs: list[Expression]) -> None:
         self._internal_calls_as_expressions = exprs
 
     @property
-    def calls_as_expression(self) -> List[Expression]:
+    def calls_as_expression(self) -> list[Expression]:
         return list(self._expression_calls)
 
     @calls_as_expression.setter
-    def calls_as_expression(self, exprs: List[Expression]) -> None:
+    def calls_as_expression(self, exprs: list[Expression]) -> None:
         self._expression_calls = exprs
 
-    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
+    def can_reenter(self, callstack: list[Function | Variable] | None = None) -> bool:
         """
         Check if the node can re-enter
         Do not consider CREATE as potential re-enter, but check if the
@@ -476,7 +476,7 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def expression(self) -> Optional[Expression]:
+    def expression(self) -> Expression | None:
         """
         Expression: Expression of the node
         """
@@ -494,7 +494,7 @@ class Node(SourceMapping):
             self._local_vars_written += [var]
 
     @property
-    def variable_declaration(self) -> Optional[LocalVariable]:
+    def variable_declaration(self) -> LocalVariable | None:
         """
         Returns:
             LocalVariable
@@ -556,10 +556,10 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def inline_asm(self) -> Optional[Union[str, Dict]]:
+    def inline_asm(self) -> str | dict | None:
         return self._asm_source_code
 
-    def add_inline_asm(self, asm: Union[str, Dict]) -> None:
+    def add_inline_asm(self, asm: str | dict) -> None:
         self._asm_source_code = asm
 
     # endregion
@@ -577,7 +577,7 @@ class Node(SourceMapping):
         """
         self._fathers.append(father)
 
-    def set_fathers(self, fathers: List["Node"]) -> None:
+    def set_fathers(self, fathers: list["Node"]) -> None:
         """Set the father nodes
 
         Args:
@@ -586,7 +586,7 @@ class Node(SourceMapping):
         self._fathers = fathers
 
     @property
-    def fathers(self) -> List["Node"]:
+    def fathers(self) -> list["Node"]:
         """Returns the father nodes
 
         Returns:
@@ -633,7 +633,7 @@ class Node(SourceMapping):
             return
         self._sons[idx] = new_son
 
-    def set_sons(self, sons: List["Node"]) -> None:
+    def set_sons(self, sons: list["Node"]) -> None:
         """Set the son nodes
 
         Args:
@@ -642,7 +642,7 @@ class Node(SourceMapping):
         self._sons = sons
 
     @property
-    def sons(self) -> List["Node"]:
+    def sons(self) -> list["Node"]:
         """Returns the son nodes
 
         Returns:
@@ -670,7 +670,7 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def irs(self) -> List[Operation]:
+    def irs(self) -> list[Operation]:
         """Returns the slithIR representation
 
         return
@@ -679,7 +679,7 @@ class Node(SourceMapping):
         return self._irs
 
     @property
-    def irs_ssa(self) -> List[Operation]:
+    def irs_ssa(self) -> list[Operation]:
         """Returns the slithIR representation with SSA
 
         return
@@ -688,7 +688,7 @@ class Node(SourceMapping):
         return self._irs_ssa
 
     @irs_ssa.setter
-    def irs_ssa(self, irs: List[Operation]) -> None:
+    def irs_ssa(self, irs: list[Operation]) -> None:
         self._irs_ssa = irs
 
     def add_ssa_ir(self, ir: Operation) -> None:
@@ -705,7 +705,7 @@ class Node(SourceMapping):
 
         self._find_read_write_call()
 
-    def all_slithir_operations(self) -> List[Operation]:
+    def all_slithir_operations(self) -> list[Operation]:
         if self._all_slithir_operations is None:
             irs = list(self.irs)
             for ir in self.irs:
@@ -730,7 +730,7 @@ class Node(SourceMapping):
     ###################################################################################
 
     @property
-    def dominators(self) -> Set["Node"]:
+    def dominators(self) -> set["Node"]:
         """
         Returns:
             set(Node)
@@ -738,7 +738,7 @@ class Node(SourceMapping):
         return self._dominators
 
     @dominators.setter
-    def dominators(self, dom: Set["Node"]) -> None:
+    def dominators(self, dom: set["Node"]) -> None:
         self._dominators = dom
 
     @property
@@ -754,7 +754,7 @@ class Node(SourceMapping):
         self._immediate_dominator = idom
 
     @property
-    def dominance_frontier(self) -> Set["Node"]:
+    def dominance_frontier(self) -> set["Node"]:
         """
         Returns:
             set(Node)
@@ -762,7 +762,7 @@ class Node(SourceMapping):
         return self._dominance_frontier
 
     @dominance_frontier.setter
-    def dominance_frontier(self, doms: Set["Node"]) -> None:
+    def dominance_frontier(self, doms: set["Node"]) -> None:
         """
         Returns:
             set(Node)
@@ -770,11 +770,11 @@ class Node(SourceMapping):
         self._dominance_frontier = doms
 
     @property
-    def dominator_successors(self) -> Set["Node"]:
+    def dominator_successors(self) -> set["Node"]:
         return self._dom_successors
 
     @property
-    def dominance_exploration_ordered(self) -> List["Node"]:
+    def dominance_exploration_ordered(self) -> list["Node"]:
         """
         Sorted list of all the nodes to explore to follow the dom
         :return: list(nodes)
@@ -799,13 +799,13 @@ class Node(SourceMapping):
     @property
     def phi_origins_local_variables(
         self,
-    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    ) -> dict[str, tuple[LocalVariable, set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
     def phi_origins_state_variables(
         self,
-    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    ) -> dict[str, tuple[StateVariable, set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property
@@ -928,8 +928,8 @@ class Node(SourceMapping):
         self._low_level_calls = list(set(self._low_level_calls))
 
     @staticmethod
-    def _convert_ssa(v: Variable) -> Optional[Union[StateVariable, LocalVariable]]:
-        non_ssa_var: Optional[Union[StateVariable, LocalVariable]]
+    def _convert_ssa(v: Variable) -> StateVariable | LocalVariable | None:
+        non_ssa_var: StateVariable | LocalVariable | None
         if isinstance(v, StateIRVariable):
             contract = v.contract
             assert v.name
@@ -1092,7 +1092,7 @@ def insert_node(origin: Node, node_inserted: Node) -> None:
         link_nodes(node_inserted, son)
 
 
-def recheable(node: Node) -> Set[Node]:
+def recheable(node: Node) -> set[Node]:
     """
     Return the set of nodes reacheable from the node
     :param node:

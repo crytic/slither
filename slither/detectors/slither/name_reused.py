@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import List
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -13,7 +12,7 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
-def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Contract]:
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> list[Contract]:
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.
@@ -59,7 +58,7 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         compilation_unit = self.compilation_unit
         if compilation_unit.core.crytic_compile.platform != PlatformType.TRUFFLE:

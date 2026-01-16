@@ -2,7 +2,6 @@
 Module detecting state variables that could be declared as constant
 """
 
-from typing import Set, List
 from packaging import version
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -72,16 +71,16 @@ class UnchangedStateVariables:
 
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         self.compilation_unit = compilation_unit
-        self._constant_candidates: List[StateVariable] = []
-        self._immutable_candidates: List[StateVariable] = []
+        self._constant_candidates: list[StateVariable] = []
+        self._immutable_candidates: list[StateVariable] = []
 
     @property
-    def immutable_candidates(self) -> List[StateVariable]:
+    def immutable_candidates(self) -> list[StateVariable]:
         """Return the immutable candidates"""
         return self._immutable_candidates
 
     @property
-    def constant_candidates(self) -> List[StateVariable]:
+    def constant_candidates(self) -> list[StateVariable]:
         """Return the constant candidates"""
         return self._constant_candidates
 
@@ -96,11 +95,11 @@ class UnchangedStateVariables:
             variables.append(c.storage_variables_ordered)
             functions.append(c.all_functions_called)
 
-            valid_candidates: Set[StateVariable] = {
+            valid_candidates: set[StateVariable] = {
                 item for sublist in variables for item in sublist if _valid_candidate(item)
             }
 
-            all_functions: List[Function] = list(
+            all_functions: list[Function] = list(
                 {item1 for sublist in functions for item1 in sublist if isinstance(item1, Function)}
             )
 

@@ -5,7 +5,7 @@ Testing utilities for the read-storage tool
 import shutil
 import subprocess
 from time import sleep
-from typing import Generator
+from collections.abc import Generator
 from dataclasses import dataclass
 from web3 import Web3
 import pytest

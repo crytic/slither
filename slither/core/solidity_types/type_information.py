@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING, Tuple, Any
+from typing import Union, TYPE_CHECKING, Any
 
 from slither.core.solidity_types import ElementaryType
 from slither.core.solidity_types.type import Type
@@ -24,7 +24,7 @@ class TypeInformation(Type):
         return self._type
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         """
         32 is incorrect, as Type(x) return a kind of structure that can contain
         an arbitrary number of value

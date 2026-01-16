@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Tuple
 
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
@@ -34,7 +33,7 @@ def generate_test_contract(
     output_dir: Path,
     property_file: Path,
     initialization_recommendation: str,
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     test_contract_name = f"Test{contract.name}{type_property}"
     properties_name = f"Properties{contract.name}{type_property}"
 

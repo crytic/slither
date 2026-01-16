@@ -1,5 +1,3 @@
-from typing import List, Union
-
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.tuple import TupleVariable
@@ -11,8 +9,8 @@ from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 class Unpack(OperationWithLValue):
     def __init__(
         self,
-        result: Union[LocalVariableInitFromTuple, LocalIRVariable],
-        tuple_var: Union[TupleVariable, TupleVariableSSA],
+        result: LocalVariableInitFromTuple | LocalIRVariable,
+        tuple_var: TupleVariable | TupleVariableSSA,
         idx: int,
     ) -> None:
         assert is_valid_lvalue(result)
@@ -24,11 +22,11 @@ class Unpack(OperationWithLValue):
         self._lvalue = result
 
     @property
-    def read(self) -> List[Union[TupleVariableSSA, TupleVariable]]:
+    def read(self) -> list[TupleVariableSSA | TupleVariable]:
         return [self.tuple]
 
     @property
-    def tuple(self) -> Union[TupleVariable, TupleVariableSSA]:
+    def tuple(self) -> TupleVariable | TupleVariableSSA:
         return self._tuple
 
     @property

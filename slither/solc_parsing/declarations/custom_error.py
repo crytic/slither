@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_contract import CustomErrorContract
@@ -25,7 +25,7 @@ class CustomErrorSolc(CallerContextExpression):
         contract_parser: Optional["ContractSolc"],
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
-        self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
+        self._slither_parser: SlitherCompilationUnitSolc = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_data["name"]
         self._contract_parser = contract_parser
@@ -75,7 +75,7 @@ class CustomErrorSolc(CallerContextExpression):
             return key
         return "children"
 
-    def _parse_params(self, params: Dict) -> None:
+    def _parse_params(self, params: dict) -> None:
         assert params[self.get_key()] == "ParameterList"
 
         if self._slither_parser.is_compact_ast:
@@ -89,7 +89,7 @@ class CustomErrorSolc(CallerContextExpression):
             self._custom_error.add_parameters(local_var.underlying_variable)
         self._custom_error.set_solidity_sig()
 
-    def _add_param(self, param: Dict) -> LocalVariableSolc:
+    def _add_param(self, param: dict) -> LocalVariableSolc:
         local_var = LocalVariable()
         local_var.set_offset(param["src"], self._slither_parser.compilation_unit)
 

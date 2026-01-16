@@ -2,7 +2,7 @@
 Nodes of the dominator tree
 """
 
-from typing import TYPE_CHECKING, Set, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 class DominatorNode:
     def __init__(self):
-        self._succ: Set["Node"] = set()
-        self._nodes: List["Node"] = []
+        self._succ: set[Node] = set()
+        self._nodes: list[Node] = []
 
     def add_node(self, node: "Node"):
         self._nodes.append(node)
@@ -20,9 +20,9 @@ class DominatorNode:
         self._succ.add(succ)
 
     @property
-    def cfg_nodes(self) -> List["Node"]:
+    def cfg_nodes(self) -> list["Node"]:
         return self._nodes
 
     @property
-    def sucessors(self) -> Set["Node"]:
+    def sucessors(self) -> set["Node"]:
         return self._succ

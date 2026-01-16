@@ -2,8 +2,6 @@
 Module detecting misuse of Boolean constants
 """
 
-from typing import List, Set, Tuple
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -71,7 +69,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
     @staticmethod
     def _detect_boolean_constant_misuses(
         contract: Contract,
-    ) -> List[Tuple[Function, Set[Node]]]:
+    ) -> list[tuple[Function, set[Node]]]:
         """
         Detects and returns all nodes which misuse a Boolean constant.
         :param contract: Contract to detect assignment within.
@@ -79,7 +77,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         """
 
         # Create our result set.
-        results: List[Tuple[Function, Set[Node]]] = []
+        results: list[tuple[Function, set[Node]]] = []
 
         # Loop for each function and modifier.
         for function in contract.functions_declared:
@@ -115,7 +113,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect Boolean constant misuses
         """

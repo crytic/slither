@@ -1,9 +1,9 @@
-from typing import NamedTuple, List
+from typing import NamedTuple
 
 
 class LibraryInfo(NamedTuple):
     name: str
-    versons: List[str]
+    versons: list[str]
 
 
 oz_hashes = {

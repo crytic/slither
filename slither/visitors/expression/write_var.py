@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any
 
 from slither.core.expressions import NewElementaryType
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -22,23 +22,23 @@ from slither.core.expressions.unary_operation import UnaryOperation
 key = "WriteVar"
 
 
-def get(expression: Expression) -> List[Any]:
+def get(expression: Expression) -> list[Any]:
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
 
-def set_val(expression: Expression, val: List[Any]) -> None:
+def set_val(expression: Expression, val: list[Any]) -> None:
     expression.context[key] = val
 
 
 class WriteVar(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
-        self._result: Optional[List[Expression]] = None
+        self._result: list[Expression] | None = None
         super().__init__(expression)
 
-    def result(self) -> List[Any]:
+    def result(self) -> list[Any]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result

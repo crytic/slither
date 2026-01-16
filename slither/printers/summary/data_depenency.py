@@ -2,8 +2,6 @@
 Module printing summary of the contract
 """
 
-from typing import List
-
 from slither.core.declarations import Contract
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.analyses.data_dependency.data_dependency import get_dependencies, SUPPORTED_TYPES
@@ -12,7 +10,7 @@ from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.output import Output
 
 
-def _get(v: SUPPORTED_TYPES, c: Contract) -> List[str]:
+def _get(v: SUPPORTED_TYPES, c: Contract) -> list[str]:
     return list(
         {
             d.name

@@ -2,7 +2,6 @@ import logging
 import sys
 import subprocess
 from pathlib import Path
-from typing import Dict, Union
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
 from slither.utils.colors import green, red, yellow
@@ -24,8 +23,8 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
 
 def run_test_cmd(
     cmd: str,
-    timeout: Union[int, None] = None,
-    target_file: Union[str, None] = None,
+    timeout: int | None = None,
+    target_file: str | None = None,
     verbose: bool = False,
 ) -> bool:
     """
@@ -80,11 +79,11 @@ def run_test_cmd(
 def test_patch(
     output_folder: Path,
     file: str,
-    patch: Dict,
+    patch: dict,
     command: str,
     generator_name: str,
     timeout: int,
-    mappings: Union[str, None],
+    mappings: str | None,
     verbose: bool,
 ) -> int:
     """

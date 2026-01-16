@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable
 from slither.vyper_parsing.variables.structure_variable import StructureVariableVyper
@@ -16,7 +14,7 @@ class StructVyper:
         st.name = struct.name
         st.canonical_name = struct.name + self._structure.contract.name
 
-        self._elemsNotParsed: List[AnnAssign] = struct.body
+        self._elemsNotParsed: list[AnnAssign] = struct.body
 
     def analyze(self, contract) -> None:
         for elem_to_parse in self._elemsNotParsed:
