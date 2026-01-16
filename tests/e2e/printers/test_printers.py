@@ -8,6 +8,7 @@ from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
+from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.summary.cheatcodes import CheatcodePrinter
 from slither.printers.summary.slithir import PrinterSlithIR
@@ -84,3 +85,39 @@ def test_slithir_printer(solc_binary_path) -> None:
     output = printer.output("test_printer_slithir.dot")
 
     assert "slither.core.solidity_types" not in output.data["description"]
+
+
+def test_inheritance_printer_no_extra_newlines(solc_binary_path) -> None:
+    """
+    Test that the inheritance printer output doesn't have extra newlines
+    splitting contract names from their inheritance lists.
+
+    Fixes issue #1835 where output was malformed:
+        + Baz
+         -> Bar, IBaz
+        , [Foo, IFoo]
+
+    Should be:
+        + Baz -> Bar, IBaz, [Foo, IFoo]
+    """
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "A.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "B.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "C.sol").as_posix())
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    printer = PrinterInheritance(slither=slither, logger=None)
+    output = printer.output("")
+
+    description = output.data["description"]
+
+    # Verify no malformed output: contract name on one line, inheritance on next
+    # The bug caused patterns like "\n+ A\n -> B" instead of "\n+ A -> B"
+    lines = description.split("\n")
+    for i, line in enumerate(lines):
+        # If a line starts with " ->" or ", [", that's malformed output
+        # (inheritance info should be on same line as contract name)
+        assert not line.startswith(" ->"), f"Malformed output: inheritance on separate line: {line}"
+        assert not line.startswith(", ["), f"Malformed output: not_immediate on separate line: {line}"
