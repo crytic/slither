@@ -178,7 +178,7 @@ class PrinterHumanSummary(AbstractPrinter):
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
             return "Compilation non standard\n"
-        return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
+        return f"Compiled with {self.slither.crytic_compile.type!s}\n"
 
     def _number_contracts(self) -> Tuple[int, int, int]:
         contracts = self.slither.contracts

@@ -697,7 +697,7 @@ class Contract(SourceMapping):
         return [
             f
             for f in self.functions
-            if f.visibility in ["public", "external"] and not f.is_shadowed or f.is_fallback
+            if (f.visibility in ["public", "external"] and not f.is_shadowed) or f.is_fallback
         ]
 
     @property
@@ -866,7 +866,7 @@ class Contract(SourceMapping):
 
     def get_functions_writing_to_variable(self, variable: "Variable") -> List["Function"]:
         """
-        Return the functions writting the variable
+        Return the functions writing the variable
         """
         return [f for f in self.functions if f.is_writing(variable)]
 

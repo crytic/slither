@@ -80,7 +80,7 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
                 variable_info: DETECTOR_INFO = [
                     "\t- Variable: ",
                     var,
-                    f" of type: {str(var.type)}\n",
+                    f" of type: {var.type!s}\n",
                 ]
                 node_info: DETECTOR_INFO = ["\t- Enum conversion: ", node, "\n"]
                 json = self.generate_result(func_info + variable_info + node_info)

@@ -43,7 +43,7 @@ def _get_most_derived_init(contract):
     init_functions = [f for f in contract.functions if not f.is_shadowed and f.name == "initialize"]
     if len(init_functions) > 1:
         if len([f for f in init_functions if f.contract_declarer == contract]) == 1:
-            return next((f for f in init_functions if f.contract_declarer == contract))
+            return next(f for f in init_functions if f.contract_declarer == contract)
         raise MultipleInitTarget
     if init_functions:
         return init_functions[0]
@@ -273,7 +273,7 @@ Ensure all the initialize functions are reached by the most derived initialize f
 
         all_init_functions = _get_initialize_functions(self.contract)
         all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
-        missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
+        missing_calls = [f for f in all_init_functions if f not in all_init_functions_called]
         for f in missing_calls:
             # we don't account reinitializers
             if any((m.name == "reinitializer") for m in f.modifiers):

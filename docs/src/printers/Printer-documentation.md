@@ -45,7 +45,7 @@ Export the call-graph of the contracts to a dot file
 ### Example
 
 ```
-$ slither examples/printers/call_graph.sol --print call-graph
+slither examples/printers/call_graph.sol --print call-graph
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png">
@@ -54,13 +54,13 @@ The output format is [dot](https://www.graphviz.org/).
 To visualize the graph:
 
 ```
-$ xdot examples/printers/call_graph.sol.dot
+xdot examples/printers/call_graph.sol.dot
 ```
 
 To convert the file to svg:
 
 ```
-$ dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
+dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
 ```
 
 ## CFG
@@ -75,13 +75,13 @@ The output format is [dot](https://www.graphviz.org/).
 To visualize the graph:
 
 ```
-$ xdot function.sol.dot
+xdot function.sol.dot
 ```
 
 To convert the file to svg:
 
 ```
-$ dot function.dot -Tsvg -o function.sol.png
+dot function.dot -Tsvg -o function.sol.png
 ```
 
 ## Contract Summary
@@ -93,7 +93,7 @@ Output a quick summary of the contract.
 ### Example
 
 ```
-$ slither examples/printers/quick_summary.sol --print contract-summary
+slither examples/printers/quick_summary.sol --print contract-summary
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png">
@@ -106,7 +106,7 @@ Print the data dependencies of the variables
 ### Example
 
 ```
-$ slither examples/printers/data_dependencies.sol --print data-dependency
+slither examples/printers/data_dependencies.sol --print data-dependency
 ```
 
 ```
@@ -200,49 +200,55 @@ This printer is meant to improve [Echidna](https://github.com/crytic/echidna) co
 
 Print the EVM representation of the functions
 
+> **Note:** Requires `evm-cfg-builder` to be installed:
+>
+> ```
+> pip install evm-cfg-builder
+> ```
+
 ### Example
 
 ```
 $ slither examples/printers/evm.sol --print evm
 
 INFO:Printers:Contract Test
-	Function Test.foo()
-		Node: ENTRY_POINT None
-		Source line 5:   function foo() public returns (address) {
-		EVM Instructions:
-			0x44: JUMPDEST
-			0x45: CALLVALUE
-			0x50: POP
-			0x51: PUSH1 0x56
-			0x53: PUSH1 0x98
-			0x55: JUMP
-			0x56: JUMPDEST
-			0x57: PUSH1 0x40
-			0x59: MLOAD
-			0x5a: DUP1
-			0x5b: DUP3
-			0x5c: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
-			0x71: AND
-			0x72: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
-			0x87: AND
-			0x88: DUP2
-			0x89: MSTORE
-			0x8a: PUSH1 0x20
-			0x8c: ADD
-			0x8d: SWAP2
-			0x8e: POP
-			0x8f: POP
-			0x90: PUSH1 0x40
-			0x92: MLOAD
-			0x93: DUP1
-			0x94: SWAP2
-			0x95: SUB
-			0x96: SWAP1
-			0x97: RETURN
-			0x98: JUMPDEST
-			0x99: PUSH1 0x0
-			0xa2: POP
-			0xa3: SWAP1
+ Function Test.foo()
+  Node: ENTRY_POINT None
+  Source line 5:   function foo() public returns (address) {
+  EVM Instructions:
+   0x44: JUMPDEST
+   0x45: CALLVALUE
+   0x50: POP
+   0x51: PUSH1 0x56
+   0x53: PUSH1 0x98
+   0x55: JUMP
+   0x56: JUMPDEST
+   0x57: PUSH1 0x40
+   0x59: MLOAD
+   0x5a: DUP1
+   0x5b: DUP3
+   0x5c: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
+   0x71: AND
+   0x72: PUSH20 0xffffffffffffffffffffffffffffffffffffffff
+   0x87: AND
+   0x88: DUP2
+   0x89: MSTORE
+   0x8a: PUSH1 0x20
+   0x8c: ADD
+   0x8d: SWAP2
+   0x8e: POP
+   0x8f: POP
+   0x90: PUSH1 0x40
+   0x92: MLOAD
+   0x93: DUP1
+   0x94: SWAP2
+   0x95: SUB
+   0x96: SWAP1
+   0x97: RETURN
+   0x98: JUMPDEST
+   0x99: PUSH1 0x0
+   0xa2: POP
+   0xa3: SWAP1
                         0xa4: JUMP
                 Node: NEW VARIABLE from = msg.sender
                 Source line 6:     address from = msg.sender;
@@ -291,7 +297,7 @@ Output a summary of the contract showing for each function:
 ### Example
 
 ```
-$ slither tests/backdoor.sol --print function-summary
+slither tests/backdoor.sol --print function-summary
 ```
 
 ```
@@ -322,7 +328,7 @@ Print a human-readable summary of the contracts
 ### Example
 
 ```
-$ slither examples/printers/human_printer.sol --print human-summary
+slither examples/printers/human_printer.sol --print human-summary
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png">
@@ -335,7 +341,7 @@ Print the inheritance relations between contracts
 ### Example
 
 ```
-$ slither examples/printers/inheritances.sol --print inheritance
+slither examples/printers/inheritances.sol --print inheritance
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png">
@@ -358,13 +364,13 @@ The output format is [dot](https://www.graphviz.org/).
 To visualize the graph:
 
 ```
-$ xdot examples/printers/inheritances.sol.dot
+xdot examples/printers/inheritances.sol.dot
 ```
 
 To convert the file to svg:
 
 ```
-$ dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
+dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png">
@@ -435,30 +441,30 @@ Print the slithIR representation of the functions
 ```
 $ slither examples/printers/slihtir.sol --print slithir
 Contract UnsafeMath
-	Function add(uint256,uint256)
-		Expression: a + b
-		IRs:
-			TMP_0(uint256) = a + b
-			RETURN TMP_0
-	Function min(uint256,uint256)
-		Expression: a - b
-		IRs:
-			TMP_0(uint256) = a - b
-			RETURN TMP_0
+ Function add(uint256,uint256)
+  Expression: a + b
+  IRs:
+   TMP_0(uint256) = a + b
+   RETURN TMP_0
+ Function min(uint256,uint256)
+  Expression: a - b
+  IRs:
+   TMP_0(uint256) = a - b
+   RETURN TMP_0
 Contract MyContract
-	Function transfer(address,uint256)
-		Expression: balances[msg.sender] = balances[msg.sender].min(val)
-		IRs:
-			REF_3(uint256) -> balances[msg.sender]
-			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
-		Expression: balances[to] = balances[to].add(val)
-		IRs:
-			REF_3(uint256) -> balances[to]
-			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
+ Function transfer(address,uint256)
+  Expression: balances[msg.sender] = balances[msg.sender].min(val)
+  IRs:
+   REF_3(uint256) -> balances[msg.sender]
+   REF_1(uint256) -> balances[msg.sender]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
+  Expression: balances[to] = balances[to].add(val)
+  IRs:
+   REF_3(uint256) -> balances[to]
+   REF_1(uint256) -> balances[to]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
 ```
 
 ## SlithIR-SSA

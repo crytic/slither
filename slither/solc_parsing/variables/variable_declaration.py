@@ -61,7 +61,7 @@ class VariableDeclarationSolc:
                     init = variable_data["initialValue"]
                 self._init_from_declaration(variable_data["declarations"][0], init)
             elif nodeType == "VariableDeclaration":
-                self._init_from_declaration(variable_data, variable_data.get("value", None))
+                self._init_from_declaration(variable_data, variable_data.get("value"))
             else:
                 raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
@@ -119,10 +119,7 @@ class VariableDeclarationSolc:
                     self._variable.write_protection.append(write_protection.group(1))
 
     def _analyze_variable_attributes(self, attributes: Dict) -> None:
-        if "visibility" in attributes:
-            self._variable.visibility = attributes["visibility"]
-        else:
-            self._variable.visibility = "internal"
+        self._variable.visibility = attributes.get("visibility", "internal")
 
     def _init_from_declaration(self, var: Dict, init: Optional[Dict]) -> None:
         if self._is_compact_ast:

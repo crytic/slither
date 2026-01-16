@@ -4,6 +4,8 @@ try:
     from fasttext import load_model
     from fasttext import train_unsupervised
 except ImportError:
-    print("ERROR: in order to use slither-simil, you need to install fasttext>=0.2.0:")
-    print("$ pip3 install fasttext --user\n")
+    print("ERROR: slither-simil requires fasttext. Install with:")
+    print("  pip install slither-analyzer[simil]")
+    print("  # or: uv pip install slither-analyzer[simil]")
+    print("  # or add fasttext to existing install: pip install fasttext")
     sys.exit(-1)

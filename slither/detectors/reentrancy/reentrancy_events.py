@@ -112,10 +112,10 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0][0].name)
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0][0].name)
         for (func, calls, send_eth), events in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

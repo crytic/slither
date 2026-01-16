@@ -27,7 +27,7 @@ class UOR(AbstractMutator):
                     continue
                 try:
                     ir_expression = node.expression
-                except:
+                except AttributeError:
                     continue
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length

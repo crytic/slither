@@ -22,7 +22,7 @@ def _dict_contain(d1: Dict, d2: Dict) -> bool:
     Return true if d1 is included in d2
     """
     d2_keys = d2.keys()
-    return all(item in d2_keys for item in d1.keys())
+    return all(item in d2_keys for item in d1)
 
 
 class FileScope:

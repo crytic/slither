@@ -915,7 +915,7 @@ def main_impl(
 
     console_handler.setFormatter(FormatterCryticCompile())
 
-    crytic_compile_error = logging.getLogger(("CryticCompile"))
+    crytic_compile_error = logging.getLogger("CryticCompile")
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)

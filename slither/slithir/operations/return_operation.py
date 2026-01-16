@@ -35,7 +35,7 @@ class Return(Operation):
             # Prior Solidity 0.5
             # return (0,)
             # was valid for returns(uint)
-            self._values = [v for v in values if not v is None]
+            self._values = [v for v in values if v is not None]
             self._valid_value(self._values)
         super().__init__()
 

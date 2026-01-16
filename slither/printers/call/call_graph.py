@@ -120,7 +120,7 @@ def _process_external_call(
 ) -> None:
     external_contract, ir = external_call
 
-    if not external_contract in all_contracts:
+    if external_contract not in all_contracts:
         return
 
     # add variable as node to respective contract
