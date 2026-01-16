@@ -2547,7 +2547,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "8.4.2"
+version = "7.4.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -2556,12 +2556,11 @@ dependencies = [
     { name = "iniconfig", version = "2.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "packaging" },
     { name = "pluggy" },
-    { name = "pygments" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz", hash = "sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01", size = 1519618, upload-time = "2025-09-04T14:34:22.711Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/80/1f/9d8e98e4133ffb16c90f3b405c43e38d3abb715bb5d7a63a5a684f7e46a3/pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280", size = 1357116, upload-time = "2023-12-31T12:00:18.035Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl", hash = "sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79", size = 365750, upload-time = "2025-09-04T14:34:20.226Z" },
+    { url = "https://files.pythonhosted.org/packages/51/ff/f6e8b8f39e08547faece4bd80f89d5a8de68a38b2d179cc1c4490ffa3286/pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8", size = 325287, upload-time = "2023-12-31T12:00:13.963Z" },
 ]
 
 [[package]]
@@ -2581,36 +2580,15 @@ wheels = [
 
 [[package]]
 name = "pytest-insta"
-version = "0.1.11"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version < '3.10'",
-]
 dependencies = [
-    { name = "pytest", marker = "python_full_version < '3.10'" },
-    { name = "wrapt", marker = "python_full_version < '3.10'" },
+    { name = "pytest" },
+    { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/01/c3/1502b3848c9111210b0a6c947958397eb07c5f5f218a6c91b1a59a270c9a/pytest-insta-0.1.11.tar.gz", hash = "sha256:cc0f338a8ac215dbf3b690198dc24a1c5987e2bef269f85170d415039cce06e5", size = 16256, upload-time = "2022-02-28T21:48:34.59Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/18/aa9f0162fc1cb46e527d964c03988106397a1401f153659537408c11d1ba/pytest_insta-0.2.0.tar.gz", hash = "sha256:c4e549f3c5aea8acf1ae6da12cffaaf4e4b3b03d9059c5115deab59f37b23867", size = 16165, upload-time = "2022-11-02T18:33:01.79Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/e0/2cf4cea0084f55f25db206c136958e563cf0a12e41731d30b7d6f52fae05/pytest_insta-0.1.11-py3-none-any.whl", hash = "sha256:c31af45255a8da234a73eff7649e297a053ffa22ba21806457f0fae66fc85f8a", size = 13587, upload-time = "2022-02-28T21:48:32.985Z" },
-]
-
-[[package]]
-name = "pytest-insta"
-version = "0.3.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version >= '3.11' and python_full_version < '3.14'",
-    "python_full_version == '3.10.*'",
-]
-dependencies = [
-    { name = "pytest", marker = "python_full_version >= '3.10'" },
-    { name = "wrapt", marker = "python_full_version >= '3.10'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d0/5b/6ca4baca60c3f8361415501668cde3abd94dbad44293325833fd89d1a7c1/pytest_insta-0.3.0.tar.gz", hash = "sha256:9e6e1c70a021f68ccc4643360b2c2f8326cf3befba85f942c1da17b9caf713f7", size = 14960, upload-time = "2024-02-19T23:00:22.014Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/d5/1459b2861cf703cf49d96b6f29731ee74f4ac7e34b0c60b0ff75bdd318bc/pytest_insta-0.3.0-py3-none-any.whl", hash = "sha256:93a105e3850f2887b120a581923b10bb313d722e00d369377a1d91aa535df704", size = 13660, upload-time = "2024-02-19T23:00:20.054Z" },
+    { url = "https://files.pythonhosted.org/packages/21/0e/a52c2e61431450ac663f2651c4d58e5a16fb823037f54b3183ada5551e80/pytest_insta-0.2.0-py3-none-any.whl", hash = "sha256:e8d8a19f44917fa70102b132ddd4d6afcebe2a31987422dc79458ff849fe1a9e", size = 13610, upload-time = "2022-11-02T18:33:00.483Z" },
 ]
 
 [[package]]
@@ -2980,8 +2958,7 @@ dev = [
     { name = "pdoc", version = "16.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest" },
     { name = "pytest-cov" },
-    { name = "pytest-insta", version = "0.1.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pytest-insta", version = "0.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pytest-insta" },
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "yamllint" },
@@ -3005,8 +2982,7 @@ test = [
     { name = "numpy", version = "2.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pytest" },
     { name = "pytest-cov" },
-    { name = "pytest-insta", version = "0.1.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pytest-insta", version = "0.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pytest-insta" },
     { name = "pytest-xdist" },
 ]
 
