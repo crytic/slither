@@ -47,9 +47,7 @@ def _detect_unused_custom_errors_in_contract(
     for func in all_functions:
         for node in func.nodes:
             for ir in node.all_slithir_operations():
-                if isinstance(ir, SolidityCall) and isinstance(
-                    ir.function, SolidityCustomRevert
-                ):
+                if isinstance(ir, SolidityCall) and isinstance(ir.function, SolidityCustomRevert):
                     used_errors.add(ir.function.custom_error)
 
     # Return unused errors
@@ -96,9 +94,7 @@ def _detect_unused_custom_errors_top_level(
     for func in compilation_unit.functions_top_level:
         for node in func.nodes:
             for ir in node.all_slithir_operations():
-                if isinstance(ir, SolidityCall) and isinstance(
-                    ir.function, SolidityCustomRevert
-                ):
+                if isinstance(ir, SolidityCall) and isinstance(ir.function, SolidityCustomRevert):
                     used_errors.add(ir.function.custom_error)
 
     # Return unused top-level errors
