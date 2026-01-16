@@ -12,9 +12,7 @@ class PrinterInheritance(AbstractPrinter):
     ARGUMENT = "inheritance"
     HELP = "Print the inheritance relations between contracts"
 
-    WIKI = (
-        "https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance"
-    )
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance"
 
     def _get_child_contracts(self, base):
         # Generate function to get all child contracts of a base contract
@@ -46,9 +44,7 @@ class PrinterInheritance(AbstractPrinter):
                 not_immediate = [i for i in child.inheritance if i not in immediate]
 
                 info += " -> " + green(", ".join(map(str, immediate)))
-                result["child_to_base"][child.name]["immediate"] = list(
-                    map(str, immediate)
-                )
+                result["child_to_base"][child.name]["immediate"] = list(map(str, immediate))
                 if not_immediate:
                     info += ", [" + green(", ".join(map(str, not_immediate))) + "]"
                     result["child_to_base"][child.name]["not_immediate"] = list(
@@ -65,15 +61,11 @@ class PrinterInheritance(AbstractPrinter):
 
             result["base_to_child"][base.name] = {"immediate": [], "not_immediate": []}
             if children:
-                immediate = [
-                    child for child in children if base in child.immediate_inheritance
-                ]
+                immediate = [child for child in children if base in child.immediate_inheritance]
                 not_immediate = [child for child in children if child not in immediate]
 
                 info += " -> " + blue(", ".join(map(str, immediate)))
-                result["base_to_child"][base.name]["immediate"] = list(
-                    map(str, immediate)
-                )
+                result["base_to_child"][base.name]["immediate"] = list(map(str, immediate))
                 if not_immediate:
                     info += ", [" + blue(", ".join(map(str, not_immediate))) + "]"
                     result["base_to_child"][base.name]["not_immediate"] = list(
