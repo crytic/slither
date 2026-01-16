@@ -1,18 +1,17 @@
 import os
 import difflib
-from typing import Dict, Tuple, Union
 from collections import defaultdict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 def create_patch(
-    result: Dict,
+    result: dict,
     file: str,
     start: int,
     end: int,
-    old_str: Union[str, bytes],
-    new_str: Union[str, bytes],
+    old_str: str | bytes,
+    new_str: str | bytes,
 ) -> None:
     if isinstance(old_str, bytes):
         old_str = old_str.decode("utf8")
@@ -25,7 +24,7 @@ def create_patch(
         result["patches"][file].append(p)
 
 
-def apply_patch(original_txt: bytes, patch: Dict, offset: int) -> Tuple[bytes, int]:
+def apply_patch(original_txt: bytes, patch: dict, offset: int) -> tuple[bytes, int]:
     patched_txt = original_txt[: int(patch["start"] + offset)]
     patched_txt += patch["new_string"].encode("utf8")
     patched_txt += original_txt[int(patch["end"] + offset) :]

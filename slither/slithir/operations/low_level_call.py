@@ -1,5 +1,3 @@
-from typing import List, Union, Optional
-
 from slither.core.declarations import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -22,10 +20,10 @@ class LowLevelCall(Call, OperationWithLValue):
 
     def __init__(
         self,
-        destination: Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable],
+        destination: LocalVariable | LocalIRVariable | TemporaryVariableSSA | TemporaryVariable,
         function_name: Constant,
         nbr_arguments: int,
-        result: Union[TupleVariable, TupleVariableSSA],
+        result: TupleVariable | TupleVariableSSA,
         type_call: str,
     ) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
@@ -68,14 +66,14 @@ class LowLevelCall(Call, OperationWithLValue):
     @property
     def read(
         self,
-    ) -> List[
-        Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]
+    ) -> list[
+        LocalIRVariable | Constant | LocalVariable | TemporaryVariableSSA | TemporaryVariable
     ]:
         all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, _callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
+    def can_reenter(self, _callstack: list[Function | Variable] | None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -94,7 +92,7 @@ class LowLevelCall(Call, OperationWithLValue):
     @property
     def destination(
         self,
-    ) -> Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable]:
+    ) -> LocalVariable | LocalIRVariable | TemporaryVariableSSA | TemporaryVariable:
         return self._destination
 
     @property

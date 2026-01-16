@@ -1,4 +1,3 @@
-from typing import List, Union
 from slither.slithir.operations.call import Call
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
@@ -8,7 +7,7 @@ from slither.slithir.variables.local_variable import LocalIRVariable
 
 
 class Transfer(Call):
-    def __init__(self, destination: Union[LocalVariable, LocalIRVariable], value: Constant) -> None:
+    def __init__(self, destination: LocalVariable | LocalIRVariable, value: Constant) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
         self._destination = destination
         super().__init__()
@@ -23,11 +22,11 @@ class Transfer(Call):
         return self._call_value
 
     @property
-    def read(self) -> List[Union[Constant, LocalIRVariable, LocalVariable]]:
+    def read(self) -> list[Constant | LocalIRVariable | LocalVariable]:
         return [self.destination, self.call_value]
 
     @property
-    def destination(self) -> Union[LocalVariable, LocalIRVariable]:
+    def destination(self) -> LocalVariable | LocalIRVariable:
         return self._destination
 
     def __str__(self):

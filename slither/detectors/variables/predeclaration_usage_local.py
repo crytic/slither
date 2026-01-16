@@ -2,8 +2,6 @@
 Module detecting any path leading to usage of a local variable before it is declared.
 """
 
-from typing import List, Set, Tuple
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -65,9 +63,9 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
     def detect_predeclared_local_usage(
         self,
         node: Node,
-        results: List[Tuple[Node, LocalVariable]],
-        already_declared: Set[LocalVariable],
-        visited: Set[Node],
+        results: list[tuple[Node, LocalVariable]],
+        already_declared: set[LocalVariable],
+        visited: set[Node],
     ) -> None:
         """
         Detects if a given node uses a variable prior to declaration in any code path.
@@ -109,7 +107,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
 
     def detect_predeclared_in_contract(
         self, contract: Contract
-    ) -> List[Tuple[Function, List[Tuple[Node, LocalVariable]]]]:
+    ) -> list[tuple[Function, list[tuple[Node, LocalVariable]]]]:
         """
         Detects and returns all nodes in a contract which use a variable before it is declared.
         :param contract: Contract to detect pre-declaration usage of locals within.
@@ -117,11 +115,11 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         """
 
         # Create our result set.
-        results: List[Tuple[Function, List[Tuple[Node, LocalVariable]]]] = []
+        results: list[tuple[Function, list[tuple[Node, LocalVariable]]]] = []
 
         # Loop for each function and modifier's nodes and analyze for predeclared local variable usage.
         for function in contract.functions_and_modifiers_declared:
-            predeclared_usage: List[Tuple[Node, LocalVariable]] = []
+            predeclared_usage: list[tuple[Node, LocalVariable]] = []
             if function.nodes:
                 self.detect_predeclared_local_usage(
                     function.nodes[0],
@@ -135,7 +133,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Return the resulting set of nodes which set array length.
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect usage of a local variable before it is declared.
         """

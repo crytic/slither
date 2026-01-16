@@ -2,8 +2,6 @@
 Module detecting misuse of Boolean constants
 """
 
-from typing import List, Set, Tuple
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -56,9 +54,9 @@ Boolean constants can be used directly and do not need to be compare to `true` o
     @staticmethod
     def _detect_boolean_equality(
         contract: Contract,
-    ) -> List[Tuple[Function, Set[Node]]]:
+    ) -> list[tuple[Function, set[Node]]]:
         # Create our result set.
-        results: List[Tuple[Function, Set[Node]]] = []
+        results: list[tuple[Function, set[Node]]] = []
 
         # Loop for each function and modifier.
 
@@ -79,7 +77,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect Boolean constant misuses
         """

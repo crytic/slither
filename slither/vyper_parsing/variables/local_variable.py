@@ -1,12 +1,10 @@
-from typing import Union
-
 from slither.core.variables.local_variable import LocalVariable
 from slither.vyper_parsing.ast.types import Arg, Name, AnnAssign, Subscript, Call, Tuple
 from slither.vyper_parsing.type_parsing import parse_type
 
 
 class LocalVariableVyper:
-    def __init__(self, variable: LocalVariable, variable_data: Union[Arg, AnnAssign, Name]) -> None:
+    def __init__(self, variable: LocalVariable, variable_data: Arg | AnnAssign | Name) -> None:
         self._variable: LocalVariable = variable
 
         if isinstance(variable_data, Arg):

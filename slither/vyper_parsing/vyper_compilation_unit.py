@@ -1,4 +1,3 @@
-from typing import Dict
 import os
 import re
 from dataclasses import dataclass, field
@@ -15,8 +14,8 @@ class VyperCompilationUnit:
     _compilation_unit: SlitherCompilationUnit
     _parsed: bool = False
     _analyzed: bool = False
-    _underlying_contract_to_parser: Dict[Contract, ContractVyper] = field(default_factory=dict)
-    _contracts_by_id: Dict[int, Contract] = field(default_factory=dict)
+    _underlying_contract_to_parser: dict[Contract, ContractVyper] = field(default_factory=dict)
+    _contracts_by_id: dict[int, Contract] = field(default_factory=dict)
 
     def parse_module(self, data: Module, filename: str):
         sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data.src)

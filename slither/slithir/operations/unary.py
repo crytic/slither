@@ -1,5 +1,4 @@
 import logging
-from typing import List, Union
 from enum import Enum
 
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -32,8 +31,8 @@ class UnaryType(Enum):
 class Unary(OperationWithLValue):
     def __init__(
         self,
-        result: Union[TemporaryVariableSSA, TemporaryVariable],
-        variable: Union[Constant, LocalIRVariable, LocalVariable],
+        result: TemporaryVariableSSA | TemporaryVariable,
+        variable: Constant | LocalIRVariable | LocalVariable,
         operation_type: UnaryType,
     ) -> None:
         assert is_valid_rvalue(variable)
@@ -44,11 +43,11 @@ class Unary(OperationWithLValue):
         self._lvalue = result
 
     @property
-    def read(self) -> List[Union[Constant, LocalIRVariable, LocalVariable]]:
+    def read(self) -> list[Constant | LocalIRVariable | LocalVariable]:
         return [self._variable]
 
     @property
-    def rvalue(self) -> Union[Constant, LocalVariable]:
+    def rvalue(self) -> Constant | LocalVariable:
         return self._variable
 
     @property

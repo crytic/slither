@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, List, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
@@ -72,7 +71,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -104,7 +103,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         super()._detect()
 

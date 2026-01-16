@@ -1,4 +1,3 @@
-from typing import List, Union
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
@@ -13,8 +12,8 @@ from slither.slithir.variables.state_variable import StateIRVariable
 class Length(OperationWithLValue):
     def __init__(
         self,
-        value: Union[StateVariable, LocalIRVariable, LocalVariable, StateIRVariable],
-        lvalue: Union[ReferenceVariable, ReferenceVariableSSA],
+        value: StateVariable | LocalIRVariable | LocalVariable | StateIRVariable,
+        lvalue: ReferenceVariable | ReferenceVariableSSA,
     ) -> None:
         super().__init__()
         assert is_valid_rvalue(value)
@@ -24,11 +23,11 @@ class Length(OperationWithLValue):
         lvalue.set_type(ElementaryType("uint256"))
 
     @property
-    def read(self) -> List[Union[LocalVariable, StateVariable, LocalIRVariable, StateIRVariable]]:
+    def read(self) -> list[LocalVariable | StateVariable | LocalIRVariable | StateIRVariable]:
         return [self._value]
 
     @property
-    def value(self) -> Union[StateVariable, LocalVariable]:
+    def value(self) -> StateVariable | LocalVariable:
         return self._value
 
     def __str__(self):

@@ -4,7 +4,6 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import List, Dict
 
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -41,7 +40,7 @@ class InheritanceResolutionError(SlitherException):
 
 
 def _handle_import_aliases(
-    symbol_aliases: Dict, import_directive: Import, scope: FileScope
+    symbol_aliases: dict, import_directive: Import, scope: FileScope
 ) -> None:
     """
     Handle the parsing of import aliases
@@ -78,29 +77,29 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
 
-        self._contracts_by_id: Dict[int, Contract] = {}
+        self._contracts_by_id: dict[int, Contract] = {}
         # For top level functions, there should only be one `Function` since they can't be virtual and therefore can't be overridden.
-        self._functions_by_id: Dict[int, List[Function]] = defaultdict(list)
-        self.imports_by_id: Dict[int, Import] = {}
-        self.top_level_events_by_id: Dict[int, EventTopLevel] = {}
-        self.top_level_errors_by_id: Dict[int, EventTopLevel] = {}
-        self.top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
-        self.top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
-        self.top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
-        self.top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
+        self._functions_by_id: dict[int, list[Function]] = defaultdict(list)
+        self.imports_by_id: dict[int, Import] = {}
+        self.top_level_events_by_id: dict[int, EventTopLevel] = {}
+        self.top_level_errors_by_id: dict[int, EventTopLevel] = {}
+        self.top_level_structures_by_id: dict[int, StructureTopLevel] = {}
+        self.top_level_variables_by_id: dict[int, TopLevelVariable] = {}
+        self.top_level_type_aliases_by_id: dict[int, TypeAliasTopLevel] = {}
+        self.top_level_enums_by_id: dict[int, EnumTopLevel] = {}
 
         self._parsed = False
         self._analyzed = False
         self._is_compact_ast = False
 
-        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
-        self._structures_top_level_parser: List[StructureTopLevelSolc] = []
-        self._custom_error_parser: List[CustomErrorSolc] = []
-        self._variables_top_level_parser: List[TopLevelVariableSolc] = []
-        self._functions_top_level_parser: List[FunctionSolc] = []
-        self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
-        self._events_top_level_parser: List[EventTopLevelSolc] = []
-        self._all_functions_and_modifier_parser: List[FunctionSolc] = []
+        self._underlying_contract_to_parser: dict[Contract, ContractSolc] = {}
+        self._structures_top_level_parser: list[StructureTopLevelSolc] = []
+        self._custom_error_parser: list[CustomErrorSolc] = []
+        self._variables_top_level_parser: list[TopLevelVariableSolc] = []
+        self._functions_top_level_parser: list[FunctionSolc] = []
+        self._using_for_top_level_parser: list[UsingForTopLevelSolc] = []
+        self._events_top_level_parser: list[EventTopLevelSolc] = []
+        self._all_functions_and_modifier_parser: list[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
 
@@ -109,7 +108,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         return self._compilation_unit
 
     @property
-    def all_functions_and_modifiers_parser(self) -> List[FunctionSolc]:
+    def all_functions_and_modifiers_parser(self) -> list[FunctionSolc]:
         return self._all_functions_and_modifier_parser
 
     def add_function_or_modifier_parser(self, f: FunctionSolc) -> None:
@@ -117,7 +116,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._functions_by_id[f.underlying_function.id].append(f.underlying_function)
 
     @property
-    def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
+    def underlying_contract_to_parser(self) -> dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
 
     @property
@@ -125,11 +124,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         return self
 
     @property
-    def contracts_by_id(self) -> Dict[int, Contract]:
+    def contracts_by_id(self) -> dict[int, Contract]:
         return self._contracts_by_id
 
     @property
-    def functions_by_id(self) -> Dict[int, List[Function]]:
+    def functions_by_id(self) -> dict[int, list[Function]]:
         return self._functions_by_id
 
     ###################################################################################
@@ -185,7 +184,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 return True
             return False
 
-    def _parse_enum(self, top_level_data: Dict, filename: str) -> None:
+    def _parse_enum(self, top_level_data: dict, filename: str) -> None:
         if self.is_compact_ast:
             name = top_level_data["name"]
             canonicalName = top_level_data["canonicalName"]
@@ -216,7 +215,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         refId = top_level_data["id"]
         self.top_level_enums_by_id[refId] = enum
 
-    def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
+    def parse_top_level_items(self, data_loaded: dict, filename: str) -> None:
         if not data_loaded or data_loaded is None:
             logger.error(
                 "crytic-compile returned an empty AST. "
@@ -403,7 +402,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
 
-    def _parse_source_unit(self, data: Dict, filename: str) -> None:
+    def _parse_source_unit(self, data: dict, filename: str) -> None:
         if data[self.get_key()] != "SourceUnit":
             return  # handle solc prior 0.3.6
 
@@ -591,7 +590,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 
-    def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]) -> None:
+    def _analyze_all_enums(self, contracts_to_be_analyzed: list[ContractSolc]) -> None:
         while contracts_to_be_analyzed:
             contract = contracts_to_be_analyzed[0]
 
@@ -608,8 +607,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     def _analyze_first_part(
         self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        contracts_to_be_analyzed: list[ContractSolc],
+        libraries: list[ContractSolc],
     ) -> None:
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -634,8 +633,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     def _analyze_second_part(
         self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        contracts_to_be_analyzed: list[ContractSolc],
+        libraries: list[ContractSolc],
     ) -> None:
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -664,8 +663,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     def _analyze_third_part(
         self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        contracts_to_be_analyzed: list[ContractSolc],
+        libraries: list[ContractSolc],
     ) -> None:
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)
@@ -689,7 +688,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_using_for(
-        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+        self, contracts_to_be_analyzed: list[ContractSolc], libraries: list[ContractSolc]
     ) -> None:
         self._analyze_top_level_using_for()
 

@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import List
 
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
@@ -17,7 +16,7 @@ logger = logging.getLogger("Slither")
 def generate_truffle_test(
     contract: Contract,
     type_property: str,
-    unit_tests: List[Property],
+    unit_tests: list[Property],
     addresses: Addresses,
 ) -> str:
     test_contract = f"Test{contract.name}{type_property}"

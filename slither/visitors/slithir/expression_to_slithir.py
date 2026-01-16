@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 
 from slither.core import expressions
 from slither.core.scope.scope import FileScope
@@ -131,11 +131,11 @@ _signed_to_unsigned = {
 
 
 def convert_assignment(
-    left: Union[LocalVariable, StateVariable, ReferenceVariable],
-    right: Union[LocalVariable, StateVariable, ReferenceVariable],
+    left: LocalVariable | StateVariable | ReferenceVariable,
+    right: LocalVariable | StateVariable | ReferenceVariable,
     t: AssignmentOperationType,
     return_type: Type,
-) -> Union[Binary, Assignment]:
+) -> Binary | Assignment:
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     if t == AssignmentOperationType.ASSIGN_OR:
@@ -168,7 +168,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         self._expression = expression
         self._node = node
-        self._result: List[Operation] = []
+        self._result: list[Operation] = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
             r = Return(get(self.expression))
@@ -177,7 +177,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self) -> List[Operation]:
+    def result(self) -> list[Operation]:
         return self._result
 
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
@@ -321,7 +321,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         called = get(expression_called)
 
         args = [get(a) for a in expression.arguments if a]
-        val: Union[TupleVariable, TemporaryVariable]
+        val: TupleVariable | TemporaryVariable
         var: Operation
         for arg in args:
             arg_ = Argument(arg)
@@ -352,7 +352,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         ):
             # wrap: underlying_type -> alias
             # unwrap: alias -> underlying_type
-            dest_type: Union[TypeAlias, ElementaryType] = (
+            dest_type: TypeAlias | ElementaryType = (
                 called if expression_called.member_name == "wrap" else called.underlying_type
             )
             val = TemporaryVariable(self._node)
@@ -528,7 +528,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     assert len(expression.expression.arguments) == 1
                     val = TemporaryVariable(self._node)
                     type_expression_found = expression.expression.arguments[0]
-                    type_found: Union[ElementaryType, UserDefinedType]
+                    type_found: ElementaryType | UserDefinedType
                     if isinstance(type_expression_found, ElementaryTypeNameExpression):
                         type_expression_found_type = type_expression_found.type
                         assert isinstance(type_expression_found_type, ElementaryType)

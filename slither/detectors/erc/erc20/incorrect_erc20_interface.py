@@ -3,8 +3,6 @@ Detect incorrect erc20 interface.
 Some contracts do not return a bool on transfer/transferFrom/approve, which may lead to preventing the contract to be used with contracts compiled with recent solc (>0.4.22)
 """
 
-from typing import List, Tuple
-
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import (
@@ -46,7 +44,7 @@ contract Token{
     )
 
     @staticmethod
-    def incorrect_erc20_interface(signature: Tuple[str, List[str], List[str]]) -> bool:
+    def incorrect_erc20_interface(signature: tuple[str, list[str], list[str]]) -> bool:
         (name, parameters, returnVars) = signature
 
         if name == "transfer" and parameters == ["address", "uint256"] and returnVars != ["bool"]:
@@ -78,7 +76,7 @@ contract Token{
         return False
 
     @staticmethod
-    def detect_incorrect_erc20_interface(contract: Contract) -> List[FunctionContract]:
+    def detect_incorrect_erc20_interface(contract: Contract) -> list[FunctionContract]:
         """Detect incorrect ERC20 interface
 
         Returns:
@@ -103,7 +101,7 @@ contract Token{
 
         return functions
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect incorrect erc20 interface
 
         Returns:

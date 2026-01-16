@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, Set, List
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
@@ -52,7 +51,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -89,7 +88,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
 
         super()._detect()
@@ -98,7 +97,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
         results = []
 
         result_sorted = sorted(reentrancies.items(), key=lambda x: x[0].function.name)
-        varsWritten: List[FindingValue]
+        varsWritten: list[FindingValue]
         for (func, calls, send_eth), varsWritten in result_sorted:
             calls = sorted(set(calls), key=lambda x: x[0].node_id)
             send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)

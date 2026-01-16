@@ -1,4 +1,3 @@
-from typing import List, Union
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue, RVALUE
 from slither.slithir.variables.temporary import TemporaryVariable
@@ -7,7 +6,7 @@ from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 class InitArray(OperationWithLValue):
     def __init__(
-        self, init_values: List[RVALUE], lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+        self, init_values: list[RVALUE], lvalue: TemporaryVariableSSA | TemporaryVariable
     ) -> None:
         # init_values can be an array of n dimension
         # reduce was removed in py3
@@ -29,11 +28,11 @@ class InitArray(OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def read(self) -> List[RVALUE]:
+    def read(self) -> list[RVALUE]:
         return self._unroll(self.init_values)
 
     @property
-    def init_values(self) -> List[RVALUE]:
+    def init_values(self) -> list[RVALUE]:
         return list(self._init_values)
 
     def __str__(self):

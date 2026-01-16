@@ -3,7 +3,6 @@ Module printing summary of the contract
 """
 
 import logging
-from typing import Tuple, List, Dict
 
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.state_variable import StateVariable
@@ -72,7 +71,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         return txt
 
-    def _get_detectors_result(self) -> Tuple[List[Dict], int, int, int, int, int]:
+    def _get_detectors_result(self) -> tuple[list[dict], int, int, int, int, int]:
         # disable detectors logger
         logger = logging.getLogger("Detectors")
         logger.setLevel(logging.ERROR)
@@ -116,7 +115,7 @@ class PrinterHumanSummary(AbstractPrinter):
             len(issues_high),
         )
 
-    def get_detectors_result(self) -> Tuple[str, List[Dict], int, int, int, int, int]:
+    def get_detectors_result(self) -> tuple[str, list[dict], int, int, int, int, int]:
         (
             all_results,
             optimization,
@@ -180,7 +179,7 @@ class PrinterHumanSummary(AbstractPrinter):
             return "Compilation non standard\n"
         return f"Compiled with {self.slither.crytic_compile.type!s}\n"
 
-    def _number_contracts(self) -> Tuple[int, int, int]:
+    def _number_contracts(self) -> tuple[int, int, int]:
         contracts = self.slither.contracts
         deps = [c for c in contracts if c.is_from_dependency()]
         tests = [c for c in contracts if c.is_test]
@@ -279,7 +278,7 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f"Number of contracts in tests       : {number_contracts_tests}\n"
         return txt
 
-    def _get_number_lines(self, txt: str, results: Dict) -> Tuple[str, Dict]:
+    def _get_number_lines(self, txt: str, results: dict) -> tuple[str, dict]:
         loc = compute_loc_metrics(self.slither)
         txt += "Source lines of code (SLOC) in source files: "
         txt += f"{loc.src.sloc}\n"

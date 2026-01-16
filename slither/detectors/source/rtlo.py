@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -59,7 +58,7 @@ contract Token
     RTLO_CHARACTER_ENCODED = "\u202e".encode()
     STANDARD_JSON = False
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         pattern = re.compile(".*\u202e.*".encode())
 

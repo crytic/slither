@@ -5,8 +5,6 @@ Recursively explore the CFG to only report uninitialized storage variables that 
 written before being read
 """
 
-from typing import List
-
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -50,7 +48,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
     key = "UNINITIALIZEDSTORAGE"
 
     def _detect_uninitialized(
-        self, function: FunctionContract, node: Node, visited: List[Node]
+        self, function: FunctionContract, node: Node, visited: list[Node]
     ) -> None:
         if node in visited:
             return
@@ -87,7 +85,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect uninitialized storage variables
 
         Recursively visit the calls

@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 class StructureTopLevel(Structure, TopLevel):
     def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__(compilation_unit)
-        self.file_scope: "FileScope" = scope
+        self.file_scope: FileScope = scope

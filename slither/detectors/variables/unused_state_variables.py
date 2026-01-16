@@ -2,8 +2,6 @@
 Module detecting unused state variables
 """
 
-from typing import List, Optional, Dict
-
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -20,7 +18,7 @@ from slither.utils.output import Output
 from slither.visitors.expression.export_values import ExportValues
 
 
-def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
+def detect_unused(contract: Contract) -> list[StateVariable] | None:
     # Get all the variables read in all the functions and modifiers
 
     all_functions = [
@@ -34,7 +32,7 @@ def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
     ]
 
     array_candidates_ = [x.variables for x in all_functions]
-    array_candidates: List[Variable] = [i for sl in array_candidates_ for i in sl]
+    array_candidates: list[Variable] = [i for sl in array_candidates_ for i in sl]
     array_candidates += contract.state_variables
     array_candidates = [
         x.type.length for x in array_candidates if isinstance(x.type, ArrayType) and x.type.length
@@ -78,7 +76,7 @@ class UnusedStateVars(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = "Remove unused state variables."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect unused state variables"""
         results = []
         for c in self.compilation_unit.contracts_derived:
@@ -94,5 +92,5 @@ class UnusedStateVars(AbstractDetector):
         return results
 
     @staticmethod
-    def _format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
+    def _format(compilation_unit: SlitherCompilationUnit, result: dict) -> None:
         custom_format(compilation_unit, result)

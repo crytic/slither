@@ -1,5 +1,3 @@
-from typing import Optional, Dict
-
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
 from slither.core.expressions.assignment_operation import (
@@ -15,14 +13,14 @@ from slither.visitors.expression.write_var import WriteVar
 
 class NodeVyper:
     def __init__(self, node: Node) -> None:
-        self._unparsed_expression: Optional[Dict] = None
+        self._unparsed_expression: dict | None = None
         self._node = node
 
     @property
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict) -> None:
+    def add_unparsed_expression(self, expression: dict) -> None:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 

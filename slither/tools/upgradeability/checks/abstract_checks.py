@@ -1,6 +1,6 @@
 import abc
 from logging import Logger
-from typing import Optional, List, Dict, Union, Callable
+from collections.abc import Callable
 
 from slither.core.declarations import Contract
 from slither.utils.colors import green, yellow, red
@@ -20,7 +20,7 @@ class CheckClassification(ComparableEnum):
     UNIMPLEMENTED = 999
 
 
-classification_colors: Dict[CheckClassification, Callable[[str], str]] = {
+classification_colors: dict[CheckClassification, Callable[[str], str]] = {
     CheckClassification.INFORMATIONAL: green,
     CheckClassification.LOW: yellow,
     CheckClassification.MEDIUM: yellow,
@@ -34,7 +34,7 @@ classification_txt = {
     CheckClassification.HIGH: "High",
 }
 
-CHECK_INFO = List[Union[str, SupportedOutput]]
+CHECK_INFO = list[str | SupportedOutput]
 
 
 class AbstractCheck(metaclass=abc.ABCMeta):
@@ -57,8 +57,8 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         self,
         logger: Logger,
         contract: Contract,
-        proxy: Optional[Contract] = None,
-        contract_v2: Optional[Contract] = None,
+        proxy: Contract | None = None,
+        contract_v2: Contract | None = None,
     ) -> None:
         self.logger = logger
         self.contract = contract
@@ -123,11 +123,11 @@ class AbstractCheck(metaclass=abc.ABCMeta):
             )
 
     @abc.abstractmethod
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         """TODO Documentation"""
         return []
 
-    def check(self) -> List[Dict]:
+    def check(self) -> list[dict]:
         all_outputs = self._check()
         # Keep only dictionaries
         all_results = [r.data for r in all_outputs]
@@ -143,7 +143,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
     def generate_result(
         self,
         info: CHECK_INFO,
-        additional_fields: Optional[Dict] = None,
+        additional_fields: dict | None = None,
     ) -> Output:
         output = Output(
             info, additional_fields, markdown_root=self.contract.compilation_unit.core.markdown_root

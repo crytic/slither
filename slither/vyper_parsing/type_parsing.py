@@ -1,4 +1,3 @@
-from typing import Union
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     ElementaryTypeName,
@@ -12,8 +11,8 @@ from slither.solc_parsing.exceptions import ParsingError
 
 
 def parse_type(
-    annotation: Union[Name, Subscript, Call, Tuple],
-    caller_context: Union[FunctionContract, Contract],
+    annotation: Name | Subscript | Call | Tuple,
+    caller_context: FunctionContract | Contract,
 ):
     from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 

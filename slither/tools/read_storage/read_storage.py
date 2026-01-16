@@ -1,6 +1,7 @@
 import logging
 from math import floor
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 
 import dataclasses
 
@@ -37,20 +38,20 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")
 logger.setLevel(logging.INFO)
 
-Elem = Dict[str, "SlotInfo"]
-NestedElem = Dict[str, Elem]
+Elem = dict[str, "SlotInfo"]
+NestedElem = dict[str, Elem]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class SlotInfo:
     name: str
     type_string: str
     slot: int
     size: int
     offset: int
-    value: Optional[Union[int, bool, str, ChecksumAddress]] = None
+    value: int | bool | str | ChecksumAddress | None = None
     # For structure and array, str->SlotInfo
-    elems: Union[Elem, NestedElem] = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
+    elems: Elem | NestedElem = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
 
 
 class SlitherReadStorageException(Exception):
@@ -85,21 +86,21 @@ class RpcInfo:
 
 
 class SlitherReadStorage:
-    def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
-        self._checksum_address: Optional[ChecksumAddress] = None
-        self._contracts: List[Contract] = contracts
+    def __init__(self, contracts: list[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
+        self._checksum_address: ChecksumAddress | None = None
+        self._contracts: list[Contract] = contracts
         self._log: str = ""
         self._max_depth: int = max_depth
-        self._slot_info: Dict[str, SlotInfo] = {}
-        self._target_variables: List[Tuple[Contract, StateVariable]] = []
-        self._constant_storage_slots: List[Tuple[Contract, StateVariable]] = []
-        self.rpc_info: Optional[RpcInfo] = rpc_info
-        self.storage_address: Optional[str] = None
-        self.table: Optional[MyPrettyTable] = None
+        self._slot_info: dict[str, SlotInfo] = {}
+        self._target_variables: list[tuple[Contract, StateVariable]] = []
+        self._constant_storage_slots: list[tuple[Contract, StateVariable]] = []
+        self.rpc_info: RpcInfo | None = rpc_info
+        self.storage_address: str | None = None
+        self.table: MyPrettyTable | None = None
         self.unstructured: bool = False
 
     @property
-    def contracts(self) -> List[Contract]:
+    def contracts(self) -> list[Contract]:
         return self._contracts
 
     @property
@@ -123,23 +124,23 @@ class SlitherReadStorage:
         return self._checksum_address
 
     @property
-    def target_variables(self) -> List[Tuple[Contract, StateVariable]]:
+    def target_variables(self) -> list[tuple[Contract, StateVariable]]:
         """Storage variables (not constant or immutable) and their associated contract."""
         return self._target_variables
 
     @property
-    def constant_slots(self) -> List[Tuple[Contract, StateVariable]]:
+    def constant_slots(self) -> list[tuple[Contract, StateVariable]]:
         """Constant bytes32 variables and their associated contract."""
         return self._constant_storage_slots
 
     @property
-    def slot_info(self) -> Dict[str, SlotInfo]:
+    def slot_info(self) -> dict[str, SlotInfo]:
         """Contains the location, type, size, offset, and value of contract slots."""
         return self._slot_info
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp: Dict[str, SlotInfo] = {}
+        tmp: dict[str, SlotInfo] = {}
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
@@ -155,8 +156,8 @@ class SlitherReadStorage:
             tmp.update(self.get_unstructured_layout())
         self._slot_info = tmp
 
-    def get_unstructured_layout(self) -> Dict[str, SlotInfo]:
-        tmp: Dict[str, SlotInfo] = {}
+    def get_unstructured_layout(self) -> dict[str, SlotInfo]:
+        tmp: dict[str, SlotInfo] = {}
         for _, var in self.constant_slots:
             var_name = var.name
             try:
@@ -198,7 +199,7 @@ class SlitherReadStorage:
         target_variable: StateVariable,
         contract: Contract,
         **kwargs: Any,
-    ) -> Union[SlotInfo, None]:
+    ) -> SlotInfo | None:
         """
         Finds the storage slot of a variable in a given contract.
         Args:
@@ -213,9 +214,9 @@ class SlitherReadStorage:
             (`SlotInfo`) | None : A dictionary of the slot information.
         """
 
-        key: Optional[int] = kwargs.get("key")
-        deep_key: Optional[int] = kwargs.get("deep_key")
-        struct_var: Optional[str] = kwargs.get("struct_var")
+        key: int | None = kwargs.get("key")
+        deep_key: int | None = kwargs.get("deep_key")
+        struct_var: str | None = kwargs.get("struct_var")
         info: str
         var_log_name = target_variable.name
         try:
@@ -286,9 +287,7 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
-    def find_constant_slot_storage_type(
-        self, var: StateVariable
-    ) -> Tuple[Optional[str], Optional[int]]:
+    def find_constant_slot_storage_type(self, var: StateVariable) -> tuple[str | None, int | None]:
         """
         Given a constant bytes32 StateVariable, tries to determine which variable type is stored there, using the
         heuristic that if a function reads from the slot and returns a value, it probably stores that type of value.
@@ -408,7 +407,7 @@ class SlitherReadStorage:
                 if hardcoded_slot is not None:
                     self._constant_storage_slots.append((contract, hardcoded_slot))
 
-    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> StateVariable | None:
         """
         Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
         `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
@@ -441,9 +440,7 @@ class SlitherReadStorage:
         return None
 
     @staticmethod
-    def find_hardcoded_slot_in_asm_str(
-        inline_asm: str, contract: Contract
-    ) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_asm_str(inline_asm: str, contract: Contract) -> StateVariable | None:
         """
         Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
         Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
@@ -472,7 +469,7 @@ class SlitherReadStorage:
 
     def find_hardcoded_slot_in_exp(
         self, exp: "Expression", contract: Contract
-    ) -> Optional[StateVariable]:
+    ) -> StateVariable | None:
         """
         Parses an expression to see if it contains a sload from a literal storage slot,
         unrolling nested expressions if necessary to determine which slot it loads from.
@@ -552,13 +549,13 @@ class SlitherReadStorage:
             self.table = MyPrettyTable(field_names)
         self.table.add_row([getattr(slot_info, field) for field in field_names])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {key: dataclasses.asdict(value) for key, value in self.slot_info.items()}
 
     @staticmethod
     def _find_struct_var_slot(
-        elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
-    ) -> Tuple[str, str, bytes, int, int]:
+        elems: list[StructureVariable], slot_as_bytes: bytes, struct_var: str
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the slot of a structure variable.
         Args:
@@ -599,9 +596,9 @@ class SlitherReadStorage:
         target_variable_type: ArrayType,
         slot: bytes,
         key: int,
-        deep_key: int = None,
-        struct_var: str = None,
-    ) -> Tuple[str, str, bytes, int, int]:
+        deep_key: int | None = None,
+        struct_var: str | None = None,
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the slot of array's index.
         Args:
@@ -702,10 +699,10 @@ class SlitherReadStorage:
     def _find_mapping_slot(
         target_variable_type: MappingType,
         slot: bytes,
-        key: Union[int, str],
-        deep_key: Union[int, str] = None,
-        struct_var: str = None,
-    ) -> Tuple[str, str, bytes, int, int]:
+        key: int | str,
+        deep_key: int | str | None = None,
+        struct_var: str | None = None,
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the data slot of a target variable within a mapping.
             target_variable (`StateVariable`): The mapping that contains the target variable.
@@ -796,7 +793,7 @@ class SlitherReadStorage:
     @staticmethod
     def get_variable_info(
         contract: Contract, target_variable: StateVariable
-    ) -> Tuple[int, int, int, str]:
+    ) -> tuple[int, int, int, str]:
         """Return slot, size, offset, and type."""
         assert isinstance(target_variable.type, Type)
         type_to = str(target_variable.type)
@@ -813,7 +810,7 @@ class SlitherReadStorage:
     @staticmethod
     def convert_value_to_type(
         hex_bytes: bytes, size: int, offset: int, type_to: str
-    ) -> Union[int, bool, str, ChecksumAddress]:
+    ) -> int | bool | str | ChecksumAddress:
         """Convert slot data to type representation."""
         # Account for storage packing
         offset_hex_bytes = get_offset_value(hex_bytes, offset, size)
@@ -825,7 +822,7 @@ class SlitherReadStorage:
         return value
 
     def _all_struct_slots(
-        self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
+        self, var: StateVariable, st: Structure, contract: Contract, key: int | None = None
     ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
@@ -844,7 +841,7 @@ class SlitherReadStorage:
 
     def _all_array_slots(
         self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
-    ) -> Union[Elem, NestedElem]:
+    ) -> Elem | NestedElem:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
         target_variable_type = type_.type

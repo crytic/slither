@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any
 
 from slither.core.expressions import (
     AssignmentOperation,
@@ -24,23 +24,23 @@ from slither.core.expressions.type_conversion import TypeConversion
 key = "ExportValues"
 
 
-def get(expression: Expression) -> List[Any]:
+def get(expression: Expression) -> list[Any]:
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
 
-def set_val(expression: Expression, val: List[Any]) -> None:
+def set_val(expression: Expression, val: list[Any]) -> None:
     expression.context[key] = val
 
 
 class ExportValues(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
-        self._result: Optional[List[Expression]] = None
+        self._result: list[Expression] | None = None
         super().__init__(expression)
 
-    def result(self) -> List[Expression]:
+    def result(self) -> list[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result

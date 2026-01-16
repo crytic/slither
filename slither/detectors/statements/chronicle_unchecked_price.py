@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -47,7 +45,7 @@ The `bad` function gets the price from Chronicle by calling the read function ho
 
     WIKI_RECOMMENDATION = "Validate that the price returned by the oracle is valid."
 
-    def _var_is_checked(self, nodes: List[Node], var_to_check: Variable) -> bool:
+    def _var_is_checked(self, nodes: list[Node], var_to_check: Variable) -> bool:
         visited = set()
         checked = False
 
@@ -83,8 +81,8 @@ The `bad` function gets the price from Chronicle by calling the read function ho
                         nodes.append(son)
         return checked
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in sorted(

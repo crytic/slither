@@ -1,5 +1,3 @@
-from typing import Union
-
 from slither.core import variables
 from slither.core.declarations import (
     SolidityVariable,
@@ -13,7 +11,7 @@ from slither.slithir import operations
 from slither.slithir import variables as SlitherIRVariable
 
 
-def ntype(_type: Union[solidity_types.Type, str]) -> str:
+def ntype(_type: solidity_types.Type | str) -> str:
     if isinstance(_type, solidity_types.ElementaryType):
         _type = str(_type)
     elif isinstance(_type, solidity_types.ArrayType):
@@ -53,7 +51,7 @@ def ntype(_type: Union[solidity_types.Type, str]) -> str:
     return _type.replace(" ", "_")
 
 
-def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> str:
+def encode_var_for_compare(var: variables.Variable | SolidityVariable) -> str:
     # variables
     if isinstance(var, SlitherIRVariable.Constant):
         return f"constant({ntype(var.type)},{var.value})"

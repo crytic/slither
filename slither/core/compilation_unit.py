@@ -1,6 +1,6 @@
 import math
 from enum import Enum
-from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
@@ -54,43 +54,43 @@ class SlitherCompilationUnit(Context):
         self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
-        self.contracts: List[Contract] = []
-        self._structures_top_level: List[StructureTopLevel] = []
-        self._enums_top_level: List[EnumTopLevel] = []
-        self._events_top_level: List[EventTopLevel] = []
-        self._variables_top_level: List[TopLevelVariable] = []
-        self._functions_top_level: List[FunctionTopLevel] = []
-        self._using_for_top_level: List[UsingForTopLevel] = []
-        self._pragma_directives: List[Pragma] = []
-        self._import_directives: List[Import] = []
-        self._custom_errors: List[CustomErrorTopLevel] = []
-        self._type_aliases: Dict[str, TypeAliasTopLevel] = {}
+        self.contracts: list[Contract] = []
+        self._structures_top_level: list[StructureTopLevel] = []
+        self._enums_top_level: list[EnumTopLevel] = []
+        self._events_top_level: list[EventTopLevel] = []
+        self._variables_top_level: list[TopLevelVariable] = []
+        self._functions_top_level: list[FunctionTopLevel] = []
+        self._using_for_top_level: list[UsingForTopLevel] = []
+        self._pragma_directives: list[Pragma] = []
+        self._import_directives: list[Import] = []
+        self._custom_errors: list[CustomErrorTopLevel] = []
+        self._type_aliases: dict[str, TypeAliasTopLevel] = {}
 
-        self._all_functions: Set[Function] = set()
-        self._all_modifiers: Set[Modifier] = set()
+        self._all_functions: set[Function] = set()
+        self._all_modifiers: set[Modifier] = set()
 
         # Memoize
-        self._all_state_variables: Optional[Set[StateVariable]] = None
+        self._all_state_variables: set[StateVariable] | None = None
 
-        self._persistent_storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
-        self._transient_storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
+        self._persistent_storage_layouts: dict[str, dict[str, tuple[int, int]]] = {}
+        self._transient_storage_layouts: dict[str, dict[str, tuple[int, int]]] = {}
 
-        self._contract_with_missing_inheritance: Set[Contract] = set()
+        self._contract_with_missing_inheritance: set[Contract] = set()
 
-        self._source_units: Dict[int, str] = {}
+        self._source_units: dict[int, str] = {}
 
         self.counter_slithir_tuple = 0
         self.counter_slithir_temporary = 0
         self.counter_slithir_reference = 0
 
-        self.scopes: Dict[Filename, FileScope] = {}
+        self.scopes: dict[Filename, FileScope] = {}
 
     @property
     def core(self) -> "SlitherCore":
         return self._core
 
     @property
-    def source_units(self) -> Dict[int, str]:
+    def source_units(self) -> dict[int, str]:
         return self._source_units
 
     # endregion
@@ -136,12 +136,12 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def pragma_directives(self) -> List[Pragma]:
+    def pragma_directives(self) -> list[Pragma]:
         """list(core.declarations.Pragma): Pragma directives."""
         return self._pragma_directives
 
     @property
-    def import_directives(self) -> List[Import]:
+    def import_directives(self) -> list[Import]:
         """list(core.declarations.Import): Import directives"""
         return self._import_directives
 
@@ -153,13 +153,13 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contracts_derived(self) -> List[Contract]:
+    def contracts_derived(self) -> list[Contract]:
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritances = [x.inheritance for x in self.contracts]
         inheritance = [item for sublist in inheritances for item in sublist]
         return [c for c in self.contracts if c not in inheritance]
 
-    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
+    def get_contract_from_name(self, contract_name: str | Constant) -> list[Contract]:
         """
             Return a list of contract from a name
         Args:
@@ -177,21 +177,21 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def functions(self) -> List[Function]:
+    def functions(self) -> list[Function]:
         return list(self._all_functions)
 
     def add_function(self, func: Function) -> None:
         self._all_functions.add(func)
 
     @property
-    def modifiers(self) -> List[Modifier]:
+    def modifiers(self) -> list[Modifier]:
         return list(self._all_modifiers)
 
     def add_modifier(self, modif: Modifier) -> None:
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self) -> List[Function]:
+    def functions_and_modifiers(self) -> list[Function]:
         return self.functions + list(self.modifiers)
 
     def propagate_function_calls(self) -> None:
@@ -214,7 +214,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def state_variables(self) -> List[StateVariable]:
+    def state_variables(self) -> list[StateVariable]:
         if self._all_state_variables is None:
             state_variabless = [c.state_variables for c in self.contracts]
             state_variables = [item for sublist in state_variabless for item in sublist]
@@ -229,35 +229,35 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def structures_top_level(self) -> List[StructureTopLevel]:
+    def structures_top_level(self) -> list[StructureTopLevel]:
         return self._structures_top_level
 
     @property
-    def enums_top_level(self) -> List[EnumTopLevel]:
+    def enums_top_level(self) -> list[EnumTopLevel]:
         return self._enums_top_level
 
     @property
-    def events_top_level(self) -> List[EventTopLevel]:
+    def events_top_level(self) -> list[EventTopLevel]:
         return self._events_top_level
 
     @property
-    def variables_top_level(self) -> List[TopLevelVariable]:
+    def variables_top_level(self) -> list[TopLevelVariable]:
         return self._variables_top_level
 
     @property
-    def functions_top_level(self) -> List[FunctionTopLevel]:
+    def functions_top_level(self) -> list[FunctionTopLevel]:
         return self._functions_top_level
 
     @property
-    def using_for_top_level(self) -> List[UsingForTopLevel]:
+    def using_for_top_level(self) -> list[UsingForTopLevel]:
         return self._using_for_top_level
 
     @property
-    def custom_errors(self) -> List[CustomErrorTopLevel]:
+    def custom_errors(self) -> list[CustomErrorTopLevel]:
         return self._custom_errors
 
     @property
-    def type_aliases(self) -> Dict[str, TypeAliasTopLevel]:
+    def type_aliases(self) -> dict[str, TypeAliasTopLevel]:
         return self._type_aliases
 
     # endregion
@@ -268,7 +268,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contracts_with_missing_inheritance(self) -> Set[Contract]:
+    def contracts_with_missing_inheritance(self) -> set[Contract]:
         return self._contract_with_missing_inheritance
 
     # endregion
@@ -312,9 +312,9 @@ class SlitherCompilationUnit(Context):
     def _compute_storage_layout(
         self,
         contract_name: str,
-        state_variables_ordered: List[StateVariable],
+        state_variables_ordered: list[StateVariable],
         is_transient: bool,
-        custom_storage_layout: Optional[int],
+        custom_storage_layout: int | None,
     ):
         if is_transient:
             slot = 0
@@ -352,7 +352,7 @@ class SlitherCompilationUnit(Context):
             else:
                 offset += size
 
-    def storage_layout_of(self, contract: Contract, var: StateVariable) -> Tuple[int, int]:
+    def storage_layout_of(self, contract: Contract, var: StateVariable) -> tuple[int, int]:
         if var.is_stored:
             return self._persistent_storage_layouts[contract.name][var.canonical_name]
         return self._transient_storage_layouts[contract.name][var.canonical_name]

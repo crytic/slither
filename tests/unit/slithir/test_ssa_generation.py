@@ -3,7 +3,7 @@ import pathlib
 from argparse import ArgumentTypeError
 from collections import defaultdict
 from inspect import getsourcefile
-from typing import Union, List, Dict, Callable
+from collections.abc import Callable
 
 import pytest
 from solc_select.solc_select import valid_version as solc_valid_version
@@ -75,7 +75,7 @@ def ssa_basic_properties(function: Function) -> None:
     """
     ssa_lvalues = set()
     ssa_rvalues = set()
-    lvalue_assignments: Dict[str, int] = {}
+    lvalue_assignments: dict[str, int] = {}
 
     for n in function.nodes:
         for ir in n.irs:
@@ -114,7 +114,7 @@ def ssa_basic_properties(function: Function) -> None:
             undef_vars.add(rvalue.non_ssa_version)
 
     # 4
-    ssa_defs: Dict[str, int] = defaultdict(int)
+    ssa_defs: dict[str, int] = defaultdict(int)
     for v in ssa_lvalues:
         if v and v.name:
             ssa_defs[v.name] += 1
@@ -124,7 +124,7 @@ def ssa_basic_properties(function: Function) -> None:
 
     # Helper 5/6
     def check_property_5_and_6(
-        variables: List[LocalVariable], ssavars: List[LocalIRVariable]
+        variables: list[LocalVariable], ssavars: list[LocalIRVariable]
     ) -> None:
         for var in filter(lambda x: x.name, variables):
             ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
@@ -194,7 +194,7 @@ def phi_values_inserted(f: Function) -> None:
     """
 
     def have_phi_for_var(
-        node: Node, var: Union[StateIRVariable, LocalIRVariable, TemporaryVariableSSA]
+        node: Node, var: StateIRVariable | LocalIRVariable | TemporaryVariableSSA
     ) -> bool:
         """Checks if a node has a phi-instruction for var
 
@@ -266,7 +266,7 @@ def _dump_functions(c: Contract) -> None:
         _dump_function(f)
 
 
-def get_filtered_ssa(f: Union[Function, Node], flt: Callable) -> List[Operation]:
+def get_filtered_ssa(f: Function | Node, flt: Callable) -> list[Operation]:
     """Returns a list of all ssanodes filtered by filter for all nodes in function f"""
     if isinstance(f, Function):
         return [ssanode for node in f.nodes for ssanode in node.irs_ssa if flt(ssanode)]
@@ -275,7 +275,7 @@ def get_filtered_ssa(f: Union[Function, Node], flt: Callable) -> List[Operation]
     return [ssanode for ssanode in f.irs_ssa if flt(ssanode)]
 
 
-def get_ssa_of_type(f: Union[Function, Node], ssatype) -> List[Operation]:
+def get_ssa_of_type(f: Function | Node, ssatype) -> list[Operation]:
     """Returns a list of all ssanodes of a specific type for all nodes in function f"""
     return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, ssatype))
 

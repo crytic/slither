@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from hashlib import sha1
 from slither.utils.oz_hashes import oz_hashes
 
@@ -39,7 +39,7 @@ libraries = {
 }
 
 
-def is_standard_library(contract: "Contract") -> Optional[str]:
+def is_standard_library(contract: "Contract") -> str | None:
     for name, is_lib in libraries.items():
         if is_lib(contract):
             return name

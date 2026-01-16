@@ -3,8 +3,6 @@ Module detecting constant functions
 Recursively check the called functions
 """
 
-from typing import List, Dict
-
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -61,7 +59,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect the constant function changing the state
 
         Recursively visit the calls
@@ -93,5 +91,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
+    def _format(slither: SlitherCompilationUnit, result: dict) -> None:
         custom_format(slither, result)

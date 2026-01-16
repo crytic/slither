@@ -7,7 +7,7 @@ name = "slither-analyzer"
 version = "0.11.4"
 description = "Slither is a Solidity and Vyper static analysis framework written in Python 3."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "AGPL-3.0"}
 authors = [
     {name = "Trail of Bits"},
@@ -22,7 +22,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -30,7 +29,6 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "importlib_metadata>=3.6",
     "packaging",
     "prettytable>=3.10.2",
     "pycryptodome>=3.4.6",
@@ -91,8 +89,8 @@ packages = ["slither"]
 
 [tool.ruff]
 line-length = 100
-# Target Python 3.9+ (current minimum version)
-target-version = "py39"
+# Target Python 3.10+ (current minimum version)
+target-version = "py310"
 # Additional exclusions beyond defaults and .gitignore
 extend-exclude = [
     "docs/",
@@ -135,9 +133,6 @@ ignore = [
     "TC001",    # typing-only-first-party-import
     "TC002",    # typing-only-third-party-import
     "TC003",    # typing-only-standard-library-import
-    "UP006",    # non-pep585-annotation (allow older style)
-    "UP007",    # non-pep604-annotation (allow older style)
-    "UP035",    # deprecated-import
     "RUF001",   # ambiguous-unicode-character-string
     "RUF002",   # ambiguous-unicode-character-docstring
     "RUF003",   # ambiguous-unicode-character-comment
@@ -151,14 +146,11 @@ ignore = [
     "SIM112",   # uncapitalized-environment-variables
     # Disable additional rules to avoid code changes
     "I001",     # unsorted-imports (453 issues)
-    "UP037",    # quoted-annotation (148 issues)
     "RUF005",   # collection-literal-concatenation (57 issues)
     "RUF015",   # unnecessary-iterable-allocation-for-first-element (15 issues)
     "E741",     # ambiguous-variable-name (14 issues)
-    "UP045",    # non-pep604-annotation-optional (13 issues)
     "RUF012",   # mutable-class-default (12 issues)
     "E731",     # lambda-assignment (11 issues)
-    "RUF013",   # implicit-optional (7 issues)
     "F821",     # undefined-name (3 issues - might be false positives)
     "B011",     # assert-false (1 issue)
     "B020",     # loop-variable-overrides-iterator (1 issue)

@@ -1,4 +1,3 @@
-from typing import Dict
 from slither.slithir.operations import Binary, BinaryType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
@@ -16,8 +15,8 @@ class BOR(AbstractMutator):
     NAME = "BOR"
     HELP = "Bitwise Operator Replacement"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
 
         for function in self.contract.functions_and_modifiers_declared:
             if not self.should_mutate_function(function):
