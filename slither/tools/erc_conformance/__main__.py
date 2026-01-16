@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 from collections import defaultdict
 from typing import Any
 from collections.abc import Callable
@@ -20,7 +21,7 @@ logging.getLogger("Slither").setLevel(logging.INFO)
 logger = logging.getLogger("Slither-conformance")
 logger.setLevel(logging.INFO)
 
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")
 logger.addHandler(ch)
