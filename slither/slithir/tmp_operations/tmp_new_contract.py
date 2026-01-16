@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -8,9 +10,9 @@ if TYPE_CHECKING:
 
 
 class TmpNewContract(OperationWithLValue):
-    def __init__(self, contract_type: "UserDefinedType", lvalue: TemporaryVariable) -> None:
+    def __init__(self, contract_type: UserDefinedType, lvalue: TemporaryVariable) -> None:
         super().__init__()
-        self._contract_type: "UserDefinedType" = contract_type
+        self._contract_type: UserDefinedType = contract_type
         self._lvalue = lvalue
         self._call_value = None
         self._call_salt = None
@@ -21,7 +23,7 @@ class TmpNewContract(OperationWithLValue):
         return self._contract_type.type.name
 
     @property
-    def contract_type(self) -> "UserDefinedType":
+    def contract_type(self) -> UserDefinedType:
         """Return the UserDefinedType of the contract being created."""
         return self._contract_type
 
