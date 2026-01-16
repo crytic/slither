@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
 interface IERC20 {
@@ -21,7 +22,7 @@ contract Unsafe {
     // This is not detected
     function bad2(address from, address to, uint256 am) public {
         address from_msgsender = msg.sender;
-        int_transferFrom(from_msgsender, to, amount); // from is not a constant
+        int_transferFrom(from_msgsender, to, am); // from is not a constant
     }
 
     function int_transferFrom(address from, address to, uint256 amount) internal {

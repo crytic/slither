@@ -332,7 +332,7 @@ def compute_must_dependencies(v: SUPPORTED_TYPES) -> Set[Variable]:
         lvalue = lvalue_details[0]
         ir = lvalue_details[2]
 
-        if not lvalue in function_dependencies["context"]:
+        if lvalue not in function_dependencies["context"]:
             function_dependencies["context"][lvalue] = set()
         read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
 
@@ -348,11 +348,7 @@ def compute_must_dependencies(v: SUPPORTED_TYPES) -> Set[Variable]:
     function_dependencies["context"] = convert_to_non_ssa(function_dependencies["context"])
 
     must_dependencies = set()
-    data_dependencies = (
-        list(function_dependencies["context"][v])
-        if function_dependencies["context"] is not None
-        else []
-    )
+    data_dependencies = list(function_dependencies["context"].get(v, set()))
     for i, data_dependency in enumerate(data_dependencies):
         result = compute_must_dependencies(data_dependency)
         if i > 0:

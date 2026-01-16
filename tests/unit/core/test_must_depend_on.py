@@ -1,12 +1,11 @@
 from pathlib import Path
+from typing import Union
+
 from slither import Slither
 from slither.analyses.data_dependency.data_dependency import get_must_depends_on
-from slither.core.variables.variable import Variable
 from slither.core.declarations import SolidityVariable, SolidityVariableComposed
-from typing import Union
-from slither.slithir.variables import (
-    Constant,
-)
+from slither.core.variables.variable import Variable
+from slither.slithir.variables import Constant
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SUPPORTED_TYPES = Union[Variable, SolidityVariable, Constant]
@@ -19,7 +18,7 @@ def test_must_depend_on_returns(solc_binary_path):
 
     for contract in slither_obj.contracts:
         for function in contract.functions:
-            if contract == "Unsafe" and function == "int_transferFrom":
+            if contract.name == "Unsafe" and function.name == "int_transferFrom":
                 result = get_must_depends_on(function.parameters[0])
                 break
     assert isinstance(result, list)
