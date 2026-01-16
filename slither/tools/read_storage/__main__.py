@@ -19,7 +19,7 @@ app.add_typer(read_storage, name="read-storage")
 
 
 @read_storage.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     contract_source: Annotated[
         List[str],
@@ -165,5 +165,10 @@ def main(
                 json.dump(slot_infos_json, file, indent=4)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-read-storage CLI."""
     read_storage()
+
+
+if __name__ == "__main__":
+    main()

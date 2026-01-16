@@ -32,7 +32,7 @@ available_detectors = [
 
 
 @format_app.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     verbose_test: Annotated[
@@ -58,11 +58,7 @@ def main(
         ),
     ] = "",
 ) -> None:
-    # ------------------------------
-    #       Usage: python3 -m slither_format filename
-    #       Example: python3 -m slither_format contract.sol
-    # ------------------------------
-
+    """Auto-fix common Solidity issues detected by slither."""
     # Perform slither analysis on the given filename
     state = ctx.ensure_object(SlitherState)
     slither = Slither(target.target, **state)
@@ -77,5 +73,10 @@ def main(
     slither_format(slither, **state)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-format CLI."""
     format_app()
+
+
+if __name__ == "__main__":
+    main()

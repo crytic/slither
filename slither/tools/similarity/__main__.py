@@ -26,7 +26,7 @@ class Mode(str, enum.Enum):
 
 
 @similarity.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     mode: Annotated[Mode, typer.Option(help="Operation mode")] = Mode.info,
     model: Annotated[str, typer.Argument(help="Model filename")] = "model.bin",
@@ -84,7 +84,12 @@ def main(
     func(**state)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-simil CLI."""
     similarity()
+
+
+if __name__ == "__main__":
+    main()
 
 # endregion

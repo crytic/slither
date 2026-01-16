@@ -49,7 +49,7 @@ def _log_error(err: Any, output_format: OutputFormat, output_file: Path) -> None
 
 
 @conformance.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     contract_name: Annotated[
@@ -98,5 +98,10 @@ def main(
         output_to_json(output_file.as_posix(), None, {"erc-conformance-check": ret})
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-check-erc CLI."""
     conformance()
+
+
+if __name__ == "__main__":
+    main()

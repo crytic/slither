@@ -173,7 +173,7 @@ def _checks_on_contract_and_proxy(
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 @upgradeability_app.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     contract_name: Annotated[str, typer.Argument(help="Contract name")],
@@ -385,3 +385,12 @@ def main(
 
 
 # endregion
+
+
+def main():
+    """Entry point for the slither-check-upgradeability CLI."""
+    upgradeability_app()
+
+
+if __name__ == "__main__":
+    main()

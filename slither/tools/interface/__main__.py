@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 
 
 @interface_cmd.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     contract_name: Annotated[
         str, typer.Argument(help="The name of the contract (case sensitive).")
@@ -78,5 +78,10 @@ def main(
         f.write(interface)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-interface CLI."""
     interface_cmd()
+
+
+if __name__ == "__main__":
+    main()

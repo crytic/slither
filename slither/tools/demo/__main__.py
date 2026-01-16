@@ -14,7 +14,7 @@ logger = logging.getLogger("Slither-demo")
 
 
 demo_app = SlitherApp(help="Demo tool.")
-app.add_typer(demo_app, name="demo")
+app.add_typer(demo_app, name="demo", hidden=True)
 
 
 @demo_app.callback(cls=GroupWithCrytic)

@@ -14,7 +14,7 @@ app.add_typer(doctor, name="doctor")
 
 
 @doctor.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     project: target_type,
 ) -> None:
@@ -29,5 +29,10 @@ def main(
             check.function(project=project.target, **state)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-doctor CLI."""
     doctor()
+
+
+if __name__ == "__main__":
+    main()

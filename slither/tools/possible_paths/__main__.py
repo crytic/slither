@@ -24,7 +24,7 @@ logging.getLogger("Slither").setLevel(logging.INFO)
 
 
 @possible_paths_app.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     functions: Annotated[
@@ -76,5 +76,10 @@ def main(
         print(f"{reaching_path}\n")
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-find-paths CLI."""
     possible_paths_app()
+
+
+if __name__ == "__main__":
+    main()

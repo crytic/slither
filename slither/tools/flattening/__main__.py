@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 @flattener.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     contract: Annotated[Optional[str], typer.Option(help="Flatten one contract.")] = None,
@@ -79,5 +79,10 @@ def main(
         )
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-flat CLI."""
     flattener()
+
+
+if __name__ == "__main__":
+    main()

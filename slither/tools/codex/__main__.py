@@ -152,5 +152,10 @@ def codex_callback(
     )
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-codex CLI."""
     codex_app()
+
+
+if __name__ == "__main__":
+    main()

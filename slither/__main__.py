@@ -394,6 +394,16 @@ class FormatterCryticCompile(logging.Formatter):
 DETECTORS, PRINTERS = get_detectors_and_printers()
 
 
+def complete_detectors(incomplete: str) -> List[str]:
+    """Autocomplete for detector names."""
+    return [d.ARGUMENT for d in DETECTORS if d.ARGUMENT.startswith(incomplete)]
+
+
+def complete_printers(incomplete: str) -> List[str]:
+    """Autocomplete for printer names."""
+    return [p.ARGUMENT for p in PRINTERS if p.ARGUMENT.startswith(incomplete)]
+
+
 # pylint: disable=unused-argument,too-many-locals
 @app.command(
     help="Run slither detectors on the target.",
@@ -430,6 +440,7 @@ def detect(
             "--detect",
             help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in DETECTORS)}",
             rich_help_panel="Detectors",
+            autocompletion=complete_detectors,
         ),
     ] = defaults_flag_in_config["detectors_to_run"],
     detectors_to_exclude: Annotated[
@@ -777,9 +788,21 @@ def printer_command(
             help="Comma-separated list of contract information printers, "
             f"available printers: {', '.join(d.ARGUMENT for d in PRINTERS)}",
             rich_help_panel="Printers",
+            autocompletion=complete_printers,
         ),
     ] = defaults_flag_in_config["printers_to_run"],
+    no_fail: Annotated[
+        bool,
+        typer.Option(
+            "--no-fail",
+            help="Do not fail in case of parsing (echidna mode only).",
+            rich_help_panel="Printers",
+        ),
+    ] = defaults_flag_in_config["no_fail"],
 ):
+    state = ctx.ensure_object(SlitherState)
+    state["no_fail"] = no_fail
+
     choosen_printers = choose_printers(printers_to_run)
 
     slither_instances, _, results_printers, output_errors, number_contracts = handle_target(
@@ -933,14 +956,6 @@ def main_callback(
         ),
     ] = defaults_flag_in_config["disable_color"],
     # Misc
-    no_fail: Annotated[
-        bool,
-        typer.Option(
-            "--no-fail",
-            help="Do not fail in case of parsing (echidna mode only).",
-            rich_help_panel="Misc",
-        ),
-    ] = defaults_flag_in_config["no_fail"],
     config_file: Annotated[
         Optional[Path],
         typer.Option(
@@ -958,6 +973,7 @@ def main_callback(
     wiki_detectors: Annotated[
         Optional[str],
         typer.Option(
+            hidden=True,
             help="Print each detectors information that matches the pattern.",
             callback=output_wiki_action,
         ),
@@ -1051,13 +1067,13 @@ def configure_logger(log_level: int = logging.INFO):
     crytic_compile_error.setLevel(logging.INFO)
 
 
+def main():
+    """Entry point for the slither CLI."""
+    logger.setLevel(logging.INFO)
+    # Codebase with complex dominators can lead to a lot of SSA recursive call
+    sys.setrecursionlimit(1500)
+    app()
+
+
 if __name__ == "__main__":
-    pass
-    #
-    #
-    # logger.setLevel(logging.INFO)
-    #
-    # # Codebase with complex dominators can lead to a lot of SSA recursive call
-    # sys.setrecursionlimit(1500)
-    #
-    # app()
+    main()

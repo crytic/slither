@@ -5,12 +5,10 @@ from slither.tools.kspec_coverage.kspec_coverage import kspec_coverage
 
 import typer
 
-from slither.__main__ import app
 from slither.utils.command_line import target_type, SlitherApp, GroupWithCrytic, SlitherState
 from slither.utils.output import OutputFormat
 
 kspec_coverage_app: SlitherApp = SlitherApp()
-app.add_typer(kspec_coverage_app, name="check-kspec")
 
 logging.basicConfig()
 logger = logging.getLogger("Slither.kspec")
@@ -25,7 +23,7 @@ logger.propagate = False
 
 
 @kspec_coverage_app.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     kspec: Annotated[
@@ -47,5 +45,10 @@ def main(
     )
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-check-kspec CLI."""
     kspec_coverage_app()
+
+
+if __name__ == "__main__":
+    main()

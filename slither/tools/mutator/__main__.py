@@ -5,7 +5,7 @@ import shutil
 import time
 from pathlib import Path
 import typer
-from typing import Type, List, Optional, Annotated, Union
+from typing import Type, List, Optional, Annotated, Union, Set
 
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
@@ -70,13 +70,69 @@ def list_mutator_action(ctx: typer.Context, value: bool) -> None:
 # endregion
 ###################################################################################
 ###################################################################################
+# region Selector Parsing
+###################################################################################
+###################################################################################
+
+
+def parse_target_selectors(selector_str: str) -> Set[int]:
+    """Parse comma-separated selectors (hex or signature format).
+
+    Handles signatures with commas like transfer(address,uint256) by
+    only splitting on commas outside of parentheses.
+    """
+    from slither.utils.function import get_function_id
+
+    selectors: Set[int] = set()
+
+    # Split on commas only when not inside parentheses
+    parts = []
+    current = ""
+    depth = 0
+    for char in selector_str:
+        if char == "(":
+            depth += 1
+            current += char
+        elif char == ")":
+            depth -= 1
+            current += char
+        elif char == "," and depth == 0:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+    if current.strip():
+        parts.append(current.strip())
+
+    for s in parts:
+        if not s:
+            continue
+        if s.startswith("0x"):
+            # Hex format: 0xa9059cbb
+            if len(s) != 10:
+                logger.error(f"Invalid selector format: {s} (must be 0x + 8 hex chars)")
+                raise typer.Exit(code=1)
+            try:
+                selectors.add(int(s, 16))
+            except ValueError:
+                logger.error(f"Invalid hex selector: {s}")
+                raise typer.Exit(code=1)
+        else:
+            # Signature format: transfer(address,uint256)
+            selectors.add(get_function_id(s))
+    return selectors
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Main
 ###################################################################################
 ###################################################################################
 
 
 @mutate_cmd.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     codebase: Annotated[Path, typer.Argument(help="Codebase directory.")],
     test_command: Annotated[
@@ -352,3 +408,12 @@ def main(
 
 
 # endregion
+
+
+def main():
+    """Entry point for the slither-mutate CLI."""
+    mutate_cmd()
+
+
+if __name__ == "__main__":
+    main()

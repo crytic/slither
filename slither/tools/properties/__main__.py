@@ -68,7 +68,7 @@ def list_properties_action(ctx: typer.Context, value: bool) -> None:
 
 
 @properties_app.callback(cls=GroupWithCrytic)
-def main(
+def main_callback(
     ctx: typer.Context,
     target: target_type,
     contract: Annotated[str, typer.Option(help="The targeted contract.")],
@@ -132,5 +132,10 @@ def main(
     generate_erc20(contract, scenario, addresses)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the slither-prop CLI."""
     properties_app()
+
+
+if __name__ == "__main__":
+    main()
