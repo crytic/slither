@@ -12,10 +12,9 @@ See the [detector documentation](https://github.com/trailofbits/slither/wiki/Add
 
 ## Installation
 
-Once these files are updated with your plugin, install it in a virtual environment:
+Once these files are updated with your plugin, install it:
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -e .
+uv sync
+uv run slither --help  # Verify plugin is loaded
 ```
