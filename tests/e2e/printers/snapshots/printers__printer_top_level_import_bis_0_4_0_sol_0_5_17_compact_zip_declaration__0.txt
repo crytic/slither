@@ -1,0 +1,13 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/top-level-import-bis-0.4.0.sol#2 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

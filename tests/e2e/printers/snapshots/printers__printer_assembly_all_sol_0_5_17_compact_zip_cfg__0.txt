@@ -1,0 +1,42 @@
+Export tmp.zip-C-f().dot
+Export tmp.zip-C-a().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: INLINE ASM 1
+"];
+1->2;
+2[label="Node Type: END INLINE ASM 2
+"];
+2->3;
+3[label="Node Type: INLINE ASM 3
+"];
+3->4;
+4[label="Node Type: END INLINE ASM 4
+"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+a()
+
+IRs:
+MODIFIER_CALL, C.a()()"];
+5->1;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: INLINE ASM 1
+"];
+1->2;
+2[label="Node Type: END INLINE ASM 2
+"];
+2->3;
+3[label="Node Type: _ 3
+"];
+}
+

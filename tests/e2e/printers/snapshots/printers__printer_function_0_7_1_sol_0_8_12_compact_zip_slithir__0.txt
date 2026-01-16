@@ -1,0 +1,58 @@
+Contract C1
+	Function C1.constructor() (*)
+	Function C1.fallback() (*)
+	Function C1.receive() (*)
+Contract C2
+	Function C2.constructor() (*)
+	Function C2.fallback() (*)
+	Function C2.receive() (*)
+Contract C3
+	Function C3.constructor() (*)
+	Function C3.f() (*)
+		Expression: modifierNoArgs()
+		IRs:
+			MODIFIER_CALL, C3.modifierNoArgs()()
+		Expression: modifierWithArgs(block.timestamp)
+		IRs:
+			MODIFIER_CALL, C3.modifierWithArgs(uint256)(block.timestamp)
+	Modifier C3.modifierNoArgs()
+	Modifier C3.modifierWithArgs(uint256)
+Contract C4
+	Function C4.hasArgs(uint256,uint256) (*)
+	Function C4.hasReturns() (*)
+	Function C4.hasArgsAndReturns(uint256,uint256) (*)
+		Expression: c
+		IRs:
+			RETURN c
+Contract C5
+	Function C5.payableFunc() (*)
+	Function C5.externalFunc() (*)
+	Function C5.publicFunc() (*)
+	Function C5.internalFunc() (*)
+	Function C5.privateFunc() (*)
+	Function C5.pureFunc() (*)
+	Function C5.viewFunc() (*)
+	Function C5.abstractFunc() (*)
+Contract C6
+	Function C6.abstractFunc() (*)
+	Function C6.abstractFunc2() (*)
+Contract C7
+	Function C7.abstractFunc3() (*)
+Contract C8
+	Function C7.abstractFunc3() 
+	Function C6.abstractFunc() 
+	Function C6.abstractFunc2() 
+	Function C5.payableFunc() (*)
+	Function C5.externalFunc() (*)
+	Function C5.publicFunc() (*)
+	Function C5.internalFunc() (*)
+	Function C5.privateFunc() (*)
+	Function C5.pureFunc() (*)
+	Function C5.viewFunc() (*)
+	Function C5.abstractFunc() 
+	Function C8.abstractFunc() (*)
+	Function C8.abstractFunc2() (*)
+	Function C8.abstractFunc3() (*)
+Top level functions
+	Function freeFunc()
+

@@ -1,0 +1,40 @@
+
+Contract LibByte
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| t        |        [] |
+| t        |        [] |
++----------+-----------+
+Contract TestByte
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| test     |        [] |
++----------+-----------+
+Contract LibUint
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| t        |        [] |
+| t        |        [] |
++----------+-----------+
+Contract TestUint
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| test     |        [] |
++----------+-----------+
+Contract LibInt
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| t        |        [] |
+| t        |        [] |
++----------+-----------+
+Contract TestUintWithVariableiAndConversion
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
+| test     |        [] |
++----------+-----------+

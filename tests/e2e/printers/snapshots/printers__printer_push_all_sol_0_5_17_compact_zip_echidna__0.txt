@@ -1,0 +1,61 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {},
+    "constants_used": {
+        "C": {
+            "f()": [
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "f()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "C": {
+            "f()": {
+                "impacts": [
+                    "f()"
+                ],
+                "is_impacted_by": [
+                    "f()"
+                ]
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.5.17"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

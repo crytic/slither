@@ -1,0 +1,47 @@
+Contract LibByte
+	Function LibByte.t(uint256,bytes1) (*)
+		Expression: 0x1
+		IRs:
+			RETURN 1
+	Function LibByte.t(uint256,bytes32) (*)
+		Expression: 0x32
+		IRs:
+			RETURN 50
+Contract TestByte
+	Function TestByte.test() (*)
+		Expression: a.t(0x10)
+		IRs:
+			TMP_0(uint256) = LIBRARY_CALL, dest:LibByte, function:LibByte.t(uint256,bytes1), arguments:['a', '16'] 
+			RETURN TMP_0
+Contract LibUint
+	Function LibUint.t(uint256,uint8) (*)
+		Expression: 0x1
+		IRs:
+			RETURN 1
+	Function LibUint.t(uint256,uint256) (*)
+		Expression: 0x32
+		IRs:
+			RETURN 50
+Contract TestUint
+	Function TestUint.test() (*)
+		Expression: a.t(2 ** 8)
+		IRs:
+			TMP_1(uint256) = 2 (c)** 8
+			TMP_2(uint256) = LIBRARY_CALL, dest:LibUint, function:LibUint.t(uint256,uint256), arguments:['a', 'TMP_1'] 
+			RETURN TMP_2
+Contract LibInt
+	Function LibInt.t(uint256,int8) (*)
+		Expression: 0x1
+		IRs:
+			RETURN 1
+	Function LibInt.t(uint256,int256) (*)
+		Expression: 0x32
+		IRs:
+			RETURN 50
+Contract TestUintWithVariableiAndConversion
+	Function TestUintWithVariableiAndConversion.test() (*)
+		Expression: a.t(v)
+		IRs:
+			TMP_3(uint256) = LIBRARY_CALL, dest:LibInt, function:LibInt.t(uint256,int256), arguments:['a', 'v'] 
+			RETURN TMP_3
+

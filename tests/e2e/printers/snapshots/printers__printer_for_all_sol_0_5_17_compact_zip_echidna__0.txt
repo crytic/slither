@@ -1,0 +1,467 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "C": [
+            "normalLoopBlockBody()",
+            "normalLoopExprBody()",
+            "normalLoopNoBody()",
+            "loopNoPre()",
+            "loopNoCond()",
+            "loopNoPost()",
+            "loopNoPreCond()",
+            "loopNoPrePost()",
+            "loopNoCondPost()",
+            "loopNoPreCondPost()",
+            "loopNoPreCondPostBody()"
+        ]
+    },
+    "constants_used": {
+        "C": {
+            "normalLoopBlockBody()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "normalLoopExprBody()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "normalLoopNoBody()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoPre()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoCond()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoPost()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoPreCond()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoPrePost()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoCondPost()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "loopNoPreCondPost()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "normalLoopBlockBody()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "normalLoopExprBody()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "normalLoopNoBody()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoPre()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoCond()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.GREATER_EQUAL": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoPost()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoPreCond()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.GREATER_EQUAL": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoPrePost()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoCondPost()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.GREATER_EQUAL": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "loopNoPreCondPost()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.GREATER_EQUAL": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "C": {
+            "normalLoopBlockBody()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "normalLoopExprBody()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "normalLoopNoBody()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPre()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoCond()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPost()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPreCond()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPrePost()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoCondPost()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPreCondPost()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "loopNoPreCondPostBody()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.5.17"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

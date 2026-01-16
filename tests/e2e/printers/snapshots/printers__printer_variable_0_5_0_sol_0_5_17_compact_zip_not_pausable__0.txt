@@ -1,0 +1,10 @@
+Constructor and pure/view functions are not displayed
+
+C:
++----------+-------------------+
+| Name     | Use whenNotPaused |
++----------+-------------------+
+| basic()  |                   |
+| basic2() |                   |
++----------+-------------------+
+

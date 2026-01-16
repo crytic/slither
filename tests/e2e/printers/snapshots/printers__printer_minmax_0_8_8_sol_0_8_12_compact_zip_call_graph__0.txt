@@ -1,0 +1,35 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipMinMax.call-graph.dot
+
+strict digraph {
+subgraph cluster_146_MinMax {
+label = "MinMax"
+"146_constructor" [label="constructor"]
+"146_max" [label="max"]
+"146_min" [label="min"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"type()" 
+"146_constructor" -> "type()"
+"146_max" -> "type()"
+"146_min" -> "type()"
+}
+}
+strict digraph {
+subgraph cluster_146_MinMax {
+label = "MinMax"
+"146_constructor" [label="constructor"]
+"146_max" [label="max"]
+"146_min" [label="min"]
+"146_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"146_slitherConstructorVariables" [label="slitherConstructorVariables"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"type()" 
+"146_constructor" -> "type()"
+"146_max" -> "type()"
+"146_min" -> "type()"
+"146_slitherConstructorConstantVariables" -> "type()"
+"146_slitherConstructorVariables" -> "type()"
+}
+}

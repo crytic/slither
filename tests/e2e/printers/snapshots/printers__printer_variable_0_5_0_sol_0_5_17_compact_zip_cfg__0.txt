@@ -1,0 +1,131 @@
+Export tmp.zip-C-basic().dot
+Export tmp.zip-C-basic2().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+stringStorage_ = s
+
+IRs:
+stringStorage_(string) := s(string)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+"];
+11->12;
+12[label="Node Type: NEW VARIABLE 12
+"];
+12->13;
+13[label="Node Type: NEW VARIABLE 13
+
+EXPRESSION:
+bytesStorage_ = b
+
+IRs:
+bytesStorage_(bytes) := b(bytes)"];
+13->14;
+14[label="Node Type: NEW VARIABLE 14
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+sStorage_ = t
+
+IRs:
+sStorage_(C.S) := t(C.S)"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+mappingStorage_ = m
+
+IRs:
+mappingStorage_(mapping(uint256 => uint256)) := m(mapping(uint256 => uint256))"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+
+EXPRESSION:
+arrayStorage_ = a
+
+IRs:
+arrayStorage_(uint256[]) := a(uint256[])"];
+11->12;
+12[label="Node Type: NEW VARIABLE 12
+"];
+12->13;
+13[label="Node Type: NEW VARIABLE 13
+"];
+13->14;
+14[label="Node Type: NEW VARIABLE 14
+"];
+14->15;
+15[label="Node Type: NEW VARIABLE 15
+"];
+15->16;
+16[label="Node Type: NEW VARIABLE 16
+"];
+16->17;
+17[label="Node Type: NEW VARIABLE 17
+"];
+}
+

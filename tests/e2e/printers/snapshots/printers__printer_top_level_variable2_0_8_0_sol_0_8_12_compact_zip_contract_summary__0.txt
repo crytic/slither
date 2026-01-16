@@ -1,0 +1,9 @@
+
++ Contract T (Most derived contract)
+  - From T
+    - g() (public)
+
++ Contract T2 (Most derived contract)
+  - From T2
+    - h(uint256[10]) (public)
+

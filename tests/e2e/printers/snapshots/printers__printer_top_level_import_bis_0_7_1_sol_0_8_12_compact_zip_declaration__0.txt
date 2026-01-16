@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/top-level-import-bis-0.7.1.sol#3 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/top-level-import-bis-0.7.1.sol#4 (12 - 14)
+			- Implementation(s): ['tests/ast-parsing/top-level-import-bis-0.7.1.sol#4-6 (3 - 4)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

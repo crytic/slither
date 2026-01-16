@@ -1,0 +1,539 @@
+Export tmp.zip-C-normalLoopBlockBody().dot
+Export tmp.zip-C-normalLoopExprBody().dot
+Export tmp.zip-C-normalLoopNoBody().dot
+Export tmp.zip-C-loopNoPre().dot
+Export tmp.zip-C-loopNoCond().dot
+Export tmp.zip-C-loopNoPost().dot
+Export tmp.zip-C-loopNoPreCond().dot
+Export tmp.zip-C-loopNoPrePost().dot
+Export tmp.zip-C-loopNoCondPost().dot
+Export tmp.zip-C-loopNoPreCondPost().dot
+Export tmp.zip-C-loopNoPreCondPostBody().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_0(bool) = i < 10
+CONDITION TMP_0"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_1(uint256) := c(uint256)
+c(uint256) = c + 1"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_2(uint256) := i(uint256)
+i(uint256) = i + 1"];
+7->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_3(bool) = i < 10
+CONDITION TMP_3"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_4(uint256) := c(uint256)
+c(uint256) = c + 1"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_5(uint256) := i(uint256)
+i(uint256) = i + 1"];
+7->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_6(bool) = i < 10
+CONDITION TMP_6"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_7(uint256) := i(uint256)
+i(uint256) = i + 1"];
+6->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->5;
+4[label="Node Type: END_LOOP 4
+"];
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_8(bool) = i < 10
+CONDITION TMP_8"];
+5->6[label="True"];
+5->4[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_9(uint256) := c(uint256)
+c(uint256) = c + 1"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_10(uint256) := i(uint256)
+i(uint256) = i + 1"];
+7->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+i >= 10
+
+IRs:
+TMP_11(bool) = i >= 10
+CONDITION TMP_11"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: BREAK 6
+"];
+6->3;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_12(uint256) := c(uint256)
+c(uint256) = c + 1"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_13(uint256) := i(uint256)
+i(uint256) = i + 1"];
+9->2;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_14(bool) = i < 10
+CONDITION TMP_14"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_15(uint256) := c(uint256)
+c(uint256) = c + 1"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_16(uint256) := i(uint256)
+i(uint256) = i + 1"];
+7->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->5;
+4[label="Node Type: END_LOOP 4
+"];
+5[label="Node Type: IF 5
+
+EXPRESSION:
+i >= 10
+
+IRs:
+TMP_17(bool) = i >= 10
+CONDITION TMP_17"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: BREAK 6
+"];
+6->4;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_18(uint256) := c(uint256)
+c(uint256) = c + 1"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_19(uint256) := i(uint256)
+i(uint256) = i + 1"];
+9->3;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->5;
+4[label="Node Type: END_LOOP 4
+"];
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_20(bool) = i < 10
+CONDITION TMP_20"];
+5->6[label="True"];
+5->4[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_21(uint256) := c(uint256)
+c(uint256) = c + 1"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_22(uint256) := i(uint256)
+i(uint256) = i + 1"];
+7->5;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+i >= 10
+
+IRs:
+TMP_23(bool) = i >= 10
+CONDITION TMP_23"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: BREAK 6
+"];
+6->3;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_24(uint256) := c(uint256)
+c(uint256) = c + 1"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_25(uint256) := i(uint256)
+i(uint256) = i + 1"];
+9->2;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->5;
+4[label="Node Type: END_LOOP 4
+"];
+5[label="Node Type: IF 5
+
+EXPRESSION:
+i >= 10
+
+IRs:
+TMP_26(bool) = i >= 10
+CONDITION TMP_26"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: BREAK 6
+"];
+6->4;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_27(uint256) := c(uint256)
+c(uint256) = c + 1"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_28(uint256) := i(uint256)
+i(uint256) = i + 1"];
+9->3;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: BEGIN_LOOP 1
+"];
+1->1;
+1->2;
+2[label="Node Type: END_LOOP 2
+"];
+}
+

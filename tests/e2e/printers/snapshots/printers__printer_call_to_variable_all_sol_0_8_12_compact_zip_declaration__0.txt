@@ -1,0 +1,31 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/call_to_variable-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/call_to_variable-all.sol#6 (16 - 17)']
+
+	## Function
+
+	## State variables
+		- v
+			- Declaration: tests/ast-parsing/call_to_variable-all.sol#2 (17 - 19)
+			- Implementation: tests/ast-parsing/call_to_variable-all.sol#2 (5 - 18)
+			- References: ['tests/ast-parsing/call_to_variable-all.sol#7 (9 - 14)']
+
+	## Structures
+# D
+	- Declaration: tests/ast-parsing/call_to_variable-all.sol#5 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- D.f(C)
+			- Declaration: tests/ast-parsing/call_to_variable-all.sol#6 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/call_to_variable-all.sol#6-8 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

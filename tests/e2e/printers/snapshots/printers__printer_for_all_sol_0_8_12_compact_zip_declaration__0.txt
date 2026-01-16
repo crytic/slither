@@ -1,0 +1,57 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/for-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.normalLoopBlockBody()
+			- Declaration: tests/ast-parsing/for-all.sol#2 (14 - 34)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#2-7 (5 - 6)']
+			- References: []
+		- C.normalLoopExprBody()
+			- Declaration: tests/ast-parsing/for-all.sol#8 (14 - 33)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#8-11 (5 - 6)']
+			- References: []
+		- C.normalLoopNoBody()
+			- Declaration: tests/ast-parsing/for-all.sol#12 (14 - 31)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#12-16 (5 - 6)']
+			- References: []
+		- C.loopNoPre()
+			- Declaration: tests/ast-parsing/for-all.sol#17 (14 - 24)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#17-24 (5 - 6)']
+			- References: []
+		- C.loopNoCond()
+			- Declaration: tests/ast-parsing/for-all.sol#25 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#25-31 (5 - 6)']
+			- References: []
+		- C.loopNoPost()
+			- Declaration: tests/ast-parsing/for-all.sol#32 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#32-38 (5 - 6)']
+			- References: []
+		- C.loopNoPreCond()
+			- Declaration: tests/ast-parsing/for-all.sol#39 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#39-47 (5 - 6)']
+			- References: []
+		- C.loopNoPrePost()
+			- Declaration: tests/ast-parsing/for-all.sol#48 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#48-55 (5 - 6)']
+			- References: []
+		- C.loopNoCondPost()
+			- Declaration: tests/ast-parsing/for-all.sol#56 (14 - 29)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#56-63 (5 - 6)']
+			- References: []
+		- C.loopNoPreCondPost()
+			- Declaration: tests/ast-parsing/for-all.sol#64 (14 - 32)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#64-72 (5 - 6)']
+			- References: []
+		- C.loopNoPreCondPostBody()
+			- Declaration: tests/ast-parsing/for-all.sol#73 (14 - 36)
+			- Implementation(s): ['tests/ast-parsing/for-all.sol#73-75 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

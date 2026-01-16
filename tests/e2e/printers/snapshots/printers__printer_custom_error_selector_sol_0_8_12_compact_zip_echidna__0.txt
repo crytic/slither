@@ -1,0 +1,53 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {},
+    "constants_used": {
+        "A": {
+            "b(address)": [
+                [
+                    {
+                        "value": "781853394",
+                        "type": "bytes4"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "Test": {},
+        "VM": {
+            "expectRevert(bytes4)": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "expectRevert(bytes)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "A": {
+            "b(address)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {
+        "A": [
+            "b(address)"
+        ]
+    },
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

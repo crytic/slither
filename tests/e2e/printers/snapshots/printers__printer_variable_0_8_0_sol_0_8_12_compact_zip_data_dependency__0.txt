@@ -1,0 +1,70 @@
+
+Contract C
++--------------+--------------+
+| Variable     | Dependencies |
++--------------+--------------+
+| m            |        ['m'] |
+| s            |        ['s'] |
+| b            |        ['b'] |
+| t            |        ['t'] |
+| a            |        ['a'] |
+| immutableInt |           [] |
++--------------+--------------+
+
+Function basic()
++------------------------------+--------------+
+| Variable                     | Dependencies |
++------------------------------+--------------+
+| address_                     |           [] |
+| bool_                        |           [] |
+| stringMemory_                |           [] |
+| stringStorage_               |           [] |
+| stringCalldata_              |           [] |
+| int_                         |           [] |
+| int256_                      |           [] |
+| int8_                        |           [] |
+| uint_                        |           [] |
+| uint256_                     |           [] |
+| uint8_                       |           [] |
+| byte_                        |           [] |
+| bytesMemory_                 |           [] |
+| bytesStorage_                |           [] |
+| bytesCalldata_               |           [] |
+| byte32_                      |           [] |
+| fixed_                       |           [] |
+| fixed128x18_                 |           [] |
+| fixed8x0_                    |           [] |
+| ufixed_                      |           [] |
+| ufixed128x18_                |           [] |
+| ufixed8x0_                   |           [] |
+| sMemory_                     |           [] |
+| sStorage_                    |           [] |
+| sCalldata_                   |           [] |
+| mappingStorage_              |           [] |
+| arrayMemory_                 |           [] |
+| arrayStorage_                |           [] |
+| arrayCalldata_               |           [] |
+| funcEmptyInternalEmpty_      |           [] |
+| funcUintInternalEmpty_       |           [] |
+| funcUintInternalUint_        |           [] |
+| funcUintExternalPayableUint_ |           [] |
+| funcUintExternalViewUint_    |           [] |
+| addressPayable_              |           [] |
+| C.m                          |        ['m'] |
+| C.s                          |        ['s'] |
+| C.b                          |        ['b'] |
+| C.t                          |        ['t'] |
+| C.a                          |        ['a'] |
+| C.immutableInt               |           [] |
++------------------------------+--------------+
+Function slitherConstructorVariables()
++----------------+--------------+
+| Variable       | Dependencies |
++----------------+--------------+
+| C.m            |           [] |
+| C.s            |           [] |
+| C.b            |           [] |
+| C.t            |           [] |
+| C.a            |           [] |
+| C.immutableInt |           [] |
++----------------+--------------+

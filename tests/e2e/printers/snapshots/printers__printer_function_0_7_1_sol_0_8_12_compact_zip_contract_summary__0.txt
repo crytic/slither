@@ -1,0 +1,58 @@
+
++ Contract C1 (Most derived contract)
+  - From C1
+    - constructor() (public)
+    - fallback() (external)
+    - receive() (external)
+
++ Contract C2 (Most derived contract)
+  - From C2
+    - constructor() (public)
+    - fallback() (external)
+    - receive() (external)
+
++ Contract C3 (Most derived contract)
+  - From C3
+    - constructor() (internal)
+    - f() (public)
+
++ Contract C4 (Most derived contract)
+  - From C4
+    - hasArgs(uint256,uint256) (public)
+    - hasArgsAndReturns(uint256,uint256) (public)
+    - hasReturns() (public)
+
++ Contract C5
+  - From C5
+    - abstractFunc() (public)
+    - externalFunc() (external)
+    - internalFunc() (internal)
+    - payableFunc() (public)
+    - privateFunc() (private)
+    - publicFunc() (public)
+    - pureFunc() (public)
+    - viewFunc() (public)
+
++ Contract C6
+  - From C6
+    - abstractFunc() (public)
+    - abstractFunc2() (public)
+
++ Contract C7
+  - From C7
+    - abstractFunc3() (public)
+
++ Contract C8 (Most derived contract)
+  - From C5
+    - externalFunc() (external)
+    - internalFunc() (internal)
+    - payableFunc() (public)
+    - privateFunc() (private)
+    - publicFunc() (public)
+    - pureFunc() (public)
+    - viewFunc() (public)
+  - From C8
+    - abstractFunc() (public)
+    - abstractFunc2() (public)
+    - abstractFunc3() (public)
+

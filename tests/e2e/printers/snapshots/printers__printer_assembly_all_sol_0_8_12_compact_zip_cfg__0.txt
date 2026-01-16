@@ -1,0 +1,75 @@
+Export tmp.zip-C-f().dot
+Export tmp.zip-C-a().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: INLINE ASM 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+x_f_asm_0 = 0
+
+IRs:
+x_f_asm_0(uint256) := 0(uint256)"];
+3->4;
+4[label="Node Type: END INLINE ASM 4
+"];
+4->5;
+5[label="Node Type: INLINE ASM 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+x_f_asm_1 = 0
+
+IRs:
+x_f_asm_1(uint256) := 0(uint256)"];
+7->8;
+8[label="Node Type: END INLINE ASM 8
+"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+a()
+
+IRs:
+MODIFIER_CALL, C.a()()"];
+9->1;
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: INLINE ASM 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+y_a_asm_0 = 0
+
+IRs:
+y_a_asm_0(uint256) := 0(uint256)"];
+3->4;
+4[label="Node Type: END INLINE ASM 4
+"];
+4->5;
+5[label="Node Type: _ 5
+"];
+}
+

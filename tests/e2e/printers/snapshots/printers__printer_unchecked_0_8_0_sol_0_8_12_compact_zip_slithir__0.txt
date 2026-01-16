@@ -1,0 +1,12 @@
+Contract C
+	Function C.f(uint256,uint256) (*)
+		Expression: a - b
+		IRs:
+			TMP_0(uint256) = a - b
+			RETURN TMP_0
+	Function C.g(uint256,uint256) (*)
+		Expression: a - b
+		IRs:
+			TMP_1(uint256) = a (c)- b
+			RETURN TMP_1
+

@@ -1,0 +1,9 @@
+
++ Contract C (Most derived contract)
+  - From C
+    - returnConstant() (public)
+    - returnDelete() (public)
+    - returnTernary() (public)
+    - returnTuple() (public)
+    - returnVariable() (public)
+

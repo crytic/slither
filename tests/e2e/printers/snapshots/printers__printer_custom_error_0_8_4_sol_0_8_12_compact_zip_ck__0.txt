@@ -1,0 +1,69 @@
+
+
+CK complexity metrics (Variables):
++------------------------+-----------------+-----------+------------+
+| Contract               | State variables | Constants | Immutables |
++------------------------+-----------------+-----------+------------+
+| I                      |               0 |         0 |          0 |
+| VendingMachine         |               0 |         1 |          0 |
+| A                      |               0 |         0 |          0 |
+| B                      |               0 |         0 |          0 |
+| ContractArgCustomError |               0 |         0 |          0 |
+| TOTAL                  |               0 |         1 |          0 |
++------------------------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++------------------------+--------+----------+----------+---------+
+| Contract               | Public | External | Internal | Private |
++------------------------+--------+----------+----------+---------+
+| I                      |      0 |        0 |        0 |       0 |
+| VendingMachine         |      7 |        0 |        1 |       0 |
+| A                      |      1 |        0 |        0 |       0 |
+| B                      |      3 |        0 |        0 |       0 |
+| ContractArgCustomError |      0 |        1 |        0 |       2 |
+| TOTAL                  |     11 |        1 |        1 |       2 |
++------------------------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++------------------------+----------+------+------+
+| Contract               | Mutating | View | Pure |
++------------------------+----------+------+------+
+| I                      |        0 |    0 |    0 |
+| VendingMachine         |        8 |    0 |    0 |
+| A                      |        1 |    0 |    0 |
+| B                      |        3 |    0 |    0 |
+| ContractArgCustomError |        3 |    0 |    0 |
+| TOTAL                  |       15 |    0 |    0 |
++------------------------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++------------------------+-------------------+----------------------+--------------+
+| Contract               | External mutating | No auth or onlyOwner | No modifiers |
++------------------------+-------------------+----------------------+--------------+
+| I                      |                 0 |                    0 |            0 |
+| VendingMachine         |                 7 |                    7 |            7 |
+| A                      |                 1 |                    1 |            1 |
+| B                      |                 3 |                    3 |            3 |
+| ContractArgCustomError |                 1 |                    1 |            1 |
+| TOTAL                  |                12 |                   12 |           12 |
++------------------------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++------------------------+-----------+-----+-----+-----+-----+
+| Contract               | Ext calls | RFC | NOC | DIT | CBO |
++------------------------+-----------+-----+-----+-----+-----+
+| I                      |         0 |   0 |   1 |   0 |   0 |
+| VendingMachine         |         0 |   7 |   0 |   1 |   0 |
+| A                      |         0 |   1 |   1 |   0 |   0 |
+| B                      |         0 |   3 |   0 |   1 |   0 |
+| ContractArgCustomError |         0 |   1 |   0 |   0 |   0 |
++------------------------+-----------+-----+-----+-----+-----+
+

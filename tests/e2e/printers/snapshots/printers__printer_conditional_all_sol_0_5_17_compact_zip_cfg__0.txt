@@ -1,0 +1,156 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+false
+
+IRs:
+CONDITION False"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+1
+"];
+7->9;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+2
+"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+5 == 6
+
+IRs:
+TMP_0(bool) = 5 == 6
+CONDITION TMP_0"];
+10->11[label="True"];
+10->12[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+1
+"];
+11->13;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+2
+"];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: IF 14
+
+EXPRESSION:
+1 + 2 == 3
+
+IRs:
+TMP_1(uint256) = 1 + 2
+TMP_2(bool) = TMP_1 == 3
+CONDITION TMP_2"];
+14->26[label="True"];
+14->16[label="False"];
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+- 2
+
+IRs:
+TMP_3(uint256) = 0 - 2"];
+16->17;
+17[label="Node Type: END_IF 17
+"];
+17->18;
+18[label="Node Type: IF 18
+
+EXPRESSION:
+true
+
+IRs:
+CONDITION True"];
+18->19[label="True"];
+18->20[label="False"];
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+a
+"];
+19->21;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+b
+"];
+20->21;
+21[label="Node Type: END_IF 21
+"];
+21->22;
+22[label="Node Type: IF 22
+
+EXPRESSION:
+false
+
+IRs:
+CONDITION False"];
+22->23[label="True"];
+22->24[label="False"];
+23[label="Node Type: EXPRESSION 23
+
+EXPRESSION:
+(1,2)
+"];
+23->25;
+24[label="Node Type: EXPRESSION 24
+
+EXPRESSION:
+(3,4)
+"];
+24->25;
+25[label="Node Type: END_IF 25
+"];
+26[label="Node Type: IF 26
+
+EXPRESSION:
+4 + 5 == 6
+
+IRs:
+TMP_4(uint256) = 4 + 5
+TMP_5(bool) = TMP_4 == 6
+CONDITION TMP_5"];
+26->27[label="True"];
+26->28[label="False"];
+27[label="Node Type: EXPRESSION 27
+
+EXPRESSION:
+int8(0)
+
+IRs:
+TMP_6 = CONVERT 0 to int8"];
+27->29;
+28[label="Node Type: EXPRESSION 28
+
+EXPRESSION:
+- 1
+
+IRs:
+TMP_7(uint256) = 0 - 1"];
+28->29;
+29[label="Node Type: END_IF 29
+"];
+29->17;
+}
+

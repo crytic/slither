@@ -1,0 +1,27 @@
+
+# Contracts
+# CustomErrors
+	- Declaration: tests/ast-parsing/custom_error_with_state_variable.sol#13 (9 - 22)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/custom_error_with_state_variable.sol#19 (20 - 32)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# Bar
+	- Declaration: tests/ast-parsing/custom_error_with_state_variable.sol#17 (10 - 14)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- Bar.baz()
+			- Declaration: tests/ast-parsing/custom_error_with_state_variable.sol#18 (14 - 18)
+			- Implementation(s): ['tests/ast-parsing/custom_error_with_state_variable.sol#18-20 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

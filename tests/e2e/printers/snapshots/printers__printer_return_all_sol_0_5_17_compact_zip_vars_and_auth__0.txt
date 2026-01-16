@@ -1,0 +1,12 @@
+
+Contract C
++----------------+-------------------------+--------------------------+
+| Function       | State variables written | Conditions on msg.sender |
++----------------+-------------------------+--------------------------+
+| returnConstant |                      [] |                       [] |
+| returnVariable |                      [] |                       [] |
+| returnTuple    |                      [] |                       [] |
+| returnTernary  |                      [] |                       [] |
+| returnDelete   |                   ['m'] |                       [] |
++----------------+-------------------------+--------------------------+
+

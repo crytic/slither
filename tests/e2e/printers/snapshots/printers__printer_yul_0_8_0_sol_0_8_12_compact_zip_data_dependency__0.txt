@@ -1,0 +1,45 @@
+
+Contract L
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Contract L
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Contract C
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| storA    |    ['storA'] |
+| storB    |    ['storB'] |
+| storC    |    ['storC'] |
++----------+--------------+
+
+Function f(uint256,uint256[])
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| paramA   |           [] |
+| paramB   |           [] |
+| retA     |           [] |
+| retB     |           [] |
+| localA   |           [] |
+| localB   |           [] |
+| C.storA  |    ['storA'] |
+| C.storB  |    ['storB'] |
+| C.storC  |    ['storC'] |
++----------+--------------+
+Function f()
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| st       |           [] |
+| C.storA  |           [] |
+| C.storB  |           [] |
+| C.storC  |           [] |
++----------+--------------+

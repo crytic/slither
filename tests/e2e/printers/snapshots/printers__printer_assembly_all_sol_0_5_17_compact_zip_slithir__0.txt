@@ -1,0 +1,7 @@
+Contract C
+	Function C.f() (*)
+		Expression: a()
+		IRs:
+			MODIFIER_CALL, C.a()()
+	Modifier C.a()
+

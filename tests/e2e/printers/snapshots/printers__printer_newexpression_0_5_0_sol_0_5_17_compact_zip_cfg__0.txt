@@ -1,0 +1,31 @@
+Export tmp.zip-B-constructor().dot
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+new B
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+new uint256[]
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+new uint256[][]
+"];
+}
+

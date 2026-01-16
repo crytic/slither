@@ -1,0 +1,15 @@
+Constructor and pure/view functions are not displayed
+
+CustomErrors:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+
+Bar:
++-------+-------------------+
+| Name  | Use whenNotPaused |
++-------+-------------------+
+| baz() |                   |
++-------+-------------------+
+

@@ -1,0 +1,27 @@
+Export tmp.zip-Log-f(bytes).dot
+Export tmp.zip-Log-f(bytes4).dot
+Export tmp.zip-A-test().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+l.f(TESTA)
+
+IRs:
+HIGH_LEVEL_CALL, dest:l(Log), function:f, arguments:['TESTA']  "];
+}
+

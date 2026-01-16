@@ -1,0 +1,53 @@
+
+# Contracts
+# I
+	- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/functioncall-0.5.3.sol#34 (9 - 22)', 'tests/ast-parsing/functioncall-0.5.3.sol#36 (13 - 14)', 'tests/ast-parsing/functioncall-0.5.3.sol#37 (14 - 15)', 'tests/ast-parsing/functioncall-0.5.3.sol#39 (14 - 15)', 'tests/ast-parsing/functioncall-0.5.3.sol#42 (45 - 46)', 'tests/ast-parsing/functioncall-0.5.3.sol#36 (9 - 16)', 'tests/ast-parsing/functioncall-0.5.3.sol#37 (9 - 33)']
+
+	## Function
+		- I.constructor()
+			- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#2 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/functioncall-0.5.3.sol#2 (5 - 36)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#5 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#16 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/functioncall-0.5.3.sol#16-43 (5 - 6)']
+			- References: []
+		- C.publicTarget()
+			- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#45 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/functioncall-0.5.3.sol#45-47 (5 - 6)']
+			- References: ['tests/ast-parsing/functioncall-0.5.3.sol#17 (9 - 21)', 'tests/ast-parsing/functioncall-0.5.3.sol#19 (9 - 28)', 'tests/ast-parsing/functioncall-0.5.3.sol#20 (9 - 43)', 'tests/ast-parsing/functioncall-0.5.3.sol#22 (9 - 39)', 'tests/ast-parsing/functioncall-0.5.3.sol#23 (9 - 54)', 'tests/ast-parsing/functioncall-0.5.3.sol#24 (9 - 72)']
+		- C.internalTarget(uint256,uint256)
+			- Declaration: tests/ast-parsing/functioncall-0.5.3.sol#49 (14 - 29)
+			- Implementation(s): ['tests/ast-parsing/functioncall-0.5.3.sol#49-51 (5 - 6)']
+			- References: ['tests/ast-parsing/functioncall-0.5.3.sol#26 (9 - 23)']
+
+	## State variables
+
+	## Structures
+		- S
+			- Declaration: struct S {
+        uint a;
+        uint b;
+    }
+			- Implementation: tests/ast-parsing/functioncall-0.5.3.sol#6-9 (5 - 6)
+			- References: ['tests/ast-parsing/functioncall-0.5.3.sol#12 (9 - 10)', 'tests/ast-parsing/functioncall-0.5.3.sol#13 (9 - 10)', 'tests/ast-parsing/functioncall-0.5.3.sol#28 (9 - 10)', 'tests/ast-parsing/functioncall-0.5.3.sol#29 (16 - 17)', 'tests/ast-parsing/functioncall-0.5.3.sol#29 (37 - 38)']
+		- T
+			- Declaration: struct T {
+        S s1;
+        S s2;
+    }
+			- Implementation: tests/ast-parsing/functioncall-0.5.3.sol#11-14 (5 - 6)
+			- References: ['tests/ast-parsing/functioncall-0.5.3.sol#29 (9 - 10)']
+

@@ -1,0 +1,31 @@
+Export tmp.zip-C-f(uint256,uint256).dot
+Export tmp.zip-C-g(uint256,uint256).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+a - b
+
+IRs:
+TMP_0(uint256) = a - b
+RETURN TMP_0"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+a - b
+
+IRs:
+TMP_1(uint256) = a (c)- b
+RETURN TMP_1"];
+}
+

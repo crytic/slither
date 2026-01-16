@@ -1,0 +1,81 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipLibByte.call-graph.dot
+Call Graph: tmp.zipTestByte.call-graph.dot
+Call Graph: tmp.zipLibUint.call-graph.dot
+Call Graph: tmp.zipTestUint.call-graph.dot
+Call Graph: tmp.zipLibInt.call-graph.dot
+Call Graph: tmp.zipTestUintWithVariableiAndConversion.call-graph.dot
+
+strict digraph {
+subgraph cluster_25_LibByte {
+label = "LibByte"
+"25_t" [label="t"]
+}subgraph cluster_113_LibInt {
+label = "LibInt"
+"113_t" [label="t"]
+}subgraph cluster_68_LibUint {
+label = "LibUint"
+"68_t" [label="t"]
+}subgraph cluster_43_TestByte {
+label = "TestByte"
+"43_test" [label="test"]
+}subgraph cluster_88_TestUint {
+label = "TestUint"
+"88_test" [label="test"]
+}subgraph cluster_134_TestUintWithVariableiAndConversion {
+label = "TestUintWithVariableiAndConversion"
+"134_test" [label="test"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}"134_test" -> "113_t"
+"43_test" -> "25_t"
+"88_test" -> "68_t"
+}
+strict digraph {
+subgraph cluster_25_LibByte {
+label = "LibByte"
+"25_t" [label="t"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_43_TestByte {
+label = "TestByte"
+"43_test" [label="test"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_68_LibUint {
+label = "LibUint"
+"68_t" [label="t"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_88_TestUint {
+label = "TestUint"
+"88_test" [label="test"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_113_LibInt {
+label = "LibInt"
+"113_t" [label="t"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_134_TestUintWithVariableiAndConversion {
+label = "TestUintWithVariableiAndConversion"
+"134_test" [label="test"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

@@ -1,0 +1,49 @@
+
+# Contracts
+# L
+	- Declaration: tests/ast-parsing/yul-0.8.0.sol#1 (9 - 11)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/yul-0.8.0.sol#6 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f(uint256,uint256[])
+			- Declaration: tests/ast-parsing/yul-0.8.0.sol#11 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/yul-0.8.0.sol#11-42 (5 - 6)']
+			- References: []
+		- C.f()
+			- Declaration: tests/ast-parsing/yul-0.8.0.sol#49 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/yul-0.8.0.sol#49-53 (5 - 6)']
+			- References: []
+
+	## State variables
+		- storA
+			- Declaration: tests/ast-parsing/yul-0.8.0.sol#7 (10 - 16)
+			- Implementation: tests/ast-parsing/yul-0.8.0.sol#7 (5 - 15)
+			- References: []
+		- storB
+			- Declaration: tests/ast-parsing/yul-0.8.0.sol#8 (12 - 18)
+			- Implementation: tests/ast-parsing/yul-0.8.0.sol#8 (5 - 17)
+			- References: []
+		- storC
+			- Declaration: tests/ast-parsing/yul-0.8.0.sol#9 (10 - 16)
+			- Implementation: tests/ast-parsing/yul-0.8.0.sol#9 (5 - 15)
+			- References: []
+
+	## Structures
+		- St
+			- Declaration: struct St{
+        uint a;
+    }
+			- Implementation: tests/ast-parsing/yul-0.8.0.sol#45-47 (5 - 6)
+			- References: ['tests/ast-parsing/yul-0.8.0.sol#49 (35 - 37)']
+

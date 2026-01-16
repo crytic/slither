@@ -1,0 +1,25 @@
+Export tmp.zip-VM-expectRevert(bytes4).dot
+Export tmp.zip-VM-expectRevert(bytes).dot
+Export tmp.zip-A-b(address).dot
+
+digraph{
+}
+
+digraph{
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+VM(c).expectRevert(Test.myError.selector)
+
+IRs:
+TMP_0 = CONVERT c to VM
+REF_1(bytes4) (->None) := 781853394(bytes4)
+HIGH_LEVEL_CALL, dest:TMP_0(VM), function:expectRevert, arguments:['REF_1']  "];
+}
+

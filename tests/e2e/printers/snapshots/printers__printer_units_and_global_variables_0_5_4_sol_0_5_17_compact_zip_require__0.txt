@@ -1,0 +1,16 @@
+
+Contract Test
++------------------------+--------------------------------------+
+| Function               |                    require or assert |
++------------------------+--------------------------------------+
+| ether_unit             |                                      |
+| time_unit              |                                      |
+| block_and_transactions |                                      |
+| abi_encode             |                                      |
+| error_handling         |                   assert(bool)(true) |
+|                        |                  require(bool)(true) |
+|                        | require(bool,string)(true,something) |
+| math_and_crypto        |                                      |
+| address_related        |                                      |
+| contract_related       |                                      |
++------------------------+--------------------------------------+

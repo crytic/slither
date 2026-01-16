@@ -1,0 +1,77 @@
+
+# Contracts
+# A
+	- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#3 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#100 (14 - 15)', 'tests/ast-parsing/units_and_global_variables-0.8.0.sol#101 (14 - 15)', 'tests/ast-parsing/units_and_global_variables-0.8.0.sol#102 (14 - 15)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# I
+	- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#5 (11 - 13)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#103 (14 - 15)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# Test
+	- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#7 (10 - 15)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- Test.ether_unit()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#9 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#9-12 (5 - 6)']
+			- References: []
+		- Test.time_unit()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#14 (14 - 24)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#14-20 (5 - 6)']
+			- References: []
+		- Test.block_and_transactions()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#22 (14 - 37)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#22-38 (5 - 6)']
+			- References: []
+		- Test.abi_encode()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#40 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#40-49 (5 - 6)']
+			- References: []
+		- Test.error_handling()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#51 (14 - 29)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#51-57 (5 - 6)']
+			- References: []
+		- Test.math_and_crypto()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#59 (14 - 30)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#59-70 (5 - 6)']
+			- References: []
+		- Test.address_related()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#72 (14 - 30)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#72-82 (5 - 6)']
+			- References: []
+		- Test.return_addr()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#84 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#84 (5 - 55)']
+			- References: ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#88 (9 - 20)', 'tests/ast-parsing/units_and_global_variables-0.8.0.sol#89 (9 - 20)', 'tests/ast-parsing/units_and_global_variables-0.8.0.sol#90 (9 - 20)']
+		- Test.address_edge_case()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#85 (14 - 32)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#85-91 (5 - 6)']
+			- References: []
+		- Test.contract_related()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#93 (14 - 31)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#93-97 (5 - 6)']
+			- References: []
+		- Test.type_related()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.8.0.sol#99 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.8.0.sol#99-106 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

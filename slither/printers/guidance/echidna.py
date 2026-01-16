@@ -284,13 +284,15 @@ def _extract_constants(
                 context_explored,
             )
 
-            # Note: use list(set()) instead of set
-            # As this is meant to be serialized in JSON, and JSON does not support set
+            # Note: use sorted(set()) instead of set
+            # As this is meant to be serialized in JSON, and JSON does not support set. Moreover,
+            # we want stable results so the printer output is always the same for the same file
             if all_cst_used:
-                ret_cst_used[contract.name][_get_name(function)] = list(set(all_cst_used))
+                ret_cst_used[contract.name][_get_name(function)] = sorted(set(all_cst_used))
             if all_cst_used_in_binary:
                 ret_cst_used_in_binary[contract.name][_get_name(function)] = {
-                    k: list(set(v)) for k, v in all_cst_used_in_binary.items()
+                    k: sorted(set(all_cst_used_in_binary[k]))
+                    for k in sorted(all_cst_used_in_binary)
                 }
     return ret_cst_used, ret_cst_used_in_binary
 
@@ -336,7 +338,7 @@ def _have_external_calls(contracts: List[Contract]) -> Dict[str, List[str]]:
             if function.all_high_level_calls() or function.all_low_level_calls():
                 ret[contract.name].append(_get_name(function))
         if contract.name in ret:
-            ret[contract.name] = list(set(ret[contract.name]))
+            ret[contract.name] = sorted(set(ret[contract.name]))
     return ret
 
 
@@ -355,7 +357,7 @@ def _use_balance(contracts: List[Contract]) -> Dict[str, List[str]]:
                 ):
                     ret[contract.name].append(_get_name(function))
         if contract.name in ret:
-            ret[contract.name] = list(set(ret[contract.name]))
+            ret[contract.name] = sorted(set(ret[contract.name]))
     return ret
 
 
@@ -462,9 +464,9 @@ class Echidna(AbstractPrinter):
 
         use_balance = _use_balance(contracts)
 
-        with_fallback = list(_with_fallback(contracts))
+        with_fallback = sorted(_with_fallback(contracts))
 
-        with_receive = list(_with_receive(contracts))
+        with_receive = sorted(_with_receive(contracts))
 
         d = {
             "payable": payable,

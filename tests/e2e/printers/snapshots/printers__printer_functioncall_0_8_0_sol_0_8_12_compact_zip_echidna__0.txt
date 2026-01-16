@@ -1,0 +1,140 @@
+{
+    "payable": {
+        "I": [
+            "constructor()"
+        ],
+        "C": [
+            "f()",
+            "publicTarget()"
+        ]
+    },
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {
+        "C": [
+            "f()"
+        ]
+    },
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "C": [
+            "internalTarget(uint256,uint256)"
+        ]
+    },
+    "constants_used": {
+        "C": {
+            "f()": [
+                [
+                    {
+                        "value": "\n",
+                        "type": "string"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "address"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10000",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1000000000000000000",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "20000",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2000000000000000000",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "3",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "4",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "5",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "6",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "I": {
+            "constructor()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "publicTarget()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "internalTarget(uint256,uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {
+        "I": "constructor()"
+    },
+    "have_external_calls": {
+        "C": [
+            "f()"
+        ]
+    },
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

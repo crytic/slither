@@ -1,0 +1,7 @@
+Contract L
+Contract C
+	Function C.f(uint256,uint256[]) (*)
+		Expression: (retA,retB)
+		IRs:
+			RETURN retA,retB
+

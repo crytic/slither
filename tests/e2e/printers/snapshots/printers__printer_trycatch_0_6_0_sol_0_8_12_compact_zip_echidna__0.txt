@@ -1,0 +1,94 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {
+        "C": [
+            "tryCatchFunctionCall()"
+        ]
+    },
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "ERC20": [
+            "balanceOf(address)"
+        ],
+        "C": [
+            "tryCatchFunctionCall()",
+            "tryCatchContractDeployment()"
+        ]
+    },
+    "constants_used": {
+        "ERC20": {
+            "balanceOf(address)": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        },
+        "C": {
+            "tryCatchFunctionCall()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "tryCatchFunctionCall()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "ERC20": {
+            "balanceOf(address)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C": {
+            "tryCatchFunctionCall()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "tryCatchContractDeployment()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {
+        "C": [
+            "tryCatchContractDeployment()",
+            "tryCatchFunctionCall()"
+        ]
+    },
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

@@ -1,0 +1,98 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+assign = 10
+
+IRs:
+assign(uint256) := 10(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+assign |= 10
+
+IRs:
+assign(uint256) = assign | 10"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+assign ^= 10
+
+IRs:
+assign(uint256) = assign ^ 10"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+assign &= 10
+
+IRs:
+assign(uint256) = assign & 10"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+assign <<= 10
+
+IRs:
+assign(uint256) = assign << 10"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+assign >>= 10
+
+IRs:
+assign(uint256) = assign >> 10"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+assign += 10
+
+IRs:
+assign(uint256) = assign + 10"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+assign -= 10
+
+IRs:
+assign(uint256) = assign - 10"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+assign *= 10
+
+IRs:
+assign(uint256) = assign * 10"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+assign /= 10
+
+IRs:
+assign(uint256) = assign / 10"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+assign %= 10
+
+IRs:
+assign(uint256) = assign % 10"];
+}
+

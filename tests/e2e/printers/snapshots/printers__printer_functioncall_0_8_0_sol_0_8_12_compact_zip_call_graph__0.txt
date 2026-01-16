@@ -1,0 +1,51 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipI.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_170_C {
+label = "C"
+"170_f" [label="f"]
+"170_internalTarget" [label="internalTarget"]
+"170_publicTarget" [label="publicTarget"]
+"170_f" -> "170_internalTarget"
+"170_f" -> "170_publicTarget"
+}subgraph cluster_5_I {
+label = "I"
+"5_constructor" [label="constructor"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"type()" 
+"170_f" -> "abi.decode()"
+"170_f" -> "abi.encode()"
+"170_f" -> "type()"
+}"170_f" -> "170_publicTarget"
+}
+strict digraph {
+subgraph cluster_5_I {
+label = "I"
+"5_constructor" [label="constructor"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_170_C {
+label = "C"
+"170_f" [label="f"]
+"170_internalTarget" [label="internalTarget"]
+"170_publicTarget" [label="publicTarget"]
+"170_f" -> "170_internalTarget"
+"170_f" -> "170_publicTarget"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"type()" 
+"170_f" -> "abi.decode()"
+"170_f" -> "abi.encode()"
+"170_f" -> "type()"
+}"170_f" -> "170_publicTarget"
+}

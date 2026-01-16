@@ -1,0 +1,122 @@
+Export tmp.zip-C-returnConstant().dot
+Export tmp.zip-C-returnVariable().dot
+Export tmp.zip-C-returnTuple().dot
+Export tmp.zip-C-returnTernary().dot
+Export tmp.zip-C-returnDelete().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0
+
+IRs:
+RETURN 0"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+x = 0
+
+IRs:
+x(uint256) := 0(uint256)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+x
+
+IRs:
+RETURN x"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+x = 0
+
+IRs:
+x(uint256) := 0(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+y = 0
+
+IRs:
+y(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+(x,y)
+
+IRs:
+RETURN x,y"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+x = 0
+
+IRs:
+x(uint256) := 0(uint256)"];
+1->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+x == 0
+
+IRs:
+TMP_0(bool) = x == 0
+CONDITION TMP_0"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+1
+
+IRs:
+RETURN 1"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+2
+
+IRs:
+RETURN 2"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+delete (m[0])
+
+IRs:
+REF_0(uint256) -> m[0]
+m = delete REF_0 
+RETURN REF_0"];
+}
+

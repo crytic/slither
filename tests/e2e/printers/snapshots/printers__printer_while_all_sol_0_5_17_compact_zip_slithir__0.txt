@@ -1,0 +1,21 @@
+Contract C
+	Function C.f() (*)
+		Expression: go = true
+		IRs:
+			go(bool) := True(bool)
+		Expression: go
+		IRs:
+			CONDITION go
+		Expression: go = false
+		IRs:
+			go(bool) := False(bool)
+		Expression: go = true
+		IRs:
+			go(bool) := True(bool)
+		Expression: go
+		IRs:
+			CONDITION go
+		Expression: go = false
+		IRs:
+			go(bool) := False(bool)
+

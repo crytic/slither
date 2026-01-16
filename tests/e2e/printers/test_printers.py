@@ -1,19 +1,28 @@
+import itertools
 import re
 import shutil
 from collections import Counter
+from fnmatch import fnmatch
 from pathlib import Path
+from typing import List, Tuple, Type
+
 import pytest
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+from crytic_compile.utils.zip import load_from_zip
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+from slither.printers import all_printers
+from slither.printers.abstract_printer import AbstractPrinter
 from slither.printers.summary.cheatcodes import CheatcodePrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
+PRINTER_DATA_DIR = Path(__file__).resolve().parent.parent / "solc_parsing" / "test_data" / "compile"
 
 foundry_available = shutil.which("forge") is not None
 project_ready = Path(TEST_DATA_DIR, "test_printer_cheatcode/lib/forge-std").exists()
@@ -41,6 +50,7 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
+
     # Let also test the include/exclude interface behavior
     # Check that the interface is not included
     assert "MyInterfaceX" not in content
@@ -52,6 +62,78 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     # Remove test generated files
     Path("test_printer.dot").unlink(missing_ok=True)
+
+
+known_failures = {
+    all_printers.Halstead: [
+        "top_level_variable-0.8.0.sol-0.8.12-compact.zip",
+        "top_level_variable2-0.8.0.sol-0.8.12-compact.zip",
+        "custom_error_with_state_variable.sol-0.8.12-compact.zip",
+    ],
+    all_printers.PrinterSlithIRSSA: [
+        "*",
+    ],
+}
+
+
+def generate_all_tests() -> List[Tuple[Path, Type[AbstractPrinter]]]:
+    """Generates tests cases for all printers."""
+    printers = []
+    for printer_name in dir(all_printers):
+        obj = getattr(all_printers, printer_name)
+        if (
+            isinstance(obj, type)
+            and issubclass(obj, AbstractPrinter)
+            and printer_name != "PrinterEVM"
+        ):
+            printers.append(obj)
+
+    tests = []
+    for version in ["*0.5.17-compact.zip", "*0.8.12-compact.zip"]:
+        for test_file, printer in itertools.product(PRINTER_DATA_DIR.glob(version), printers):
+
+            known_errors = known_failures.get(printer, [])
+            if not any(fnmatch(test_file.name, pattern) for pattern in known_errors):
+                tests.append((test_file, printer))
+
+    return tests
+
+
+ALL_TESTS = generate_all_tests()
+
+
+def id_test(test_item: Tuple[Path, Type[AbstractPrinter]]) -> str:
+    """Returns the ID of the test."""
+    return f"{test_item[0].name}-{test_item[1].ARGUMENT}"
+
+
+@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
+def test_printer(test_item: Tuple[Path, Type[AbstractPrinter]], snapshot):
+
+    test_file, printer = test_item
+
+    crytic_compile = load_from_zip(test_file.as_posix())[0]
+
+    sl = Slither(crytic_compile)
+    sl.register_printer(printer)
+
+    results = sl.run_printers()
+
+    actual_output = ""
+    for printer_results in results:
+        actual_output += f"{printer_results['description']}\n"
+
+        # Some printers also create files, so lets compare their output too
+        for element in printer_results["elements"]:
+            if element["type"] == "file":
+                actual_output += f"{element['name']['content']}\n"
+
+                try:
+                    Path(element["name"]["filename"]).unlink()
+                except FileNotFoundError:
+                    pass
+
+    assert snapshot() == actual_output
 
 
 @pytest.mark.skipif(

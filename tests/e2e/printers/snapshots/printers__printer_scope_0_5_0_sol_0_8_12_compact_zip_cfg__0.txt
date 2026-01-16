@@ -1,0 +1,107 @@
+Export tmp.zip-Scope-nested_scope().dot
+Export tmp.zip-Scope-if_scope().dot
+Export tmp.zip-Scope-while_scope().dot
+Export tmp.zip-Scope-for_scope().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+true
+
+IRs:
+CONDITION True"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->4;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: END_IF 4
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->3;
+3[label="Node Type: IF_LOOP 3
+
+EXPRESSION:
+true
+
+IRs:
+CONDITION True"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: NEW VARIABLE 4
+"];
+4->3;
+5[label="Node Type: END_LOOP 5
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+4[label="Node Type: NEW VARIABLE 4
+"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+a_scope_0 < 10
+
+IRs:
+TMP_0(bool) = a_scope_0 < 10
+CONDITION TMP_0"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+a_scope_0 ++
+
+IRs:
+TMP_1(uint256) := a_scope_0(uint256)
+a_scope_0(uint256) = a_scope_0 (c)+ 1"];
+7->5;
+}
+

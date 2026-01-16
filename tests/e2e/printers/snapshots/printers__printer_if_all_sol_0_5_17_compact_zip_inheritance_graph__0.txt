@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c197_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    ifWithoutElse()</TD></TR><TR><TD align="left">    ifWithElse()</TD></TR><TR><TD align="left">    ifWithElseIf()</TD></TR><TR><TD align="left">    ifWithElseIfElse()</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    a</TD></TR></TABLE> >];
+
+}

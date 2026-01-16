@@ -1,0 +1,164 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->4;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->5;
+3[label="Node Type: END_LOOP 3
+"];
+3->13;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+4->2;
+5[label="Node Type: IF_LOOP 5
+
+EXPRESSION:
+i < 10
+
+IRs:
+TMP_0(bool) = i < 10
+CONDITION TMP_0"];
+5->6[label="True"];
+5->3[label="False"];
+6[label="Node Type: IF 6
+
+EXPRESSION:
+i % 2 == 0
+
+IRs:
+TMP_1(uint256) = i % 2
+TMP_2(bool) = TMP_1 == 0
+CONDITION TMP_2"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: BREAK 7
+"];
+7->3;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_3(uint256) := c(uint256)
+c(uint256) = c (c)+ 1"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_4(uint256) := i(uint256)
+i(uint256) = i (c)+ 1"];
+10->5;
+11[label="Node Type: BEGIN_LOOP 11
+"];
+11->14;
+12[label="Node Type: END_LOOP 12
+"];
+13[label="Node Type: NEW VARIABLE 13
+
+EXPRESSION:
+j = 0
+
+IRs:
+j(uint256) := 0(uint256)"];
+13->11;
+14[label="Node Type: IF_LOOP 14
+
+EXPRESSION:
+j < 10
+
+IRs:
+TMP_5(bool) = j < 10
+CONDITION TMP_5"];
+14->17[label="True"];
+14->12[label="False"];
+15[label="Node Type: BEGIN_LOOP 15
+"];
+15->18;
+16[label="Node Type: END_LOOP 16
+"];
+16->24;
+17[label="Node Type: NEW VARIABLE 17
+
+EXPRESSION:
+k = 0
+
+IRs:
+k(uint256) := 0(uint256)"];
+17->15;
+18[label="Node Type: IF_LOOP 18
+
+EXPRESSION:
+k < 10
+
+IRs:
+TMP_6(bool) = k < 10
+CONDITION TMP_6"];
+18->19[label="True"];
+18->16[label="False"];
+19[label="Node Type: IF 19
+
+EXPRESSION:
+j % 2 == 0 && k % 3 == 0
+
+IRs:
+TMP_7(uint256) = j % 2
+TMP_8(bool) = TMP_7 == 0
+TMP_9(uint256) = k % 3
+TMP_10(bool) = TMP_9 == 0
+TMP_11(bool) = TMP_8 && TMP_10
+CONDITION TMP_11"];
+19->20[label="True"];
+19->21[label="False"];
+20[label="Node Type: BREAK 20
+"];
+20->16;
+21[label="Node Type: END_IF 21
+"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_12(uint256) := c(uint256)
+c(uint256) = c (c)+ 1"];
+22->23;
+23[label="Node Type: EXPRESSION 23
+
+EXPRESSION:
+k ++
+
+IRs:
+TMP_13(uint256) := k(uint256)
+k(uint256) = k (c)+ 1"];
+23->18;
+24[label="Node Type: EXPRESSION 24
+
+EXPRESSION:
+j ++
+
+IRs:
+TMP_14(uint256) := j(uint256)
+j(uint256) = j (c)+ 1"];
+24->14;
+}
+

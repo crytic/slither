@@ -1,0 +1,12 @@
+Contract Test
+Contract VM
+	Function VM.expectRevert(bytes4) (*)
+	Function VM.expectRevert(bytes) (*)
+Contract A
+	Function A.b(address) (*)
+		Expression: VM(c).expectRevert(Test.myError.selector)
+		IRs:
+			TMP_0 = CONVERT c to VM
+			REF_1(bytes4) (->None) := 781853394(bytes4)
+			HIGH_LEVEL_CALL, dest:TMP_0(VM), function:expectRevert, arguments:['REF_1']  
+

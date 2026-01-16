@@ -1,0 +1,61 @@
+Contract I
+	Function I.constructor() (*)
+Contract C
+	Function C.f() (*)
+		Expression: publicTarget()
+		IRs:
+			INTERNAL_CALL, C.publicTarget()()
+		Expression: this.publicTarget()
+		IRs:
+			HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  
+		Expression: this.publicTarget.value(1000000000000000000)()
+		IRs:
+			HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:1000000000000000000 
+		Expression: this.publicTarget.value(1000000000000000000)
+		IRs:
+			REF_3(function()) -> this.publicTarget
+			REF_4(None) -> REF_3.value
+		Expression: this.publicTarget.gas(10000)()
+		IRs:
+			HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  gas:10000
+		Expression: this.publicTarget.gas(10000).value(2000000000000000000)()
+		IRs:
+			HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:2000000000000000000 gas:10000
+		Expression: this.publicTarget.gas(10000).gas(20000).value(2000000000000000000).gas(0)()
+		IRs:
+			HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:2000000000000000000 gas:0
+		Expression: internalTarget(1,2)
+		IRs:
+			INTERNAL_CALL, C.internalTarget(uint256,uint256)(1,2)
+		Expression: S({a:5,b:6})
+		IRs:
+			TMP_16(C.S) = new S(5,6)
+		Expression: T({s1:S({a:1,b:2}),s2:S({a:3,b:4})})
+		IRs:
+			TMP_17(C.S) = new S(1,2)
+			TMP_18(C.S) = new S(3,4)
+			TMP_19(C.T) = new T(TMP_17,TMP_18)
+		Expression: ptr.value(10000000000000000000)(1)
+		IRs:
+			INTERNAL_DYNAMIC_CALL ptr(1) value:10000000000000000000 
+		Expression: I(msg.sender)
+		IRs:
+			TMP_22 = CONVERT msg.sender to I
+		Expression: new I()
+		IRs:
+			TMP_24(I) = new I() 
+		Expression: (new I).value(1000000000000000000)()
+		IRs:
+			TMP_27(I) = new I() value:1000000000000000000 
+		Expression: type(address)(I)
+		IRs:
+			TMP_28(type(I)) = SOLIDITY_CALL type(address)(I)
+		Expression: abi.encode(1,2,3)
+		IRs:
+			TMP_29(bytes) = SOLIDITY_CALL abi.encode()(1,2,3)
+		Expression: abi.decode(msg.data,(uint256,uint256[],I))
+		IRs:
+			TUPLE_0(uint256,uint256[],I) = SOLIDITY_CALL abi.decode()(msg.data(uint256,uint256[],I))
+	Function C.publicTarget() (*)
+	Function C.internalTarget(uint256,uint256) (*)
+

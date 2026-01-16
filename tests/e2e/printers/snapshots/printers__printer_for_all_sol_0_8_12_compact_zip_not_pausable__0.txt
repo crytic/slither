@@ -1,0 +1,19 @@
+Constructor and pure/view functions are not displayed
+
+C:
++-------------------------+-------------------+
+| Name                    | Use whenNotPaused |
++-------------------------+-------------------+
+| normalLoopBlockBody()   |                   |
+| normalLoopExprBody()    |                   |
+| normalLoopNoBody()      |                   |
+| loopNoPre()             |                   |
+| loopNoCond()            |                   |
+| loopNoPost()            |                   |
+| loopNoPreCond()         |                   |
+| loopNoPrePost()         |                   |
+| loopNoCondPost()        |                   |
+| loopNoPreCondPost()     |                   |
+| loopNoPreCondPostBody() |                   |
++-------------------------+-------------------+
+

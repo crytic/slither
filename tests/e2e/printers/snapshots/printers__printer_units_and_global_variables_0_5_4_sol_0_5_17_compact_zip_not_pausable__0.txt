@@ -1,0 +1,16 @@
+Constructor and pure/view functions are not displayed
+
+Test:
++--------------------------+-------------------+
+| Name                     | Use whenNotPaused |
++--------------------------+-------------------+
+| ether_unit()             |                   |
+| time_unit()              |                   |
+| block_and_transactions() |                   |
+| abi_encode()             |                   |
+| error_handling()         |                   |
+| math_and_crypto()        |                   |
+| address_related()        |                   |
+| contract_related()       |                   |
++--------------------------+-------------------+
+

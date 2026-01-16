@@ -1,0 +1,51 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/variable-0.8.0.sol#1 (10 - 12)
+	- Implementation(s): ['tests/ast-parsing/variable-0.8.0.sol#1-56 (1 - 2)']
+	- References: []
+
+	## Function
+		- C.basic()
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#14 (14 - 20)
+			- Implementation(s): ['tests/ast-parsing/variable-0.8.0.sol#14-55 (5 - 6)']
+			- References: []
+		- C.slitherConstructorVariables()
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#1-3 (1 - 1)
+			- Implementation(s): ['tests/ast-parsing/variable-0.8.0.sol#1-56 (1 - 2)']
+			- References: []
+
+	## State variables
+		- m
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#6 (27 - 29)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#6 (5 - 28)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#42 (55 - 56)']
+		- s
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#7 (12 - 14)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#7 (5 - 13)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#18 (41 - 42)']
+		- b
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#8 (11 - 13)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#8 (5 - 12)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#28 (39 - 40)']
+		- t
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#9 (7 - 9)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#9 (5 - 8)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#39 (31 - 32)']
+		- a
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#10 (12 - 14)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#10 (5 - 13)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#45 (40 - 41)']
+		- immutableInt
+			- Declaration: tests/ast-parsing/variable-0.8.0.sol#12 (20 - 33)
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#12 (5 - 36)
+			- References: []
+
+	## Structures
+		- S
+			- Declaration: struct S {
+        uint a;
+    }
+			- Implementation: tests/ast-parsing/variable-0.8.0.sol#2-4 (5 - 6)
+			- References: ['tests/ast-parsing/variable-0.8.0.sol#9 (5 - 6)', 'tests/ast-parsing/variable-0.8.0.sol#38 (9 - 10)', 'tests/ast-parsing/variable-0.8.0.sol#39 (9 - 10)', 'tests/ast-parsing/variable-0.8.0.sol#40 (9 - 10)']
+

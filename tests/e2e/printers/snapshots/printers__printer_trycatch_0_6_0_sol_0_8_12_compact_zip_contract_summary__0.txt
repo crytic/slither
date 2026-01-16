@@ -1,0 +1,10 @@
+
++ Contract ERC20 (Most derived contract)
+  - From ERC20
+    - balanceOf(address) (public)
+
++ Contract C (Most derived contract)
+  - From C
+    - tryCatchContractDeployment() (public)
+    - tryCatchFunctionCall() (public)
+

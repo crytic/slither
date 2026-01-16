@@ -1,0 +1,41 @@
+
+# Contracts
+# L1
+	- Declaration: tests/ast-parsing/using-for-0.4.1.sol#1 (9 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/using-for-0.4.1.sol#14 (11 - 13)']
+
+	## Function
+		- L1.f(uint256)
+			- Declaration: tests/ast-parsing/using-for-0.4.1.sol#2 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/using-for-0.4.1.sol#2-4 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# L2
+	- Declaration: tests/ast-parsing/using-for-0.4.1.sol#7 (9 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/using-for-0.4.1.sol#15 (11 - 13)']
+
+	## Function
+		- L2.f(bytes32)
+			- Declaration: tests/ast-parsing/using-for-0.4.1.sol#8 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/using-for-0.4.1.sol#8-10 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/using-for-0.4.1.sol#13 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c43_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left">    onePlaceholder()</TD></TR><TR><TD align="left">    multiplePlaceholders()</TD></TR><TR><TD align="left">    acceptsVar(uint256)</TD></TR><TR><TD align="left">    noParams()</TD></TR></TABLE> >];
+
+}

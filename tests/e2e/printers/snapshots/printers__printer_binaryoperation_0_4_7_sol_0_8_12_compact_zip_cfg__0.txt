@@ -1,0 +1,159 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+1 ** 2
+
+IRs:
+TMP_0(uint256) = 1 (c)** 2"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+1 * 2
+
+IRs:
+TMP_1(uint256) = 1 (c)* 2"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+1 / 2
+
+IRs:
+TMP_2(uint256) = 1 (c)/ 2"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+1 & 2
+
+IRs:
+TMP_3(uint256) = 1 & 2"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+1 + 2
+
+IRs:
+TMP_4(uint256) = 1 (c)+ 2"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+1 - 2
+
+IRs:
+TMP_5(uint256) = 1 (c)- 2"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+1 << 2
+
+IRs:
+TMP_6(uint256) = 1 << 2"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+1 >> 2
+
+IRs:
+TMP_7(uint256) = 1 >> 2"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+1 & 2
+
+IRs:
+TMP_8(uint256) = 1 & 2"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+1 ^ 2
+
+IRs:
+TMP_9(uint256) = 1 ^ 2"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+1 | 2
+
+IRs:
+TMP_10(uint256) = 1 | 2"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+1 < 2
+
+IRs:
+TMP_11(bool) = 1 < 2"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+1 > 2
+
+IRs:
+TMP_12(bool) = 1 > 2"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+1 <= 2
+
+IRs:
+TMP_13(bool) = 1 <= 2"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+1 >= 2
+
+IRs:
+TMP_14(bool) = 1 >= 2"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+1 == 2
+
+IRs:
+TMP_15(bool) = 1 == 2"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+1 != 2
+
+IRs:
+TMP_16(bool) = 1 != 2"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+true && false
+
+IRs:
+TMP_17(bool) = True && False"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+true || false
+
+IRs:
+TMP_18(bool) = True || False"];
+}
+

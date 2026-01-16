@@ -1,0 +1,11 @@
+Contract C
+	Function C.f(bytes) (*)
+		Expression: x
+		IRs:
+		Expression: x
+		IRs:
+		Expression: x
+		IRs:
+		Expression: x
+		IRs:
+

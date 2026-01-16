@@ -1,0 +1,33 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/if-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.ifWithoutElse()
+			- Declaration: tests/ast-parsing/if-all.sol#4 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/if-all.sol#4-8 (5 - 6)']
+			- References: []
+		- C.ifWithElse()
+			- Declaration: tests/ast-parsing/if-all.sol#10 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/if-all.sol#10-16 (5 - 6)']
+			- References: []
+		- C.ifWithElseIf()
+			- Declaration: tests/ast-parsing/if-all.sol#18 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/if-all.sol#18-26 (5 - 6)']
+			- References: []
+		- C.ifWithElseIfElse()
+			- Declaration: tests/ast-parsing/if-all.sol#28 (14 - 31)
+			- Implementation(s): ['tests/ast-parsing/if-all.sol#28-36 (5 - 6)']
+			- References: []
+
+	## State variables
+		- a
+			- Declaration: tests/ast-parsing/if-all.sol#2 (18 - 20)
+			- Implementation: tests/ast-parsing/if-all.sol#2 (5 - 19)
+			- References: ['tests/ast-parsing/if-all.sol#5 (13 - 14)', 'tests/ast-parsing/if-all.sol#6 (13 - 14)', 'tests/ast-parsing/if-all.sol#11 (13 - 14)', 'tests/ast-parsing/if-all.sol#12 (13 - 14)', 'tests/ast-parsing/if-all.sol#14 (13 - 14)', 'tests/ast-parsing/if-all.sol#19 (13 - 14)', 'tests/ast-parsing/if-all.sol#20 (13 - 14)', 'tests/ast-parsing/if-all.sol#21 (20 - 21)', 'tests/ast-parsing/if-all.sol#22 (13 - 14)', 'tests/ast-parsing/if-all.sol#23 (20 - 21)', 'tests/ast-parsing/if-all.sol#24 (13 - 14)', 'tests/ast-parsing/if-all.sol#29 (13 - 14)', 'tests/ast-parsing/if-all.sol#30 (13 - 14)', 'tests/ast-parsing/if-all.sol#31 (20 - 21)', 'tests/ast-parsing/if-all.sol#32 (13 - 14)', 'tests/ast-parsing/if-all.sol#34 (13 - 14)']
+
+	## Structures
+

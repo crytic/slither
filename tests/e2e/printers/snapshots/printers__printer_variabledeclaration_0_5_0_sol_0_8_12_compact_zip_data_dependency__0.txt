@@ -1,0 +1,23 @@
+
+Contract C
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Function f()
++----------------+----------------------------------+
+| Variable       |                     Dependencies |
++----------------+----------------------------------+
+| explicitUint8  |                               [] |
+| explicitUint16 |                               [] |
+| uintArr        |                               [] |
+| tuplea1        |                               [] |
+| tuplea2        |                               [] |
+| tupleb1        |                               [] |
+| tupleb3        |                               [] |
+| tuplec6        |                               [] |
+| ternaryInit    | ['block.coinbase', 'msg.sender'] |
+| overwritten    |                               [] |
+| overwritten1   |                  ['overwritten'] |
++----------------+----------------------------------+

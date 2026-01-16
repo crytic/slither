@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/tupleexpression-0.5.3.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/tupleexpression-0.5.3.sol#2 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/tupleexpression-0.5.3.sol#2-8 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

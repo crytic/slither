@@ -1,0 +1,11 @@
+
+Contract C
++----------------+-----------+
+| Function       | Modifiers |
++----------------+-----------+
+| returnConstant |        [] |
+| returnVariable |        [] |
+| returnTuple    |        [] |
+| returnTernary  |        [] |
+| returnDelete   |        [] |
++----------------+-----------+

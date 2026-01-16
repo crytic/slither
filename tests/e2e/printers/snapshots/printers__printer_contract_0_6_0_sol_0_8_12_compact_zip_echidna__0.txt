@@ -1,0 +1,83 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "B": [
+            "constructor(uint256)"
+        ],
+        "C": [
+            "constructor(uint256)"
+        ],
+        "D": [
+            "constructor(uint256)",
+            "constructor()"
+        ],
+        "E": [
+            "constructor(uint256)"
+        ]
+    },
+    "constants_used": {
+        "D": {
+            "constructor()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "A": {},
+        "B": {
+            "constructor(uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C": {
+            "constructor(uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "D": {
+            "constructor(uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "constructor()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "E": {
+            "constructor(uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "F": {},
+        "G": {},
+        "H": {}
+    },
+    "constructors": {
+        "B": "constructor(uint256)",
+        "C": "constructor(uint256)",
+        "D": "constructor()",
+        "E": "constructor(uint256)"
+    },
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

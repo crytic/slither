@@ -1,0 +1,10 @@
+Constructor and pure/view functions are not displayed
+
+MinMax:
++-------+-------------------+
+| Name  | Use whenNotPaused |
++-------+-------------------+
+| min() |                   |
+| max() |                   |
++-------+-------------------+
+

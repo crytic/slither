@@ -1,0 +1,17 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipMinMax.call-graph.dot
+
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_43_MinMax {
+label = "MinMax"
+"43_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"43_slitherConstructorVariables" [label="slitherConstructorVariables"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

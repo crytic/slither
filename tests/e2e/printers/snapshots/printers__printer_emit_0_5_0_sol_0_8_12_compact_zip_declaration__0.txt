@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/emit-0.5.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/emit-0.5.0.sol#6 (14 - 15)']
+
+	## Function
+		- C.emitWithKeyword()
+			- Declaration: tests/ast-parsing/emit-0.5.0.sol#4 (14 - 30)
+			- Implementation(s): ['tests/ast-parsing/emit-0.5.0.sol#4-7 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+
