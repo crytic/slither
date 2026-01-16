@@ -1,18 +1,31 @@
+from typing import TYPE_CHECKING
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.variables.temporary import TemporaryVariable
 
+if TYPE_CHECKING:
+    from slither.core.solidity_types.user_defined_type import UserDefinedType
+
 
 class TmpNewContract(OperationWithLValue):
-    def __init__(self, contract_name: str, lvalue: TemporaryVariable) -> None:
+    def __init__(
+        self, contract_type: "UserDefinedType", lvalue: TemporaryVariable
+    ) -> None:
         super().__init__()
-        self._contract_name = contract_name
+        self._contract_type: "UserDefinedType" = contract_type
         self._lvalue = lvalue
         self._call_value = None
         self._call_salt = None
 
     @property
     def contract_name(self) -> str:
-        return self._contract_name
+        """Return the name of the contract being created."""
+        return self._contract_type.type.name
+
+    @property
+    def contract_type(self) -> "UserDefinedType":
+        """Return the UserDefinedType of the contract being created."""
+        return self._contract_type
 
     @property
     def call_value(self):

@@ -1,17 +1,28 @@
+from typing import TYPE_CHECKING
+
 from slither.core.expressions.expression import Expression
+
+if TYPE_CHECKING:
+    from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 
 class NewContract(Expression):
-    def __init__(self, contract_name: str) -> None:
+    def __init__(self, contract_type: "UserDefinedType") -> None:
         super().__init__()
-        self._contract_name: str = contract_name
+        self._contract_type: "UserDefinedType" = contract_type
         self._gas = None
         self._value = None
         self._salt = None
 
     @property
     def contract_name(self) -> str:
-        return self._contract_name
+        """Return the name of the contract being created."""
+        return self._contract_type.type.name
+
+    @property
+    def contract_type(self) -> "UserDefinedType":
+        """Return the UserDefinedType of the contract being created."""
+        return self._contract_type
 
     @property
     def call_value(self):
@@ -30,4 +41,4 @@ class NewContract(Expression):
         self._salt = salt
 
     def __str__(self) -> str:
-        return "new " + str(self._contract_name)
+        return "new " + self.contract_name
