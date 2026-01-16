@@ -225,7 +225,7 @@ class SlitherReadStorage:
         for contract, var in self.immutable_variables:
             var_name = var.name
             type_ = var.type
-            type_string = str(type_)
+            type_string = str(type_) if type_ else "unknown"
             byte_size, _ = type_.storage_size if type_ else (32, 0)
             size = byte_size * 8
 
@@ -247,7 +247,7 @@ class SlitherReadStorage:
         for contract, var in self.constant_variables:
             var_name = var.name
             type_ = var.type
-            type_string = str(type_)
+            type_string = str(type_) if type_ else "unknown"
             byte_size, _ = type_.storage_size if type_ else (32, 0)
             size = byte_size * 8
 
@@ -275,8 +275,16 @@ class SlitherReadStorage:
         For public immutables, calls the getter via RPC.
         For private/internal, returns None (would require bytecode analysis).
         """
+        # Private/internal immutables cannot be retrieved without bytecode analysis
+        if var.visibility != "public":
+            logger.debug(
+                f"Cannot retrieve value for {var.visibility} immutable {var.name} "
+                "(would require bytecode analysis)"
+            )
+            return None
+
         # Try to get value via RPC for public variables
-        if self.rpc_info and var.visibility == "public":
+        if self.rpc_info:
             try:
                 # Call the getter function
                 func_signature = f"{var.name}()"
@@ -289,8 +297,8 @@ class SlitherReadStorage:
                     type_ = var.type
                     if isinstance(type_, ElementaryType):
                         return self.convert_value_to_type(result, type_.size, 0, type_.name)
-            except Exception as e:
-                logger.debug(f"Could not retrieve immutable {var.name} via RPC: {e}")
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Could not retrieve immutable {var.name} via RPC: {e}")
 
         return None
 
@@ -335,7 +343,9 @@ class SlitherReadStorage:
                         return value if isinstance(value, str) else hex(value)
                     return str(value)
                 return str(value)
-        except (NotConstant, Exception) as e:
+        except NotConstant:
+            logger.debug(f"Could not fold constant {var.name}: expression is not constant")
+        except (ValueError, TypeError, AttributeError) as e:
             logger.debug(f"Could not fold constant {var.name}: {e}")
 
         # Return raw expression as string if we can't fold it
