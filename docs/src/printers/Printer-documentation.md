@@ -201,6 +201,7 @@ This printer is meant to improve [Echidna](https://github.com/crytic/echidna) co
 Print the EVM representation of the functions
 
 > **Note:** Requires `evm-cfg-builder` to be installed:
+>
 > ```
 > pip install evm-cfg-builder
 > ```
