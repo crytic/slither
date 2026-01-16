@@ -69,8 +69,8 @@ class GroupWithCrytic(typer.core.TyperGroup):
                 ctx.protected_args + ctx.args, no_error=True
             )
 
-            # Remove all handled arguments from the context
-            ctx.protected_args = [arg for arg in ctx.protected_args if arg in remaining_args]
+            # Remove handled arguments from ctx.args
+            # Note: protected_args is read-only in newer Click versions
             ctx.args = [arg for arg in ctx.args if arg in remaining_args]
 
             if crytic_args:
@@ -307,6 +307,16 @@ def read_config_file(config_file: Union[None, Path]) -> Dict[str, Any]:
                     logger.info(yellow(f"{config_file} has an unknown key: {key} : {elem}"))
                     continue
 
+                # Convert fail_on string to enum
+                if key == "fail_on" and isinstance(elem, str):
+                    try:
+                        elem = FailOnLevel(elem)
+                    except ValueError:
+                        logger.warning(
+                            yellow(f"Invalid fail_on value: {elem}, using default")
+                        )
+                        continue
+
                 state[key] = elem
 
     elif config_file is not None:
@@ -367,9 +377,13 @@ class CommaSeparatedValueParser(click.ParamType):
 
     help = "A comma-separated list of values."
 
-    def convert(self, value: Union[str, None], param, ctx) -> List[str]:
+    def convert(self, value: Union[str, List[str], None], param, ctx) -> List[str]:
         if value is None or ctx.resilient_parsing:
             return []
+
+        # If value is already a list (e.g., from default_map), return it as-is
+        if isinstance(value, list):
+            return value
 
         paths = value.split(",")
         return paths

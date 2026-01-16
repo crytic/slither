@@ -5,6 +5,13 @@ from typing import Any, Dict, List, Callable, Annotated
 
 import typer
 
+# Configure logging before slither imports to suppress CryticCompile INFO messages
+logging.basicConfig()
+logging.getLogger("Slither").setLevel(logging.INFO)
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+
+logger = logging.getLogger("Slither-conformance")
+logger.setLevel(logging.INFO)
 
 from slither import Slither
 from slither.core.declarations import Contract
@@ -19,13 +26,6 @@ from slither.utils.command_line import target_type, SlitherState, SlitherApp, Gr
 
 conformance: SlitherApp = SlitherApp()
 app.add_typer(conformance, name="check-erc")
-
-
-logging.basicConfig()
-logging.getLogger("Slither").setLevel(logging.INFO)
-
-logger = logging.getLogger("Slither-conformance")
-logger.setLevel(logging.INFO)
 
 
 ch = logging.StreamHandler()
@@ -79,7 +79,7 @@ def main_callback(
         if len(contracts) != 1:
             err = f"Contract not found: {contract_name}"
             _log_error(err, output_format=output_format, output_file=output_file)
-            return
+            raise typer.Exit(1)
         contract = contracts[0]
         # First elem is the function, second is the event
         erc = ERCS[erc_arg.upper()]
@@ -91,10 +91,12 @@ def main_callback(
     else:
         err = f"Incorrect ERC selected {erc_arg}"
         _log_error(err, output_format=output_format, output_file=output_file)
-        return
+        raise typer.Exit(1)
 
     if output_format == OutputFormat.JSON:
         output_to_json(output_file.as_posix(), None, {"erc-conformance-check": ret})
+
+    raise typer.Exit(0)
 
 
 def main():

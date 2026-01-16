@@ -33,7 +33,7 @@ fi
 
 
 #Test 3 - unroll structs
-slither-interface Mock tests/tools/interface/ContractMock.sol --unroll-structs
+slither-interface --unroll-structs Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_3.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then
@@ -45,7 +45,7 @@ then
 fi
 
 #Test 4 - exclude structs
-slither-interface Mock tests/tools/interface/ContractMock.sol --exclude-structs
+slither-interface --exclude-structs Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_4.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then
@@ -57,7 +57,7 @@ then
 fi
 
 #Test 5 - exclude errors
-slither-interface Mock tests/tools/interface/ContractMock.sol --exclude-errors
+slither-interface --exclude-errors Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_5.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then
@@ -69,7 +69,7 @@ then
 fi
 
 #Test 6 - exclude enums
-slither-interface Mock tests/tools/interface/ContractMock.sol --exclude-enums
+slither-interface --exclude-enums Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_6.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then
@@ -81,7 +81,7 @@ then
 fi
 
 #Test 7 - exclude events
-slither-interface Mock tests/tools/interface/ContractMock.sol --exclude-events
+slither-interface --exclude-events Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_7.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then

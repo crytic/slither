@@ -677,6 +677,18 @@ def detect(
     """Run detectors and report findings."""
 
     state = ctx.ensure_object(SlitherState)
+
+    # Handle filter_paths and include_paths from config file
+    # These use CommaSeparatedValueParser which has compatibility issues with default_map
+    if filter_paths is None:
+        config_filter = state.get("filter_paths")
+        if config_filter is not None:
+            filter_paths = [config_filter] if isinstance(config_filter, str) else config_filter
+    if include_paths is None:
+        config_include = state.get("include_paths")
+        if config_include is not None:
+            include_paths = [config_include] if isinstance(config_include, str) else config_include
+
     # Update the state
     state.update(
         {
@@ -959,6 +971,7 @@ def main_callback(
         Optional[Path],
         typer.Option(
             "--config-file",
+            "--config",
             help="Configuration file. Any argument specified on the command line overrides the one "
             "specified in the configuration file.",
             rich_help_panel="Misc",
@@ -1022,6 +1035,26 @@ def main_callback(
         StandardOutputCapture.enable(output_file == Path("-"))
 
     config = read_config_file(config_file)
+
+    # Set default_map for subcommand parameters from config file
+    # Click/Typer will use these as defaults if not provided on command line
+    # Note: filter_paths and include_paths are excluded because they use CommaSeparatedValueParser
+    # which has compatibility issues with default_map. They are handled in detect() via state.
+    ctx.default_map = ctx.default_map or {}
+    detect_config_params = {
+        "fail_on",
+        "detectors_to_run",
+        "detectors_to_exclude",
+        "exclude_informational",
+        "exclude_optimization",
+        "exclude_low",
+        "exclude_medium",
+        "exclude_high",
+    }
+    ctx.default_map["detect"] = {k: v for k, v in config.items() if k in detect_config_params}
+    ctx.default_map["print"] = {
+        k: v for k, v in config.items() if k in {"printers_to_run", "no_fail"}
+    }
 
     log_level = logging.INFO if not debug else logging.DEBUG
     configure_logger(log_level)

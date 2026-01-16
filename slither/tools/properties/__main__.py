@@ -23,12 +23,14 @@ app.add_typer(properties_app, name="prop")
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
-logger = logging.getLogger("Slither")
+# Use a tool-specific logger to avoid affecting other tools
+logger = logging.getLogger("Slither-properties")
+logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter("%(message)s")
+ch.setFormatter(formatter)
 logger.addHandler(ch)
-logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
 

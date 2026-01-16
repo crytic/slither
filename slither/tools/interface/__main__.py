@@ -2,21 +2,22 @@ import logging
 from pathlib import Path
 from typing import Annotated
 
+import typer
+
+# Configure logging before slither imports to suppress CryticCompile INFO messages
+logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+logger = logging.getLogger("Slither-Interface")
+logger.setLevel(logging.INFO)
+
 from slither import Slither
 from slither.utils.code_generation import generate_interface
-
-import typer
 
 from slither.__main__ import app
 from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
 
 interface_cmd: SlitherApp = SlitherApp()
 app.add_typer(interface_cmd, name="interface")
-
-
-logging.basicConfig()
-logger = logging.getLogger("Slither-Interface")
-logger.setLevel(logging.INFO)
 
 
 @interface_cmd.callback(cls=GroupWithCrytic)
@@ -76,6 +77,8 @@ def main_callback(
     logger.info(f" Interface exported to {path}")
     with open(path, "w", encoding="utf8") as f:
         f.write(interface)
+
+    raise typer.Exit(0)
 
 
 def main():

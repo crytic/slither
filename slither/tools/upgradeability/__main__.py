@@ -5,6 +5,12 @@ from typing import List, Type, Dict, Tuple, Union, Optional, Annotated
 
 import typer
 
+# Configure logging before slither imports to suppress CryticCompile INFO messages
+logging.basicConfig()
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+logger: logging.Logger = logging.getLogger("Slither")
+logger.setLevel(logging.INFO)
+
 from slither import Slither
 from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
@@ -33,11 +39,6 @@ from slither.utils.command_line import (
 
 upgradeability_app: SlitherApp = SlitherApp()
 app.add_typer(upgradeability_app, name="check-upgradeability")
-
-
-logging.basicConfig()
-logger: logging.Logger = logging.getLogger("Slither")
-logger.setLevel(logging.INFO)
 
 
 ###################################################################################
@@ -172,7 +173,7 @@ def _checks_on_contract_and_proxy(
 
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
-@upgradeability_app.callback(cls=GroupWithCrytic)
+@upgradeability_app.callback(cls=GroupWithCrytic, invoke_without_command=True)
 def main_callback(
     ctx: typer.Context,
     target: target_type,
@@ -304,7 +305,7 @@ def main_callback(
             logger.error(red(info))
             if state.get("output_format") == OutputFormat.JSON:
                 output_to_json(state.get("output_file").as_posix(), str(info), json_results)
-            return
+            raise typer.Exit(1)
 
         v1_contract = v1_contracts[0]
 
@@ -326,7 +327,7 @@ def main_callback(
                 logger.error(red(info))
                 if state.get("output_format") == OutputFormat.JSON:
                     output_to_json(state.get("output_file").as_posix(), str(info), json_results)
-                return
+                raise typer.Exit(1)
             proxy_contract = proxy_contracts[0]
             json_results["proxy-present"] = True
 
@@ -348,7 +349,7 @@ def main_callback(
                 logger.error(red(info))
                 if state.get("output_format") == OutputFormat.JSON:
                     output_to_json(state.get("output_file").as_posix(), str(info), json_results)
-                return
+                raise typer.Exit(1)
             v2_contract = v2_contracts[0]
             json_results["contract_v2-present"] = True
 
@@ -381,7 +382,9 @@ def main_callback(
             output_to_json(
                 state.get("output_file").as_posix(), str(slither_exception), json_results
             )
-        return
+        raise typer.Exit(1)
+
+    raise typer.Exit(0)
 
 
 # endregion

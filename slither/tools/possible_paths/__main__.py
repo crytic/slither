@@ -3,6 +3,11 @@ from typing import Annotated, List
 
 import typer
 
+# Configure logging before slither imports to suppress CryticCompile INFO messages
+logging.basicConfig()
+logging.getLogger("Slither").setLevel(logging.INFO)
+logging.getLogger("CryticCompile").setLevel(logging.WARNING)
+
 from slither import Slither
 from slither.core.declarations import FunctionContract
 from slither.utils.colors import red
@@ -17,10 +22,6 @@ from slither.utils.command_line import target_type, SlitherState, SlitherApp, Gr
 
 possible_paths_app: SlitherApp = SlitherApp()
 app.add_typer(possible_paths_app, name="find-paths")
-
-
-logging.basicConfig()
-logging.getLogger("Slither").setLevel(logging.INFO)
 
 
 @possible_paths_app.callback(cls=GroupWithCrytic)
@@ -74,6 +75,8 @@ def main_callback(
     print("The following paths reach the specified targets:")
     for reaching_path in sorted(reaching_paths_str):
         print(f"{reaching_path}\n")
+
+    raise typer.Exit(0)
 
 
 def main():
