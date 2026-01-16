@@ -1,6 +1,7 @@
 """
 Tests for immutable and constant variable support in slither-read-storage
 """
+
 import pytest
 from pathlib import Path
 
@@ -137,3 +138,60 @@ def test_constant_value_extraction(slither_from_source):
     assert "BOOL_CONSTANT" in slot_info
     # Bool constant should be True
     assert slot_info["BOOL_CONSTANT"].value in [True, "true", "True"]
+
+
+def test_variable_name_filter_with_immutable(slither_from_source):
+    """Test that --variable-name filter works with --include-immutable."""
+    contracts = slither_from_source.contracts
+
+    srs = SlitherReadStorage(contracts, max_depth=20)
+    srs.include_immutable = True
+
+    # Filter for a specific immutable variable
+    srs.get_all_storage_variables(lambda x: x.name == "someAddress")
+
+    # Should only find the filtered immutable variable
+    assert len(srs.immutable_variables) == 1
+    assert srs.immutable_variables[0][1].name == "someAddress"
+
+    # Should not find other variables
+    assert len(srs.target_variables) == 0
+    assert len(srs.constant_variables) == 0
+
+
+def test_variable_name_filter_storage(slither_from_source):
+    """Test that --variable-name filter works for storage variables."""
+    contracts = slither_from_source.contracts
+
+    srs = SlitherReadStorage(contracts, max_depth=20)
+    srs.include_immutable = True
+
+    # Filter for a specific storage variable
+    srs.get_all_storage_variables(lambda x: x.name == "someStorageVar")
+
+    # Should only find the filtered storage variable
+    assert len(srs.target_variables) == 1
+    assert srs.target_variables[0][1].name == "someStorageVar"
+
+    # Should not find immutable/constant variables
+    assert len(srs.immutable_variables) == 0
+    assert len(srs.constant_variables) == 0
+
+
+def test_variable_name_filter_constant(slither_from_source):
+    """Test that --variable-name filter works for constant variables."""
+    contracts = slither_from_source.contracts
+
+    srs = SlitherReadStorage(contracts, max_depth=20)
+    srs.include_immutable = True
+
+    # Filter for a specific constant variable
+    srs.get_all_storage_variables(lambda x: x.name == "UINT_CONSTANT")
+
+    # Should only find the filtered constant variable
+    assert len(srs.constant_variables) == 1
+    assert srs.constant_variables[0][1].name == "UINT_CONSTANT"
+
+    # Should not find other variables
+    assert len(srs.target_variables) == 0
+    assert len(srs.immutable_variables) == 0
