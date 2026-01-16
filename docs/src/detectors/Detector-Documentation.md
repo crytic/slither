@@ -843,7 +843,7 @@ contract A {
 }
 ```
 
-`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.  
+`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.
 `-1` is supposed to indicate uninitialized values but the Solidity bug makes these as `1`, which could be exploited by the accounts.
 
 ### Recommendation
@@ -1341,17 +1341,18 @@ Detects variables that are written but never read and written again.
 
 ### Exploit Scenario
 
-    ```solidity
-    contract Buggy{
-        function my_func() external initializer{
-            // ...
-            a = b;
-            a = c;
-            // ..
-        }
+```solidity
+contract Buggy{
+    function my_func() external initializer{
+        // ...
+        a = b;
+        a = c;
+        // ..
     }
-    ```
-    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
+}
+```
+
+`a` is first assigned to `b`, and then to `c`. As a result the first write does nothing.
 
 ### Recommendation
 
@@ -1406,7 +1407,7 @@ Verify and simplify the condition.
 
 ### Description
 
-Chronicle oracle is used and the price returned is not checked to be valid. For more information <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
+Chronicle oracle is used and the price returned is not checked to be valid. For more information visit <https://docs.chroniclelabs.org/Resources/FAQ/Oracles#how-do-i-check-if-an-oracle-becomes-inactive-gets-deprecated>.
 
 ### Exploit Scenario
 
@@ -1523,8 +1524,8 @@ contract A {
 }
 ```
 
-If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
-If `(oldSupply * interest / n)` was used, `coins` would have been `1`.  
+If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.
+If `(oldSupply * interest / n)` was used, `coins` would have been `1`.
 In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous.
 
 ### Recommendation
@@ -1632,7 +1633,7 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
 Do not rely on the order or successful execution of retryable tickets.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities no ETH
 
 ### Configuration
 
@@ -2311,7 +2312,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
 Check that the address is not zero.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities benign
 
 ### Configuration
 
@@ -2341,7 +2342,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
 Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities events
 
 ### Configuration
 
@@ -2694,14 +2695,15 @@ In Solidity, it is possible to use libraries for certain types, by the `using-fo
 
 ### Exploit Scenario
 
-    ```solidity
-    library L {
-        function f(bool) public pure {}
-    }
+```solidity
+library L {
+    function f(bool) public pure {}
+}
 
-    using L for uint;
-    ```
-    Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
+using L for uint;
+```
+
+Such a code will compile despite the fact that `L` has no function with `uint` as its first argument.
 
 ### Recommendation
 
@@ -2973,7 +2975,7 @@ contract Contract{
 
 Remove unused functions.
 
-## Reentrancy vulnerabilities
+## Reentrancy vulnerabilities unlimited gas
 
 ### Configuration
 

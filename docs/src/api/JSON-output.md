@@ -1,3 +1,5 @@
+# JSON Output
+
 - [Top-level Command Output](https://github.com/crytic/slither/wiki/JSON-output#top-level-command-output): Standard top-level (for detectors, printers and tools)
 - [Detectors output](https://github.com/crytic/slither/wiki/JSON-output#detector-results)
 - [Upgradeability output](https://github.com/crytic/slither/wiki/JSON-output#slither-check-upgradeability)
@@ -36,7 +38,7 @@ The underlying `results` item above will appear in the following format:
 
 A detector result found in the `detectors` array above will be of the following format:
 
-```
+```json
 {
  "check": "...",
  "impact": "...",
@@ -92,7 +94,7 @@ Each element found in `elements` above is of the form:
 
 Each `source_mapping` object is used to map an element to some portion of source. It is of the form:
 
-```
+```json
 "source_mapping": {
  "start": 45
  "length": 58,
@@ -165,7 +167,7 @@ The `slither-check-upgradeability` tool also produces JSON output (with the use 
 - `error` (string | null): If `success` is `false`, this will be a string with relevant error information. Otherwise, it will be `null`.
 - `results` (upgradeability-check-results, see below): If `success` is `true`, this will contain an `upgradeability-check` object populated with the different upgradeability checks. If `success` is `false`, `upgradeability-check` object will be empty.
 
-## Command Results
+## Upgradeability Check Results
 
 The underlying `upgradeability-check` item above will appear in the following format:
 

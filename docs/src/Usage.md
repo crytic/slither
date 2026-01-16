@@ -1,4 +1,4 @@
-## Usage
+# Usage
 
 - [How to run Slither](#how-to-run-slither)
   - [Foundry/hardhat](#foundryhardhat)
@@ -19,7 +19,7 @@ All the [`crytic-compile`](https://github.com/crytic/crytic-compile/wiki/Configu
 
 To run Slither on a Foundry/hardhat directory:
 
-```
+```sh
 slither .
 ```
 
@@ -27,7 +27,7 @@ slither .
 
 To run Slither from a Solidity file:
 
-```
+```sh
 slither file.sol
 ```
 
@@ -35,7 +35,7 @@ slither file.sol
 
 To run Slither from a contract hosted on Etherscan, run
 
-```
+```sh
 slither 0x7F37f78cBD74481E593F9C737776F7113d76B315
 ```
 
@@ -47,13 +47,13 @@ Slither runs all its detectors by default.
 
 To run only selected detectors, use `--detect detector1,detector2`. For example:
 
-```
+```sh
 slither file.sol --detect arbitrary-send,pragma
 ```
 
 To exclude detectors, use `--exclude detector1,detector2`. For example:
 
-```
+```sh
 slither file.sol --exclude naming-convention,unused-state,suicidal
 ```
 
@@ -67,7 +67,7 @@ By default, no printers are run.
 
 To run selected printers, use `--print printer1,printer2`. For example:
 
-```
+```sh
 slither file.sol --print inheritance-graph
 ```
 
@@ -79,13 +79,13 @@ slither file.sol --print inheritance-graph
 
 Examples:
 
-```
+```sh
 slither . --filter-paths "openzepellin"
 ```
 
 Filter all the results only related to openzepellin.
 
-```
+```bash
 slither . --filter-paths "SafeMath.sol|ConvertLib.sol"
 ```
 
@@ -106,7 +106,7 @@ Slither offers several ways to suppress results:
 
 Examples:
 
-```
+```sh
 slither . --triage-mode
 [...]
 0: C.destination (test.sol#3) is never initialized. It is used in:
@@ -128,7 +128,7 @@ Options passed via the CLI have priority over options set in the configuration f
 
 The following flags are supported:
 
-```
+```sh
 {
     "detectors_to_run": "all",
     "printers_to_run": None,
