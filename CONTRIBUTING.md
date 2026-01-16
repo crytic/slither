@@ -37,7 +37,7 @@ For development setup, we use [uv](https://github.com/astral-sh/uv):
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Setup development environment
-make dev  # Creates venv and installs all dependencies
+make dev  # Installs dependencies and pre-commit hooks
 ```
 
 Run `make test` for all tests, or `make test TESTS=$name` for specific tests. List test names with `pytest tests --collect-only`.
