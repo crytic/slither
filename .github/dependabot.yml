@@ -6,10 +6,22 @@ updates:
     target-branch: "master"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all:
+        patterns: ["*"]
+
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all:
+        patterns: ["*"]
+
   - package-ecosystem: "npm"
     directory: "tests/e2e/compilation/test_data/test_node_modules/"
     schedule:

@@ -32,10 +32,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install uv and Python ${{ matrix.python }}
-        uses: astral-sh/setup-uv@f06b870e0a91d23284a3013acc55e6f88ab4b904  # v7
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6
         with:
           python-version: ${{ matrix.python }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@f06b870e0a91d23284a3013acc55e6f88ab4b904  # v7
+        with:
           enable-cache: true
 
       - name: Try system-wide Slither
