@@ -1104,6 +1104,8 @@ def configure_logger(log_level: int = logging.INFO):
     console_handler.setFormatter(FormatterCryticCompile())
 
     crytic_compile_error = logging.getLogger("CryticCompile")
+    # Clear any existing handlers to prevent duplicate or lower-level logging
+    crytic_compile_error.handlers.clear()
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.WARNING)
