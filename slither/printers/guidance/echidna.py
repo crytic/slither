@@ -47,9 +47,7 @@ def _get_name(f: Function | Variable) -> str:
 def _extract_payable(contracts: list[Contract]) -> dict[str, list[str]]:
     ret: dict[str, list[str]] = {}
     for contract in contracts:
-        payable_functions = [
-            _get_name(f) for f in contract.functions_entry_points if f.payable
-        ]
+        payable_functions = [_get_name(f) for f in contract.functions_entry_points if f.payable]
         if payable_functions:
             ret[contract.name] = payable_functions
     return ret
@@ -126,11 +124,7 @@ def _is_constant(f: Function) -> bool:
         ]:
             return False
         if isinstance(ir, HighLevelCall):
-            if (
-                isinstance(ir.function, Variable)
-                or ir.function.view
-                or ir.function.pure
-            ):
+            if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
                 if f.compilation_unit.solc_version.startswith("0.4"):
                     return False
@@ -146,13 +140,9 @@ def _is_constant(f: Function) -> bool:
 def _extract_constant_functions(contracts: list[Contract]) -> dict[str, list[str]]:
     ret: dict[str, list[str]] = {}
     for contract in contracts:
-        cst_functions = [
-            _get_name(f) for f in contract.functions_entry_points if _is_constant(f)
-        ]
+        cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [
-            v.solidity_signature
-            for v in contract.state_variables
-            if v.visibility in ["public"]
+            v.solidity_signature for v in contract.state_variables if v.visibility in ["public"]
         ]
         if cst_functions:
             ret[contract.name] = cst_functions
@@ -174,14 +164,9 @@ def _extract_assert(contracts: list[Contract]) -> dict[str, dict[str, list[dict]
         functions_using_assert: dict[str, list[dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
             for ir in f.all_solidity_calls():
-                if (
-                    ir.function == SolidityFunction("assert(bool)")
-                    and ir.node.source_mapping
-                ):
+                if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
                     func_name = _get_name(f)
-                    functions_using_assert[func_name].append(
-                        ir.node.source_mapping.to_json()
-                    )
+                    functions_using_assert[func_name].append(ir.node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -255,12 +240,8 @@ def _extract_constant_from_binary(
 ):
     for r in ir.read:
         if isinstance(r, Constant):
-            all_cst_used_in_binary[str(ir.type)].append(
-                ConstantValue(str(r.value), str(r.type))
-            )
-        if isinstance(ir.variable_left, Constant) or isinstance(
-            ir.variable_right, Constant
-        ):
+            all_cst_used_in_binary[str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
+        if isinstance(ir.variable_left, Constant) or isinstance(ir.variable_right, Constant):
             if ir.lvalue:
                 try:
                     type_ = ir.lvalue.type
@@ -285,9 +266,7 @@ def _extract_constants_from_irs(
                     value_type = ir.type.type
                 else:
                     value_type = ir.type
-                all_cst_used.append(
-                    ConstantValue(str(ir.variable.value), str(value_type))
-                )
+                all_cst_used.append(ConstantValue(str(ir.variable.value), str(value_type)))
                 continue
         if (
             isinstance(ir, Member)
@@ -298,9 +277,7 @@ def _extract_constants_from_irs(
             try:
                 internal_num = ir.variable_left.values.index(ir.variable_right.value)
                 all_cst_used.append(ConstantValue(str(internal_num), "uint256"))
-            except (
-                ValueError
-            ):  # index could fail; should never happen in working solidity code
+            except ValueError:  # index could fail; should never happen in working solidity code
                 pass
         for r in ir.read:
             _extract_constant_from_read(
@@ -314,9 +291,7 @@ def _extract_constants(
     # contract -> function -> [ {"value": value, "type": type} ]
     ret_cst_used: dict[str, dict[str, list[ConstantValue]]] = defaultdict(dict)
     # contract -> function -> binary_operand -> [ {"value": value, "type": type ]
-    ret_cst_used_in_binary: dict[str, dict[str, dict[str, list[ConstantValue]]]] = (
-        defaultdict(dict)
-    )
+    ret_cst_used_in_binary: dict[str, dict[str, dict[str, list[ConstantValue]]]] = defaultdict(dict)
     for contract in contracts:
         for function in contract.functions_entry_points:
             all_cst_used: list = []
@@ -334,9 +309,7 @@ def _extract_constants(
             # Note: use list(set()) instead of set
             # As this is meant to be serialized in JSON, and JSON does not support set
             if all_cst_used:
-                ret_cst_used[contract.name][_get_name(function)] = list(
-                    set(all_cst_used)
-                )
+                ret_cst_used[contract.name][_get_name(function)] = list(set(all_cst_used))
             if all_cst_used_in_binary:
                 ret_cst_used_in_binary[contract.name][_get_name(function)] = {
                     k: list(set(v)) for k, v in all_cst_used_in_binary.items()
@@ -366,9 +339,7 @@ def _extract_function_relations(
             }
             for candidate, varsWritten in written.items():
                 if any(r in varsWritten for r in function.all_state_variables_read()):
-                    ret[contract.name][_get_name(function)]["is_impacted_by"].append(
-                        candidate
-                    )
+                    ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
             for candidate, varsRead in read.items():
                 if any(r in varsRead for r in function.all_state_variables_written()):
                     ret[contract.name][_get_name(function)]["impacts"].append(candidate)
@@ -428,9 +399,7 @@ def _with_receive(contracts: list[Contract]) -> set[str]:
     return ret
 
 
-def _call_a_parameter(
-    slither: SlitherCore, contracts: list[Contract]
-) -> dict[str, list[dict]]:
+def _call_a_parameter(slither: SlitherCore, contracts: list[Contract]) -> dict[str, list[dict]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -497,9 +466,7 @@ class Echidna(AbstractPrinter):
         msg_sender = _extract_solidity_variable_usage(
             contracts, SolidityVariableComposed("msg.sender")
         )
-        msg_gas = _extract_solidity_variable_usage(
-            contracts, SolidityVariableComposed("msg.gas")
-        )
+        msg_gas = _extract_solidity_variable_usage(contracts, SolidityVariableComposed("msg.gas"))
         assert_usage = _extract_assert(contracts)
         cst_functions = _extract_constant_functions(contracts)
         (cst_used, cst_used_in_binary) = _extract_constants(contracts)
@@ -538,9 +505,7 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             # "call_a_parameter": call_parameters,
             "use_balance": use_balance,
-            "solc_versions": [
-                unit.solc_version for unit in self.slither.compilation_units
-            ],
+            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
             "with_fallback": with_fallback,
             "with_receive": with_receive,
         }
