@@ -30,7 +30,7 @@ def is_test_file(path: Path) -> bool:
     :param path:
     :return:
     """
-    return any((test_pattern in path.parts for test_pattern in TESTS_PATTERNS))
+    return any(test_pattern in path.parts for test_pattern in TESTS_PATTERNS)
 
 
 def is_test_contract(contract: "Contract") -> bool:

@@ -264,7 +264,7 @@ class ContractSolc(CallerContextExpression):
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self) -> None:
-        if not self.get_children() in self._data:  # empty contract
+        if self.get_children() not in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
             if item[self.get_key()] == "FunctionDefinition":
@@ -640,7 +640,7 @@ class ContractSolc(CallerContextExpression):
                 self._contract.using_for.update(father.using_for)
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
-                    if "typeName" in using_for and using_for["typeName"]:
+                    if using_for.get("typeName"):
                         type_name: USING_FOR_KEY = parse_type(using_for["typeName"], self)
                     else:
                         type_name = "*"

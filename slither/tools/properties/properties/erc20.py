@@ -89,7 +89,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         logger.error(red(errors))
         return
 
-    erc_properties = ERC20_PROPERTIES.get(type_property, None)
+    erc_properties = ERC20_PROPERTIES.get(type_property)
     if erc_properties is None:
         logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return

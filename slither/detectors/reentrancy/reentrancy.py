@@ -23,16 +23,16 @@ def union_dict(d1: Dict, d2: Dict) -> Dict:
 
 
 def dict_are_equal(d1: Dict, d2: Dict) -> bool:
-    if set(list(d1.keys())) != set(list(d2.keys())):
+    if set(d1.keys()) != set(d2.keys()):
         return False
-    return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
+    return all(set(d1[k]) == set(d2[k]) for k in d1)
 
 
 def is_subset(
     new_info: Dict,
     old_info: Dict,
 ) -> bool:
-    for k in new_info.keys():
+    for k in new_info:
         if k not in old_info:
             return False
         if not new_info[k].issubset(old_info[k]):
@@ -41,9 +41,7 @@ def is_subset(
 
 
 def to_hashable(d: Dict[Node, Set[Node]]) -> Tuple:
-    list_tuple = list(
-        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
-    )
+    list_tuple = [(k, tuple(sorted(values, key=lambda x: x.node_id))) for k, values in d.items()]
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
 

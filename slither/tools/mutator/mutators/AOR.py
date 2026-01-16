@@ -29,7 +29,7 @@ class AOR(AbstractMutator):
                     continue
                 try:
                     ir_expression = node.expression
-                except:
+                except AttributeError:
                     continue
 
                 # Special cases handling .push and .pop on dynamic arrays.

@@ -61,9 +61,7 @@ contract MyConc{
                 )
                 or not isinstance(ir.function, Function)
             )
-            or ir.node.type == NodeType.TRY
-            and isinstance(ir, (Assignment, Unpack))
-        )
+        ) or (ir.node.type == NodeType.TRY and isinstance(ir, (Assignment, Unpack)))
 
     def detect_unused_return_values(self, f: FunctionContract) -> List[Node]:
         """

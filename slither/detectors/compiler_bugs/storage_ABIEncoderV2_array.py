@@ -81,8 +81,10 @@ contract A {
                 for ir in node.irs:
                     # Call to abi.encode()
                     if (
-                        isinstance(ir, SolidityCall)
-                        and ir.function == SolidityFunction("abi.encode()")
+                        (
+                            isinstance(ir, SolidityCall)
+                            and ir.function == SolidityFunction("abi.encode()")
+                        )
                         or
                         # Call to emit event
                         # Call to external function

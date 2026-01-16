@@ -152,9 +152,9 @@ def encode_ir(ir):
     if isinstance(ir, Length):
         return "length"
     if isinstance(ir, Binary):
-        return f"binary({str(ir.type)})"
+        return f"binary({ir.type!s})"
     if isinstance(ir, Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, Condition):
         return f"condition({encode_ir(ir.value)})"
     if isinstance(ir, NewStructure):

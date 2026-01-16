@@ -98,7 +98,7 @@ def encode_ir_for_upgradeability_compare(ir: operations.Operation) -> str:
     if isinstance(ir, operations.Binary):
         return f"binary({encode_var_for_compare(ir.variable_left)}{ir.type}{encode_var_for_compare(ir.variable_right)})"
     if isinstance(ir, operations.Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, operations.Condition):
         return f"condition({encode_var_for_compare(ir.value)})"
     if isinstance(ir, operations.NewStructure):
@@ -153,9 +153,9 @@ def encode_ir_for_halstead(ir: operations.Operation) -> str:
     if isinstance(ir, operations.Length):
         return "length"
     if isinstance(ir, operations.Binary):
-        return f"binary({str(ir.type)})"
+        return f"binary({ir.type!s})"
     if isinstance(ir, operations.Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, operations.Condition):
         return f"condition({encode_var_for_compare(ir.value)})"
     if isinstance(ir, operations.NewStructure):
