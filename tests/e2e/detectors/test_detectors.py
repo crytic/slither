@@ -1488,6 +1488,16 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.MsgValueInNonPayable,
+        "msg_value_in_nonpayable.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MsgValueInNonPayable,
+        "msg_value_in_nonpayable.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.DelegatecallInLoop,
         "delegatecall_loop.sol",
         "0.4.25",
