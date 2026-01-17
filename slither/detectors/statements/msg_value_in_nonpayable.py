@@ -64,7 +64,6 @@ class MsgValueInNonPayable(AbstractDetector):
         # Detect direct msg.value usage only
         for contract in self.contracts:
             for func in contract.functions:
-
                 # Skip interfaces / abstract / unimplemented functions
                 if not func.is_implemented:
                     continue
