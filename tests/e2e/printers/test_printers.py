@@ -4,12 +4,13 @@ from collections import Counter
 from pathlib import Path
 import pytest
 
-from crytic_compile import CryticCompile
+from crytic_compile import CryticCompile, compile_all
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.summary.cheatcodes import CheatcodePrinter
+from slither.printers.summary.external_calls import ExternalCallPrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
 
@@ -84,3 +85,29 @@ def test_slithir_printer(solc_binary_path) -> None:
     output = printer.output("test_printer_slithir.dot")
 
     assert "slither.core.solidity_types" not in output.data["description"]
+
+
+def test_external_call_printers(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
+    compilation = compile_all(
+        (TEST_DATA_DIR / "test_external_calls" / "A.sol").as_posix(), solc=solc_path
+    ).pop()
+    slither = Slither(compilation)
+
+    printer = ExternalCallPrinter(slither, None)
+    output = printer.output("")
+
+    assert output is not None
+    description = output.data["description"]
+
+    # Verify A.foo() -> IERC20.balanceOf is detected
+    assert "A.foo()" in description
+    assert "IERC20.balanceOf" in description
+
+    # Verify C.pop() -> B.bar is detected
+    assert "C.pop()" in description
+    assert "B.bar" in description
+
+    # Verify no duplicate entries (each external call should appear once)
+    # Count occurrences of IERC20.balanceOf - should be exactly 1
+    assert description.count("IERC20.balanceOf") == 1
