@@ -84,7 +84,11 @@ def process_single(
     if args.sarif_triage:
         slither.sarif_triage = args.sarif_triage
 
-    return _process(slither, detector_classes, printer_classes)
+    # Enable unused ignore tracking if requested
+    if args.warn_unused_ignores:
+        slither.warn_unused_ignores = True
+
+    return _process(slither, detector_classes, printer_classes, args.warn_unused_ignores)
 
 
 def process_all(
@@ -121,6 +125,7 @@ def _process(
     slither: Slither,
     detector_classes: list[type[AbstractDetector]],
     printer_classes: list[type[AbstractPrinter]],
+    warn_unused_ignores: bool = False,
 ) -> tuple[Slither, list[dict], list[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
@@ -138,6 +143,21 @@ def _process(
         detector_resultss = [x for x in detector_resultss if x]  # remove empty results
         detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
+
+        # Report unused ignore comments if enabled
+        if warn_unused_ignores:
+            unused_ignores = slither.get_unused_ignore_comments()
+            for unused in unused_ignores:
+                comment_type = unused["comment_type"]
+                if comment_type == "next-line":
+                    directive = "slither-disable-next-line"
+                else:
+                    directive = f"slither-disable-{comment_type}"
+                unused_dets = ",".join(unused["unused_detectors"])
+                logger.warning(
+                    f"Unused {directive} directive for {unused_dets} at "
+                    f"{unused['file']}#{unused['line']}"
+                )
 
     else:
         printer_results = slither.run_printers()
@@ -468,6 +488,13 @@ def parse_args(
         help="Show all the findings",
         action="store_true",
         default=defaults_flag_in_config["show_ignored_findings"],
+    )
+
+    group_detector.add_argument(
+        "--warn-unused-ignores",
+        help="Warn about slither-disable comments that do not suppress any findings",
+        action="store_true",
+        default=defaults_flag_in_config["warn_unused_ignores"],
     )
 
     group_checklist.add_argument(
