@@ -1,7 +1,11 @@
 from typing import List, Tuple
 from slither.utils.output import Output
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
 from slither.core.declarations.function import Function
 
@@ -62,6 +66,11 @@ class MsgValueInNonPayable(AbstractDetector):
         # Detect direct msg.value usage only
         for contract in self.contracts:
             for func in contract.functions:
+
+                # Skip interfaces / abstract / unimplemented functions
+                if not func.is_implemented:
+                    continue
+
                 # Skip functions that do not directly use msg.value
                 # (either in the function body or in attached modifiers)
                 if not self._uses_msg_value(func) and not any(
@@ -114,6 +123,13 @@ class MsgValueInNonPayable(AbstractDetector):
         """
         payable_callers = []
         non_payable_callers = []
+
+        if function.visibility in ("public", "external"):
+            if function.payable:
+                payable_callers.append(function)
+            else:
+                non_payable_callers.append(function)
+
         for func in function.all_reachable_from_functions:
             if isinstance(func, Function) and func.visibility in ["public", "external"]:
                 if func.payable:
@@ -122,31 +138,17 @@ class MsgValueInNonPayable(AbstractDetector):
                     non_payable_callers.append(func)
         return (payable_callers, non_payable_callers)
 
-    def _build_info(self, func: Function, non_payable_callers: list) -> List:
-        info = [
-            "msg.value used in non-payable context\n",
-            f"  Location: {func.source_mapping.filename.short}:{func.source_mapping.lines[0]}\n",
-            f"  Function: {func.full_name} [non-payable]\n",
-            "  Issue: msg.value will always be 0\n",
+    def _build_info(self, func: Function, non_payable_callers: list) -> DETECTOR_INFO:
+        info: DETECTOR_INFO = [
+            func,
+            " uses msg.value but is not reachable from any payable function\n",
         ]
 
-        if non_payable_callers:
-            info.append("\n  Call chain analysis:")
-            info.append("\n    Entry points that can reach this function:\n")
+        filtered_non_payable_callers = [c for c in non_payable_callers if c != func]
 
-            for caller in non_payable_callers:
-                info.append(f"      - {caller.full_name} [{caller.visibility}, non-payable]\n")
+        if filtered_non_payable_callers:
+            info.append("\tNon-payable entry points that can reach this function:\n")
+            for caller in filtered_non_payable_callers:
+                info.extend(["\t- ", caller, "\n"])
 
-        info.append(
-            "\n  No payable functions can reach this code.\n\n",
-        )
-
-        info.extend(
-            [
-                "  Suggestion: Either:\n",
-                "    1. Make the function payable if it should receive ETH\n",
-                "    2. Remove the msg.value check as it will always be 0\n",
-                "    3. Ensure this function is only called from payable contexts\n\n",
-            ]
-        )
         return info
