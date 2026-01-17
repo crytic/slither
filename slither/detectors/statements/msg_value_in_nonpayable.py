@@ -1,6 +1,4 @@
-from typing import List, Tuple
 from slither.utils.output import Output
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -60,7 +58,7 @@ class MsgValueInNonPayable(AbstractDetector):
     the `msg.value`-based logic if ETH should never be sent to this code path.
     """
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         # Detect direct msg.value usage only
@@ -111,7 +109,7 @@ class MsgValueInNonPayable(AbstractDetector):
                         return True
         return False
 
-    def _get_entry_point_callers(self, function: Function) -> Tuple[List[Function], List[Function]]:
+    def _get_entry_point_callers(self, function: Function) -> tuple[list[Function], list[Function]]:
         """
         Walk the reverse call graph using Slither's
         `all_reachable_from_functions`.
