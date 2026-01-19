@@ -68,11 +68,8 @@ PROJECTS = {
     },
 }
 
-# Branches to compare (used when --no-branch-compare is not set)
-BRANCHES = [
-    "master",
-    "perf/transitive-closure-worklist",
-]
+# Default branches to compare (used when --no-branch-compare is not set)
+BRANCHES = ["master"]
 
 ITERATIONS = 1
 
