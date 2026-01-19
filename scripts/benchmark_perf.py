@@ -27,14 +27,17 @@ Usage:
 """
 
 import argparse
+import fcntl
 import json
 import os
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 BENCH_DIR = Path("/tmp/slither-bench")
+LOCK_FILE = Path("/tmp/slither-bench.lock")
 
 FOUNDRY_BIN = Path.home() / ".foundry" / "bin"
 if FOUNDRY_BIN.exists():
@@ -72,6 +75,30 @@ BRANCHES = [
 ]
 
 ITERATIONS = 1
+
+
+@contextmanager
+def benchmark_lock(wait: bool = True):
+    """Acquire exclusive lock for benchmarking.
+
+    Args:
+        wait: If True, block until lock available. If False, raise if locked.
+    """
+    lock_file = LOCK_FILE.open("w")
+    try:
+        flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if wait:
+            print("Waiting for benchmark lock...", file=sys.stderr)
+        fcntl.flock(lock_file, flags)
+        if wait:
+            print("Lock acquired, starting benchmark", file=sys.stderr)
+        yield
+    except BlockingIOError:
+        lock_file.close()
+        raise SystemExit("Another benchmark is running. Use --wait to queue.")
+    finally:
+        fcntl.flock(lock_file, fcntl.LOCK_UN)
+        lock_file.close()
 
 
 def setup_projects(project_names: list[str]) -> None:
@@ -295,6 +322,11 @@ def main():
         type=int,
         help="GitHub PR number to post results as a comment",
     )
+    parser.add_argument(
+        "--no-lock",
+        action="store_true",
+        help="Skip lock acquisition (for isolated environments)",
+    )
 
     args = parser.parse_args()
 
@@ -339,13 +371,19 @@ def main():
     if args.branches:
         branches = [b.strip() for b in args.branches.split(",")]
 
-    # Run benchmark
-    if args.no_branch_compare or args.slither_path:
-        if not args.json:
-            print("=== Benchmark Results ===")
-        results = benchmark_current(project_names, quiet=args.json, slither_cwd=slither_cwd)
+    # Run benchmark (with lock unless --no-lock)
+    def run_benchmark():
+        if args.no_branch_compare or args.slither_path:
+            if not args.json:
+                print("=== Benchmark Results ===")
+            return benchmark_current(project_names, quiet=args.json, slither_cwd=slither_cwd)
+        return benchmark_branches(project_names, branches, quiet=args.json)
+
+    if args.no_lock:
+        results = run_benchmark()
     else:
-        results = benchmark_branches(project_names, branches, quiet=args.json)
+        with benchmark_lock():
+            results = run_benchmark()
 
     # Print PR comment command if requested (no auto-posting)
     if args.pr:
