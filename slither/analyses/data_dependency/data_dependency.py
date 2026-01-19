@@ -2,7 +2,6 @@
 Compute the data depenency between all the SSA variables
 """
 
-from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from slither.core.cfg.node import Node
@@ -387,25 +386,45 @@ def propagate_function(
             contract.context[context_key][key].union(values)
 
 
+def _compute_transitive_closure(deps: dict[object, set[object]]) -> None:
+    """Compute transitive closure using worklist algorithm.
+
+    Uses a reverse dependency index to efficiently propagate dependencies:
+    when node N's dependencies change, only nodes that depend on N need updating.
+
+    Args:
+        deps: Dependency graph as adjacency dict, modified in place.
+    """
+    # Build reverse index: for each node, who depends on it?
+    reverse_deps: dict[object, set[object]] = {}
+    for key, items in deps.items():
+        for item in items:
+            if item not in reverse_deps:
+                reverse_deps[item] = set()
+            reverse_deps[item].add(key)
+
+    worklist = set(deps.keys())
+    while worklist:
+        node = worklist.pop()
+        node_deps = deps.get(node, set())
+        for dependent in reverse_deps.get(node, set()):
+            new_deps = node_deps - deps[dependent] - {dependent}
+            if new_deps:
+                deps[dependent] |= new_deps
+                for new_dep in new_deps:
+                    if new_dep not in reverse_deps:
+                        reverse_deps[new_dep] = set()
+                    reverse_deps[new_dep].add(dependent)
+                worklist.add(dependent)
+
+
 def transitive_close_dependencies(
     context: Context_types, context_key: str, context_key_non_ssa: str
 ) -> None:
-    # transitive closure
-    changed = True
-    keys = context.context[context_key].keys()
-    while changed:
-        changed = False
-        to_add = defaultdict(set)
-        for key, items in context.context[context_key].items():
-            for item in items & keys:
-                to_add[key].update(context.context[context_key][item] - {key} - items)
-        for k, v in to_add.items():
-            # Because we dont have any check on the update operation
-            # We might update an empty set with an empty set
-            if v:
-                changed = True
-                context.context[context_key][k] |= v
-    context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
+    """Compute transitive closure of data dependencies."""
+    deps = context.context[context_key]
+    _compute_transitive_closure(deps)
+    context.context[context_key_non_ssa] = convert_to_non_ssa(deps)
 
 
 def propagate_contract(contract: Contract, context_key: str, context_key_non_ssa: str) -> None:
