@@ -1119,43 +1119,36 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     def _explore_functions(self, f_new_values: Callable[["Function"], list]) -> list[Any]:
         values = f_new_values(self)
-        explored = [self]
-        to_explore = [
-            ir.function
-            for ir in self.internal_calls
-            if isinstance(ir.function, Function) and ir.function not in explored
-        ]
-        to_explore += [
-            ir.function
-            for ir in self.library_calls
-            if isinstance(ir.function, Function) and ir.function not in explored
-        ]
-        to_explore += [m for m in self.modifiers if m not in explored]
+        explored: set[Function] = {self}
+        to_explore_set: set[Function] = set()
 
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
+        for ir in self.internal_calls:
+            if isinstance(ir.function, Function) and ir.function not in explored:
+                to_explore_set.add(ir.function)
+        for ir in self.library_calls:
+            if isinstance(ir.function, Function) and ir.function not in explored:
+                to_explore_set.add(ir.function)
+        for m in self.modifiers:
+            if m not in explored:
+                to_explore_set.add(m)
+
+        while to_explore_set:
+            f = to_explore_set.pop()
             if f in explored:
                 continue
-            explored.append(f)
+            explored.add(f)
 
             values += f_new_values(f)
 
-            to_explore += [
-                ir.function
-                for ir in f.internal_calls
-                if isinstance(ir.function, Function)
-                and ir.function not in explored
-                and ir.function not in to_explore
-            ]
-            to_explore += [
-                ir.function
-                for ir in f.library_calls
-                if isinstance(ir.function, Function)
-                and ir.function not in explored
-                and ir.function not in to_explore
-            ]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
+            for ir in f.internal_calls:
+                if isinstance(ir.function, Function) and ir.function not in explored:
+                    to_explore_set.add(ir.function)
+            for ir in f.library_calls:
+                if isinstance(ir.function, Function) and ir.function not in explored:
+                    to_explore_set.add(ir.function)
+            for m in f.modifiers:
+                if m not in explored:
+                    to_explore_set.add(m)
 
         return list(set(values))
 
