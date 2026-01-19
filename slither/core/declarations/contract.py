@@ -120,6 +120,12 @@ class Contract(SourceMapping):
             dict[StateVariable, set[StateVariable | Function]] | None
         ) = None
 
+        self._structures_list: list[StructureContract] | None = None
+        self._enums_list: list[EnumContract] | None = None
+        self._events_list: list[EventContract] | None = None
+        self._functions_list: list[FunctionContract] | None = None
+        self._modifiers_list: list[Modifier] | None = None
+
         self._comments: str | None = None
 
     ###################################################################################
@@ -257,7 +263,9 @@ class Contract(SourceMapping):
         """
         list(Structure): List of the structures
         """
-        return list(self._structures.values())
+        if self._structures_list is None:
+            self._structures_list = list(self._structures.values())
+        return self._structures_list
 
     @property
     def structures_inherited(self) -> list["StructureContract"]:
@@ -286,7 +294,9 @@ class Contract(SourceMapping):
 
     @property
     def enums(self) -> list["EnumContract"]:
-        return list(self._enums.values())
+        if self._enums_list is None:
+            self._enums_list = list(self._enums.values())
+        return self._enums_list
 
     @property
     def enums_inherited(self) -> list["EnumContract"]:
@@ -318,7 +328,9 @@ class Contract(SourceMapping):
         """
         list(Event): List of the events
         """
-        return list(self._events.values())
+        if self._events_list is None:
+            self._events_list = list(self._events.values())
+        return self._events_list
 
     @property
     def events_inherited(self) -> list["EventContract"]:
@@ -646,7 +658,9 @@ class Contract(SourceMapping):
         """
         list(Function): List of the functions
         """
-        return list(self._functions.values())
+        if self._functions_list is None:
+            self._functions_list = list(self._functions.values())
+        return self._functions_list
 
     def available_functions_as_dict(self) -> dict[str, "Function"]:
         if self._available_functions_as_dict is None:
@@ -697,7 +711,9 @@ class Contract(SourceMapping):
         """
         list(Modifier): List of the modifiers
         """
-        return list(self._modifiers.values())
+        if self._modifiers_list is None:
+            self._modifiers_list = list(self._modifiers.values())
+        return self._modifiers_list
 
     def available_modifiers_as_dict(self) -> dict[str, "Modifier"]:
         return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
