@@ -120,9 +120,6 @@ class Contract(SourceMapping):
             dict[StateVariable, set[StateVariable | Function]] | None
         ) = None
 
-        self._structures_list: list[StructureContract] | None = None
-        self._enums_list: list[EnumContract] | None = None
-        self._events_list: list[EventContract] | None = None
         self._functions_list: list[FunctionContract] | None = None
         self._modifiers_list: list[Modifier] | None = None
 
@@ -263,9 +260,7 @@ class Contract(SourceMapping):
         """
         list(Structure): List of the structures
         """
-        if self._structures_list is None:
-            self._structures_list = list(self._structures.values())
-        return self._structures_list
+        return list(self._structures.values())
 
     @property
     def structures_inherited(self) -> list["StructureContract"]:
@@ -294,9 +289,7 @@ class Contract(SourceMapping):
 
     @property
     def enums(self) -> list["EnumContract"]:
-        if self._enums_list is None:
-            self._enums_list = list(self._enums.values())
-        return self._enums_list
+        return list(self._enums.values())
 
     @property
     def enums_inherited(self) -> list["EnumContract"]:
@@ -328,9 +321,7 @@ class Contract(SourceMapping):
         """
         list(Event): List of the events
         """
-        if self._events_list is None:
-            self._events_list = list(self._events.values())
-        return self._events_list
+        return list(self._events.values())
 
     @property
     def events_inherited(self) -> list["EventContract"]:
@@ -671,6 +662,7 @@ class Contract(SourceMapping):
 
     def add_function(self, func: "FunctionContract") -> None:
         self._functions[func.canonical_name] = func
+        self._functions_list = None
 
     def set_functions(self, functions: dict[str, "FunctionContract"]) -> None:
         """
@@ -680,6 +672,7 @@ class Contract(SourceMapping):
         :return:
         """
         self._functions = functions
+        self._functions_list = None
 
     @property
     def functions_inherited(self) -> list["FunctionContract"]:
@@ -726,6 +719,7 @@ class Contract(SourceMapping):
         :return:
         """
         self._modifiers = modifiers
+        self._modifiers_list = None
 
     @property
     def modifiers_inherited(self) -> list["Modifier"]:
@@ -1490,6 +1484,7 @@ class Contract(SourceMapping):
                     # Could be improved with a targeted source mapping
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
+                    self._functions_list = None
 
                     prev_node = self._create_node(
                         constructor_variable, 0, variable_candidate, constructor_variable
@@ -1521,6 +1516,7 @@ class Contract(SourceMapping):
                     # Could be improved with a targeted source mapping
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
+                    self._functions_list = None
 
                     prev_node = self._create_node(
                         constructor_variable, 0, variable_candidate, constructor_variable
