@@ -197,9 +197,14 @@ class Slither(SlitherCore):
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
+
         for parser in self._parsers:
             try:
-                parser.parse_contracts()
+                with timer.phase("parse_contracts"):
+                    parser.parse_contracts()
             except Exception as e:
                 if self.no_fail:
                     continue
@@ -209,7 +214,8 @@ class Slither(SlitherCore):
         if not skip_analyze:
             for parser in self._parsers:
                 try:
-                    parser.analyze_contracts()
+                    with timer.phase("analyze_contracts"):
+                        parser.analyze_contracts()
                 except Exception as e:
                     if self.no_fail:
                         continue
@@ -282,9 +288,15 @@ class Slither(SlitherCore):
         """
         :return: List of registered detectors results.
         """
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
 
         self.load_previous_results()
-        results = [d.detect() for d in self._detectors]
+        results = []
+        for d in self._detectors:
+            with timer.phase(f"detector:{d.ARGUMENT}"):
+                results.append(d.detect())
 
         self.write_results_to_hide()
         return results
