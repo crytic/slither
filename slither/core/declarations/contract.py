@@ -119,6 +119,7 @@ class Contract(SourceMapping):
         self._state_variables_used_in_reentrant_targets: (
             dict[StateVariable, set[StateVariable | Function]] | None
         ) = None
+        self._functions_and_modifiers_cached: list[Function] | None = None
 
         self._comments: str | None = None
 
@@ -730,7 +731,10 @@ class Contract(SourceMapping):
         """
         list(Function|Modifier): List of the functions and modifiers
         """
-        return self.functions + self.modifiers  # type: ignore
+        if self._functions_and_modifiers_cached is None:
+            result: list[Function] = self.functions + self.modifiers  # type: ignore
+            self._functions_and_modifiers_cached = result
+        return self._functions_and_modifiers_cached
 
     @property
     def functions_and_modifiers_inherited(self) -> list["Function"]:
