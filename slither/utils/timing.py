@@ -1,6 +1,7 @@
 """Fine-grained timing instrumentation for Slither phases."""
 
 import json
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Generator
@@ -11,6 +12,7 @@ class PhaseTimer:
     """Singleton for collecting timing data across Slither phases."""
 
     _instance: "PhaseTimer | None" = None
+    _lock: threading.Lock = threading.Lock()
 
     def __init__(self) -> None:
         self.timings: dict[str, list[float]] = defaultdict(list)
@@ -19,7 +21,9 @@ class PhaseTimer:
     @classmethod
     def get(cls) -> "PhaseTimer":
         if cls._instance is None:
-            cls._instance = PhaseTimer()
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = PhaseTimer()
         return cls._instance
 
     @contextmanager

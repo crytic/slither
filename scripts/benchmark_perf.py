@@ -24,6 +24,9 @@ Usage:
     # Compare against baseline and post to PR
     python scripts/benchmark_perf.py --slither-path /path/to/worktree \\
         --baseline /tmp/baseline.json --pr 123
+
+    # Include phase-level timing breakdown
+    python scripts/benchmark_perf.py --no-branch-compare --timing
 """
 
 import argparse
@@ -32,9 +35,11 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from contextlib import contextmanager
 from pathlib import Path
+from typing import NamedTuple
 
 BENCH_DIR = Path("/tmp/slither-bench")
 LOCK_FILE = Path("/tmp/slither-bench.lock")
@@ -53,13 +58,13 @@ PROJECTS = {
         "url": "https://github.com/compound-finance/comet",
         "setup": ["yarn install"],
     },
-    "aave-v3-core": {
-        "url": "https://github.com/aave/aave-v3-core",
-        "setup": ["npm install"],
+    "safe-smart-account": {
+        "url": "https://github.com/safe-global/safe-smart-account",
+        "setup": ["npm install", "npx hardhat compile"],
     },
     "lido-dao": {
         "url": "https://github.com/lidofinance/lido-dao",
-        "setup": ["yarn install"],
+        "setup": ["yarn install", "forge build --build-info"],
     },
     "optimism": {
         "url": "https://github.com/ethereum-optimism/optimism",
@@ -123,20 +128,59 @@ def setup_projects(project_names: list[str]) -> None:
             subprocess.run(cmd, shell=True, cwd=work_dir, check=True)
 
 
-def run_slither(project_path: str, slither_cwd: Path | None = None) -> float:
-    """Run slither and return elapsed time.
+class BenchmarkResult(NamedTuple):
+    """Result from a single slither run."""
+
+    elapsed: float
+    timing: dict[str, dict] | None = None
+
+
+def run_slither(
+    project_path: str,
+    slither_cwd: Path | None = None,
+    capture_timing: bool = False,
+) -> BenchmarkResult:
+    """Run slither and return elapsed time and optional timing data.
 
     Args:
         project_path: Path to the project to analyze.
         slither_cwd: Directory to run slither from (for worktree support).
+        capture_timing: If True, capture phase-level timing data.
+
+    Returns:
+        BenchmarkResult with elapsed time and optional timing breakdown.
     """
-    start = time.perf_counter()
-    subprocess.run(
-        ["uv", "run", "slither", project_path],
-        capture_output=True,
-        cwd=slither_cwd,
-    )
-    return time.perf_counter() - start
+    timing_data = None
+    cmd = ["uv", "run", "slither", project_path]
+
+    if capture_timing:
+        # Use temp file to capture JSON with timing data
+        # Create path but don't keep the file (Slither won't overwrite existing files)
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=True) as f:
+            json_path = f.name
+        # File is deleted when context exits, so Slither can create it fresh
+
+        cmd.extend(["--json", json_path, "--json-types", "timing", "--timing"])
+
+        start = time.perf_counter()
+        subprocess.run(cmd, capture_output=True, cwd=slither_cwd)
+        elapsed = time.perf_counter() - start
+
+        # Extract timing data from JSON
+        try:
+            with open(json_path) as f:
+                data = json.load(f)
+                timing_data = data.get("results", {}).get("timing")
+        except (json.JSONDecodeError, FileNotFoundError):
+            pass
+        finally:
+            Path(json_path).unlink(missing_ok=True)
+    else:
+        start = time.perf_counter()
+        subprocess.run(cmd, capture_output=True, cwd=slither_cwd)
+        elapsed = time.perf_counter() - start
+
+    return BenchmarkResult(elapsed=elapsed, timing=timing_data)
 
 
 def get_project_path(name: str) -> str:
@@ -148,17 +192,29 @@ def get_project_path(name: str) -> str:
     return str(base)
 
 
+class ProjectResult(NamedTuple):
+    """Result for a single project benchmark."""
+
+    elapsed: float
+    timing: dict[str, dict] | None = None
+
+
 def benchmark_current(
     project_names: list[str],
     quiet: bool = False,
     slither_cwd: Path | None = None,
-) -> dict[str, float]:
+    capture_timing: bool = False,
+) -> dict[str, ProjectResult]:
     """Benchmark current checkout against specified projects.
 
     Args:
         project_names: List of project names to benchmark.
         quiet: Suppress output if True.
         slither_cwd: Directory to run slither from (for worktree support).
+        capture_timing: If True, capture phase-level timing data.
+
+    Returns:
+        Dictionary mapping project name to ProjectResult.
     """
     results = {}
     for name in project_names:
@@ -168,11 +224,13 @@ def benchmark_current(
                 print(f"  {name}: SKIPPED (not found, run --setup first)")
             continue
 
-        times = [run_slither(path, slither_cwd) for _ in range(ITERATIONS)]
-        avg = sum(times) / len(times)
-        results[name] = round(avg, 1)
+        runs = [run_slither(path, slither_cwd, capture_timing) for _ in range(ITERATIONS)]
+        avg_elapsed = sum(r.elapsed for r in runs) / len(runs)
+        # Use timing from last run (they should be similar)
+        timing = runs[-1].timing if capture_timing else None
+        results[name] = ProjectResult(elapsed=round(avg_elapsed, 1), timing=timing)
         if not quiet:
-            print(f"  {name}: {avg:.1f}s")
+            print(f"  {name}: {avg_elapsed:.1f}s")
 
     return results
 
@@ -193,14 +251,39 @@ def benchmark_branches(project_names: list[str], branches: list[str], quiet: boo
     return results
 
 
+def summarize_timing(timing: dict[str, dict]) -> dict[str, float]:
+    """Summarize timing data into core phases and detector totals.
+
+    Args:
+        timing: Raw timing data from slither.
+
+    Returns:
+        Dictionary with summarized timing (core phases + detector_total).
+    """
+    core_phases = {}
+    detector_total = 0.0
+
+    for phase, data in timing.items():
+        total_sec = data.get("total_sec", 0)
+        if phase.startswith("detector:"):
+            detector_total += total_sec
+        else:
+            core_phases[phase] = total_sec
+
+    return {**core_phases, "detectors_total": round(detector_total, 3)}
+
+
 def format_results_markdown(
-    results: dict[str, float], baseline: dict[str, float] | None = None
+    results: dict[str, ProjectResult],
+    baseline: dict | None = None,
+    show_timing: bool = False,
 ) -> str:
     """Format benchmark results as markdown table.
 
     Args:
-        results: Benchmark results {project_name: time_seconds}.
+        results: Benchmark results {project_name: ProjectResult}.
         baseline: Optional baseline results for comparison.
+        show_timing: If True, include phase timing breakdown.
 
     Returns:
         Markdown-formatted table string.
@@ -211,17 +294,34 @@ def format_results_markdown(
         "| Project | Time | vs Baseline |",
         "|---------|------|-------------|",
     ]
-    for proj, time_s in results.items():
+    for proj, result in results.items():
+        time_s = result.elapsed
         if baseline and proj in baseline:
-            base_time = baseline[proj]
+            base_data = baseline[proj]
+            base_time = (
+                base_data.get("elapsed", base_data) if isinstance(base_data, dict) else base_data
+            )
             delta = ((base_time - time_s) / base_time) * 100 if base_time else 0
             lines.append(f"| {proj} | {time_s}s | {delta:+.1f}% |")
         else:
             lines.append(f"| {proj} | {time_s}s | - |")
+
+    if show_timing:
+        lines.append("")
+        lines.append("### Phase Breakdown")
+        lines.append("")
+        for proj, result in results.items():
+            if result.timing:
+                summary = summarize_timing(result.timing)
+                lines.append(f"**{proj}:**")
+                for phase, secs in sorted(summary.items(), key=lambda x: -x[1]):
+                    lines.append(f"- {phase}: {secs:.2f}s")
+                lines.append("")
+
     return "\n".join(lines)
 
 
-def load_baseline(baseline_path: Path) -> dict[str, float]:
+def load_baseline(baseline_path: Path) -> dict:
     """Load baseline results from JSON file.
 
     Args:
@@ -235,16 +335,20 @@ def load_baseline(baseline_path: Path) -> dict[str, float]:
 
 
 def print_pr_comment_command(
-    pr_number: int, results: dict[str, float], baseline: dict[str, float] | None = None
+    pr_number: int,
+    results: dict[str, ProjectResult],
+    baseline: dict | None = None,
+    show_timing: bool = False,
 ) -> None:
     """Print the gh command to post results as PR comment (no auto-posting).
 
     Args:
         pr_number: GitHub PR number.
-        results: Benchmark results {project_name: time_seconds}.
+        results: Benchmark results {project_name: ProjectResult}.
         baseline: Optional baseline results for comparison.
+        show_timing: If True, include phase timing in output.
     """
-    body = format_results_markdown(results, baseline)
+    body = format_results_markdown(results, baseline, show_timing)
     # Print markdown preview
     print("=== PR Comment Preview ===")
     print(body)
@@ -262,14 +366,41 @@ def print_comparison(results: dict) -> None:
 
     for branch, data in results.items():
         if branch == "master":
-            print(f"{branch}: {data}")
+            formatted = {k: f"{v.elapsed}s" for k, v in data.items()}
+            print(f"{branch}: {formatted}")
         else:
             changes = {}
-            for proj, t in data.items():
-                base = baseline.get(proj, t)
-                pct = ((base - t) / base) * 100 if base else 0
-                changes[proj] = f"{t}s ({pct:+.1f}%)"
+            for proj, result in data.items():
+                base_result = baseline.get(proj)
+                base_time = base_result.elapsed if base_result else result.elapsed
+                pct = ((base_time - result.elapsed) / base_time) * 100 if base_time else 0
+                changes[proj] = f"{result.elapsed}s ({pct:+.1f}%)"
             print(f"{branch}: {changes}")
+
+
+def print_timing_breakdown(results: dict[str, ProjectResult]) -> None:
+    """Print detailed timing breakdown for each project."""
+    print("\n=== Phase Timing Breakdown ===")
+    for proj, result in results.items():
+        if not result.timing:
+            continue
+        summary = summarize_timing(result.timing)
+        total = sum(summary.values())
+        print(f"\n{proj} ({result.elapsed}s total):")
+        for phase, secs in sorted(summary.items(), key=lambda x: -x[1]):
+            pct = (secs / total * 100) if total else 0
+            print(f"  {phase}: {secs:.2f}s ({pct:.0f}%)")
+
+
+def results_to_json(results: dict[str, ProjectResult]) -> dict:
+    """Convert ProjectResult dict to JSON-serializable format."""
+    return {
+        proj: {
+            "elapsed": result.elapsed,
+            "timing": summarize_timing(result.timing) if result.timing else None,
+        }
+        for proj, result in results.items()
+    }
 
 
 def main():
@@ -324,6 +455,11 @@ def main():
         action="store_true",
         help="Skip lock acquisition (for isolated environments)",
     )
+    parser.add_argument(
+        "--timing",
+        action="store_true",
+        help="Capture and display phase-level timing breakdown",
+    )
 
     args = parser.parse_args()
 
@@ -373,7 +509,12 @@ def main():
         if args.no_branch_compare or args.slither_path:
             if not args.json:
                 print("=== Benchmark Results ===")
-            return benchmark_current(project_names, quiet=args.json, slither_cwd=slither_cwd)
+            return benchmark_current(
+                project_names,
+                quiet=args.json,
+                slither_cwd=slither_cwd,
+                capture_timing=args.timing,
+            )
         return benchmark_branches(project_names, branches, quiet=args.json)
 
     if args.no_lock:
@@ -384,15 +525,19 @@ def main():
 
     # Print PR comment command if requested (no auto-posting)
     if args.pr:
-        print_pr_comment_command(args.pr, results, baseline)
+        print_pr_comment_command(args.pr, results, baseline, show_timing=args.timing)
         return  # Don't print JSON when using --pr (output already includes preview)
 
     # Output results
     if args.json:
-        print(json.dumps(results, indent=2))
+        json_output = results_to_json(results)
+        print(json.dumps(json_output, indent=2))
     elif not args.no_branch_compare and not args.slither_path:
         print_comparison(results)
-        print("\n" + json.dumps(results, indent=2))
+        json_output = {branch: results_to_json(data) for branch, data in results.items()}
+        print("\n" + json.dumps(json_output, indent=2))
+    elif args.timing:
+        print_timing_breakdown(results)
 
 
 if __name__ == "__main__":
