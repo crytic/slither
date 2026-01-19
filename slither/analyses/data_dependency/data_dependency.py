@@ -2,7 +2,6 @@
 Compute the data depenency between all the SSA variables
 """
 
-import os
 from typing import TYPE_CHECKING
 
 from slither.core.cfg.node import Node
@@ -387,52 +386,17 @@ def propagate_function(
             contract.context[context_key][key].union(values)
 
 
-def _transitive_close_legacy(deps: dict) -> None:
-    """Original iterative algorithm - kept for comparison."""
-    from collections import defaultdict
+def _compute_transitive_closure(deps: dict[object, set[object]]) -> None:
+    """Compute transitive closure using worklist algorithm.
 
-    changed = True
-    keys = deps.keys()
-    while changed:
-        changed = False
-        to_add = defaultdict(set)
-        for key, items in deps.items():
-            for item in items & keys:
-                to_add[key].update(deps[item] - {key} - items)
-        for k, v in to_add.items():
-            if v:
-                changed = True
-                deps[k] |= v
+    Uses a reverse dependency index to efficiently propagate dependencies:
+    when node N's dependencies change, only nodes that depend on N need updating.
 
-
-def _transitive_close_warshall(deps: dict) -> None:
-    """Floyd-Warshall style algorithm - O(n^3) but cache-friendly."""
-    keys = list(deps.keys())
-    for k in keys:
-        k_deps = deps.get(k, set())
-        for i in keys:
-            if k in deps.get(i, set()):
-                deps[i] |= k_deps - {i}
-
-
-def _transitive_close_dfs(deps: dict) -> None:
-    """DFS-based reachability - O(V*(V+E)), good for sparse graphs."""
-    keys = list(deps.keys())
-
-    def dfs(node: object, visited: set) -> set:
-        for neighbor in deps.get(node, set()) - visited:
-            visited.add(neighbor)
-            dfs(neighbor, visited)
-        return visited
-
-    for key in keys:
-        deps[key] = dfs(key, set()) - {key}
-
-
-def _transitive_close_worklist(deps: dict) -> None:
-    """Worklist algorithm - only reprocess changed nodes."""
+    Args:
+        deps: Dependency graph as adjacency dict, modified in place.
+    """
     # Build reverse index: for each node, who depends on it?
-    reverse_deps: dict[object, set] = {}
+    reverse_deps: dict[object, set[object]] = {}
     for key, items in deps.items():
         for item in items:
             if item not in reverse_deps:
@@ -454,24 +418,12 @@ def _transitive_close_worklist(deps: dict) -> None:
                 worklist.add(dependent)
 
 
-# Environment variable to select algorithm: legacy, warshall, dfs, worklist
-# Benchmarks (v4-core / comet): legacy 35s/153s, warshall 38s/104s, worklist 29s/111s
-_TRANSITIVE_CLOSE_ALGO = os.environ.get("SLITHER_TRANSITIVE_ALGO", "worklist")
-_TRANSITIVE_CLOSE_IMPLS = {
-    "legacy": _transitive_close_legacy,
-    "warshall": _transitive_close_warshall,
-    "dfs": _transitive_close_dfs,
-    "worklist": _transitive_close_worklist,
-}
-
-
 def transitive_close_dependencies(
     context: Context_types, context_key: str, context_key_non_ssa: str
 ) -> None:
     """Compute transitive closure of data dependencies."""
     deps = context.context[context_key]
-    impl = _TRANSITIVE_CLOSE_IMPLS.get(_TRANSITIVE_CLOSE_ALGO, _transitive_close_dfs)
-    impl(deps)
+    _compute_transitive_closure(deps)
     context.context[context_key_non_ssa] = convert_to_non_ssa(deps)
 
 
