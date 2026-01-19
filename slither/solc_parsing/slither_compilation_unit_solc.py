@@ -582,12 +582,23 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._parsed = True
 
     def analyze_contracts(self) -> None:
+        from slither.utils.timing import PhaseTimer
+
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
-        self._convert_to_slithir()
+
+        timer = PhaseTimer.get()
+
+        with timer.phase("convert_to_slithir"):
+            self._convert_to_slithir()
+
         if not self._compilation_unit.core.skip_data_dependency:
-            compute_dependency(self._compilation_unit)
-        self._compilation_unit.compute_storage_layout()
+            with timer.phase("compute_dependency"):
+                compute_dependency(self._compilation_unit)
+
+        with timer.phase("compute_storage_layout"):
+            self._compilation_unit.compute_storage_layout()
+
         self._analyzed = True
 
     def _analyze_all_enums(self, contracts_to_be_analyzed: list[ContractSolc]) -> None:

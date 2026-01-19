@@ -649,6 +649,13 @@ def parse_args(
         default=False,
     )
 
+    parser.add_argument(
+        "--timing",
+        help="Print phase-level timing breakdown",
+        action="store_true",
+        default=False,
+    )
+
     # Disable the throw/catch on partial analyses
     parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
@@ -776,6 +783,12 @@ def main_impl(
     if args.perf:
         cp = cProfile.Profile()
         cp.enable()
+
+    # Enable phase timing if requested
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        PhaseTimer.get().enabled = True
 
     # Set colorization option
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
@@ -944,6 +957,11 @@ def main_impl(
         cp.disable()
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
+
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        print("\n" + PhaseTimer.get().report_text())
 
     fail_on = FailOnLevel(args.fail_on)
     if fail_on == FailOnLevel.HIGH:
