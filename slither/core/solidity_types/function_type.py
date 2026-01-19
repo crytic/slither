@@ -69,9 +69,10 @@ class FunctionType(Type):
         return f"({params})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, FunctionType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not FunctionType:
             return False
-        return self.params == other.params and self.return_values == other.return_values
+        return self._params == other._params and self._return_values == other._return_values
 
     def __hash__(self):
         return hash(str(self))
