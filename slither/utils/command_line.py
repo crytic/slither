@@ -25,6 +25,7 @@ JSON_OUTPUT_TYPES = [
     "printers",
     "list-detectors",
     "list-printers",
+    "timing",
 ]
 
 

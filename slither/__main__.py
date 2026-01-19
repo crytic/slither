@@ -649,6 +649,13 @@ def parse_args(
         default=False,
     )
 
+    parser.add_argument(
+        "--timing",
+        help="Print phase-level timing breakdown",
+        action="store_true",
+        default=False,
+    )
+
     # Disable the throw/catch on partial analyses
     parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
@@ -777,6 +784,14 @@ def main_impl(
         cp = cProfile.Profile()
         cp.enable()
 
+    # Enable phase timing if requested
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
+        timer.reset()  # Clear accumulated data from previous runs
+        timer.enabled = True
+
     # Set colorization option
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
@@ -894,6 +909,12 @@ def main_impl(
                 _, printers = get_detectors_and_printers()
                 json_results["list-printers"] = output_printers_json(printers)
 
+            # Add timing data to JSON if requested
+            if "timing" in args.json_types and args.timing:
+                from slither.utils.timing import PhaseTimer
+
+                json_results["timing"] = PhaseTimer.get().report()
+
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
             output_results_to_markdown(
@@ -944,6 +965,13 @@ def main_impl(
         cp.disable()
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
+
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        # Skip text output when JSON goes to stdout to avoid corruption
+        if not outputting_json_stdout:
+            print("\n" + PhaseTimer.get().report_text())
 
     fail_on = FailOnLevel(args.fail_on)
     if fail_on == FailOnLevel.HIGH:
