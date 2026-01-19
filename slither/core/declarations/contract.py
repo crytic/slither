@@ -122,6 +122,20 @@ class Contract(SourceMapping):
 
         self._comments: str | None = None
 
+        # Cached filtered properties for performance
+        self._structures_declared: list[StructureContract] | None = None
+        self._structures_inherited: list[StructureContract] | None = None
+        self._enums_declared: list[EnumContract] | None = None
+        self._enums_inherited: list[EnumContract] | None = None
+        self._events_declared: list[EventContract] | None = None
+        self._events_inherited: list[EventContract] | None = None
+        self._state_variables_declared: list[StateVariable] | None = None
+        self._state_variables_inherited: list[StateVariable] | None = None
+        self._functions_declared: list[FunctionContract] | None = None
+        self._functions_inherited: list[FunctionContract] | None = None
+        self._modifiers_declared: list[Modifier] | None = None
+        self._modifiers_inherited: list[Modifier] | None = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -264,14 +278,18 @@ class Contract(SourceMapping):
         """
         list(Structure): List of the inherited structures
         """
-        return [s for s in self.structures if s.contract != self]
+        if self._structures_inherited is None:
+            self._structures_inherited = [s for s in self.structures if s.contract != self]
+        return self._structures_inherited
 
     @property
     def structures_declared(self) -> list["StructureContract"]:
         """
         list(Structues): List of the structures declared within the contract (not inherited)
         """
-        return [s for s in self.structures if s.contract == self]
+        if self._structures_declared is None:
+            self._structures_declared = [s for s in self.structures if s.contract == self]
+        return self._structures_declared
 
     @property
     def structures_as_dict(self) -> dict[str, "StructureContract"]:
@@ -293,14 +311,18 @@ class Contract(SourceMapping):
         """
         list(Enum): List of the inherited enums
         """
-        return [e for e in self.enums if e.contract != self]
+        if self._enums_inherited is None:
+            self._enums_inherited = [e for e in self.enums if e.contract != self]
+        return self._enums_inherited
 
     @property
     def enums_declared(self) -> list["EnumContract"]:
         """
         list(Enum): List of the enums declared within the contract (not inherited)
         """
-        return [e for e in self.enums if e.contract == self]
+        if self._enums_declared is None:
+            self._enums_declared = [e for e in self.enums if e.contract == self]
+        return self._enums_declared
 
     @property
     def enums_as_dict(self) -> dict[str, "EnumContract"]:
@@ -325,14 +347,18 @@ class Contract(SourceMapping):
         """
         list(Event): List of the inherited events
         """
-        return [e for e in self.events if e.contract != self]
+        if self._events_inherited is None:
+            self._events_inherited = [e for e in self.events if e.contract != self]
+        return self._events_inherited
 
     @property
     def events_declared(self) -> list["EventContract"]:
         """
         list(Event): List of the events declared within the contract (not inherited)
         """
-        return [e for e in self.events if e.contract == self]
+        if self._events_declared is None:
+            self._events_declared = [e for e in self.events if e.contract == self]
+        return self._events_declared
 
     @property
     def events_as_dict(self) -> dict[str, "EventContract"]:
@@ -500,14 +526,20 @@ class Contract(SourceMapping):
         """
         list(StateVariable): List of the inherited state variables
         """
-        return [s for s in self.state_variables if s.contract != self]
+        if self._state_variables_inherited is None:
+            self._state_variables_inherited = [
+                s for s in self.state_variables if s.contract != self
+            ]
+        return self._state_variables_inherited
 
     @property
     def state_variables_declared(self) -> list["StateVariable"]:
         """
         list(StateVariable): List of the state variables declared within the contract (not inherited)
         """
-        return [s for s in self.state_variables if s.contract == self]
+        if self._state_variables_declared is None:
+            self._state_variables_declared = [s for s in self.state_variables if s.contract == self]
+        return self._state_variables_declared
 
     @property
     def slithir_variables(self) -> list["SlithIRVariable"]:
@@ -672,14 +704,18 @@ class Contract(SourceMapping):
         """
         list(Function): List of the inherited functions
         """
-        return [f for f in self.functions if f.contract_declarer != self]
+        if self._functions_inherited is None:
+            self._functions_inherited = [f for f in self.functions if f.contract_declarer != self]
+        return self._functions_inherited
 
     @property
     def functions_declared(self) -> list["FunctionContract"]:
         """
         list(Function): List of the functions defined within the contract (not inherited)
         """
-        return [f for f in self.functions if f.contract_declarer == self]
+        if self._functions_declared is None:
+            self._functions_declared = [f for f in self.functions if f.contract_declarer == self]
+        return self._functions_declared
 
     @property
     def functions_entry_points(self) -> list["FunctionContract"]:
@@ -716,14 +752,18 @@ class Contract(SourceMapping):
         """
         list(Modifier): List of the inherited modifiers
         """
-        return [m for m in self.modifiers if m.contract_declarer != self]
+        if self._modifiers_inherited is None:
+            self._modifiers_inherited = [m for m in self.modifiers if m.contract_declarer != self]
+        return self._modifiers_inherited
 
     @property
     def modifiers_declared(self) -> list["Modifier"]:
         """
         list(Modifier): List of the modifiers defined within the contract (not inherited)
         """
-        return [m for m in self.modifiers if m.contract_declarer == self]
+        if self._modifiers_declared is None:
+            self._modifiers_declared = [m for m in self.modifiers if m.contract_declarer == self]
+        return self._modifiers_declared
 
     @property
     def functions_and_modifiers(self) -> list["Function"]:
