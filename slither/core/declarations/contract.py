@@ -838,10 +838,9 @@ class Contract(SourceMapping):
     @property
     def derived_contracts(self) -> list["Contract"]:
         """
-        list(Contract): Return the list of contracts derived from self
+        list(Contract): Return the list of contracts that directly inherit from self
         """
-        candidates = self.compilation_unit.contracts
-        return [c for c in candidates if self in c.inheritance]  # type: ignore
+        return self.compilation_unit.derived_contracts_map.get(self, [])
 
     # endregion
     ###################################################################################
