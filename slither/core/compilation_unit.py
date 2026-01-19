@@ -77,6 +77,9 @@ class SlitherCompilationUnit(Context):
 
         self._contract_with_missing_inheritance: set[Contract] = set()
 
+        # Reverse inheritance map: parent -> list of all derived contracts
+        self._derived_contracts_map: dict[Contract, list[Contract]] | None = None
+
         self._source_units: dict[int, str] = {}
 
         self.counter_slithir_tuple = 0
@@ -270,6 +273,24 @@ class SlitherCompilationUnit(Context):
     @property
     def contracts_with_missing_inheritance(self) -> set[Contract]:
         return self._contract_with_missing_inheritance
+
+    def _build_derived_contracts_map(self) -> dict[Contract, list[Contract]]:
+        """Build reverse inheritance mapping for O(1) derived_contracts lookup."""
+        from collections import defaultdict
+
+        derived_map: dict[Contract, list[Contract]] = defaultdict(list)
+        for contract in self.contracts:
+            for parent in contract.inheritance:
+                if contract not in derived_map[parent]:
+                    derived_map[parent].append(contract)
+        return dict(derived_map)
+
+    @property
+    def derived_contracts_map(self) -> dict[Contract, list[Contract]]:
+        """Cached reverse inheritance map: parent contract -> list of all derived contracts."""
+        if self._derived_contracts_map is None:
+            self._derived_contracts_map = self._build_derived_contracts_map()
+        return self._derived_contracts_map
 
     # endregion
     ###################################################################################
