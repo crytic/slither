@@ -47,18 +47,21 @@ def get_implementation(target: SourceMapping) -> Source:
 
 def get_all_implementations(target: SourceMapping, contracts: list[Contract]) -> set[Source]:
     """
-    Get all implementations of a contract or function, accounting for inheritance and overrides
+    Get all implementations of a contract or function, accounting for inheritance and overrides.
+
+    Note: The `contracts` parameter is kept for backwards compatibility but is no longer used
+    when target is a Contract (we use the cached derived_contracts property instead).
     """
-    implementations = set()
+    implementations: set[Source] = set()
     # Abstract contracts and interfaces are implemented by their children
     if isinstance(target, Contract):
         is_interface = target.is_interface
         is_implicitly_abstract = not target.is_fully_implemented
         is_explicitly_abstract = target.is_abstract
         if is_interface or is_implicitly_abstract or is_explicitly_abstract:
-            for contract in contracts:
-                if target in contract.immediate_inheritance:
-                    implementations.add(contract.source_mapping)
+            # Use cached derived_contracts instead of iterating all contracts
+            for child in target.derived_contracts:
+                implementations.add(child.source_mapping)
 
     # Parent's virtual functions may be overridden by children
     elif isinstance(target, FunctionContract):
