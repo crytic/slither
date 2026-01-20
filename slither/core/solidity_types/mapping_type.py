@@ -39,9 +39,10 @@ class MappingType(Type):
         return f"mapping({self._from!s} => {self._to!s})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, MappingType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not MappingType:
             return False
-        return self.type_from == other.type_from and self.type_to == other.type_to
+        return self._from == other._from and self._to == other._to
 
     def __hash__(self) -> int:
         return hash(str(self))

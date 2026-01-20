@@ -179,13 +179,15 @@ def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUn
         new_source.start = s
         new_source.length = l
         return new_source
-    filename_used = sourceUnits[f]
-
-    # If possible, convert the filename to its absolute/relative version
-    assert compilation_unit.core.crytic_compile
-
-    filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
-    is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+    # Use cached filename lookup to avoid repeated expensive calls (367K+ calls per analysis)
+    if f in compilation_unit._filename_lookup_cache:
+        filename, is_dependency = compilation_unit._filename_lookup_cache[f]
+    else:
+        filename_used = sourceUnits[f]
+        assert compilation_unit.core.crytic_compile
+        filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
+        is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+        compilation_unit._filename_lookup_cache[f] = (filename, is_dependency)
 
     (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
 

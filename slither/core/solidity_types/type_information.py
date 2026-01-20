@@ -43,6 +43,7 @@ class TypeInformation(Type):
         return f"type({self.type.name})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, TypeInformation):
+        # Use type() and direct attribute access for performance
+        if type(other) is not TypeInformation:
             return False
-        return self.type == other.type
+        return self._type == other._type

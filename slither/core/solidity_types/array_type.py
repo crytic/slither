@@ -72,9 +72,10 @@ class ArrayType(Type):
         return str(self._type) + "[]"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ArrayType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not ArrayType:
             return False
-        return self._type == other.type and self._length_value == other.length_value
+        return self._type == other._type and self._length_value == other._length_value
 
     def __hash__(self) -> int:
         return hash(str(self))
