@@ -93,6 +93,20 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ConvertToIR")
 
 
+def _type_in_using_for(t, using_for: USING_FOR) -> bool:
+    """Check if type t is in using_for dict, handling unhashable types.
+
+    Some types like lists (used for tuple return types) are unhashable
+    and cannot be used as dictionary keys. This safely returns False
+    for such types instead of raising TypeError.
+    """
+    try:
+        return t in using_for
+    except TypeError:
+        logger.debug("Skipping using_for lookup for unhashable type: %s", type(t).__name__)
+        return False
+
+
 def convert_expression(expression: Expression, node: "Node") -> list[Operation]:
     # handle standlone expression
     # such as return true;
@@ -638,13 +652,7 @@ def propagate_types(ir: Operation, node: "Node"):
                         return convert_to_solidity_func(ir)
 
                 # convert library or top level function
-                # Check if t is hashable before using it as a dict key (lists are unhashable)
-                t_in_using_for = False
-                try:
-                    t_in_using_for = t in using_for
-                except TypeError:
-                    pass  # t is unhashable (e.g., a list), skip the check
-                if t_in_using_for or "*" in using_for:
+                if _type_in_using_for(t, using_for) or "*" in using_for:
                     new_ir = convert_to_library_or_top_level(ir, node, using_for)
                     if new_ir:
                         return new_ir
@@ -1597,7 +1605,7 @@ def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
 ) -> LibraryCall | InternalCall | None:
     t = ir.destination.type
-    if t in using_for:
+    if _type_in_using_for(t, using_for):
         new_ir = look_for_library_or_top_level(ir, using_for, t)
         if new_ir:
             return new_ir
