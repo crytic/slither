@@ -46,6 +46,7 @@ from slither.utils.output import (
     output_to_json,
     output_to_sarif,
     output_to_zip,
+    set_exclude_location,
 )
 from slither.utils.output_capture import StandardOutputCapture
 
@@ -406,6 +407,13 @@ def parse_args(
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--exclude-location",
+        help="Exclude file location (filename and lines) from detector messages",
+        action="store_true",
+        default=defaults_flag_in_config["exclude_location"],
     )
 
     group_detector.add_argument(
@@ -794,6 +802,9 @@ def main_impl(
 
     # Set colorization option
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
+
+    # Set whether to exclude location info from detector messages
+    set_exclude_location(args.exclude_location)
 
     # Define some variables for potential JSON output
     json_results: dict[str, Any] = {}

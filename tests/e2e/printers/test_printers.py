@@ -8,6 +8,7 @@ from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
+from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.summary.cheatcodes import CheatcodePrinter
 from slither.printers.summary.slithir import PrinterSlithIR
@@ -19,7 +20,7 @@ foundry_available = shutil.which("forge") is not None
 project_ready = Path(TEST_DATA_DIR, "test_printer_cheatcode/lib/forge-std").exists()
 
 
-def test_inheritance_printer(solc_binary_path) -> None:
+def test_inheritance_graph_printer(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.0")
     standard_json = SolcStandardJson()
     standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "A.sol").as_posix())
@@ -84,3 +85,42 @@ def test_slithir_printer(solc_binary_path) -> None:
     output = printer.output("test_printer_slithir.dot")
 
     assert "slither.core.solidity_types" not in output.data["description"]
+
+
+def test_inheritance_text_printer(solc_binary_path) -> None:
+    """Test PrinterInheritance text output and JSON structure."""
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "A.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "B.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "B2.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "C.sol").as_posix())
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    printer = PrinterInheritance(slither=slither, logger=None)
+    output = printer.output("test_inheritance.txt")
+
+    # Data is nested under additional_fields
+    data = output.data["additional_fields"]
+
+    # Verify JSON structure has expected keys
+    assert "child_to_base" in data
+    assert "base_to_child" in data
+    assert "paths" in data
+
+    # Verify inheritance relationships: C inherits from A
+    assert "C" in data["child_to_base"]
+    assert "A" in data["child_to_base"]["C"]["immediate"]
+
+    # Verify reverse relationship: A is base of C
+    assert "A" in data["base_to_child"]
+    assert "C" in data["base_to_child"]["A"]["immediate"]
+
+    # Verify not_immediate lists are properly populated
+    # not_immediate should only contain indirect inheritance (not direct children)
+    for contract_name in data["base_to_child"]:
+        not_immediate = data["base_to_child"][contract_name]["not_immediate"]
+        immediate = data["base_to_child"][contract_name]["immediate"]
+        # not_immediate should not contain any contracts that are also in immediate
+        assert not set(not_immediate) & set(immediate)
