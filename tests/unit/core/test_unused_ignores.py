@@ -11,8 +11,7 @@ def test_unused_ignore_detection(solc_binary_path) -> None:
     """Test that unused slither-disable comments are detected correctly."""
     solc_path = solc_binary_path("0.8.10")
     slither = Slither(
-        Path(UNUSED_IGNORES_TEST_DATA_DIR, "unused_ignores.sol").as_posix(),
-        solc=solc_path
+        Path(UNUSED_IGNORES_TEST_DATA_DIR, "unused_ignores.sol").as_posix(), solc=solc_path
     )
 
     # Enable unused ignore tracking
@@ -43,7 +42,7 @@ def test_all_ignores_used(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.10")
 
     # Create a simple test with slither-disable for a detector that will be triggered
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
@@ -51,7 +50,7 @@ contract AllUsed {
     // slither-disable-next-line naming-convention
     uint public Bad_Name;
 }
-'''
+"""
 
     import tempfile
     import os
@@ -73,16 +72,16 @@ contract AllUsed {
 
         # naming-convention should NOT be in unused since it was triggered
         for item in unused:
-            assert "naming-convention" not in item["unused_detectors"], \
+            assert "naming-convention" not in item["unused_detectors"], (
                 "naming-convention should be used, not unused"
+            )
 
 
 def test_parse_ignore_comments_tracking(solc_binary_path) -> None:
     """Test that ignore comments are properly tracked during parsing."""
     solc_path = solc_binary_path("0.8.10")
     slither = Slither(
-        Path(UNUSED_IGNORES_TEST_DATA_DIR, "unused_ignores.sol").as_posix(),
-        solc=solc_path
+        Path(UNUSED_IGNORES_TEST_DATA_DIR, "unused_ignores.sol").as_posix(), solc=solc_path
     )
 
     # Check that _all_ignore_comments is populated
@@ -111,7 +110,7 @@ def test_empty_detector_list_not_tracked(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.10")
 
     # Create a test with an empty detector list
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
@@ -119,7 +118,7 @@ contract EmptyDetector {
     // slither-disable-next-line
     uint public x;
 }
-'''
+"""
 
     import tempfile
     import os
@@ -144,7 +143,7 @@ def test_whitespace_in_detector_list_handled(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.10")
 
     # Create a test with whitespace in detector list
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
@@ -152,7 +151,7 @@ contract WhitespaceTest {
     // slither-disable-next-line naming-convention
     uint public Bad_Name;
 }
-'''
+"""
 
     import tempfile
     import os
@@ -172,8 +171,9 @@ contract WhitespaceTest {
         unused = slither.get_unused_ignore_comments()
         for item in unused:
             # naming-convention should not appear as unused since it was triggered
-            assert "naming-convention" not in item["unused_detectors"], \
+            assert "naming-convention" not in item["unused_detectors"], (
                 "naming-convention should be used"
+            )
 
 
 def test_all_keyword_used(solc_binary_path) -> None:
@@ -181,7 +181,7 @@ def test_all_keyword_used(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.10")
 
     # Create a test with 'all' keyword
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
@@ -189,7 +189,7 @@ contract AllKeyword {
     // slither-disable-next-line all
     uint public Bad_Name;
 }
-'''
+"""
 
     import tempfile
     import os
@@ -208,5 +208,6 @@ contract AllKeyword {
         # 'all' should be marked as used since naming-convention was triggered
         unused = slither.get_unused_ignore_comments()
         for item in unused:
-            assert "all" not in item["unused_detectors"], \
+            assert "all" not in item["unused_detectors"], (
                 "'all' should be used since a detector was triggered"
+            )

@@ -637,13 +637,15 @@ class SlitherCore(Context):
                         unused_detectors.append(detector)
 
                 if unused_detectors:
-                    unused_comments.append({
-                        "file": file,
-                        "line": line_number,
-                        "comment_type": comment_type,
-                        "detectors": detectors,
-                        "unused_detectors": unused_detectors,
-                    })
+                    unused_comments.append(
+                        {
+                            "file": file,
+                            "line": line_number,
+                            "comment_type": comment_type,
+                            "detectors": detectors,
+                            "unused_detectors": unused_detectors,
+                        }
+                    )
 
         return unused_comments
 
