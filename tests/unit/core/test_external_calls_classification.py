@@ -26,9 +26,7 @@ def test(a: address):
         assert any("send" in name for name in external_called)
 
         internal_calls = [
-            call_expr
-            for node in func.nodes
-            for call_expr in node.internal_calls_as_expressions
+            call_expr for node in func.nodes for call_expr in node.internal_calls_as_expressions
         ]
         internal_called = [str(call_expr.called) for call_expr in internal_calls]
         assert any("self.foo" in name for name in internal_called)
