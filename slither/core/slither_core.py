@@ -475,7 +475,7 @@ class SlitherCore(Context):
                     ignore_line_text.decode("utf8"),
                 )
                 if match:
-                    ignored = match[0].split(",")
+                    ignored = [d.strip() for d in match[0].split(",") if d.strip()]
                     if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
                         # Mark this next-line comment as used
                         for det in ignored:

@@ -158,6 +158,18 @@ def _process(
                     f"Unused {directive} directive for {unused_dets} at "
                     f"{unused['file']}#{unused['line']}"
                 )
+            # Add unused ignores to JSON output for structured output support
+            if unused_ignores:
+                results_detectors.append(
+                    {
+                        "check": "unused-ignore-directive",
+                        "impact": "Informational",
+                        "confidence": "High",
+                        "description": f"Found {len(unused_ignores)} unused slither-disable directive(s)",
+                        "elements": [],
+                        "unused_ignores": unused_ignores,
+                    }
+                )
 
     else:
         printer_results = slither.run_printers()
