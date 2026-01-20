@@ -134,6 +134,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         if all_results:
             if self.logger:
                 info = "\n"
+                info += f"Detector: {self.ARGUMENT}\n"
                 for result in all_results:
                     info += result["description"]
                 info += f"Reference: {self.WIKI}"
