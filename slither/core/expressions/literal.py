@@ -8,6 +8,9 @@ from slither.utils.integer_conversion import convert_string_to_int
 if TYPE_CHECKING:
     from slither.core.solidity_types.type import Type
 
+# Frozenset of numeric type strings for O(1) lookup (avoids list concatenation on each check)
+_NUMERIC_TYPES: frozenset[str] = frozenset(Int + Uint + Fixed + Ufixed + ["address"])
+
 
 class Literal(Expression):
     def __init__(
@@ -17,6 +20,13 @@ class Literal(Expression):
         self._value = value
         self._type = custom_type
         self._subdenomination = subdenomination
+
+        # Cache converted int string for numeric types (avoids expensive re-conversion in __str__)
+        # Only cache when custom_type is a string to preserve original __str__ behavior:
+        # ElementaryType inputs bypass conversion (self.type in list fails for objects)
+        self._cached_str: str | None = None
+        if not subdenomination and isinstance(custom_type, str) and custom_type in _NUMERIC_TYPES:
+            self._cached_str = str(convert_string_to_int(value))
 
     @property
     def value(self) -> int | str:
@@ -41,10 +51,10 @@ class Literal(Expression):
         if self.subdenomination:
             return str(self.converted_value)
 
-        if self.type in Int + Uint + Fixed + Ufixed + ["address"]:
-            return str(convert_string_to_int(self._value))
+        if self._cached_str is not None:
+            return self._cached_str
 
-        # be sure to handle any character
+        # Non-numeric types (e.g., string literals) - return value as-is
         return str(self._value)
 
     def __eq__(self, other: Any) -> bool:
