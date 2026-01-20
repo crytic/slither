@@ -60,6 +60,8 @@ def _extract_enum_ranges(contracts: list[Contract]) -> dict[str, dict[str, int]]
     For each contract, produces a mapping of enum name to the number of valid values.
     This helps Echidna generate valid calldata for enum parameters.
 
+    Uses enums_declared to avoid processing inherited enums multiple times.
+
     Returns:
         Dict mapping contract name to dict of enum name to count of valid values.
         Example: {"MyContract": {"Status": 4}} means Status has values 0, 1, 2, 3
@@ -67,7 +69,7 @@ def _extract_enum_ranges(contracts: list[Contract]) -> dict[str, dict[str, int]]
     ret: dict[str, dict[str, int]] = {}
     for contract in contracts:
         enum_ranges: dict[str, int] = {}
-        for enum in contract.enums:
+        for enum in contract.enums_declared:
             # max is the index of the last element (0-indexed), so add 1 for count
             enum_ranges[enum.name] = enum.max + 1
         if enum_ranges:
@@ -457,6 +459,13 @@ class Echidna(AbstractPrinter):
 
         payable = _extract_payable(contracts)
         enum_ranges = _extract_enum_ranges(contracts)
+
+        # Extract top-level (file-level) enum ranges
+        enum_ranges_top_level: dict[str, int] = {}
+        for unit in self.slither.compilation_units:
+            for enum in unit.enums_top_level:
+                # max is the index of the last element (0-indexed), so add 1 for count
+                enum_ranges_top_level[enum.canonical_name] = enum.max + 1
         timestamp = _extract_solidity_variable_usage(
             contracts, SolidityVariableComposed("block.timestamp")
         )
@@ -492,6 +501,7 @@ class Echidna(AbstractPrinter):
         d = {
             "payable": payable,
             "enum_ranges": enum_ranges,
+            "enum_ranges_top_level": enum_ranges_top_level if enum_ranges_top_level else {},
             "timestamp": timestamp,
             "block_number": block_number,
             "msg_sender": msg_sender,
