@@ -52,6 +52,7 @@ class PrinterC3Linearization(AbstractPrinter):
                     color_fn = yellow
                 else:
                     label = "[INHERITED]"
+
                     # Identity function for inherited (no color)
                     def color_fn(x):
                         return x

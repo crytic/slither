@@ -126,6 +126,7 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
         # not_immediate should not contain any contracts that are also in immediate
         assert not set(not_immediate) & set(immediate)
 
+
 def test_c3_linearization_printer(solc_binary_path) -> None:
     """Test the C3 linearization printer with a diamond inheritance pattern."""
     solc_path = solc_binary_path("0.8.0")
@@ -156,4 +157,3 @@ def test_c3_linearization_printer(solc_binary_path) -> None:
     # Check constructor order is reverse of linearization
     d_constructors = linearizations["D"]["constructor_order"]
     assert d_constructors == ["A", "B", "C", "D"]
-
