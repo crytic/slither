@@ -83,6 +83,15 @@ class SlitherCore(Context):
             lambda: defaultdict(lambda: [(-1, -1)])
         )
 
+        # Track all ignore comments for unused ignore detection
+        # Maps from file to list of (line_number, comment_type, detectors)
+        # comment_type is "next-line", "start", or "end"
+        self._all_ignore_comments: dict[str, list[tuple[int, str, list[str]]]] = defaultdict(list)
+        # Set of (file, line_number, detector) tuples that were actually used
+        self._used_ignore_comments: set[tuple[str, int, str]] = set()
+        # Flag to enable warning about unused ignore comments
+        self._warn_unused_ignores: bool = False
+
         self._compilation_units: list[SlitherCompilationUnit] = []
 
         self._contracts: list[Contract] = []
@@ -380,12 +389,16 @@ class SlitherCore(Context):
 
             start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
             end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            next_line_regex = r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)"
             start_match = re.findall(start_regex, line_text.decode("utf8"))
             end_match = re.findall(end_regex, line_text.decode("utf8"))
+            next_line_match = re.findall(next_line_regex, line_text.decode("utf8"))
 
             if start_match:
-                ignored = start_match[0].split(",")
+                ignored = [d.strip() for d in start_match[0].split(",") if d.strip()]
                 if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "start", ignored))
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
@@ -398,8 +411,10 @@ class SlitherCore(Context):
                             return
 
             if end_match:
-                ignored = end_match[0].split(",")
+                ignored = [d.strip() for d in end_match[0].split(",") if d.strip()]
                 if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "end", ignored))
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
@@ -409,12 +424,19 @@ class SlitherCore(Context):
                             return
                         self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
 
+            if next_line_match:
+                ignored = [d.strip() for d in next_line_match[0].split(",") if d.strip()]
+                if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "next-line", ignored))
+
             line_number += 1
 
     def has_ignore_comment(self, r: dict) -> bool:
         """
         Check if the result has an ignore comment in the file or on the preceding line, in which
-        case, it is not valid
+        case, it is not valid.
+        Also tracks which ignore comments were used for unused ignore detection.
         """
         if not self.crytic_compile:
             return False
@@ -436,6 +458,12 @@ class SlitherCore(Context):
             for start, end in ignore_ranges:
                 # The full check must be within the ignore range to be ignored.
                 if start < lines[0] and end > lines[-1]:
+                    # Mark this range as used - find the start line that matches
+                    for comment_line, comment_type, detectors in self._all_ignore_comments[file]:
+                        if comment_type == "start" and comment_line == start:
+                            for det in detectors:
+                                if det == r["check"] or det == "all":
+                                    self._used_ignore_comments.add((file, comment_line, det))
                     return True
 
             # Check for next-line matchers.
@@ -447,8 +475,12 @@ class SlitherCore(Context):
                     ignore_line_text.decode("utf8"),
                 )
                 if match:
-                    ignored = match[0].split(",")
+                    ignored = [d.strip() for d in match[0].split(",") if d.strip()]
                     if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
+                        # Mark this next-line comment as used
+                        for det in ignored:
+                            if det == r["check"] or det == "all":
+                                self._used_ignore_comments.add((file, ignore_line_index, det))
                         return True
 
         return False
@@ -574,6 +606,48 @@ class SlitherCore(Context):
         Path are used through direct comparison (no regex)
         """
         self._paths_to_include.add(path)
+
+    @property
+    def warn_unused_ignores(self) -> bool:
+        """Return True if warnings for unused ignore comments are enabled."""
+        return self._warn_unused_ignores
+
+    @warn_unused_ignores.setter
+    def warn_unused_ignores(self, value: bool) -> None:
+        self._warn_unused_ignores = value
+
+    def get_unused_ignore_comments(self) -> list[dict]:
+        """
+        Get a list of slither-disable comments that were not used to suppress any findings.
+
+        Returns:
+            List of dicts with keys: file, line, comment_type, detectors, unused_detectors
+        """
+        unused_comments: list[dict] = []
+
+        for file, comments in self._all_ignore_comments.items():
+            for line_number, comment_type, detectors in comments:
+                # Skip "end" comments as they don't suppress findings directly
+                if comment_type == "end":
+                    continue
+
+                unused_detectors = []
+                for detector in detectors:
+                    if (file, line_number, detector) not in self._used_ignore_comments:
+                        unused_detectors.append(detector)
+
+                if unused_detectors:
+                    unused_comments.append(
+                        {
+                            "file": file,
+                            "line": line_number,
+                            "comment_type": comment_type,
+                            "detectors": detectors,
+                            "unused_detectors": unused_detectors,
+                        }
+                    )
+
+        return unused_comments
 
     # endregion
     ###################################################################################

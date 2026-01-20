@@ -70,6 +70,7 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "warn_unused_ignores": False,
     "no_fail": False,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
