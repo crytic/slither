@@ -1,0 +1,3 @@
+C.helper() (tests/e2e/detectors/test_data/msg-value-in-nonpayable/0.8.0/msg_value_in_nonpayable.sol#20-22) uses msg.value but is not reachable from any payable function
+	Non-payable entry points that can reach this function:
+		C.entry()
