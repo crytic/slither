@@ -229,7 +229,7 @@ class SlitherReadStorage:
             byte_size, _ = type_.storage_size if type_ else (32, 0)
             size = byte_size * 8
 
-            value = self._get_immutable_value(contract, var)
+            value = self._get_immutable_value(var)
 
             tmp[var_name] = SlotInfo(
                 name=var_name,
@@ -267,9 +267,7 @@ class SlitherReadStorage:
 
         return tmp
 
-    def _get_immutable_value(
-        self, contract: Contract, var: StateVariable
-    ) -> int | bool | str | ChecksumAddress | None:
+    def _get_immutable_value(self, var: StateVariable) -> int | bool | str | ChecksumAddress | None:
         """
         Retrieves the value of an immutable variable.
         For public immutables, calls the getter via RPC.

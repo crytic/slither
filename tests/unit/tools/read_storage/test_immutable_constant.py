@@ -3,7 +3,6 @@ Tests for immutable and constant variable support in slither-read-storage
 """
 
 import pytest
-from pathlib import Path
 
 from slither import Slither
 from slither.tools.read_storage.read_storage import SlitherReadStorage
@@ -59,19 +58,19 @@ def test_immutable_constant_detection(slither_from_source):
     srs.get_all_storage_variables()
 
     # Check that we found the regular storage variable
-    assert len(srs.target_variables) >= 1
+    assert len(srs.target_variables) == 1
     storage_var_names = [var.name for _, var in srs.target_variables]
     assert "someStorageVar" in storage_var_names
 
     # Check that we found immutable variables
-    assert len(srs.immutable_variables) >= 2
+    assert len(srs.immutable_variables) == 3
     immutable_names = [var.name for _, var in srs.immutable_variables]
     assert "someAddress" in immutable_names
     assert "someUint" in immutable_names
     assert "privateBytes" in immutable_names
 
     # Check that we found constant variables
-    assert len(srs.constant_variables) >= 4
+    assert len(srs.constant_variables) == 5
     constant_names = [var.name for _, var in srs.constant_variables]
     assert "BYTES_CONSTANT" in constant_names
     assert "UINT_CONSTANT" in constant_names
