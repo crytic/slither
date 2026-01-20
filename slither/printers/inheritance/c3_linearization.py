@@ -27,6 +27,8 @@ class PrinterC3Linearization(AbstractPrinter):
         info = ""
         result = {"linearizations": {}}
 
+        _identity = lambda x: x
+
         for contract in self.contracts:
             if contract.is_interface:
                 continue
@@ -52,14 +54,11 @@ class PrinterC3Linearization(AbstractPrinter):
                     color_fn = yellow
                 else:
                     label = "[INHERITED]"
-
-                    # Identity function for inherited (no color)
-                    def color_fn(x):
-                        return x
+                    color_fn = _identity
 
                 # Get source location
                 source_loc = ""
-                if c.source_mapping and c.source_mapping.lines:
+                if c.source_mapping and c.source_mapping.filename and c.source_mapping.lines:
                     source_loc = f" ({c.source_mapping.filename.short}:{c.source_mapping.lines[0]})"
 
                 # Check for constructor
@@ -74,7 +73,9 @@ class PrinterC3Linearization(AbstractPrinter):
                         "contract": c.name,
                         "type": label.strip("[]"),
                         "has_constructor": c.constructor is not None,
-                        "source": c.source_mapping.filename.short if c.source_mapping else None,
+                        "source": c.source_mapping.filename.short
+                        if c.source_mapping and c.source_mapping.filename
+                        else None,
                     }
                 )
 
