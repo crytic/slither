@@ -1,15 +1,15 @@
 """
 Tests for ArrayType support in slither-read-storage when arrays are inside structs.
 Related to issue #1615.
-"""
-from pathlib import Path
 
-import pytest
+Note: Tests are placed in tests/unit/tools/read_storage/ as they are unit tests
+for specific functionality, unlike the integration tests in tests/tools/read-storage/.
+"""
+import os
+import tempfile
 
 from slither import Slither
 from slither.tools.read_storage.read_storage import SlitherReadStorage
-
-TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 def test_array_in_struct_detection(solc_binary_path) -> None:
@@ -34,9 +34,6 @@ contract TestArrayType {
     History private _totalCheckpoints;
 }
 '''
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_array_type.sol")
@@ -74,9 +71,6 @@ contract TestFixedArray {
     Data private data;
 }
 '''
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_fixed_array.sol")
@@ -116,9 +110,6 @@ contract TestNestedStruct {
 }
 '''
 
-    import tempfile
-    import os
-
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_nested.sol")
         with open(test_file, "w") as f:
@@ -152,9 +143,6 @@ contract TestMapping {
     UserData private userData;
 }
 '''
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_mapping.sol")
@@ -193,9 +181,6 @@ contract TestEnum {
 }
 '''
 
-    import tempfile
-    import os
-
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_enum.sol")
         with open(test_file, "w") as f:
@@ -232,9 +217,6 @@ contract TestContractType {
     TokenInfo private info;
 }
 '''
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_contract_type.sol")
