@@ -1,0 +1,24 @@
+BalanceRelianceTest.checkExactBalance() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#9-11) uses address.balance in strict equality (==):
+	- address(this).balance == 1000000000000000000 (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#10)
+
+BalanceRelianceTest.checkNotBalance() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#14-16) uses address.balance in strict equality (!=):
+	- address(this).balance != 0 (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#15)
+
+BalanceRelianceTest.indirectCheck(uint256) (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#19-22) uses address.balance in strict equality (==):
+	- currentBal == expected (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#21)
+
+BalanceRelianceTest.indirectSave() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#30-33) uses address.balance in state variable assignment:
+	- savedBalance = bal (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#32)
+
+BalanceRelianceTest.requireExact() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#36-38) uses address.balance in strict equality (==):
+	- require(bool,string)(address(this).balance == 100000000000000000000,Must be exactly 100 ETH) (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#37)
+
+BalanceRelianceTest.saveCurrentBalance() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#25-27) uses address.balance in state variable assignment:
+	- savedBalance = address(this).balance (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#26)
+
+ExternalBalanceTest.checkTargetBalance() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#76-78) uses address.balance in strict equality (==):
+	- target.balance == 1000000000000000000 (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#77)
+
+ExternalBalanceTest.saveTargetBalance() (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#81-83) uses address.balance in state variable assignment:
+	- externalBalance = target.balance (tests/e2e/detectors/test_data/balance-reliance/0.8.0/balance_reliance.sol#82)
+
