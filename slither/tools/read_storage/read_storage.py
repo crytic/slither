@@ -13,7 +13,7 @@ from web3.types import BlockIdentifier
 from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
-from slither.core.declarations import Contract, Structure
+from slither.core.declarations import Contract, Enum, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
@@ -614,13 +614,13 @@ class SlitherReadStorage:
                         slot += 1
                         offset = 0
                     if struct_var == var.name:
-                        size = 256
+                        size = var_type.storage_size[0] * 8  # Convert bytes to bits
                         type_to = str(var_type)
                         break
                     # Move past nested struct slots
                     nested_bytes = var_type.storage_size[0]
                     slot += (nested_bytes + 31) // 32
-                else:
+                elif isinstance(underlying, (Enum, Contract)):
                     # Enum or Contract - pack like elementary type
                     elem_size_bytes, _ = var_type.storage_size
                     size_bits = elem_size_bytes * 8
@@ -632,6 +632,10 @@ class SlitherReadStorage:
                         type_to = str(var_type)
                         break
                     offset += size_bits
+                else:
+                    logger.info(
+                        f"Unhandled UserDefinedType: {type(underlying)} in _find_struct_var_slot"
+                    )
             elif isinstance(var_type, MappingType):
                 # Mappings in structs take 1 slot
                 if offset > 0:
