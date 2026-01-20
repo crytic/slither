@@ -15,7 +15,7 @@ class PrinterC3Linearization(AbstractPrinter):
     ARGUMENT = "c3-linearization"
     HELP = "Print the C3 linearization order for each contract"
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#c3-linearization"
+    WIKI = "https://github.com/crytic/slither/wiki/Printer-documentation#c3-linearization"
 
     def output(self, filename):
         """
@@ -52,11 +52,13 @@ class PrinterC3Linearization(AbstractPrinter):
                     color_fn = yellow
                 else:
                     label = "[INHERITED]"
-                    color_fn = lambda x: x  # no color for inherited
+                    # Identity function for inherited (no color)
+                    def color_fn(x):
+                        return x
 
                 # Get source location
                 source_loc = ""
-                if c.source_mapping:
+                if c.source_mapping and c.source_mapping.lines:
                     source_loc = f" ({c.source_mapping.filename.short}:{c.source_mapping.lines[0]})"
 
                 # Check for constructor
