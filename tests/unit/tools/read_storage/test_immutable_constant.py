@@ -42,11 +42,12 @@ contract TestConstantImmutable {
 
 
 @pytest.fixture
-def slither_from_source(tmp_path):
+def slither_from_source(tmp_path, solc_binary_path):
     """Create a Slither instance from source code."""
     file_path = tmp_path / "test_constant_immutable.sol"
     file_path.write_text(TEST_CONTRACT)
-    return Slither(str(file_path))
+    solc_path = solc_binary_path("0.8.19")
+    return Slither(str(file_path), solc=solc_path)
 
 
 def test_immutable_constant_detection(slither_from_source):
