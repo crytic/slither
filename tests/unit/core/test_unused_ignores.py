@@ -1,3 +1,5 @@
+import os
+import tempfile
 from pathlib import Path
 
 from slither import Slither
@@ -51,9 +53,6 @@ contract AllUsed {
     uint public Bad_Name;
 }
 """
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "all_used.sol")
@@ -120,9 +119,6 @@ contract EmptyDetector {
 }
 """
 
-    import tempfile
-    import os
-
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "empty_detector.sol")
         with open(test_file, "w") as f:
@@ -148,13 +144,10 @@ def test_whitespace_in_detector_list_handled(solc_binary_path) -> None:
 pragma solidity ^0.8.10;
 
 contract WhitespaceTest {
-    // slither-disable-next-line naming-convention
+    // slither-disable-next-line naming-convention , reentrancy-eth
     uint public Bad_Name;
 }
 """
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "whitespace_test.sol")
@@ -190,9 +183,6 @@ contract AllKeyword {
     uint public Bad_Name;
 }
 """
-
-    import tempfile
-    import os
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "all_keyword.sol")
