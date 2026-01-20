@@ -16,7 +16,9 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_import_placeholder import (
+    SolidityImportPlaceHolder,
+)
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
 from slither.core.expressions.expression import Expression
@@ -89,6 +91,20 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 logger = logging.getLogger("ConvertToIR")
+
+
+def _type_in_using_for(t, using_for: USING_FOR) -> bool:
+    """Check if type t is in using_for dict, handling unhashable types.
+
+    Some types like lists (used for tuple return types) are unhashable
+    and cannot be used as dictionary keys. This safely returns False
+    for such types instead of raising TypeError.
+    """
+    try:
+        return t in using_for
+    except TypeError:
+        logger.debug("Skipping using_for lookup for unhashable type: %s", type(t).__name__)
+        return False
 
 
 def convert_expression(expression: Expression, node: "Node") -> list[Operation]:
@@ -371,13 +387,15 @@ def integrate_value_gas(result: list[Operation]) -> list[Operation]:
 
 
 def get_declared_param_names(
-    ins: NewStructure
-    | NewContract
-    | InternalCall
-    | LibraryCall
-    | HighLevelCall
-    | InternalDynamicCall
-    | EventCall,
+    ins: (
+        NewStructure
+        | NewContract
+        | InternalCall
+        | LibraryCall
+        | HighLevelCall
+        | InternalDynamicCall
+        | EventCall
+    ),
 ) -> list[list[str]] | None:
     """
     Given a call operation, return the list of parameter names, in the order
@@ -634,7 +652,7 @@ def propagate_types(ir: Operation, node: "Node"):
                         return convert_to_solidity_func(ir)
 
                 # convert library or top level function
-                if t in using_for or "*" in using_for:
+                if _type_in_using_for(t, using_for) or "*" in using_for:
                     new_ir = convert_to_library_or_top_level(ir, node, using_for)
                     if new_ir:
                         return new_ir
@@ -806,7 +824,8 @@ def propagate_types(ir: Operation, node: "Node"):
                     assignment = Assignment(
                         ir.lvalue,
                         Constant(
-                            str(get_event_id(ir.variable_left.full_name)), ElementaryType("bytes32")
+                            str(get_event_id(ir.variable_left.full_name)),
+                            ElementaryType("bytes32"),
                         ),
                         ElementaryType("bytes32"),
                     )
@@ -1225,7 +1244,11 @@ def extract_tmp_call(ins: TmpCall, contract: Contract | None) -> Call | Nop:
         if len(ins.called.constructor.parameters) != ins.nbr_arguments:
             return Nop()
         internalcall = InternalCall(
-            ins.called.constructor, ins.nbr_arguments, ins.lvalue, ins.type_call, ins.names
+            ins.called.constructor,
+            ins.nbr_arguments,
+            ins.lvalue,
+            ins.type_call,
+            ins.names,
         )
         internalcall.call_id = ins.call_id
         internalcall.set_expression(ins.expression)
@@ -1279,7 +1302,13 @@ def convert_to_low_level(
         ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType("bool"))
         return ir
-    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall", "raw_call"]:
+    if ir.function_name in [
+        "call",
+        "delegatecall",
+        "callcode",
+        "staticcall",
+        "raw_call",
+    ]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
         )
@@ -1376,7 +1405,10 @@ def convert_to_push_expand_arr(
 
     new_length_val = TemporaryVariable(node)
     ir_add_1 = Binary(
-        new_length_val, length_val, Constant("1", ElementaryType("uint256")), BinaryType.ADDITION
+        new_length_val,
+        length_val,
+        Constant("1", ElementaryType("uint256")),
+        BinaryType.ADDITION,
     )
     ir_add_1.set_expression(ir.expression)
     ir_add_1.set_node(ir.node)
@@ -1573,7 +1605,7 @@ def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
 ) -> LibraryCall | InternalCall | None:
     t = ir.destination.type
-    if t in using_for:
+    if _type_in_using_for(t, using_for):
         new_ir = look_for_library_or_top_level(ir, using_for, t)
         if new_ir:
             return new_ir
