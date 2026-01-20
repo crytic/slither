@@ -65,9 +65,7 @@ class NodeSolc:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
-    def analyze_expressions(
-        self, caller_context: Union["FunctionSolc", "ModifierSolc"]
-    ) -> None:
+    def analyze_expressions(self, caller_context: Union["FunctionSolc", "ModifierSolc"]) -> None:
         if self._node.type == NodeType.VARIABLE and not self._node.expression:
             self._node.add_expression(self._node.variable_declaration.expression)
         if self._unparsed_expression:
