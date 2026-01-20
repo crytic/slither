@@ -643,7 +643,9 @@ class SlitherReadStorage:
                     break
                 slot += 1
             else:
-                logger.info(f"{type(var_type)} is currently not implemented in _find_struct_var_slot")
+                logger.info(
+                    f"{type(var_type)} is currently not implemented in _find_struct_var_slot"
+                )
 
         slot_as_bytes = int.to_bytes(slot, 32, byteorder="big")
         info = f"\nStruct Variable: {struct_var}"

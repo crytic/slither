@@ -5,6 +5,7 @@ Related to issue #1615.
 Note: Tests are placed in tests/unit/tools/read_storage/ as they are unit tests
 for specific functionality, unlike the integration tests in tests/tools/read-storage/.
 """
+
 import os
 import tempfile
 
@@ -17,7 +18,7 @@ def test_array_in_struct_detection(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.10")
 
     # Test contract with array inside struct (from issue #1615)
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -33,7 +34,7 @@ contract TestArrayType {
 
     History private _totalCheckpoints;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_array_type.sol")
@@ -57,7 +58,7 @@ def test_fixed_array_in_struct(solc_binary_path) -> None:
     """Test that fixed arrays inside structs are handled correctly."""
     solc_path = solc_binary_path("0.8.10")
 
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -70,7 +71,7 @@ contract TestFixedArray {
 
     Data private data;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_fixed_array.sol")
@@ -91,7 +92,7 @@ def test_nested_struct_with_array(solc_binary_path) -> None:
     """Test nested structs containing arrays."""
     solc_path = solc_binary_path("0.8.10")
 
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -108,7 +109,7 @@ contract TestNestedStruct {
 
     Outer private data;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_nested.sol")
@@ -129,7 +130,7 @@ def test_mapping_in_struct(solc_binary_path) -> None:
     """Test that mappings inside structs are handled correctly."""
     solc_path = solc_binary_path("0.8.10")
 
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -142,7 +143,7 @@ contract TestMapping {
 
     UserData private userData;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_mapping.sol")
@@ -163,7 +164,7 @@ def test_enum_in_struct(solc_binary_path) -> None:
     """Test that enums inside structs are handled correctly (should pack like elementary types)."""
     solc_path = solc_binary_path("0.8.10")
 
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -179,7 +180,7 @@ contract TestEnum {
 
     Task private task;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_enum.sol")
@@ -200,7 +201,7 @@ def test_contract_type_in_struct(solc_binary_path) -> None:
     """Test that contract types inside structs are handled correctly (stored as address)."""
     solc_path = solc_binary_path("0.8.10")
 
-    test_content = '''
+    test_content = """
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -216,7 +217,7 @@ contract TestContractType {
 
     TokenInfo private info;
 }
-'''
+"""
 
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = os.path.join(tmpdir, "test_contract_type.sol")
