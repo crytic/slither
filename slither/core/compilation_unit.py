@@ -88,6 +88,10 @@ class SlitherCompilationUnit(Context):
 
         self.scopes: dict[Filename, FileScope] = {}
 
+        # Cache for filename lookups: file_index -> (Filename, is_dependency)
+        # Used by _convert_source_mapping to avoid repeated expensive lookups
+        self._filename_lookup_cache: dict[int, tuple[Filename, bool]] = {}
+
     @property
     def core(self) -> "SlitherCore":
         return self._core
