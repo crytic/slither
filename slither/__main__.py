@@ -316,7 +316,8 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> list[str]
 
 
 def parse_args(
-    detector_classes: list[type[AbstractDetector]], printer_classes: list[type[AbstractPrinter]]
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
 ) -> argparse.Namespace:
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
@@ -884,7 +885,12 @@ def main_impl(
         logger_level = logging.getLogger(l_name)
         logger_level.setLevel(l_level)
 
-    console_handler = logging.StreamHandler()
+    # Output to stdout for better Unix CLI compatibility, but use stderr when
+    # JSON/SARIF is being output to stdout to avoid mixing logs with structured output
+    if outputting_json_stdout or outputting_sarif_stdout:
+        console_handler = logging.StreamHandler(sys.stderr)
+    else:
+        console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
 
     console_handler.setFormatter(FormatterCryticCompile())
@@ -1005,7 +1011,9 @@ def main_impl(
     if outputting_sarif:
         StandardOutputCapture.disable()
         output_to_sarif(
-            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
+            None if outputting_sarif_stdout else args.sarif,
+            json_results,
+            detector_classes,
         )
 
     if outputting_zip:

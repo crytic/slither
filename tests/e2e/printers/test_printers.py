@@ -10,6 +10,7 @@ from crytic_compile.platform.solc_standard_json import SolcStandardJson
 from slither import Slither
 from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+from slither.printers.inheritance.c3_linearization import PrinterC3Linearization
 from slither.printers.summary.cheatcodes import CheatcodePrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
@@ -124,3 +125,35 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
         immediate = data["base_to_child"][contract_name]["immediate"]
         # not_immediate should not contain any contracts that are also in immediate
         assert not set(not_immediate) & set(immediate)
+
+
+def test_c3_linearization_printer(solc_binary_path) -> None:
+    """Test the C3 linearization printer with a diamond inheritance pattern."""
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(
+        Path(TEST_DATA_DIR, "test_c3_linearization", "diamond.sol").as_posix()
+    )
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    printer = PrinterC3Linearization(slither=slither, logger=None)
+    output = printer.output("")
+
+    # Check that all contracts are present in the output
+    assert "C3 Linearization for D" in output.data["description"]
+    assert "C3 Linearization for C" in output.data["description"]
+    assert "C3 Linearization for B" in output.data["description"]
+    assert "C3 Linearization for A" in output.data["description"]
+
+    # Check JSON output structure for contract D (diamond inheritance)
+    linearizations = output.data["additional_fields"]["linearizations"]
+    assert "D" in linearizations
+
+    # D's linearization should be [D, C, B, A] per C3 algorithm
+    d_order = [entry["contract"] for entry in linearizations["D"]["order"]]
+    assert d_order == ["D", "C", "B", "A"]
+
+    # Check constructor order is reverse of linearization
+    d_constructors = linearizations["D"]["constructor_order"]
+    assert d_constructors == ["A", "B", "C", "D"]
