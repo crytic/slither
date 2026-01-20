@@ -44,8 +44,8 @@ def test_phase_timer_collects_when_enabled():
 
     assert "test_phase" in timer.timings
     assert len(timer.timings["test_phase"]) == 1
-    # Use lenient threshold (0.008) for Windows timer resolution imprecision
-    assert timer.timings["test_phase"][0] >= 0.008
+    # Use 0.005 threshold to account for Windows timer resolution variance
+    assert timer.timings["test_phase"][0] >= 0.005
 
 
 def test_phase_timer_multiple_calls():

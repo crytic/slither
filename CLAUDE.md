@@ -110,6 +110,7 @@ Modernization targets:
 - Test detectors across Solidity 0.4.x–0.8.x
 - Update snapshots: `tests/e2e/detectors/snapshots/`
 - Use `compile_force_framework="solc"` when crytic-compile behavior changes
+- **Run e2e tests early** when changing core classes (`Literal`, `Expression`, etc.)—snapshots capture exact `__str__` output, so behavioral changes break many tests
 
 ## Slither Internals
 
@@ -129,6 +130,7 @@ Modernization targets:
 - Expand `isinstance()` checks rather than removing assertions
 - Add type guards before accessing type-specific attributes in AST visitors
 - Check local scope before broader scope when resolving identifiers
+- **`ElementaryType` comparison pitfall**: `ElementaryType.__eq__` only matches other `ElementaryType` instances. `ElementaryType("uint256") in ["uint256"]` is **always False**. Convert to string first: `str(t) in ["uint256"]`
 
 ### SlithIR and SSA
 - **Use `node.irs`** for most detectors—simpler, sufficient for most analyses
