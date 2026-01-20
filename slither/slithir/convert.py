@@ -1205,7 +1205,7 @@ def extract_tmp_call(ins: TmpCall, contract: Contract | None) -> Call | Nop:
         return n
 
     if isinstance(ins.ori, TmpNewContract):
-        op = NewContract(ins.ori.contract_name, ins.lvalue)
+        op = NewContract(ins.ori.contract_type, ins.lvalue)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
         if ins.call_value:

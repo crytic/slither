@@ -36,10 +36,17 @@ from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.unary_operation import UnaryOperation
-from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias, UserDefinedType
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    TypeAlias,
+    UserDefinedType,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -695,7 +702,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_new_contract(self, expression: NewContract) -> None:
         val = TemporaryVariable(self._node)
-        operation = TmpNewContract(expression.contract_name, val)
+        operation = TmpNewContract(expression.contract_type, val)
         operation.set_expression(expression)
         if expression.call_value:
             call_value = get(expression.call_value)
