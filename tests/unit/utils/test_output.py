@@ -2,6 +2,7 @@
 Tests for slither/utils/output.py
 """
 
+import pytest
 from unittest.mock import MagicMock
 
 from slither.utils.output import (
@@ -10,6 +11,14 @@ from slither.utils.output import (
     get_exclude_location,
     _convert_to_description,
 )
+
+
+@pytest.fixture(autouse=True)
+def reset_output_config():
+    """Reset OutputConfig before and after each test."""
+    set_exclude_location(False)
+    yield
+    set_exclude_location(False)
 
 
 def test_exclude_location_default():
