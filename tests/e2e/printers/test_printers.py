@@ -129,6 +129,7 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
         # not_immediate should not contain any contracts that are also in immediate
         assert not set(not_immediate) & set(immediate)
 
+
 def test_callgraph_printer_toplevel(solc_binary_path) -> None:
     """Test that call-graph printer handles top-level functions without crashing (issue #1437)."""
     solc_path = solc_binary_path("0.8.0")
@@ -140,7 +141,7 @@ def test_callgraph_printer_toplevel(solc_binary_path) -> None:
     slither = Slither(compilation)
 
     printer = PrinterCallGraph(slither, logger=None)
-    output = printer.output("test_callgraph_toplevel.dot")
+    output = printer.output("test_callgraph_toplevel")
     content = output.elements[0]["name"]["content"]
 
     # Check that top-level functions are rendered in their own cluster
@@ -164,7 +165,6 @@ def test_callgraph_printer_toplevel(solc_binary_path) -> None:
     assert '" -> "toplevel_add"' in content  # simpleAdd -> add (and calculate -> add)
 
     # Clean up generated files
-    Path("test_callgraph_toplevel.dot").unlink(missing_ok=True)
     Path("test_callgraph_toplevel.all_contracts.call-graph.dot").unlink(missing_ok=True)
     Path("test_callgraph_toplevel.Calculator.call-graph.dot").unlink(missing_ok=True)
 
