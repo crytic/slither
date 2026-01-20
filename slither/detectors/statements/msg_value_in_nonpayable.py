@@ -3,7 +3,8 @@ Detector for msg.value usage in functions unreachable from payable entry points.
 Related to issue #2781.
 """
 
-from typing import List, Tuple
+from __future__ import annotations
+
 from slither.utils.output import Output
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -58,7 +59,7 @@ Either mark the function as `payable` if it should receive ETH, or remove the
     # Only applicable to Solidity (Vyper handles payable differently)
     LANGUAGE = "solidity"
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
@@ -99,9 +100,7 @@ Either mark the function as `payable` if it should receive ETH, or remove the
                         return True
         return False
 
-    def _get_entry_point_callers(
-        self, function: Function
-    ) -> Tuple[List[Function], List[Function]]:
+    def _get_entry_point_callers(self, function: Function) -> tuple[list[Function], list[Function]]:
         """
         Walk the reverse call graph to find all public/external entry points.
 
@@ -132,9 +131,7 @@ Either mark the function as `payable` if it should receive ETH, or remove the
 
         return payable_callers, non_payable_callers
 
-    def _build_info(
-        self, func: Function, non_payable_callers: List[Function]
-    ) -> DETECTOR_INFO:
+    def _build_info(self, func: Function, non_payable_callers: list[Function]) -> DETECTOR_INFO:
         """Build properly formatted detector output using Slither objects."""
         info: DETECTOR_INFO = [
             func,

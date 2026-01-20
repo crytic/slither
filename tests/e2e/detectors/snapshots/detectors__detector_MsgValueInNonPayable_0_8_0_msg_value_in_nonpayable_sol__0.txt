@@ -1,0 +1,8 @@
+TestMsgValueInNonPayable._addBalance() (tests/e2e/detectors/test_data/msg-value-in-nonpayable/0.8.0/msg_value_in_nonpayable.sol#12-14) uses msg.value but is not reachable from any payable function
+	Non-payable entry points that can reach this function:
+	- TestMsgValueInNonPayable.bad1() (tests/e2e/detectors/test_data/msg-value-in-nonpayable/0.8.0/msg_value_in_nonpayable.sol#16-18)
+
+TestMsgValueInNonPayable._helper() (tests/e2e/detectors/test_data/msg-value-in-nonpayable/0.8.0/msg_value_in_nonpayable.sol#21-23) uses msg.value but is not reachable from any payable function
+	Non-payable entry points that can reach this function:
+	- TestMsgValueInNonPayable.bad2() (tests/e2e/detectors/test_data/msg-value-in-nonpayable/0.8.0/msg_value_in_nonpayable.sol#29-31)
+
