@@ -121,10 +121,11 @@ Modernization targets:
 - CLI features should have Python API equivalents in the `Slither` class
 
 ### Traversal patterns
-- **Use `_declared` suffix** - `functions_declared`, `state_variables_declared` avoid processing inherited items multiple times
+- **Per-definition analysis** (naming, arithmetic, structure): Use `contracts_derived` + `functions_declared`
+- **Reachability analysis** (call graphs, taint): Use `contracts_derived` + `functions` (inherited functions needed)
+- **Global deduplication**: Use `compilation_unit.functions` directly to process each function exactly once
 - Filter by `function.contract_declarer == contract` when iterating `contract.functions`
 - `high_level_calls` returns `List[Tuple[Contract, Call]]` - don't forget tuple unpacking
-- Standard detector loop: contracts → `functions_and_modifiers_declared` → nodes → irs
 
 ### Type handling
 - Expand `isinstance()` checks rather than removing assertions
