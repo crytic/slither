@@ -210,15 +210,19 @@ def _process_function(
             toplevel_functions,
             toplevel_calls,
         )
-    for external_call in function.high_level_calls:
-        _process_external_call(
-            contract,
-            function,
-            external_call,
-            contract_functions,
-            external_calls,
-            all_contracts,
-        )
+    # Skip external call processing for top-level functions as they cannot make
+    # high-level calls to contracts (only low-level calls), and contract=None
+    # would crash _process_external_call
+    if contract is not None:
+        for external_call in function.high_level_calls:
+            _process_external_call(
+                contract,
+                function,
+                external_call,
+                contract_functions,
+                external_calls,
+                all_contracts,
+            )
 
 
 def _process_functions(functions: Sequence[Function]) -> str:

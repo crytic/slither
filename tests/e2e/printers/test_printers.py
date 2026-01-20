@@ -157,6 +157,12 @@ def test_callgraph_printer_toplevel(solc_binary_path) -> None:
     assert '"toplevel_calculate" -> "toplevel_add"' in content
     assert '"toplevel_calculate" -> "toplevel_multiply"' in content
 
+    # Check that contract-to-top-level call edges are rendered
+    # Calculator.compute calls calculate, Calculator.simpleAdd calls add
+    # Node IDs include contract.id which varies, so we check for the pattern
+    assert '" -> "toplevel_calculate"' in content  # compute -> calculate
+    assert '" -> "toplevel_add"' in content  # simpleAdd -> add (and calculate -> add)
+
     # Clean up generated files
     Path("test_callgraph_toplevel.dot").unlink(missing_ok=True)
     Path("test_callgraph_toplevel.all_contracts.call-graph.dot").unlink(missing_ok=True)

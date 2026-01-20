@@ -86,10 +86,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     LANGUAGE: str | None = None
 
     def __init__(
-        self,
-        compilation_unit: SlitherCompilationUnit,
-        slither: "Slither",
-        logger: Logger,
+        self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
     ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: list[Contract] = compilation_unit.contracts
@@ -300,6 +297,5 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             if self.slither.triage_mode:
                 info += f"{idx}: "
             info += result["description"]
-        info += f"Reference: {self.WIKI}\n"
-        info += f"Use --exclude {self.ARGUMENT} to suppress this detector."
+        info += f"Reference: {self.WIKI}"
         self._log(info)
