@@ -13,7 +13,7 @@ from web3.types import BlockIdentifier
 from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
-from slither.core.declarations import Contract, Structure
+from slither.core.declarations import Contract, Enum, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
@@ -584,8 +584,72 @@ class SlitherReadStorage:
                     type_to = var_type.name
                     break  # found struct var
                 offset += size
+            elif isinstance(var_type, ArrayType):
+                # Arrays in structs start at a new slot
+                if offset > 0:
+                    slot += 1
+                    offset = 0
+                if struct_var == var.name:
+                    if var_type.is_dynamic_array:
+                        # Dynamic arrays take 1 slot for length, data at keccak(slot)
+                        size = 256
+                        type_to = str(var_type)
+                    else:
+                        # Fixed arrays are stored inline
+                        size = var_type.storage_size[0] * 8  # Convert bytes to bits
+                        type_to = str(var_type)
+                    break  # found struct var
+                # Move past this array's slots
+                if var_type.is_dynamic_array:
+                    slot += 1  # Dynamic array takes 1 slot in struct
+                else:
+                    # Fixed array takes ceil(total_size / 32) slots
+                    array_bytes = var_type.storage_size[0]
+                    slot += (array_bytes + 31) // 32
+            elif isinstance(var_type, UserDefinedType):
+                underlying = var_type.type
+                if isinstance(underlying, Structure):
+                    # Nested struct starts on new slot boundary
+                    if offset > 0:
+                        slot += 1
+                        offset = 0
+                    if struct_var == var.name:
+                        size = var_type.storage_size[0] * 8  # Convert bytes to bits
+                        type_to = str(var_type)
+                        break
+                    # Move past nested struct slots
+                    nested_bytes = var_type.storage_size[0]
+                    slot += (nested_bytes + 31) // 32
+                elif isinstance(underlying, (Enum, Contract)):
+                    # Enum or Contract - pack like elementary type
+                    elem_size_bytes, _ = var_type.storage_size
+                    size_bits = elem_size_bytes * 8
+                    if size_bits > (256 - offset):
+                        slot += 1
+                        offset = 0
+                    if struct_var == var.name:
+                        size = size_bits
+                        type_to = str(var_type)
+                        break
+                    offset += size_bits
+                else:
+                    logger.info(
+                        f"Unhandled UserDefinedType: {type(underlying)} in _find_struct_var_slot"
+                    )
+            elif isinstance(var_type, MappingType):
+                # Mappings in structs take 1 slot
+                if offset > 0:
+                    slot += 1
+                    offset = 0
+                if struct_var == var.name:
+                    size = 256
+                    type_to = str(var_type)
+                    break
+                slot += 1
             else:
-                logger.info(f"{type(var_type)} is current not implemented in _find_struct_var_slot")
+                logger.info(
+                    f"{type(var_type)} is currently not implemented in _find_struct_var_slot"
+                )
 
         slot_as_bytes = int.to_bytes(slot, 32, byteorder="big")
         info = f"\nStruct Variable: {struct_var}"
