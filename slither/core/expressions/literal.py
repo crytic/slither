@@ -54,6 +54,7 @@ class Literal(Expression):
         if self._cached_str is not None:
             return self._cached_str
 
+        # Non-numeric types (e.g., string literals) - return value as-is
         return str(self._value)
 
     def __eq__(self, other: Any) -> bool:
