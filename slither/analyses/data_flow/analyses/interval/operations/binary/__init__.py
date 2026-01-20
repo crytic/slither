@@ -43,8 +43,8 @@ class BinaryHandler(BaseOperationHandler):
 
     def __init__(self, solver=None, analysis=None) -> None:
         super().__init__(solver, analysis)
-        self._arithmetic_handler = ArithmeticBinaryHandler(solver)
-        self._comparison_handler = ComparisonBinaryHandler(solver)
+        self._arithmetic_handler = ArithmeticBinaryHandler(solver, analysis)
+        self._comparison_handler = ComparisonBinaryHandler(solver, analysis)
 
     def handle(
         self,

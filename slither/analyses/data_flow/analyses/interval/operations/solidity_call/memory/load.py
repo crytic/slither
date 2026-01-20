@@ -12,6 +12,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.variables.constant import Constant
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -19,6 +20,9 @@ if TYPE_CHECKING:
 
 class MemoryLoadHandler(MemoryBaseHandler):
     """Handle `mload` memory reads."""
+
+    # The EVM free memory pointer slot
+    FREE_MEMORY_POINTER_SLOT = 0x40
 
     def handle(
         self,
@@ -51,6 +55,13 @@ class MemoryLoadHandler(MemoryBaseHandler):
         # Guard: skip if we cannot resolve a stable name for the destination.
         if lvalue_name is None:
             return
+
+        # Check if this is loading the free memory pointer (mload(0x40))
+        offset_arg = operation.arguments[0]
+        is_free_memory_pointer_load = False
+        if isinstance(offset_arg, Constant) and isinstance(offset_arg.value, int):
+            if offset_arg.value == self.FREE_MEMORY_POINTER_SLOT:
+                is_free_memory_pointer_load = True
 
         return_type: Optional[ElementaryType] = None
         type_call = getattr(operation, "type_call", None)
@@ -108,4 +119,12 @@ class MemoryLoadHandler(MemoryBaseHandler):
         # Fallback: model as unconstrained within type bounds.
         tracked_lvalue.assert_no_overflow(self.solver)
         domain.state.set_range_variable(lvalue_name, tracked_lvalue)
+
+        # Track this variable as a free memory pointer for safety analysis
+        if is_free_memory_pointer_load and self.analysis is not None:
+            self.analysis.safety_context.free_memory_pointers.add(lvalue_name)
+            self.logger.debug(
+                "Tracking free memory pointer variable: {var_name}",
+                var_name=lvalue_name,
+            )
 

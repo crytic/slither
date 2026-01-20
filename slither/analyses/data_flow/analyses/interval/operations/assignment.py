@@ -238,6 +238,9 @@ class AssignmentHandler(BaseOperationHandler):
         if rvalue_bytes_length is not None:
             lvalue_var.base.metadata["bytes_length"] = rvalue_bytes_length
 
+        # Propagate safety context for memory safety analysis
+        self._propagate_safety_context(rvalue_name, lvalue_name)
+
         # Handle overflow propagation
         if self._is_temporary_name(rvalue_name):
             # Temporary from an operation - copy its overflow status
@@ -369,6 +372,45 @@ class AssignmentHandler(BaseOperationHandler):
             return False
         short_name = name.split(".")[-1]
         return short_name.startswith("TMP")
+
+    def _propagate_safety_context(self, rvalue_name: str, lvalue_name: str) -> None:
+        """Propagate safety context from rvalue to lvalue for memory safety analysis.
+
+        This ensures that when a temporary variable (e.g., TMP_0 from mload(0x40))
+        is assigned to a named variable (e.g., ptr), the safety context is preserved.
+        """
+        if self.analysis is None:
+            return
+
+        safety_ctx = self.analysis.safety_context
+
+        # Propagate free memory pointer tracking
+        if rvalue_name in safety_ctx.free_memory_pointers:
+            safety_ctx.free_memory_pointers.add(lvalue_name)
+            self.logger.debug(
+                "Propagated free memory pointer from '{rvalue}' to '{lvalue}'",
+                rvalue=rvalue_name,
+                lvalue=lvalue_name,
+            )
+
+        # Propagate calldata variable tracking
+        if rvalue_name in safety_ctx.calldata_variables:
+            safety_ctx.calldata_variables.add(lvalue_name)
+            self.logger.debug(
+                "Propagated calldata variable from '{rvalue}' to '{lvalue}'",
+                rvalue=rvalue_name,
+                lvalue=lvalue_name,
+            )
+
+        # Propagate pointer arithmetic tracking
+        if rvalue_name in safety_ctx.pointer_arithmetic:
+            arith_info = safety_ctx.pointer_arithmetic[rvalue_name]
+            safety_ctx.pointer_arithmetic[lvalue_name] = arith_info.copy()
+            self.logger.debug(
+                "Propagated pointer arithmetic from '{rvalue}' to '{lvalue}'",
+                rvalue=rvalue_name,
+                lvalue=lvalue_name,
+            )
 
     @staticmethod
     def _is_solidity_variable(var: object) -> bool:

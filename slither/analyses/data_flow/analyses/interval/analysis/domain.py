@@ -37,8 +37,25 @@ class IntervalDomain(Domain):
         return cls(DomainVariant.STATE, state)
 
     def join(self, other: "IntervalDomain") -> bool:
-        """Join this domain with another domain, returns True if this domain changed"""
-        if self.variant == DomainVariant.TOP or other.variant == DomainVariant.BOTTOM:
+        """Join this domain with another domain, returns True if this domain changed.
+        
+        Lattice semantics:
+        - BOTTOM: no information (unreached)
+        - TOP: unreachable path (e.g., after revert/assert failure)
+        - STATE: concrete state with tracked variables
+        
+        Join rules:
+        - self is TOP: already unreachable, no change possible
+        - other is BOTTOM or TOP: contributes nothing to join (no change)
+        - self is BOTTOM, other is STATE: copy other's state
+        - both STATE: merge variables and constraints
+        """
+        # If self is already TOP (unreachable), nothing can change it
+        if self.variant == DomainVariant.TOP:
+            return False
+        
+        # If other is BOTTOM (unreached) or TOP (unreachable path), it contributes nothing
+        if other.variant == DomainVariant.BOTTOM or other.variant == DomainVariant.TOP:
             return False
 
         if self.variant == DomainVariant.BOTTOM and other.variant == DomainVariant.STATE:
@@ -82,10 +99,11 @@ class IntervalDomain(Domain):
 
             return changed
 
-        else:
-            self.variant = DomainVariant.TOP
-
-        return True
+        # This should be unreachable given the enum has only BOTTOM, TOP, STATE
+        # and we've covered all valid combinations above
+        raise AssertionError(
+            f"Unexpected domain variant combination: self={self.variant}, other={other.variant}"
+        )
 
     def __eq__(self, other):
         """Check equality with another IntervalDomain"""

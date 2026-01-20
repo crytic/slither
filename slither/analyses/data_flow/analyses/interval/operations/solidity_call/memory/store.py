@@ -9,6 +9,9 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.analyses.data_flow.analyses.interval.safety.memory_safety import (
+    MemorySafetyChecker,
+)
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.solidity_call import SolidityCall
@@ -49,6 +52,9 @@ class MemoryStoreHandler(MemoryBaseHandler):
         offset_arg = operation.arguments[0]
         value_arg = operation.arguments[1]
 
+        # Perform memory safety checks before the store
+        self._check_memory_safety(offset_arg, value_arg, domain, node)
+
         slot_name = self._resolve_memory_slot_name(offset_arg, domain)
         # Guard: skip if we cannot resolve a stable memory slot name.
         if slot_name is None:
@@ -82,4 +88,45 @@ class MemoryStoreHandler(MemoryBaseHandler):
         # Constrain memory cell to the stored value.
         self.solver.assert_constraint(memory_var.term == value_term)
         memory_var.assert_no_overflow(self.solver)
+
+    def _check_memory_safety(
+        self,
+        offset_arg: object,
+        value_arg: object,
+        domain: "IntervalDomain",
+        node: "Node",
+    ) -> None:
+        """Check memory store operation for safety violations.
+
+        This detects vulnerabilities such as:
+        - Memory underflow (write location < base pointer)
+        - Arbitrary memory writes (unconstrained write location)
+        - Overflow in pointer arithmetic
+        """
+        # Guard: need analysis context for safety checking
+        if self.analysis is None:
+            return
+
+        # Guard: need solver for constraint checking
+        if self.solver is None:
+            return
+
+        # Create a safety checker with the current context
+        checker = MemorySafetyChecker(
+            solver=self.solver,
+            domain=domain,
+            context=self.analysis.safety_context,
+        )
+
+        # Perform safety checks on the mstore operation
+        violations = checker.check_mstore(offset_arg, value_arg, node)
+
+        # Report violations to the analysis
+        for violation in violations:
+            self.analysis.add_safety_violation(violation)
+            self.logger.warning(
+                "Memory safety violation detected: {violation_type} - {details}",
+                violation_type=violation.violation_type.value,
+                details=violation.message,
+            )
 

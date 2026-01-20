@@ -825,6 +825,48 @@ def analyze_function_verbose(
                             f"{', '.join(sorted(post_state_vars.keys()))}[/yellow]"
                         )
 
+    # Display safety violations if any were detected
+    _display_safety_violations(analysis.safety_violations)
+
+
+def _display_safety_violations(violations: List) -> None:
+    """Display detected safety violations in a formatted panel."""
+    if not violations:
+        return
+
+    console.print("\n[bold red]" + "=" * 60 + "[/bold red]")
+    console.print("[bold red]⚠️  SAFETY VIOLATIONS DETECTED[/bold red]")
+    console.print("[bold red]" + "=" * 60 + "[/bold red]\n")
+
+    for i, violation in enumerate(violations, 1):
+        severity_style = "red bold" if violation.severity == "CRITICAL" else "yellow bold"
+        console.print(
+            f"[{severity_style}]#{i} [{violation.severity}] "
+            f"{violation.violation_type.value.upper()}[/{severity_style}]"
+        )
+        console.print(f"  [white]{violation.message}[/white]")
+
+        if violation.write_location_range:
+            min_val, max_val = violation.write_location_range
+            console.print(
+                f"  [cyan]Write location '{violation.write_location_name}' range:[/cyan] "
+                f"[{min_val}, {max_val}]"
+            )
+
+        if violation.base_pointer_range and violation.base_pointer_name:
+            min_val, max_val = violation.base_pointer_range
+            console.print(
+                f"  [cyan]Base pointer '{violation.base_pointer_name}' range:[/cyan] "
+                f"[{min_val}, {max_val}]"
+            )
+
+        if violation.recommendation:
+            console.print(f"  [green]Recommendation:[/green] {violation.recommendation}")
+
+        console.print()
+
+    console.print("[bold red]" + "=" * 60 + "[/bold red]\n")
+
 
 def run_verbose(
     contract_path: str,

@@ -181,6 +181,11 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             domain,
         )
 
+        # Track pointer arithmetic for memory safety analysis
+        self._track_pointer_arithmetic(
+            result_name, left_name, right_name, operation, domain
+        )
+
     def _compute_expression(
         self,
         operation: Binary,
@@ -454,3 +459,121 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         if not hasattr(self, "_bool_false_term"):
             self._bool_false_term = self.solver.create_constant(False, Sort(kind=SortKind.BOOL))
         return self._bool_false_term
+
+    def _track_pointer_arithmetic(
+        self,
+        result_name: str,
+        left_name: str,
+        right_name: str,
+        operation: Binary,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Track pointer arithmetic for memory safety analysis.
+
+        This identifies when a result is computed by adding a base pointer
+        to an offset, especially when the offset is attacker-controlled.
+        """
+        if self.analysis is None:
+            return
+
+        # Only track addition operations (pointer + offset)
+        if operation.type != BinaryType.ADDITION:
+            return
+
+        safety_ctx = self.analysis.safety_context
+
+        def matches_any(name: str, name_set: set) -> bool:
+            """Check if a name matches any entry in the set (flexible matching).
+
+            Handles variable name format differences:
+            - Binary operations use short names like 'ptr_processData_asm_0'
+            - Safety context uses full names like 
+              'VulnerableExample.processData(bytes).ptr_processData_asm_0|ptr_processData_asm_0_1'
+            """
+            if name in name_set:
+                return True
+
+            # Extract the base name (strip SSA version suffix)
+            name_base = name.split("|")[0] if "|" in name else name
+
+            for entry in name_set:
+                # Check exact match with entry
+                if entry == name:
+                    return True
+
+                # Extract entry base name
+                entry_base = entry.split("|")[0] if "|" in entry else entry
+
+                # Check if the entry's base ends with the name (handles full qualified names)
+                # e.g., 'VulnerableExample.processData(bytes).ptr_processData_asm_0' ends with 'ptr_processData_asm_0'
+                if entry_base.endswith(f".{name_base}") or entry_base.endswith(f".{name}"):
+                    return True
+
+                # Check if the name's base ends with the entry (handles reverse)
+                if name_base.endswith(f".{entry_base}") or name.endswith(f".{entry}"):
+                    return True
+
+                # Check if the last component matches
+                entry_last = entry_base.split(".")[-1] if "." in entry_base else entry_base
+                name_last = name_base.split(".")[-1] if "." in name_base else name_base
+                if entry_last == name_last:
+                    return True
+
+            return False
+
+        # Check if either operand is a free memory pointer or derived from one
+        left_is_ptr = matches_any(left_name, safety_ctx.free_memory_pointers)
+        right_is_ptr = matches_any(right_name, safety_ctx.free_memory_pointers)
+
+        # Check if this is adding to an existing pointer arithmetic result
+        left_is_derived = matches_any(left_name, set(safety_ctx.pointer_arithmetic.keys()))
+        right_is_derived = matches_any(right_name, set(safety_ctx.pointer_arithmetic.keys()))
+
+        # Check if operands are attacker-controlled
+        left_is_calldata = matches_any(left_name, safety_ctx.calldata_variables)
+        right_is_calldata = matches_any(right_name, safety_ctx.calldata_variables)
+
+        if left_is_ptr or left_is_derived:
+            # result = ptr + offset or result = derived_ptr + offset
+            base_name = left_name
+            if left_is_derived:
+                # Get the original base
+                prev_info = safety_ctx.pointer_arithmetic.get(left_name, {})
+                base_name = prev_info.get("base", left_name)
+                prev_offsets = list(prev_info.get("offsets", []))
+            else:
+                prev_offsets = []
+
+            offsets = prev_offsets + [right_name]
+            safety_ctx.pointer_arithmetic[result_name] = {
+                "base": base_name,
+                "offsets": offsets,
+            }
+            self.logger.debug(
+                "Tracking pointer arithmetic: {result} = {base} + {offsets}",
+                result=result_name,
+                base=base_name,
+                offsets=offsets,
+            )
+
+        elif right_is_ptr or right_is_derived:
+            # result = offset + ptr (less common but possible)
+            base_name = right_name
+            if right_is_derived:
+                prev_info = safety_ctx.pointer_arithmetic.get(right_name, {})
+                base_name = prev_info.get("base", right_name)
+                prev_offsets = list(prev_info.get("offsets", []))
+            else:
+                prev_offsets = []
+
+            offsets = prev_offsets + [left_name]
+            safety_ctx.pointer_arithmetic[result_name] = {
+                "base": base_name,
+                "offsets": offsets,
+            }
+            self.logger.debug(
+                "Tracking pointer arithmetic: {result} = {base} + {offsets}",
+                result=result_name,
+                base=base_name,
+                offsets=offsets,
+            )

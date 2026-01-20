@@ -81,6 +81,14 @@ class CalldataLoadHandler(BaseOperationHandler):
                 return
             domain.state.set_range_variable(lvalue_name, tracked)
 
+        # Track this variable as attacker-controlled for safety analysis
+        if self.analysis is not None:
+            self.analysis.safety_context.calldata_variables.add(lvalue_name)
+            self.logger.debug(
+                "Tracking calldata variable as attacker-controlled: {var_name}",
+                var_name=lvalue_name,
+            )
+
         # For now we do not add additional constraints: calldata contents are modelled
         # as an unconstrained value within the type bounds.
         tracked.assert_no_overflow(self.solver)

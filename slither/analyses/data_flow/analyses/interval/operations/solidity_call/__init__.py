@@ -77,7 +77,7 @@ class SolidityCallHandler(BaseOperationHandler):
 
         # Handle low-level builtin calldataload(uint256).
         if "calldataload" in function_full_name:
-            CalldataLoadHandler(self.solver).handle(operation, domain, node)
+            CalldataLoadHandler(self.solver, self.analysis).handle(operation, domain, node)
             return
 
         # Handle low-level builtin byte(uint256,uint256).
@@ -114,14 +114,14 @@ class SolidityCallHandler(BaseOperationHandler):
         ):
             # Branch: mstore8 uses a single byte, mstore uses a full word.
             if function_full_name.startswith("mstore8("):
-                MemoryStoreHandler(self.solver, byte_size=1).handle(operation, domain, node)
+                MemoryStoreHandler(self.solver, self.analysis, byte_size=1).handle(operation, domain, node)
                 return
 
             if function_full_name.startswith("mstore("):
-                MemoryStoreHandler(self.solver, byte_size=32).handle(operation, domain, node)
+                MemoryStoreHandler(self.solver, self.analysis, byte_size=32).handle(operation, domain, node)
                 return
 
-            MemoryLoadHandler(self.solver).handle(operation, domain, node)
+            MemoryLoadHandler(self.solver, self.analysis).handle(operation, domain, node)
             return
 
         # Handle calldatacopy(uint256,uint256,uint256).

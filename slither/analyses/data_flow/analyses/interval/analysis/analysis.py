@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
@@ -20,6 +20,10 @@ from slither.analyses.data_flow.analyses.interval.operations.binary.comparison i
 )
 from slither.analyses.data_flow.analyses.interval.operations.phi import PhiHandler
 from slither.analyses.data_flow.analyses.interval.core.state import State
+from slither.analyses.data_flow.analyses.interval.safety.memory_safety import (
+    MemorySafetyContext,
+    MemorySafetyViolation,
+)
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
@@ -44,6 +48,10 @@ class IntervalAnalysis(Analysis):
         self._direction: Direction = Forward()
         self._solver: SMTSolver = solver
         self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver, self)
+        # Memory safety tracking context
+        self._safety_context: MemorySafetyContext = MemorySafetyContext()
+        # Detected safety violations
+        self._safety_violations: List[MemorySafetyViolation] = []
 
     def domain(self) -> Domain:
         return IntervalDomain.with_state(State({}))
@@ -112,6 +120,24 @@ class IntervalAnalysis(Analysis):
     def solver(self) -> SMTSolver:
         """Get the SMT solver instance."""
         return self._solver
+
+    @property
+    def safety_context(self) -> MemorySafetyContext:
+        """Get the memory safety tracking context."""
+        return self._safety_context
+
+    @property
+    def safety_violations(self) -> List[MemorySafetyViolation]:
+        """Get all detected safety violations."""
+        return self._safety_violations
+
+    def add_safety_violation(self, violation: MemorySafetyViolation) -> None:
+        """Add a detected safety violation."""
+        self._safety_violations.append(violation)
+
+    def clear_safety_violations(self) -> None:
+        """Clear all detected safety violations."""
+        self._safety_violations.clear()
 
     def apply_condition(
         self,
