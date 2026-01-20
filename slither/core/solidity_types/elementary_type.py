@@ -220,9 +220,10 @@ class ElementaryType(Type):
         return self._type
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ElementaryType):
+        # Use type() and direct _type access for performance (41M calls in typical analysis)
+        if type(other) is not ElementaryType:
             return False
-        return self.type == other.type
+        return self._type == other._type
 
     def __hash__(self) -> int:
         return hash(self._type)
