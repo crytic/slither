@@ -6,6 +6,7 @@ from slither.core.expressions.assignment_operation import (
 )
 from slither.core.expressions.identifier import Identifier
 from slither.vyper_parsing.expressions.expression_parsing import parse_expression
+from slither.visitors.expression.call_classification import classify_calls
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -55,9 +56,6 @@ class NodeVyper:
 
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
-            self._node.external_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
-            ]
-            self._node.internal_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
-            ]
+            internal, external = classify_calls(self._node.calls_as_expression)
+            self._node.internal_calls_as_expressions = internal
+            self._node.external_calls_as_expressions = external
