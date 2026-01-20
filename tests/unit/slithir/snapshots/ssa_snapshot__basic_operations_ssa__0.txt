@@ -1,0 +1,141 @@
+============================================================
+SSA Snapshot: BasicOps Contract
+============================================================
+
+Function: arithmetic
+Parameters: ['a', 'b']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (VARIABLE):
+  Expression: sum = a + b
+  SSA: TMP_1(uint256) = a_1 (c)+ b_2
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: sum_3(uint256) := TMP_1(uint256)
+       lvalue: sum_3 (type=LocalIRVariable)
+
+Node 2 (VARIABLE):
+  Expression: diff = a - b
+  SSA: TMP_2(uint256) = a_1 (c)- b_2
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: diff_4(uint256) := TMP_2(uint256)
+       lvalue: diff_4 (type=LocalIRVariable)
+
+Node 3 (VARIABLE):
+  Expression: prod = a * b
+  SSA: TMP_3(uint256) = a_1 (c)* b_2
+       lvalue: TMP_3 (type=TemporaryVariableSSA)
+  SSA: prod_5(uint256) := TMP_3(uint256)
+       lvalue: prod_5 (type=LocalIRVariable)
+
+Node 4 (RETURN):
+  Expression: sum + diff + prod
+  SSA: TMP_4(uint256) = sum_3 (c)+ diff_4
+       lvalue: TMP_4 (type=TemporaryVariableSSA)
+  SSA: TMP_5(uint256) = TMP_4 (c)+ prod_5
+       lvalue: TMP_5 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_5
+
+----------------------------------------
+
+Function: conditional
+Parameters: ['x']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (IF):
+  Expression: x > 10
+  SSA: TMP_1(bool) = x_1 > 10
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: CONDITION TMP_1
+
+Node 2 (RETURN):
+  Expression: x * 2
+  SSA: TMP_2(uint256) = x_1 (c)* 2
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_2
+
+Node 3 (RETURN):
+  Expression: x + 1
+  SSA: TMP_3(uint256) = x_1 (c)+ 1
+       lvalue: TMP_3 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_3
+
+----------------------------------------
+
+Function: loop
+Parameters: ['n']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (VARIABLE):
+  Expression: sum = 0
+  SSA: sum_1(uint256) := 0(uint256)
+       lvalue: sum_1 (type=LocalIRVariable)
+
+Node 2 (STARTLOOP):
+
+Node 3 (ENDLOOP):
+
+Node 4 (VARIABLE):
+  Expression: i = 0
+  SSA: i_2(uint256) := 0(uint256)
+       lvalue: i_2 (type=LocalIRVariable)
+
+Node 5 (IFLOOP):
+  Expression: i < n
+  SSA: sum_3(uint256) := ϕ(['sum_1', 'sum_4'])
+       lvalue: sum_3 (type=LocalIRVariable)
+       rvalues: ['sum_1', 'sum_4']
+  SSA: i_5(uint256) := ϕ(['i_2', 'i_6'])
+       lvalue: i_5 (type=LocalIRVariable)
+       rvalues: ['i_2', 'i_6']
+  SSA: TMP_1(bool) = i_5 < n_7
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: CONDITION TMP_1
+
+Node 6 (EXPRESSION):
+  Expression: sum += i
+  SSA: sum_4(uint256) = sum_3 (c)+ i_5
+       lvalue: sum_4 (type=LocalIRVariable)
+
+Node 7 (EXPRESSION):
+  Expression: i ++
+  SSA: TMP_2(uint256) := i_5(uint256)
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: i_6(uint256) = i_5 (c)+ 1
+       lvalue: i_6 (type=LocalIRVariable)
+
+Node 8 (RETURN):
+  Expression: sum
+  SSA: RETURN sum_3
+
+----------------------------------------
+
+Function: stateAccess
+Parameters: ['val']
+Returns: []
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (EXPRESSION):
+  Expression: stateVar = val
+  SSA: stateVar_1(uint256) := val_1(uint256)
+       lvalue: stateVar_1 (type=StateIRVariable)
+
+Node 2 (VARIABLE):
+  Expression: local = stateVar + 1
+  SSA: TMP_1(uint256) = stateVar_1 (c)+ 1
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: local_2(uint256) := TMP_1(uint256)
+       lvalue: local_2 (type=LocalIRVariable)
+
+Node 3 (EXPRESSION):
+  Expression: stateVar = local
+  SSA: stateVar_2(uint256) := local_2(uint256)
+       lvalue: stateVar_2 (type=StateIRVariable)
+
+----------------------------------------
