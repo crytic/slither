@@ -106,9 +106,13 @@ class ERCPrinter(AbstractPrinter):
             "details": {},
         }
 
+        # Cache compliance results to avoid redundant calculations
+        compliance_cache: dict[str, tuple[float, list[str], list[str]]] = {}
+
         # Check each token standard - compute compliance once per standard
         for display_name, erc_key in TOKEN_STANDARDS.items():
             compliance, implemented, missing = self._get_compliance(contract, erc_key)
+            compliance_cache[display_name] = (compliance, implemented, missing)
 
             # Only consider fully compliant (100%) as a detected token
             if compliance == 100:
@@ -123,10 +127,11 @@ class ERCPrinter(AbstractPrinter):
                 }
 
         # Check for partial implementations (>= threshold but not fully compliant)
+        # using cached compliance values
         if not results["types"]:
             partial_types = []
-            for display_name, erc_key in TOKEN_STANDARDS.items():
-                compliance, _, _ = self._get_compliance(contract, erc_key)
+            for display_name in TOKEN_STANDARDS:
+                compliance, _, _ = compliance_cache[display_name]
                 if compliance >= PARTIAL_THRESHOLD:
                     partial_types.append(f"{display_name} ({compliance:.0f}%)")
 
