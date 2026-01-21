@@ -1,0 +1,20 @@
+IncorrectMemorySafe.badTypoSpaces() (incorrect_memory_safe.sol#30-35) contains an invalid memory-safe assembly annotation:
+	- Typo in memory-safe annotation: memory safe assembly (missing hyphens)
+	- Location: line 31
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#32-34)
+
+IncorrectMemorySafe.badTypoSage() (incorrect_memory_safe.sol#22-27) contains an invalid memory-safe assembly annotation:
+	- Typo in memory-safe annotation: memory-sage-assembly (typo: 'sage' instead of 'safe')
+	- Location: line 23
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#24-26)
+
+IncorrectMemorySafe.badRegularComment() (incorrect_memory_safe.sol#6-11) contains an invalid memory-safe assembly annotation:
+	- Memory-safe annotation in regular comment will be ignored. Use NatSpec comment (/// or /** */) instead of (// ...)
+	- Location: line 7
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#8-10)
+
+IncorrectMemorySafe.badRegularMultiline() (incorrect_memory_safe.sol#14-19) contains an invalid memory-safe assembly annotation:
+	- Memory-safe annotation in regular comment will be ignored. Use NatSpec comment (/// or /** */) instead of (/* ...)
+	- Location: line 15
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#16-18)
+
