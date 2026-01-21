@@ -132,7 +132,7 @@ def _process_external_call(
         contract_functions[external_contract].add(
             _node(
                 _function_node(external_contract, ir.function),
-                ir.function.name,
+                ir.function.solidity_signature,  # Use signature for consistency with node ID
             )
         )
 
