@@ -4,8 +4,12 @@ Module printing ERC token standard detection results.
 Automatically identifies and classifies token contracts based on their
 implemented interfaces, supporting ERC-20, ERC-721, ERC-777, ERC-1155,
 and ERC-4626 standards.
+
+Note: Detection is based on function signatures only. It does not verify
+return types, view modifiers, or actual implementation correctness.
 """
 
+from slither.core.declarations import Contract
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import green, yellow, red, blue, bold
 from slither.utils.myprettytable import MyPrettyTable
@@ -22,6 +26,11 @@ TOKEN_STANDARDS = {
     "ERC-4626": "ERC4626",
 }
 
+# Confidence thresholds
+CONFIDENCE_HIGH = 80
+CONFIDENCE_MEDIUM = 50
+PARTIAL_THRESHOLD = 30
+
 
 class ERCPrinter(AbstractPrinter):
     ARGUMENT = "erc"
@@ -30,7 +39,7 @@ class ERCPrinter(AbstractPrinter):
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#erc"
 
     def _get_compliance(
-        self, contract, erc_key: str
+        self, contract: Contract, erc_key: str
     ) -> tuple[float, list[str], list[str]]:
         """
         Calculate compliance percentage for a given ERC standard.
@@ -50,14 +59,14 @@ class ERCPrinter(AbstractPrinter):
         compliance = len(implemented) / len(required_sigs) * 100 if required_sigs else 0
         return compliance, implemented, missing
 
-    def _check_events(self, contract, erc_key: str) -> tuple[list[str], list[str]]:
+    def _check_events(
+        self, contract: Contract, erc_key: str
+    ) -> tuple[list[str], list[str]]:
         """Check which ERC events are implemented for a given standard."""
         _, erc_events = ERCS[erc_key]
 
-        contract_event_sigs = [
-            f"{e.name}({','.join(str(p.type) for p in e.elems)})"
-            for e in contract.events
-        ]
+        # Use full_name property from Event class for consistent signature format
+        contract_event_sigs = [e.full_name for e in contract.events]
 
         implemented = []
         missing = []
@@ -70,24 +79,23 @@ class ERCPrinter(AbstractPrinter):
 
         return implemented, missing
 
-    def _is_fully_compliant(self, contract, erc_key: str) -> bool:
-        """Check if contract implements all required functions for a standard."""
-        erc_functions, _ = ERCS[erc_key]
-        required_sigs = erc_to_signatures(erc_functions)
-        contract_sigs = contract.functions_signatures
-        return all(sig in contract_sigs for sig in required_sigs)
-
     def _confidence_label(self, compliance: float) -> str:
         """Return colored confidence label based on compliance percentage."""
         if compliance >= 100:
             return green("HIGH (100%)")
-        if compliance >= 80:
+        if compliance >= CONFIDENCE_HIGH:
             return green(f"HIGH ({compliance:.0f}%)")
-        if compliance >= 50:
+        if compliance >= CONFIDENCE_MEDIUM:
             return yellow(f"MEDIUM ({compliance:.0f}%)")
         return red(f"LOW ({compliance:.0f}%)")
 
-    def _analyze_contract(self, contract) -> dict | None:
+    def _get_source_path(self, contract: Contract) -> str:
+        """Safely get the source file path for a contract."""
+        if contract.source_mapping and contract.source_mapping.filename:
+            return contract.source_mapping.filename.short
+        return "unknown"
+
+    def _analyze_contract(self, contract: Contract) -> dict | None:
         """Analyze a single contract for ERC compliance."""
         # Skip interfaces, libraries, and abstract contracts
         if contract.is_interface or contract.is_library:
@@ -95,21 +103,17 @@ class ERCPrinter(AbstractPrinter):
 
         results = {
             "name": contract.name,
-            "source": (
-                contract.source_mapping.filename.short
-                if contract.source_mapping
-                else "unknown"
-            ),
+            "source": self._get_source_path(contract),
             "types": [],
             "details": {},
         }
 
-        # Check each token standard
+        # Check each token standard - compute compliance once per standard
         for display_name, erc_key in TOKEN_STANDARDS.items():
-            if self._is_fully_compliant(contract, erc_key):
-                compliance, implemented, missing = self._get_compliance(
-                    contract, erc_key
-                )
+            compliance, implemented, missing = self._get_compliance(contract, erc_key)
+
+            # Only consider fully compliant (100%) as a detected token
+            if compliance == 100:
                 events_impl, events_missing = self._check_events(contract, erc_key)
                 results["types"].append(display_name)
                 results["details"][display_name] = {
@@ -120,12 +124,12 @@ class ERCPrinter(AbstractPrinter):
                     "events_missing": events_missing,
                 }
 
-        # Check for partial implementations (>= 30% compliance but not fully compliant)
+        # Check for partial implementations (>= threshold but not fully compliant)
         if not results["types"]:
             partial_types = []
             for display_name, erc_key in TOKEN_STANDARDS.items():
                 compliance, _, _ = self._get_compliance(contract, erc_key)
-                if compliance >= 30:
+                if compliance >= PARTIAL_THRESHOLD:
                     partial_types.append(f"{display_name} ({compliance:.0f}%)")
 
             if partial_types:
@@ -136,9 +140,7 @@ class ERCPrinter(AbstractPrinter):
 
         return None
 
-    def _format_contract_details(
-        self, result: dict, standard: str, show_header: bool = True
-    ) -> str:
+    def _format_contract_details(self, result: dict, standard: str) -> str:
         """Format detailed output for a contract implementing a standard."""
         txt = ""
         details = result["details"][standard]
@@ -160,9 +162,7 @@ class ERCPrinter(AbstractPrinter):
             details["events_missing"]
         )
         if total_events > 0:
-            txt += (
-                f"  Events: {len(details['events_implemented'])}/{total_events}\n"
-            )
+            txt += f"  Events: {len(details['events_implemented'])}/{total_events}\n"
 
         return txt
 
@@ -265,7 +265,7 @@ class ERCPrinter(AbstractPrinter):
         }
 
         # Add each standard's contracts to JSON
-        for display_name, erc_key in TOKEN_STANDARDS.items():
+        for display_name in TOKEN_STANDARDS:
             contracts = contracts_by_standard[display_name]
             if contracts:
                 json_output["tokens"][display_name] = [

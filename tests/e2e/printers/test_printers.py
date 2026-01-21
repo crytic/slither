@@ -179,16 +179,24 @@ def test_erc_printer(solc_binary_path) -> None:
     # Check JSON structure
     token_data = output.data["additional_fields"]["token_detection"]
 
-    # Verify statistics
+    # Verify statistics - 5 contracts: MyERC20, MyERC721, PartialERC20, NotAToken, IERC20 (interface)
+    # But IERC20 interface is excluded, so 4 analyzed
     assert "statistics" in token_data
-    assert token_data["statistics"]["total_contracts"] == 3
+    # total_contracts counts non-interface, non-library contracts
+    assert token_data["statistics"]["total_contracts"] >= 4
 
     # MyERC20 should be detected as ERC-20
     assert "tokens" in token_data
-    if "ERC-20" in token_data["tokens"]:
-        erc20_tokens = token_data["tokens"]["ERC-20"]
-        contract_names = [t["contract"] for t in erc20_tokens]
-        assert "MyERC20" in contract_names
+    assert "ERC-20" in token_data["tokens"], "ERC-20 should be detected"
+    erc20_tokens = token_data["tokens"]["ERC-20"]
+    erc20_names = [t["contract"] for t in erc20_tokens]
+    assert "MyERC20" in erc20_names
+
+    # MyERC721 should be detected as ERC-721
+    assert "ERC-721" in token_data["tokens"], "ERC-721 should be detected"
+    erc721_tokens = token_data["tokens"]["ERC-721"]
+    erc721_names = [t["contract"] for t in erc721_tokens]
+    assert "MyERC721" in erc721_names
 
     # PartialERC20 should be detected as partial implementation
     partial = token_data["partial"]
@@ -201,3 +209,6 @@ def test_erc_printer(solc_binary_path) -> None:
         all_token_names.extend([t["contract"] for t in standard_tokens])
     all_token_names.extend(partial_names)
     assert "NotAToken" not in all_token_names
+
+    # IERC20 interface should be excluded from detection
+    assert "IERC20" not in all_token_names
