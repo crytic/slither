@@ -237,8 +237,6 @@ class ERCPrinter(AbstractPrinter):
         self.info(txt)
 
         # Build JSON output
-        res = self.generate_output(txt)
-
         json_output = {
             "tokens": {},
             "partial": [
@@ -271,6 +269,6 @@ class ERCPrinter(AbstractPrinter):
                     for r in contracts
                 ]
 
-        res.add_other("token_detection", json_output)
+        res = self.generate_output(txt, additional_fields={"token_detection": json_output})
 
         return res
