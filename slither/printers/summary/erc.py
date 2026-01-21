@@ -59,9 +59,7 @@ class ERCPrinter(AbstractPrinter):
         compliance = len(implemented) / len(required_sigs) * 100 if required_sigs else 0
         return compliance, implemented, missing
 
-    def _check_events(
-        self, contract: Contract, erc_key: str
-    ) -> tuple[list[str], list[str]]:
+    def _check_events(self, contract: Contract, erc_key: str) -> tuple[list[str], list[str]]:
         """Check which ERC events are implemented for a given standard."""
         _, erc_events = ERCS[erc_key]
 
@@ -158,9 +156,7 @@ class ERCPrinter(AbstractPrinter):
                 txt += f" (+{len(details['missing']) - 3} more)"
             txt += "\n"
 
-        total_events = len(details["events_implemented"]) + len(
-            details["events_missing"]
-        )
+        total_events = len(details["events_implemented"]) + len(details["events_missing"])
         if total_events > 0:
             txt += f"  Events: {len(details['events_implemented'])}/{total_events}\n"
 
@@ -171,9 +167,7 @@ class ERCPrinter(AbstractPrinter):
         txt = ""
 
         # Categorize contracts by token standard
-        contracts_by_standard: dict[str, list[dict]] = {
-            name: [] for name in TOKEN_STANDARDS
-        }
+        contracts_by_standard: dict[str, list[dict]] = {name: [] for name in TOKEN_STANDARDS}
         partial_contracts: list[dict] = []
 
         # Analyze all contracts
@@ -198,9 +192,7 @@ class ERCPrinter(AbstractPrinter):
                 total_tokens += count
 
         if partial_contracts:
-            summary_table.add_row(
-                ["Partial Implementations", str(len(partial_contracts))]
-            )
+            summary_table.add_row(["Partial Implementations", str(len(partial_contracts))])
 
         txt += "\n" + str(summary_table) + "\n"
 
