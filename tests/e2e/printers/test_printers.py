@@ -164,9 +164,7 @@ def test_erc_printer(solc_binary_path) -> None:
     """Test the ERC token detection printer."""
     solc_path = solc_binary_path("0.8.0")
     standard_json = SolcStandardJson()
-    standard_json.add_source_file(
-        Path(TEST_DATA_DIR, "test_erc_printer", "tokens.sol").as_posix()
-    )
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_erc_printer", "tokens.sol").as_posix())
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
