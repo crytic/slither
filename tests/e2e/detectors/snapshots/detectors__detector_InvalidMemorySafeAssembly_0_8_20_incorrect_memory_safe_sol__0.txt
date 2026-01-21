@@ -3,6 +3,11 @@ IncorrectMemorySafe.badTypoSpaces() (incorrect_memory_safe.sol#30-35) contains a
 	- Location: line 31
 	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#32-34)
 
+ModifierTest.checkSafe() (incorrect_memory_safe.sol#84-90) contains an invalid memory-safe assembly annotation:
+	- Memory-safe annotation in regular comment will be ignored. Use NatSpec comment (/// or /** */) instead of (// ...)
+	- Location: line 85
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#86-88)
+
 IncorrectMemorySafe.badTypoSage() (incorrect_memory_safe.sol#22-27) contains an invalid memory-safe assembly annotation:
 	- Typo in memory-safe annotation: memory-sage-assembly (typo: 'sage' instead of 'safe')
 	- Location: line 23
@@ -17,4 +22,9 @@ IncorrectMemorySafe.badRegularMultiline() (incorrect_memory_safe.sol#14-19) cont
 	- Memory-safe annotation in regular comment will be ignored. Use NatSpec comment (/// or /** */) instead of (/* ...)
 	- Location: line 15
 	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#16-18)
+
+IncorrectMemorySafe.badRegularMultilineContinuation() (incorrect_memory_safe.sol#38-45) contains an invalid memory-safe assembly annotation:
+	- Memory-safe annotation in regular multi-line comment will be ignored. Use NatSpec comment (/** */) instead of (/* */)
+	- Location: line 40
+	- Assembly block: INLINE ASM (incorrect_memory_safe.sol#42-44)
 
