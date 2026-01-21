@@ -34,6 +34,16 @@ contract IncorrectMemorySafe {
         }
     }
 
+    // BAD: Regular multi-line comment with continuation
+    function badRegularMultilineContinuation() external pure returns (bytes32 result) {
+        /*
+         * @solidity memory-safe-assembly
+         */
+        assembly {
+            result := mload(0x40)
+        }
+    }
+
     // GOOD: Correct NatSpec single-line comment
     function goodNatSpecSingle() external pure returns (bytes32 result) {
         /// @solidity memory-safe-assembly
@@ -42,9 +52,19 @@ contract IncorrectMemorySafe {
         }
     }
 
-    // GOOD: Correct NatSpec multi-line comment
+    // GOOD: Correct NatSpec multi-line comment (single line)
     function goodNatSpecMulti() external pure returns (bytes32 result) {
         /** @solidity memory-safe-assembly */
+        assembly {
+            result := mload(0x40)
+        }
+    }
+
+    // GOOD: Correct NatSpec multi-line comment with continuation
+    function goodNatSpecMultiContinuation() external pure returns (bytes32 result) {
+        /**
+         * @solidity memory-safe-assembly
+         */
         assembly {
             result := mload(0x40)
         }
@@ -56,4 +76,18 @@ contract IncorrectMemorySafe {
             result := mload(0x40)
         }
     }
+}
+
+// Test with modifier
+contract ModifierTest {
+    // BAD: Regular comment in modifier
+    modifier checkSafe() {
+        // @solidity memory-safe-assembly
+        assembly {
+            let x := mload(0x40)
+        }
+        _;
+    }
+
+    function useModifier() external checkSafe {}
 }

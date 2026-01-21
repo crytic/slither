@@ -72,6 +72,9 @@ assembly {
 }
 ```"""
 
+    # Only run on Solidity contracts (not Vyper)
+    LANGUAGE = "solidity"
+
     # Patterns to detect
     CORRECT_ANNOTATION = "memory-safe-assembly"
 
@@ -93,8 +96,44 @@ assembly {
             return []
         return self.slither.source_code[filename].splitlines()
 
+    def _is_inside_natspec_block(self, lines: list[str], line_idx: int) -> bool:
+        """
+        Check if the given line index is inside a NatSpec multi-line comment block (/** */).
+
+        Searches backwards from line_idx to find if we're inside /** ... */
+        """
+        # Search backwards for comment block start
+        in_multiline = False
+        is_natspec = False
+
+        for i in range(line_idx, -1, -1):
+            line = lines[i].strip()
+
+            # Check for end of multi-line comment (searching backwards, this is a start)
+            if "*/" in line:
+                # Found closing, we might be before an open block
+                # Keep searching for the opening
+                in_multiline = False
+                is_natspec = False
+
+            # Check for start of multi-line comment
+            if "/**" in line:
+                # NatSpec block start found
+                return True
+            if "/*" in line and "/**" not in line:
+                # Regular multi-line comment start
+                return False
+
+            # If we hit a line that's clearly not in a comment, stop
+            if not line.startswith("*") and not line.startswith("//") and line and "/*" not in line:
+                # Check if this is a continuation line inside a block
+                # by looking for */ on same line or later
+                pass
+
+        return False
+
     def _check_for_annotation_issues(
-        self, lines: list[str], asm_line_num: int, filename: str
+        self, lines: list[str], asm_line_num: int
     ) -> list[tuple[str, int, str]]:
         """
         Check lines before assembly block for annotation issues.
@@ -103,8 +142,8 @@ assembly {
         """
         issues: list[tuple[str, int, str]] = []
 
-        # Look at up to 10 lines before the assembly block
-        start_check = max(0, asm_line_num - 10)
+        # Look at up to 20 lines before the assembly block (increased from 10)
+        start_check = max(0, asm_line_num - 20)
         found_annotation = False
         annotation_line_num = -1
         lines_between = 0
@@ -128,17 +167,38 @@ assembly {
                 found_annotation = True
                 annotation_line_num = i + 1  # 1-indexed
 
-                # Check if it's in a regular comment (bad) vs NatSpec (good)
+                # Determine comment type
+                is_natspec_single = line.startswith("///")
+                is_natspec_multi_start = line.startswith("/**")
                 is_regular_single = line.startswith("//") and not line.startswith("///")
-                is_regular_multi = line.startswith("/*") and not line.startswith("/**")
+                is_regular_multi_start = line.startswith("/*") and not line.startswith("/**")
 
-                if is_regular_single or is_regular_multi:
+                # Check for multi-line comment continuation (line starts with *)
+                is_continuation = line.startswith("*") and not line.startswith("*/")
+
+                # Determine if this is inside a NatSpec block
+                is_in_natspec_block = False
+                if is_continuation:
+                    is_in_natspec_block = self._is_inside_natspec_block(lines, i)
+
+                # Flag if it's a regular comment (not NatSpec)
+                if is_regular_single or is_regular_multi_start:
                     issues.append(
                         (
                             "regular_comment",
                             annotation_line_num,
                             f"Memory-safe annotation in regular comment will be ignored. "
                             f"Use NatSpec comment (/// or /** */) instead of ({line[:3]}...)",
+                        )
+                    )
+                elif is_continuation and not is_in_natspec_block:
+                    # Continuation line but not in a NatSpec block
+                    issues.append(
+                        (
+                            "regular_comment",
+                            annotation_line_num,
+                            "Memory-safe annotation in regular multi-line comment will be ignored. "
+                            "Use NatSpec comment (/** */) instead of (/* */)",
                         )
                     )
 
@@ -170,7 +230,14 @@ assembly {
                 break  # Stop after finding the first annotation
 
             # If we find a non-empty, non-comment line, stop searching
-            if not line.startswith("//") and not line.startswith("/*") and not line.startswith("*"):
+            # Handle multi-line comment continuation lines (start with *)
+            is_comment_line = (
+                line.startswith("//")
+                or line.startswith("/*")
+                or line.startswith("*")
+                or line.endswith("*/")
+            )
+            if not is_comment_line:
                 if found_annotation:
                     # There's code between annotation and assembly
                     issues.append(
@@ -209,7 +276,7 @@ assembly {
                 continue
 
             # Check for issues (convert to 0-indexed for array access)
-            issues = self._check_for_annotation_issues(source_lines, asm_line_num - 1, filename)
+            issues = self._check_for_annotation_issues(source_lines, asm_line_num - 1)
 
             for issue_type, line_num, description in issues:
                 info: DETECTOR_INFO = [
@@ -236,5 +303,8 @@ assembly {
 
                 if function.contains_assembly:
                     results.extend(self._check_function(function))
+
+        # Sort results by source location for deterministic output
+        results.sort(key=lambda x: (x.data.get("first_markdown_element", ""), str(x)))
 
         return results
