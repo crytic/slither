@@ -2,7 +2,7 @@
 Module detecting dead code
 """
 
-from slither.core.declarations import Function, FunctionContract, Contract
+from slither.core.declarations import Function, FunctionContract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -53,12 +53,10 @@ contract Contract{
                 f.canonical_name for f in all_functions_called if isinstance(f, Function)
             }
             all_libss_called = [f.all_library_calls() for f in contract.functions_entry_points]
-            all_libs_called: list[tuple[Contract, Function]] = [
+            all_libs_called: list[Function] = [
                 item.function for sublist in all_libss_called for item in sublist
             ]
-            functions_used |= {
-                lib[1].canonical_name for lib in all_libs_called if isinstance(lib, tuple)
-            }
+            functions_used |= {f.canonical_name for f in all_libs_called if isinstance(f, Function)}
         for function in sorted(self.compilation_unit.functions, key=lambda x: x.canonical_name):
             if (
                 function.visibility in ["public", "external"]
