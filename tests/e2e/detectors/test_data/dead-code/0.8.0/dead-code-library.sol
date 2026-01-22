@@ -19,8 +19,8 @@ library MyLibrary {
         self.value = newValue;
     }
 
-    // This function is NOT used anywhere
-    // Should be flagged as dead code
+    // This function is NOT used anywhere but library functions are excluded
+    // from dead-code detection, so it should NOT be flagged
     function unusedLibraryFunction(Data storage self) internal pure returns (uint256) {
         return 42;
     }

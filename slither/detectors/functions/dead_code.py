@@ -2,7 +2,7 @@
 Module detecting dead code
 """
 
-from slither.core.declarations import Function, FunctionContract, Contract
+from slither.core.declarations import Function, FunctionContract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
