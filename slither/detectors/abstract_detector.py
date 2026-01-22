@@ -76,6 +76,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = ""
 
+    # Optional detector-specific prompt for AI triage guidance.
+    # Leave empty to use default system prompt; override in subclass for custom guidance.
+    TRIAGE_PROMPT = ""
+
     STANDARD_JSON = True
 
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
@@ -203,6 +207,22 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         for r in [output.data for output in self._detect()]:
             if self.compilation_unit.core.valid_result(r) and r not in results:
                 results.append(r)
+
+        # AI triage filtering (after validation, before logging)
+        if results and self.slither.ai_triage_enabled:
+            should_triage = not self.slither.ai_triage_only_configured or self.TRIAGE_PROMPT
+            if should_triage:
+                from slither.utils.ai_triage import triage_results
+
+                results = triage_results(
+                    detector=self,
+                    results=results,
+                    slither_core=self.compilation_unit.core,
+                    model=self.slither.ai_triage_model,
+                    use_cache=self.slither.ai_triage_cache,
+                    log_prompts=self.slither.ai_triage_log,
+                )
+
         if results and self.logger:
             self._log_result(results)
         if self.compilation_unit.core.generate_patches:
@@ -297,5 +317,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             if self.slither.triage_mode:
                 info += f"{idx}: "
             info += result["description"]
+            # Display AI triage info if present
+            if "ai_triage" in result:
+                triage = result["ai_triage"]
+                classification = triage.get("classification", "unknown")
+                confidence = triage.get("confidence", "unknown")
+                info += f"    [AI Triage] {classification} ({confidence} confidence)\n"
+                if triage.get("reasoning"):
+                    info += f"    Reasoning: {triage['reasoning']}\n"
         info += f"Reference: {self.WIKI}"
         self._log(info)

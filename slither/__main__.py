@@ -40,6 +40,7 @@ from slither.utils.command_line import (
     output_wiki,
     read_config_file,
 )
+from slither.utils import ai_triage
 from slither.utils.output import (
     ZIP_TYPES_ACCEPTED,
     Output,
@@ -334,6 +335,7 @@ def parse_args(
     parser.add_argument("filename", help=argparse.SUPPRESS)
 
     cryticparser.init(parser)
+    ai_triage.init_parser(parser)
 
     parser.add_argument(
         "--version",

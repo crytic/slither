@@ -121,6 +121,14 @@ class Slither(SlitherCore):
         self.codex_log = kwargs.get("codex_log", False)
         self.codex_organization: str | None = kwargs.get("codex_organization")
 
+        # AI triage options
+        self.ai_triage_enabled = kwargs.get("ai_triage", False)
+        self.ai_triage_model = kwargs.get("ai_triage_model", "claude-sonnet-4-5-20250929")
+        self.ai_triage_log = kwargs.get("ai_triage_log", False)
+        self.ai_triage_cache = kwargs.get("ai_triage_cache", True)
+        # If True, only triage detectors with TRIAGE_PROMPT set; --ai-triage-all sets this to False
+        self.ai_triage_only_configured = kwargs.get("ai_triage_only_configured", True)
+
         self.no_fail = kwargs.get("no_fail", False)
 
         self._parsers: list[SlitherCompilationUnitSolc] = []
