@@ -174,11 +174,19 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
                         )
 
                         # Also track source variables if they're not already tracked
-                        if left and hasattr(left, "name") and left_name not in node_analysis.variables:
+                        if (
+                            left
+                            and hasattr(left, "name")
+                            and left_name not in node_analysis.variables
+                        ):
                             node_analysis.variables[left_name] = VariableTagInfo(
                                 name=left_name, tag=left_tag
                             )
-                        if right and hasattr(right, "name") and right_name not in node_analysis.variables:
+                        if (
+                            right
+                            and hasattr(right, "name")
+                            and right_name not in node_analysis.variables
+                        ):
                             node_analysis.variables[right_name] = VariableTagInfo(
                                 name=right_name, tag=right_tag
                             )
@@ -209,7 +217,11 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
                             source_vars=[rvalue_name] if rvalue_name != "?" else [],
                         )
 
-                        if rvalue and hasattr(rvalue, "name") and rvalue_name not in node_analysis.variables:
+                        if (
+                            rvalue
+                            and hasattr(rvalue, "name")
+                            and rvalue_name not in node_analysis.variables
+                        ):
                             node_analysis.variables[rvalue_name] = VariableTagInfo(
                                 name=rvalue_name, tag=rvalue_tag
                             )
@@ -285,10 +297,12 @@ def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
 
         # Get the actual node to access expression
         node_obj = None
-        for contract in func_analysis._contract.functions if hasattr(func_analysis, '_contract') else []:
+        for contract in (
+            func_analysis._contract.functions if hasattr(func_analysis, "_contract") else []
+        ):
             # We need to find the node - let's store it in the analysis
             pass
-        
+
         node_header = f"[bold]Node {node_analysis.node_id}:[/bold] {node_analysis.node_type}"
         if node_analysis.expression:
             console.print(node_header)
@@ -363,9 +377,7 @@ def display_summary_table(analyses: List[FunctionAnalysis]) -> None:
     for func_analysis in analyses:
         func_name = f"{func_analysis.contract_name}.{func_analysis.function_name}"
 
-        expected_str = (
-            format_tag(func_analysis.expected_tag) if func_analysis.expected_tag else "-"
-        )
+        expected_str = format_tag(func_analysis.expected_tag) if func_analysis.expected_tag else "-"
 
         # Get return tag (use first return value if multiple)
         return_tag = (
@@ -415,9 +427,7 @@ def main():
     """Main entry point."""
     if len(sys.argv) < 2:
         console.print("[red]Usage:[/red] python test_rounding.py <contract_file> [function_name]")
-        console.print(
-            "  If function_name is provided, only show that function's analysis"
-        )
+        console.print("  If function_name is provided, only show that function's analysis")
         sys.exit(1)
 
     contract_path = Path(sys.argv[1])
