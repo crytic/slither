@@ -15,6 +15,7 @@ class State:
         range_variables: Optional[Mapping[str, TrackedSMTVariable]] = None,
         binary_operations: Optional[Mapping[str, "Binary"]] = None,
         path_constraints: Optional[List["SMTTerm"]] = None,
+        bytes_memory_constants: Optional[Dict[str, bytes]] = None,
     ):
         if range_variables is None:
             range_variables = {}
@@ -29,6 +30,10 @@ class State:
         self.used_variables: set[str] = set()  # Track which variables are actually used/read
         # Path constraints: branch conditions that must hold for this state
         self.path_constraints: List["SMTTerm"] = list(path_constraints) if path_constraints else []
+        # Track bytes memory constants: maps variable name to its concrete byte content
+        if bytes_memory_constants is None:
+            bytes_memory_constants = {}
+        self.bytes_memory_constants: Dict[str, bytes] = dict(bytes_memory_constants)
 
     def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
@@ -130,6 +135,22 @@ class State:
         """Get the set of variables that were actually used/read."""
         return self.used_variables
 
+    def set_bytes_memory_constant(self, var_name: str, byte_content: bytes) -> None:
+        """Store the concrete byte content for a bytes memory constant variable."""
+        self.bytes_memory_constants[var_name] = byte_content
+
+    def get_bytes_memory_constant(self, var_name: str) -> Optional[bytes]:
+        """Get the concrete byte content for a bytes memory constant variable."""
+        return self.bytes_memory_constants.get(var_name)
+
+    def has_bytes_memory_constant(self, var_name: str) -> bool:
+        """Check if a bytes memory constant exists for a variable."""
+        return var_name in self.bytes_memory_constants
+
+    def get_bytes_memory_constants(self) -> Dict[str, bytes]:
+        """Get all bytes memory constants."""
+        return self.bytes_memory_constants
+
     def deep_copy(self) -> "State":
         """Create a deep copy of the state"""
         copied_vars = {
@@ -144,7 +165,9 @@ class State:
         copied_ops = dict(self.binary_operations)
         # Path constraints are SMT terms (immutable), copy the list
         copied_constraints = list(self.path_constraints)
-        new_state = State(copied_vars, copied_ops, copied_constraints)
+        # Copy bytes memory constants
+        copied_bytes_constants = dict(self.bytes_memory_constants)
+        new_state = State(copied_vars, copied_ops, copied_constraints, copied_bytes_constants)
         # Copy used variables set
         new_state.used_variables = set(self.used_variables)
         return new_state

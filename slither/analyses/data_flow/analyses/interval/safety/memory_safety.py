@@ -236,8 +236,23 @@ class MemorySafetyChecker:
         write_loc_var: "TrackedSMTVariable",
         node: Optional["Node"],
     ) -> Optional[MemorySafetyViolation]:
-        """Check if the write location computation could overflow."""
+        """Check if the write location computation could overflow due to attacker-controlled input."""
         from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+
+        # First check if this involves attacker-controlled data
+        # Overflow with only constant offsets is not a security vulnerability
+        arith_info = self.context.pointer_arithmetic.get(offset_name)
+        if arith_info is not None:
+            offsets = arith_info.get("offsets", [])
+            attacker_controlled_offsets = [
+                o for o in offsets if o in self.context.calldata_variables
+            ]
+            if not attacker_controlled_offsets:
+                self.logger.debug(
+                    "Skipping overflow check for '{name}': all offsets are constants or trusted",
+                    name=offset_name,
+                )
+                return None
 
         # Check if overflow is possible
         self.solver.push()
@@ -303,6 +318,22 @@ class MemorySafetyChecker:
         if base_name is None:
             return None
 
+        # Check if any offsets are attacker-controlled
+        offsets = arith_info.get("offsets", [])
+        attacker_controlled_offsets = [
+            o for o in offsets if o in self.context.calldata_variables
+        ]
+
+        # If no offsets are attacker-controlled, skip the underflow check.
+        # Constant offsets (like 32, 64) cannot cause underflow - they only
+        # add positive values to the base pointer.
+        if not attacker_controlled_offsets:
+            self.logger.debug(
+                "Skipping underflow check for '{name}': all offsets are constants or trusted",
+                name=offset_name,
+            )
+            return None
+
         base_var = IntervalSMTUtils.get_tracked_variable(self.domain, base_name)
         if base_var is None:
             return None
@@ -326,22 +357,10 @@ class MemorySafetyChecker:
                 write_range = self._get_variable_range(write_loc_var)
                 base_range = self._get_variable_range(base_var)
 
-                # Check if any offsets are attacker-controlled
-                offsets = arith_info.get("offsets", [])
-                attacker_controlled_offsets = [
-                    o for o in offsets if o in self.context.calldata_variables
-                ]
-
-                if attacker_controlled_offsets:
-                    message = (
-                        f"Memory underflow: '{offset_name}' can be less than base pointer '{base_name}'. "
-                        f"Attacker-controlled offset(s): {attacker_controlled_offsets}"
-                    )
-                else:
-                    message = (
-                        f"Memory underflow: '{offset_name}' can be less than base pointer '{base_name}'. "
-                        "Unconstrained arithmetic allows writeLocation < ptr."
-                    )
+                message = (
+                    f"Memory underflow: '{offset_name}' can be less than base pointer '{base_name}'. "
+                    f"Attacker-controlled offset(s): {attacker_controlled_offsets}"
+                )
 
                 return MemorySafetyViolation(
                     violation_type=ViolationType.MEMORY_UNDERFLOW,

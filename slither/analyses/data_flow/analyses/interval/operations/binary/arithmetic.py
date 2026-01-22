@@ -181,6 +181,10 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             domain,
         )
 
+        # Store binary operation for later retrieval (needed for bytes memory constant tracking)
+        if result_name is not None:
+            domain.state.set_binary_operation(result_name, operation)
+
         # Track pointer arithmetic for memory safety analysis
         self._track_pointer_arithmetic(
             result_name, left_name, right_name, operation, domain

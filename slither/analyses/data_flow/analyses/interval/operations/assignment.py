@@ -104,7 +104,7 @@ class AssignmentHandler(BaseOperationHandler):
         if isinstance(rvalue, Constant):
             # Handle constant assignment
             self.logger.debug(f"Handling constant assignment: {rvalue}")
-            self._handle_constant_assignment(lvalue_var, rvalue, is_checked, lvalue_type)
+            self._handle_constant_assignment(lvalue_var, rvalue, is_checked, lvalue_type, lvalue_name, domain)
         else:
             # Handle variable assignment
             rvalue_name = self._get_variable_name(rvalue)
@@ -294,6 +294,8 @@ class AssignmentHandler(BaseOperationHandler):
         constant: Constant,
         is_checked: bool,
         var_type: ElementaryType,
+        lvalue_name: Optional[str] = None,
+        domain: Optional["IntervalDomain"] = None,
     ) -> None:
         """Handle assignment from a constant value."""
         if self.solver is None:
@@ -340,6 +342,36 @@ class AssignmentHandler(BaseOperationHandler):
 
         # Constants cannot overflow
         lvalue_var.assert_no_overflow(self.solver)
+        
+        # Track bytes memory constants: if this is a bytes memory variable with hex string content,
+        # store the concrete byte content for memory load operations
+        if original_string_value is not None and var_type is not None and lvalue_name is not None and domain is not None:
+            # Check if this is a bytes memory type (dynamic bytes, not bytes32/bytes1/etc)
+            type_str = getattr(var_type, "type", None)
+            # bytes (dynamic) has type "bytes" exactly, bytes32 has type "bytes32"
+            if type_str == "bytes":
+                # Convert hex string to bytes
+                try:
+                    if original_string_value.startswith("0x") or original_string_value.startswith("0X"):
+                        hex_part = original_string_value[2:]
+                        # Remove any whitespace
+                        hex_part = hex_part.replace(" ", "").replace("\n", "")
+                        # Convert to bytes
+                        byte_content = bytes.fromhex(hex_part)
+                        # Store in domain state for memory load tracking
+                        domain.state.set_bytes_memory_constant(lvalue_name, byte_content)
+                        self.logger.debug(
+                            "Stored bytes memory constant for '{name}': {length} bytes",
+                            name=lvalue_name,
+                            length=len(byte_content),
+                        )
+                except (ValueError, TypeError) as e:
+                    # Not a valid hex string, skip
+                    self.logger.debug(
+                        "Could not convert hex string to bytes for '{name}': {error}",
+                        name=lvalue_name,
+                        error=str(e),
+                    )
 
     @staticmethod
     def _compute_byte_length(string_value: str) -> Optional[int]:
