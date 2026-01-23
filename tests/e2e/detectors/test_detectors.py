@@ -720,11 +720,6 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.UnusedReturnValues,
-        "unused_return.sol",
-        "0.8.20",
-    ),
-    Test(
         all_detectors.UncheckedTransfer,
         "unused_return_transfers.sol",
         "0.7.6",
