@@ -57,21 +57,25 @@ class RoundingAnalysis(Analysis):
         if operation is None:
             return
 
-        self._analyze_operation_by_type(operation, domain)
+        self._analyze_operation_by_type(operation, domain, node)
 
-    def _analyze_operation_by_type(self, operation: Operation, domain: RoundingDomain) -> None:
+    def _analyze_operation_by_type(
+        self, operation: Operation, domain: RoundingDomain, node: Node
+    ) -> None:
         """Route operation to appropriate handler"""
         if isinstance(operation, Binary):
-            self._handle_binary_operation(operation, domain)
+            self._handle_binary_operation(operation, domain, node)
         elif isinstance(operation, Assignment):
             self._handle_assignment_operation(operation, domain)
         elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)):
-            self._handle_function_call(operation, domain)
+            self._handle_function_call(operation, domain, node)
         elif isinstance(operation, Return):
             # Return operations don't change rounding tags, just propagate
             pass
 
-    def _handle_binary_operation(self, operation: Binary, domain: RoundingDomain) -> None:
+    def _handle_binary_operation(
+        self, operation: Binary, domain: RoundingDomain, node: Node
+    ) -> None:
         """Handle arithmetic binary operations with inversion rules.
 
         Rules implemented:
@@ -98,15 +102,19 @@ class RoundingAnalysis(Analysis):
             is_ceiling_pattern = self._is_ceiling_division_pattern(left_var, right_var, domain)
 
             # Enforce denominator/numerator consistency before computing result tag.
-            self._check_division_consistency(left_tag, right_tag, operation)
+            self._check_division_consistency(left_tag, right_tag, operation, node)
 
             if is_ceiling_pattern:
                 # This is the (numerator + divisor - 1) / divisor pattern → tag as UP
                 domain.state.set_tag(result_var, RoundingTag.UP, operation)
             else:
-                # Standard division: result uses inverted denominator rounding
-                right_tag_inv = self._invert_tag(right_tag)
-                domain.state.set_tag(result_var, right_tag_inv, operation)
+                # Standard division: default DOWN when denominator is neutral.
+                if right_tag == RoundingTag.NEUTRAL:
+                    domain.state.set_tag(result_var, RoundingTag.DOWN, operation)
+                else:
+                    # Standard division: result uses inverted denominator rounding
+                    right_tag_inv = self._invert_tag(right_tag)
+                    domain.state.set_tag(result_var, right_tag_inv, operation)
             return
 
         elif op_type == BinaryType.SUBTRACTION:
@@ -200,6 +208,7 @@ class RoundingAnalysis(Analysis):
         self,
         operation: Union[InternalCall, HighLevelCall, LibraryCall],
         domain: RoundingDomain,
+        node: Node,
     ) -> None:
         """Handle function calls - infer rounding from function name"""
         if not operation.lvalue:
@@ -218,7 +227,7 @@ class RoundingAnalysis(Analysis):
         # Apply division consistency check for named divUp/divDown helpers.
         if self._is_named_division_function(func_name):
             # Ensure numerator/denominator ordering before enforcing the rule.
-            self._check_named_division_consistency(operation, domain)
+            self._check_named_division_consistency(operation, domain, node)
 
         # Infer tag from function name
         tag = self._infer_tag_from_name(func_name)
@@ -247,6 +256,7 @@ class RoundingAnalysis(Analysis):
         self,
         operation: Union[InternalCall, HighLevelCall, LibraryCall],
         domain: RoundingDomain,
+        node: Node,
     ) -> None:
         """Enforce division consistency for divUp/divDown call arguments."""
         # Ensure we have both numerator and denominator arguments.
@@ -257,7 +267,7 @@ class RoundingAnalysis(Analysis):
         denominator = operation.arguments[1]
         numerator_tag = self._get_variable_tag(numerator, domain)
         denominator_tag = self._get_variable_tag(denominator, domain)
-        self._check_division_consistency(numerator_tag, denominator_tag, operation)
+        self._check_division_consistency(numerator_tag, denominator_tag, operation, node)
 
     def _get_variable_tag(
         self, var: Optional[Union[RVALUE, Function]], domain: RoundingDomain
@@ -290,6 +300,7 @@ class RoundingAnalysis(Analysis):
         numerator_tag: RoundingTag,
         denominator_tag: RoundingTag,
         operation: Operation,
+        node: Node,
     ) -> None:
         """Check numerator/denominator consistency for division operations."""
         # Only enforce the constraint when the denominator is non-neutral.
@@ -298,9 +309,11 @@ class RoundingAnalysis(Analysis):
 
         # Numerator must be opposite or neutral; same non-neutral is inconsistent.
         if numerator_tag == denominator_tag:
+            function_name = node.function.name
             message = (
-                "Division rounding inconsistency: numerator and denominator "
-                f"both {numerator_tag.name} in {operation}"
+                "Division rounding inconsistency in "
+                f"{function_name}: numerator and denominator both "
+                f"{numerator_tag.name} in {operation}"
             )
             self.inconsistencies.append(message)
             self._logger.error(message)
