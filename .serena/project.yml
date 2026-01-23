@@ -1,0 +1,30 @@
+# Serena project configuration for slither
+languages:
+  - python
+
+# Directories to prioritize during indexing
+roots:
+  - slither
+  - tests
+
+# Ignore generated/vendored/cache directories
+ignore:
+  - ".git"
+  - ".venv"
+  - "__pycache__"
+  - "*.egg-info"
+  - "*.pyc"
+  - "build"
+  - "dist"
+  - ".ruff_cache"
+  - ".mypy_cache"
+  - ".pytest_cache"
+  - ".tox"
+  - ".hypothesis"
+  - "htmlcov"
+  - "crytic-export"
+  - "test_artifacts"
+  - "tests/e2e/**/snapshots"
+
+# Allow Serena to make edits (vs read-only mode)
+allow_write: true
