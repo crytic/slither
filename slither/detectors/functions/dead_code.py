@@ -78,6 +78,7 @@ contract Contract{
             # Continue if the function is virtual and is overridden by other functions
             # This indicates it's part of an inheritance design pattern where the base
             # implementation provides a default that derived contracts can override
+            # Fixes: https://github.com/crytic/slither/issues/2500
             if (
                 isinstance(function, FunctionContract)
                 and function.is_virtual
