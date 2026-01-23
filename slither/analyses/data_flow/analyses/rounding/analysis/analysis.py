@@ -14,7 +14,7 @@ from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -35,6 +35,7 @@ class RoundingAnalysis(Analysis):
         self._direction: Direction = Forward()
         self._logger = get_logger(enable_ipython_embed=False, log_level="ERROR")
         self.inconsistencies: List[str] = []
+        self.annotation_mismatches: List[str] = []
 
     def domain(self) -> Domain:
         return RoundingDomain.bottom()
@@ -51,8 +52,12 @@ class RoundingAnalysis(Analysis):
         domain = cast(RoundingDomain, domain)
 
         if domain.variant == DomainVariant.BOTTOM:
+            # Initialize the domain state the first time we visit this path.
             domain.variant = DomainVariant.STATE
             domain.state = RoundingState()
+
+        # Initialize tags for entry nodes so arguments/returns are NEUTRAL up front.
+        self._initialize_entry_state(node, domain)
 
         if operation is None:
             return
@@ -66,12 +71,12 @@ class RoundingAnalysis(Analysis):
         if isinstance(operation, Binary):
             self._handle_binary_operation(operation, domain, node)
         elif isinstance(operation, Assignment):
-            self._handle_assignment_operation(operation, domain)
+            self._handle_assignment_operation(operation, domain, node)
         elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)):
             self._handle_function_call(operation, domain, node)
         elif isinstance(operation, Return):
             # Return operations don't change rounding tags, just propagate
-            pass
+            self._check_return_annotations(operation, domain, node)
 
     def _handle_binary_operation(
         self, operation: Binary, domain: RoundingDomain, node: Node
@@ -107,47 +112,79 @@ class RoundingAnalysis(Analysis):
             )
             if inconsistency_reason:
                 # Mark the result as UNKNOWN to surface inconsistent division usage.
-                domain.state.set_tag(
+                self._set_tag_with_annotation(
                     result_var,
                     RoundingTag.UNKNOWN,
                     operation,
+                    node,
+                    domain,
                     unknown_reason=inconsistency_reason,
                 )
                 return
 
             if is_ceiling_pattern:
                 # This is the (numerator + divisor - 1) / divisor pattern → tag as UP
-                domain.state.set_tag(result_var, RoundingTag.UP, operation)
+                self._set_tag_with_annotation(result_var, RoundingTag.UP, operation, node, domain)
             else:
                 # Standard division: default DOWN when denominator is neutral.
                 if right_tag == RoundingTag.NEUTRAL:
-                    domain.state.set_tag(result_var, RoundingTag.DOWN, operation)
+                    self._set_tag_with_annotation(
+                        result_var, RoundingTag.DOWN, operation, node, domain
+                    )
                 else:
                     # Standard division: result uses inverted denominator rounding
                     right_tag_inv = self._invert_tag(right_tag)
-                    domain.state.set_tag(result_var, right_tag_inv, operation)
+                    self._set_tag_with_annotation(
+                        result_var, right_tag_inv, operation, node, domain
+                    )
             return
 
         elif op_type == BinaryType.SUBTRACTION:
             # The subtracted element's rounding is inverted
             right_tag_inv = self._invert_tag(right_tag)
-            domain.state.set_tag(result_var, right_tag_inv, operation)
+            self._set_tag_with_annotation(result_var, right_tag_inv, operation, node, domain)
             return
 
         elif op_type == BinaryType.ADDITION:
-            # No rounding change for addition; keep left operand rounding
-            domain.state.set_tag(result_var, left_tag, operation)
+            # For addition: if left is NEUTRAL, use right; otherwise use left
+            result_tag = right_tag if left_tag == RoundingTag.NEUTRAL else left_tag
+            self._set_tag_with_annotation(result_var, result_tag, operation, node, domain)
             return
 
         elif op_type == BinaryType.MULTIPLICATION:
-            # No rounding change for multiplication; keep left operand rounding
-            domain.state.set_tag(result_var, left_tag, operation)
+            # For multiplication: if left is NEUTRAL, use right; otherwise use left
+            result_tag = right_tag if left_tag == RoundingTag.NEUTRAL else left_tag
+            self._set_tag_with_annotation(result_var, result_tag, operation, node, domain)
             return
 
         elif op_type == BinaryType.POWER:
             # Exponentiation handling is disabled until explicit rounding rules are defined.
             self._logger.warning("Rounding for POWER is not implemented yet")
             return
+
+    def _initialize_entry_state(self, node: Node, domain: RoundingDomain) -> None:
+        """Initialize entry-point variables to NEUTRAL for consistent tag display."""
+        # Only initialize on entry nodes to avoid clobbering inferred tags.
+        if node.type not in (NodeType.ENTRYPOINT, NodeType.OTHER_ENTRYPOINT):
+            return
+        # Ensure we have a function context before accessing parameters/returns.
+        function = node.function
+        if function is None:
+            return
+        # Seed state variables as NEUTRAL so contract fields display tags.
+        contract = function.contract
+        if contract is not None:
+            for state_var in contract.state_variables:
+                # Mark state variables NEUTRAL to show tags in outputs.
+                domain.state.set_tag(state_var, RoundingTag.NEUTRAL)
+        # Seed parameters as NEUTRAL to show argument tags immediately.
+        for param in function.parameters:
+            # Mark parameters NEUTRAL so usage shows tags in operations.
+            domain.state.set_tag(param, RoundingTag.NEUTRAL)
+        # Seed return variables as NEUTRAL to show return tags even before assignment.
+        for return_var in function.returns:
+            # Mark return variables NEUTRAL to show tags in outputs.
+            domain.state.set_tag(return_var, RoundingTag.NEUTRAL)
 
     def _is_ceiling_division_pattern(
         self,
@@ -204,7 +241,9 @@ class RoundingAnalysis(Analysis):
 
         return divisor_name == left_name or divisor_name == right_name
 
-    def _handle_assignment_operation(self, operation: Assignment, domain: RoundingDomain) -> None:
+    def _handle_assignment_operation(
+        self, operation: Assignment, domain: RoundingDomain, node: Node
+    ) -> None:
         """Handle assignment: propagate tag from right side to left side"""
         if not operation.lvalue:
             return
@@ -212,7 +251,7 @@ class RoundingAnalysis(Analysis):
         rvalue = operation.rvalue
         if isinstance(rvalue, Variable):
             tag = self._get_variable_tag(rvalue, domain)
-            domain.state.set_tag(operation.lvalue, tag, operation)
+            self._set_tag_with_annotation(operation.lvalue, tag, operation, node, domain)
         # For non-variable rvalues (functions, tuples), leave as UNKNOWN
 
     def _handle_function_call(
@@ -242,7 +281,7 @@ class RoundingAnalysis(Analysis):
 
         # Infer tag from function name
         tag = self._infer_tag_from_name(func_name)
-        domain.state.set_tag(operation.lvalue, tag, operation)
+        self._set_tag_with_annotation(operation.lvalue, tag, operation, node, domain)
 
     def _infer_tag_from_name(self, function_name: Optional[object]) -> RoundingTag:
         """
@@ -283,10 +322,12 @@ class RoundingAnalysis(Analysis):
         )
         if inconsistency_reason and operation.lvalue:
             # Mark the call result as UNKNOWN for inconsistent divisions.
-            domain.state.set_tag(
+            self._set_tag_with_annotation(
                 operation.lvalue,
                 RoundingTag.UNKNOWN,
                 operation,
+                node,
+                domain,
                 unknown_reason=inconsistency_reason,
             )
 
@@ -315,6 +356,73 @@ class RoundingAnalysis(Analysis):
             return RoundingTag.UP
         # Keep NEUTRAL/UNKNOWN as-is to avoid over-precision.
         return tag
+
+    def _set_tag_with_annotation(
+        self,
+        var: Variable,
+        tag: RoundingTag,
+        operation: Operation,
+        node: Node,
+        domain: RoundingDomain,
+        unknown_reason: Optional[str] = None,
+    ) -> None:
+        """Set a tag and enforce any annotation-based expectations."""
+        domain.state.set_tag(var, tag, operation, unknown_reason=unknown_reason)
+        self._check_annotation_for_variable(var, tag, operation, node, domain)
+
+    def _check_return_annotations(
+        self, operation: Return, domain: RoundingDomain, node: Node
+    ) -> None:
+        """Check annotations on return variables for mismatched rounding."""
+        # Iterate return values to validate any annotated variables.
+        for return_value in operation.values:
+            # Skip non-variable return values because only variables can be annotated.
+            if not isinstance(return_value, Variable):
+                continue
+            return_tag = domain.state.get_tag(return_value)
+            self._check_annotation_for_variable(return_value, return_tag, operation, node, domain)
+
+    def _check_annotation_for_variable(
+        self,
+        var: Variable,
+        actual_tag: RoundingTag,
+        operation: Operation,
+        node: Node,
+        domain: RoundingDomain,
+    ) -> None:
+        """Validate variable annotation suffixes against inferred rounding."""
+        expected_tag = self._parse_expected_tag_from_name(var.name)
+        # Skip variables without annotation suffixes to avoid noisy reporting.
+        if expected_tag is None:
+            return
+        # Report when the inferred tag does not match the developer annotation.
+        if actual_tag != expected_tag:
+            function_name = node.function.name
+            unknown_reason = domain.state.get_unknown_reason(var)
+            reason_suffix = f" ({unknown_reason})" if unknown_reason else ""
+            message = (
+                "Rounding annotation mismatch in "
+                f"{function_name}: {var.name} expected "
+                f"{expected_tag.name} but inferred {actual_tag.name}"
+                f"{reason_suffix} in {operation}"
+            )
+            self.annotation_mismatches.append(message)
+            self._logger.error(message)
+
+    def _parse_expected_tag_from_name(self, name: str) -> Optional[RoundingTag]:
+        """Parse annotation suffixes like _UP/_DOWN/_NEUTRAL from variable names."""
+        name_upper = name.upper()
+        suffix_to_tag = (
+            ("_UP", RoundingTag.UP),
+            ("_DOWN", RoundingTag.DOWN),
+            ("_NEUTRAL", RoundingTag.NEUTRAL),
+        )
+        # Scan for suffix annotations so we only enforce explicit expectations.
+        for suffix, tag in suffix_to_tag:
+            # Treat suffix matches as rounding annotations to validate against.
+            if name_upper.endswith(suffix):
+                return tag
+        return None
 
     def _check_division_consistency(
         self,

@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 from rich import box
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 
 from slither import Slither
 from slither.analyses.data_flow.analyses.rounding.analysis.analysis import RoundingAnalysis
@@ -54,6 +55,7 @@ class FunctionAnalysis:
     nodes: List[NodeAnalysis] = field(default_factory=list)
     return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
     inconsistencies: List[str] = field(default_factory=list)
+    annotation_mismatches: List[str] = field(default_factory=list)
 
 
 def format_tag(tag: RoundingTag) -> str:
@@ -132,8 +134,15 @@ def build_operation_str(
     extra_note: str = "",
 ) -> str:
     """Build operation string with tag information."""
-    if left_name and right_name:
-        tags_str = f"[{left_name}:{left_tag.name}, {right_name}:{right_tag.name} -> {result_name}:{result_tag.name}]"
+    # Always show tags for all variables involved
+    tag_parts = []
+    if left_name:
+        tag_parts.append(f"{left_name}:{left_tag.name}")
+    if right_name:
+        tag_parts.append(f"{right_name}:{right_tag.name}")
+
+    if tag_parts:
+        tags_str = f"[{', '.join(tag_parts)} -> {result_name}:{result_tag.name}]"
     else:
         tags_str = f"[-> {result_name}:{result_tag.name}]"
 
@@ -158,6 +167,7 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
     engine.run_analysis()
     node_results: Dict[Node, AnalysisState] = engine.result()
     func_analysis.inconsistencies = rounding_analysis.inconsistencies
+    func_analysis.annotation_mismatches = rounding_analysis.annotation_mismatches
 
     # Process each node
     for node in function.nodes:
@@ -302,10 +312,12 @@ def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
         )
         table.add_column("Variable", style="bold", width=25)
         table.add_column("Rounding Tag", justify="center", width=20)
-        table.add_column("Operation", style="dim", width=35)
+        table.add_column("Operation", style="dim", overflow="fold")
 
         for var_name, var_info in sorted(node_analysis.variables.items()):
-            table.add_row(var_name, format_tag(var_info.tag), var_info.operation or "-")
+            # Wrap operation in Text() to prevent Rich from interpreting [...] as markup
+            operation_text = Text(var_info.operation) if var_info.operation else Text("-")
+            table.add_row(var_name, format_tag(var_info.tag), operation_text)
         console.print(table)
 
     if func_analysis.return_tags:
@@ -322,6 +334,13 @@ def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
         console.print("\n[bold red]Rounding Inconsistencies Detected:[/bold red]")
         for inconsistency in func_analysis.inconsistencies:
             console.print(f"[red]✗[/red] {inconsistency}")
+
+    # Show annotation mismatches to highlight conflicts with developer expectations.
+    if func_analysis.annotation_mismatches:
+        console.print("\n[bold red]Rounding Annotation Mismatches Detected:[/bold red]")
+        # List each mismatch so developers can see specific conflicts.
+        for mismatch in func_analysis.annotation_mismatches:
+            console.print(f"[red]✗[/red] {mismatch}")
 
     console.print()
 
