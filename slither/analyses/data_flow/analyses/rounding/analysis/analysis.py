@@ -102,7 +102,18 @@ class RoundingAnalysis(Analysis):
             is_ceiling_pattern = self._is_ceiling_division_pattern(left_var, right_var, domain)
 
             # Enforce denominator/numerator consistency before computing result tag.
-            self._check_division_consistency(left_tag, right_tag, operation, node)
+            inconsistency_reason = self._check_division_consistency(
+                left_tag, right_tag, operation, node
+            )
+            if inconsistency_reason:
+                # Mark the result as UNKNOWN to surface inconsistent division usage.
+                domain.state.set_tag(
+                    result_var,
+                    RoundingTag.UNKNOWN,
+                    operation,
+                    unknown_reason=inconsistency_reason,
+                )
+                return
 
             if is_ceiling_pattern:
                 # This is the (numerator + divisor - 1) / divisor pattern → tag as UP
@@ -267,7 +278,17 @@ class RoundingAnalysis(Analysis):
         denominator = operation.arguments[1]
         numerator_tag = self._get_variable_tag(numerator, domain)
         denominator_tag = self._get_variable_tag(denominator, domain)
-        self._check_division_consistency(numerator_tag, denominator_tag, operation, node)
+        inconsistency_reason = self._check_division_consistency(
+            numerator_tag, denominator_tag, operation, node
+        )
+        if inconsistency_reason and operation.lvalue:
+            # Mark the call result as UNKNOWN for inconsistent divisions.
+            domain.state.set_tag(
+                operation.lvalue,
+                RoundingTag.UNKNOWN,
+                operation,
+                unknown_reason=inconsistency_reason,
+            )
 
     def _get_variable_tag(
         self, var: Optional[Union[RVALUE, Function]], domain: RoundingDomain
@@ -301,15 +322,20 @@ class RoundingAnalysis(Analysis):
         denominator_tag: RoundingTag,
         operation: Operation,
         node: Node,
-    ) -> None:
+    ) -> Optional[str]:
         """Check numerator/denominator consistency for division operations."""
         # Only enforce the constraint when the denominator is non-neutral.
         if denominator_tag == RoundingTag.NEUTRAL:
-            return
+            return None
 
         # Numerator must be opposite or neutral; same non-neutral is inconsistent.
         if numerator_tag == denominator_tag:
             function_name = node.function.name
+            # Provide a reason string for UNKNOWN tagging on inconsistent division.
+            reason = (
+                "Inconsistent division: numerator and denominator both "
+                f"{numerator_tag.name} in {function_name}"
+            )
             message = (
                 "Division rounding inconsistency in "
                 f"{function_name}: numerator and denominator both "
@@ -317,3 +343,5 @@ class RoundingAnalysis(Analysis):
             )
             self.inconsistencies.append(message)
             self._logger.error(message)
+            return reason
+        return None

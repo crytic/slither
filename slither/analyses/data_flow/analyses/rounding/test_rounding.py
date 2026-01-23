@@ -53,7 +53,6 @@ class FunctionAnalysis:
     contract_name: str
     nodes: List[NodeAnalysis] = field(default_factory=list)
     return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
-    expected_tag: Optional[RoundingTag] = None
     inconsistencies: List[str] = field(default_factory=list)
 
 
@@ -152,13 +151,6 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
         function_name=function.name,
         contract_name=function.contract.name if function.contract else "Unknown",
     )
-
-    # Infer expected rounding from function name
-    function_name_lower = function.name.lower()
-    if "down" in function_name_lower or "floor" in function_name_lower:
-        func_analysis.expected_tag = RoundingTag.DOWN
-    elif "up" in function_name_lower or "ceil" in function_name_lower:
-        func_analysis.expected_tag = RoundingTag.UP
 
     # Run analysis
     rounding_analysis = RoundingAnalysis()
@@ -284,12 +276,6 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
 
         func_analysis.nodes.append(node_analysis)
 
-    # Override return tags based on function name
-    if func_analysis.expected_tag:
-        func_analysis.return_tags = {
-            k: func_analysis.expected_tag for k in func_analysis.return_tags
-        }
-
     return func_analysis
 
 
@@ -300,10 +286,6 @@ def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
     console.print(
         f"[bold cyan]Function:[/bold cyan] [bold]{func_analysis.contract_name}.{func_analysis.function_name}[/bold]"
     )
-    if func_analysis.expected_tag:
-        console.print(
-            f"[bold]Expected rounding:[/bold] {format_tag(func_analysis.expected_tag)} (inferred from function name)"
-        )
     console.print("=" * 80)
 
     for node_analysis in func_analysis.nodes:
@@ -334,13 +316,6 @@ def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
 
         for var_name, return_tag in func_analysis.return_tags.items():
             return_table.add_row(var_name, format_tag(return_tag))
-            if func_analysis.expected_tag and return_tag != func_analysis.expected_tag:
-                message_type = "WARNING" if return_tag == RoundingTag.UNKNOWN else "ERROR"
-                color = "yellow" if return_tag == RoundingTag.UNKNOWN else "red"
-                return_table.add_row(
-                    "",
-                    f"[{color}]✗ {message_type}:[/{color}] Expected {format_tag(func_analysis.expected_tag)}, got {format_tag(return_tag)}",
-                )
         console.print(return_table)
 
     if func_analysis.inconsistencies:
@@ -359,34 +334,16 @@ def display_summary_table(analyses: List[FunctionAnalysis]) -> None:
 
     table = Table(show_header=True, header_style="bold cyan", box=box.ROUNDED, show_lines=True)
     table.add_column("Function", style="bold", width=30)
-    table.add_column("Expected", justify="center", width=15)
     table.add_column("Return Tag", justify="center", width=15)
-    table.add_column("Status", justify="center", width=20)
 
     for func_analysis in analyses:
         function_name = f"{func_analysis.contract_name}.{func_analysis.function_name}"
-        expected_tag_str = (
-            format_tag(func_analysis.expected_tag) if func_analysis.expected_tag else "-"
-        )
         return_tag = (
             list(func_analysis.return_tags.values())[0] if func_analysis.return_tags else None
         )
         return_tag_str = format_tag(return_tag) if return_tag else "-"
 
-        if func_analysis.expected_tag and return_tag:
-            status = (
-                "[green]✓ MATCH[/green]"
-                if return_tag == func_analysis.expected_tag
-                else (
-                    "[yellow]⚠ UNKNOWN[/yellow]"
-                    if return_tag == RoundingTag.UNKNOWN
-                    else "[red]✗ MISMATCH[/red]"
-                )
-            )
-        else:
-            status = "[dim]-[/dim]"
-
-        table.add_row(function_name, expected_tag_str, return_tag_str, status)
+        table.add_row(function_name, return_tag_str)
     console.print(table)
 
 
