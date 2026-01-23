@@ -57,12 +57,12 @@ class RoundingDomain(Domain):
             changed = False
             # Get all variables from both states
             all_vars = set(self.state._tags.keys()) | set(other.state._tags.keys())
-            
+
             # Merge tags from other into self
             for var in all_vars:
                 self_tag = self.state.get_tag(var)
                 other_tag = other.state.get_tag(var)
-                
+
                 if self_tag == other_tag:
                     # Same tag, no change needed
                     continue

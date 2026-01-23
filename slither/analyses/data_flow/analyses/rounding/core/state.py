@@ -26,7 +26,11 @@ class RoundingState:
         self._unknown_reasons: Dict[Variable, str] = {}
 
     def set_tag(
-        self, var: Variable, tag: RoundingTag, producer: Optional[Operation] = None, unknown_reason: Optional[str] = None
+        self,
+        var: Variable,
+        tag: RoundingTag,
+        producer: Optional[Operation] = None,
+        unknown_reason: Optional[str] = None,
     ) -> None:
         """Assign a rounding tag to a variable and optionally track the operation that produced it"""
         self._tags[var] = tag
