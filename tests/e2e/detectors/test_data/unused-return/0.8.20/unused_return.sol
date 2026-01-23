@@ -1,14 +1,15 @@
-//pragma solidity ^0.4.24;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
 library SafeMath{
-    function add(uint a, uint b) public returns(uint){
+    function add(uint a, uint b) public pure returns(uint){
         return a+b;
     }
 }
 
-abstract contract Target{
-    function f() public virtual returns(uint);
-    function g() public virtual returns(uint, uint);
+interface Target{
+    function f() external returns(uint);
+    function g() external returns(uint, uint);
 }
 
 contract User{
