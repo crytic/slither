@@ -1,5 +1,3 @@
-from typing import List, Optional, Union
-
 from slither.core.declarations import Contract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -25,9 +23,9 @@ class HighLevelCall(Call, OperationWithLValue):
         destination: SourceMapping,
         function_name: Constant,
         nbr_arguments: int,
-        result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
+        result: TemporaryVariable | TupleVariable | TemporaryVariableSSA | None,
         type_call: str,
-        names: Optional[List[str]] = None,
+        names: list[str] | None = None,
     ) -> None:
         """
         #### Parameters
@@ -40,7 +38,7 @@ class HighLevelCall(Call, OperationWithLValue):
         self._check_destination(destination)
         super().__init__(names=names)
         # Contract is only possible for library call, which inherits from highlevelcall
-        self._destination: Union[Variable, SolidityVariable, Contract] = destination  # type: ignore
+        self._destination: Variable | SolidityVariable | Contract = destination  # type: ignore
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
@@ -53,7 +51,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is overridden by LibraryCall
-    def _check_destination(self, destination: Union[Variable, SolidityVariable, Contract]) -> None:
+    def _check_destination(self, destination: Variable | SolidityVariable | Contract) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
@@ -81,13 +79,13 @@ class HighLevelCall(Call, OperationWithLValue):
         self._call_gas = v
 
     @property
-    def read(self) -> List[SourceMapping]:
+    def read(self) -> list[SourceMapping]:
         all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x]
 
     @property
-    def destination(self) -> Union[Variable, SolidityVariable, Contract]:
+    def destination(self) -> Variable | SolidityVariable | Contract:
         """
         Return a variable or a solidityVariable
         Contract is only possible for LibraryCall
@@ -102,7 +100,7 @@ class HighLevelCall(Call, OperationWithLValue):
         return self._function_name
 
     @property
-    def function(self) -> Union[Function, Variable]:
+    def function(self) -> Function | Variable:
         return self._function_instance
 
     @function.setter
@@ -131,7 +129,7 @@ class HighLevelCall(Call, OperationWithLValue):
                 return True
         return False
 
-    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
+    def can_reenter(self, callstack: list[Function | Variable] | None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

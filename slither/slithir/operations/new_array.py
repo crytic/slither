@@ -1,4 +1,4 @@
-from typing import List, Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations.call import Call
@@ -27,7 +27,7 @@ class NewArray(Call, OperationWithLValue):
         return self._array_type
 
     @property
-    def read(self) -> List[RVALUE]:
+    def read(self) -> list[RVALUE]:
         return self._unroll(self.arguments)
 
     def __str__(self):

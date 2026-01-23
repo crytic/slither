@@ -2,8 +2,6 @@
 Module detecting local variable shadowing
 """
 
-from typing import List, Tuple, Union
-
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.event import Event
 from slither.core.declarations.function_contract import FunctionContract
@@ -66,26 +64,22 @@ contract Bug {
 
     def detect_shadowing_definitions(
         self, contract: Contract
-    ) -> List[
-        Union[
-            Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
-            Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
-            Tuple[LocalVariable, List[Tuple[str, Modifier]]],
-            Tuple[LocalVariable, List[Tuple[str, Event]]],
-        ]
+    ) -> list[
+        tuple[LocalVariable, list[tuple[str, StateVariable]]]
+        | tuple[LocalVariable, list[tuple[str, FunctionContract]]]
+        | tuple[LocalVariable, list[tuple[str, Modifier]]]
+        | tuple[LocalVariable, list[tuple[str, Event]]]
     ]:
         """Detects if functions, access modifiers, events, state variables, and local variables are named after
         reserved keywords. Any such definitions are returned in a list.
 
         Returns:
             list of tuple: (type, contract name, definition)"""
-        result: List[
-            Union[
-                Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
-                Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
-                Tuple[LocalVariable, List[Tuple[str, Modifier]]],
-                Tuple[LocalVariable, List[Tuple[str, Event]]],
-            ]
+        result: list[
+            tuple[LocalVariable, list[tuple[str, StateVariable]]]
+            | tuple[LocalVariable, list[tuple[str, FunctionContract]]]
+            | tuple[LocalVariable, list[tuple[str, Modifier]]]
+            | tuple[LocalVariable, list[tuple[str, Event]]]
         ] = []
 
         # Loop through all functions + modifiers in this contract.
@@ -132,7 +126,7 @@ contract Bug {
 
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect shadowing local variables
 
         Recursively visit the calls

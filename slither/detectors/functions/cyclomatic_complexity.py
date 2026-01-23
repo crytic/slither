@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -10,7 +8,7 @@ from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.output import Output
 
 
-def _check_for_high_cc(high_cc_functions: List[Tuple[Function, int]], f: Function) -> None:
+def _check_for_high_cc(high_cc_functions: list[tuple[Function, int]], f: Function) -> None:
     cc = compute_cyclomatic_complexity(f)
     if cc > 11:
         high_cc_functions.append((f, cc))
@@ -35,9 +33,9 @@ class CyclomaticComplexity(AbstractDetector):
         "Reduce cyclomatic complexity by splitting the function into several smaller subroutines."
     )
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
-        high_cc_functions: List[Tuple[Function, int]] = []
+        high_cc_functions: list[tuple[Function, int]] = []
 
         f: Function
         for c in self.compilation_unit.contracts:

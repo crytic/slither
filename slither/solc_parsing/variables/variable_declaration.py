@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Dict, Optional, Union
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -29,7 +28,7 @@ class MultipleVariablesDeclaration(Exception):
 
 
 class VariableDeclarationSolc:
-    def __init__(self, variable: Variable, variable_data: Dict) -> None:
+    def __init__(self, variable: Variable, variable_data: dict) -> None:
         """
         A variable can be declared through a statement, or directly.
         If it is through a statement, the following children may contain
@@ -40,12 +39,12 @@ class VariableDeclarationSolc:
 
         self._variable = variable
         self._was_analyzed = False
-        self._elem_to_parse: Optional[Union[Dict, UnknownType]] = None
-        self._initializedNotParsed: Optional[Dict] = None
+        self._elem_to_parse: dict | UnknownType | None = None
+        self._initializedNotParsed: dict | None = None
 
         self._is_compact_ast = False
 
-        self._reference_id: Optional[int] = None
+        self._reference_id: int | None = None
 
         if "nodeType" in variable_data:
             self._is_compact_ast = True
@@ -61,7 +60,7 @@ class VariableDeclarationSolc:
                     init = variable_data["initialValue"]
                 self._init_from_declaration(variable_data["declarations"][0], init)
             elif nodeType == "VariableDeclaration":
-                self._init_from_declaration(variable_data, variable_data.get("value", None))
+                self._init_from_declaration(variable_data, variable_data.get("value"))
             else:
                 raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
@@ -102,7 +101,7 @@ class VariableDeclarationSolc:
         assert self._reference_id
         return self._reference_id
 
-    def _handle_comment(self, attributes: Dict) -> None:
+    def _handle_comment(self, attributes: dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
             candidates = attributes["documentation"]["text"].split(",")
 
@@ -118,13 +117,10 @@ class VariableDeclarationSolc:
                         self._variable.write_protection = []
                     self._variable.write_protection.append(write_protection.group(1))
 
-    def _analyze_variable_attributes(self, attributes: Dict) -> None:
-        if "visibility" in attributes:
-            self._variable.visibility = attributes["visibility"]
-        else:
-            self._variable.visibility = "internal"
+    def _analyze_variable_attributes(self, attributes: dict) -> None:
+        self._variable.visibility = attributes.get("visibility", "internal")
 
-    def _init_from_declaration(self, var: Dict, init: Optional[Dict]) -> None:
+    def _init_from_declaration(self, var: dict, init: dict | None) -> None:
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]

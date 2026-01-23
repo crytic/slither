@@ -1,14 +1,13 @@
 from collections import defaultdict
-from typing import Dict
 
 
 class Context:
     def __init__(self) -> None:
         super().__init__()
-        self._context: Dict = {"MEMBERS": defaultdict(None)}
+        self._context: dict = {"MEMBERS": defaultdict(None)}
 
     @property
-    def context(self) -> Dict:
+    def context(self) -> dict:
         """
         Dict used by analysis
         """

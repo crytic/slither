@@ -1,4 +1,3 @@
-from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
@@ -12,8 +11,8 @@ class LIR(AbstractMutator):
     NAME = "LIR"
     HELP = "Literal Integer Replacement"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
         variable: Variable
 
         # Create fault for state variables declaration
@@ -36,7 +35,7 @@ class LIR(AbstractMutator):
                     stop = start + variable.source_mapping.length
                     old_str = variable.source_mapping.content
                     line_no = variable.node_initialization.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         for value in literal_replacements:
                             old_value = old_str[old_str.find("=") + 1 :].strip()
                             if old_value != value:
@@ -67,7 +66,7 @@ class LIR(AbstractMutator):
                     stop = start + variable.source_mapping.length
                     old_str = variable.source_mapping.content
                     line_no = variable.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         for new_value in literal_replacements:
                             old_value = old_str[old_str.find("=") + 1 :].strip()
                             if old_value != new_value:

@@ -1,12 +1,11 @@
 import re
-from typing import Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatError
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
+def custom_format(compilation_unit: SlitherCompilationUnit, result: dict) -> None:
     for file_scope in compilation_unit.scopes.values():
         elements = result["elements"]
         for element in elements:
@@ -35,7 +34,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
 
 def _patch(
     compilation_unit: SlitherCompilationUnit,
-    result: Dict,
+    result: dict,
     in_file: str,
     modify_loc_start: int,
     modify_loc_end: int,

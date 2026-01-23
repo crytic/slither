@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 
 import slither.slithir.variables.tuple_ssa
 from slither.core.cfg.node import Node, NodeType
@@ -77,7 +78,7 @@ logger = logging.getLogger("SSA_Conversion")
 
 
 def transform_slithir_vars_to_ssa(
-    function: Union[FunctionContract, Modifier, FunctionTopLevel],
+    function: FunctionContract | Modifier | FunctionTopLevel,
 ) -> None:
     """
     Transform slithIR vars to SSA (TemporaryVariable, ReferenceVariable, TupleVariable)
@@ -85,7 +86,7 @@ def transform_slithir_vars_to_ssa(
     variables = []
     for node in function.nodes:
         for ir in node.irs_ssa:
-            if isinstance(ir, OperationWithLValue) and not ir.lvalue in variables:
+            if isinstance(ir, OperationWithLValue) and ir.lvalue not in variables:
                 variables += [ir.lvalue]
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
@@ -107,8 +108,8 @@ def transform_slithir_vars_to_ssa(
 
 
 def add_ssa_ir(
-    function: Union[FunctionContract, Modifier, FunctionTopLevel],
-    all_state_variables_instances: Dict[
+    function: FunctionContract | Modifier | FunctionTopLevel,
+    all_state_variables_instances: dict[
         str, slither.slithir.variables.state_variable.StateIRVariable
     ],
 ) -> None:
@@ -213,18 +214,18 @@ def add_ssa_ir(
 
 def generate_ssa_irs(
     node: Node,
-    local_variables_instances: Dict[str, LocalIRVariable],
-    all_local_variables_instances: Dict[str, LocalIRVariable],
-    state_variables_instances: Dict[str, StateIRVariable],
-    all_state_variables_instances: Dict[str, StateIRVariable],
-    init_local_variables_instances: Dict[str, LocalIRVariable],
-    visited: List[Node],
+    local_variables_instances: dict[str, LocalIRVariable],
+    all_local_variables_instances: dict[str, LocalIRVariable],
+    state_variables_instances: dict[str, StateIRVariable],
+    all_state_variables_instances: dict[str, StateIRVariable],
+    init_local_variables_instances: dict[str, LocalIRVariable],
+    visited: list[Node],
 ) -> None:
     if node in visited:
         return
 
     if node.type in [NodeType.ENDIF, NodeType.ENDLOOP] and any(
-        not father in visited for father in node.fathers
+        father not in visited for father in node.fathers
     ):
         return
 
@@ -336,15 +337,9 @@ def generate_ssa_irs(
 
 def last_name(
     n: Node,
-    var: Union[
-        StateIRVariable,
-        LocalIRVariable,
-    ],
-    init_vars: Dict[str, LocalIRVariable],
-) -> Union[
-    StateIRVariable,
-    LocalIRVariable,
-]:
+    var: StateIRVariable | LocalIRVariable,
+    init_vars: dict[str, LocalIRVariable],
+) -> StateIRVariable | LocalIRVariable:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:
@@ -365,7 +360,7 @@ def last_name(
 
 def is_used_later(
     initial_node: Node,
-    variable: Union[StateIRVariable, LocalVariable, TemporaryVariableSSA],
+    variable: StateIRVariable | LocalVariable | TemporaryVariableSSA,
 ) -> bool:
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
@@ -398,7 +393,7 @@ def is_used_later(
             ):
                 return False
         for son in node.sons:
-            if not son in explored:
+            if son not in explored:
                 to_explore.add(son)
 
     return False
@@ -415,10 +410,10 @@ def is_used_later(
 def update_lvalue(
     new_ir: Operation,
     node: Node,
-    local_variables_instances: Dict[str, LocalIRVariable],
-    all_local_variables_instances: Dict[str, LocalIRVariable],
-    state_variables_instances: Dict[str, StateIRVariable],
-    all_state_variables_instances: Dict[str, StateIRVariable],
+    local_variables_instances: dict[str, LocalIRVariable],
+    all_local_variables_instances: dict[str, LocalIRVariable],
+    state_variables_instances: dict[str, StateIRVariable],
+    all_state_variables_instances: dict[str, StateIRVariable],
 ) -> None:
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
@@ -461,9 +456,9 @@ def update_lvalue(
 
 
 def initiate_all_local_variables_instances(
-    nodes: List[Node],
-    local_variables_instances: Dict[str, LocalIRVariable],
-    all_local_variables_instances: Dict[str, LocalIRVariable],
+    nodes: list[Node],
+    local_variables_instances: dict[str, LocalIRVariable],
+    all_local_variables_instances: dict[str, LocalIRVariable],
 ) -> None:
     for node in nodes:
         if node.variable_declaration:
@@ -484,11 +479,11 @@ def initiate_all_local_variables_instances(
 
 def fix_phi_rvalues_and_storage_ref(
     node: Node,
-    local_variables_instances: Dict[str, LocalIRVariable],
-    all_local_variables_instances: Dict[str, LocalIRVariable],
-    state_variables_instances: Dict[str, StateIRVariable],
-    all_state_variables_instances: Dict[str, StateIRVariable],
-    init_local_variables_instances: Dict[str, LocalIRVariable],
+    local_variables_instances: dict[str, LocalIRVariable],
+    all_local_variables_instances: dict[str, LocalIRVariable],
+    state_variables_instances: dict[str, StateIRVariable],
+    all_state_variables_instances: dict[str, StateIRVariable],
+    init_local_variables_instances: dict[str, LocalIRVariable],
 ) -> None:
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
@@ -534,8 +529,8 @@ def fix_phi_rvalues_and_storage_ref(
 
 def add_phi_origins(
     node: Node,
-    local_variables_definition: Dict[str, Tuple[LocalVariable, Node]],
-    state_variables_definition: Dict[str, Tuple[StateVariable, Node]],
+    local_variables_definition: dict[str, tuple[LocalVariable, Node]],
+    state_variables_definition: dict[str, tuple[StateVariable, Node]],
 ) -> None:
     # Add new key to local_variables_definition
     # The key is the variable_name
@@ -554,7 +549,7 @@ def add_phi_origins(
     # For unini variable declaration
     if (
         node.variable_declaration
-        and not node.variable_declaration.name in local_variables_definition
+        and node.variable_declaration.name not in local_variables_definition
     ):
         local_variables_definition[node.variable_declaration.name] = (
             node.variable_declaration,
@@ -586,12 +581,12 @@ def add_phi_origins(
 
 def get(
     variable,
-    local_variables_instances: Dict[str, LocalIRVariable],
-    state_variables_instances: Dict[str, StateIRVariable],
-    temporary_variables_instances: Dict[int, TemporaryVariableSSA],
-    reference_variables_instances: Dict[int, ReferenceVariableSSA],
-    tuple_variables_instances: Dict[int, TupleVariableSSA],
-    all_local_variables_instances: Dict[str, LocalIRVariable],
+    local_variables_instances: dict[str, LocalIRVariable],
+    state_variables_instances: dict[str, StateIRVariable],
+    temporary_variables_instances: dict[int, TemporaryVariableSSA],
+    reference_variables_instances: dict[int, ReferenceVariableSSA],
+    tuple_variables_instances: dict[int, TupleVariableSSA],
+    all_local_variables_instances: dict[str, LocalIRVariable],
 ):
     # variable can be None
     # for example, on LowLevelCall, ir.lvalue can be none
@@ -607,7 +602,7 @@ def get(
     if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
         return state_variables_instances[variable.canonical_name]
     if isinstance(variable, ReferenceVariable):
-        if not variable.index in reference_variables_instances:
+        if variable.index not in reference_variables_instances:
             new_variable = ReferenceVariableSSA(variable)
             if variable.points_to:
                 new_variable.points_to = get(
@@ -623,13 +618,13 @@ def get(
             reference_variables_instances[variable.index] = new_variable
         return reference_variables_instances[variable.index]
     if isinstance(variable, TemporaryVariable):
-        if not variable.index in temporary_variables_instances:
+        if variable.index not in temporary_variables_instances:
             new_variable = TemporaryVariableSSA(variable)
             new_variable.set_type(variable.type)
             temporary_variables_instances[variable.index] = new_variable
         return temporary_variables_instances[variable.index]
     if isinstance(variable, TupleVariable):
-        if not variable.index in tuple_variables_instances:
+        if variable.index not in tuple_variables_instances:
             new_variable = TupleVariableSSA(variable)
             new_variable.set_type(variable.type)
             tuple_variables_instances[variable.index] = new_variable
@@ -658,7 +653,7 @@ def get_variable(ir: Operation, f: Callable, *instances):
     return variable
 
 
-def _get_traversal(values: List[Any], *instances) -> List[Any]:
+def _get_traversal(values: list[Any], *instances) -> list[Any]:
     ret = []
 
     for v in values:
@@ -670,19 +665,15 @@ def _get_traversal(values: List[Any], *instances) -> List[Any]:
     return ret
 
 
-def get_arguments(ir: Call, *instances) -> List[Any]:
+def get_arguments(ir: Call, *instances) -> list[Any]:
     return _get_traversal(ir.arguments, *instances)
 
 
 def get_rec_values(
-    ir: Union[
-        InitArray,
-        Return,
-        NewArray,
-    ],
+    ir: InitArray | Return | NewArray,
     f: Callable,
     *instances,
-) -> List[Variable]:
+) -> list[Variable]:
     # Use by InitArray and NewArray
     # Potential recursive array(s)
     ori_init_values = f(ir)

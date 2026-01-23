@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Type, List, Dict
 
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
@@ -18,7 +17,7 @@ from slither.utils.colors import yellow
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
-all_detectors: Dict[str, Type[AbstractDetector]] = {
+all_detectors: dict[str, type[AbstractDetector]] = {
     "unused-state": UnusedStateVars,
     "solc-version": IncorrectSolc,
     "pragma": ConstantPragma,
@@ -31,7 +30,7 @@ all_detectors: Dict[str, Type[AbstractDetector]] = {
 }
 
 
-def slither_format(slither: Slither, **kwargs: Dict) -> None:
+def slither_format(slither: Slither, **kwargs: dict) -> None:
     """'
     Keyword Args:
         detectors_to_run (str): Comma-separated list of detectors, defaults to all
@@ -59,28 +58,23 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:
     logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
 
     for result in detector_results:
-        if not "patches" in result:
+        if "patches" not in result:
             continue
         one_line_description = result["description"].split("\n")[0]
 
         export_result = Path(export, f"{counter_result}")
         export_result.mkdir(parents=True, exist_ok=True)
         counter_result += 1
-        counter = 0
 
         logger.info(f"Issue: {one_line_description}")
         logger.info(f"Generated: ({export_result})")
 
-        for (
-            _,
-            diff,
-        ) in result["patches_diff"].items():
+        for counter, (_, diff) in enumerate(result["patches_diff"].items()):
             filename = f"fix_{counter}.patch"
             path = Path(export_result, filename)
             logger.info(f"\t- {filename}")
             with open(path, "w", encoding="utf8") as f:
                 f.write(diff)
-            counter += 1
 
 
 # endregion
@@ -93,9 +87,9 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:
 
 def choose_detectors(
     detectors_to_run: str, detectors_to_exclude: str
-) -> List[Type[AbstractDetector]]:
+) -> list[type[AbstractDetector]]:
     # If detectors are specified, run only these ones
-    cls_detectors_to_run: List[Type[AbstractDetector]] = []
+    cls_detectors_to_run: list[type[AbstractDetector]] = []
     exclude = detectors_to_exclude.split(",")
     if detectors_to_run == "all":
         for key, detector in all_detectors.items():
@@ -122,7 +116,7 @@ def choose_detectors(
 ###################################################################################
 
 
-def print_patches(number_of_slither_results: int, patches: Dict) -> None:
+def print_patches(number_of_slither_results: int, patches: dict) -> None:
     logger.info("Number of Slither results: " + str(number_of_slither_results))
     number_of_patches = 0
     for file in patches:
@@ -138,7 +132,7 @@ def print_patches(number_of_slither_results: int, patches: Dict) -> None:
             logger.info("Location end: " + str(patch["end"]))
 
 
-def print_patches_json(number_of_slither_results: int, patches: Dict) -> None:
+def print_patches_json(number_of_slither_results: int, patches: dict) -> None:
     print("{", end="")
     print('"Number of Slither results":' + '"' + str(number_of_slither_results) + '",')
     print('"Number of patchlets":' + '"' + str(len(patches)) + '"', ",")

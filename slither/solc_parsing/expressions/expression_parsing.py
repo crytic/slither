@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Union, Dict, TYPE_CHECKING, List, Any
+from typing import Union, TYPE_CHECKING, Any
 
 import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
@@ -105,11 +105,11 @@ def filter_name(value: str) -> str:
 
 
 def parse_call(
-    expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
-) -> Union[
-    slither.core.expressions.call_expression.CallExpression,
-    slither.core.expressions.type_conversion.TypeConversion,
-]:
+    expression: dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
+) -> (
+    slither.core.expressions.call_expression.CallExpression
+    | slither.core.expressions.type_conversion.TypeConversion
+):
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression
@@ -190,7 +190,7 @@ def parse_call(
     return call_expression
 
 
-def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
+def parse_super_name(expression: dict, is_compact_ast: bool) -> str:
     if is_compact_ast:
         assert expression["nodeType"] == "MemberAccess"
         base_name = expression["memberName"]
@@ -213,7 +213,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
 
 def _parse_elementary_type_name_expression(
-    expression: Dict, is_compact_ast: bool, caller_context: CallerContextExpression
+    expression: dict, is_compact_ast: bool, caller_context: CallerContextExpression
 ) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
@@ -233,12 +233,8 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-if TYPE_CHECKING:
-    pass
-
-
 def _user_defined_op_call(
-    caller_context: CallerContextExpression, src, function_id: int, args: List[Any], type_call: str
+    caller_context: CallerContextExpression, src, function_id: int, args: list[Any], type_call: str
 ) -> CallExpression:
     var, was_created = find_variable(None, caller_context, function_id)
 
@@ -255,7 +251,7 @@ def _user_defined_op_call(
     return call
 
 
-def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
+def parse_expression(expression: dict, caller_context: CallerContextExpression) -> "Expression":
     """
 
     Returns:
@@ -436,7 +432,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         if is_compact_ast:
             value = expression.get("value", None)
             if value:
-                if "subdenomination" in expression and expression["subdenomination"]:
+                if expression.get("subdenomination"):
                     subdenomination = expression["subdenomination"]
             elif not value and value != "":
                 value = "0x" + expression["hexValue"]

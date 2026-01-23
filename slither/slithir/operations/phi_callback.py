@@ -1,4 +1,4 @@
-from typing import List, Set, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.operations.phi import Phi
@@ -15,8 +15,8 @@ class PhiCallback(Phi):
     def __init__(
         self,
         left_variable: StateIRVariable,
-        nodes: Set["Node"],
-        call_ir: Union[InternalCall, HighLevelCall],
+        nodes: set["Node"],
+        call_ir: InternalCall | HighLevelCall,
         rvalue: StateIRVariable,
     ) -> None:
         assert is_valid_lvalue(left_variable)
@@ -27,11 +27,11 @@ class PhiCallback(Phi):
         self._rvalue_no_callback = rvalue
 
     @property
-    def callee_ir(self) -> Union[InternalCall, HighLevelCall]:
+    def callee_ir(self) -> InternalCall | HighLevelCall:
         return self._call_ir
 
     @property
-    def read(self) -> List[StateIRVariable]:
+    def read(self) -> list[StateIRVariable]:
         return self.rvalues
 
     @property

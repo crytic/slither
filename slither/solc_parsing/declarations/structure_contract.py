@@ -2,7 +2,7 @@
 Structure module
 """
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable
@@ -22,7 +22,7 @@ class StructureContractSolc:
     def __init__(
         self,
         st: Structure,
-        struct: Dict,
+        struct: dict,
         contract_parser: "ContractSolc",
     ) -> None:
         if contract_parser.is_compact_ast:

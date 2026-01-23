@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.event_variable import EventVariable
 
@@ -8,7 +6,7 @@ class Event(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
         self._name = None
-        self._elems: List[EventVariable] = []
+        self._elems: list[EventVariable] = []
 
     @property
     def name(self) -> str:
@@ -19,7 +17,7 @@ class Event(SourceMapping):
         self._name = name
 
     @property
-    def signature(self) -> Tuple[str, List[str]]:
+    def signature(self) -> tuple[str, list[str]]:
         """Return the function signature
         Returns:
             (str, list(str)): name, list parameters type
@@ -36,7 +34,7 @@ class Event(SourceMapping):
         return name + "(" + ",".join(parameters) + ")"
 
     @property
-    def elems(self) -> List["EventVariable"]:
+    def elems(self) -> list["EventVariable"]:
         return self._elems
 
     def __str__(self) -> str:

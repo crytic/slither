@@ -1,3 +1,5 @@
+# slither-check-erc
+
 `slither-check-erc` checks for ERC's conformance.
 
 ## Features
@@ -28,13 +30,13 @@
 
 ## Usage
 
-```
+```sh
 slither-check-erc contract.sol ContractName
 ```
 
 For example, on
 
-```Solidity
+```solidity
 contract ERC20{
 
     event Transfer(address indexed,address,uint256);
@@ -49,7 +51,7 @@ contract ERC20{
 
 The tool will report:
 
-```
+```text
 # Check ERC20
 
 ## Check functions

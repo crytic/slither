@@ -1,5 +1,3 @@
-from typing import Union, Optional, List
-
 from slither.core.declarations import Function, SolidityVariable
 from slither.core.variables import Variable
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -12,10 +10,10 @@ class LibraryCall(HighLevelCall):
     """
 
     # Development function, to be removed once the code is stable
-    def _check_destination(self, destination: Union[Variable, SolidityVariable, Contract]) -> None:
+    def _check_destination(self, destination: Variable | SolidityVariable | Contract) -> None:
         assert isinstance(destination, Contract)
 
-    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
+    def can_reenter(self, callstack: list[Function | Variable] | None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

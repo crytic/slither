@@ -1,0 +1,147 @@
+============================================================
+SSA Snapshot: ComplexTypes Contract
+============================================================
+
+Function: _returnTuple
+Parameters: []
+Returns: ['', '']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (RETURN):
+  Expression: (42,24)
+  SSA: RETURN 42,24
+
+----------------------------------------
+
+Function: arrayOps
+Parameters: []
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+  SSA: dynamicArray_1(uint256[]) := ϕ(['dynamicArray_0', 'dynamicArray_6'])
+       lvalue: dynamicArray_1 (type=StateIRVariable)
+       rvalues: ['dynamicArray_0', 'dynamicArray_6']
+
+Node 1 (EXPRESSION):
+  Expression: dynamicArray.push(1)
+  SSA: REF_1 -> LENGTH dynamicArray_1
+       lvalue: REF_1 (type=ReferenceVariableSSA)
+  SSA: TMP_1(uint256) := REF_1(uint256)
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: TMP_2(uint256) = TMP_1 (c)+ 1
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: dynamicArray_2(uint256[]) := ϕ(['dynamicArray_1'])
+       lvalue: dynamicArray_2 (type=StateIRVariable)
+       rvalues: ['dynamicArray_1']
+  SSA: REF_1(uint256) (->dynamicArray_2) := TMP_2(uint256)
+       lvalue: REF_1 (type=ReferenceVariableSSA)
+  SSA: REF_2(uint256) -> dynamicArray_2[TMP_1]
+       lvalue: REF_2 (type=ReferenceVariableSSA)
+  SSA: dynamicArray_3(uint256[]) := ϕ(['dynamicArray_2'])
+       lvalue: dynamicArray_3 (type=StateIRVariable)
+       rvalues: ['dynamicArray_2']
+  SSA: REF_2(uint256) (->dynamicArray_3) := 1(uint256)
+       lvalue: REF_2 (type=ReferenceVariableSSA)
+
+Node 2 (EXPRESSION):
+  Expression: dynamicArray.push(2)
+  SSA: REF_3 -> LENGTH dynamicArray_3
+       lvalue: REF_3 (type=ReferenceVariableSSA)
+  SSA: TMP_3(uint256) := REF_3(uint256)
+       lvalue: TMP_3 (type=TemporaryVariableSSA)
+  SSA: TMP_4(uint256) = TMP_3 (c)+ 1
+       lvalue: TMP_4 (type=TemporaryVariableSSA)
+  SSA: dynamicArray_4(uint256[]) := ϕ(['dynamicArray_3'])
+       lvalue: dynamicArray_4 (type=StateIRVariable)
+       rvalues: ['dynamicArray_3']
+  SSA: REF_3(uint256) (->dynamicArray_4) := TMP_4(uint256)
+       lvalue: REF_3 (type=ReferenceVariableSSA)
+  SSA: REF_4(uint256) -> dynamicArray_4[TMP_3]
+       lvalue: REF_4 (type=ReferenceVariableSSA)
+  SSA: dynamicArray_5(uint256[]) := ϕ(['dynamicArray_4'])
+       lvalue: dynamicArray_5 (type=StateIRVariable)
+       rvalues: ['dynamicArray_4']
+  SSA: REF_4(uint256) (->dynamicArray_5) := 2(uint256)
+       lvalue: REF_4 (type=ReferenceVariableSSA)
+
+Node 3 (VARIABLE):
+  Expression: len = dynamicArray.length
+  SSA: REF_5 -> LENGTH dynamicArray_5
+       lvalue: REF_5 (type=ReferenceVariableSSA)
+  SSA: len_1(uint256) := REF_5(uint256)
+       lvalue: len_1 (type=LocalIRVariable)
+
+Node 4 (VARIABLE):
+  Expression: first = dynamicArray[0]
+  SSA: REF_6(uint256) -> dynamicArray_5[0]
+       lvalue: REF_6 (type=ReferenceVariableSSA)
+  SSA: first_2(uint256) := REF_6(uint256)
+       lvalue: first_2 (type=LocalIRVariable)
+
+Node 5 (EXPRESSION):
+  Expression: delete dynamicArray
+  SSA: dynamicArray_6 = delete dynamicArray_5 
+       lvalue: dynamicArray_6 (type=StateIRVariable)
+
+Node 6 (RETURN):
+  Expression: len + first
+  SSA: TMP_5(uint256) = len_1 (c)+ first_2
+       lvalue: TMP_5 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_5
+
+----------------------------------------
+
+Function: structOps
+Parameters: []
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (VARIABLE):
+  Expression: p = Point(10,20)
+  SSA: TMP_1(ComplexTypes.Point) = new Point(10,20)
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: p_1(ComplexTypes.Point) := TMP_1(ComplexTypes.Point)
+       lvalue: p_1 (type=LocalIRVariable)
+
+Node 2 (RETURN):
+  Expression: p.x + p.y
+  SSA: REF_1(uint256) -> p_1.x
+       lvalue: REF_1 (type=ReferenceVariableSSA)
+  SSA: REF_2(uint256) -> p_1.y
+       lvalue: REF_2 (type=ReferenceVariableSSA)
+  SSA: TMP_2(uint256) = REF_1 (c)+ REF_2
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_2
+
+----------------------------------------
+
+Function: tupleOps
+Parameters: []
+Returns: ['', '']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (VARIABLE):
+
+Node 2 (VARIABLE):
+
+Node 3 (EXPRESSION):
+  Expression: (a,b) = _returnTuple()
+  SSA: TUPLE_0(uint256,uint256) = INTERNAL_CALL, ComplexTypes._returnTuple()()
+       lvalue: TUPLE_0 (type=TupleVariableSSA)
+  SSA: a_1(uint256)= UNPACK TUPLE_0 index: 0 
+       lvalue: a_1 (type=LocalIRVariable)
+  SSA: b_2(uint256)= UNPACK TUPLE_0 index: 1 
+       lvalue: b_2 (type=LocalIRVariable)
+
+Node 4 (RETURN):
+  Expression: (a + 1,b + 1)
+  SSA: TMP_1(uint256) = a_1 (c)+ 1
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: TMP_2(uint256) = b_2 (c)+ 1
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_1,TMP_2
+
+----------------------------------------

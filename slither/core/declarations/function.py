@@ -7,7 +7,8 @@ from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
-from typing import Any, Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
+from typing import Any, TYPE_CHECKING, Optional, Union
+from collections.abc import Callable
 
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
@@ -56,7 +57,7 @@ class ModifierStatements:
         self,
         modifier: Union["Contract", "Function"],
         entry_point: "Node",
-        nodes: List["Node"],
+        nodes: list["Node"],
     ) -> None:
         self._modifier = modifier
         self._entry_point = entry_point
@@ -75,11 +76,11 @@ class ModifierStatements:
         self._entry_point = entry_point
 
     @property
-    def nodes(self) -> List["Node"]:
+    def nodes(self) -> list["Node"]:
         return self._nodes
 
     @nodes.setter
-    def nodes(self, nodes: List["Node"]):
+    def nodes(self, nodes: list["Node"]):
         self._nodes = nodes
 
 
@@ -92,7 +93,7 @@ class FunctionType(Enum):
     CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
 
 
-def _filter_state_variables_written(expressions: List["Expression"]):
+def _filter_state_variables_written(expressions: list["Expression"]):
     ret = []
 
     for expression in expressions:
@@ -116,116 +117,116 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__()
-        self._internal_scope: List[str] = []
-        self._name: Optional[str] = None
+        self._internal_scope: list[str] = []
+        self._name: str | None = None
         self._view: bool = False
         self._pure: bool = False
         self._payable: bool = False
-        self._visibility: Optional[str] = None
+        self._visibility: str | None = None
         self._virtual: bool = False
-        self._overrides: List["FunctionContract"] = []
-        self._overridden_by: List["FunctionContract"] = []
+        self._overrides: list[FunctionContract] = []
+        self._overridden_by: list[FunctionContract] = []
 
-        self._is_implemented: Optional[bool] = None
-        self._is_empty: Optional[bool] = None
-        self._entry_point: Optional["Node"] = None
-        self._nodes: List["Node"] = []
-        self._variables: Dict[str, "LocalVariable"] = {}
+        self._is_implemented: bool | None = None
+        self._is_empty: bool | None = None
+        self._entry_point: Node | None = None
+        self._nodes: list[Node] = []
+        self._variables: dict[str, LocalVariable] = {}
         # slithir Temporary and references variables (but not SSA)
-        self._slithir_variables: Set["SlithIRVariable"] = set()
-        self._parameters: List["LocalVariable"] = []
-        self._parameters_ssa: List["LocalIRVariable"] = []
+        self._slithir_variables: set[SlithIRVariable] = set()
+        self._parameters: list[LocalVariable] = []
+        self._parameters_ssa: list[LocalIRVariable] = []
         self._parameters_src: SourceMapping = SourceMapping()
         # This is used for vyper calls with default arguments
-        self._default_args_as_expressions: List["Expression"] = []
-        self._returns: List["LocalVariable"] = []
-        self._returns_ssa: List["LocalIRVariable"] = []
+        self._default_args_as_expressions: list[Expression] = []
+        self._returns: list[LocalVariable] = []
+        self._returns_ssa: list[LocalIRVariable] = []
         self._returns_src: SourceMapping = SourceMapping()
-        self._return_values: Optional[List["SlithIRVariable"]] = None
-        self._return_values_ssa: Optional[List["SlithIRVariable"]] = None
-        self._vars_read: List["Variable"] = []
-        self._vars_written: List["Variable"] = []
-        self._state_vars_read: List["StateVariable"] = []
-        self._vars_read_or_written: List["Variable"] = []
-        self._solidity_vars_read: List["SolidityVariable"] = []
-        self._state_vars_written: List["StateVariable"] = []
-        self._internal_calls: List["InternalCall"] = []
-        self._solidity_calls: List["SolidityCall"] = []
-        self._low_level_calls: List["LowLevelCall"] = []
-        self._high_level_calls: List[Tuple["Contract", "HighLevelCall"]] = []
-        self._library_calls: List["LibraryCall"] = []
-        self._external_calls_as_expressions: List["Expression"] = []
-        self._expression_vars_read: List["Expression"] = []
-        self._expression_vars_written: List["Expression"] = []
-        self._expression_calls: List["Expression"] = []
+        self._return_values: list[SlithIRVariable] | None = None
+        self._return_values_ssa: list[SlithIRVariable] | None = None
+        self._vars_read: list[Variable] = []
+        self._vars_written: list[Variable] = []
+        self._state_vars_read: list[StateVariable] = []
+        self._vars_read_or_written: list[Variable] = []
+        self._solidity_vars_read: list[SolidityVariable] = []
+        self._state_vars_written: list[StateVariable] = []
+        self._internal_calls: list[InternalCall] = []
+        self._solidity_calls: list[SolidityCall] = []
+        self._low_level_calls: list[LowLevelCall] = []
+        self._high_level_calls: list[tuple[Contract, HighLevelCall]] = []
+        self._library_calls: list[LibraryCall] = []
+        self._external_calls_as_expressions: list[Expression] = []
+        self._expression_vars_read: list[Expression] = []
+        self._expression_vars_written: list[Expression] = []
+        self._expression_calls: list[Expression] = []
         # self._expression_modifiers: List["Expression"] = []
-        self._modifiers: List[ModifierStatements] = []
-        self._explicit_base_constructor_calls: List[ModifierStatements] = []
+        self._modifiers: list[ModifierStatements] = []
+        self._explicit_base_constructor_calls: list[ModifierStatements] = []
         self._contains_assembly: bool = False
 
-        self._expressions: Optional[List["Expression"]] = None
-        self._slithir_operations: Optional[List["Operation"]] = None
-        self._slithir_ssa_operations: Optional[List["Operation"]] = None
+        self._expressions: list[Expression] | None = None
+        self._slithir_operations: list[Operation] | None = None
+        self._slithir_ssa_operations: list[Operation] | None = None
 
-        self._all_expressions: Optional[List["Expression"]] = None
-        self._all_slithir_operations: Optional[List["Operation"]] = None
-        self._all_internals_calls: Optional[List["InternalCall"]] = None
-        self._all_high_level_calls: Optional[List[Tuple["Contract", "HighLevelCall"]]] = None
-        self._all_library_calls: Optional[List["LibraryCall"]] = None
-        self._all_low_level_calls: Optional[List["LowLevelCall"]] = None
-        self._all_solidity_calls: Optional[List["SolidityCall"]] = None
-        self._all_variables_read: Optional[List["Variable"]] = None
-        self._all_variables_written: Optional[List["Variable"]] = None
-        self._all_state_variables_read: Optional[List["StateVariable"]] = None
-        self._all_solidity_variables_read: Optional[List["SolidityVariable"]] = None
-        self._all_state_variables_written: Optional[List["StateVariable"]] = None
-        self._all_slithir_variables: Optional[List["SlithIRVariable"]] = None
-        self._all_nodes: Optional[List["Node"]] = None
-        self._all_conditional_state_variables_read: Optional[List["StateVariable"]] = None
-        self._all_conditional_state_variables_read_with_loop: Optional[List["StateVariable"]] = None
-        self._all_conditional_solidity_variables_read: Optional[List["SolidityVariable"]] = None
-        self._all_conditional_solidity_variables_read_with_loop: Optional[
-            List["SolidityVariable"]
-        ] = None
-        self._all_solidity_variables_used_as_args: Optional[List["SolidityVariable"]] = None
+        self._all_expressions: list[Expression] | None = None
+        self._all_slithir_operations: list[Operation] | None = None
+        self._all_internals_calls: list[InternalCall] | None = None
+        self._all_high_level_calls: list[tuple[Contract, HighLevelCall]] | None = None
+        self._all_library_calls: list[LibraryCall] | None = None
+        self._all_low_level_calls: list[LowLevelCall] | None = None
+        self._all_solidity_calls: list[SolidityCall] | None = None
+        self._all_variables_read: list[Variable] | None = None
+        self._all_variables_written: list[Variable] | None = None
+        self._all_state_variables_read: list[StateVariable] | None = None
+        self._all_solidity_variables_read: list[SolidityVariable] | None = None
+        self._all_state_variables_written: list[StateVariable] | None = None
+        self._all_slithir_variables: list[SlithIRVariable] | None = None
+        self._all_nodes: list[Node] | None = None
+        self._all_conditional_state_variables_read: list[StateVariable] | None = None
+        self._all_conditional_state_variables_read_with_loop: list[StateVariable] | None = None
+        self._all_conditional_solidity_variables_read: list[SolidityVariable] | None = None
+        self._all_conditional_solidity_variables_read_with_loop: list[SolidityVariable] | None = (
+            None
+        )
+        self._all_solidity_variables_used_as_args: list[SolidityVariable] | None = None
 
         self._is_shadowed: bool = False
         self._shadows: bool = False
 
         # set(ReacheableNode)
-        self._reachable_from_nodes: Set[ReacheableNode] = set()
-        self._reachable_from_functions: Set[Function] = set()
-        self._all_reachable_from_functions: Optional[Set[Function]] = None
+        self._reachable_from_nodes: set[ReacheableNode] = set()
+        self._reachable_from_functions: set[Function] = set()
+        self._all_reachable_from_functions: set[Function] | None = None
 
         # Constructor, fallback, State variable constructor
-        self._function_type: Optional[FunctionType] = None
-        self._is_constructor: Optional[bool] = None
+        self._function_type: FunctionType | None = None
+        self._is_constructor: bool | None = None
 
         # Computed on the fly, can be True of False
-        self._can_reenter: Optional[bool] = None
-        self._can_send_eth: Optional[bool] = None
+        self._can_reenter: bool | None = None
+        self._can_send_eth: bool | None = None
 
-        self._nodes_ordered_dominators: Optional[List["Node"]] = None
+        self._nodes_ordered_dominators: list[Node] | None = None
 
         self._counter_nodes = 0
 
         # Memoize parameters:
         # TODO: identify all the memoize parameters and add a way to undo the memoization
-        self._full_name: Optional[str] = None
-        self._signature: Optional[Tuple[str, List[str], List[str]]] = None
-        self._solidity_signature: Optional[str] = None
-        self._signature_str: Optional[str] = None
-        self._canonical_name: Optional[str] = None
-        self._is_returning_msg_sender: Optional[bool] = None
-        self._is_protected: Optional[bool] = None
+        self._full_name: str | None = None
+        self._signature: tuple[str, list[str], list[str]] | None = None
+        self._solidity_signature: str | None = None
+        self._signature_str: str | None = None
+        self._canonical_name: str | None = None
+        self._is_returning_msg_sender: bool | None = None
+        self._is_protected: bool | None = None
 
-        self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
+        self.compilation_unit: SlitherCompilationUnit = compilation_unit
 
         self.function_language: FunctionLanguage = (
             FunctionLanguage.Solidity if compilation_unit.is_solidity else FunctionLanguage.Vyper
         )
 
-        self._id: Optional[str] = None
+        self._id: str | None = None
 
         # To be improved with a parsing of the documentation
         self.has_documentation: bool = False
@@ -258,7 +259,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._name = new_name
 
     @property
-    def internal_scope(self) -> List[str]:
+    def internal_scope(self) -> list[str]:
         """
         Return a list of name representing the scope of the function
         This is used to model nested functions declared in YUL
@@ -268,7 +269,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._internal_scope
 
     @internal_scope.setter
-    def internal_scope(self, new_scope: List[str]):
+    def internal_scope(self, new_scope: list[str]):
         self._internal_scope = new_scope
 
     @property
@@ -302,7 +303,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     def contains_assembly(self, c: bool):
         self._contains_assembly = c
 
-    def can_reenter(self, callstack: Optional[List[Union["Function", "Variable"]]] = None) -> bool:
+    def can_reenter(self, callstack: list[Union["Function", "Variable"]] | None = None) -> bool:
         """
         Check if the function can re-enter
         Follow internal calls.
@@ -351,7 +352,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self.compilation_unit.solc_version >= "0.8.0"
 
     @property
-    def id(self) -> Optional[str]:
+    def id(self) -> str | None:
         """
         Return the reference ID of the function, if available.
 
@@ -381,7 +382,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._function_type = t
 
     @property
-    def function_type(self) -> Optional[FunctionType]:
+    def function_type(self) -> FunctionType | None:
         return self._function_type
 
     @function_type.setter
@@ -470,7 +471,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return len(self._overrides) > 0
 
     @property
-    def overridden_by(self) -> List["FunctionContract"]:
+    def overridden_by(self) -> list["FunctionContract"]:
         """
         List["FunctionContract"]: List of functions in child contracts that override this function
         This may include distinct instances of the same function due to inheritance
@@ -478,7 +479,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._overridden_by
 
     @property
-    def overrides(self) -> List["FunctionContract"]:
+    def overrides(self) -> list["FunctionContract"]:
         """
         List["FunctionContract"]: List of functions in parent contracts that this function overrides
         This may include distinct instances of the same function due to inheritance
@@ -582,14 +583,14 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def nodes(self) -> List["Node"]:
+    def nodes(self) -> list["Node"]:
         """
         list(Node): List of the nodes
         """
         return list(self._nodes)
 
     @nodes.setter
-    def nodes(self, nodes: List["Node"]):
+    def nodes(self, nodes: list["Node"]):
         self._nodes = nodes
 
     @property
@@ -609,7 +610,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._nodes.append(node)
 
     @property
-    def nodes_ordered_dominators(self) -> List["Node"]:
+    def nodes_ordered_dominators(self) -> list["Node"]:
         # TODO: does not work properly; most likely due to modifier call
         # This will not work for modifier call that lead to multiple nodes
         # from slither.core.cfg.node import NodeType
@@ -620,7 +621,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
             for node in self.nodes:
                 # if node.type == NodeType.OTHER_ENTRYPOINT:
-                if not node in self._nodes_ordered_dominators:
+                if node not in self._nodes_ordered_dominators:
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators
@@ -641,7 +642,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def parameters(self) -> List["LocalVariable"]:
+    def parameters(self) -> list["LocalVariable"]:
         """
         list(LocalVariable): List of the parameters
         """
@@ -651,7 +652,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._parameters.append(p)
 
     @property
-    def parameters_ssa(self) -> List["LocalIRVariable"]:
+    def parameters_ssa(self) -> list["LocalIRVariable"]:
         """
         list(LocalIRVariable): List of the parameters (SSA form)
         """
@@ -671,7 +672,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def return_type(self) -> Optional[List[Type]]:
+    def return_type(self) -> list[Type] | None:
         """
         Return the list of return type
         If no return, return None
@@ -685,7 +686,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._returns_src
 
     @property
-    def type(self) -> Optional[List[Type]]:
+    def type(self) -> list[Type] | None:
         """
         Return the list of return type
         If no return, return None
@@ -694,7 +695,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self.return_type
 
     @property
-    def returns(self) -> List["LocalVariable"]:
+    def returns(self) -> list["LocalVariable"]:
         """
         list(LocalVariable): List of the return variables
         """
@@ -704,7 +705,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._returns.append(r)
 
     @property
-    def returns_ssa(self) -> List["LocalIRVariable"]:
+    def returns_ssa(self) -> list["LocalIRVariable"]:
         """
         list(LocalIRVariable): List of the return variables (SSA form)
         """
@@ -721,7 +722,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def modifiers(self) -> List[Union["Contract", "Function"]]:
+    def modifiers(self) -> list[Union["Contract", "Function"]]:
         """
         list(Modifier): List of the modifiers
         Can be contract for constructor's calls
@@ -733,14 +734,14 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._modifiers.append(modif)
 
     @property
-    def modifiers_statements(self) -> List[ModifierStatements]:
+    def modifiers_statements(self) -> list[ModifierStatements]:
         """
         list(ModifierCall): List of the modifiers call (include expression and irs)
         """
         return list(self._modifiers)
 
     @property
-    def explicit_base_constructor_calls(self) -> List["Function"]:
+    def explicit_base_constructor_calls(self) -> list["Function"]:
         """
         list(Function): List of the base constructors called explicitly by this presumed constructor definition.
 
@@ -755,7 +756,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         ]
 
     @property
-    def explicit_base_constructor_calls_statements(self) -> List[ModifierStatements]:
+    def explicit_base_constructor_calls_statements(self) -> list[ModifierStatements]:
         """
         list(ModifierCall): List of the base constructors called explicitly by this presumed constructor definition.
 
@@ -774,7 +775,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def variables(self) -> List[LocalVariable]:
+    def variables(self) -> list[LocalVariable]:
         """
         Return all local variables
         Include parameters and return values
@@ -782,68 +783,68 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return list(self._variables.values())
 
     @property
-    def local_variables(self) -> List[LocalVariable]:
+    def local_variables(self) -> list[LocalVariable]:
         """
         Return all local variables (dont include parameters and return values)
         """
         return list(set(self.variables) - set(self.returns) - set(self.parameters))
 
     @property
-    def variables_as_dict(self) -> Dict[str, LocalVariable]:
+    def variables_as_dict(self) -> dict[str, LocalVariable]:
         return self._variables
 
     @property
-    def variables_read(self) -> List["Variable"]:
+    def variables_read(self) -> list["Variable"]:
         """
         list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
-    def variables_written(self) -> List["Variable"]:
+    def variables_written(self) -> list["Variable"]:
         """
         list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
-    def state_variables_read(self) -> List["StateVariable"]:
+    def state_variables_read(self) -> list["StateVariable"]:
         """
         list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
-    def solidity_variables_read(self) -> List["SolidityVariable"]:
+    def solidity_variables_read(self) -> list["SolidityVariable"]:
         """
         list(SolidityVariable): Solidity variables read
         """
         return list(self._solidity_vars_read)
 
     @property
-    def state_variables_written(self) -> List["StateVariable"]:
+    def state_variables_written(self) -> list["StateVariable"]:
         """
         list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
-    def variables_read_or_written(self) -> List["Variable"]:
+    def variables_read_or_written(self) -> list["Variable"]:
         """
         list(Variable): Variables read or written (local/state/solidity)
         """
         return list(self._vars_read_or_written)
 
     @property
-    def variables_read_as_expression(self) -> List["Expression"]:
+    def variables_read_as_expression(self) -> list["Expression"]:
         return self._expression_vars_read
 
     @property
-    def variables_written_as_expression(self) -> List["Expression"]:
+    def variables_written_as_expression(self) -> list["Expression"]:
         return self._expression_vars_written
 
     @property
-    def slithir_variables(self) -> List["SlithIRVariable"]:
+    def slithir_variables(self) -> list["SlithIRVariable"]:
         """
         Temporary and Reference Variables (not SSA form)
         """
@@ -858,21 +859,21 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List["InternalCall"]:
+    def internal_calls(self) -> list["InternalCall"]:
         """
         list(InternalCall): List of IR operations for internal calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List["SolidityCall"]:
+    def solidity_calls(self) -> list["SolidityCall"]:
         """
         list(SolidityCall): List of IR operations for Solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
+    def high_level_calls(self) -> list[tuple["Contract", "HighLevelCall"]]:
         """
         list(Tuple(Contract, "HighLevelCall")): List of call target contract and IR of the high level call
         A variable is called in case of call to a public state variable
@@ -881,14 +882,14 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List["LibraryCall"]:
+    def library_calls(self) -> list["LibraryCall"]:
         """
         list(LibraryCall): List of IR operations for library calls
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List["LowLevelCall"]:
+    def low_level_calls(self) -> list["LowLevelCall"]:
         """
         list(LowLevelCall): List of IR operations for low level calls
         A low level call is defined by
@@ -898,7 +899,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return list(self._low_level_calls)
 
     @property
-    def external_calls_as_expressions(self) -> List["Expression"]:
+    def external_calls_as_expressions(self) -> list["Expression"]:
         """
         list(ExpressionCall): List of message calls (that creates a transaction)
         """
@@ -912,11 +913,11 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def calls_as_expressions(self) -> List["Expression"]:
+    def calls_as_expressions(self) -> list["Expression"]:
         return self._expression_calls
 
     @property
-    def expressions(self) -> List["Expression"]:
+    def expressions(self) -> list["Expression"]:
         """
         list(Expression): List of the expressions
         """
@@ -927,7 +928,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._expressions
 
     @property
-    def return_values(self) -> List["SlithIRVariable"]:
+    def return_values(self) -> list["SlithIRVariable"]:
         """
         list(Return Values): List of the return values
         """
@@ -948,7 +949,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._return_values
 
     @property
-    def return_values_ssa(self) -> List["SlithIRVariable"]:
+    def return_values_ssa(self) -> list["SlithIRVariable"]:
         """
         list(Return Values in SSA form): List of the return values in ssa form
         """
@@ -978,7 +979,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def slithir_operations(self) -> List["Operation"]:
+    def slithir_operations(self) -> list["Operation"]:
         """
         list(Operation): List of the slithir operations
         """
@@ -989,7 +990,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._slithir_operations
 
     @property
-    def slithir_ssa_operations(self) -> List["Operation"]:
+    def slithir_ssa_operations(self) -> list["Operation"]:
         """
         list(Operation): List of the slithir operations (SSA)
         """
@@ -1026,7 +1027,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._solidity_signature
 
     @property
-    def signature(self) -> Tuple[str, List[str], List[str]]:
+    def signature(self) -> tuple[str, list[str], list[str]]:
         """
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
@@ -1063,7 +1064,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def functions_shadowed(self) -> List["Function"]:
+    def functions_shadowed(self) -> list["Function"]:
         pass
 
     # endregion
@@ -1074,7 +1075,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     @property
-    def reachable_from_nodes(self) -> Set[ReacheableNode]:
+    def reachable_from_nodes(self) -> set[ReacheableNode]:
         """
         Return
             ReacheableNode
@@ -1082,23 +1083,23 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._reachable_from_nodes
 
     @property
-    def reachable_from_functions(self) -> Set["Function"]:
+    def reachable_from_functions(self) -> set["Function"]:
         return self._reachable_from_functions
 
     @property
-    def all_reachable_from_functions(self) -> Set["Function"]:
+    def all_reachable_from_functions(self) -> set["Function"]:
         """
         Give the recursive version of reachable_from_functions (all the functions that lead to call self in the CFG)
         """
         if self._all_reachable_from_functions is None:
-            functions: Set["Function"] = set()
+            functions: set[Function] = set()
 
             new_functions = self.reachable_from_functions
             # iterate until we have are finding new functions
             while new_functions and not new_functions.issubset(functions):
                 functions = functions.union(new_functions)
                 # Use a temporary set, because we iterate over new_functions
-                new_functionss: Set["Function"] = set()
+                new_functionss: set[Function] = set()
                 for f in new_functions:
                     new_functionss = new_functionss.union(f.reachable_from_functions)
                 new_functions = new_functionss - functions
@@ -1117,61 +1118,54 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
     ###################################################################################
 
-    def _explore_functions(self, f_new_values: Callable[["Function"], List]) -> List[Any]:
+    def _explore_functions(self, f_new_values: Callable[["Function"], list]) -> list[Any]:
         values = f_new_values(self)
-        explored = [self]
-        to_explore = [
-            ir.function
-            for ir in self.internal_calls
-            if isinstance(ir.function, Function) and ir.function not in explored
-        ]
-        to_explore += [
-            ir.function
-            for ir in self.library_calls
-            if isinstance(ir.function, Function) and ir.function not in explored
-        ]
-        to_explore += [m for m in self.modifiers if m not in explored]
+        explored: set[Function] = {self}
+        to_explore_set: set[Function] = set()
 
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
+        for ir in self.internal_calls:
+            if isinstance(ir.function, Function) and ir.function not in explored:
+                to_explore_set.add(ir.function)
+        for ir in self.library_calls:
+            if isinstance(ir.function, Function) and ir.function not in explored:
+                to_explore_set.add(ir.function)
+        for m in self.modifiers:
+            if m not in explored:
+                to_explore_set.add(m)
+
+        while to_explore_set:
+            f = to_explore_set.pop()
             if f in explored:
                 continue
-            explored.append(f)
+            explored.add(f)
 
             values += f_new_values(f)
 
-            to_explore += [
-                ir.function
-                for ir in f.internal_calls
-                if isinstance(ir.function, Function)
-                and ir.function not in explored
-                and ir.function not in to_explore
-            ]
-            to_explore += [
-                ir.function
-                for ir in f.library_calls
-                if isinstance(ir.function, Function)
-                and ir.function not in explored
-                and ir.function not in to_explore
-            ]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
+            for ir in f.internal_calls:
+                if isinstance(ir.function, Function) and ir.function not in explored:
+                    to_explore_set.add(ir.function)
+            for ir in f.library_calls:
+                if isinstance(ir.function, Function) and ir.function not in explored:
+                    to_explore_set.add(ir.function)
+            for m in f.modifiers:
+                if m not in explored:
+                    to_explore_set.add(m)
 
         return list(set(values))
 
-    def all_variables_read(self) -> List["Variable"]:
+    def all_variables_read(self) -> list["Variable"]:
         """recursive version of variables_read"""
         if self._all_variables_read is None:
             self._all_variables_read = self._explore_functions(lambda x: x.variables_read)
         return self._all_variables_read
 
-    def all_variables_written(self) -> List["Variable"]:
+    def all_variables_written(self) -> list["Variable"]:
         """recursive version of variables_written"""
         if self._all_variables_written is None:
             self._all_variables_written = self._explore_functions(lambda x: x.variables_written)
         return self._all_variables_written
 
-    def all_state_variables_read(self) -> List["StateVariable"]:
+    def all_state_variables_read(self) -> list["StateVariable"]:
         """recursive version of variables_read"""
         if self._all_state_variables_read is None:
             self._all_state_variables_read = self._explore_functions(
@@ -1179,7 +1173,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
             )
         return self._all_state_variables_read
 
-    def all_solidity_variables_read(self) -> List[SolidityVariable]:
+    def all_solidity_variables_read(self) -> list[SolidityVariable]:
         """recursive version of solidity_read"""
         if self._all_solidity_variables_read is None:
             self._all_solidity_variables_read = self._explore_functions(
@@ -1187,30 +1181,30 @@ class Function(SourceMapping, metaclass=ABCMeta):
             )
         return self._all_solidity_variables_read
 
-    def all_slithir_variables(self) -> List["SlithIRVariable"]:
+    def all_slithir_variables(self) -> list["SlithIRVariable"]:
         """recursive version of slithir_variables"""
         if self._all_slithir_variables is None:
             self._all_slithir_variables = self._explore_functions(lambda x: x.slithir_variables)
         return self._all_slithir_variables
 
-    def all_nodes(self) -> List["Node"]:
+    def all_nodes(self) -> list["Node"]:
         """recursive version of nodes"""
         if self._all_nodes is None:
             self._all_nodes = self._explore_functions(lambda x: x.nodes)
         return self._all_nodes
 
-    def all_expressions(self) -> List["Expression"]:
+    def all_expressions(self) -> list["Expression"]:
         """recursive version of variables_read"""
         if self._all_expressions is None:
             self._all_expressions = self._explore_functions(lambda x: x.expressions)
         return self._all_expressions
 
-    def all_slithir_operations(self) -> List["Operation"]:
+    def all_slithir_operations(self) -> list["Operation"]:
         if self._all_slithir_operations is None:
             self._all_slithir_operations = self._explore_functions(lambda x: x.slithir_operations)
         return self._all_slithir_operations
 
-    def all_state_variables_written(self) -> List[StateVariable]:
+    def all_state_variables_written(self) -> list[StateVariable]:
         """recursive version of variables_written"""
         if self._all_state_variables_written is None:
             self._all_state_variables_written = self._explore_functions(
@@ -1218,42 +1212,42 @@ class Function(SourceMapping, metaclass=ABCMeta):
             )
         return self._all_state_variables_written
 
-    def all_internal_calls(self) -> List["InternalCall"]:
+    def all_internal_calls(self) -> list["InternalCall"]:
         """recursive version of internal_calls"""
         if self._all_internals_calls is None:
             self._all_internals_calls = self._explore_functions(lambda x: x.internal_calls)
         return self._all_internals_calls
 
-    def all_low_level_calls(self) -> List["LowLevelCall"]:
+    def all_low_level_calls(self) -> list["LowLevelCall"]:
         """recursive version of low_level calls"""
         if self._all_low_level_calls is None:
             self._all_low_level_calls = self._explore_functions(lambda x: x.low_level_calls)
         return self._all_low_level_calls
 
-    def all_high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
+    def all_high_level_calls(self) -> list[tuple["Contract", "HighLevelCall"]]:
         """recursive version of high_level calls"""
         if self._all_high_level_calls is None:
             self._all_high_level_calls = self._explore_functions(lambda x: x.high_level_calls)
         return self._all_high_level_calls
 
-    def all_library_calls(self) -> List["LibraryCall"]:
+    def all_library_calls(self) -> list["LibraryCall"]:
         """recursive version of library calls"""
         if self._all_library_calls is None:
             self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
 
-    def all_solidity_calls(self) -> List["SolidityCall"]:
+    def all_solidity_calls(self) -> list["SolidityCall"]:
         """recursive version of solidity calls"""
         if self._all_solidity_calls is None:
             self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
         return self._all_solidity_calls
 
     @staticmethod
-    def _explore_func_cond_read(func: "Function", include_loop: bool) -> List["StateVariable"]:
+    def _explore_func_cond_read(func: "Function", include_loop: bool) -> list["StateVariable"]:
         ret = [n.state_variables_read for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
-    def all_conditional_state_variables_read(self, include_loop=True) -> List["StateVariable"]:
+    def all_conditional_state_variables_read(self, include_loop=True) -> list["StateVariable"]:
         """
         Return the state variable used in a condition
 
@@ -1273,7 +1267,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._all_conditional_state_variables_read
 
     @staticmethod
-    def _solidity_variable_in_binary(node: "Node") -> List[SolidityVariable]:
+    def _solidity_variable_in_binary(node: "Node") -> list[SolidityVariable]:
         from slither.slithir.operations.binary import Binary
 
         ret = []
@@ -1285,15 +1279,15 @@ class Function(SourceMapping, metaclass=ABCMeta):
     @staticmethod
     def _explore_func_conditional(
         func: "Function",
-        f: Callable[["Node"], List[SolidityVariable]],
+        f: Callable[["Node"], list[SolidityVariable]],
         include_loop: bool,
-    ) -> List[Any]:
+    ) -> list[Any]:
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
     def all_conditional_solidity_variables_read(
         self, include_loop: bool = True
-    ) -> List[SolidityVariable]:
+    ) -> list[SolidityVariable]:
         """
         Return the Solidity variables directly used in a condition
 
@@ -1319,7 +1313,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         return self._all_conditional_solidity_variables_read
 
     @staticmethod
-    def _solidity_variable_in_internal_calls(node: "Node") -> List[SolidityVariable]:
+    def _solidity_variable_in_internal_calls(node: "Node") -> list[SolidityVariable]:
         from slither.slithir.operations.internal_call import InternalCall
 
         ret = []
@@ -1330,12 +1324,12 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     @staticmethod
     def _explore_func_nodes(
-        func: "Function", f: Callable[["Node"], List[SolidityVariable]]
-    ) -> List[Union[Any, SolidityVariableComposed]]:
+        func: "Function", f: Callable[["Node"], list[SolidityVariable]]
+    ) -> list[Any | SolidityVariableComposed]:
         ret = [f(n) for n in func.nodes]
         return [item for sublist in ret for item in sublist]
 
-    def all_solidity_variables_used_as_args(self) -> List[SolidityVariable]:
+    def all_solidity_variables_used_as_args(self) -> list[SolidityVariable]:
         """
         Return the Solidity variables directly used in a call
 
@@ -1355,7 +1349,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
     ###################################################################################
 
-    def apply_visitor(self, Visitor: Callable) -> List:
+    def apply_visitor(self, Visitor: Callable) -> list:
         """
             Apply a visitor to all the function expressions
         Args:
@@ -1374,7 +1368,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
     ###################################################################################
 
-    def get_local_variable_from_name(self, variable_name: str) -> Optional[LocalVariable]:
+    def get_local_variable_from_name(self, variable_name: str) -> LocalVariable | None:
         """
             Return a local variable from a name
 
@@ -1401,7 +1395,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write(f'{node.node_id}[label="{str(node)}"];\n')
+                f.write(f'{node.node_id}[label="{node!s}"];\n')
                 for son in node.sons:
                     f.write(f"{node.node_id}->{son.node_id};\n")
 
@@ -1525,7 +1519,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     @abstractmethod
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
+    ) -> tuple[str, str, str, list[str], list[str], list[str], list[str], list[str]]:
         pass
 
     def is_returning_msg_sender(self) -> bool:
@@ -1659,7 +1653,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         if not all_entry_points:
             return True
         return not all(
-            (reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points)
+            reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points
         )
 
     # endregion
@@ -1772,7 +1766,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
     ###################################################################################
 
     def new_node(
-        self, node_type: "NodeType", src: Union[str, Dict], scope: Union[Scope, "Function"]
+        self, node_type: "NodeType", src: str | dict, scope: Union[Scope, "Function"]
     ) -> "Node":
         from slither.core.cfg.node import Node
 
@@ -1793,7 +1787,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     def _get_last_ssa_variable_instances(
         self, target_state: bool, target_local: bool
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    ) -> dict[str, set["SlithIRVariable"]]:
         from slither.slithir.variables import ReferenceVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
@@ -1804,11 +1798,11 @@ class Function(SourceMapping, metaclass=ABCMeta):
         if self._entry_point is None:
             return {}
         # node, values
-        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, {})]
+        to_explore: list[tuple[Node, dict]] = [(self._entry_point, {})]
         # node -> values
-        explored: Dict = {}
+        explored: dict = {}
         # name -> instances
-        ret: Dict = {}
+        ret: dict = {}
 
         while to_explore:
             node, values = to_explore[0]
@@ -1851,12 +1845,12 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     def get_last_ssa_state_variables_instances(
         self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    ) -> dict[str, set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
     def get_last_ssa_local_variables_instances(
         self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    ) -> dict[str, set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod
@@ -1872,8 +1866,8 @@ class Function(SourceMapping, metaclass=ABCMeta):
     def _fix_phi_entry(
         self,
         node: "Node",
-        last_state_variables_instances: Dict[str, List["StateVariable"]],
-        initial_state_variables_instances: Dict[str, "StateVariable"],
+        last_state_variables_instances: dict[str, list["StateVariable"]],
+        initial_state_variables_instances: dict[str, "StateVariable"],
     ) -> None:
         from slither.slithir.variables import Constant, StateIRVariable, LocalIRVariable
 
@@ -1902,8 +1896,8 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
     def fix_phi(
         self,
-        last_state_variables_instances: Dict[str, List["StateVariable"]],
-        initial_state_variables_instances: Dict[str, "StateVariable"],
+        last_state_variables_instances: dict[str, list["StateVariable"]],
+        initial_state_variables_instances: dict[str, "StateVariable"],
     ) -> None:
         from slither.slithir.operations import InternalCall, PhiCallback, Phi
         from slither.slithir.variables import StateIRVariable, LocalIRVariable

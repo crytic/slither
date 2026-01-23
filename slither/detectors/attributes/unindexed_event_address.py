@@ -2,8 +2,6 @@
 Detect events with address parameters that have no indexed parameters
 """
 
-from typing import List
-
 from slither.core.declarations.event import Event
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -52,8 +50,6 @@ Off-chain tools cannot efficiently filter transfers by sender or recipient addre
         "to enable efficient off-chain filtering."
     )
 
-    STANDARD_JSON = False
-
     @staticmethod
     def _has_unindexed_address(event: Event) -> bool:
         """
@@ -76,14 +72,14 @@ Off-chain tools cannot efficiently filter transfers by sender or recipient addre
 
         return has_address and not has_indexed
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect events with address parameters but no indexed parameters.
 
         Returns:
             List of detection results.
         """
-        results: List[Output] = []
+        results: list[Output] = []
 
         # Check contract-level events
         for contract in self.contracts:

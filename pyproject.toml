@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "slither-analyzer"
-version = "0.11.4"
+version = "0.11.5"
 description = "Slither is a Solidity and Vyper static analysis framework written in Python 3."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "AGPL-3.0"}
 authors = [
     {name = "Trail of Bits"},
@@ -22,7 +22,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -30,7 +29,6 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "importlib_metadata>=3.6",
     "packaging",
     "prettytable>=3.10.2",
     "pycryptodome>=3.4.6",
@@ -41,11 +39,14 @@ dependencies = [
     "eth-utils>=5.0.0",
 ]
 
+[project.optional-dependencies]
+simil = ["fasttext>=0.9.0"]
+
 # Development dependencies using PEP 735 dependency-groups
 [dependency-groups]
 lint = [
-    "ruff==0.14.10",
-    "yamllint==1.37.1"
+    "ruff==0.14.13",
+    "yamllint==1.38.0"
 ]
 test = [
     "pytest",
@@ -88,8 +89,8 @@ packages = ["slither"]
 
 [tool.ruff]
 line-length = 100
-# Target Python 3.9+ (current minimum version)
-target-version = "py39"
+# Target Python 3.10+ (current minimum version)
+target-version = "py310"
 # Additional exclusions beyond defaults and .gitignore
 extend-exclude = [
     "docs/",
@@ -132,9 +133,6 @@ ignore = [
     "TC001",    # typing-only-first-party-import
     "TC002",    # typing-only-third-party-import
     "TC003",    # typing-only-standard-library-import
-    "UP006",    # non-pep585-annotation (allow older style)
-    "UP007",    # non-pep604-annotation (allow older style)
-    "UP035",    # deprecated-import
     "RUF001",   # ambiguous-unicode-character-string
     "RUF002",   # ambiguous-unicode-character-docstring
     "RUF003",   # ambiguous-unicode-character-comment
@@ -148,52 +146,15 @@ ignore = [
     "SIM112",   # uncapitalized-environment-variables
     # Disable additional rules to avoid code changes
     "I001",     # unsorted-imports (453 issues)
-    "UP037",    # quoted-annotation (148 issues)
     "RUF005",   # collection-literal-concatenation (57 issues)
-    "W291",     # trailing-whitespace (51 issues)
-    "E713",     # not-in-test (40 issues)
-    "RUF010",   # explicit-f-string-type-conversion (24 issues)
-    "C414",     # unnecessary-double-cast-or-process (20 issues)
     "RUF015",   # unnecessary-iterable-allocation-for-first-element (15 issues)
-    "SIM910",   # dict-get-with-none-default (15 issues)
     "E741",     # ambiguous-variable-name (14 issues)
-    "UP034",    # extraneous-parentheses (13 issues)
-    "UP045",    # non-pep604-annotation-optional (13 issues)
     "RUF012",   # mutable-class-default (12 issues)
     "E731",     # lambda-assignment (11 issues)
-    "RUF021",   # parenthesize-chained-operators (10 issues)
-    "UP015",    # redundant-open-modes (10 issues)
-    "RUF013",   # implicit-optional (7 issues)
-    "W293",     # blank-line-with-whitespace (7 issues)
-    "C405",     # unnecessary-literal-set (6 issues)
-    "UP012",    # unnecessary-encode-utf8 (6 issues)
-    "E722",     # bare-except (5 issues)
-    "C417",     # unnecessary-map (4 issues)
-    "C420",     # unnecessary-dict-comprehension-for-iterable (4 issues)
-    "RUF019",   # unnecessary-key-check (4 issues)
-    "RUF023",   # unsorted-dunder-slots (4 issues)
-    "SIM118",   # in-dict-keys (4 issues)
-    "E714",     # not-is-test (3 issues)
     "F821",     # undefined-name (3 issues - might be false positives)
-    "RUF046",   # unnecessary-cast-to-int (3 issues)
-    "SIM401",   # if-else-block-instead-of-dict-get (3 issues)
-    "UP018",    # native-literals (2 issues)
     "B011",     # assert-false (1 issue)
     "B020",     # loop-variable-overrides-iterator (1 issue)
     "B026",     # star-arg-unpacking-after-keyword-arg (1 issue)
-    "B034",     # re-sub-positional-args (1 issue)
-    "C400",     # unnecessary-generator-list (1 issue)
-    "C409",     # unnecessary-literal-within-tuple-call (1 issue)
-    "C416",     # unnecessary-comprehension (1 issue)
-    "E101",     # mixed-spaces-and-tabs (1 issue)
-    "E721",     # type-comparison (1 issue)
-    "SIM113",   # enumerate-for-loop (1 issue)
-    "SIM201",   # negate-equal-op (1 issue)
-    "SIM300",   # yoda-conditions (1 issue)
-    "TC005",    # empty-type-checking-block (1 issue)
-    "UP011",    # lru-cache-without-parameters (1 issue)
-    "UP022",    # replace-stdout-stderr (1 issue)
-    "UP031",    # printf-string-formatting (1 issue)
 ]
 # Allow autofix for all enabled rules
 fixable = ["ALL"]
@@ -208,6 +169,8 @@ allowed-confusables = ["'", "'", "–", "—"]
     "S101",     # assert is OK in tests
     "SIM",      # Simplification rules can be relaxed in tests
 ]
+# RTLO detector has intentional mixed indentation in exploit scenario
+"slither/detectors/source/rtlo.py" = ["E101"]
 # Scripts can have different rules
 "scripts/**/*.py" = [
     "T201",     # print is OK in scripts

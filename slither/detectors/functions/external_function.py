@@ -1,5 +1,3 @@
-from typing import List, Set
-
 from slither.core.declarations import Function, FunctionContract, Contract
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.array_type import ArrayType
@@ -41,7 +39,7 @@ class ExternalFunction(AbstractDetector):
     )
 
     @staticmethod
-    def detect_functions_called(contract: Contract) -> List[Function]:
+    def detect_functions_called(contract: Contract) -> list[Function]:
         """Returns a list of InternallCall, SolidityCall
             calls made in a function
 
@@ -104,7 +102,7 @@ class ExternalFunction(AbstractDetector):
     @staticmethod
     def get_all_function_definitions(
         base_most_function: FunctionContract,
-    ) -> List[FunctionContract]:
+    ) -> list[FunctionContract]:
         """
         Obtains all function definitions given a base-most function. This includes the provided function, plus any
         overrides of that function.
@@ -139,16 +137,16 @@ class ExternalFunction(AbstractDetector):
             return True
         return False
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
-        dynamic_call_contracts: Set[Contract] = set()
+        dynamic_call_contracts: set[Contract] = set()
 
         # Create a completed functions set to skip over functions already processed (any functions which are the base
         # of, or override hierarchically are processed together).
-        completed_functions: Set[Function] = set()
+        completed_functions: set[Function] = set()
 
         # First we build our set of all contracts with dynamic calls
         for contract in self.contracts:
@@ -229,7 +227,7 @@ class ExternalFunction(AbstractDetector):
 
                 # As we collect all shadowed functions in get_all_function_definitions
                 # Some function coming from a base might already been declared as external
-                all_function_definitions: List[FunctionContract] = [
+                all_function_definitions: list[FunctionContract] = [
                     f
                     for f in all_function_definitions
                     if isinstance(f, FunctionContract)

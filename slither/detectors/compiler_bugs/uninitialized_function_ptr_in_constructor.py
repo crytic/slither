@@ -2,7 +2,7 @@
 Module detecting uninitialized function pointer calls in constructors
 """
 
-from typing import Any, List, Union
+from typing import Any
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -19,7 +19,7 @@ from slither.slithir.variables.state_variable import StateIRVariable
 from slither.utils.output import Output
 
 
-def _get_variables_entrance(function: FunctionContract) -> List[Union[Any, StateIRVariable]]:
+def _get_variables_entrance(function: FunctionContract) -> list[Any | StateIRVariable]:
     """
     Return the first SSA variables of the function
     Catpure the phi operation at the entry point
@@ -32,7 +32,7 @@ def _get_variables_entrance(function: FunctionContract) -> List[Union[Any, State
     return ret
 
 
-def _is_vulnerable(node: Node, variables_entrance: List[Union[Any, StateIRVariable]]) -> bool:
+def _is_vulnerable(node: Node, variables_entrance: list[Any | StateIRVariable]) -> bool:
     """
     Vulnerable if an IR ssa:
         - It is an internal dynamic call
@@ -93,7 +93,7 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
     @staticmethod
     def _detect_uninitialized_function_ptr_in_constructor(
         contract: Contract,
-    ) -> List[Union[Any, Node]]:
+    ) -> list[Any | Node]:
         """
         Detect uninitialized function pointer calls in constructors
         :param contract: The contract of interest for detection
@@ -108,7 +108,7 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
             ]
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect uninitialized function pointer calls in constructors of contracts
         Returns:
@@ -123,7 +123,7 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
                 node_info: DETECTOR_INFO = [
                     "\t ",
                     node,
-                    " is an unintialized function pointer call in a constructor\n",
+                    " is an uninitialized function pointer call in a constructor\n",
                 ]
                 json = self.generate_result(contract_info + node_info)
                 results.append(json)

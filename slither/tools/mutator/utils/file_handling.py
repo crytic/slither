@@ -1,5 +1,4 @@
 import traceback
-from typing import Dict, List, Union
 import logging
 from pathlib import Path
 import hashlib
@@ -7,10 +6,10 @@ import hashlib
 logger = logging.getLogger("Slither-Mutate")
 
 HashedPath = str
-backuped_files: Dict[str, HashedPath] = {}
+backuped_files: dict[str, HashedPath] = {}
 
 
-def backup_source_file(source_code: Dict, output_folder: Path) -> Dict[str, HashedPath]:
+def backup_source_file(source_code: dict, output_folder: Path) -> dict[str, HashedPath]:
     """
     function to backup the source file
     returns: dictionary of duplicated files
@@ -25,12 +24,12 @@ def backup_source_file(source_code: Dict, output_folder: Path) -> Dict[str, Hash
     return backuped_files
 
 
-def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
+def transfer_and_delete(files_dict: dict[str, HashedPath]) -> None:
     """function to transfer the original content to the sol file after campaign"""
     try:
         files_dict_copy = files_dict.copy()
         for original_path, hashed_path in files_dict_copy.items():
-            with open(hashed_path, "r", encoding="utf8") as duplicated_file:
+            with open(hashed_path, encoding="utf8") as duplicated_file:
                 content = duplicated_file.read()
 
             with open(original_path, "w", encoding="utf8") as original_file:
@@ -85,7 +84,7 @@ def reset_file(file: str) -> None:
     """function to reset the file"""
     try:
         # reset the file
-        with open(backuped_files[file], "r", encoding="utf8") as duplicated_file:
+        with open(backuped_files[file], encoding="utf8") as duplicated_file:
             duplicate_content = duplicated_file.read()
 
         with open(file, "w", encoding="utf8") as source_file:
@@ -95,7 +94,7 @@ def reset_file(file: str) -> None:
         logger.error("Error resetting file: %s", e)
 
 
-def get_sol_file_list(codebase: Path, ignore_paths: Union[List[str], None]) -> List[str]:
+def get_sol_file_list(codebase: Path, ignore_paths: list[str] | None) -> list[str]:
     """
     function to get the contracts list
     returns: list of .sol files

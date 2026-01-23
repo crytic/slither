@@ -1,6 +1,7 @@
 import logging
 from math import floor
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 
 import dataclasses
 
@@ -12,7 +13,7 @@ from web3.types import BlockIdentifier
 from web3.exceptions import ExtraDataLengthError
 from web3.middleware import ExtraDataToPOAMiddleware
 
-from slither.core.declarations import Contract, Structure
+from slither.core.declarations import Contract, Enum, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
@@ -37,20 +38,20 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")
 logger.setLevel(logging.INFO)
 
-Elem = Dict[str, "SlotInfo"]
-NestedElem = Dict[str, Elem]
+Elem = dict[str, "SlotInfo"]
+NestedElem = dict[str, Elem]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class SlotInfo:
     name: str
     type_string: str
     slot: int
     size: int
     offset: int
-    value: Optional[Union[int, bool, str, ChecksumAddress]] = None
+    value: int | bool | str | ChecksumAddress | None = None
     # For structure and array, str->SlotInfo
-    elems: Union[Elem, NestedElem] = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
+    elems: Elem | NestedElem = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
 
 
 class SlitherReadStorageException(Exception):
@@ -85,21 +86,24 @@ class RpcInfo:
 
 
 class SlitherReadStorage:
-    def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
-        self._checksum_address: Optional[ChecksumAddress] = None
-        self._contracts: List[Contract] = contracts
+    def __init__(self, contracts: list[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
+        self._checksum_address: ChecksumAddress | None = None
+        self._contracts: list[Contract] = contracts
         self._log: str = ""
         self._max_depth: int = max_depth
-        self._slot_info: Dict[str, SlotInfo] = {}
-        self._target_variables: List[Tuple[Contract, StateVariable]] = []
-        self._constant_storage_slots: List[Tuple[Contract, StateVariable]] = []
-        self.rpc_info: Optional[RpcInfo] = rpc_info
-        self.storage_address: Optional[str] = None
-        self.table: Optional[MyPrettyTable] = None
+        self._slot_info: dict[str, SlotInfo] = {}
+        self._target_variables: list[tuple[Contract, StateVariable]] = []
+        self._constant_storage_slots: list[tuple[Contract, StateVariable]] = []
+        self._immutable_variables: list[tuple[Contract, StateVariable]] = []
+        self._constant_variables: list[tuple[Contract, StateVariable]] = []
+        self.rpc_info: RpcInfo | None = rpc_info
+        self.storage_address: str | None = None
+        self.table: MyPrettyTable | None = None
         self.unstructured: bool = False
+        self.include_immutable: bool = False
 
     @property
-    def contracts(self) -> List[Contract]:
+    def contracts(self) -> list[Contract]:
         return self._contracts
 
     @property
@@ -123,23 +127,33 @@ class SlitherReadStorage:
         return self._checksum_address
 
     @property
-    def target_variables(self) -> List[Tuple[Contract, StateVariable]]:
+    def target_variables(self) -> list[tuple[Contract, StateVariable]]:
         """Storage variables (not constant or immutable) and their associated contract."""
         return self._target_variables
 
     @property
-    def constant_slots(self) -> List[Tuple[Contract, StateVariable]]:
-        """Constant bytes32 variables and their associated contract."""
+    def constant_slots(self) -> list[tuple[Contract, StateVariable]]:
+        """Constant bytes32 variables (unstructured storage slots) and their associated contract."""
         return self._constant_storage_slots
 
     @property
-    def slot_info(self) -> Dict[str, SlotInfo]:
+    def immutable_variables(self) -> list[tuple[Contract, StateVariable]]:
+        """Immutable variables and their associated contract."""
+        return self._immutable_variables
+
+    @property
+    def constant_variables(self) -> list[tuple[Contract, StateVariable]]:
+        """Constant variables and their associated contract."""
+        return self._constant_variables
+
+    @property
+    def slot_info(self) -> dict[str, SlotInfo]:
         """Contains the location, type, size, offset, and value of contract slots."""
         return self._slot_info
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp: Dict[str, SlotInfo] = {}
+        tmp: dict[str, SlotInfo] = {}
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
@@ -153,10 +167,12 @@ class SlitherReadStorage:
                     tmp[var.name].elems = elems
         if self.unstructured:
             tmp.update(self.get_unstructured_layout())
+        if self.include_immutable:
+            tmp.update(self.get_immutable_constant_layout())
         self._slot_info = tmp
 
-    def get_unstructured_layout(self) -> Dict[str, SlotInfo]:
-        tmp: Dict[str, SlotInfo] = {}
+    def get_unstructured_layout(self) -> dict[str, SlotInfo]:
+        tmp: dict[str, SlotInfo] = {}
         for _, var in self.constant_slots:
             var_name = var.name
             try:
@@ -185,7 +201,7 @@ class SlitherReadStorage:
                     )
                     self.log += (
                         f"\nSlot Name: {var_name}\nType: bytes32"
-                        f"\nStorage Type: {type_string}\nSlot: {str(exp)}\n"
+                        f"\nStorage Type: {type_string}\nSlot: {exp!s}\n"
                     )
                     logger.info(self.log)
                     self.log = ""
@@ -193,12 +209,152 @@ class SlitherReadStorage:
                 continue
         return tmp
 
+    def get_immutable_constant_layout(self) -> dict[str, SlotInfo]:
+        """
+        Retrieves the layout for immutable and constant variables.
+        These variables don't have storage slots - their values are either:
+        - Embedded in bytecode (immutable)
+        - Computed at compile time (constant)
+
+        For public variables, values can be retrieved via RPC by calling the getter.
+        For private/internal, we extract from the expression if possible.
+        """
+        tmp: dict[str, SlotInfo] = {}
+
+        # Process immutable variables
+        for contract, var in self.immutable_variables:
+            var_name = var.name
+            type_ = var.type
+            type_string = str(type_) if type_ else "unknown"
+            byte_size, _ = type_.storage_size if type_ else (32, 0)
+            size = byte_size * 8
+
+            value = self._get_immutable_value(var)
+
+            tmp[var_name] = SlotInfo(
+                name=var_name,
+                type_string=f"{type_string} (immutable)",
+                slot=-1,  # No storage slot
+                size=size,
+                offset=0,
+                value=value,
+            )
+            self.log += f"\nImmutable: {var_name}\nType: {type_string}\nValue: {value}\n"
+            logger.info(self.log)
+            self.log = ""
+
+        # Process constant variables
+        for contract, var in self.constant_variables:
+            var_name = var.name
+            type_ = var.type
+            type_string = str(type_) if type_ else "unknown"
+            byte_size, _ = type_.storage_size if type_ else (32, 0)
+            size = byte_size * 8
+
+            value = self._get_constant_value(var)
+
+            tmp[var_name] = SlotInfo(
+                name=var_name,
+                type_string=f"{type_string} (constant)",
+                slot=-1,  # No storage slot
+                size=size,
+                offset=0,
+                value=value,
+            )
+            self.log += f"\nConstant: {var_name}\nType: {type_string}\nValue: {value}\n"
+            logger.info(self.log)
+            self.log = ""
+
+        return tmp
+
+    def _get_immutable_value(self, var: StateVariable) -> int | bool | str | ChecksumAddress | None:
+        """
+        Retrieves the value of an immutable variable.
+        For public immutables, calls the getter via RPC.
+        For private/internal, returns None (would require bytecode analysis).
+        """
+        # Private/internal immutables cannot be retrieved without bytecode analysis
+        if var.visibility != "public":
+            logger.debug(
+                f"Cannot retrieve value for {var.visibility} immutable {var.name} "
+                "(would require bytecode analysis)"
+            )
+            return None
+
+        # Try to get value via RPC for public variables
+        if self.rpc_info:
+            try:
+                # Call the getter function
+                func_signature = f"{var.name}()"
+                selector = keccak(func_signature.encode())[:4]
+                result = self.rpc_info.web3.eth.call(
+                    {"to": self.checksum_address, "data": "0x" + selector.hex()},
+                    self.rpc_info.block,
+                )
+                if result:
+                    type_ = var.type
+                    if isinstance(type_, ElementaryType):
+                        return self.convert_value_to_type(result, type_.size, 0, type_.name)
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Could not retrieve immutable {var.name} via RPC: {e}")
+
+        return None
+
+    def _get_constant_value(self, var: StateVariable) -> int | bool | str | ChecksumAddress | None:
+        """
+        Retrieves the value of a constant variable from its expression.
+        """
+        if var.expression is None:
+            return None
+
+        try:
+            exp = var.expression
+            type_ = var.type
+
+            # Try constant folding for complex expressions
+            if isinstance(
+                exp,
+                (
+                    BinaryOperation,
+                    UnaryOperation,
+                    Identifier,
+                    TupleExpression,
+                    TypeConversion,
+                    CallExpression,
+                ),
+            ):
+                type_str = str(type_) if type_ else "uint256"
+                exp = ConstantFolding(exp, type_str).result()
+
+            if isinstance(exp, Literal):
+                value = exp.value
+                if isinstance(type_, ElementaryType):
+                    type_name = type_.name
+                    # Handle different types
+                    if "int" in type_name:
+                        return int(value) if isinstance(value, str) else value
+                    if type_name == "bool":
+                        return value.lower() == "true" if isinstance(value, str) else bool(value)
+                    if type_name == "address":
+                        return to_checksum_address(value) if value else None
+                    if "bytes" in type_name:
+                        return value if isinstance(value, str) else hex(value)
+                    return str(value)
+                return str(value)
+        except NotConstant:
+            logger.debug(f"Could not fold constant {var.name}: expression is not constant")
+        except (ValueError, TypeError, AttributeError) as e:
+            logger.debug(f"Could not fold constant {var.name}: {e}")
+
+        # Return raw expression as string if we can't fold it
+        return str(var.expression) if var.expression else None
+
     def get_storage_slot(
         self,
         target_variable: StateVariable,
         contract: Contract,
         **kwargs: Any,
-    ) -> Union[SlotInfo, None]:
+    ) -> SlotInfo | None:
         """
         Finds the storage slot of a variable in a given contract.
         Args:
@@ -213,9 +369,9 @@ class SlitherReadStorage:
             (`SlotInfo`) | None : A dictionary of the slot information.
         """
 
-        key: Optional[int] = kwargs.get("key", None)
-        deep_key: Optional[int] = kwargs.get("deep_key", None)
-        struct_var: Optional[str] = kwargs.get("struct_var", None)
+        key: int | None = kwargs.get("key")
+        deep_key: int | None = kwargs.get("deep_key")
+        struct_var: str | None = kwargs.get("struct_var")
         info: str
         var_log_name = target_variable.name
         try:
@@ -286,9 +442,7 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
-    def find_constant_slot_storage_type(
-        self, var: StateVariable
-    ) -> Tuple[Optional[str], Optional[int]]:
+    def find_constant_slot_storage_type(self, var: StateVariable) -> tuple[str | None, int | None]:
         """
         Given a constant bytes32 StateVariable, tries to determine which variable type is stored there, using the
         heuristic that if a function reads from the slot and returns a value, it probably stores that type of value.
@@ -374,6 +528,10 @@ class SlitherReadStorage:
         Fetches the slot value of `SlotInfo` object
         :param slot_info:
         """
+        # Skip immutable/constant variables (slot=-1) - their values are already set
+        if slot_info.slot == -1:
+            return
+
         assert self.rpc_info is not None
         hex_bytes = get_storage_data(
             self.rpc_info.web3,
@@ -397,18 +555,21 @@ class SlitherReadStorage:
                 if func(var):
                     if var.is_stored:
                         self._target_variables.append((contract, var))
-                    elif (
-                        self.unstructured
-                        and var.is_constant
-                        and var.type == ElementaryType("bytes32")
-                    ):
-                        self._constant_storage_slots.append((contract, var))
+                    elif var.is_immutable and self.include_immutable:
+                        self._immutable_variables.append((contract, var))
+                    elif var.is_constant:
+                        if self.include_immutable:
+                            # Capture all constants for display
+                            self._constant_variables.append((contract, var))
+                        if self.unstructured and var.type == ElementaryType("bytes32"):
+                            # Also add bytes32 constants to unstructured slots
+                            self._constant_storage_slots.append((contract, var))
             if self.unstructured:
                 hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
                 if hardcoded_slot is not None:
                     self._constant_storage_slots.append((contract, hardcoded_slot))
 
-    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> StateVariable | None:
         """
         Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
         `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
@@ -441,9 +602,7 @@ class SlitherReadStorage:
         return None
 
     @staticmethod
-    def find_hardcoded_slot_in_asm_str(
-        inline_asm: str, contract: Contract
-    ) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_asm_str(inline_asm: str, contract: Contract) -> StateVariable | None:
         """
         Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
         Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
@@ -472,7 +631,7 @@ class SlitherReadStorage:
 
     def find_hardcoded_slot_in_exp(
         self, exp: "Expression", contract: Contract
-    ) -> Optional[StateVariable]:
+    ) -> StateVariable | None:
         """
         Parses an expression to see if it contains a sload from a literal storage slot,
         unrolling nested expressions if necessary to determine which slot it loads from.
@@ -552,13 +711,13 @@ class SlitherReadStorage:
             self.table = MyPrettyTable(field_names)
         self.table.add_row([getattr(slot_info, field) for field in field_names])
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {key: dataclasses.asdict(value) for key, value in self.slot_info.items()}
 
     @staticmethod
     def _find_struct_var_slot(
-        elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
-    ) -> Tuple[str, str, bytes, int, int]:
+        elems: list[StructureVariable], slot_as_bytes: bytes, struct_var: str
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the slot of a structure variable.
         Args:
@@ -587,8 +746,72 @@ class SlitherReadStorage:
                     type_to = var_type.name
                     break  # found struct var
                 offset += size
+            elif isinstance(var_type, ArrayType):
+                # Arrays in structs start at a new slot
+                if offset > 0:
+                    slot += 1
+                    offset = 0
+                if struct_var == var.name:
+                    if var_type.is_dynamic_array:
+                        # Dynamic arrays take 1 slot for length, data at keccak(slot)
+                        size = 256
+                        type_to = str(var_type)
+                    else:
+                        # Fixed arrays are stored inline
+                        size = var_type.storage_size[0] * 8  # Convert bytes to bits
+                        type_to = str(var_type)
+                    break  # found struct var
+                # Move past this array's slots
+                if var_type.is_dynamic_array:
+                    slot += 1  # Dynamic array takes 1 slot in struct
+                else:
+                    # Fixed array takes ceil(total_size / 32) slots
+                    array_bytes = var_type.storage_size[0]
+                    slot += (array_bytes + 31) // 32
+            elif isinstance(var_type, UserDefinedType):
+                underlying = var_type.type
+                if isinstance(underlying, Structure):
+                    # Nested struct starts on new slot boundary
+                    if offset > 0:
+                        slot += 1
+                        offset = 0
+                    if struct_var == var.name:
+                        size = var_type.storage_size[0] * 8  # Convert bytes to bits
+                        type_to = str(var_type)
+                        break
+                    # Move past nested struct slots
+                    nested_bytes = var_type.storage_size[0]
+                    slot += (nested_bytes + 31) // 32
+                elif isinstance(underlying, (Enum, Contract)):
+                    # Enum or Contract - pack like elementary type
+                    elem_size_bytes, _ = var_type.storage_size
+                    size_bits = elem_size_bytes * 8
+                    if size_bits > (256 - offset):
+                        slot += 1
+                        offset = 0
+                    if struct_var == var.name:
+                        size = size_bits
+                        type_to = str(var_type)
+                        break
+                    offset += size_bits
+                else:
+                    logger.info(
+                        f"Unhandled UserDefinedType: {type(underlying)} in _find_struct_var_slot"
+                    )
+            elif isinstance(var_type, MappingType):
+                # Mappings in structs take 1 slot
+                if offset > 0:
+                    slot += 1
+                    offset = 0
+                if struct_var == var.name:
+                    size = 256
+                    type_to = str(var_type)
+                    break
+                slot += 1
             else:
-                logger.info(f"{type(var_type)} is current not implemented in _find_struct_var_slot")
+                logger.info(
+                    f"{type(var_type)} is currently not implemented in _find_struct_var_slot"
+                )
 
         slot_as_bytes = int.to_bytes(slot, 32, byteorder="big")
         info = f"\nStruct Variable: {struct_var}"
@@ -599,9 +822,9 @@ class SlitherReadStorage:
         target_variable_type: ArrayType,
         slot: bytes,
         key: int,
-        deep_key: int = None,
-        struct_var: str = None,
-    ) -> Tuple[str, str, bytes, int, int]:
+        deep_key: int | None = None,
+        struct_var: str | None = None,
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the slot of array's index.
         Args:
@@ -702,10 +925,10 @@ class SlitherReadStorage:
     def _find_mapping_slot(
         target_variable_type: MappingType,
         slot: bytes,
-        key: Union[int, str],
-        deep_key: Union[int, str] = None,
-        struct_var: str = None,
-    ) -> Tuple[str, str, bytes, int, int]:
+        key: int | str,
+        deep_key: int | str | None = None,
+        struct_var: str | None = None,
+    ) -> tuple[str, str, bytes, int, int]:
         """
         Finds the data slot of a target variable within a mapping.
             target_variable (`StateVariable`): The mapping that contains the target variable.
@@ -796,7 +1019,7 @@ class SlitherReadStorage:
     @staticmethod
     def get_variable_info(
         contract: Contract, target_variable: StateVariable
-    ) -> Tuple[int, int, int, str]:
+    ) -> tuple[int, int, int, str]:
         """Return slot, size, offset, and type."""
         assert isinstance(target_variable.type, Type)
         type_to = str(target_variable.type)
@@ -813,7 +1036,7 @@ class SlitherReadStorage:
     @staticmethod
     def convert_value_to_type(
         hex_bytes: bytes, size: int, offset: int, type_to: str
-    ) -> Union[int, bool, str, ChecksumAddress]:
+    ) -> int | bool | str | ChecksumAddress:
         """Convert slot data to type representation."""
         # Account for storage packing
         offset_hex_bytes = get_offset_value(hex_bytes, offset, size)
@@ -825,7 +1048,7 @@ class SlitherReadStorage:
         return value
 
     def _all_struct_slots(
-        self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
+        self, var: StateVariable, st: Structure, contract: Contract, key: int | None = None
     ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
@@ -844,7 +1067,7 @@ class SlitherReadStorage:
 
     def _all_array_slots(
         self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
-    ) -> Union[Elem, NestedElem]:
+    ) -> Elem | NestedElem:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
         target_variable_type = type_.type

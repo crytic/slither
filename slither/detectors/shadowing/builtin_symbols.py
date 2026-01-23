@@ -2,8 +2,6 @@
 Module detecting reserved keyword shadowing
 """
 
-from typing import List, Tuple, Union, Optional
-
 from slither.core.declarations import Function, Event
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -127,7 +125,7 @@ contract Bug {
         "unchecked",
     ]
 
-    def is_builtin_symbol(self, word: Optional[str]) -> bool:
+    def is_builtin_symbol(self, word: str | None) -> bool:
         """Detects if a given word is a built-in symbol.
 
         Returns:
@@ -136,8 +134,8 @@ contract Bug {
         return word in self.BUILTIN_SYMBOLS or word in self.RESERVED_KEYWORDS
 
     def detect_builtin_shadowing_locals(
-        self, function_or_modifier: Union[Modifier, FunctionContract]
-    ) -> List[Tuple[str, LocalVariable]]:
+        self, function_or_modifier: Modifier | FunctionContract
+    ) -> list[tuple[str, LocalVariable]]:
         """Detects if local variables in a given function/modifier are named after built-in symbols.
             Any such items are returned in a list.
 
@@ -152,14 +150,14 @@ contract Bug {
 
     def detect_builtin_shadowing_definitions(
         self, contract: Contract
-    ) -> List[Tuple[str, Union[Function, Variable, Event]]]:
+    ) -> list[tuple[str, Function | Variable | Event]]:
         """Detects if functions, access modifiers, events, state variables, or local variables are named after built-in
             symbols. Any such definitions are returned in a list.
 
         Returns:
             list of tuple: (type, definition, [local variable parent])"""
 
-        result: List[Tuple[str, Union[Function, Variable, Event]]] = []
+        result: list[tuple[str, Function | Variable | Event]] = []
 
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions_declared:
@@ -181,7 +179,7 @@ contract Bug {
 
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect shadowing of built-in symbols
 
         Recursively visit the calls

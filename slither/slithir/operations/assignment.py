@@ -1,5 +1,4 @@
 import logging
-from typing import List, Union
 
 from slither.core.declarations.function import Function
 from slither.core.solidity_types import Type
@@ -14,7 +13,7 @@ class Assignment(OperationWithLValue):
     def __init__(
         self,
         left_variable: LVALUE,
-        right_variable: Union[RVALUE, Function, TupleVariable],
+        right_variable: RVALUE | Function | TupleVariable,
         variable_return_type: Type,
     ) -> None:
         assert is_valid_lvalue(left_variable)
@@ -24,15 +23,15 @@ class Assignment(OperationWithLValue):
         super().__init__()
         self._variables = [left_variable, right_variable]
         self._lvalue: LVALUE = left_variable
-        self._rvalue: Union[RVALUE, Function, TupleVariable] = right_variable
+        self._rvalue: RVALUE | Function | TupleVariable = right_variable
         self._variable_return_type = variable_return_type
 
     @property
-    def variables(self) -> List[Union[LVALUE, RVALUE, Function, TupleVariable]]:
+    def variables(self) -> list[LVALUE | RVALUE | Function | TupleVariable]:
         return list(self._variables)
 
     @property
-    def read(self) -> List[Union[RVALUE, Function, TupleVariable]]:
+    def read(self) -> list[RVALUE | Function | TupleVariable]:
         return [self.rvalue]
 
     @property
@@ -40,7 +39,7 @@ class Assignment(OperationWithLValue):
         return self._variable_return_type
 
     @property
-    def rvalue(self) -> Union[RVALUE, Function, TupleVariable]:
+    def rvalue(self) -> RVALUE | Function | TupleVariable:
         return self._rvalue
 
     def __str__(self) -> str:

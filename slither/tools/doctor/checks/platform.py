@@ -30,7 +30,7 @@ def detect_platform(project: str, **kwargs) -> None:
 
     print("Is this project using...")
     for platform, state in detected_platforms.items():
-        print(f"    =>  {platform + '?':<15}{state and green('Yes') or red('No')}")
+        print(f"    =>  {platform + '?':<15}{(state and green('Yes')) or red('No')}")
     print()
 
     if platform_qty == 0:

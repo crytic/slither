@@ -1,63 +1,50 @@
----
-# Pre-commit hooks for automated code quality checks
-# Install with: pre-commit install
-# Run manually: pre-commit run --all-files
-
 repos:
-  # Ruff - Fast Python linter and formatter
+  # Python linting & formatting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10  # Use 'pre-commit autoupdate' to get the latest version
+    rev: v0.14.13
     hooks:
-      # Run ruff linter
       - id: ruff-check
-        name: ruff lint
         args: [--fix, --exit-non-zero-on-fix]
-        types_or: [python, pyi]
-      # Run ruff formatter
       - id: ruff-format
-        name: ruff format
-        types_or: [python, pyi]
 
-  # YAML linting
+  # Shell scripts
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: [-x]
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.11.0-1
+    hooks:
+      - id: shfmt
+        args: [-i, "2", -ci, -bn]
+
+  # GitHub Actions validation
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+
+  # YAML validation
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.37.1
     hooks:
       - id: yamllint
-        name: yamllint
-        args: [-c=.yamllint]
-        types: [yaml]
-        exclude: ^(tests/|docs/)
+        args: [-c, .yamllint]
+        exclude: ^tests/|^docs/
 
-  # General file checks
+  # File hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        name: trim trailing whitespace
-        exclude: ^(tests/|.*\.md$)
+        exclude: ^tests/
       - id: end-of-file-fixer
-        name: fix end of files
-        exclude: ^(tests/|docs/)
-      - id: check-yaml
-        name: check yaml syntax
-        exclude: ^(tests/|docs/)
+        exclude: ^tests/|^docs/
       - id: check-added-large-files
-        name: check for large files
         args: [--maxkb=1000]
       - id: check-merge-conflict
-        name: check for merge conflicts
       - id: check-toml
-        name: check toml syntax
-      - id: debug-statements
-        name: check for debug statements
-        exclude: ^(tests/)
-      - id: mixed-line-ending
-        name: fix mixed line endings
-        args: [--fix=lf]
 
-# Configuration
-default_language_version:
-  python: python3.11
-
-# Run hooks on pre-commit and pre-push
 default_stages: [pre-commit, pre-push]

@@ -3,7 +3,8 @@ import inspect
 import json
 import logging
 import sys
-from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
+from typing import Any
+from collections.abc import Sequence
 
 from crytic_compile import cryticparser
 
@@ -30,7 +31,7 @@ logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
+def parse_args(check_classes: list[type[AbstractCheck]]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
         usage="slither-check-upgradeability contract.sol ContractName",
@@ -146,17 +147,17 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
 ###################################################################################
 
 
-def _get_checks() -> List[Type[AbstractCheck]]:
+def _get_checks() -> list[type[AbstractCheck]]:
     detectors_ = [getattr(all_checks, name) for name in dir(all_checks)]
-    detectors: List[Type[AbstractCheck]] = [
+    detectors: list[type[AbstractCheck]] = [
         c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractCheck)
     ]
     return detectors
 
 
 def choose_checks(
-    args: argparse.Namespace, all_check_classes: List[Type[AbstractCheck]]
-) -> List[Type[AbstractCheck]]:
+    args: argparse.Namespace, all_check_classes: list[type[AbstractCheck]]
+) -> list[type[AbstractCheck]]:
     detectors_to_run = []
     detectors = {d.ARGUMENT: d for d in all_check_classes}
 
@@ -211,7 +212,7 @@ class OutputMarkdown(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> None:
         checks = _get_checks()
@@ -225,7 +226,7 @@ class OutputWiki(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> Any:
         checks = _get_checks()
@@ -234,7 +235,7 @@ class OutputWiki(argparse.Action):
         parser.exit()
 
 
-def _run_checks(detectors: List[AbstractCheck]) -> List[Dict]:
+def _run_checks(detectors: list[AbstractCheck]) -> list[dict]:
     results_ = [d.check() for d in detectors]
     results_ = [r for r in results_ if r]
     results = [item for sublist in results_ for item in sublist]  # flatten
@@ -242,8 +243,8 @@ def _run_checks(detectors: List[AbstractCheck]) -> List[Dict]:
 
 
 def _checks_on_contract(
-    detectors: List[Type[AbstractCheck]], contract: Contract
-) -> Tuple[List[Dict], int]:
+    detectors: list[type[AbstractCheck]], contract: Contract
+) -> tuple[list[dict], int]:
     detectors_ = [
         d(logger, contract)
         for d in detectors
@@ -253,8 +254,8 @@ def _checks_on_contract(
 
 
 def _checks_on_contract_update(
-    detectors: List[Type[AbstractCheck]], contract_v1: Contract, contract_v2: Contract
-) -> Tuple[List[Dict], int]:
+    detectors: list[type[AbstractCheck]], contract_v1: Contract, contract_v2: Contract
+) -> tuple[list[dict], int]:
     detectors_ = [
         d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
     ]
@@ -262,8 +263,8 @@ def _checks_on_contract_update(
 
 
 def _checks_on_contract_and_proxy(
-    detectors: List[Type[AbstractCheck]], contract: Contract, proxy: Contract
-) -> Tuple[List[Dict], int]:
+    detectors: list[type[AbstractCheck]], contract: Contract, proxy: Contract
+) -> tuple[list[dict], int]:
     detectors_ = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
     return _run_checks(detectors_), len(detectors_)
 
@@ -277,7 +278,7 @@ def _checks_on_contract_and_proxy(
 
 
 def main() -> None:
-    json_results: Dict = {
+    json_results: dict = {
         "proxy-present": False,
         "contract_v2-present": False,
         "detectors": [],

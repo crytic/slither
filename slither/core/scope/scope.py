@@ -1,4 +1,5 @@
-from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
+from typing import Any, TypeVar
+from collections.abc import Callable
 
 from crytic_compile import CompilationUnit
 from crytic_compile.source_unit import SourceUnit
@@ -16,45 +17,45 @@ from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.variables import Constant
 
 
-def _dict_contain(d1: Dict, d2: Dict) -> bool:
+def _dict_contain(d1: dict, d2: dict) -> bool:
     """
     Return true if d1 is included in d2
     """
     d2_keys = d2.keys()
-    return all(item in d2_keys for item in d1.keys())
+    return all(item in d2_keys for item in d1)
 
 
 class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
-        self.accessible_scopes: List[FileScope] = []
-        self.exported_symbols: Set[int] = set()
+        self.accessible_scopes: list[FileScope] = []
+        self.exported_symbols: set[int] = set()
 
-        self.contracts: Dict[str, Contract] = {}
+        self.contracts: dict[str, Contract] = {}
         # Custom error are a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
-        self.custom_errors: Set[CustomErrorTopLevel] = set()
-        self.enums: Dict[str, EnumTopLevel] = {}
+        self.custom_errors: set[CustomErrorTopLevel] = set()
+        self.enums: dict[str, EnumTopLevel] = {}
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
-        self.functions: Set[FunctionTopLevel] = set()
-        self.events: Set[EventTopLevel] = set()
-        self.using_for_directives: Set[UsingForTopLevel] = set()
-        self.imports: Set[Import] = set()
-        self.pragmas: Set[Pragma] = set()
-        self.structures: Dict[str, StructureTopLevel] = {}
-        self.variables: Dict[str, TopLevelVariable] = {}
+        self.functions: set[FunctionTopLevel] = set()
+        self.events: set[EventTopLevel] = set()
+        self.using_for_directives: set[UsingForTopLevel] = set()
+        self.imports: set[Import] = set()
+        self.pragmas: set[Pragma] = set()
+        self.structures: dict[str, StructureTopLevel] = {}
+        self.variables: dict[str, TopLevelVariable] = {}
 
         # Renamed created by import
         # import A as B
         # local name -> original name (A -> B)
-        self.renaming: Dict[str, str] = {}
+        self.renaming: dict[str, str] = {}
 
         # User defined types
         # Name -> type alias
-        self.type_aliases: Dict[str, TypeAlias] = {}
+        self.type_aliases: dict[str, TypeAlias] = {}
 
     def add_accessible_scopes(self) -> bool:
         """
@@ -92,7 +93,7 @@ class FileScope:
 
         return learn_something
 
-    def get_contract_from_name(self, name: Union[str, Constant]) -> Optional[Contract]:
+    def get_contract_from_name(self, name: str | Constant) -> Contract | None:
         if isinstance(name, Constant):
             return self.contracts.get(name.name, None)
         return self.contracts.get(name, None)
@@ -103,8 +104,8 @@ class FileScope:
         self,
         crytic_compile_compilation_unit: CompilationUnit,
         name: str,
-        getter: Callable[[SourceUnit], Dict[str, AbstractReturnType]],
-    ) -> Optional[AbstractReturnType]:
+        getter: Callable[[SourceUnit], dict[str, AbstractReturnType]],
+    ) -> AbstractReturnType | None:
         assert self.filename in crytic_compile_compilation_unit.source_units
 
         source_unit = crytic_compile_compilation_unit.source_unit(self.filename)
@@ -121,7 +122,7 @@ class FileScope:
 
     def bytecode_init(
         self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Return the init bytecode
 
@@ -132,14 +133,14 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_init
+        getter: Callable[[SourceUnit], dict[str, str]] = lambda x: x.bytecodes_init
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
 
     def bytecode_runtime(
         self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Return the runtime bytecode
 
@@ -150,14 +151,14 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_runtime
+        getter: Callable[[SourceUnit], dict[str, str]] = lambda x: x.bytecodes_runtime
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
 
     def srcmap_init(
         self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
-    ) -> Optional[List[str]]:
+    ) -> list[str] | None:
         """
         Return the init scrmap
 
@@ -168,14 +169,14 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_init
+        getter: Callable[[SourceUnit], dict[str, list[str]]] = lambda x: x.srcmaps_init
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
 
     def srcmap_runtime(
         self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
-    ) -> Optional[List[str]]:
+    ) -> list[str] | None:
         """
         Return the runtime srcmap
 
@@ -186,7 +187,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_runtime
+        getter: Callable[[SourceUnit], dict[str, list[str]]] = lambda x: x.srcmaps_runtime
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -202,7 +203,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.abis
+        getter: Callable[[SourceUnit], dict[str, list[str]]] = lambda x: x.abis
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )

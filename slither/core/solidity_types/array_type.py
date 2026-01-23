@@ -1,4 +1,4 @@
-from typing import Union, Optional, Tuple, Any, TYPE_CHECKING
+from typing import Union, Any, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.literal import Literal
@@ -15,7 +15,7 @@ class ArrayType(Type):
     def __init__(
         self,
         t: Type,
-        length: Optional[Union["Identifier", Literal, "BinaryOperation", int]],
+        length: Union["Identifier", Literal, "BinaryOperation", int] | None,
     ) -> None:
         assert isinstance(t, Type)
         if length:
@@ -25,13 +25,13 @@ class ArrayType(Type):
         super().__init__()
         self._type: Type = t
         assert length is None or isinstance(length, Expression)
-        self._length: Optional[Expression] = length
+        self._length: Expression | None = length
 
         if length:
             if not isinstance(length, Literal):
                 cf = ConstantFolding(length, "uint256")
                 length = cf.result()
-            self._length_value: Optional[Literal] = length
+            self._length_value: Literal | None = length
         else:
             self._length_value = None
 
@@ -44,11 +44,11 @@ class ArrayType(Type):
         return self.length is None
 
     @property
-    def length(self) -> Optional[Expression]:
+    def length(self) -> Expression | None:
         return self._length
 
     @property
-    def length_value(self) -> Optional[Literal]:
+    def length_value(self) -> Literal | None:
         return self._length_value
 
     @property
@@ -60,7 +60,7 @@ class ArrayType(Type):
         return not self.is_fixed_array
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         if self._length_value:
             elem_size, _ = self._type.storage_size
             return elem_size * int(str(self._length_value)), True
@@ -68,13 +68,14 @@ class ArrayType(Type):
 
     def __str__(self) -> str:
         if self._length:
-            return str(self._type) + f"[{str(self._length_value)}]"
+            return str(self._type) + f"[{self._length_value!s}]"
         return str(self._type) + "[]"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ArrayType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not ArrayType:
             return False
-        return self._type == other.type and self._length_value == other.length_value
+        return self._type == other._type and self._length_value == other._length_value
 
     def __hash__(self) -> int:
         return hash(str(self))

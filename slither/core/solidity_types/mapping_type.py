@@ -1,4 +1,4 @@
-from typing import Union, Tuple, TYPE_CHECKING, Any
+from typing import Union, TYPE_CHECKING, Any
 
 from slither.core.solidity_types.type import Type
 
@@ -28,7 +28,7 @@ class MappingType(Type):
         return self._to
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         return 32, True
 
     @property
@@ -36,12 +36,13 @@ class MappingType(Type):
         return True
 
     def __str__(self) -> str:
-        return f"mapping({str(self._from)} => {str(self._to)})"
+        return f"mapping({self._from!s} => {self._to!s})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, MappingType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not MappingType:
             return False
-        return self.type_from == other.type_from and self.type_to == other.type_to
+        return self._from == other._from and self._to == other._to
 
     def __hash__(self) -> int:
         return hash(str(self))

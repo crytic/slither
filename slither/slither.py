@@ -1,5 +1,4 @@
 import logging
-from typing import Union, List, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -22,14 +21,14 @@ logger_printer = logging.getLogger("Printers")
 
 
 def _check_common_things(
-    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
+    thing_name: str, cls: type, base_cls: type, instances_list: list[type[AbstractDetector]]
 ) -> None:
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise SlitherError(
             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
         )
 
-    if any(type(obj) == cls for obj in instances_list):
+    if any(type(obj) is cls for obj in instances_list):
         raise SlitherError(f"You can't register {cls!r} twice.")
 
 
@@ -88,7 +87,7 @@ def _update_file_scopes(
 
 
 class Slither(SlitherCore):
-    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
+    def __init__(self, target: str | CryticCompile, **kwargs) -> None:
         """
         Args:
             target (str | CryticCompile)
@@ -120,11 +119,11 @@ class Slither(SlitherCore):
         self.codex_temperature = kwargs.get("codex_temperature", 0)
         self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
         self.codex_log = kwargs.get("codex_log", False)
-        self.codex_organization: Optional[str] = kwargs.get("codex_organization", None)
+        self.codex_organization: str | None = kwargs.get("codex_organization")
 
         self.no_fail = kwargs.get("no_fail", False)
 
-        self._parsers: List[SlitherCompilationUnitSolc] = []
+        self._parsers: list[SlitherCompilationUnitSolc] = []
         try:
             if isinstance(target, CryticCompile):
                 crytic_compile = target
@@ -132,7 +131,7 @@ class Slither(SlitherCore):
                 crytic_compile = CryticCompile(target, **kwargs)
             self._crytic_compile = crytic_compile
         except InvalidCompilation as e:
-            raise SlitherError(f"Invalid compilation: \n{str(e)}")
+            raise SlitherError(f"Invalid compilation: \n{e!s}")
         for compilation_unit in crytic_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
@@ -198,9 +197,14 @@ class Slither(SlitherCore):
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
+
         for parser in self._parsers:
             try:
-                parser.parse_contracts()
+                with timer.phase("parse_contracts"):
+                    parser.parse_contracts()
             except Exception as e:
                 if self.no_fail:
                     continue
@@ -210,7 +214,8 @@ class Slither(SlitherCore):
         if not skip_analyze:
             for parser in self._parsers:
                 try:
-                    parser.analyze_contracts()
+                    with timer.phase("analyze_contracts"):
+                        parser.analyze_contracts()
                 except Exception as e:
                     if self.no_fail:
                         continue
@@ -240,7 +245,7 @@ class Slither(SlitherCore):
     def detectors_optimization(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
-    def register_detector(self, detector_class: Type[AbstractDetector]) -> None:
+    def register_detector(self, detector_class: type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -250,7 +255,7 @@ class Slither(SlitherCore):
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
-    def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
+    def unregister_detector(self, detector_class: type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -260,7 +265,7 @@ class Slither(SlitherCore):
                 self._detectors.remove(obj)
                 return
 
-    def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def register_printer(self, printer_class: type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -269,7 +274,7 @@ class Slither(SlitherCore):
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def unregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def unregister_printer(self, printer_class: type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -279,18 +284,24 @@ class Slither(SlitherCore):
                 self._printers.remove(obj)
                 return
 
-    def run_detectors(self) -> List[Dict]:
+    def run_detectors(self) -> list[dict]:
         """
         :return: List of registered detectors results.
         """
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
 
         self.load_previous_results()
-        results = [d.detect() for d in self._detectors]
+        results = []
+        for d in self._detectors:
+            with timer.phase(f"detector:{d.ARGUMENT}"):
+                results.append(d.detect())
 
         self.write_results_to_hide()
         return results
 
-    def run_printers(self) -> List[Output]:
+    def run_printers(self) -> list[Output]:
         """
         :return: List of registered printers outputs.
         """

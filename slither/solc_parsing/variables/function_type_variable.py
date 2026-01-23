@@ -1,11 +1,9 @@
-from typing import Dict
-
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 
 class FunctionTypeVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: FunctionTypeVariable, variable_data: Dict):
+    def __init__(self, variable: FunctionTypeVariable, variable_data: dict):
         super().__init__(variable, variable_data)
 
     @property

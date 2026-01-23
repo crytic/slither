@@ -5,7 +5,7 @@ import os
 import zipfile
 from collections import OrderedDict
 from importlib import metadata
-from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
+from typing import Any, TYPE_CHECKING
 from zipfile import ZipFile
 
 
@@ -33,6 +33,23 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
+
+class OutputConfig:
+    """Configuration settings for output formatting."""
+
+    EXCLUDE_LOCATION: bool = False
+
+
+def set_exclude_location(exclude: bool) -> None:
+    """Set whether to exclude location info from detector messages."""
+    OutputConfig.EXCLUDE_LOCATION = exclude
+
+
+def get_exclude_location() -> bool:
+    """Get whether location info should be excluded from detector messages."""
+    return OutputConfig.EXCLUDE_LOCATION
+
+
 ###################################################################################
 ###################################################################################
 # region Output
@@ -40,7 +57,7 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def output_to_json(filename: Optional[str], error, results: Dict) -> None:
+def output_to_json(filename: str | None, error, results: dict) -> None:
     """
 
     :param filename: Filename where the json will be written. If None or "-", write to stdout
@@ -69,7 +86,7 @@ def output_to_json(filename: Optional[str], error, results: Dict) -> None:
 
 
 def _output_result_to_sarif(
-    detector: Dict, detectors_classes: List["AbstractDetector"], sarif: Dict
+    detector: dict, detectors_classes: list["AbstractDetector"], sarif: dict
 ) -> None:
     confidence = "very-high"
     if detector["confidence"] == "Medium":
@@ -87,7 +104,7 @@ def _output_result_to_sarif(
     elif detector["impact"] == "Low":
         risk = "3.0"
 
-    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
+    detector_class = next(d for d in detectors_classes if detector["check"] == d.ARGUMENT)
     check_id = (
         str(detector_class.IMPACT.value)
         + "-"
@@ -140,7 +157,7 @@ def _output_result_to_sarif(
 
 
 def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
+    filename: str | None, results: dict, detectors_classes: list[type["AbstractDetector"]]
 ) -> None:
     """
 
@@ -152,7 +169,7 @@ def output_to_sarif(
     :rtype:
     """
 
-    sarif: Dict[str, Any] = {
+    sarif: dict[str, Any] = {
         "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         "version": "2.1.0",
         "runs": [
@@ -198,7 +215,7 @@ ZIP_TYPES_ACCEPTED = {
 }
 
 
-def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"):
+def output_to_zip(filename: str, error: str | None, results: dict, zip_type: str = "lzma"):
     """
     Output the results to a zip
     The file in the zip is named slither_results.json
@@ -229,6 +246,13 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
 ###################################################################################
 
 
+def _format_with_location(name: str, source_mapping: SourceMapping) -> str:
+    """Format name with optional location based on OutputConfig.EXCLUDE_LOCATION."""
+    if OutputConfig.EXCLUDE_LOCATION:
+        return name
+    return f"{name} ({source_mapping})"
+
+
 def _convert_to_description(d: str) -> str:
     if isinstance(d, str):
         return d
@@ -238,14 +262,14 @@ def _convert_to_description(d: str) -> str:
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+            return _format_with_location(str(d.expression), d.source_mapping)
+        return _format_with_location(str(d), d.source_mapping)
 
     if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping})"
+        return _format_with_location(d.canonical_name, d.source_mapping)
 
     if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping})"
+        return _format_with_location(d.name, d.source_mapping)
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -260,7 +284,7 @@ def _convert_to_markdown(d: str, markdown_root: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
+        return f"[{d!s}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
         return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
@@ -286,7 +310,7 @@ def _convert_to_id(d: str) -> str:
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+        return f"{d!s} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
         return f"{d} ({d.source_mapping})"
@@ -311,33 +335,22 @@ def _convert_to_id(d: str) -> str:
 def _create_base_element(
     custom_type: str,
     name: str,
-    source_mapping: Dict,
-    type_specific_fields: Optional[
-        Dict[
+    source_mapping: dict,
+    type_specific_fields: dict[
+        str,
+        dict[
             str,
-            Union[
-                Dict[
-                    str,
-                    Union[
-                        str,
-                        Dict[str, Union[int, str, bool, List[int]]],
-                        Dict[
-                            str,
-                            Union[
-                                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
-                                str,
-                            ],
-                        ],
-                    ],
-                ],
-                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
-                str,
-                List[str],
-            ],
+            str
+            | dict[str, int | str | bool | list[int]]
+            | dict[str, dict[str, str | dict[str, int | str | bool | list[int]]] | str],
         ]
-    ] = None,
-    additional_fields: Optional[Dict[str, str]] = None,
-) -> Dict[str, Any]:
+        | dict[str, str | dict[str, int | str | bool | list[int]]]
+        | str
+        | list[str],
+    ]
+    | None = None,
+    additional_fields: dict[str, str] | None = None,
+) -> dict[str, Any]:
     if additional_fields is None:
         additional_fields = {}
     if type_specific_fields is None:
@@ -352,13 +365,11 @@ def _create_base_element(
 
 def _create_parent_element(
     element: SourceMapping,
-) -> Dict[
+) -> dict[
     str,
-    Union[
-        str,
-        Dict[str, Union[int, str, bool, List[int]]],
-        Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
-    ],
+    str
+    | dict[str, int | str | bool | list[int]]
+    | dict[str, dict[str, str | dict[str, int | str | bool | list[int]]] | str],
 ]:
     from slither.core.declarations.contract_level import ContractLevel
 
@@ -380,15 +391,15 @@ def _create_parent_element(
     return None
 
 
-SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
-AllSupportedOutput = Union[str, SupportedOutput]
+SupportedOutput = Variable | Contract | Function | Enum | Event | Structure | Pragma | Node
+AllSupportedOutput = str | SupportedOutput
 
 
 class Output:
     def __init__(
         self,
-        info_: Union[str, List[Union[str, SupportedOutput]]],
-        additional_fields: Optional[Dict] = None,
+        info_: str | list[str | SupportedOutput],
+        additional_fields: dict | None = None,
         markdown_root: str = "",
         standard_format: bool = True,
     ) -> None:
@@ -396,7 +407,7 @@ class Output:
             additional_fields = {}
 
         # Allow info to be a string to simplify the API
-        info: List[Union[str, SupportedOutput]]
+        info: list[str | SupportedOutput]
         if isinstance(info_, str):
             info = [info_]
         else:
@@ -421,7 +432,7 @@ class Output:
         if additional_fields:
             self._data["additional_fields"] = additional_fields
 
-    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None) -> None:
+    def add(self, add: SupportedOutput, additional_fields: dict | None = None) -> None:
         if not self._data["first_markdown_element"]:
             self._data["first_markdown_element"] = add.source_mapping.to_markdown(
                 self._markdown_root
@@ -448,11 +459,11 @@ class Output:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
     @property
-    def data(self) -> Dict:
+    def data(self) -> dict:
         return self._data
 
     @property
-    def elements(self) -> List[Dict]:
+    def elements(self) -> list[dict]:
         return self._data["elements"]
 
     # endregion
@@ -462,7 +473,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None) -> None:
+    def add_variable(self, variable: Variable, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
@@ -475,7 +486,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_variables(self, variables: List[Variable]):
+    def add_variables(self, variables: list[Variable]):
         for variable in sorted(variables, key=lambda x: x.name):
             self.add_variable(variable)
 
@@ -486,7 +497,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None) -> None:
+    def add_contract(self, contract: Contract, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         element = _create_base_element(
@@ -501,7 +512,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_function(self, function: Function, additional_fields: Optional[Dict] = None) -> None:
+    def add_function(self, function: Function, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -517,7 +528,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_functions(self, functions: List[Function], additional_fields: Optional[Dict] = None):
+    def add_functions(self, functions: list[Function], additional_fields: dict | None = None):
         if additional_fields is None:
             additional_fields = {}
         for function in sorted(functions, key=lambda x: x.name):
@@ -530,7 +541,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None) -> None:
+    def add_enum(self, enum: Enum, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
@@ -550,7 +561,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None) -> None:
+    def add_struct(self, struct: Structure, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
@@ -570,7 +581,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_event(self, event: Event, additional_fields: Optional[Dict] = None) -> None:
+    def add_event(self, event: Event, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -595,7 +606,7 @@ class Output:
     ###################################################################################
 
     def add_custom_error(
-        self, custom_error: CustomError, additional_fields: Optional[Dict] = None
+        self, custom_error: CustomError, additional_fields: dict | None = None
     ) -> None:
         if additional_fields is None:
             additional_fields = {}
@@ -620,7 +631,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_node(self, node: Node, additional_fields: Optional[Dict] = None) -> None:
+    def add_node(self, node: Node, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -636,7 +647,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_nodes(self, nodes: List[Node]):
+    def add_nodes(self, nodes: list[Node]):
         for node in sorted(nodes, key=lambda x: x.node_id):
             self.add_node(node)
 
@@ -647,7 +658,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None) -> None:
+    def add_pragma(self, pragma: Pragma, additional_fields: dict | None = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"directive": pragma.directive}
@@ -667,7 +678,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_file(self, filename: str, content: str, additional_fields: Optional[Dict] = None):
+    def add_file(self, filename: str, content: str, additional_fields: dict | None = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"filename": filename, "content": content}
@@ -686,7 +697,7 @@ class Output:
         self,
         content: MyPrettyTable,
         name: str,
-        additional_fields: Optional[Dict] = None,
+        additional_fields: dict | None = None,
     ):
         if additional_fields is None:
             additional_fields = {}
@@ -705,9 +716,9 @@ class Output:
     def add_other(
         self,
         name: str,
-        source_mapping: Tuple[str, int, int],
+        source_mapping: tuple[str, int, int],
         compilation_unit: "SlitherCompilationUnit",
-        additional_fields: Optional[Dict] = None,
+        additional_fields: dict | None = None,
     ) -> None:
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:

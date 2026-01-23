@@ -2,8 +2,6 @@
 Check if ethers are locked in the contract
 """
 
-from typing import List
-
 from slither.core.declarations import Contract, SolidityFunction
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -97,12 +95,12 @@ Every Ether sent to `Locked` will be lost."""
                         # Add it to the list to explore
                         # InternalCall if to follow internal call in libraries
                         if isinstance(ir, (InternalCall, LibraryCall)):
-                            if not ir.function in explored:
+                            if ir.function not in explored:
                                 to_explore.append(ir.function)
 
         return True
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

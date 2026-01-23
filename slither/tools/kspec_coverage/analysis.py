@@ -1,7 +1,7 @@
 import logging
 import re
 from argparse import Namespace
-from typing import Set, Tuple, List, Dict, Union, Optional, Callable
+from collections.abc import Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import FunctionContract
@@ -17,15 +17,15 @@ def _refactor_type(targeted_type: str) -> str:
     return {"uint": "uint256", "int": "int256"}.get(targeted_type, targeted_type)
 
 
-def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
+def _get_all_covered_kspec_functions(target: str) -> set[tuple[str, str]]:
     # Create a set of our discovered functions which are covered
-    covered_functions: Set[Tuple[str, str]] = set()
+    covered_functions: set[tuple[str, str]] = set()
 
     BEHAVIOUR_PATTERN = re.compile(r"behaviour\s+(\S+)\s+of\s+(\S+)")
     INTERFACE_PATTERN = re.compile(r"interface\s+([^\r\n]+)")
 
     # Read the file contents
-    with open(target, "r", encoding="utf8") as target_file:
+    with open(target, encoding="utf8") as target_file:
         lines = target_file.readlines()
 
     # Loop for each line, if a line matches our behaviour regex, and the next one matches our interface regex,
@@ -55,9 +55,9 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
 
 def _get_slither_functions(
     slither: SlitherCompilationUnit,
-) -> Dict[Tuple[str, str], Union[FunctionContract, StateVariable]]:
+) -> dict[tuple[str, str], FunctionContract | StateVariable]:
     # Use contract == contract_declarer to avoid duplicate
-    all_functions_declared: List[Union[FunctionContract, StateVariable]] = [
+    all_functions_declared: list[FunctionContract | StateVariable] = [
         f
         for f in slither.functions
         if (
@@ -67,7 +67,7 @@ def _get_slither_functions(
             and not f.is_constructor_variables
         )
     ]
-    # Use list(set()) because same state variable instances can be shared accross contracts
+    # Use list(set()) because same state variable instances can be shared across contracts
     # TODO: integrate state variables
     all_functions_declared += list(
         {s for s in slither.state_variables if s.visibility in ["public", "external"]}
@@ -81,11 +81,11 @@ def _get_slither_functions(
 
 
 def _generate_output(
-    kspec: List[Union[FunctionContract, StateVariable]],
+    kspec: list[FunctionContract | StateVariable],
     message: str,
     color: Callable[[str], str],
     generate_json: bool,
-) -> Optional[Dict]:
+) -> dict | None:
     info = ""
     for function in kspec:
         info += f"{message} {function.contract.name}.{function.full_name}\n"
@@ -101,8 +101,8 @@ def _generate_output(
 
 
 def _generate_output_unresolved(
-    kspec: Set[Tuple[str, str]], message: str, color: Callable[[str], str], generate_json: bool
-) -> Optional[Dict]:
+    kspec: set[tuple[str, str]], message: str, color: Callable[[str], str], generate_json: bool
+) -> dict | None:
     info = ""
     for contract, function in kspec:
         info += f"{message} {contract}.{function}\n"
@@ -116,7 +116,7 @@ def _generate_output_unresolved(
 
 
 def _run_coverage_analysis(
-    args: Namespace, slither: SlitherCompilationUnit, kspec_functions: Set[Tuple[str, str]]
+    args: Namespace, slither: SlitherCompilationUnit, kspec_functions: set[tuple[str, str]]
 ) -> None:
     # Collect all slither functions
     slither_functions = _get_slither_functions(slither)
@@ -124,10 +124,10 @@ def _run_coverage_analysis(
     # Determine which klab specs were not resolved.
     slither_functions_set = set(slither_functions)
     kspec_functions_resolved = kspec_functions & slither_functions_set
-    kspec_functions_unresolved: Set[Tuple[str, str]] = kspec_functions - kspec_functions_resolved
+    kspec_functions_unresolved: set[tuple[str, str]] = kspec_functions - kspec_functions_resolved
 
-    kspec_missing: List[Union[FunctionContract, StateVariable]] = []
-    kspec_present: List[Union[FunctionContract, StateVariable]] = []
+    kspec_missing: list[FunctionContract | StateVariable] = []
+    kspec_present: list[FunctionContract | StateVariable] = []
 
     for slither_func_desc in sorted(slither_functions_set):
         slither_func = slither_functions[slither_func_desc]
@@ -173,7 +173,7 @@ def run_analysis(args: Namespace, slither: SlitherCompilationUnit, kspec_arg: st
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     if "," in kspec_arg:
         kspecs = kspec_arg.split(",")
-        kspec_functions: Set[Tuple[str, str]] = set()
+        kspec_functions: set[tuple[str, str]] = set()
         for kspec in kspecs:
             kspec_functions |= _get_all_covered_kspec_functions(kspec)
     else:

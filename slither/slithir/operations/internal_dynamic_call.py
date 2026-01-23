@@ -1,4 +1,3 @@
-from typing import List, Optional, Union
 from slither.core.solidity_types import FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
@@ -14,8 +13,8 @@ from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 class InternalDynamicCall(Call, OperationWithLValue):
     def __init__(
         self,
-        lvalue: Optional[Union[TemporaryVariableSSA, TemporaryVariable]],
-        function: Union[LocalVariable, LocalIRVariable],
+        lvalue: TemporaryVariableSSA | TemporaryVariable | None,
+        function: LocalVariable | LocalIRVariable,
         function_type: FunctionType,
     ) -> None:
         assert isinstance(function_type, FunctionType)
@@ -31,7 +30,7 @@ class InternalDynamicCall(Call, OperationWithLValue):
         self._call_gas = None
 
     @property
-    def read(self) -> List[Union[Constant, LocalIRVariable, LocalVariable]]:
+    def read(self) -> list[Constant | LocalIRVariable | LocalVariable]:
         return self._unroll(self.arguments) + [self.function]
 
     @property

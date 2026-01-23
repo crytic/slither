@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.declarations import Contract, Structure, Enum
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.solidity_types import (
@@ -192,7 +190,7 @@ class IncorrectUsingFor(AbstractDetector):
     )
 
     def _append_result(
-        self, results: List[Output], uf: UsingForTopLevel, type_: Type, library: Contract
+        self, results: list[Output], uf: UsingForTopLevel, type_: Type, library: Contract
     ) -> None:
         info: DETECTOR_INFO = [
             f"using-for statement at {uf.source_mapping} is incorrect - no matching function for {type_} found in ",
@@ -202,8 +200,8 @@ class IncorrectUsingFor(AbstractDetector):
         res = self.generate_result(info)
         results.append(res)
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         for uf in self.compilation_unit.using_for_top_level:
             # UsingForTopLevel.using_for is a dict with a single entry, which is mapped to a list of functions/libraries

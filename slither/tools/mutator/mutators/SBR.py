@@ -1,4 +1,3 @@
-from typing import Dict
 import re
 from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
@@ -48,8 +47,8 @@ class SBR(AbstractMutator):
     NAME = "SBR"
     HELP = "Solidity Based Replacement"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
         variable: Variable
 
         for function in self.contract.functions_and_modifiers_declared:

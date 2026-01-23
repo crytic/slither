@@ -33,7 +33,7 @@ contract C {
 // Snippet of the Initializable contract that was making slither crashes
 // https://github.com/Vectorized/solady/blob/9298d096feb87de9a8873a704ff98f6892064c65/src/utils/Initializable.sol#L7
 contract Initializable {
-    bytes32 private constant _INTIALIZED_EVENT_SIGNATURE =
+    bytes32 private constant _INITIALIZED_EVENT_SIGNATURE =
         0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2;
     bytes32 private constant _INITIALIZABLE_SLOT =
         0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffbf601132;
@@ -68,7 +68,7 @@ contract Initializable {
                 sstore(s, 2)
                 // Emit the {Initialized} event.
                 mstore(0x20, 1)
-                log1(0x20, 0x20, _INTIALIZED_EVENT_SIGNATURE)
+                log1(0x20, 0x20, _INITIALIZED_EVENT_SIGNATURE)
             }
         }
     }

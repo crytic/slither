@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class TopLevelVariable(TopLevel, Variable):
     def __init__(self, scope: "FileScope") -> None:
         super().__init__()
-        self._node_initialization: Optional["Node"] = None
+        self._node_initialization: Node | None = None
         self.file_scope = scope
 
     # endregion

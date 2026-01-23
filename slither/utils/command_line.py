@@ -5,7 +5,6 @@ import os
 import re
 import logging
 from collections import defaultdict
-from typing import Dict, List, Type, Union
 
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
@@ -26,6 +25,7 @@ JSON_OUTPUT_TYPES = [
     "printers",
     "list-detectors",
     "list-printers",
+    "timing",
 ]
 
 
@@ -55,6 +55,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
+    "exclude_location": False,
     "fail_on": FailOnLevel.PEDANTIC,
     "json": None,
     "sarif": None,
@@ -69,6 +70,7 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "warn_unused_ignores": False,
     "no_fail": False,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
@@ -107,11 +109,11 @@ def read_config_file(args: argparse.Namespace) -> None:
 
 
 def output_to_markdown(
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
     filter_wiki: str,
 ) -> None:
-    def extract_help(cls: Union[Type[AbstractDetector], Type[AbstractPrinter]]) -> str:
+    def extract_help(cls: type[AbstractDetector] | type[AbstractPrinter]) -> str:
         if cls.WIKI == "":
             return cls.HELP
         return f"[{cls.HELP}]({cls.WIKI})"
@@ -123,7 +125,7 @@ def output_to_markdown(
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         help_info = extract_help(detector)
         impact = detector.IMPACT
@@ -182,10 +184,10 @@ def convert_result_to_markdown(txt: str) -> str:
 
 
 def output_results_to_markdown(
-    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
+    all_results: list[dict], checklistlimit: str, show_ignored_findings: bool
 ) -> None:
     checks = defaultdict(list)
-    info: Dict = defaultdict(dict)
+    info: dict = defaultdict(dict)
     for results_ in all_results:
         checks[results_["check"]].append(results_)
         info[results_["check"]] = {
@@ -224,7 +226,7 @@ def output_results_to_markdown(
             print(f"**More results were found, check [{checklistlimit}]({checklistlimit})**")
 
 
-def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str) -> None:
+def output_wiki(detector_classes: list[type[AbstractDetector]], filter_wiki: str) -> None:
     # Sort by impact, confidence, and name
     detectors_list = sorted(
         detector_classes,
@@ -236,7 +238,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         check = detector.ARGUMENT
         impact = classification_txt[detector.IMPACT]
@@ -260,7 +262,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
         print(recommendation)
 
 
-def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
+def output_detectors(detector_classes: list[type[AbstractDetector]]) -> None:
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -285,8 +287,8 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
 
 
 def output_detectors_json(
-    detector_classes: List[Type[AbstractDetector]],
-) -> List[Dict]:
+    detector_classes: list[type[AbstractDetector]],
+) -> list[dict]:
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -346,7 +348,7 @@ def output_detectors_json(
     return table
 
 
-def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
+def output_printers(printer_classes: list[type[AbstractPrinter]]) -> None:
     printers_list = []
     for printer in printer_classes:
         argument = printer.ARGUMENT
@@ -365,7 +367,7 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     print(table)
 
 
-def output_printers_json(printer_classes: List[Type[AbstractPrinter]]) -> List[Dict]:
+def output_printers_json(printer_classes: list[type[AbstractPrinter]]) -> list[dict]:
     printers_list = []
     for printer in printer_classes:
         argument = printer.ARGUMENT

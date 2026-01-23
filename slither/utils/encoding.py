@@ -1,5 +1,3 @@
-from typing import Union
-
 from slither.core import variables
 from slither.core.declarations import (
     SolidityVariable,
@@ -13,7 +11,7 @@ from slither.slithir import operations
 from slither.slithir import variables as SlitherIRVariable
 
 
-def ntype(_type: Union[solidity_types.Type, str]) -> str:
+def ntype(_type: solidity_types.Type | str) -> str:
     if isinstance(_type, solidity_types.ElementaryType):
         _type = str(_type)
     elif isinstance(_type, solidity_types.ArrayType):
@@ -53,7 +51,7 @@ def ntype(_type: Union[solidity_types.Type, str]) -> str:
     return _type.replace(" ", "_")
 
 
-def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> str:
+def encode_var_for_compare(var: variables.Variable | SolidityVariable) -> str:
     # variables
     if isinstance(var, SlitherIRVariable.Constant):
         return f"constant({ntype(var.type)},{var.value})"
@@ -98,7 +96,7 @@ def encode_ir_for_upgradeability_compare(ir: operations.Operation) -> str:
     if isinstance(ir, operations.Binary):
         return f"binary({encode_var_for_compare(ir.variable_left)}{ir.type}{encode_var_for_compare(ir.variable_right)})"
     if isinstance(ir, operations.Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, operations.Condition):
         return f"condition({encode_var_for_compare(ir.value)})"
     if isinstance(ir, operations.NewStructure):
@@ -153,9 +151,9 @@ def encode_ir_for_halstead(ir: operations.Operation) -> str:
     if isinstance(ir, operations.Length):
         return "length"
     if isinstance(ir, operations.Binary):
-        return f"binary({str(ir.type)})"
+        return f"binary({ir.type!s})"
     if isinstance(ir, operations.Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, operations.Condition):
         return f"condition({encode_var_for_compare(ir.value)})"
     if isinstance(ir, operations.NewStructure):

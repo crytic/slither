@@ -1,5 +1,3 @@
-from typing import List, Tuple, Union, Optional, Set
-
 from slither import Slither
 from slither.core.declarations import Function, FunctionContract
 from slither.core.slither_core import SlitherCore
@@ -39,9 +37,7 @@ def resolve_function(slither: SlitherCore, contract_name: str, function_name: st
     return target_function
 
 
-def resolve_functions(
-    slither: Slither, functions: List[Union[str, Tuple[str, str]]]
-) -> List[Function]:
+def resolve_functions(slither: Slither, functions: list[str | tuple[str, str]]) -> list[Function]:
     """
     Resolves the provided function descriptors.
     :param functions: A list of tuples (contract_name, function_name) or str (of form "ContractName.FunctionName")
@@ -49,7 +45,7 @@ def resolve_functions(
     :return: Returns a list of resolved functions.
     """
     # Create the resolved list.
-    resolved: List[Function] = []
+    resolved: list[Function] = []
 
     # Verify that the provided argument is a list.
     if not isinstance(functions, list):
@@ -81,7 +77,7 @@ def resolve_functions(
     return resolved
 
 
-def all_function_definitions(function: Function) -> List[Function]:
+def all_function_definitions(function: Function) -> list[Function]:
     """
     Obtains a list of representing this function and any base definitions
     :param function: The function to obtain all definitions at and beneath.
@@ -90,7 +86,7 @@ def all_function_definitions(function: Function) -> List[Function]:
     # TODO implement me
     if not isinstance(function, FunctionContract):
         return []
-    ret: List[Function] = [function]
+    ret: list[Function] = [function]
     ret += [
         f
         for c in function.contract.inheritance
@@ -101,11 +97,11 @@ def all_function_definitions(function: Function) -> List[Function]:
 
 
 def __find_target_paths(
-    slither: SlitherCore, target_function: Function, current_path: Optional[List[Function]] = None
-) -> Set[Tuple[Function, ...]]:
+    slither: SlitherCore, target_function: Function, current_path: list[Function] | None = None
+) -> set[tuple[Function, ...]]:
     current_path = current_path if current_path else []
     # Create our results list
-    results: Set[Tuple[Function, ...]] = set()
+    results: set[tuple[Function, ...]] = set()
 
     # Add our current function to the path.
     current_path = [target_function] + current_path
@@ -146,15 +142,15 @@ def __find_target_paths(
 
 
 def find_target_paths(
-    slither: SlitherCore, target_functions: List[Function]
-) -> Set[Tuple[Function, ...]]:
+    slither: SlitherCore, target_functions: list[Function]
+) -> set[tuple[Function, ...]]:
     """
     Obtains all functions which can lead to any of the target functions being called.
     :param target_functions: The functions we are interested in reaching.
     :return: Returns a list of all functions which can reach any of the target_functions.
     """
     # Create our results list
-    results: Set[Tuple[Function, ...]] = set()
+    results: set[tuple[Function, ...]] = set()
 
     # Loop for each target function
     for target_function in target_functions:

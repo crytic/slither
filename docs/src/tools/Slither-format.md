@@ -1,3 +1,5 @@
+# slither-format
+
 `slither-format` generates automatically patches. The patches are compatible with `git`.
 
 Carefully review each patch before applying it.

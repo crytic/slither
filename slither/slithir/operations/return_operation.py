@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, Any
+from typing import Any
 
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
@@ -13,13 +13,11 @@ class Return(Operation):
     Only present as last operation in RETURN node
     """
 
-    def __init__(
-        self, values: Optional[Union[RVALUE, TupleVariable, Function, List[RVALUE]]]
-    ) -> None:
+    def __init__(self, values: RVALUE | TupleVariable | Function | list[RVALUE] | None) -> None:
         # Note: Can return None
         # ex: return call()
         # where call() dont return
-        self._values: List[Union[RVALUE, TupleVariable, Function]]
+        self._values: list[RVALUE | TupleVariable | Function]
         if not isinstance(values, list):
             assert (
                 is_valid_rvalue(values)
@@ -35,7 +33,7 @@ class Return(Operation):
             # Prior Solidity 0.5
             # return (0,)
             # was valid for returns(uint)
-            self._values = [v for v in values if not v is None]
+            self._values = [v for v in values if v is not None]
             self._valid_value(self._values)
         super().__init__()
 
@@ -47,11 +45,11 @@ class Return(Operation):
         return True
 
     @property
-    def read(self) -> List[Variable]:
+    def read(self) -> list[Variable]:
         return self._unroll(self.values)
 
     @property
-    def values(self) -> List[Variable]:
+    def values(self) -> list[Variable]:
         return self._unroll(self._values)
 
     def __str__(self) -> str:

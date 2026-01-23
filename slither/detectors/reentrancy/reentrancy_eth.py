@@ -6,7 +6,6 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import namedtuple, defaultdict
-from typing import List, Dict, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
@@ -23,7 +22,7 @@ class ReentrancyEth(Reentrancy):
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities"
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1"
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
@@ -54,14 +53,14 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
-        result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
+    def find_reentrancies(self) -> dict[FindingKey, set[FindingValue]]:
+        result: dict[FindingKey, set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:
             variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
-                    if not self.KEY in node.context:
+                    if self.KEY not in node.context:
                         continue
                     if node.context[self.KEY].calls and node.context[self.KEY].send_eth:
                         if not any(n != node for n in node.context[self.KEY].send_eth):
@@ -97,7 +96,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             result[finding_key] |= set(read_then_written)
         return result
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         super()._detect()
 
@@ -105,12 +104,12 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
-        varsWritten: List[FindingValue]
-        varsWrittenSet: Set[FindingValue]
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0].function.name)
+        varsWritten: list[FindingValue]
+        varsWrittenSet: set[FindingValue]
         for (func, calls, send_eth), varsWrittenSet in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]

@@ -3,7 +3,7 @@ Module printing evm mapping of the contract
 """
 
 import logging
-from typing import Union, List, Dict
+from typing import Union
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
@@ -83,7 +83,7 @@ class PrinterEVM(AbstractPrinter):
     def build_element_node_str(
         self,
         element: Union["Modifier", "Function"],
-        contract_pcs: Dict[int, List[int]],
+        contract_pcs: dict[int, list[int]],
         contract_cfg,
     ) -> str:
         element_file = self.slither.source_code[
