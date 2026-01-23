@@ -217,6 +217,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self._solidity_signature: str | None = None
         self._signature_str: str | None = None
         self._canonical_name: str | None = None
+        self._is_returning_msg_sender: bool | None = None
         self._is_protected: bool | None = None
 
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
@@ -1520,6 +1521,83 @@ class Function(SourceMapping, metaclass=ABCMeta):
         self,
     ) -> tuple[str, str, str, list[str], list[str], list[str], list[str], list[str]]:
         pass
+
+    def is_returning_msg_sender(self) -> bool:
+        """
+            Determine if the function returns `msg.sender` directly or through aliased address variables.
+
+            This includes:
+            - Functions that explicitly returns `msg.sender`
+            - Functions that returns a variable which was directly or transitively assigned from `msg.sender`
+
+            Covers:
+                - Direct returns:
+                    ```
+                    return msg.sender
+                    ```
+                - Aliased returns:
+                    ```
+                    address a = msg.sender;
+                    return a;
+                    ```
+
+            Does not cover :
+                - Returns via internal function calls, even if those functions return `msg.sender`:
+                    ```
+                    function _getUser() internal view returns (address) {
+                            return _msgSender(); // _msgSender() returns msg.sender
+                    }
+                    ```
+
+        Returns
+            (bool)
+        """
+        from slither.core.solidity_types import ElementaryType
+        from slither.slithir.operations import Return, Assignment
+
+        if self._is_returning_msg_sender is None:
+            # Skip analysis if function doesn't return or doesn't return an address.
+            if not self.returns or not all(
+                ret.type == ElementaryType("address") for ret in self.returns
+            ):
+                self._is_returning_msg_sender = False
+                return False
+
+            return_vars = []
+            assignment_map = {}
+
+            for node in self.nodes:
+                for ir in node.irs:
+                    # Direct return of msg.sender
+                    if isinstance(ir, Return):
+                        ir_return_vars = [i.name for i in ir.values if hasattr(i, "name")]
+                        if "msg.sender" in ir_return_vars:
+                            self._is_returning_msg_sender = True
+                            return True
+                        return_vars.extend(ir_return_vars)
+
+                    # Track assignments where an address-typed variable is assigned.
+                    # This helps trace msg.sender aliases through reassignments.
+                    if (
+                        isinstance(ir, Assignment)
+                        and ir.lvalue.type == ElementaryType("address")
+                        and hasattr(ir.lvalue, "name")
+                        and hasattr(ir.rvalue, "name")
+                    ):
+                        lval, rval = ir.lvalue.name, ir.rvalue.name
+                        assignment_map[lval] = assignment_map.get(rval, rval)
+
+            for var in return_vars:
+                if var not in assignment_map:
+                    continue
+                var = assignment_map[var]
+                if var == "msg.sender":
+                    self._is_returning_msg_sender = True
+                    return True
+
+            self._is_returning_msg_sender = False
+
+        return self._is_returning_msg_sender
 
     def is_protected(self) -> bool:
         """
