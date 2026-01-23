@@ -25,6 +25,23 @@ ignore:
   - "crytic-export"
   - "test_artifacts"
   - "tests/e2e/**/snapshots"
+  - ".idea"
+  - ".vscode"
+  - ".worktrees"
+  - "docs/_build"
 
 # Allow Serena to make edits (vs read-only mode)
 allow_write: true
+
+# Disable tools that are redundant with Claude Code or not needed
+excluded_tools:
+  - onboarding              # CLAUDE.md provides better project context
+  - check_onboarding_performed
+  - list_dir                # Redundant with Claude Code's Bash/Glob
+  - find_file               # Redundant with Claude Code's Glob
+
+# Prompt shown when project is activated
+initial_prompt: |
+  This project has a comprehensive CLAUDE.md with architecture, code standards,
+  and Slither-specific patterns. Refer to it for project context rather than
+  using onboarding or memories.
