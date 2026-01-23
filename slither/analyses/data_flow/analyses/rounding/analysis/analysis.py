@@ -1,17 +1,21 @@
-from typing import Optional, Union
+"""Rounding analysis for Slither data-flow"""
+
+from typing import List, Optional, Union, cast
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
 )
 from slither.analyses.data_flow.analyses.rounding.core.state import (
-    RoundingTag,
     RoundingState,
+    RoundingTag,
 )
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
+from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
@@ -20,14 +24,17 @@ from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.return_operation import Return
+from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
 
 class RoundingAnalysis(Analysis):
     """Analysis that tracks rounding direction metadata through data flow"""
 
-    def __init__(self):
-        self._direction = Forward()
+    def __init__(self) -> None:
+        self._direction: Direction = Forward()
+        self._logger = get_logger(enable_ipython_embed=False, log_level="ERROR")
+        self.inconsistencies: List[str] = []
 
     def domain(self) -> Domain:
         return RoundingDomain.bottom()
@@ -38,8 +45,11 @@ class RoundingAnalysis(Analysis):
     def bottom_value(self) -> Domain:
         return RoundingDomain.bottom()
 
-    def transfer_function(self, node: Node, domain: RoundingDomain, operation: Operation):
+    def transfer_function(self, node: Node, domain: Domain, operation: Optional[Operation]) -> None:
         """Core analysis logic - tag operations and propagate rounding metadata"""
+        # Cast to RoundingDomain for type checking
+        domain = cast(RoundingDomain, domain)
+
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
             domain.state = RoundingState()
@@ -49,7 +59,7 @@ class RoundingAnalysis(Analysis):
 
         self._analyze_operation_by_type(operation, domain)
 
-    def _analyze_operation_by_type(self, operation: Operation, domain: RoundingDomain):
+    def _analyze_operation_by_type(self, operation: Operation, domain: RoundingDomain) -> None:
         """Route operation to appropriate handler"""
         if isinstance(operation, Binary):
             self._handle_binary_operation(operation, domain)
@@ -61,8 +71,15 @@ class RoundingAnalysis(Analysis):
             # Return operations don't change rounding tags, just propagate
             pass
 
-    def _handle_binary_operation(self, operation: Binary, domain: RoundingDomain):
-        """Handle arithmetic binary operations"""
+    def _handle_binary_operation(self, operation: Binary, domain: RoundingDomain) -> None:
+        """Handle arithmetic binary operations with inversion rules.
+
+        Rules implemented:
+        - A + B => rounding(A) (no rounding change)
+        - A - B => inverted rounding(B)
+        - A * B => rounding(A) (no rounding change)
+        - A / B => inverted rounding(B)
+        """
         if not operation.lvalue:
             return
 
@@ -71,37 +88,104 @@ class RoundingAnalysis(Analysis):
         right_var = operation.variable_right
         op_type = operation.type
 
-        if op_type == BinaryType.DIVISION:
-            # Plain division (/) always truncates (rounds down) by convention
-            # If developers want UP rounding, they should use explicit functions like divUp()
-            # So plain division is always DOWN, regardless of dividend's tag
-            domain.state.set_tag(result_var, RoundingTag.DOWN)
+        # Helper to get tags (using existing helper)
+        left_tag = self._get_variable_tag(left_var, domain)
+        right_tag = self._get_variable_tag(right_var, domain)
 
-        elif op_type == BinaryType.ADDITION:
-            tag = self._combine_tags(
-                self._get_variable_tag(left_var, domain),
-                self._get_variable_tag(right_var, domain),
-            )
-            domain.state.set_tag(result_var, tag)
+        if op_type == BinaryType.DIVISION:
+            # Check for ceiling division pattern: (a + b - 1) / b
+            # This is a common idiom that effectively rounds UP
+            is_ceiling_pattern = self._is_ceiling_division_pattern(left_var, right_var, domain)
+
+            # Enforce denominator/numerator consistency before computing result tag.
+            self._check_division_consistency(left_tag, right_tag, operation)
+
+            if is_ceiling_pattern:
+                # This is the (numerator + divisor - 1) / divisor pattern → tag as UP
+                domain.state.set_tag(result_var, RoundingTag.UP, operation)
+            else:
+                # Standard division: result uses inverted denominator rounding
+                right_tag_inv = self._invert_tag(right_tag)
+                domain.state.set_tag(result_var, right_tag_inv, operation)
+            return
 
         elif op_type == BinaryType.SUBTRACTION:
-            tag = self._combine_tags(
-                self._get_variable_tag(left_var, domain),
-                self._get_variable_tag(right_var, domain),
-            )
-            domain.state.set_tag(result_var, tag)
+            # The subtracted element's rounding is inverted
+            right_tag_inv = self._invert_tag(right_tag)
+            domain.state.set_tag(result_var, right_tag_inv, operation)
+            return
+
+        elif op_type == BinaryType.ADDITION:
+            # No rounding change for addition; keep left operand rounding
+            domain.state.set_tag(result_var, left_tag, operation)
+            return
 
         elif op_type == BinaryType.MULTIPLICATION:
-            tag = self._combine_tags(
-                self._get_variable_tag(left_var, domain),
-                self._get_variable_tag(right_var, domain),
-            )
-            domain.state.set_tag(result_var, tag)
+            # No rounding change for multiplication; keep left operand rounding
+            domain.state.set_tag(result_var, left_tag, operation)
+            return
 
-        # Other binary operations (comparisons, bitwise, etc.) don't affect rounding
-        # so we leave result as UNKNOWN (default)
+        elif op_type == BinaryType.POWER:
+            # Exponentiation handling is disabled until explicit rounding rules are defined.
+            self._logger.warning("Rounding for POWER is not implemented yet")
+            return
 
-    def _handle_assignment_operation(self, operation: Assignment, domain: RoundingDomain):
+    def _is_ceiling_division_pattern(
+        self,
+        dividend: Union[RVALUE, Function],
+        divisor: Union[RVALUE, Function],
+        domain: RoundingDomain,
+    ) -> bool:
+        """Detect the ceiling division pattern: (a + b - 1) / b
+
+        This checks if:
+        - dividend is the result of subtracting 1 from something
+        - that something is the result of adding dividend's original value to divisor
+
+        Returns True if the pattern matches, False otherwise.
+        """
+        if not isinstance(dividend, Variable):
+            return False
+
+        # Get the operation that produced the dividend
+        sub_op = domain.state.get_producer(dividend)
+        if not isinstance(sub_op, Binary) or sub_op.type != BinaryType.SUBTRACTION:
+            return False
+
+        # Check if subtracting 1
+        if not isinstance(sub_op.variable_right, Constant):
+            return False
+        try:
+            if int(sub_op.variable_right.value) != 1:
+                return False
+        except (ValueError, TypeError, AttributeError):
+            return False
+
+        # Get the left operand of the subtraction (should be an addition)
+        add_result = sub_op.variable_left
+        if not isinstance(add_result, Variable):
+            return False
+
+        add_op = domain.state.get_producer(add_result)
+        if not isinstance(add_op, Binary) or add_op.type != BinaryType.ADDITION:
+            return False
+
+        # Check if one of the addition operands is the divisor
+        divisor_name = divisor.name if isinstance(divisor, Variable) else str(divisor)
+        left_name = (
+            add_op.variable_left.name
+            if isinstance(add_op.variable_left, Variable)
+            else str(add_op.variable_left)
+        )
+        right_name = (
+            add_op.variable_right.name
+            if isinstance(add_op.variable_right, Variable)
+            else str(add_op.variable_right)
+        )
+
+        return divisor_name == left_name or divisor_name == right_name
+
+    def _handle_assignment_operation(self, operation: Assignment, domain: RoundingDomain) -> None:
         """Handle assignment: propagate tag from right side to left side"""
         if not operation.lvalue:
             return
@@ -109,73 +193,114 @@ class RoundingAnalysis(Analysis):
         rvalue = operation.rvalue
         if isinstance(rvalue, Variable):
             tag = self._get_variable_tag(rvalue, domain)
-            domain.state.set_tag(operation.lvalue, tag)
+            domain.state.set_tag(operation.lvalue, tag, operation)
         # For non-variable rvalues (functions, tuples), leave as UNKNOWN
 
     def _handle_function_call(
         self,
         operation: Union[InternalCall, HighLevelCall, LibraryCall],
         domain: RoundingDomain,
-    ):
+    ) -> None:
         """Handle function calls - infer rounding from function name"""
         if not operation.lvalue:
             return
 
         # Get function name
-        func_name = ""
+        func_name: str
         if isinstance(operation, InternalCall):
             if operation.function:
                 func_name = operation.function.name
-            elif hasattr(operation, "function_name"):
-                func_name = str(operation.function_name)
-        elif isinstance(operation, (HighLevelCall, LibraryCall)):
-            if hasattr(operation.function_name, "value"):
-                func_name = operation.function_name.value
-            elif hasattr(operation.function_name, "name"):
-                func_name = operation.function_name.name
             else:
                 func_name = str(operation.function_name)
+        elif isinstance(operation, (HighLevelCall, LibraryCall)):
+            func_name = str(operation.function_name.value)
+
+        # Apply division consistency check for named divUp/divDown helpers.
+        if self._is_named_division_function(func_name):
+            # Ensure numerator/denominator ordering before enforcing the rule.
+            self._check_named_division_consistency(operation, domain)
 
         # Infer tag from function name
         tag = self._infer_tag_from_name(func_name)
-        domain.state.set_tag(operation.lvalue, tag)
+        domain.state.set_tag(operation.lvalue, tag, operation)
 
-    def _infer_tag_from_name(self, function_name: str) -> RoundingTag:
+    def _infer_tag_from_name(self, function_name: Optional[object]) -> RoundingTag:
         """
         Infer rounding direction from function name.
-        Checks for indicators like "down", "floor", "up", "ceil" in the name.
+        Accepts non-string inputs and coerces to string for name checks.
         """
-        name_lower = function_name.lower()
+        name_lower = str(function_name).lower() if function_name is not None else ""
         if "down" in name_lower or "floor" in name_lower:
             return RoundingTag.DOWN
         elif "up" in name_lower or "ceil" in name_lower:
             return RoundingTag.UP
         else:
-            return RoundingTag.UNKNOWN
+            return RoundingTag.NEUTRAL
+
+    def _is_named_division_function(self, function_name: str) -> bool:
+        """Return True when function name indicates divUp/divDown helpers."""
+        name_lower = function_name.lower()
+        # Only match the specific helper names to avoid false positives.
+        return "divup" in name_lower or "divdown" in name_lower
+
+    def _check_named_division_consistency(
+        self,
+        operation: Union[InternalCall, HighLevelCall, LibraryCall],
+        domain: RoundingDomain,
+    ) -> None:
+        """Enforce division consistency for divUp/divDown call arguments."""
+        # Ensure we have both numerator and denominator arguments.
+        if len(operation.arguments) < 2:
+            return
+
+        numerator = operation.arguments[0]
+        denominator = operation.arguments[1]
+        numerator_tag = self._get_variable_tag(numerator, domain)
+        denominator_tag = self._get_variable_tag(denominator, domain)
+        self._check_division_consistency(numerator_tag, denominator_tag, operation)
 
     def _get_variable_tag(
-        self, var: Union[Variable, Constant], domain: RoundingDomain
+        self, var: Optional[Union[RVALUE, Function]], domain: RoundingDomain
     ) -> RoundingTag:
-        """Get the rounding tag for a variable or constant"""
+        """Get the rounding tag for a variable or constant.
+
+        Accepts RVALUE/None and returns NEUTRAL for constants or unrecognized types.
+        """
         if isinstance(var, Constant):
-            # Constants are UNKNOWN by default
-            return RoundingTag.UNKNOWN
+            # Constants are NEUTRAL by default
+            return RoundingTag.NEUTRAL
         if isinstance(var, Variable):
             return domain.state.get_tag(var)
-        return RoundingTag.UNKNOWN
+        # If var is none or other types (Function, RVALUE variants...), return NEUTRAL
+        return RoundingTag.NEUTRAL
 
-    def _combine_tags(self, tag1: RoundingTag, tag2: RoundingTag) -> RoundingTag:
-        """
-        Combine two rounding tags.
-        - If both are the same → preserve that tag
-        - If one is UNKNOWN → preserve the other
-        - If they differ → return UNKNOWN
-        """
-        if tag1 == tag2:
-            return tag1
-        if tag1 == RoundingTag.UNKNOWN:
-            return tag2
-        if tag2 == RoundingTag.UNKNOWN:
-            return tag1
-        # Different tags (e.g., UP vs DOWN) → UNKNOWN
-        return RoundingTag.UNKNOWN
+    def _invert_tag(self, tag: RoundingTag) -> RoundingTag:
+        """Invert rounding direction (UP <-> DOWN) and keep neutral tags unchanged."""
+        # Flip UP to DOWN to model inversion rules.
+        if tag == RoundingTag.UP:
+            return RoundingTag.DOWN
+        # Flip DOWN to UP to model inversion rules.
+        if tag == RoundingTag.DOWN:
+            return RoundingTag.UP
+        # Keep NEUTRAL/UNKNOWN as-is to avoid over-precision.
+        return tag
+
+    def _check_division_consistency(
+        self,
+        numerator_tag: RoundingTag,
+        denominator_tag: RoundingTag,
+        operation: Operation,
+    ) -> None:
+        """Check numerator/denominator consistency for division operations."""
+        # Only enforce the constraint when the denominator is non-neutral.
+        if denominator_tag == RoundingTag.NEUTRAL:
+            return
+
+        # Numerator must be opposite or neutral; same non-neutral is inconsistent.
+        if numerator_tag == denominator_tag:
+            message = (
+                "Division rounding inconsistency: numerator and denominator "
+                f"both {numerator_tag.name} in {operation}"
+            )
+            self.inconsistencies.append(message)
+            self._logger.error(message)

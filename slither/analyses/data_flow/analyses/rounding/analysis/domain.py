@@ -22,9 +22,9 @@ class RoundingDomain(Domain):
 
     @classmethod
     def top(cls) -> "RoundingDomain":
-        """Top element (all variables UNKNOWN)"""
+        """Top element (all variables NEUTRAL)"""
         domain = cls(DomainVariant.STATE)
-        # Top means all variables are UNKNOWN, which is the default
+        # Top means all variables are NEUTRAL, which is the default
         return domain
 
     @classmethod
@@ -66,17 +66,18 @@ class RoundingDomain(Domain):
                 if self_tag == other_tag:
                     # Same tag, no change needed
                     continue
-                elif self_tag == RoundingTag.UNKNOWN:
-                    # Self is UNKNOWN, adopt other's tag
-                    if other_tag != RoundingTag.UNKNOWN:
+                elif self_tag == RoundingTag.NEUTRAL:
+                    # Neutral adopts a more specific tag if available.
+                    if other_tag != RoundingTag.NEUTRAL:
                         self.state.set_tag(var, other_tag)
                         changed = True
-                elif other_tag == RoundingTag.UNKNOWN:
-                    # Other is UNKNOWN, keep self's tag (no change)
+                elif other_tag == RoundingTag.NEUTRAL:
+                    # Other is neutral, keep self's tag (no change)
                     continue
                 else:
                     # Different tags (e.g., UP vs DOWN) → set to UNKNOWN
-                    self.state.set_tag(var, RoundingTag.UNKNOWN)
+                    reason = f"Join conflict: {self_tag.name} vs {other_tag.name}"
+                    self.state.set_tag(var, RoundingTag.UNKNOWN, unknown_reason=reason)
                     changed = True
 
             return changed
