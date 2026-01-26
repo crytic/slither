@@ -674,6 +674,125 @@ def _display_test_results(results: List[ContractTestResult], verbose: bool) -> N
 # =============================================================================
 
 
+def _abbreviate_variable_name(var_name: str, max_length: int = 60) -> str:
+    """
+    Abbreviate variable names to prevent truncation in table output.
+    
+    Handles names like:
+    - Contract.function().variable|variable_SSA
+    - Contract.function().word_functionName_asm_0|word_functionName_asm_0_0
+    
+    Strategy:
+    1. Keep contract and function names but abbreviate if needed
+    2. Abbreviate long variable names (especially assembly vars)
+    3. Preserve SSA suffix information
+    """
+    if len(var_name) <= max_length:
+        return var_name
+    
+    # Split on pipe to separate prefix from SSA suffix
+    if "|" in var_name:
+        prefix, ssa_suffix = var_name.rsplit("|", 1)
+    else:
+        prefix = var_name
+        ssa_suffix = ""
+    
+    # Abbreviate common patterns in the prefix
+    # Replace long assembly variable patterns
+    prefix = prefix.replace("_asm_", "_a_")
+    
+    # If prefix contains function call pattern like "Contract.function().var"
+    if "()." in prefix:
+        parts = prefix.split("().", 1)
+        if len(parts) == 2:
+            contract_func = parts[0]  # "Contract.function"
+            var_part = parts[1]       # "variable" or "word_functionName_a_0"
+            
+            # Extract function name from contract_func for abbreviation
+            func_name = ""
+            if "." in contract_func:
+                func_name = contract_func.rsplit(".", 1)[1]
+            
+            # Abbreviate long variable names
+            # For patterns like "word_readFirstThreeBytes_a_0", shorten significantly
+            if var_part.startswith("word_") and len(var_part) > 12:
+                remaining = var_part[5:]  # Remove "word_"
+                if "_a_" in remaining:
+                    func_part, rest = remaining.split("_a_", 1)
+                    # If function name is repeated in variable, abbreviate it
+                    if func_name and func_part.startswith(func_name):
+                        # Function name is repeated, use very short abbrev
+                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
+                        var_part = f"w_{func_abbrev}_a_{rest}"
+                    elif func_part:
+                        # Take first 3-4 characters of function name
+                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
+                        var_part = f"w_{func_abbrev}_a_{rest}"
+                else:
+                    # Just truncate if no _a_ pattern
+                    var_part = f"w_{remaining[:8]}" if len(remaining) > 8 else f"w_{remaining}"
+            
+            # Similar for "ptr_" pattern
+            elif var_part.startswith("ptr_") and len(var_part) > 12:
+                remaining = var_part[4:]  # Remove "ptr_"
+                if "_a_" in remaining:
+                    func_part, rest = remaining.split("_a_", 1)
+                    # If function name is repeated in variable, abbreviate it
+                    if func_name and func_part.startswith(func_name):
+                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
+                        var_part = f"p_{func_abbrev}_a_{rest}"
+                    elif func_part:
+                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
+                        var_part = f"p_{func_abbrev}_a_{rest}"
+                else:
+                    var_part = f"p_{remaining[:8]}" if len(remaining) > 8 else f"p_{remaining}"
+            
+            # Keep SSA suffix unchanged - don't abbreviate anything after |
+            
+            # Abbreviate contract.function if still too long
+            if "." in contract_func:
+                contract, func = contract_func.rsplit(".", 1)
+                # Abbreviate function name more aggressively
+                if len(func) > 10:
+                    # Take first 6-8 chars of function name
+                    func_abbrev = func[:8] + ".." if len(func) > 8 else func
+                    contract_func = f"{contract}.{func_abbrev}"
+                # Also abbreviate contract if very long
+                elif len(contract) > 15:
+                    contract = contract[:12] + ".."
+                    contract_func = f"{contract}.{func}"
+            
+            prefix = f"{contract_func}().{var_part}"
+    
+    # Reconstruct the name
+    if ssa_suffix:
+        result = f"{prefix}|{ssa_suffix}"
+    else:
+        result = prefix
+    
+    # Final check: if still too long, truncate intelligently
+    # Always preserve everything after | (SSA suffix)
+    if len(result) > max_length:
+        if "|" in result:
+            prefix_part, ssa_part = result.rsplit("|", 1)
+            # Calculate available space for prefix (leave room for | and SSA suffix)
+            available = max_length - len(ssa_part) - 1  # -1 for the |
+            if available > 10:
+                # Truncate prefix but keep SSA suffix intact
+                prefix_part = prefix_part[:available] + ".."
+                result = f"{prefix_part}|{ssa_part}"
+            else:
+                # If SSA suffix itself is too long, we still keep it but truncate prefix minimally
+                # This shouldn't happen often, but handle it gracefully
+                prefix_part = prefix_part[:max(10, max_length - len(ssa_part) - 1)]
+                result = f"{prefix_part}|{ssa_part}"
+        else:
+            # No pipe, just truncate normally
+            result = result[:max_length-3] + "..."
+    
+    return result
+
+
 def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
     """Display variable ranges in a formatted rich table."""
     if not variable_results:
@@ -687,6 +806,8 @@ def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
 
     for result in variable_results:
         var_name = result["name"]
+        # Abbreviate long variable names to prevent truncation
+        abbreviated_name = _abbreviate_variable_name(var_name)
         min_val = result["min"]
         max_val = result["max"]
 
@@ -717,7 +838,7 @@ def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
             amount_str = "-"
 
         table.add_row(
-            var_name,
+            abbreviated_name,
             f"[{range_style}]{range_str}[/{range_style}]",
             f"[{overflow_style}]{overflow_str}[/{overflow_style}]",
             f"[{overflow_style}]{amount_str}[/{overflow_style}]",
