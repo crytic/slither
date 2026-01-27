@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither import Slither
 from slither.utils.code_generation import generate_interface
@@ -21,6 +22,8 @@ def parse_args() -> argparse.Namespace:
         description="Generates code for a Solidity interface from contract",
         usage=("slither-interface <ContractName> <source file or deployment address>"),
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument(
         "contract_source",

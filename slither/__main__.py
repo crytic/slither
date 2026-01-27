@@ -16,6 +16,7 @@ from collections.abc import Sequence
 
 from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
+import shtab
 from crytic_compile.platform.standard import generate_standard_export
 
 from slither.detectors import all_detectors
@@ -319,7 +320,7 @@ def parse_args(
     detector_classes: list[type[AbstractDetector]],
     printer_classes: list[type[AbstractPrinter]],
 ) -> argparse.Namespace:
-    usage = "slither target [flag]\n"
+    usage = "slither target [options]\n"
     usage += "\ntarget can be:\n"
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
@@ -331,7 +332,9 @@ def parse_args(
         usage=usage,
     )
 
-    parser.add_argument("filename", help=argparse.SUPPRESS)
+    shtab.add_argument_to(parser)
+
+    parser.add_argument("filename", metavar="target", help="File or project target, see above")
 
     cryticparser.init(parser)
 
@@ -537,28 +540,28 @@ def parse_args(
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["json"],
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--sarif",
         help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["sarif"],
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--sarif-input",
         help="Sarif input (beta)",
         action="store",
         default=defaults_flag_in_config["sarif_input"],
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--sarif-triage",
         help="Sarif triage (beta)",
         action="store",
         default=defaults_flag_in_config["sarif_triage"],
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--json-types",
@@ -574,13 +577,14 @@ def parse_args(
         help="Export the results as a zipped JSON file",
         action="store",
         default=defaults_flag_in_config["zip"],
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--zip-type",
         help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
         action="store",
         default=defaults_flag_in_config["zip_type"],
+        choices=list(ZIP_TYPES_ACCEPTED.keys()),
     )
 
     group_misc.add_argument(
@@ -612,7 +616,7 @@ def parse_args(
         action="store",
         dest="config_file",
         default=None,
-    )
+    ).complete = shtab.FILE
 
     group_misc.add_argument(
         "--change-line-prefix",
