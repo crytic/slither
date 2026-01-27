@@ -93,12 +93,11 @@ contract MyConc{
                         values_returned.remove(remove)
                         # When a tuple is used as a whole (e.g., return A()), remove all
                         # individual tuple element entries to avoid false positives
-                        if remove[1] is None and isinstance(read, TupleVariable):
-                            if hasattr(read, "type") and read.type:
-                                for index in range(len(read.type)):
-                                    tuple_elem = (read, index)
-                                    if tuple_elem in values_returned:
-                                        values_returned.remove(tuple_elem)
+                        if remove[1] is None and isinstance(read, TupleVariable) and read.type:
+                            for index in range(len(read.type)):
+                                tuple_elem = (read, index)
+                                if tuple_elem in values_returned:
+                                    values_returned.remove(tuple_elem)
         return [nodes_origin[value].node for (value, _) in values_returned]
 
     def _detect(self) -> list[Output]:
