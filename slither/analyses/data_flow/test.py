@@ -1,102 +1,43 @@
-"""Automated test suite for Slither data flow analysis."""
+"""Core test functions for Slither data flow analysis."""
 
-from dataclasses import dataclass, field
+from contextlib import nullcontext as _null_context
 from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 import sys
 
-from rich.console import Console
-from rich.table import Table
-
 from slither import Slither
-from slither.exceptions import SlitherError
 from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
 from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+from slither.analyses.data_flow.display import console, display_test_results
+from slither.analyses.data_flow.models import (
+    VariableResult,
+    FunctionResult,
+    ContractResult,
+    TestComparison,
+    FunctionTestResult,
+    ContractTestResult,
+)
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
 from z3 import BitVecRef, Optimize, is_true, sat
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.logger import DataFlowLogger, LogMessages
+    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
 
 # Import expected results from separate file
 from slither.analyses.data_flow.expected_results import EXPECTED_RESULTS
 
-console = Console()
-
-
-# =============================================================================
-# DATA CLASSES FOR TEST RESULTS
-# =============================================================================
-
-
-@dataclass
-class VariableResult:
-    """Result for a single variable."""
-
-    name: str
-    range_str: str
-    overflow: str
-    overflow_amount: int = 0
-
-
-@dataclass
-class FunctionResult:
-    """Result for a single function analysis."""
-
-    function_name: str
-    contract_name: str
-    variables: Dict[str, VariableResult] = field(default_factory=dict)
-    error: Optional[str] = None
-
-
-@dataclass
-class ContractResult:
-    """Result for a single contract analysis."""
-
-    contract_file: str
-    contract_name: str
-    functions: Dict[str, FunctionResult] = field(default_factory=dict)
-
-
-@dataclass
-class TestComparison:
-    """Comparison result between expected and actual."""
-
-    passed: bool
-    variable_name: str
-    expected_range: Optional[str] = None
-    actual_range: Optional[str] = None
-    expected_overflow: Optional[str] = None
-    actual_overflow: Optional[str] = None
-    message: str = ""
-
-
-@dataclass
-class FunctionTestResult:
-    """Test result for a single function."""
-
-    function_name: str
-    passed: bool
-    comparisons: List[TestComparison] = field(default_factory=list)
-    missing_expected: List[str] = field(default_factory=list)
-    unexpected_vars: List[str] = field(default_factory=list)
-
-
-@dataclass
-class ContractTestResult:
-    """Test result for a single contract."""
-
-    contract_file: str
-    contract_name: str
-    passed: bool
-    function_results: Dict[str, FunctionTestResult] = field(default_factory=dict)
-    error: Optional[str] = None
+# Default timeout for Optimize queries (milliseconds)
+# Reduced from 2000ms to 500ms for faster analysis (4x speedup)
+# Trade-off: Slightly less precise ranges, but much faster
+# For very precise ranges, use --timeout 2000 or higher
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
 # =============================================================================
@@ -109,8 +50,75 @@ def solve_variable_range(
     smt_var: TrackedSMTVariable,
     path_constraints: Optional[List] = None,
     debug: bool = False,
+    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
+    skip_optimization: bool = False,
+    cache: Optional["RangeQueryCache"] = None,
+    optimizer: Optional["Optimize"] = None,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
-    """Solve for min/max values of a variable with optional path constraints."""
+    """Solve for min/max values of a variable with optional path constraints.
+
+    Args:
+        solver: The SMT solver instance.
+        smt_var: The tracked SMT variable to solve for.
+        path_constraints: Optional list of path constraints to apply.
+        debug: Enable debug output.
+        timeout_ms: Timeout in milliseconds for each optimization query.
+        skip_optimization: If True, skip SMT optimization and return type bounds directly.
+        cache: Optional RangeQueryCache for memoization.
+        optimizer: Optional reusable Optimize instance (if None, creates fresh instances).
+
+    Returns:
+        Tuple of (min_result, max_result) dictionaries, or (None, None) on failure.
+    """
+    telemetry = get_telemetry()
+
+    # Check cache first if available
+    if cache is not None and not skip_optimization:
+        # Build cache key from variable ID and constraints
+        var_id = str(smt_var.term)
+        constraint_strs = []
+
+        # Include path constraints
+        if path_constraints:
+            constraint_strs.extend(str(c) for c in path_constraints)
+
+        # Include global solver assertions
+        if hasattr(solver, "solver"):
+            z3_solver = solver.solver
+            if hasattr(z3_solver, "assertions"):
+                constraint_strs.extend(str(a) for a in z3_solver.assertions())
+
+        constraints_tuple = tuple(constraint_strs)
+        cached_result = cache.get(var_id, constraints_tuple)
+
+        if cached_result is not None:
+            if telemetry:
+                telemetry.count("cache_hit")
+            min_val, max_val = cached_result
+
+            # Reconstruct result dictionaries from cached values
+            if min_val is None or max_val is None:
+                return None, None
+
+            min_result = {
+                "value": min_val.get("value") if isinstance(min_val, dict) else min_val,
+                "overflow": min_val.get("overflow", False) if isinstance(min_val, dict) else False,
+                "overflow_amount": (
+                    min_val.get("overflow_amount", 0) if isinstance(min_val, dict) else 0
+                ),
+            }
+            max_result = {
+                "value": max_val.get("value") if isinstance(max_val, dict) else max_val,
+                "overflow": max_val.get("overflow", False) if isinstance(max_val, dict) else False,
+                "overflow_amount": (
+                    max_val.get("overflow_amount", 0) if isinstance(max_val, dict) else 0
+                ),
+            }
+            return min_result, max_result
+
+        if telemetry:
+            telemetry.count("cache_miss")
+
     term = smt_var.term
     if not isinstance(term, BitVecRef):
         return None, None
@@ -139,27 +147,48 @@ def solve_variable_range(
             value = min(max_bound, value)
         return value
 
-    def _create_fresh_optimizer():
+    def _get_optimizer_for_query():
+        """Get an optimizer for the query, either reusing provided one or creating fresh."""
+        # Early return: if reusable optimizer provided, use push/pop pattern
+        if optimizer is not None:
+            # CRITICAL: Set timeout on reused optimizer too!
+            optimizer.set("timeout", timeout_ms)
+            if telemetry:
+                telemetry.count("optimize_instance_reused")
+            return optimizer, True  # True = needs pop after use
+
+        # Otherwise, create fresh optimizer (legacy path)
+        if telemetry:
+            telemetry.count("optimize_instance_created")
+
         opt = Optimize()
-        opt.set("timeout", 2000)
+        opt.set("timeout", timeout_ms)
         opt.set("opt.priority", "box")
         opt.set("opt.maxsat_engine", "wmax")
 
-        # Add global solver assertions
-        if hasattr(solver, "solver"):
-            z3_solver = solver.solver
-            assertions = z3_solver.assertions()
-            for assertion in assertions:
-                opt.add(assertion)
-        else:
-            return None
+        # Early return: check solver has assertions
+        if not hasattr(solver, "solver"):
+            return None, False
 
-        # Add path-specific constraints from the domain state
+        # Add global solver assertions
+        z3_solver = solver.solver
+        assertions = z3_solver.assertions()
+        assertion_count = 0
+        for assertion in assertions:
+            opt.add(assertion)
+            assertion_count += 1
+
+        if telemetry:
+            telemetry.count("assertions_copied", assertion_count)
+
+        # Add path-specific constraints
         if path_constraints:
             for constraint in path_constraints:
                 opt.add(constraint)
+            if telemetry:
+                telemetry.count("path_constraints_added", len(path_constraints))
 
-        return opt
+        return opt, False  # False = no pop needed
 
     def _fallback_range() -> tuple[Optional[Dict], Optional[Dict]]:
         """Return a conservative range using type bounds when optimization fails."""
@@ -196,84 +225,126 @@ def solve_variable_range(
         return min_result, max_result
 
     def _optimize_range(maximize: bool) -> Optional[Dict]:
+        op_name = "optimize_max" if maximize else "optimize_min"
+
+        if telemetry:
+            telemetry.count(op_name)
+
+        opt, needs_pop = _get_optimizer_for_query()
+
+        # Early return: no optimizer available
+        if opt is None:
+            return None
+
         try:
-            opt = _create_fresh_optimizer()
-            if opt is None:
-                return None
+            with telemetry.time(op_name) if telemetry else _null_context():
+                # Push new context if reusing optimizer
+                if needs_pop:
+                    opt.push()
+                    if telemetry:
+                        telemetry.count("push_pop_used")
 
-            from z3 import is_bv, BitVecVal
+                    # Add path constraints in the pushed context
+                    if path_constraints:
+                        for constraint in path_constraints:
+                            opt.add(constraint)
+                        if telemetry:
+                            telemetry.count("path_constraints_added", len(path_constraints))
 
-            objective = term if is_bv(term) else term
+                from z3 import is_bv, BitVecVal
 
-            # For signed types, use sign-bit XOR trick to convert signed order to unsigned order
-            # This stays entirely in bitvector theory (no BV2Int), avoiding theory mixing overhead
-            # XOR with sign bit maps: -128→0, -1→127, 0→128, 127→255 (for int8)
-            # So signed ordering becomes unsigned ordering, and we can use standard min/max
-            if is_signed and is_bv(objective):
-                width = bit_width if isinstance(bit_width, int) else 256
-                sign_bit = BitVecVal(1 << (width - 1), width)
-                objective = objective ^ sign_bit
+                objective = term if is_bv(term) else term
 
-            if maximize:
-                opt.maximize(objective)
-            else:
-                opt.minimize(objective)
+                # For signed types, use sign-bit XOR trick to convert signed order to unsigned order
+                # This stays entirely in bitvector theory (no BV2Int), avoiding theory mixing overhead
+                # XOR with sign bit maps: -128->0, -1->127, 0->128, 127->255 (for int8)
+                # So signed ordering becomes unsigned ordering, and we can use standard min/max
+                if is_signed and is_bv(objective):
+                    width = bit_width if isinstance(bit_width, int) else 256
+                    sign_bit = BitVecVal(1 << (width - 1), width)
+                    objective = objective ^ sign_bit
 
-            result = opt.check()
-            if result != sat:
-                if debug:
-                    console.print(
-                        f"[yellow]Optimize check returned {result} "
-                        f"(reason: {opt.reason_unknown()}) for {'max' if maximize else 'min'}[/yellow]"
-                    )
-                return None
+                if maximize:
+                    opt.maximize(objective)
+                else:
+                    opt.minimize(objective)
 
-            z3_model = opt.model()
-            if z3_model is None:
-                if debug:
-                    console.print("[yellow]Optimize produced no model[/yellow]")
-                return None
+                result = opt.check()
+                if telemetry:
+                    telemetry.count("optimize_check")
 
-            value_term = z3_model.eval(term, model_completion=True)
-            if hasattr(value_term, "as_long"):
+                # Early return: check failed
+                if result != sat:
+                    if debug:
+                        console.print(
+                            f"[yellow]Optimize check returned {result} "
+                            f"(reason: {opt.reason_unknown()}) for {'max' if maximize else 'min'}[/yellow]"
+                        )
+                    return None
+
+                z3_model = opt.model()
+
+                # Early return: no model
+                if z3_model is None:
+                    if debug:
+                        console.print("[yellow]Optimize produced no model[/yellow]")
+                    return None
+
+                value_term = z3_model.eval(term, model_completion=True)
+
+                # Early return: cannot extract value
+                if not hasattr(value_term, "as_long"):
+                    return None
+
                 raw_value = value_term.as_long()
-            else:
-                return None
+                wrapped_value = _decode_model_value(raw_value)
 
-            wrapped_value = _decode_model_value(raw_value)
+                overflow = False
+                try:
+                    flag_term = z3_model.eval(smt_var.overflow_flag.term, model_completion=True)
+                    overflow = is_true(flag_term)
+                except Exception:
+                    pass
 
-            overflow = False
-            try:
-                flag_term = z3_model.eval(smt_var.overflow_flag.term, model_completion=True)
-                overflow = is_true(flag_term)
-            except Exception:
-                pass
+                overflow_amount = 0
+                try:
+                    amount_term = z3_model.eval(smt_var.overflow_amount.term, model_completion=True)
+                    if hasattr(amount_term, "as_long"):
+                        overflow_amount = amount_term.as_long()
+                except Exception:
+                    pass
 
-            overflow_amount = 0
-            try:
-                amount_term = z3_model.eval(smt_var.overflow_amount.term, model_completion=True)
-                if hasattr(amount_term, "as_long"):
-                    overflow_amount = amount_term.as_long()
-            except Exception:
-                pass
-
-            return {
-                "value": wrapped_value,
-                "overflow": overflow,
-                "overflow_amount": overflow_amount,
-            }
+                return {
+                    "value": wrapped_value,
+                    "overflow": overflow,
+                    "overflow_amount": overflow_amount,
+                }
         except Exception:
             if debug:
                 console.print(
                     f"[yellow]Exception during optimize {'max' if maximize else 'min'}; returning None[/yellow]"
                 )
             return None
+        finally:
+            # Pop context if we pushed one
+            if needs_pop:
+                opt.pop()
+
+    # If skip_optimization is set, return conservative type bounds immediately
+    if skip_optimization:
+        if telemetry:
+            telemetry.count("range_solve_skipped")
+        return _fallback_range()
 
     try:
+        if telemetry:
+            telemetry.count("check_sat_base")
         base_result = solver.check_sat()
         if base_result != CheckSatResult.SAT:
             # When path constraints are contradictory (e.g., both branch_taken=True/False),
             # fall back to type bounds instead of failing to produce a range.
+            if telemetry:
+                telemetry.count("range_solve_fallback_unsat")
             return _fallback_range()
     except Exception:
         pass
@@ -289,7 +360,26 @@ def solve_variable_range(
                 f"path_constraints={path_constraints}[/yellow]"
             )
         # Fallback to conservative static bounds when optimization fails
+        if telemetry:
+            telemetry.count("range_solve_fallback_opt_failed")
         return _fallback_range()
+
+    if telemetry:
+        telemetry.count("range_solve_success")
+
+    # Store result in cache if available
+    if cache is not None:
+        var_id = str(smt_var.term)
+        constraint_strs = []
+        if path_constraints:
+            constraint_strs.extend(str(c) for c in path_constraints)
+        if hasattr(solver, "solver"):
+            z3_solver = solver.solver
+            if hasattr(z3_solver, "assertions"):
+                constraint_strs.extend(str(a) for a in z3_solver.assertions())
+        constraints_tuple = tuple(constraint_strs)
+        cache.put(var_id, constraints_tuple, min_result, max_result)
+
     return min_result, max_result
 
 
@@ -301,8 +391,21 @@ def solve_variable_range(
 def analyze_function_quiet(
     function: Function,
     analysis: IntervalAnalysis,
+    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
+    skip_range_solving: bool = False,
+    cache: Optional["RangeQueryCache"] = None,
+    optimizer: Optional["Optimize"] = None,
 ) -> FunctionResult:
-    """Run interval analysis on a function and return structured results."""
+    """Run interval analysis on a function and return structured results.
+
+    Args:
+        function: The function to analyze.
+        analysis: The interval analysis instance.
+        timeout_ms: Timeout in milliseconds for each optimization query.
+        skip_range_solving: If True, skip SMT optimization and use type bounds.
+        cache: Optional RangeQueryCache for memoization.
+        optimizer: Optional reusable Optimize instance.
+    """
     result = FunctionResult(
         function_name=function.name,
         contract_name=function.contract.name if function.contract else "Unknown",
@@ -348,11 +451,20 @@ def analyze_function_quiet(
                     # Filter out unused variables
                     if var_name not in used_vars:
                         continue
+                    # Filter out global variables with unbounded ranges (not useful for analysis)
+                    if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
+                        continue
 
                     # Get path constraints from the domain state
                     path_constraints = state.post.state.get_path_constraints()
                     min_result, max_result = solve_variable_range(
-                        solver, smt_var, path_constraints=path_constraints
+                        solver,
+                        smt_var,
+                        path_constraints=path_constraints,
+                        timeout_ms=timeout_ms,
+                        skip_optimization=skip_range_solving,
+                        cache=cache,
+                        optimizer=optimizer,
                     )
 
                     if min_result and max_result:
@@ -392,9 +504,20 @@ def analyze_function_quiet(
     return result
 
 
-def analyze_contract_quiet(contract_path: Path) -> List[ContractResult]:
-    """Analyze a contract file and return structured results."""
+def analyze_contract_quiet(
+    contract_path: Path,
+    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
+    skip_range_solving: bool = False,
+) -> List[ContractResult]:
+    """Analyze a contract file and return structured results.
+
+    Args:
+        contract_path: Path to the contract file.
+        timeout_ms: Timeout in milliseconds for each optimization query.
+        skip_range_solving: If True, skip SMT optimization and use type bounds.
+    """
     from slither.analyses.data_flow.smt_solver import Z3Solver
+    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
 
     results: List[ContractResult] = []
 
@@ -418,10 +541,24 @@ def analyze_contract_quiet(contract_path: Path) -> List[ContractResult]:
                 f for f in functions if f.is_implemented and not f.is_constructor
             ]
 
+            # Create shared cache and optimizer for all functions in this contract
+            cache = RangeQueryCache(max_size=1000)
+
             for function in implemented_functions:
-                solver = Z3Solver(use_optimizer=False)
+                solver = Z3Solver(use_optimizer=True)
                 analysis = IntervalAnalysis(solver=solver)
-                func_result = analyze_function_quiet(function, analysis)
+
+                # Get the optimizer from the solver for reuse
+                optimizer = solver.solver if hasattr(solver, "solver") else None
+
+                func_result = analyze_function_quiet(
+                    function,
+                    analysis,
+                    timeout_ms=timeout_ms,
+                    skip_range_solving=skip_range_solving,
+                    cache=cache,
+                    optimizer=optimizer,
+                )
                 contract_result.functions[function.name] = func_result
 
             results.append(contract_result)
@@ -593,7 +730,7 @@ def run_tests(contracts_dir: Path, verbose: bool = False) -> int:
             contract_test_results.append(contract_test)
 
     # Display results
-    _display_test_results(contract_test_results, verbose)
+    display_test_results(contract_test_results, verbose)
 
     # Summary
     console.print("\n" + "=" * 50)
@@ -612,509 +749,9 @@ def run_tests(contracts_dir: Path, verbose: bool = False) -> int:
     return 0 if passed_contracts == total_contracts else 1
 
 
-def _display_test_results(results: List[ContractTestResult], verbose: bool) -> None:
-    """Display test results with rich formatting."""
-    for contract_test in results:
-        passed_funcs = sum(1 for f in contract_test.function_results.values() if f.passed)
-        total_funcs = len(contract_test.function_results)
-
-        if contract_test.passed:
-            console.print(
-                f"[bold green]✓[/bold green] {contract_test.contract_file} - "
-                f"[green]PASSED[/green] ({passed_funcs}/{total_funcs} functions)"
-            )
-        else:
-            console.print(
-                f"[bold red]✗[/bold red] {contract_test.contract_file} - "
-                f"[red]FAILED[/red] ({passed_funcs}/{total_funcs} functions)"
-            )
-
-        # Show function details
-        for func_name, func_test in contract_test.function_results.items():
-            if func_test.passed:
-                console.print(
-                    f"  [green]✓[/green] {contract_test.contract_name}.{func_name} - All variables correct"
-                )
-            else:
-                console.print(
-                    f"  [red]✗[/red] {contract_test.contract_name}.{func_name} - Variable mismatch"
-                )
-
-                # Show mismatches
-                for comparison in func_test.comparisons:
-                    if not comparison.passed:
-                        console.print(f"    [yellow]Variable:[/yellow] {comparison.variable_name}")
-                        if comparison.expected_range != comparison.actual_range:
-                            console.print(
-                                f"      Expected range: [cyan]{comparison.expected_range}[/cyan]"
-                            )
-                            console.print(
-                                f"      Got range:      [red]{comparison.actual_range}[/red]"
-                            )
-                        if comparison.expected_overflow != comparison.actual_overflow:
-                            console.print(
-                                f"      Expected overflow: [cyan]{comparison.expected_overflow}[/cyan]"
-                            )
-                            console.print(
-                                f"      Got overflow:      [red]{comparison.actual_overflow}[/red]"
-                            )
-
-                # Show missing variables
-                for missing in func_test.missing_expected:
-                    console.print(f"    [red]Missing expected variable:[/red] {missing}")
-
-                # Show unexpected variables (informational)
-                if verbose and func_test.unexpected_vars:
-                    for unexpected in func_test.unexpected_vars:
-                        console.print(f"    [dim]Unexpected variable:[/dim] {unexpected}")
-
-
 # =============================================================================
-# VERBOSE OUTPUT MODE (Original functionality)
+# EXPECTED RESULTS GENERATION
 # =============================================================================
-
-
-def _abbreviate_variable_name(var_name: str, max_length: int = 60) -> str:
-    """
-    Abbreviate variable names to prevent truncation in table output.
-    
-    Handles names like:
-    - Contract.function().variable|variable_SSA
-    - Contract.function().word_functionName_asm_0|word_functionName_asm_0_0
-    
-    Strategy:
-    1. Keep contract and function names but abbreviate if needed
-    2. Abbreviate long variable names (especially assembly vars)
-    3. Preserve SSA suffix information
-    """
-    if len(var_name) <= max_length:
-        return var_name
-    
-    # Split on pipe to separate prefix from SSA suffix
-    if "|" in var_name:
-        prefix, ssa_suffix = var_name.rsplit("|", 1)
-    else:
-        prefix = var_name
-        ssa_suffix = ""
-    
-    # Abbreviate common patterns in the prefix
-    # Replace long assembly variable patterns
-    prefix = prefix.replace("_asm_", "_a_")
-    
-    # If prefix contains function call pattern like "Contract.function().var"
-    if "()." in prefix:
-        parts = prefix.split("().", 1)
-        if len(parts) == 2:
-            contract_func = parts[0]  # "Contract.function"
-            var_part = parts[1]       # "variable" or "word_functionName_a_0"
-            
-            # Extract function name from contract_func for abbreviation
-            func_name = ""
-            if "." in contract_func:
-                func_name = contract_func.rsplit(".", 1)[1]
-            
-            # Abbreviate long variable names
-            # For patterns like "word_readFirstThreeBytes_a_0", shorten significantly
-            if var_part.startswith("word_") and len(var_part) > 12:
-                remaining = var_part[5:]  # Remove "word_"
-                if "_a_" in remaining:
-                    func_part, rest = remaining.split("_a_", 1)
-                    # If function name is repeated in variable, abbreviate it
-                    if func_name and func_part.startswith(func_name):
-                        # Function name is repeated, use very short abbrev
-                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
-                        var_part = f"w_{func_abbrev}_a_{rest}"
-                    elif func_part:
-                        # Take first 3-4 characters of function name
-                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
-                        var_part = f"w_{func_abbrev}_a_{rest}"
-                else:
-                    # Just truncate if no _a_ pattern
-                    var_part = f"w_{remaining[:8]}" if len(remaining) > 8 else f"w_{remaining}"
-            
-            # Similar for "ptr_" pattern
-            elif var_part.startswith("ptr_") and len(var_part) > 12:
-                remaining = var_part[4:]  # Remove "ptr_"
-                if "_a_" in remaining:
-                    func_part, rest = remaining.split("_a_", 1)
-                    # If function name is repeated in variable, abbreviate it
-                    if func_name and func_part.startswith(func_name):
-                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
-                        var_part = f"p_{func_abbrev}_a_{rest}"
-                    elif func_part:
-                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
-                        var_part = f"p_{func_abbrev}_a_{rest}"
-                else:
-                    var_part = f"p_{remaining[:8]}" if len(remaining) > 8 else f"p_{remaining}"
-            
-            # Keep SSA suffix unchanged - don't abbreviate anything after |
-            
-            # Abbreviate contract.function if still too long
-            if "." in contract_func:
-                contract, func = contract_func.rsplit(".", 1)
-                # Abbreviate function name more aggressively
-                if len(func) > 10:
-                    # Take first 6-8 chars of function name
-                    func_abbrev = func[:8] + ".." if len(func) > 8 else func
-                    contract_func = f"{contract}.{func_abbrev}"
-                # Also abbreviate contract if very long
-                elif len(contract) > 15:
-                    contract = contract[:12] + ".."
-                    contract_func = f"{contract}.{func}"
-            
-            prefix = f"{contract_func}().{var_part}"
-    
-    # Reconstruct the name
-    if ssa_suffix:
-        result = f"{prefix}|{ssa_suffix}"
-    else:
-        result = prefix
-    
-    # Final check: if still too long, truncate intelligently
-    # Always preserve everything after | (SSA suffix)
-    if len(result) > max_length:
-        if "|" in result:
-            prefix_part, ssa_part = result.rsplit("|", 1)
-            # Calculate available space for prefix (leave room for | and SSA suffix)
-            available = max_length - len(ssa_part) - 1  # -1 for the |
-            if available > 10:
-                # Truncate prefix but keep SSA suffix intact
-                prefix_part = prefix_part[:available] + ".."
-                result = f"{prefix_part}|{ssa_part}"
-            else:
-                # If SSA suffix itself is too long, we still keep it but truncate prefix minimally
-                # This shouldn't happen often, but handle it gracefully
-                prefix_part = prefix_part[:max(10, max_length - len(ssa_part) - 1)]
-                result = f"{prefix_part}|{ssa_part}"
-        else:
-            # No pipe, just truncate normally
-            result = result[:max_length-3] + "..."
-    
-    return result
-
-
-def _display_variable_ranges_table(variable_results: List[Dict]) -> None:
-    """Display variable ranges in a formatted rich table."""
-    if not variable_results:
-        return
-
-    table = Table(show_header=True, header_style="bold cyan")
-    table.add_column("Variable", style="bold", justify="left")
-    table.add_column("Range", justify="left")
-    table.add_column("Overflow", justify="left")
-    table.add_column("Overflow Amount", justify="left")
-
-    for result in variable_results:
-        var_name = result["name"]
-        # Abbreviate long variable names to prevent truncation
-        abbreviated_name = _abbreviate_variable_name(var_name)
-        min_val = result["min"]
-        max_val = result["max"]
-
-        has_overflow = min_val.get("overflow", False) or max_val.get("overflow", False)
-        is_wrapped = min_val["value"] > max_val["value"]
-
-        if is_wrapped:
-            range_str = f"[{max_val['value']}, {min_val['value']}] (wrapped)"
-        else:
-            range_str = f"[{min_val['value']}, {max_val['value']}]"
-
-        range_style = "red" if has_overflow else "white"
-
-        if has_overflow:
-            overflow_str = "✗ YES"
-            overflow_style = "red bold"
-            min_overflow = min_val.get("overflow_amount", 0)
-            max_overflow = max_val.get("overflow_amount", 0)
-            if min_val.get("overflow", False) and max_val.get("overflow", False):
-                amount_str = f"min: {min_overflow:+d}, max: {max_overflow:+d}"
-            elif min_val.get("overflow", False):
-                amount_str = f"min: {min_overflow:+d}"
-            else:
-                amount_str = f"max: {max_overflow:+d}"
-        else:
-            overflow_str = "✓ NO"
-            overflow_style = "white"
-            amount_str = "-"
-
-        table.add_row(
-            abbreviated_name,
-            f"[{range_style}]{range_str}[/{range_style}]",
-            f"[{overflow_style}]{overflow_str}[/{overflow_style}]",
-            f"[{overflow_style}]{amount_str}[/{overflow_style}]",
-        )
-
-    console.print(table)
-
-
-def analyze_function_verbose(
-    function: Function,
-    analysis: IntervalAnalysis,
-    logger: "DataFlowLogger",
-    LogMessages: "type[LogMessages]",
-    debug: bool = False,
-) -> None:
-    """Run interval analysis on a single function with verbose output."""
-    logger.info(
-        "Analyzing function: {function_name} ({signature})",
-        function_name=function.name,
-        signature=function.signature,
-    )
-
-    console.print(f"\n[bold blue]=== Function: {function.name} ===[/bold blue]")
-
-    if not function.nodes:
-        logger.warning(
-            LogMessages.WARNING_SKIP_NODE,
-            node_id="N/A",
-            reason="function has no nodes (not implemented)",
-        )
-        return
-
-    logger.info(LogMessages.ENGINE_INIT, function_name=function.name)
-    engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
-
-    logger.debug(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
-    engine.run_analysis()
-
-    results: Dict[Node, AnalysisState[IntervalAnalysis]] = engine.result()
-    logger.info("Analysis complete! Processed {count} nodes.", count=len(results))
-
-    for node, state in results.items():
-        logger.debug(
-            "Node {node_id} - Pre-state: {pre_state}, Post-state: {post_state}",
-            node_id=node.node_id,
-            pre_state=state.pre.variant,
-            post_state=state.post.variant,
-        )
-
-        if state.post.variant == DomainVariant.STATE:
-            post_state_vars: Dict[str, TrackedSMTVariable] = state.post.state.get_range_variables()
-
-            if post_state_vars:
-                node_code: str = ""
-                if node.expression:
-                    node_code = str(node.expression)
-                elif hasattr(node, "source_mapping") and node.source_mapping:
-                    node_code = node.source_mapping.content.strip()
-                elif str(node):
-                    node_code = str(node)
-
-                if node_code:
-                    console.print(f"\n[bold white]Code:[/bold white] [dim]{node_code}[/dim]")
-
-                solver = analysis.solver
-                if solver:
-                    # Only show variables that were actually used
-                    used_vars = state.post.state.get_used_variables()
-                    variable_results: List[Dict] = []
-                    for var_name, smt_var in sorted(post_state_vars.items()):
-                        if var_name.startswith("CONST_"):
-                            continue
-                        # Filter out unused variables
-                        if var_name not in used_vars:
-                            continue
-
-                        if debug:
-                            console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
-                        # Get path constraints from the domain state
-                        path_constraints = state.post.state.get_path_constraints()
-                        min_result, max_result = solve_variable_range(
-                            solver, smt_var, path_constraints=path_constraints, debug=debug
-                        )
-
-                        if min_result and max_result:
-                            variable_results.append(
-                                {
-                                    "name": var_name,
-                                    "sort": smt_var.sort,
-                                    "min": min_result,
-                                    "max": max_result,
-                                }
-                            )
-                        else:
-                            logger.debug(
-                                "Could not solve range for variable {var_name}",
-                                var_name=var_name,
-                            )
-
-                    if variable_results:
-                        _display_variable_ranges_table(variable_results)
-                    elif post_state_vars:
-                        console.print(
-                            "[yellow]Variables in state but could not solve ranges: "
-                            f"{', '.join(sorted(post_state_vars.keys()))}[/yellow]"
-                        )
-
-    # Display safety violations if any were detected
-    _display_safety_violations(analysis.safety_violations)
-
-
-def _display_safety_violations(violations: List) -> None:
-    """Display detected safety violations in a formatted panel."""
-    if not violations:
-        return
-
-    console.print("\n[bold red]" + "=" * 60 + "[/bold red]")
-    console.print("[bold red]⚠️  SAFETY VIOLATIONS DETECTED[/bold red]")
-    console.print("[bold red]" + "=" * 60 + "[/bold red]\n")
-
-    for i, violation in enumerate(violations, 1):
-        severity_style = "red bold" if violation.severity == "CRITICAL" else "yellow bold"
-        console.print(
-            f"[{severity_style}]#{i} [{violation.severity}] "
-            f"{violation.violation_type.value.upper()}[/{severity_style}]"
-        )
-        console.print(f"  [white]{violation.message}[/white]")
-
-        if violation.write_location_range:
-            min_val, max_val = violation.write_location_range
-            console.print(
-                f"  [cyan]Write location '{violation.write_location_name}' range:[/cyan] "
-                f"[{min_val}, {max_val}]"
-            )
-
-        if violation.base_pointer_range and violation.base_pointer_name:
-            min_val, max_val = violation.base_pointer_range
-            console.print(
-                f"  [cyan]Base pointer '{violation.base_pointer_name}' range:[/cyan] "
-                f"[{min_val}, {max_val}]"
-            )
-
-        if violation.recommendation:
-            console.print(f"  [green]Recommendation:[/green] {violation.recommendation}")
-
-        console.print()
-
-    console.print("[bold red]" + "=" * 60 + "[/bold red]\n")
-
-
-def run_verbose(
-    contract_path: str,
-    debug: bool = False,
-    function_name: Optional[str] = None,
-    contract_name: Optional[str] = None,
-    embed: bool = False,
-    skip_compile: bool = False,
-) -> None:
-    """Run analysis with verbose output (original behavior).
-
-    Args:
-        contract_path: Path to the contract file or directory (project root)
-        debug: Enable debug output
-        function_name: Optional function name to filter to (if None, shows all functions)
-        contract_name: Optional contract name to filter to (if None, shows all contracts)
-        embed: Enable IPython embed on errors for interactive debugging
-        skip_compile: Skip compilation step (use existing artifacts)
-    """
-    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
-    from slither.analyses.data_flow.smt_solver import Z3Solver
-
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="DEBUG")
-    logger.info(LogMessages.ENGINE_START)
-
-    logger.info("Loading contract from: {path}", path=contract_path)
-    try:
-        slither: Slither = Slither(contract_path, ignore_compile=skip_compile)
-    except SlitherError as e:
-        error_msg = str(e)
-        # Check if this is a Foundry compilation error
-        if "build-info" in error_msg or "Compilation failed" in error_msg:
-            contract_path_obj = Path(contract_path)
-            # Check if foundry.toml exists (indicates Foundry project)
-            foundry_toml = contract_path_obj / "foundry.toml"
-            if not foundry_toml.exists() and contract_path_obj.is_file():
-                # If it's a file, check parent directory
-                foundry_toml = contract_path_obj.parent / "foundry.toml"
-
-            if foundry_toml.exists():
-                logger.error(
-                    "Foundry project compilation failed. Please build the project first:\n"
-                    "  cd {project_dir}\n"
-                    "  forge build",
-                    project_dir=foundry_toml.parent,
-                )
-            else:
-                logger.error(
-                    "Compilation failed. Please ensure the project is built.\n"
-                    "Original error: {error}",
-                    error=error_msg,
-                )
-        else:
-            logger.error("Slither initialization failed: {error}", error=error_msg)
-        raise
-
-    contracts: List[Contract]
-    if slither.compilation_units:
-        contracts = []
-        for compilation_unit in slither.compilation_units:
-            contracts.extend(compilation_unit.contracts)
-    else:
-        contracts = slither.contracts
-
-    if not contracts:
-        logger.warning("No contracts found!")
-        return
-
-    # Collect all contract names for error message
-    all_contract_names = sorted(set(c.name for c in contracts))
-
-    # Filter by contract name if specified
-    if contract_name:
-        contracts = [c for c in contracts if c.name == contract_name]
-        if not contracts:
-            console.print(f"[red]Contract '{contract_name}' not found![/red]")
-            console.print(f"[dim]Available contracts: {', '.join(all_contract_names)}[/dim]")
-            return
-        logger.info("Filtered to contract: {contract_name}", contract_name=contract_name)
-
-    logger.info("Found {count} contract(s)", count=len(contracts))
-    logger.info(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
-
-    for contract in contracts:
-        logger.info("Processing contract: {contract_name}", contract_name=contract.name)
-
-        functions: List[Function] = contract.functions_and_modifiers_declared
-        implemented_functions: List[Function] = [
-            f for f in functions if f.is_implemented and not f.is_constructor
-        ]
-
-        if function_name:
-            implemented_functions = [f for f in implemented_functions if f.name == function_name]
-            if not implemented_functions:
-                console.print(
-                    f"[yellow]Function '{function_name}' not found in contract '{contract.name}'[/yellow]"
-                )
-                continue
-
-        if not implemented_functions:
-            logger.warning(
-                "No implemented functions found in {contract_name}", contract_name=contract.name
-            )
-            continue
-
-        logger.info(
-            "Found {count} implemented function(s) in {contract_name}",
-            count=len(implemented_functions),
-            contract_name=contract.name,
-        )
-
-        for function in implemented_functions:
-            try:
-                solver = Z3Solver(use_optimizer=False)
-                analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
-                analyze_function_verbose(function, analysis, logger, LogMessages, debug=debug)
-            except Exception as e:
-                # Log error with context, then stop execution
-                logger.exception(
-                    LogMessages.ERROR_ANALYSIS_FAILED,
-                    error=str(e),
-                    function_name=function.name,
-                    embed_on_error=False,
-                )
-                raise
-
-    logger.info(LogMessages.ENGINE_COMPLETE)
 
 
 def generate_expected_results(contracts_dir: Path, contract_file: Optional[str] = None) -> None:
@@ -1145,11 +782,11 @@ def generate_expected_results(contracts_dir: Path, contract_file: Optional[str] 
             was_already_present = contract_file in all_results
             if was_already_present:
                 console.print(
-                    f"[yellow]⚠[/yellow] [dim]{contract_file} already exists in expected results. Will update it.[/dim]"
+                    f"[yellow]![/yellow] [dim]{contract_file} already exists in expected results. Will update it.[/dim]"
                 )
             else:
                 console.print(
-                    f"[green]✓[/green] [dim]{contract_file} not found in expected results. Will add it.[/dim]"
+                    f"[green]V[/green] [dim]{contract_file} not found in expected results. Will add it.[/dim]"
                 )
             console.print(
                 f"[dim]Loaded existing results for {len(all_results)} contract file(s)[/dim]"
@@ -1260,7 +897,7 @@ def generate_expected_results(contracts_dir: Path, contract_file: Optional[str] 
     try:
         expected_results_path.write_text(output_content, encoding="utf-8")
         console.print(
-            f"\n[bold green]✓[/bold green] Expected results saved to: {expected_results_path}"
+            f"\n[bold green]V[/bold green] Expected results saved to: {expected_results_path}"
         )
 
         # Show summary of what was added/updated
@@ -1275,53 +912,10 @@ def generate_expected_results(contracts_dir: Path, contract_file: Optional[str] 
                     f"[green]Generated results for {len(added_contracts)} contract file(s)[/green]"
                 )
     except Exception as e:
-        console.print(f"\n[bold red]✗[/bold red] Failed to save expected results: {e}")
+        console.print(f"\n[bold red]X[/bold red] Failed to save expected results: {e}")
         return
 
     console.print("[dim]Note: Review and adjust the results as needed.[/dim]\n")
-
-
-def show_test_output(
-    contract_file: str, function_name: Optional[str] = None, contracts_dir: str = "../contracts/src"
-) -> None:
-    """Show verbose table output for a specific test contract/function.
-
-    Args:
-        contract_file: Name of the contract file (e.g., "FunctionArgs.sol") or full path
-        function_name: Optional function name to filter to
-        contracts_dir: Directory containing contract files (used if contract_file is just a filename)
-    """
-    # Check if contract_file is already a full path
-    contract_file_path = Path(contract_file)
-    if contract_file_path.is_absolute() or "/" in contract_file or "\\" in contract_file:
-        # It's already a path, use it directly
-        contract_path = contract_file_path.resolve()
-    else:
-        # It's just a filename, prepend contracts_dir
-        contract_path = (Path(contracts_dir) / contract_file).resolve()
-
-    if not contract_path.exists():
-        console.print(f"[red]Contract file not found: {contract_path}[/red]")
-        return
-
-    console.print(f"[bold cyan]Showing verbose output for: {contract_file}[/bold cyan]")
-    if function_name:
-        console.print(f"[bold cyan]Function: {function_name}[/bold cyan]")
-    console.print()
-
-    # Suppress logger output, only show tables
-    import logging
-
-    # Set all loggers to ERROR level to suppress INFO/DEBUG
-    logging.getLogger("slither").setLevel(logging.ERROR)
-    logging.getLogger("slither.analyses.data_flow").setLevel(logging.ERROR)
-
-    # Also suppress rich console output from logger
-    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
-
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="ERROR")
-
-    run_verbose(str(contract_path), debug=False, function_name=function_name)
 
 
 # =============================================================================
@@ -1329,152 +923,7 @@ def show_test_output(
 # =============================================================================
 
 
-def main() -> int:
-    """Main entry point with command-line argument handling."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Slither Data Flow Analysis Test Suite")
-    parser.add_argument(
-        "--test", "-t", action="store_true", help="Run automated tests against expected results"
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        help="Run in verbose mode (original behavior) or show extra test details",
-    )
-    parser.add_argument(
-        "--debug", "-d", action="store_true", help="Show detailed debugging information"
-    )
-    parser.add_argument(
-        "--embed",
-        action="store_true",
-        help="Enable IPython embed on errors for interactive debugging",
-    )
-    parser.add_argument(
-        "--contract",
-        "-c",
-        type=str,
-        default=None,
-        help="Path to contract file or project directory for verbose mode (Slither supports Foundry, Hardhat, etc.)",
-    )
-    parser.add_argument(
-        "--contracts-dir",
-        type=str,
-        default=None,
-        help="Directory containing .sol files for test mode, or project directory for verbose mode if --contract not specified",
-    )
-    parser.add_argument(
-        "--show",
-        "-s",
-        type=str,
-        metavar="CONTRACT_FILE",
-        help="Show verbose table output for a specific contract file (e.g., FunctionArgs.sol)",
-    )
-    parser.add_argument(
-        "--function",
-        "-f",
-        type=str,
-        metavar="FUNCTION_NAME",
-        help="Filter to a specific function name (use with --show or --contract)",
-    )
-    parser.add_argument(
-        "--contract-name",
-        type=str,
-        metavar="CONTRACT_NAME",
-        help="Filter to a specific contract name (e.g., 'Settlement'). Only analyzes the specified contract.",
-    )
-    parser.add_argument(
-        "--generate-expected",
-        "-g",
-        action="store_true",
-        help="Generate expected results from current analysis output (for copying into expected_results.py). "
-        "If a contract file name is provided as positional argument, only generates results for that file.",
-    )
-    parser.add_argument(
-        "--skip-compile",
-        action="store_true",
-        help="Skip compilation step (use existing build artifacts). "
-        "Much faster if project is already compiled.",
-    )
-    parser.add_argument(
-        "path",
-        nargs="?",
-        type=str,
-        help="Optional path to contract file or project directory (alternative to --contract)",
-    )
-
-    args = parser.parse_args()
-
-    if args.generate_expected:
-        # Generate expected results from current analysis
-        contracts_dir = Path(args.contracts_dir or "../contracts/src")
-        if not contracts_dir.exists():
-            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
-            return 1
-
-        # If a path is provided, treat it as a contract file name
-        contract_file = None
-        if args.path:
-            contract_file = args.path
-            # Remove directory path if provided, keep only filename
-            if "/" in contract_file or "\\" in contract_file:
-                contract_file = Path(contract_file).name
-            # Ensure it ends with .sol
-            if not contract_file.endswith(".sol"):
-                contract_file = f"{contract_file}.sol"
-
-        generate_expected_results(contracts_dir, contract_file=contract_file)
-        return 0
-    elif args.show:
-        # Show verbose output for a specific test
-        contracts_dir = args.contracts_dir or "../contracts/src"
-        show_test_output(args.show, function_name=args.function, contracts_dir=contracts_dir)
-        return 0
-    elif args.test:
-        # Automated test mode
-        contracts_dir = Path(args.contracts_dir or "../contracts/src")
-        if not contracts_dir.exists():
-            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
-            return 1
-        return run_tests(contracts_dir, verbose=args.verbose)
-    else:
-        # Verbose mode (original behavior)
-        # Priority: positional argument > --contract > --contracts-dir > default
-        if args.path:
-            contract_path = args.path
-        elif args.contract:
-            contract_path = args.contract
-        elif args.contracts_dir:
-            # Use contracts_dir if explicitly provided
-            contract_path = args.contracts_dir
-        else:
-            # Fallback to default (for backward compatibility)
-            contract_path = "../contracts/src/FunctionArgs.sol"
-
-        # Convert to absolute path for better handling, but Slither can handle both
-        contract_path_obj = Path(contract_path)
-        if contract_path_obj.exists():
-            # Use absolute path if it exists
-            contract_path = str(contract_path_obj.resolve())
-        else:
-            # Even if path doesn't exist as-is, let Slither try (it handles project detection)
-            # Just warn the user
-            console.print(f"[yellow]Warning: Path may not exist: {contract_path}[/yellow]")
-            console.print(
-                "[dim]Slither will attempt to detect project type (Foundry/Hardhat/etc.)[/dim]"
-            )
-
-        run_verbose(
-            contract_path,
-            debug=args.debug,
-            function_name=args.function,
-            contract_name=args.contract_name,
-            embed=args.embed,
-            skip_compile=args.skip_compile,
-        )
-        return 0
-
-
 if __name__ == "__main__":
+    from slither.analyses.data_flow.cli import main
+
     sys.exit(main())

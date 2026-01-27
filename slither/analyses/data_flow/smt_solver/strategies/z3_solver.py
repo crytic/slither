@@ -103,7 +103,8 @@ class Z3Solver(SMTSolver):
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """Add constraint to Z3 solver."""
         self.solver.add(constraint)
-        self.assertions.append(constraint)
+        # Note: Removed self.assertions.append() - was redundant memory leak
+        # Use self.solver.assertions() to get Z3's native assertion list
 
     def check_sat(self) -> CheckSatResult:
         """Check satisfiability."""
@@ -156,7 +157,7 @@ class Z3Solver(SMTSolver):
         else:
             self.solver = Solver()
         self.variables.clear()
-        self.assertions.clear()
+        # Note: self.assertions.clear() removed - list no longer exists
         self.last_result = None
         self.model = None
 
@@ -259,8 +260,8 @@ class Z3Solver(SMTSolver):
         for var in self.variables.values():
             lines.append(f"(declare-const {var.name} {var.sort})")
 
-        # Assertions
-        for assertion in self.assertions:
+        # Assertions (use Z3's native assertions() method)
+        for assertion in self.solver.assertions():
             lines.append(f"(assert {assertion})")
 
         # Commands

@@ -29,7 +29,8 @@ class SMTSolver(ABC):
 
     def __init__(self) -> None:
         self.variables: Dict[str, SMTVariable] = {}
-        self.assertions: List[SMTTerm] = []
+        # Note: self.assertions removed - was redundant memory leak
+        # Use solver.solver.assertions() to get Z3's native assertion list instead
 
     # ========================================================================
     # Core SMT-LIB 2.0 Commands
@@ -260,9 +261,8 @@ class SMTSolver(ABC):
         """List all declared variable names"""
         return list(self.variables.keys())
 
-    def get_assertions(self) -> List[SMTTerm]:
-        """Get all current assertions"""
-        return self.assertions.copy()
+    # Note: get_assertions() removed - was unused and relied on redundant self.assertions list
+    # Use solver.solver.assertions() directly to access Z3's native assertion tracking
 
     @abstractmethod
     def to_smtlib(self) -> str:

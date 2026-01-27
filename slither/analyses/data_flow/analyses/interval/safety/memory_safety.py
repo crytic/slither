@@ -506,37 +506,23 @@ class MemorySafetyChecker:
     def _get_variable_range(
         self, tracked_var: "TrackedSMTVariable"
     ) -> Optional[tuple[int, int]]:
-        """Get the min/max range for a tracked variable."""
-        from z3 import Optimize, sat
-
-        # Use Z3 optimization to find min/max
+        """Get the min/max range for a tracked variable using optimized solver."""
+        # Use the optimized solve_variable_range function which handles caching and reuse
         try:
-            term = tracked_var.term
+            # Import here to avoid circular dependency
+            from slither.analyses.data_flow.test import solve_variable_range
 
-            # Get min
-            opt_min = Optimize()
-            opt_min.set("timeout", 1000)
-            if hasattr(self.solver, "solver"):
-                for assertion in self.solver.solver.assertions():
-                    opt_min.add(assertion)
-            opt_min.minimize(term)
-            if opt_min.check() != sat:
+            min_result, max_result = solve_variable_range(
+                solver=self.solver,
+                smt_var=tracked_var,
+                path_constraints=None,  # No additional path constraints
+                timeout_ms=1000,
+                skip_optimization=False,
+            )
+
+            if min_result is None or max_result is None:
                 return None
-            model = opt_min.model()
-            min_val = model.eval(term, model_completion=True).as_long()
 
-            # Get max
-            opt_max = Optimize()
-            opt_max.set("timeout", 1000)
-            if hasattr(self.solver, "solver"):
-                for assertion in self.solver.solver.assertions():
-                    opt_max.add(assertion)
-            opt_max.maximize(term)
-            if opt_max.check() != sat:
-                return None
-            model = opt_max.model()
-            max_val = model.eval(term, model_completion=True).as_long()
-
-            return (min_val, max_val)
+            return (min_result["value"], max_result["value"])
         except Exception:
             return None
