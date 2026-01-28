@@ -90,6 +90,23 @@ class FunctionSolc(CallerContextExpression):
         if "documentation" in function_data:
             function.has_documentation = True
 
+        # Old solc versions store the comment in attributes["documentation"]
+        # More recent ones store it in attributes["documentation"]["text"]
+        if (
+            "documentation" in function_data
+            and function_data["documentation"] is not None
+            and (
+                "text" in function_data["documentation"]
+                or isinstance(function_data["documentation"], str)
+            )
+        ):
+            text = (
+                function_data["documentation"]
+                if isinstance(function_data["documentation"], str)
+                else function_data["documentation"]["text"]
+            )
+            self._function.comments = text
+
     @property
     def underlying_function(self) -> Function:
         return self._function
