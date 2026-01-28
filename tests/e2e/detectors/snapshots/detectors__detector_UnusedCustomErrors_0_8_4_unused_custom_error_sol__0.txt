@@ -1,0 +1,6 @@
+TopLevelUnused() (tests/e2e/detectors/test_data/unused-error/0.8.4/unused_custom_error.sol#5) is declared but never used
+
+UnusedErrorTest.InvalidAmount(uint256) (tests/e2e/detectors/test_data/unused-error/0.8.4/unused_custom_error.sol#18) is declared but never used in UnusedErrorTest (tests/e2e/detectors/test_data/unused-error/0.8.4/unused_custom_error.sol#10-35)
+
+UnusedErrorTest.Unauthorized() (tests/e2e/detectors/test_data/unused-error/0.8.4/unused_custom_error.sol#12) is declared but never used in UnusedErrorTest (tests/e2e/detectors/test_data/unused-error/0.8.4/unused_custom_error.sol#10-35)
+
