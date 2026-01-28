@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 
 # Import DEFAULT_OPTIMIZE_TIMEOUT_MS from test module
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for display purposes
 
 
 def analyze_function_verbose(

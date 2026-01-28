@@ -6,7 +6,7 @@ from pathlib import Path
 from slither.analyses.data_flow.display import console
 
 # Default timeout for Optimize queries (milliseconds)
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for faster analysis
 
 
 def main() -> int:
@@ -98,6 +98,18 @@ def main() -> int:
         "Useful for profiling and identifying performance bottlenecks.",
     )
     parser.add_argument(
+        "--pytest",
+        action="store_true",
+        help="Run tests using pytest with snapshot testing instead of custom test runner. "
+        "Supports -k for filtering, --update-snapshots for updating expected results.",
+    )
+    parser.add_argument(
+        "--update-snapshots",
+        action="store_true",
+        help="Update pytest snapshots with current analysis results (use with --pytest). "
+        "Equivalent to: pytest --snapshot-update",
+    )
+    parser.add_argument(
         "path",
         nargs="?",
         type=str,
@@ -105,6 +117,18 @@ def main() -> int:
     )
 
     args = parser.parse_args()
+
+    if args.pytest:
+        # Run tests using pytest with snapshot testing
+        import subprocess
+
+        cmd = ["pytest", "slither/analyses/data_flow/tests/", "-v"]
+        if args.update_snapshots:
+            cmd.append("--snapshot-update")
+        if args.path:
+            # Allow filtering by contract name, e.g., --pytest Assert.sol
+            cmd.extend(["-k", args.path])
+        return subprocess.call(cmd)
 
     if args.generate_expected:
         # Generate expected results from current analysis

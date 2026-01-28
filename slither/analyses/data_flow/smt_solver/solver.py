@@ -142,6 +142,36 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_ule(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned less-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_ugt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_uge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sle(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed less-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sgt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
     def bv_size(self, term: SMTTerm) -> int:
         """Get the bit-width of a bitvector term."""
         pass

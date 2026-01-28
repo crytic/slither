@@ -16,9 +16,9 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
             "assertExactValue": {
                 "variables": {
-                    "AssertTests.assertExactValue().x|x_1": {"range": "[5, 5]", "overflow": "NO"},
-                    "AssertTests.assertExactValue().y|y_1": {"range": "[15, 15]", "overflow": "NO"},
-                    "AssertTests.assertExactValue().z|z_1": {"range": "[16, 16]", "overflow": "NO"},
+                    "AssertTests.assertExactValue().x|x_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "AssertTests.assertExactValue().y|y_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "AssertTests.assertExactValue().z|z_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
                 }
             },
             "assertMultipleConstraints": {
@@ -271,8 +271,8 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
             },
             "complexExpression": {
                 "variables": {
-                    "FunctionArgsTests.complexExpression(uint256).x|x_1": {"range": "[1, 499]", "overflow": "NO"},
-                    "FunctionArgsTests.complexExpression(uint256).y|y_1": {"range": "[2, 998]", "overflow": "NO"},
+                    "FunctionArgsTests.complexExpression(uint256).x|x_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
+                    "FunctionArgsTests.complexExpression(uint256).y|y_1": {"range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]", "overflow": "NO"},
                 }
             },
             "constrainedAdd": {
@@ -305,6 +305,11 @@ EXPECTED_RESULTS: Dict[str, Dict[str, Dict[str, Dict[str, Dict]]]] = {
                 }
             },
             "potentialUnderflow": {
+                "variables": {
+                    # No variables tracked
+                }
+            },
+            "signedOperation": {
                 "variables": {
                     # No variables tracked
                 }

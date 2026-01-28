@@ -116,6 +116,8 @@ class MemorySafetyChecker:
         self.context = context or MemorySafetyContext()
         self.logger = get_logger()
         self._violations: List[MemorySafetyViolation] = []
+        # Cache for variable range results to avoid redundant solver calls
+        self._range_cache: Dict[str, Optional[tuple[int, int]]] = {}
 
     @property
     def violations(self) -> List[MemorySafetyViolation]:
@@ -507,6 +509,11 @@ class MemorySafetyChecker:
         self, tracked_var: "TrackedSMTVariable"
     ) -> Optional[tuple[int, int]]:
         """Get the min/max range for a tracked variable using optimized solver."""
+        # Check cache first
+        cache_key = str(tracked_var.term)
+        if cache_key in self._range_cache:
+            return self._range_cache[cache_key]
+
         # Use the optimized solve_variable_range function which handles caching and reuse
         try:
             # Import here to avoid circular dependency
@@ -515,14 +522,18 @@ class MemorySafetyChecker:
             min_result, max_result = solve_variable_range(
                 solver=self.solver,
                 smt_var=tracked_var,
-                path_constraints=None,  # No additional path constraints
-                timeout_ms=1000,
-                skip_optimization=False,
+                path_constraints=self.domain.state.get_path_constraints(),
+                timeout_ms=50,
+                skip_optimization=True,  # Use type bounds for fast safety checks
             )
 
             if min_result is None or max_result is None:
+                self._range_cache[cache_key] = None
                 return None
 
-            return (min_result["value"], max_result["value"])
+            result = (min_result["value"], max_result["value"])
+            self._range_cache[cache_key] = result
+            return result
         except Exception:
+            self._range_cache[cache_key] = None
             return None

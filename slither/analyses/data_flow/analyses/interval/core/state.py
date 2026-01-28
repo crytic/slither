@@ -16,6 +16,7 @@ class State:
         binary_operations: Optional[Mapping[str, "Binary"]] = None,
         path_constraints: Optional[List["SMTTerm"]] = None,
         bytes_memory_constants: Optional[Dict[str, bytes]] = None,
+        var_by_prefix: Optional[Dict[str, set[str]]] = None,
     ):
         if range_variables is None:
             range_variables = {}
@@ -34,6 +35,52 @@ class State:
         if bytes_memory_constants is None:
             bytes_memory_constants = {}
         self.bytes_memory_constants: Dict[str, bytes] = dict(bytes_memory_constants)
+        # Index for fast prefix-based lookups: prefix -> set of variable names
+        # e.g., "struct." -> {"struct.a", "struct.b"}, "array[" -> {"array[0]", "array[1]"}
+        if var_by_prefix is None:
+            self._var_by_prefix: Dict[str, set[str]] = {}
+            # Build index from existing variables
+            for name in self.range_variables:
+                self._index_variable(name)
+        else:
+            self._var_by_prefix = {k: set(v) for k, v in var_by_prefix.items()}
+
+    def _index_variable(self, name: str) -> None:
+        """Add a variable name to the prefix index."""
+        # Index by struct prefix (e.g., "MyStruct.member" -> prefix "MyStruct.")
+        if "." in name:
+            prefix = name.split(".", 1)[0] + "."
+            if prefix not in self._var_by_prefix:
+                self._var_by_prefix[prefix] = set()
+            self._var_by_prefix[prefix].add(name)
+        # Index by array prefix (e.g., "myArray[0]" -> prefix "myArray[")
+        if "[" in name:
+            prefix = name.split("[", 1)[0] + "["
+            if prefix not in self._var_by_prefix:
+                self._var_by_prefix[prefix] = set()
+            self._var_by_prefix[prefix].add(name)
+
+    def _unindex_variable(self, name: str) -> None:
+        """Remove a variable name from the prefix index."""
+        if "." in name:
+            prefix = name.split(".", 1)[0] + "."
+            if prefix in self._var_by_prefix:
+                self._var_by_prefix[prefix].discard(name)
+        if "[" in name:
+            prefix = name.split("[", 1)[0] + "["
+            if prefix in self._var_by_prefix:
+                self._var_by_prefix[prefix].discard(name)
+
+    def get_variables_by_prefix(self, prefix: str) -> set[str]:
+        """Get all variable names that start with a given prefix.
+
+        Args:
+            prefix: The prefix to search for (e.g., "MyStruct." or "myArray[")
+
+        Returns:
+            Set of variable names matching the prefix (may be empty)
+        """
+        return self._var_by_prefix.get(prefix, set()).copy()
 
     def get_range_variable(self, name: str) -> Optional[TrackedSMTVariable]:
         """Get an SMT variable by name, returns None if not found."""
@@ -53,12 +100,18 @@ class State:
 
     def set_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Set an SMT variable by name."""
+        # Update prefix index if this is a new variable
+        if name not in self.range_variables:
+            self._index_variable(name)
         self.range_variables[name] = smt_variable
         # Mark as used when set (written to during analysis)
         self.used_variables.add(name)
 
     def add_range_variable(self, name: str, smt_variable: TrackedSMTVariable) -> None:
         """Add a new SMT variable to the state (without marking as used - for initialization)."""
+        # Update prefix index if this is a new variable
+        if name not in self.range_variables:
+            self._index_variable(name)
         self.range_variables[name] = smt_variable
         # Don't mark as used - this is for initialization, not actual usage
 
@@ -89,6 +142,7 @@ class State:
     def remove_range_variable(self, name: str) -> bool:
         """Remove a range variable by name, returns True if removed."""
         if name in self.range_variables:
+            self._unindex_variable(name)
             del self.range_variables[name]
             return True
         return False
@@ -96,6 +150,7 @@ class State:
     def clear_range_variables(self) -> None:
         """Clear all range variables from the state."""
         self.range_variables.clear()
+        self._var_by_prefix.clear()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, State):
@@ -152,22 +207,23 @@ class State:
         return self.bytes_memory_constants
 
     def deep_copy(self) -> "State":
-        """Create a deep copy of the state"""
-        copied_vars = {
-            name: TrackedSMTVariable(
-                base=value.base,
-                overflow_flag=value.overflow_flag,
-                overflow_amount=value.overflow_amount,
-            )
-            for name, value in self.range_variables.items()
-        }
+        """Create a deep copy of the state.
+
+        Optimization: TrackedSMTVariable objects are effectively immutable (they wrap
+        immutable SMT terms), so we can share them directly instead of creating new
+        wrapper instances. This avoids O(n) object allocations on every branch merge.
+        """
+        # Share TrackedSMTVariable references directly - they are immutable
+        copied_vars = dict(self.range_variables)
         # Binary operations are copied by reference (they're immutable operation objects)
         copied_ops = dict(self.binary_operations)
         # Path constraints are SMT terms (immutable), copy the list
         copied_constraints = list(self.path_constraints)
         # Copy bytes memory constants
         copied_bytes_constants = dict(self.bytes_memory_constants)
-        new_state = State(copied_vars, copied_ops, copied_constraints, copied_bytes_constants)
+        # Copy prefix index (shallow copy of sets)
+        copied_prefix_index = {k: set(v) for k, v in self._var_by_prefix.items()}
+        new_state = State(copied_vars, copied_ops, copied_constraints, copied_bytes_constants, copied_prefix_index)
         # Copy used variables set
         new_state.used_variables = set(self.used_variables)
         return new_state

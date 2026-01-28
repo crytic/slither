@@ -487,26 +487,27 @@ class PhiHandler(BaseOperationHandler):
         lvalue_base = lvalue_name.split("|")[0] if "|" in lvalue_name else lvalue_name
 
         # Find existing struct members from rvalues to determine which members exist
+        # Use prefix index for fast lookup
         member_names: set[str] = set()
-        all_var_names = list(domain.state.get_range_variables().keys())
 
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
                 continue
 
-            # Find all struct member variables for this rvalue by checking if var starts with "{rvalue_name}."
+            # Use prefix index to find struct member variables for this rvalue
             rvalue_prefix = f"{rvalue_name}."
-            for var_name in all_var_names:
-                if var_name.startswith(rvalue_prefix):
-                    # Extract member name (everything after the prefix)
-                    member_name = var_name[len(rvalue_prefix) :]
-                    member_names.add(member_name)
-                    self.logger.debug(
-                        "Found struct member '{var_name}' matching rvalue '{rvalue}'",
-                        var_name=var_name,
-                        rvalue=rvalue_name,
-                    )
+            candidate_vars = domain.state.get_variables_by_prefix(rvalue_prefix)
+
+            for var_name in candidate_vars:
+                # Extract member name (everything after the prefix)
+                member_name = var_name[len(rvalue_prefix):]
+                member_names.add(member_name)
+                self.logger.debug(
+                    "Found struct member '{var_name}' matching rvalue '{rvalue}'",
+                    var_name=var_name,
+                    rvalue=rvalue_name,
+                )
 
         if not member_names:
             return

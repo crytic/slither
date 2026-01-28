@@ -4,7 +4,6 @@ Cache for SMT solver range queries to avoid redundant computations.
 
 from typing import Dict, Tuple, Optional, Any
 from collections import OrderedDict
-import hashlib
 
 
 class RangeQueryCache:
@@ -40,8 +39,9 @@ class RangeQueryCache:
             Cache key string
         """
         # Create a hash of the constraints for compact key
+        # Use Python's builtin hash for speed (vs SHA256 which is cryptographic overkill)
         constraints_str = "|".join(sorted(constraints))
-        constraints_hash = hashlib.sha256(constraints_str.encode()).hexdigest()[:16]
+        constraints_hash = hex(hash(constraints_str) & 0xFFFFFFFFFFFFFFFF)[2:]
         return f"{variable_id}:{constraints_hash}"
 
     def get(

@@ -169,7 +169,8 @@ def initialize_function_parameters(
         if tracked_var is not None:
             # Use add_range_variable for initialization (doesn't mark as used)
             domain.state.add_range_variable(param_name, tracked_var)
-            # Function parameters don't get initialized to 0 - they have full range
+            # Function parameters have no overflow - they are input values
+            tracked_var.assert_no_overflow(solver)
 
         # Also initialize the first SSA version (e.g., paramName|paramName_1) which is used in assignments
         base_var_name = getattr(param, "name", None)
@@ -186,7 +187,8 @@ def initialize_function_parameters(
                 )
                 if ssa_tracked is not None:
                     domain.state.add_range_variable(first_ssa_name, ssa_tracked)
-                    # SSA version also has full range (not initialized to 0)
+                    # SSA version also has no overflow
+                    ssa_tracked.assert_no_overflow(solver)
 
 
 def initialize_state_variables_with_constants(

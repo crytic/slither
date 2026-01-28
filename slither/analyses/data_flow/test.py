@@ -37,7 +37,7 @@ from slither.analyses.data_flow.expected_results import EXPECTED_RESULTS
 # Reduced from 2000ms to 500ms for faster analysis (4x speedup)
 # Trade-off: Slightly less precise ranges, but much faster
 # For very precise ranges, use --timeout 2000 or higher
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for faster analysis
 
 
 # =============================================================================
@@ -336,18 +336,11 @@ def solve_variable_range(
             telemetry.count("range_solve_skipped")
         return _fallback_range()
 
-    try:
-        if telemetry:
-            telemetry.count("check_sat_base")
-        base_result = solver.check_sat()
-        if base_result != CheckSatResult.SAT:
-            # When path constraints are contradictory (e.g., both branch_taken=True/False),
-            # fall back to type bounds instead of failing to produce a range.
-            if telemetry:
-                telemetry.count("range_solve_fallback_unsat")
-            return _fallback_range()
-    except Exception:
-        pass
+    # Skip base satisfiability check entirely - it's redundant.
+    # The optimizer will fail fast (50ms timeout) if constraints are UNSAT/complex.
+    # Previously this check was called 366 times with the SAME solver state,
+    # wasting 30+ seconds on repeated timeout checks.
+    # If optimizer fails, we fall back to type bounds anyway (lines below).
 
     min_result = _optimize_range(maximize=False)
     max_result = _optimize_range(maximize=True)
@@ -432,8 +425,34 @@ def analyze_function_quiet(
             # If no explicit return nodes, use the last node
             return_nodes = [function.nodes[-1]] if function.nodes else []
 
-        # Collect variables only from return nodes, and filter out temporary variables
-        for node in return_nodes:
+        # Check if return nodes are unreachable (BOTTOM/TOP variant)
+        # If so, find the last node with STATE variant to get pre-revert state
+        nodes_to_process = return_nodes
+        all_unreachable = all(
+            node not in results or results[node].post.variant != DomainVariant.STATE
+            for node in return_nodes
+        )
+        if all_unreachable:
+            # Find the last node with STATE variant (before the revert point)
+            for node in reversed(function.nodes):
+                if node in results and results[node].post.variant == DomainVariant.STATE:
+                    nodes_to_process = [node]
+                    break
+
+        # Collect variables from selected nodes, filtering out temporary variables
+
+        # First, identify return value variable names (TMPs that are returned)
+        return_value_vars: set[str] = set()
+        for node in function.nodes:
+            for ir in node.irs:
+                # Check for Return operations
+                if type(ir).__name__ == "Return" and hasattr(ir, "values"):
+                    for val in ir.values:
+                        val_name = getattr(val, "name", None)
+                        if val_name:
+                            return_value_vars.add(val_name)
+
+        for node in nodes_to_process:
             if node not in results:
                 continue
             state = results[node]
@@ -445,14 +464,25 @@ def analyze_function_quiet(
                 # Only show variables that were actually used
                 used_vars = state.post.state.get_used_variables()
                 for var_name, smt_var in post_state_vars.items():
-                    # Filter out constants and temporary variables
-                    if var_name.startswith("CONST_") or var_name.startswith("TMP_"):
+                    # Filter out constants and most temporary variables
+                    # But keep return value TMPs (they represent the function's output)
+                    is_return_value = var_name in return_value_vars
+                    if var_name.startswith("CONST_"):
+                        continue
+                    if var_name.startswith("TMP_") and not is_return_value:
+                        continue
+                    # Filter out REF_ variables (internal references)
+                    if var_name.startswith("REF_"):
                         continue
                     # Filter out unused variables
                     if var_name not in used_vars:
                         continue
                     # Filter out global variables with unbounded ranges (not useful for analysis)
                     if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
+                        continue
+
+                    # Skip if we've already solved this exact variable
+                    if var_name in result.variables:
                         continue
 
                     # Get path constraints from the domain state

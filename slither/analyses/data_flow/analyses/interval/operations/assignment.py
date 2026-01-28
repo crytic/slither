@@ -488,35 +488,46 @@ class AssignmentHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        # Find all variables in domain that match the pattern "{points_to_name}.*"
-        # and check if they're constrained to equal lvalue_var
-        for var_name, tracked_var in domain.state.get_range_variables().items():
-            # Check if this variable name matches the pattern of a struct member
-            if "." in var_name:
-                base_name = var_name.split(".", 1)[0]
-                # Check if base name matches (accounting for SSA versions)
-                if base_name.startswith(points_to_name) or points_to_name.startswith(
-                    base_name.split("|")[0]
-                ):
-                    # This might be the struct member - update it to match the reference
-                    # The constraint REF == struct.member should already exist from Member handler
-                    # We just need to ensure the struct member is updated when REF is updated
-                    # Since they're constrained to be equal, updating REF should propagate
-                    # But we can explicitly update the struct member to be safe
-                    member_width = self.solver.bv_size(tracked_var.term)
-                    ref_width = self.solver.bv_size(lvalue_var.term)
+        # Use prefix index for fast lookup of struct member variables
+        # Look for "{points_to_name}." prefix
+        prefix = points_to_name + "."
+        candidate_vars = domain.state.get_variables_by_prefix(prefix)
 
-                    if member_width == ref_width:
-                        # Explicitly constrain struct member to equal the reference
-                        constraint: SMTTerm = tracked_var.term == lvalue_var.term
-                        self.solver.assert_constraint(constraint)
-                        self.logger.debug(
-                            "Updated struct member '{member}' to match reference '{ref}'",
-                            member=var_name,
-                            ref=lvalue_name,
-                        )
-                        # Only update the first matching struct member (should be unique per reference)
-                        break
+        # Also check with base name (without SSA version) if different
+        points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else None
+        if points_to_base and points_to_base != points_to_name:
+            candidate_vars = candidate_vars.union(domain.state.get_variables_by_prefix(points_to_base + "."))
+
+        for var_name in candidate_vars:
+            tracked_var = domain.state.range_variables.get(var_name)
+            if tracked_var is None:
+                continue
+
+            # Check if this variable name matches the pattern of a struct member
+            base_name = var_name.split(".", 1)[0]
+            # Check if base name matches (accounting for SSA versions)
+            if base_name.startswith(points_to_name) or points_to_name.startswith(
+                base_name.split("|")[0]
+            ):
+                # This might be the struct member - update it to match the reference
+                # The constraint REF == struct.member should already exist from Member handler
+                # We just need to ensure the struct member is updated when REF is updated
+                # Since they're constrained to be equal, updating REF should propagate
+                # But we can explicitly update the struct member to be safe
+                member_width = self.solver.bv_size(tracked_var.term)
+                ref_width = self.solver.bv_size(lvalue_var.term)
+
+                if member_width == ref_width:
+                    # Explicitly constrain struct member to equal the reference
+                    constraint: SMTTerm = tracked_var.term == lvalue_var.term
+                    self.solver.assert_constraint(constraint)
+                    self.logger.debug(
+                        "Updated struct member '{member}' to match reference '{ref}'",
+                        member=var_name,
+                        ref=lvalue_name,
+                    )
+                    # Only update the first matching struct member (should be unique per reference)
+                    break
 
     def _update_array_element_if_reference(
         self,
@@ -548,14 +559,23 @@ class AssignmentHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        # Find domain variables matching "{points_to_name}[*]" that are
-        # constrained to equal lvalue_var (from Index operation: REF == array[index])
+        # Use prefix index for fast lookup of array element variables
+        # Look for "{points_to_name}[" prefix
         points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else points_to_name
 
-        for var_name, tracked_var in domain.state.get_range_variables().items():
-            # Check if this variable name matches the pattern of an array element
-            if not ("[" in var_name and "]" in var_name):
+        # Get candidate variables using prefix index
+        prefix = points_to_name + "["
+        candidate_vars = domain.state.get_variables_by_prefix(prefix)
+
+        # Also check with base name (without SSA version) if different
+        if points_to_base != points_to_name:
+            candidate_vars = candidate_vars.union(domain.state.get_variables_by_prefix(points_to_base + "["))
+
+        for var_name in candidate_vars:
+            tracked_var = domain.state.range_variables.get(var_name)
+            if tracked_var is None:
                 continue
+
             # Extract array base name (before the first "[")
             var_base = var_name.split("[", 1)[0]
             var_base_clean = var_base.split("|")[0] if "|" in var_base else var_base

@@ -2,7 +2,8 @@
 
 from typing import Optional, TYPE_CHECKING, Union
 
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.smt_solver.types import CheckSatResult, SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
@@ -146,6 +147,11 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         right_term_extended = IntervalSMTUtils.extend_to_width(
             self.solver, right_term, operation_width, is_result_signed
         )
+
+        # Check for division/modulo by zero (always reverts in Solidity)
+        if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
+            if self._check_division_by_zero(right_term_extended, domain, is_checked):
+                return  # Path is unreachable due to division by zero
 
         if is_power:
             raw_expr = self._compute_power_expression(
@@ -308,8 +314,13 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_checked: bool,
         domain: "IntervalDomain",
     ) -> None:
-        from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
-        from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+        # Skip overflow detection for constant-only expressions.
+        # Expressions like "0 - 50" represent the negative literal -50, not a runtime underflow.
+        # These are computed at compile time and don't cause actual overflows.
+        if isinstance(operation.variable_left, Constant) and isinstance(
+            operation.variable_right, Constant
+        ):
+            return
 
         solver = self.solver
         result_width = IntervalSMTUtils.type_bit_width(result_type)
@@ -348,6 +359,39 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
             # Otherwise, assert no overflow (constraining to valid paths)
             result_var.assert_no_overflow(solver)
+
+    def _check_division_by_zero(
+        self,
+        divisor_term: SMTTerm,
+        domain: "IntervalDomain",
+        is_checked: bool,
+    ) -> bool:
+        """Check if division by zero occurs. Returns True if path is unreachable.
+
+        In Solidity, division/modulo by zero always reverts (even in unchecked mode).
+        """
+        solver = self.solver
+
+        # Get the bit width to create a zero constant of the same width
+        divisor_width = solver.bv_size(divisor_term)
+        zero = solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[divisor_width]))
+
+        # Check if divisor can be non-zero
+        solver.push()
+        solver.assert_constraint(divisor_term != zero)
+        can_be_nonzero = solver.check_sat()
+        solver.pop()
+
+        if can_be_nonzero == CheckSatResult.UNSAT:
+            # Divisor is ALWAYS zero - division always reverts
+            self.logger.debug("Division by zero detected - marking path as unreachable")
+            domain.variant = DomainVariant.TOP
+            return True
+
+        # Divisor can be non-zero, so add constraint that it must be non-zero
+        # (this constrains the analysis to valid execution paths)
+        solver.assert_constraint(divisor_term != zero)
+        return False
 
     def _get_operand_term(
         self,
@@ -442,8 +486,32 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
                 extended_back = solver.bv_zero_ext(lower, result_width)
             return extended_back != result_ext
         elif op_type == BinaryType.POWER:
-            # Power overflow is complex; for now return false (handled separately)
-            return self._bool_false()
+            # For power, we need the exponent value to compute overflow
+            # The exponent should be a constant for us to handle it
+            exponent_value = self._resolve_constant_value(operation.variable_right)
+            if exponent_value is None or exponent_value <= 0:
+                return self._bool_false()
+
+            # Compute power at extended width (double width to catch overflow)
+            extended_width = result_width * 2
+            if is_signed:
+                base_ext = solver.bv_sign_ext(left_term, result_width)
+            else:
+                base_ext = solver.bv_zero_ext(left_term, result_width)
+
+            # Compute power at extended width
+            extended_sort = Sort(kind=SortKind.BITVEC, parameters=[extended_width])
+            power_result = solver.create_constant(1, extended_sort)
+            for _ in range(exponent_value):
+                power_result = power_result * base_ext
+
+            # Check if upper bits are non-zero (overflow occurred)
+            lower = solver.bv_extract(power_result, result_width - 1, 0)
+            if is_signed:
+                extended_back = solver.bv_sign_ext(lower, result_width)
+            else:
+                extended_back = solver.bv_zero_ext(lower, result_width)
+            return extended_back != power_result
         elif op_type in [BinaryType.AND, BinaryType.OR, BinaryType.CARET]:
             # Bitwise operations don't overflow
             return self._bool_false()

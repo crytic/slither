@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from dataclasses import dataclass, field
+from typing import Optional, Set, TYPE_CHECKING
 
 from slither.analyses.data_flow.smt_solver.types import (
     SMTVariable,
@@ -14,6 +14,22 @@ from slither.analyses.data_flow.smt_solver.types import (
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+
+
+# Global set to track variables that need overflow assertions
+# This avoids asserting the same constraints multiple times
+_asserted_overflow_vars: Set[str] = set()
+
+
+def reset_overflow_tracking() -> None:
+    """Reset overflow tracking state (call at start of each analysis)."""
+    global _asserted_overflow_vars
+    _asserted_overflow_vars = set()
+
+
+def get_pending_overflow_count() -> int:
+    """Get the number of variables with overflow assertions."""
+    return len(_asserted_overflow_vars)
 
 
 @dataclass(eq=True)
@@ -65,8 +81,22 @@ class TrackedSMTVariable:
     # Overflow operations
     # --------------------------------------------------------------------- #
     def assert_no_overflow(self, solver: "SMTSolver") -> None:
+        """Assert that this variable has no overflow.
+
+        Optimization: Tracks which variables have already been constrained to avoid
+        duplicate constraint assertions (2 constraints per variable). This reduces
+        solver memory usage and constraint checking overhead.
+        """
+        global _asserted_overflow_vars
+        var_name = self.base.name
+
+        # Skip if already asserted for this variable
+        if var_name in _asserted_overflow_vars:
+            return
+
         solver.assert_constraint(self.overflow_flag.term == False)
         solver.assert_constraint(self.overflow_amount.term == 0)
+        _asserted_overflow_vars.add(var_name)
 
     def copy_overflow_from(self, solver: "SMTSolver", other: "TrackedSMTVariable") -> None:
         solver.assert_constraint(self.overflow_flag.term == other.overflow_flag.term)

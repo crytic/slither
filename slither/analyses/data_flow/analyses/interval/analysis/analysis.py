@@ -20,6 +20,9 @@ from slither.analyses.data_flow.analyses.interval.operations.binary.comparison i
 )
 from slither.analyses.data_flow.analyses.interval.operations.phi import PhiHandler
 from slither.analyses.data_flow.analyses.interval.core.state import State
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    reset_overflow_tracking,
+)
 from slither.analyses.data_flow.analyses.interval.safety.memory_safety import (
     MemorySafetyContext,
     MemorySafetyViolation,
@@ -84,6 +87,8 @@ class IntervalAnalysis(Analysis):
             self._initialize_domain_from_bottom(node, domain)
             # Reset Phi constraint tracking at start of new analysis
             PhiHandler.reset_applied_constraints()
+            # Reset overflow tracking to avoid duplicate constraints
+            reset_overflow_tracking()
             self._analyze_operation_by_type(operation, domain, node)
         elif domain.variant == DomainVariant.STATE:
             self._analyze_operation_by_type(operation, domain, node)

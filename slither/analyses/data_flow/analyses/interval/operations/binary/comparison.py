@@ -69,31 +69,92 @@ class ComparisonBinaryHandler(BaseOperationHandler):
     def _build_comparison(
         self, operation: Binary, domain: IntervalDomain, node: Node
     ) -> Optional[SMTTerm]:
-        left_int = self._resolve_operand_int(operation.variable_left, domain, node, operation)
-        right_int = self._resolve_operand_int(operation.variable_right, domain, node, operation)
+        # Get bitvector terms directly (no BV2Int conversion)
+        left_bv = self._resolve_operand_bitvec(operation.variable_left, domain, node, operation)
+        right_bv = self._resolve_operand_bitvec(operation.variable_right, domain, node, operation)
 
-        if left_int is None or right_int is None:
+        if left_bv is None or right_bv is None:
             return None
+
+        # Determine signedness from operand types
+        is_signed = self._is_comparison_signed(operation.variable_left, operation.variable_right, domain)
+
+        # Normalize widths if they differ (extend smaller to match larger)
+        left_bv, right_bv = self._normalize_widths(left_bv, right_bv, is_signed)
 
         comp_type = operation.type
         bool_expr: Optional[SMTTerm] = None
+
+        # Use pure bitvector comparisons (no BV2Int conversion)
         if comp_type.value == ">=":
-            bool_expr = left_int >= right_int
+            bool_expr = self.solver.bv_sge(left_bv, right_bv) if is_signed else self.solver.bv_uge(left_bv, right_bv)
         elif comp_type.value == ">":
-            bool_expr = left_int > right_int
+            bool_expr = self.solver.bv_sgt(left_bv, right_bv) if is_signed else self.solver.bv_ugt(left_bv, right_bv)
         elif comp_type.value == "<=":
-            bool_expr = left_int <= right_int
+            bool_expr = self.solver.bv_sle(left_bv, right_bv) if is_signed else self.solver.bv_ule(left_bv, right_bv)
         elif comp_type.value == "<":
-            bool_expr = left_int < right_int
+            bool_expr = self.solver.bv_slt(left_bv, right_bv) if is_signed else self.solver.bv_ult(left_bv, right_bv)
         elif comp_type.value == "==":
-            bool_expr = left_int == right_int
+            bool_expr = left_bv == right_bv
         elif comp_type.value == "!=":
-            bool_expr = left_int != right_int
+            bool_expr = left_bv != right_bv
 
         if bool_expr is None:
             return None
 
         return self._bool_to_bitvec(bool_expr)
+
+    def _normalize_widths(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> tuple[SMTTerm, SMTTerm]:
+        """Normalize bitvector widths to match (extend smaller to match larger)."""
+        left_width = self.solver.bv_size(left)
+        right_width = self.solver.bv_size(right)
+
+        if left_width == right_width:
+            return left, right
+
+        if left_width < right_width:
+            # Extend left to match right
+            extra_bits = right_width - left_width
+            if is_signed:
+                left = self.solver.bv_sign_ext(left, extra_bits)
+            else:
+                left = self.solver.bv_zero_ext(left, extra_bits)
+        else:
+            # Extend right to match left
+            extra_bits = left_width - right_width
+            if is_signed:
+                right = self.solver.bv_sign_ext(right, extra_bits)
+            else:
+                right = self.solver.bv_zero_ext(right, extra_bits)
+
+        return left, right
+
+    def _is_comparison_signed(self, left_operand, right_operand, domain: IntervalDomain) -> bool:
+        """Determine if comparison should use signed semantics based on operand types."""
+        # Check left operand
+        left_type = IntervalSMTUtils.resolve_elementary_type(getattr(left_operand, "type", None))
+        if left_type is not None and IntervalSMTUtils.is_signed_type(left_type):
+            return True
+
+        # Check right operand
+        right_type = IntervalSMTUtils.resolve_elementary_type(getattr(right_operand, "type", None))
+        if right_type is not None and IntervalSMTUtils.is_signed_type(right_type):
+            return True
+
+        # Check tracked variable metadata
+        left_name = IntervalSMTUtils.resolve_variable_name(left_operand)
+        if left_name:
+            left_tracked = IntervalSMTUtils.get_tracked_variable(domain, left_name)
+            if left_tracked and left_tracked.base.metadata.get("is_signed"):
+                return True
+
+        right_name = IntervalSMTUtils.resolve_variable_name(right_operand)
+        if right_name:
+            right_tracked = IntervalSMTUtils.get_tracked_variable(domain, right_name)
+            if right_tracked and right_tracked.base.metadata.get("is_signed"):
+                return True
+
+        return False
 
     def _build_logical(
         self, operation: Binary, domain: IntervalDomain, node: Node
@@ -139,68 +200,6 @@ class ComparisonBinaryHandler(BaseOperationHandler):
                 domain=domain,
             )
         return tracked.term
-
-    def _resolve_operand_int(
-        self, operand, domain: IntervalDomain, node: Node, operation: Binary
-    ) -> Optional[SMTTerm]:
-        if self.solver is None:
-            return None
-
-        if isinstance(operand, Constant):
-            var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
-            bitvec = IntervalSMTUtils.create_constant_term(self.solver, operand.value, var_type)
-            is_signed = IntervalSMTUtils.is_signed_type(var_type) if var_type else False
-            return self._term_to_int(bitvec, is_signed)
-
-        operand_name = IntervalSMTUtils.resolve_variable_name(operand)
-        if operand_name is None:
-            return None
-
-        tracked = IntervalSMTUtils.get_tracked_variable(domain, operand_name)
-        if tracked is None:
-            solidity_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
-            if solidity_type is None:
-                return None
-            tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver, operand_name, solidity_type
-            )
-            if tracked is None:
-                return None
-            domain.state.set_range_variable(operand_name, tracked)
-            tracked.assert_no_overflow(self.solver)
-
-            # If this is an SSA version (contains "|"), check if the base variable has an initial value
-            # and propagate it. For example, if base variable "value" = 0, then "value|value_0" should also = 0
-            if "|" in operand_name:
-                base_name = operand_name.split("|")[0]
-                base_tracked = IntervalSMTUtils.get_tracked_variable(domain, base_name)
-                # If base variable exists and we're creating the first SSA version (_0),
-                # check if we need to propagate initial value constraint
-                ssa_part = operand_name.split("|")[-1]
-                if base_tracked is not None and ssa_part.endswith("_0"):
-                    from slither.core.solidity_types.elementary_type import Int, Uint
-
-                    type_str = solidity_type.type if solidity_type else None
-                    if type_str and (type_str in Uint or type_str in Int or type_str == "bool"):
-                        # Assert that the SSA version equals 0 (default for uninitialized variables)
-                        zero_constant = self.solver.create_constant(0, tracked.sort)
-                        self.solver.assert_constraint(tracked.term == zero_constant)
-
-        is_signed = self._is_signed(operand, tracked)
-        return self._term_to_int(tracked.term, is_signed)
-
-    def _term_to_int(self, term: SMTTerm, is_signed: bool) -> SMTTerm:
-        if self.solver is None:
-            raise RuntimeError("Solver is required for term conversion")
-        if is_signed:
-            return self.solver.bitvector_to_signed_int(term)
-        return self.solver.bitvector_to_int(term)
-
-    def _is_signed(self, operand, tracked: TrackedSMTVariable) -> bool:
-        solidity_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
-        if solidity_type is not None:
-            return IntervalSMTUtils.is_signed_type(solidity_type)
-        return bool(tracked.base.metadata.get("is_signed"))
 
     def _bool_bitvec_sort(self) -> Sort:
         return Sort(kind=SortKind.BITVEC, parameters=[1])
@@ -266,28 +265,35 @@ class ComparisonBinaryHandler(BaseOperationHandler):
     def build_comparison_constraint(
         self, binary_op: Binary, domain: IntervalDomain, node: Node, operation: Binary
     ) -> Optional[SMTTerm]:
-        """Build an SMT constraint from a Binary comparison operation."""
+        """Build an SMT constraint from a Binary comparison operation using pure bitvector ops."""
         if self.solver is None:
             return None
 
-        left_int = self._resolve_operand_int(binary_op.variable_left, domain, node, operation)
-        right_int = self._resolve_operand_int(binary_op.variable_right, domain, node, operation)
+        # Get bitvector terms directly (no BV2Int conversion)
+        left_bv = self._resolve_operand_bitvec(binary_op.variable_left, domain, node, operation)
+        right_bv = self._resolve_operand_bitvec(binary_op.variable_right, domain, node, operation)
 
-        if left_int is None or right_int is None:
+        if left_bv is None or right_bv is None:
             return None
+
+        # Determine signedness from operand types
+        is_signed = self._is_comparison_signed(binary_op.variable_left, binary_op.variable_right, domain)
+
+        # Normalize widths if they differ
+        left_bv, right_bv = self._normalize_widths(left_bv, right_bv, is_signed)
 
         comp_type = binary_op.type
         if comp_type == BinaryType.GREATER_EQUAL:
-            return left_int >= right_int
+            return self.solver.bv_sge(left_bv, right_bv) if is_signed else self.solver.bv_uge(left_bv, right_bv)
         if comp_type == BinaryType.GREATER:
-            return left_int > right_int
+            return self.solver.bv_sgt(left_bv, right_bv) if is_signed else self.solver.bv_ugt(left_bv, right_bv)
         if comp_type == BinaryType.LESS_EQUAL:
-            return left_int <= right_int
+            return self.solver.bv_sle(left_bv, right_bv) if is_signed else self.solver.bv_ule(left_bv, right_bv)
         if comp_type == BinaryType.LESS:
-            return left_int < right_int
+            return self.solver.bv_slt(left_bv, right_bv) if is_signed else self.solver.bv_ult(left_bv, right_bv)
         if comp_type == BinaryType.EQUAL:
-            return left_int == right_int
+            return left_bv == right_bv
         if comp_type == BinaryType.NOT_EQUAL:
-            return left_int != right_int
+            return left_bv != right_bv
 
         return None

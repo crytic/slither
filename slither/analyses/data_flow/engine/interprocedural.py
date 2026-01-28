@@ -1,5 +1,6 @@
 """Central interprocedural analysis logic for interval analysis."""
 
+import time
 from typing import List, Optional, Set, Protocol, runtime_checkable, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -138,9 +139,17 @@ class InterproceduralAnalyzer:
 
         # Perform analysis with call stack protection
         self.add_to_call_stack(function)
+
+        # NOTE: Removed push/pop optimization - it was causing constraint loss
+        # for interprocedural variable linking. Need a more surgical approach.
+
+        print(f"[INTERPROC] Starting analysis of {function.name}")
+        start_time = time.time()
         try:
             self._analyze_called_function(operation, caller_domain, function)
         finally:
+            elapsed = time.time() - start_time
+            print(f"[INTERPROC] {function.name} completed in {elapsed:.2f}s")
             self.remove_from_call_stack(function)
 
     def _analyze_called_function(
