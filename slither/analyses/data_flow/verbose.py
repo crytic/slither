@@ -31,8 +31,9 @@ if TYPE_CHECKING:
     from z3 import Optimize
 
 
-# Import DEFAULT_OPTIMIZE_TIMEOUT_MS from test module
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for display purposes
+# Default timeout for optimization queries
+# 500ms is needed for correct results on 256-bit inequality constraints
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
 def analyze_function_verbose(
@@ -187,6 +188,9 @@ def analyze_function_verbose(
             if debug:
                 console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
 
+            # Note: We don't reuse the optimizer here because Z3's Optimize
+            # doesn't properly scope maximize/minimize objectives with push/pop.
+            # Each range query needs a fresh optimizer to avoid accumulating objectives.
             min_result, max_result = solve_variable_range(
                 solver,
                 smt_var,
@@ -195,7 +199,7 @@ def analyze_function_verbose(
                 timeout_ms=timeout_ms,
                 skip_optimization=skip_range_solving,
                 cache=cache,
-                optimizer=optimizer,
+                optimizer=None,  # Fresh optimizer for each query
             )
 
             if min_result and max_result:

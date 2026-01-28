@@ -34,10 +34,9 @@ if TYPE_CHECKING:
 from slither.analyses.data_flow.expected_results import EXPECTED_RESULTS
 
 # Default timeout for Optimize queries (milliseconds)
-# Reduced from 2000ms to 500ms for faster analysis (4x speedup)
-# Trade-off: Slightly less precise ranges, but much faster
-# For very precise ranges, use --timeout 2000 or higher
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for faster analysis
+# 500ms is needed for correct results on 256-bit inequality constraints.
+# For faster but less precise results, use --timeout 100 or lower.
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
 # =============================================================================
@@ -344,6 +343,7 @@ def solve_variable_range(
 
     min_result = _optimize_range(maximize=False)
     max_result = _optimize_range(maximize=True)
+
     if min_result is None or max_result is None:
         if debug:
             console.print(

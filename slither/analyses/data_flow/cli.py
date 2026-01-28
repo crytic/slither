@@ -6,7 +6,8 @@ from pathlib import Path
 from slither.analyses.data_flow.display import console
 
 # Default timeout for Optimize queries (milliseconds)
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 10  # Aggressive timeout for faster analysis
+# 500ms is needed for correct results on 256-bit inequality constraints
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
 def main() -> int:
