@@ -14,15 +14,16 @@ def main() -> int:
     """Main entry point with command-line argument handling."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Slither Data Flow Analysis Test Suite")
+    parser = argparse.ArgumentParser(description="Slither Data Flow Analysis")
     parser.add_argument(
-        "--test", "-t", action="store_true", help="Run automated tests against expected results"
+        "--test", "-t", action="store_true",
+        help="Run automated tests using pytest with snapshot testing"
     )
     parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
-        help="Run in verbose mode (original behavior) or show extra test details",
+        help="Show extra details during analysis",
     )
     parser.add_argument(
         "--debug", "-d", action="store_true", help="Show detailed debugging information"
@@ -66,13 +67,6 @@ def main() -> int:
         help="Filter to a specific contract name (e.g., 'Settlement'). Only analyzes the specified contract.",
     )
     parser.add_argument(
-        "--generate-expected",
-        "-g",
-        action="store_true",
-        help="Generate expected results from current analysis output (for copying into expected_results.py). "
-        "If a contract file name is provided as positional argument, only generates results for that file.",
-    )
-    parser.add_argument(
         "--skip-compile",
         action="store_true",
         help="Skip compilation step (use existing build artifacts). "
@@ -99,15 +93,9 @@ def main() -> int:
         "Useful for profiling and identifying performance bottlenecks.",
     )
     parser.add_argument(
-        "--pytest",
-        action="store_true",
-        help="Run tests using pytest with snapshot testing instead of custom test runner. "
-        "Supports -k for filtering, --update-snapshots for updating expected results.",
-    )
-    parser.add_argument(
         "--update-snapshots",
         action="store_true",
-        help="Update pytest snapshots with current analysis results (use with --pytest). "
+        help="Update pytest snapshots with current analysis results (use with --test). "
         "Equivalent to: pytest --snapshot-update",
     )
     parser.add_argument(
@@ -119,7 +107,7 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    if args.pytest:
+    if args.test:
         # Run tests using pytest with snapshot testing
         import subprocess
 
@@ -127,32 +115,9 @@ def main() -> int:
         if args.update_snapshots:
             cmd.append("--snapshot-update")
         if args.path:
-            # Allow filtering by contract name, e.g., --pytest Assert.sol
+            # Allow filtering by contract name, e.g., --test Assert.sol
             cmd.extend(["-k", args.path])
         return subprocess.call(cmd)
-
-    if args.generate_expected:
-        # Generate expected results from current analysis
-        from slither.analyses.data_flow.test import generate_expected_results
-
-        contracts_dir = Path(args.contracts_dir or "../contracts/src")
-        if not contracts_dir.exists():
-            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
-            return 1
-
-        # If a path is provided, treat it as a contract file name
-        contract_file = None
-        if args.path:
-            contract_file = args.path
-            # Remove directory path if provided, keep only filename
-            if "/" in contract_file or "\\" in contract_file:
-                contract_file = Path(contract_file).name
-            # Ensure it ends with .sol
-            if not contract_file.endswith(".sol"):
-                contract_file = f"{contract_file}.sol"
-
-        generate_expected_results(contracts_dir, contract_file=contract_file)
-        return 0
     elif args.show:
         # Show verbose output for a specific test
         from slither.analyses.data_flow.verbose import show_test_output
@@ -160,15 +125,6 @@ def main() -> int:
         contracts_dir = args.contracts_dir or "../contracts/src"
         show_test_output(args.show, function_name=args.function, contracts_dir=contracts_dir)
         return 0
-    elif args.test:
-        # Automated test mode
-        from slither.analyses.data_flow.test import run_tests
-
-        contracts_dir = Path(args.contracts_dir or "../contracts/src")
-        if not contracts_dir.exists():
-            console.print(f"[red]Contracts directory not found: {contracts_dir}[/red]")
-            return 1
-        return run_tests(contracts_dir, verbose=args.verbose)
     else:
         # Verbose mode (original behavior)
         from slither.analyses.data_flow.verbose import run_verbose
