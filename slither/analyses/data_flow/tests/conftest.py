@@ -38,7 +38,7 @@ def analyze_contract():
     Returns a function that analyzes a contract file and returns
     results as a dictionary suitable for snapshot comparison.
     """
-    from slither.analyses.data_flow.test import analyze_contract_quiet
+    from slither.analyses.data_flow.analysis import analyze_contract_quiet
 
     def _analyze(contract_path: Path, timeout_ms: int = 1000) -> Dict[str, Any]:
         """Analyze a contract and return results as a dictionary."""

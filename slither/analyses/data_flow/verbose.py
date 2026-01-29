@@ -61,7 +61,7 @@ def analyze_function_verbose(
         optimizer: Optional reusable Optimize instance.
     """
     # Import here to avoid circular imports
-    from slither.analyses.data_flow.test import solve_variable_range
+    from slither.analyses.data_flow.analysis import solve_variable_range
 
     logger.info(
         "Analyzing function: {function_name} ({signature})",

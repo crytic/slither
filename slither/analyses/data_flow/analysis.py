@@ -1,4 +1,4 @@
-"""Core test functions for Slither data flow analysis."""
+"""Core analysis functions for Slither data flow interval analysis."""
 
 from contextlib import nullcontext as _null_context
 from pathlib import Path
@@ -10,9 +10,8 @@ from slither.analyses.data_flow.analyses.interval.analysis.analysis import Inter
 from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.analyses.data_flow.engine.analysis import AnalysisState
-from slither.analyses.data_flow.smt_solver.types import CheckSatResult
-from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.display import console
 from slither.analyses.data_flow.models import (
     VariableResult,
@@ -29,12 +28,11 @@ if TYPE_CHECKING:
 
 # Default timeout for Optimize queries (milliseconds)
 # 500ms is needed for correct results on 256-bit inequality constraints.
-# For faster but less precise results, use --timeout 100 or lower.
 DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
 # =============================================================================
-# SOLVER FUNCTIONS
+# RANGE SOLVING
 # =============================================================================
 
 
@@ -48,10 +46,13 @@ def solve_variable_range(
     cache: Optional["RangeQueryCache"] = None,
     optimizer: Optional["Optimize"] = None,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
-    """Solve for min/max values of a variable with optional path constraints.
+    """Solve for min/max values of a variable using Z3 optimization.
+
+    This function uses Z3's Optimize solver to find the minimum and maximum
+    values a variable can take given the current constraints.
 
     Args:
-        solver: The SMT solver instance.
+        solver: The SMT solver instance (must have a .solver attribute with Z3 Optimize).
         smt_var: The tracked SMT variable to solve for.
         path_constraints: Optional list of path constraints to apply.
         debug: Enable debug output.
@@ -62,25 +63,18 @@ def solve_variable_range(
 
     Returns:
         Tuple of (min_result, max_result) dictionaries, or (None, None) on failure.
+        Each result dict contains: value, overflow, overflow_amount.
     """
     telemetry = get_telemetry()
 
-    # Check cache first if available
+    # Check cache first
     if cache is not None and not skip_optimization:
-        # Build cache key from variable ID and constraints
         var_id = str(smt_var.term)
         constraint_strs = []
-
-        # Include path constraints
         if path_constraints:
             constraint_strs.extend(str(c) for c in path_constraints)
-
-        # Include global solver assertions
         if hasattr(solver, "solver"):
-            z3_solver = solver.solver
-            if hasattr(z3_solver, "assertions"):
-                constraint_strs.extend(str(a) for a in z3_solver.assertions())
-
+            constraint_strs.extend(str(a) for a in solver.solver.assertions())
         constraints_tuple = tuple(constraint_strs)
         cached_result = cache.get(var_id, constraints_tuple)
 
@@ -88,27 +82,19 @@ def solve_variable_range(
             if telemetry:
                 telemetry.count("cache_hit")
             min_val, max_val = cached_result
-
-            # Reconstruct result dictionaries from cached values
             if min_val is None or max_val is None:
                 return None, None
-
             min_result = {
                 "value": min_val.get("value") if isinstance(min_val, dict) else min_val,
                 "overflow": min_val.get("overflow", False) if isinstance(min_val, dict) else False,
-                "overflow_amount": (
-                    min_val.get("overflow_amount", 0) if isinstance(min_val, dict) else 0
-                ),
+                "overflow_amount": min_val.get("overflow_amount", 0) if isinstance(min_val, dict) else 0,
             }
             max_result = {
                 "value": max_val.get("value") if isinstance(max_val, dict) else max_val,
                 "overflow": max_val.get("overflow", False) if isinstance(max_val, dict) else False,
-                "overflow_amount": (
-                    max_val.get("overflow_amount", 0) if isinstance(max_val, dict) else 0
-                ),
+                "overflow_amount": max_val.get("overflow_amount", 0) if isinstance(max_val, dict) else 0,
             }
             return min_result, max_result
-
         if telemetry:
             telemetry.count("cache_miss")
 
@@ -140,118 +126,48 @@ def solve_variable_range(
             value = min(max_bound, value)
         return value
 
-    def _get_optimizer_for_query():
-        """Get an optimizer for the query, either reusing provided one or creating fresh."""
-        # Early return: if reusable optimizer provided, use push/pop pattern
-        if optimizer is not None:
-            # CRITICAL: Set timeout on reused optimizer too!
-            optimizer.set("timeout", timeout_ms)
-            if telemetry:
-                telemetry.count("optimize_instance_reused")
-            return optimizer, True  # True = needs pop after use
-
-        # Otherwise, create fresh optimizer (legacy path)
-        if telemetry:
-            telemetry.count("optimize_instance_created")
-
-        opt = Optimize()
-        opt.set("timeout", timeout_ms)
-        opt.set("opt.priority", "box")
-        opt.set("opt.maxsat_engine", "wmax")
-
-        # Early return: check solver has assertions
-        if not hasattr(solver, "solver"):
-            return None, False
-
-        # Add global solver assertions
-        z3_solver = solver.solver
-        assertions = z3_solver.assertions()
-        assertion_count = 0
-        for assertion in assertions:
-            opt.add(assertion)
-            assertion_count += 1
-
-        if telemetry:
-            telemetry.count("assertions_copied", assertion_count)
-
-        # Add path-specific constraints
-        if path_constraints:
-            for constraint in path_constraints:
-                opt.add(constraint)
-            if telemetry:
-                telemetry.count("path_constraints_added", len(path_constraints))
-
-        return opt, False  # False = no pop needed
-
     def _fallback_range() -> tuple[Optional[Dict], Optional[Dict]]:
-        """Return a conservative range using type bounds when optimization fails."""
-        # Guard: need bit width to build a range
+        """Return conservative type bounds when optimization fails."""
         if bit_width is None:
             return None, None
-
-        # Compute default min/max from bit width and signedness
-        unsigned_min = 0
         unsigned_max = (1 << bit_width) - 1
         signed_min = -(1 << (bit_width - 1))
         signed_max = (1 << (bit_width - 1)) - 1
-
-        # Choose bounds based on signedness
-        fallback_min = signed_min if is_signed else unsigned_min
+        fallback_min = signed_min if is_signed else 0
         fallback_max = signed_max if is_signed else unsigned_max
-
-        # Override with explicit type bounds when available
         if min_bound is not None:
             fallback_min = min_bound
         if max_bound is not None:
             fallback_max = max_bound
-
-        min_result = {
-            "value": fallback_min,
-            "overflow": False,
-            "overflow_amount": 0,
-        }
-        max_result = {
-            "value": fallback_max,
-            "overflow": False,
-            "overflow_amount": 0,
-        }
-        return min_result, max_result
+        return (
+            {"value": fallback_min, "overflow": False, "overflow_amount": 0},
+            {"value": fallback_max, "overflow": False, "overflow_amount": 0},
+        )
 
     def _optimize_range(maximize: bool) -> Optional[Dict]:
-        op_name = "optimize_max" if maximize else "optimize_min"
-
         if telemetry:
-            telemetry.count(op_name)
+            telemetry.count("optimize_max" if maximize else "optimize_min")
 
-        opt, needs_pop = _get_optimizer_for_query()
+        # Create fresh optimizer for each query
+        opt = Optimize()
+        opt.set("timeout", timeout_ms)
 
-        # Early return: no optimizer available
-        if opt is None:
+        if not hasattr(solver, "solver"):
             return None
 
+        # Copy assertions from solver
+        for assertion in solver.solver.assertions():
+            opt.add(assertion)
+        if path_constraints:
+            for constraint in path_constraints:
+                opt.add(constraint)
+
         try:
-            with telemetry.time(op_name) if telemetry else _null_context():
-                # Push new context if reusing optimizer
-                if needs_pop:
-                    opt.push()
-                    if telemetry:
-                        telemetry.count("push_pop_used")
-
-                    # Add path constraints in the pushed context
-                    if path_constraints:
-                        for constraint in path_constraints:
-                            opt.add(constraint)
-                        if telemetry:
-                            telemetry.count("path_constraints_added", len(path_constraints))
-
+            with telemetry.time("optimize_max" if maximize else "optimize_min") if telemetry else _null_context():
                 from z3 import is_bv, BitVecVal
 
-                objective = term if is_bv(term) else term
-
-                # For signed types, use sign-bit XOR trick to convert signed order to unsigned order
-                # This stays entirely in bitvector theory (no BV2Int), avoiding theory mixing overhead
-                # XOR with sign bit maps: -128->0, -1->127, 0->128, 127->255 (for int8)
-                # So signed ordering becomes unsigned ordering, and we can use standard min/max
+                objective = term
+                # For signed types, XOR with sign bit to convert signed to unsigned ordering
                 if is_signed and is_bv(objective):
                     width = bit_width if isinstance(bit_width, int) else 256
                     sign_bit = BitVecVal(1 << (width - 1), width)
@@ -263,34 +179,20 @@ def solve_variable_range(
                     opt.minimize(objective)
 
                 result = opt.check()
-                if telemetry:
-                    telemetry.count("optimize_check")
-
-                # Early return: check failed
                 if result != sat:
                     if debug:
-                        console.print(
-                            f"[yellow]Optimize check returned {result} "
-                            f"(reason: {opt.reason_unknown()}) for {'max' if maximize else 'min'}[/yellow]"
-                        )
+                        console.print(f"[yellow]Optimize returned {result} ({opt.reason_unknown()})[/yellow]")
                     return None
 
                 z3_model = opt.model()
-
-                # Early return: no model
                 if z3_model is None:
-                    if debug:
-                        console.print("[yellow]Optimize produced no model[/yellow]")
                     return None
 
                 value_term = z3_model.eval(term, model_completion=True)
-
-                # Early return: cannot extract value
                 if not hasattr(value_term, "as_long"):
                     return None
 
-                raw_value = value_term.as_long()
-                wrapped_value = _decode_model_value(raw_value)
+                wrapped_value = _decode_model_value(value_term.as_long())
 
                 overflow = False
                 try:
@@ -307,65 +209,35 @@ def solve_variable_range(
                 except Exception:
                     pass
 
-                return {
-                    "value": wrapped_value,
-                    "overflow": overflow,
-                    "overflow_amount": overflow_amount,
-                }
+                return {"value": wrapped_value, "overflow": overflow, "overflow_amount": overflow_amount}
         except Exception:
-            if debug:
-                console.print(
-                    f"[yellow]Exception during optimize {'max' if maximize else 'min'}; returning None[/yellow]"
-                )
             return None
-        finally:
-            # Pop context if we pushed one
-            if needs_pop:
-                opt.pop()
 
-    # If skip_optimization is set, return conservative type bounds immediately
     if skip_optimization:
         if telemetry:
             telemetry.count("range_solve_skipped")
         return _fallback_range()
 
-    # Skip base satisfiability check entirely - it's redundant.
-    # The optimizer will fail fast (50ms timeout) if constraints are UNSAT/complex.
-    # Previously this check was called 366 times with the SAME solver state,
-    # wasting 30+ seconds on repeated timeout checks.
-    # If optimizer fails, we fall back to type bounds anyway (lines below).
-
     min_result = _optimize_range(maximize=False)
     max_result = _optimize_range(maximize=True)
 
     if min_result is None or max_result is None:
-        if debug:
-            console.print(
-                "[yellow]Range solve fallback: "
-                f"min_result={min_result}, max_result={max_result}, "
-                f"bit_width={bit_width}, is_signed={is_signed}, "
-                f"path_constraints={path_constraints}[/yellow]"
-            )
-        # Fallback to conservative static bounds when optimization fails
         if telemetry:
-            telemetry.count("range_solve_fallback_opt_failed")
+            telemetry.count("range_solve_fallback")
         return _fallback_range()
 
     if telemetry:
         telemetry.count("range_solve_success")
 
-    # Store result in cache if available
+    # Store in cache
     if cache is not None:
         var_id = str(smt_var.term)
         constraint_strs = []
         if path_constraints:
             constraint_strs.extend(str(c) for c in path_constraints)
         if hasattr(solver, "solver"):
-            z3_solver = solver.solver
-            if hasattr(z3_solver, "assertions"):
-                constraint_strs.extend(str(a) for a in z3_solver.assertions())
-        constraints_tuple = tuple(constraint_strs)
-        cache.put(var_id, constraints_tuple, min_result, max_result)
+            constraint_strs.extend(str(a) for a in solver.solver.assertions())
+        cache.put(var_id, tuple(constraint_strs), min_result, max_result)
 
     return min_result, max_result
 

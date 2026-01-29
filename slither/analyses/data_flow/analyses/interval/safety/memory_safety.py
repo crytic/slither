@@ -517,7 +517,7 @@ class MemorySafetyChecker:
         # Use the optimized solve_variable_range function which handles caching and reuse
         try:
             # Import here to avoid circular dependency
-            from slither.analyses.data_flow.test import solve_variable_range
+            from slither.analyses.data_flow.analysis import solve_variable_range
 
             min_result, max_result = solve_variable_range(
                 solver=self.solver,
