@@ -21,6 +21,7 @@ TEST_CONTRACTS = [
     "Timestamp.sol",
     "Unary.sol",
     "UnpackTest.sol",
+    "SimpleIf.sol",
 ]
 
 
