@@ -35,6 +35,8 @@ console = Console()
 
 @dataclass
 class VariableTagInfo:
+    """Rounding tag info for a variable with its producing operation."""
+
     name: str
     tag: RoundingTag
     operation: Optional[str] = None
@@ -42,6 +44,8 @@ class VariableTagInfo:
 
 @dataclass
 class NodeAnalysis:
+    """Analysis results for a single CFG node."""
+
     node_id: int
     node_type: str
     expression: Optional[str] = None
@@ -50,12 +54,29 @@ class NodeAnalysis:
 
 @dataclass
 class FunctionAnalysis:
+    """Complete analysis results for a function."""
+
     function_name: str
     contract_name: str
     nodes: List[NodeAnalysis] = field(default_factory=list)
     return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
     inconsistencies: List[str] = field(default_factory=list)
     annotation_mismatches: List[str] = field(default_factory=list)
+
+
+@dataclass
+class OperationContext:
+    """Context for building operation display strings."""
+
+    result_name: str
+    result_tag: RoundingTag
+    op_str: str
+    left_name: str = ""
+    left_tag: RoundingTag = RoundingTag.NEUTRAL
+    right_name: str = ""
+    right_tag: RoundingTag = RoundingTag.NEUTRAL
+    unknown_reason: Optional[str] = None
+    extra_note: str = ""
 
 
 def format_tag(tag: RoundingTag) -> str:
@@ -122,36 +143,132 @@ def get_function_name(operation: Union[InternalCall, HighLevelCall, LibraryCall]
     return str(operation.function_name.value)
 
 
-def build_operation_str(
-    result_name: str,
-    result_tag: RoundingTag,
-    op_str: str,
-    left_name: str = "",
-    left_tag: RoundingTag = RoundingTag.NEUTRAL,
-    right_name: str = "",
-    right_tag: RoundingTag = RoundingTag.NEUTRAL,
-    unknown_reason: Optional[str] = None,
-    extra_note: str = "",
-) -> str:
+def build_operation_str(ctx: OperationContext) -> str:
     """Build operation string with tag information."""
-    # Always show tags for all variables involved
     tag_parts = []
-    if left_name:
-        tag_parts.append(f"{left_name}:{left_tag.name}")
-    if right_name:
-        tag_parts.append(f"{right_name}:{right_tag.name}")
+    if ctx.left_name:
+        tag_parts.append(f"{ctx.left_name}:{ctx.left_tag.name}")
+    if ctx.right_name:
+        tag_parts.append(f"{ctx.right_name}:{ctx.right_tag.name}")
 
     if tag_parts:
-        tags_str = f"[{', '.join(tag_parts)} -> {result_name}:{result_tag.name}]"
+        tags_str = f"[{', '.join(tag_parts)} -> {ctx.result_name}:{ctx.result_tag.name}]"
     else:
-        tags_str = f"[-> {result_name}:{result_tag.name}]"
+        tags_str = f"[-> {ctx.result_name}:{ctx.result_tag.name}]"
 
-    result = f"{op_str} {tags_str}"
-    if extra_note:
-        result += f" ({extra_note})"
-    if unknown_reason:
-        result += f" (UNKNOWN: {unknown_reason})"
+    result = f"{ctx.op_str} {tags_str}"
+    if ctx.extra_note:
+        result += f" ({ctx.extra_note})"
+    if ctx.unknown_reason:
+        result += f" (UNKNOWN: {ctx.unknown_reason})"
     return result
+
+
+def _process_binary_op(domain: RoundingDomain, op: Binary, node_analysis: NodeAnalysis) -> None:
+    """Process binary operation and add to node analysis."""
+    left_name, left_tag, right_name, right_tag, result_name, result_tag = (
+        extract_binary_info(domain, op)
+    )
+    unknown_reason = (
+        get_unknown_reason(domain, op.lvalue, result_tag)
+        if isinstance(op.lvalue, Variable)
+        else None
+    )
+
+    operator_symbol = {
+        BinaryType.ADDITION: "+",
+        BinaryType.SUBTRACTION: "-",
+        BinaryType.MULTIPLICATION: "*",
+        BinaryType.DIVISION: "/",
+    }.get(op.type, str(op.type.value))
+    operation_string = f"{result_name} = {left_name} {operator_symbol} {right_name}"
+
+    annotation = ""
+    if op.type == BinaryType.DIVISION:
+        annotation = (
+            "inferred from ceiling division pattern as UP"
+            if result_tag == RoundingTag.UP
+            else "inferred from denominator inversion"
+        )
+
+    ctx = OperationContext(
+        result_name=result_name,
+        result_tag=result_tag,
+        op_str=operation_string,
+        left_name=left_name,
+        left_tag=left_tag,
+        right_name=right_name,
+        right_tag=right_tag,
+        unknown_reason=unknown_reason,
+        extra_note=annotation,
+    )
+    node_analysis.variables[result_name] = VariableTagInfo(
+        result_name, result_tag, build_operation_str(ctx)
+    )
+
+
+def _process_assignment_op(
+    domain: RoundingDomain, op: Assignment, node_analysis: NodeAnalysis
+) -> None:
+    """Process assignment and add to node analysis."""
+    rvalue_name, rvalue_tag, lvalue_name, lvalue_tag = extract_assignment_info(domain, op)
+    unknown_reason = (
+        get_unknown_reason(domain, op.lvalue, lvalue_tag)
+        if isinstance(op.lvalue, Variable)
+        else None
+    )
+
+    ctx = OperationContext(
+        result_name=lvalue_name,
+        result_tag=lvalue_tag,
+        op_str=f"{lvalue_name} = {rvalue_name}",
+        left_name=rvalue_name,
+        left_tag=rvalue_tag,
+        unknown_reason=unknown_reason,
+    )
+    node_analysis.variables[lvalue_name] = VariableTagInfo(
+        lvalue_name, lvalue_tag, build_operation_str(ctx)
+    )
+
+
+def _process_call_op(
+    domain: RoundingDomain,
+    op: Union[InternalCall, HighLevelCall, LibraryCall],
+    node_analysis: NodeAnalysis,
+) -> None:
+    """Process function call and add to node analysis."""
+    result_name = get_var_name(op.lvalue)
+    result_tag = get_tag(domain, op.lvalue)
+    unknown_reason = (
+        get_unknown_reason(domain, op.lvalue, result_tag)
+        if isinstance(op.lvalue, Variable)
+        else None
+    )
+    called_function_name = get_function_name(op)
+
+    argument_tags = [
+        f"{get_var_name(arg)}:{get_tag(domain, arg).name}" for arg in op.arguments
+    ]
+    arguments_summary = ", ".join(argument_tags) if argument_tags else "no-args"
+    operation_string = f"{result_name} = {called_function_name}(...)"
+
+    ctx = OperationContext(
+        result_name=result_name,
+        result_tag=result_tag,
+        op_str=operation_string,
+        unknown_reason=unknown_reason,
+    )
+    operation_str = build_operation_str(ctx).replace("[->", f"[{arguments_summary} ->")
+    node_analysis.variables[result_name] = VariableTagInfo(result_name, result_tag, operation_str)
+
+
+def _process_return_op(
+    domain: RoundingDomain, op: Return, func_analysis: FunctionAnalysis
+) -> None:
+    """Process return operation and update function analysis."""
+    for return_value in op.values:
+        if return_value:
+            func_analysis.return_tags[get_var_name(return_value)] = get_tag(domain, return_value)
 
 
 def analyze_function(function: FunctionContract) -> FunctionAnalysis:
@@ -161,7 +278,6 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
         contract_name=function.contract.name if function.contract else "Unknown",
     )
 
-    # Run analysis
     rounding_analysis = RoundingAnalysis()
     engine = Engine.new(rounding_analysis, function)
     engine.run_analysis()
@@ -169,7 +285,6 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
     func_analysis.inconsistencies = rounding_analysis.inconsistencies
     func_analysis.annotation_mismatches = rounding_analysis.annotation_mismatches
 
-    # Process each node
     for node in function.nodes:
         if node not in node_results or node_results[node].post.variant != DomainVariant.STATE:
             continue
@@ -181,167 +296,85 @@ def analyze_function(function: FunctionContract) -> FunctionAnalysis:
             expression=str(node.expression) if node.expression else None,
         )
 
-        if not node.irs_ssa:
-            func_analysis.nodes.append(node_analysis)
-            continue
-
-        for operation in node.irs_ssa:
-            if isinstance(operation, Binary) and operation.lvalue:
-                left_name, left_tag, right_name, right_tag, result_name, result_tag = (
-                    extract_binary_info(domain, operation)
-                )
-                unknown_reason = (
-                    get_unknown_reason(domain, operation.lvalue, result_tag)
-                    if isinstance(operation.lvalue, Variable)
-                    else None
-                )
-
-                operator_symbol = {
-                    BinaryType.ADDITION: "+",
-                    BinaryType.SUBTRACTION: "-",
-                    BinaryType.MULTIPLICATION: "*",
-                    BinaryType.DIVISION: "/",
-                }.get(operation.type, str(operation.type.value))
-                operation_string = f"{result_name} = {left_name} {operator_symbol} {right_name}"
-
-                annotation = ""
-                if operation.type == BinaryType.DIVISION:
-                    annotation = (
-                        "inferred from ceiling division pattern as UP"
-                        if result_tag == RoundingTag.UP
-                        else "inferred from denominator inversion"
-                    )
-
-                operation_str = build_operation_str(
-                    result_name,
-                    result_tag,
-                    operation_string,
-                    left_name,
-                    left_tag,
-                    right_name,
-                    right_tag,
-                    unknown_reason,
-                    annotation,
-                )
-                node_analysis.variables[result_name] = VariableTagInfo(
-                    result_name, result_tag, operation_str
-                )
-
-            elif isinstance(operation, Assignment) and operation.lvalue:
-                rvalue_name, rvalue_tag, lvalue_name, lvalue_tag = extract_assignment_info(
-                    domain, operation
-                )
-                unknown_reason = (
-                    get_unknown_reason(domain, operation.lvalue, lvalue_tag)
-                    if isinstance(operation.lvalue, Variable)
-                    else None
-                )
-
-                operation_string = f"{lvalue_name} = {rvalue_name}"
-                operation_str = build_operation_str(
-                    lvalue_name,
-                    lvalue_tag,
-                    operation_string,
-                    rvalue_name,
-                    rvalue_tag,
-                    unknown_reason=unknown_reason,
-                )
-                node_analysis.variables[lvalue_name] = VariableTagInfo(
-                    lvalue_name, lvalue_tag, operation_str
-                )
-
-            elif (
-                isinstance(operation, (InternalCall, HighLevelCall, LibraryCall))
-                and operation.lvalue
-            ):
-                result_name = get_var_name(operation.lvalue)
-                result_tag = get_tag(domain, operation.lvalue)
-                unknown_reason = (
-                    get_unknown_reason(domain, operation.lvalue, result_tag)
-                    if isinstance(operation.lvalue, Variable)
-                    else None
-                )
-                called_function_name = get_function_name(operation)
-
-                argument_tags = [
-                    f"{get_var_name(arg)}:{get_tag(domain, arg).name}"
-                    for arg in operation.arguments
-                ]
-                arguments_summary = ", ".join(argument_tags) if argument_tags else "no-args"
-                operation_string = f"{result_name} = {called_function_name}(...)"
-                operation_str = build_operation_str(
-                    result_name, result_tag, operation_string, unknown_reason=unknown_reason
-                ).replace("[->", f"[{arguments_summary} ->")
-
-                node_analysis.variables[result_name] = VariableTagInfo(
-                    result_name, result_tag, operation_str
-                )
-
-            elif isinstance(operation, Return):
-                for return_value in operation.values:
-                    if return_value:
-                        func_analysis.return_tags[get_var_name(return_value)] = get_tag(
-                            domain, return_value
-                        )
+        if node.irs_ssa:
+            for operation in node.irs_ssa:
+                if isinstance(operation, Binary) and operation.lvalue:
+                    _process_binary_op(domain, operation, node_analysis)
+                elif isinstance(operation, Assignment) and operation.lvalue:
+                    _process_assignment_op(domain, operation, node_analysis)
+                elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)):
+                    if operation.lvalue:
+                        _process_call_op(domain, operation, node_analysis)
+                elif isinstance(operation, Return):
+                    _process_return_op(domain, operation, func_analysis)
 
         func_analysis.nodes.append(node_analysis)
 
     return func_analysis
 
 
-def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
-    """Display analysis results for a function."""
-    console.print()
-    console.print("=" * 80)
-    console.print(
-        f"[bold cyan]Function:[/bold cyan] [bold]{func_analysis.contract_name}.{func_analysis.function_name}[/bold]"
+def _display_node_table(node_analysis: NodeAnalysis) -> None:
+    """Display variable table for a single node."""
+    header = f"[bold]Node {node_analysis.node_id}:[/bold] {node_analysis.node_type}"
+    console.print(header)
+    if node_analysis.expression:
+        console.print(f"[dim]Expression: {node_analysis.expression}[/dim]")
+
+    table = Table(
+        show_header=True, header_style="bold magenta", box=box.ROUNDED, show_lines=True
     )
-    console.print("=" * 80)
+    table.add_column("Variable", style="bold", width=25)
+    table.add_column("Rounding Tag", justify="center", width=20)
+    table.add_column("Operation", style="dim", overflow="fold")
 
-    for node_analysis in func_analysis.nodes:
-        if not node_analysis.variables:
-            continue
+    for var_name, var_info in sorted(node_analysis.variables.items()):
+        operation_text = Text(var_info.operation) if var_info.operation else Text("-")
+        table.add_row(var_name, format_tag(var_info.tag), operation_text)
+    console.print(table)
 
-        header = f"[bold]Node {node_analysis.node_id}:[/bold] {node_analysis.node_type}"
-        console.print(header)
-        if node_analysis.expression:
-            console.print(f"[dim]Expression: {node_analysis.expression}[/dim]")
 
-        table = Table(
-            show_header=True, header_style="bold magenta", box=box.ROUNDED, show_lines=True
-        )
-        table.add_column("Variable", style="bold", width=25)
-        table.add_column("Rounding Tag", justify="center", width=20)
-        table.add_column("Operation", style="dim", overflow="fold")
+def _display_return_values(func_analysis: FunctionAnalysis) -> None:
+    """Display return value tags if present."""
+    if not func_analysis.return_tags:
+        return
 
-        for var_name, var_info in sorted(node_analysis.variables.items()):
-            # Wrap operation in Text() to prevent Rich from interpreting [...] as markup
-            operation_text = Text(var_info.operation) if var_info.operation else Text("-")
-            table.add_row(var_name, format_tag(var_info.tag), operation_text)
-        console.print(table)
+    console.print("\n[bold]Return Values:[/bold]")
+    return_table = Table(show_header=True, header_style="bold green", box=box.ROUNDED)
+    return_table.add_column("Return Variable", style="bold")
+    return_table.add_column("Rounding Tag", justify="center")
 
-    if func_analysis.return_tags:
-        console.print("\n[bold]Return Values:[/bold]")
-        return_table = Table(show_header=True, header_style="bold green", box=box.ROUNDED)
-        return_table.add_column("Return Variable", style="bold")
-        return_table.add_column("Rounding Tag", justify="center")
+    for var_name, return_tag in func_analysis.return_tags.items():
+        return_table.add_row(var_name, format_tag(return_tag))
+    console.print(return_table)
 
-        for var_name, return_tag in func_analysis.return_tags.items():
-            return_table.add_row(var_name, format_tag(return_tag))
-        console.print(return_table)
 
+def _display_issues(func_analysis: FunctionAnalysis) -> None:
+    """Display inconsistencies and annotation mismatches."""
     if func_analysis.inconsistencies:
         console.print("\n[bold red]Rounding Inconsistencies Detected:[/bold red]")
         for inconsistency in func_analysis.inconsistencies:
             console.print(f"[red]✗[/red] {inconsistency}")
 
-    # Show annotation mismatches to highlight conflicts with developer expectations.
     if func_analysis.annotation_mismatches:
         console.print("\n[bold red]Rounding Annotation Mismatches Detected:[/bold red]")
-        # List each mismatch so developers can see specific conflicts.
         for mismatch in func_analysis.annotation_mismatches:
             console.print(f"[red]✗[/red] {mismatch}")
 
+
+def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
+    """Display analysis results for a function."""
+    console.print()
+    console.print("=" * 80)
+    func_label = f"{func_analysis.contract_name}.{func_analysis.function_name}"
+    console.print(f"[bold cyan]Function:[/bold cyan] [bold]{func_label}[/bold]")
+    console.print("=" * 80)
+
+    for node_analysis in func_analysis.nodes:
+        if node_analysis.variables:
+            _display_node_table(node_analysis)
+
+    _display_return_values(func_analysis)
+    _display_issues(func_analysis)
     console.print()
 
 

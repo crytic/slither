@@ -38,12 +38,15 @@ class RoundingAnalysis(Analysis):
         self.annotation_mismatches: List[str] = []
 
     def domain(self) -> Domain:
+        """Return initial domain for analysis."""
         return RoundingDomain.bottom()
 
     def direction(self) -> Direction:
+        """Return forward analysis direction."""
         return self._direction
 
     def bottom_value(self) -> Domain:
+        """Return bottom element of domain lattice."""
         return RoundingDomain.bottom()
 
     def transfer_function(self, node: Node, domain: Domain, operation: Optional[Operation]) -> None:
@@ -93,74 +96,53 @@ class RoundingAnalysis(Analysis):
             return
 
         result_var = operation.lvalue
-        left_var = operation.variable_left
-        right_var = operation.variable_right
+        left_tag = self._get_variable_tag(operation.variable_left, domain)
+        right_tag = self._get_variable_tag(operation.variable_right, domain)
         op_type = operation.type
 
-        # Helper to get tags (using existing helper)
-        left_tag = self._get_variable_tag(left_var, domain)
-        right_tag = self._get_variable_tag(right_var, domain)
-
         if op_type == BinaryType.DIVISION:
-            # Check for ceiling division pattern: (a + b - 1) / b
-            # This is a common idiom that effectively rounds UP
-            is_ceiling_pattern = self._is_ceiling_division_pattern(left_var, right_var, domain)
-
-            # Enforce denominator/numerator consistency before computing result tag.
-            inconsistency_reason = self._check_division_consistency(
-                left_tag, right_tag, operation, node
-            )
-            if inconsistency_reason:
-                # Mark the result as UNKNOWN to surface inconsistent division usage.
-                self._set_tag_with_annotation(
-                    result_var,
-                    RoundingTag.UNKNOWN,
-                    operation,
-                    node,
-                    domain,
-                    unknown_reason=inconsistency_reason,
-                )
-                return
-
-            if is_ceiling_pattern:
-                # This is the (numerator + divisor - 1) / divisor pattern → tag as UP
-                self._set_tag_with_annotation(result_var, RoundingTag.UP, operation, node, domain)
-            else:
-                # Standard division: default DOWN when denominator is neutral.
-                if right_tag == RoundingTag.NEUTRAL:
-                    self._set_tag_with_annotation(
-                        result_var, RoundingTag.DOWN, operation, node, domain
-                    )
-                else:
-                    # Standard division: result uses inverted denominator rounding
-                    right_tag_inv = self._invert_tag(right_tag)
-                    self._set_tag_with_annotation(
-                        result_var, right_tag_inv, operation, node, domain
-                    )
-            return
-
+            self._handle_division(operation, domain, node, left_tag, right_tag)
         elif op_type == BinaryType.SUBTRACTION:
-            # The subtracted element's rounding is inverted
             right_tag_inv = self._invert_tag(right_tag)
             self._set_tag_with_annotation(result_var, right_tag_inv, operation, node, domain)
-            return
-
         elif op_type == BinaryType.ADDITION:
-            # For addition: if left is NEUTRAL, use right; otherwise use left
             result_tag = right_tag if left_tag == RoundingTag.NEUTRAL else left_tag
             self._set_tag_with_annotation(result_var, result_tag, operation, node, domain)
-            return
-
         elif op_type == BinaryType.MULTIPLICATION:
-            # For multiplication: if left is NEUTRAL, use right; otherwise use left
             result_tag = right_tag if left_tag == RoundingTag.NEUTRAL else left_tag
             self._set_tag_with_annotation(result_var, result_tag, operation, node, domain)
+        elif op_type == BinaryType.POWER:
+            self._logger.warning("Rounding for POWER is not implemented yet")
+
+    def _handle_division(
+        self,
+        operation: Binary,
+        domain: RoundingDomain,
+        node: Node,
+        left_tag: RoundingTag,
+        right_tag: RoundingTag,
+    ) -> None:
+        """Handle division with ceiling pattern detection and consistency checks."""
+        result_var = operation.lvalue
+        is_ceiling = self._is_ceiling_division_pattern(
+            operation.variable_left, operation.variable_right, domain
+        )
+
+        inconsistency = self._check_division_consistency(left_tag, right_tag, operation, node)
+        if inconsistency:
+            self._set_tag_with_annotation(
+                result_var, RoundingTag.UNKNOWN, operation, node, domain,
+                unknown_reason=inconsistency,
+            )
             return
 
-        elif op_type == BinaryType.POWER:
-            # Exponentiation handling is disabled until explicit rounding rules are defined.
-            self._logger.warning("Rounding for POWER is not implemented yet")
-            return
+        if is_ceiling:
+            self._set_tag_with_annotation(result_var, RoundingTag.UP, operation, node, domain)
+        elif right_tag == RoundingTag.NEUTRAL:
+            self._set_tag_with_annotation(result_var, RoundingTag.DOWN, operation, node, domain)
+        else:
+            right_tag_inv = self._invert_tag(right_tag)
+            self._set_tag_with_annotation(result_var, right_tag_inv, operation, node, domain)
 
     def _initialize_entry_state(self, node: Node, domain: RoundingDomain) -> None:
         """Initialize entry-point variables to NEUTRAL for consistent tag display."""
@@ -192,41 +174,48 @@ class RoundingAnalysis(Analysis):
         divisor: Union[RVALUE, Function],
         domain: RoundingDomain,
     ) -> bool:
-        """Detect the ceiling division pattern: (a + b - 1) / b
-
-        This checks if:
-        - dividend is the result of subtracting 1 from something
-        - that something is the result of adding dividend's original value to divisor
-
-        Returns True if the pattern matches, False otherwise.
-        """
+        """Detect the ceiling division pattern: (a + b - 1) / b."""
         if not isinstance(dividend, Variable):
             return False
 
-        # Get the operation that produced the dividend
-        sub_op = domain.state.get_producer(dividend)
-        if not isinstance(sub_op, Binary) or sub_op.type != BinaryType.SUBTRACTION:
+        add_result = self._check_subtraction_minus_one(dividend, domain)
+        if add_result is None:
             return False
 
-        # Check if subtracting 1
+        return self._check_addition_includes_divisor(add_result, divisor, domain)
+
+    def _check_subtraction_minus_one(
+        self, var: Variable, domain: RoundingDomain
+    ) -> Optional[Variable]:
+        """Check if var = X - 1 and return X, or None."""
+        sub_op = domain.state.get_producer(var)
+        if not isinstance(sub_op, Binary) or sub_op.type != BinaryType.SUBTRACTION:
+            return None
+
         if not isinstance(sub_op.variable_right, Constant):
-            return False
+            return None
         try:
             if int(sub_op.variable_right.value) != 1:
-                return False
+                return None
         except (ValueError, TypeError, AttributeError):
-            return False
+            return None
 
-        # Get the left operand of the subtraction (should be an addition)
         add_result = sub_op.variable_left
         if not isinstance(add_result, Variable):
-            return False
+            return None
+        return add_result
 
+    def _check_addition_includes_divisor(
+        self,
+        add_result: Variable,
+        divisor: Union[RVALUE, Function],
+        domain: RoundingDomain,
+    ) -> bool:
+        """Check if add_result was produced by addition including divisor."""
         add_op = domain.state.get_producer(add_result)
         if not isinstance(add_op, Binary) or add_op.type != BinaryType.ADDITION:
             return False
 
-        # Check if one of the addition operands is the divisor
         divisor_name = divisor.name if isinstance(divisor, Variable) else str(divisor)
         left_name = (
             add_op.variable_left.name

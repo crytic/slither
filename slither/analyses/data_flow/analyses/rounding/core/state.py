@@ -32,7 +32,10 @@ class RoundingState:
         producer: Optional[Operation] = None,
         unknown_reason: Optional[str] = None,
     ) -> None:
-        """Assign a rounding tag to a variable and optionally track the operation that produced it"""
+        """Assign a rounding tag to a variable.
+
+        Optionally tracks the operation that produced it.
+        """
         self._tags[var] = tag
         if producer is not None:
             self._producers[var] = producer
