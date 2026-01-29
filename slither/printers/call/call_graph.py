@@ -24,7 +24,11 @@ def _contract_subgraph(contract: Contract) -> str:
 
 # return unique id for contract function to use as node name
 def _function_node(contract: Contract, function: Function | Variable) -> str:
-    return f"{contract.id}_{function.name}"
+    # Use full_name for Functions to distinguish overloaded functions
+    if isinstance(function, Function):
+        return f"{contract.id}_{function.full_name}"
+    # Variables use solidity_signature which includes parameter types
+    return f"{contract.id}_{function.solidity_signature}"
 
 
 # return unique id for solidity function to use as node name
@@ -128,7 +132,7 @@ def _process_external_call(
         contract_functions[external_contract].add(
             _node(
                 _function_node(external_contract, ir.function),
-                ir.function.name,
+                ir.function.solidity_signature,  # Use signature for consistency with node ID
             )
         )
 
@@ -150,8 +154,10 @@ def _process_function(
     external_calls: set[str],
     all_contracts: set[Contract],
 ) -> None:
+    # Use full_name as label to distinguish overloaded functions
+    label = function.full_name if isinstance(function, Function) else function.name
     contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
+        _node(_function_node(contract, function), label),
     )
 
     for internal_call in function.internal_calls:
