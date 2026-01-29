@@ -870,9 +870,13 @@ class SlitherReadStorage:
         if isinstance(
             target_variable_type_type, ArrayType
         ):  # multidimensional array uint[i][], , uint[][i], or uint[][]
-            assert isinstance(target_variable_type_type.type, ElementaryType)
-            size = target_variable_type_type.type.size
-            type_to = target_variable_type_type.type.name
+            if isinstance(target_variable_type_type.type, TypeAlias):
+                size = target_variable_type_type.type.underlying_type.size
+                type_to = target_variable_type_type.type.underlying_type.name
+            else:
+                assert isinstance(target_variable_type_type.type, ElementaryType)
+                size = target_variable_type_type.type.size
+                type_to = target_variable_type_type.type.name
 
             if target_variable_type.is_fixed_array:  # uint[][i]
                 slot_int = int.from_bytes(slot, "big") + int(key)
@@ -917,6 +921,8 @@ class SlitherReadStorage:
                 info += info_tmp
 
             else:
+                if isinstance(target_variable_type_type, TypeAlias):
+                    target_variable_type_type = target_variable_type_type.underlying_type
                 assert isinstance(target_variable_type_type, ElementaryType)
                 type_to = target_variable_type_type.name
                 size = target_variable_type_type.size  # bits
@@ -937,6 +943,8 @@ class SlitherReadStorage:
             info += info_tmp
 
         else:
+            if isinstance(target_variable_type_type, TypeAlias):
+                target_variable_type_type = target_variable_type_type.underlying_type
             assert isinstance(target_variable_type_type, ElementaryType)
 
             slot = keccak(slot)
@@ -971,14 +979,23 @@ class SlitherReadStorage:
             offset (int): The size of other variables that share the same slot.
 
         """
+
+        def unwrap_type_alias(type: TypeAlias | ElementaryType) -> ElementaryType:
+            if isinstance(type, TypeAlias):
+                return type.underlying_type
+            return type
+
         info = ""
         offset = 0
         if key:
             info += f"\nKey: {key}"
         if deep_key:
             info += f"\nDeep Key: {deep_key}"
-        assert isinstance(target_variable_type.type_from, ElementaryType)
-        key_type = target_variable_type.type_from.name
+
+        type_from = unwrap_type_alias(target_variable_type.type_from)
+
+        assert isinstance(type_from, ElementaryType)
+        key_type = type_from.name
         assert key
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
@@ -999,8 +1016,9 @@ class SlitherReadStorage:
             target_variable_type.type_to, MappingType
         ):  # mapping(elem => mapping(elem => ???))
             assert deep_key
-            assert isinstance(target_variable_type.type_to.type_from, ElementaryType)
-            key_type = target_variable_type.type_to.type_from.name
+            type_from = unwrap_type_alias(target_variable_type.type_to.type_from)
+            assert isinstance(type_from, ElementaryType)
+            key_type = type_from.name
             if "int" in key_type:  # without this eth_utils encoding fails
                 deep_key = int(deep_key)
 
@@ -1010,7 +1028,7 @@ class SlitherReadStorage:
             # mapping(elem => mapping(elem => elem))
             target_variable_type_type_to_type_to = target_variable_type.type_to.type_to
             assert isinstance(
-                target_variable_type_type_to_type_to, (UserDefinedType, ElementaryType)
+                target_variable_type_type_to_type_to, (UserDefinedType, ElementaryType, TypeAlias)
             )
             type_to = str(target_variable_type_type_to_type_to.type)
             byte_size, _ = target_variable_type_type_to_type_to.storage_size
@@ -1031,9 +1049,10 @@ class SlitherReadStorage:
         # TODO: support mapping with dynamic arrays
 
         # mapping(elem => elem)
-        elif isinstance(target_variable_type.type_to, ElementaryType):
-            type_to = target_variable_type.type_to.name  # the value's elementary type
-            byte_size, _ = target_variable_type.type_to.storage_size
+        elif isinstance(target_variable_type.type_to, (TypeAlias, ElementaryType)):
+            unwrapped_type_to = unwrap_type_alias(target_variable_type.type_to)
+            type_to = unwrapped_type_to.name  # the value's elementary type
+            byte_size, _ = unwrapped_type_to.storage_size
             size = byte_size * 8  # bits
 
         else:
