@@ -29,7 +29,8 @@ class SMTSolver(ABC):
 
     def __init__(self) -> None:
         self.variables: Dict[str, SMTVariable] = {}
-        self.assertions: List[SMTTerm] = []
+        # Note: self.assertions removed - was redundant memory leak
+        # Use solver.solver.assertions() to get Z3's native assertion list instead
 
     # ========================================================================
     # Core SMT-LIB 2.0 Commands
@@ -138,6 +139,36 @@ class SMTSolver(ABC):
     @abstractmethod
     def bv_slt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Signed less-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_ule(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned less-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_ugt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_uge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sle(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed less-than-or-equal comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sgt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than comparison for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than-or-equal comparison for bitvectors."""
         pass
 
     @abstractmethod
@@ -260,9 +291,30 @@ class SMTSolver(ABC):
         """List all declared variable names"""
         return list(self.variables.keys())
 
+    @abstractmethod
     def get_assertions(self) -> List[SMTTerm]:
-        """Get all current assertions"""
-        return self.assertions.copy()
+        """Get the list of current assertions in the solver."""
+        pass
+
+    @abstractmethod
+    def is_eq_constraint(self, term: SMTTerm) -> bool:
+        """Check if a term is an equality constraint (a == b)."""
+        pass
+
+    @abstractmethod
+    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+        """Get the two operands of an equality constraint. Returns None if not an equality."""
+        pass
+
+    @abstractmethod
+    def is_constant_value(self, term: SMTTerm) -> bool:
+        """Check if a term is a constant value (not a variable or expression)."""
+        pass
+
+    @abstractmethod
+    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+        """Get the integer value of a constant term. Returns None if not a constant."""
+        pass
 
     @abstractmethod
     def to_smtlib(self) -> str:

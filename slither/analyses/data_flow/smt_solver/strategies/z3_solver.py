@@ -1,6 +1,27 @@
 """Z3 solver strategy implementation."""
 
+import time
+import os
 from typing import Dict, List, Optional
+
+# Constraint dumping for debugging
+DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
+DUMP_FILE = "/tmp/constraints_dump.txt"
+_dump_file_handle = None
+_constraint_history: List[str] = []  # Keep track of constraints for dumping
+
+def _get_dump_file():
+    global _dump_file_handle
+    if _dump_file_handle is None and DUMP_CONSTRAINTS:
+        _dump_file_handle = open(DUMP_FILE, "w")
+    return _dump_file_handle
+
+def _dump(msg: str):
+    if DUMP_CONSTRAINTS:
+        f = _get_dump_file()
+        if f:
+            f.write(msg + "\n")
+            f.flush()
 
 from z3 import (
     BitVec,
@@ -17,10 +38,16 @@ from z3 import (
     SignExt,
     Solver,
     UDiv,
+    UGE,
+    UGT,
+    ULE,
     ULT,
     URem,
     ZeroExt,
     is_bv,
+    is_bv_value,
+    is_eq,
+    is_int_value,
     sat,
     unsat,
     unknown,
@@ -47,8 +74,21 @@ class Z3Solver(SMTSolver):
             self.solver = Optimize()
         else:
             self.solver = Solver()
+            # Add timeout to prevent hanging (5 seconds)
+            self.solver.set("timeout", 5000)
         self.last_result: Optional[CheckSatResult] = None
         self.model: Optional[object] = None
+
+        # Performance instrumentation
+        self.constraint_count = 0
+        self.check_call_count = 0
+        self.total_check_time = 0.0
+        self.last_constraint_log = 0
+
+        # Constraint dumping
+        self.dump_enabled = DUMP_CONSTRAINTS
+        if self.dump_enabled:
+            _dump(f"\n{'='*60}\n[NEW SOLVER] use_optimizer={use_optimizer}\n{'='*60}")
 
     def declare_const(self, name: str, sort: Sort) -> SMTVariable:
         """Declare a constant in Z3."""
@@ -103,11 +143,54 @@ class Z3Solver(SMTSolver):
     def assert_constraint(self, constraint: SMTTerm) -> None:
         """Add constraint to Z3 solver."""
         self.solver.add(constraint)
-        self.assertions.append(constraint)
+        # Note: Removed self.assertions.append() - was redundant memory leak
+        # Use self.solver.assertions() to get Z3's native assertion list
+
+        # Instrumentation: track constraint count
+        self.constraint_count += 1
+        if self.constraint_count - self.last_constraint_log >= 500:
+            print(f"[Z3] Constraints added: {self.constraint_count}")
+            self.last_constraint_log = self.constraint_count
+
+        # Constraint dumping (first 100 constraints only)
+        if self.dump_enabled and self.constraint_count <= 100:
+            constraint_str = str(constraint)[:200]  # Truncate long constraints
+            _dump(f"[Constraint #{self.constraint_count}] {constraint_str}")
+            _constraint_history.append(constraint_str)
 
     def check_sat(self) -> CheckSatResult:
         """Check satisfiability."""
+        # Instrumentation: time the check
+        self.check_call_count += 1
+        start_time = time.time()
+
+        # Dump check_sat call (first 20 only)
+        if self.dump_enabled and self.check_call_count <= 20:
+            assertions = list(self.solver.assertions())
+            _dump(f"\n[CHECK_SAT #{self.check_call_count}] Total assertions: {len(assertions)}")
+            if len(assertions) <= 10:
+                for i, a in enumerate(assertions):
+                    _dump(f"  [{i}] {str(a)[:150]}")
+            else:
+                _dump(f"  First 5:")
+                for i, a in enumerate(assertions[:5]):
+                    _dump(f"  [{i}] {str(a)[:150]}")
+                _dump(f"  Last 5:")
+                for i, a in enumerate(assertions[-5:]):
+                    _dump(f"  [{len(assertions)-5+i}] {str(a)[:150]}")
+
         result = self.solver.check()
+
+        elapsed = time.time() - start_time
+        self.total_check_time += elapsed
+
+        # Log slow checks
+        if elapsed > 1.0:
+            print(
+                f"[Z3] SLOW check #{self.check_call_count}: {elapsed:.2f}s "
+                f"(total: {self.total_check_time:.2f}s, "
+                f"constraints: {self.constraint_count})"
+            )
 
         if result == sat:
             self.last_result = CheckSatResult.SAT
@@ -118,6 +201,10 @@ class Z3Solver(SMTSolver):
         else:
             self.last_result = CheckSatResult.UNKNOWN
             self.model = None
+
+        # Dump result
+        if self.dump_enabled and self.check_call_count <= 20:
+            _dump(f"  Result: {self.last_result}")
 
         return self.last_result
 
@@ -155,10 +242,17 @@ class Z3Solver(SMTSolver):
             self.solver = Optimize()
         else:
             self.solver = Solver()
+            self.solver.set("timeout", 5000)  # Re-apply timeout after reset
         self.variables.clear()
-        self.assertions.clear()
+        # Note: self.assertions.clear() removed - list no longer exists
         self.last_result = None
         self.model = None
+
+        # Reset instrumentation counters
+        self.constraint_count = 0
+        self.check_call_count = 0
+        self.total_check_time = 0.0
+        self.last_constraint_log = 0
 
     def is_bitvector(self, term: SMTTerm) -> bool:
         return is_bv(term)
@@ -217,11 +311,33 @@ class Z3Solver(SMTSolver):
         return ULT(left, right)
 
     def bv_slt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
-        """Signed less-than comparison for bitvectors."""
-        # Convert to signed integers and compare
-        left_signed = self.bitvector_to_signed_int(left)
-        right_signed = self.bitvector_to_signed_int(right)
-        return left_signed < right_signed
+        """Signed less-than comparison for bitvectors (pure bitvector, no BV2Int)."""
+        # Z3's default < operator on bitvectors is signed comparison
+        return left < right
+
+    def bv_ule(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned less-than-or-equal comparison for bitvectors."""
+        return ULE(left, right)
+
+    def bv_ugt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than comparison for bitvectors."""
+        return UGT(left, right)
+
+    def bv_uge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned greater-than-or-equal comparison for bitvectors."""
+        return UGE(left, right)
+
+    def bv_sle(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed less-than-or-equal comparison for bitvectors (pure bitvector, no BV2Int)."""
+        return left <= right
+
+    def bv_sgt(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than comparison for bitvectors (pure bitvector, no BV2Int)."""
+        return left > right
+
+    def bv_sge(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed greater-than-or-equal comparison for bitvectors (pure bitvector, no BV2Int)."""
+        return left >= right
 
     def bv_size(self, term: SMTTerm) -> int:
         """Get the bit-width of a bitvector term."""
@@ -259,8 +375,8 @@ class Z3Solver(SMTSolver):
         for var in self.variables.values():
             lines.append(f"(declare-const {var.name} {var.sort})")
 
-        # Assertions
-        for assertion in self.assertions:
+        # Assertions (use Z3's native assertions() method)
+        for assertion in self.solver.assertions():
             lines.append(f"(assert {assertion})")
 
         # Commands
@@ -268,3 +384,30 @@ class Z3Solver(SMTSolver):
         lines.append("(get-model)")
 
         return "\n".join(lines)
+
+    def get_assertions(self) -> list:
+        """Get the list of current assertions in the solver."""
+        return list(self.solver.assertions())
+
+    def is_eq_constraint(self, term: SMTTerm) -> bool:
+        """Check if a term is an equality constraint (a == b)."""
+        return is_eq(term)
+
+    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+        """Get the two operands of an equality constraint. Returns None if not an equality."""
+        if not is_eq(term):
+            return None
+        children = term.children()
+        if len(children) != 2:
+            return None
+        return (children[0], children[1])
+
+    def is_constant_value(self, term: SMTTerm) -> bool:
+        """Check if a term is a constant value (not a variable or expression)."""
+        return is_bv_value(term) or is_int_value(term)
+
+    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+        """Get the integer value of a constant term. Returns None if not a constant."""
+        if is_bv_value(term) or is_int_value(term):
+            return term.as_long()
+        return None
