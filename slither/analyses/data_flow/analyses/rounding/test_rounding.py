@@ -5,9 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from rich import box
 from rich.console import Console
-from rich.table import Table
 from rich.text import Text
 
 from slither import Slither
@@ -19,7 +17,7 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -34,61 +32,39 @@ console = Console()
 
 
 @dataclass
-class VariableTagInfo:
-    """Rounding tag info for a variable with its producing operation."""
+class LineAnnotation:
+    """Annotation for a single variable on a source line."""
 
-    name: str
+    variable_name: str
     tag: RoundingTag
-    operation: Optional[str] = None
+    is_return: bool = False
+    note: str = ""
 
 
 @dataclass
-class NodeAnalysis:
-    """Analysis results for a single CFG node."""
+class AnnotatedLine:
+    """Source line with its annotations."""
 
-    node_id: int
-    node_type: str
-    expression: Optional[str] = None
-    variables: Dict[str, VariableTagInfo] = field(default_factory=dict)
+    line_number: int
+    source_text: str
+    annotations: List[LineAnnotation] = field(default_factory=list)
+    is_entry: bool = False
+    is_exit: bool = False
 
 
 @dataclass
-class FunctionAnalysis:
-    """Complete analysis results for a function."""
+class AnnotatedFunction:
+    """Complete annotated source view for a function."""
 
     function_name: str
     contract_name: str
-    nodes: List[NodeAnalysis] = field(default_factory=list)
+    filename: str
+    start_line: int
+    end_line: int
+    lines: Dict[int, AnnotatedLine] = field(default_factory=dict)
     return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
     inconsistencies: List[str] = field(default_factory=list)
     annotation_mismatches: List[str] = field(default_factory=list)
-
-
-@dataclass
-class OperationContext:
-    """Context for building operation display strings."""
-
-    result_name: str
-    result_tag: RoundingTag
-    op_str: str
-    left_name: str = ""
-    left_tag: RoundingTag = RoundingTag.NEUTRAL
-    right_name: str = ""
-    right_tag: RoundingTag = RoundingTag.NEUTRAL
-    unknown_reason: Optional[str] = None
-    extra_note: str = ""
-
-
-def format_tag(tag: RoundingTag) -> str:
-    """Format rounding tag with emoji and color."""
-    formats = {
-        RoundingTag.UP: ("🔼 UP", "green"),
-        RoundingTag.DOWN: ("🔽 DOWN", "red"),
-        RoundingTag.NEUTRAL: ("⚪ NEUTRAL", "white"),
-        RoundingTag.UNKNOWN: ("❓ UNKNOWN", "yellow"),
-    }
-    text, color = formats.get(tag, (str(tag), "white"))
-    return f"[{color}]{text}[/{color}]"
 
 
 def get_var_name(var: Optional[Union[RVALUE, Variable]]) -> str:
@@ -112,291 +88,302 @@ def get_unknown_reason(domain: RoundingDomain, var: Variable, tag: RoundingTag) 
     return None
 
 
-def extract_binary_info(
-    domain: RoundingDomain, operation: Binary
-) -> tuple[str, RoundingTag, str, RoundingTag, str, RoundingTag]:
-    """Extract names and tags for binary operation operands and result."""
-    left_name = get_var_name(operation.variable_left)
-    right_name = get_var_name(operation.variable_right)
-    result_name = get_var_name(operation.lvalue)
-    left_tag = get_tag(domain, operation.variable_left)
-    right_tag = get_tag(domain, operation.variable_right)
-    result_tag = get_tag(domain, operation.lvalue)
-    return left_name, left_tag, right_name, right_tag, result_name, result_tag
+def format_tag_inline(tag: RoundingTag) -> Text:
+    """Format rounding tag with color for inline display."""
+    colors = {
+        RoundingTag.UP: "green",
+        RoundingTag.DOWN: "red",
+        RoundingTag.NEUTRAL: "white",
+        RoundingTag.UNKNOWN: "yellow",
+    }
+    color = colors.get(tag, "white")
+    return Text(tag.name, style=color)
 
 
-def extract_assignment_info(
-    domain: RoundingDomain, operation: Assignment
-) -> tuple[str, RoundingTag, str, RoundingTag]:
-    """Extract names and tags for assignment rvalue and lvalue."""
-    rvalue_name = get_var_name(operation.rvalue)
-    lvalue_name = get_var_name(operation.lvalue)
-    rvalue_tag = get_tag(domain, operation.rvalue)
-    lvalue_tag = get_tag(domain, operation.lvalue)
-    return rvalue_name, rvalue_tag, lvalue_name, lvalue_tag
+def read_source_lines(filename: str, start_line: int, end_line: int) -> Dict[int, str]:
+    """Read source file lines within the given range."""
+    lines: Dict[int, str] = {}
+    try:
+        with open(filename, encoding="utf-8") as f:
+            for i, line in enumerate(f, start=1):
+                if start_line <= i <= end_line:
+                    lines[i] = line.rstrip("\n\r")
+                if i > end_line:
+                    break
+    except (OSError, UnicodeDecodeError):
+        pass
+    return lines
 
 
-def get_function_name(operation: Union[InternalCall, HighLevelCall, LibraryCall]) -> str:
-    """Extract function name from call operation."""
-    if isinstance(operation, InternalCall):
-        return operation.function.name if operation.function else str(operation.function_name)
-    return str(operation.function_name.value)
+def get_node_line(node: Node) -> Optional[int]:
+    """Get the primary source line for a node."""
+    if node.source_mapping and node.source_mapping.lines:
+        return node.source_mapping.lines[0]
+    return None
 
 
-def build_operation_str(ctx: OperationContext) -> str:
-    """Build operation string with tag information."""
-    tag_parts = []
-    if ctx.left_name:
-        tag_parts.append(f"{ctx.left_name}:{ctx.left_tag.name}")
-    if ctx.right_name:
-        tag_parts.append(f"{ctx.right_name}:{ctx.right_tag.name}")
-
-    if tag_parts:
-        tags_str = f"[{', '.join(tag_parts)} -> {ctx.result_name}:{ctx.result_tag.name}]"
-    else:
-        tags_str = f"[-> {ctx.result_name}:{ctx.result_tag.name}]"
-
-    result = f"{ctx.op_str} {tags_str}"
-    if ctx.extra_note:
-        result += f" ({ctx.extra_note})"
-    if ctx.unknown_reason:
-        result += f" (UNKNOWN: {ctx.unknown_reason})"
-    return result
-
-
-def _process_binary_op(domain: RoundingDomain, op: Binary, node_analysis: NodeAnalysis) -> None:
-    """Process binary operation and add to node analysis."""
-    left_name, left_tag, right_name, right_tag, result_name, result_tag = (
-        extract_binary_info(domain, op)
-    )
-    unknown_reason = (
-        get_unknown_reason(domain, op.lvalue, result_tag)
-        if isinstance(op.lvalue, Variable)
-        else None
-    )
-
-    operator_symbol = {
-        BinaryType.ADDITION: "+",
-        BinaryType.SUBTRACTION: "-",
-        BinaryType.MULTIPLICATION: "*",
-        BinaryType.DIVISION: "/",
-    }.get(op.type, str(op.type.value))
-    operation_string = f"{result_name} = {left_name} {operator_symbol} {right_name}"
-
-    annotation = ""
+def build_annotation_note(op: Binary, result_tag: RoundingTag) -> str:
+    """Build annotation note for division operations."""
     if op.type == BinaryType.DIVISION:
-        annotation = (
-            "inferred from ceiling division pattern as UP"
-            if result_tag == RoundingTag.UP
-            else "inferred from denominator inversion"
-        )
-
-    ctx = OperationContext(
-        result_name=result_name,
-        result_tag=result_tag,
-        op_str=operation_string,
-        left_name=left_name,
-        left_tag=left_tag,
-        right_name=right_name,
-        right_tag=right_tag,
-        unknown_reason=unknown_reason,
-        extra_note=annotation,
-    )
-    node_analysis.variables[result_name] = VariableTagInfo(
-        result_name, result_tag, build_operation_str(ctx)
-    )
+        if result_tag == RoundingTag.UP:
+            return "ceiling pattern"
+        return "floor division"
+    return ""
 
 
-def _process_assignment_op(
-    domain: RoundingDomain, op: Assignment, node_analysis: NodeAnalysis
-) -> None:
-    """Process assignment and add to node analysis."""
-    rvalue_name, rvalue_tag, lvalue_name, lvalue_tag = extract_assignment_info(domain, op)
-    unknown_reason = (
-        get_unknown_reason(domain, op.lvalue, lvalue_tag)
-        if isinstance(op.lvalue, Variable)
-        else None
-    )
+def analyze_function_annotated(function: FunctionContract) -> AnnotatedFunction:
+    """Analyze a function and build annotated source view."""
+    source_mapping = function.source_mapping
+    filename = source_mapping.filename.absolute if source_mapping else ""
+    start_line = source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
+    end_line = source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
 
-    ctx = OperationContext(
-        result_name=lvalue_name,
-        result_tag=lvalue_tag,
-        op_str=f"{lvalue_name} = {rvalue_name}",
-        left_name=rvalue_name,
-        left_tag=rvalue_tag,
-        unknown_reason=unknown_reason,
-    )
-    node_analysis.variables[lvalue_name] = VariableTagInfo(
-        lvalue_name, lvalue_tag, build_operation_str(ctx)
-    )
-
-
-def _process_call_op(
-    domain: RoundingDomain,
-    op: Union[InternalCall, HighLevelCall, LibraryCall],
-    node_analysis: NodeAnalysis,
-) -> None:
-    """Process function call and add to node analysis."""
-    result_name = get_var_name(op.lvalue)
-    result_tag = get_tag(domain, op.lvalue)
-    unknown_reason = (
-        get_unknown_reason(domain, op.lvalue, result_tag)
-        if isinstance(op.lvalue, Variable)
-        else None
-    )
-    called_function_name = get_function_name(op)
-
-    argument_tags = [
-        f"{get_var_name(arg)}:{get_tag(domain, arg).name}" for arg in op.arguments
-    ]
-    arguments_summary = ", ".join(argument_tags) if argument_tags else "no-args"
-    operation_string = f"{result_name} = {called_function_name}(...)"
-
-    ctx = OperationContext(
-        result_name=result_name,
-        result_tag=result_tag,
-        op_str=operation_string,
-        unknown_reason=unknown_reason,
-    )
-    operation_str = build_operation_str(ctx).replace("[->", f"[{arguments_summary} ->")
-    node_analysis.variables[result_name] = VariableTagInfo(result_name, result_tag, operation_str)
-
-
-def _process_return_op(
-    domain: RoundingDomain, op: Return, func_analysis: FunctionAnalysis
-) -> None:
-    """Process return operation and update function analysis."""
-    for return_value in op.values:
-        if return_value:
-            func_analysis.return_tags[get_var_name(return_value)] = get_tag(domain, return_value)
-
-
-def analyze_function(function: FunctionContract) -> FunctionAnalysis:
-    """Analyze a function and extract all variable rounding tags."""
-    func_analysis = FunctionAnalysis(
+    annotated = AnnotatedFunction(
         function_name=function.name,
         contract_name=function.contract.name if function.contract else "Unknown",
+        filename=filename,
+        start_line=start_line,
+        end_line=end_line,
     )
+
+    source_lines = read_source_lines(filename, start_line, end_line)
+    for line_num, text in source_lines.items():
+        annotated.lines[line_num] = AnnotatedLine(
+            line_number=line_num,
+            source_text=text,
+        )
 
     rounding_analysis = RoundingAnalysis()
     engine = Engine.new(rounding_analysis, function)
     engine.run_analysis()
     node_results: Dict[Node, AnalysisState] = engine.result()
-    func_analysis.inconsistencies = rounding_analysis.inconsistencies
-    func_analysis.annotation_mismatches = rounding_analysis.annotation_mismatches
+    annotated.inconsistencies = rounding_analysis.inconsistencies
+    annotated.annotation_mismatches = rounding_analysis.annotation_mismatches
 
     for node in function.nodes:
         if node not in node_results or node_results[node].post.variant != DomainVariant.STATE:
             continue
 
         domain = node_results[node].post
-        node_analysis = NodeAnalysis(
-            node_id=node.node_id,
-            node_type=node.type.name,
-            expression=str(node.expression) if node.expression else None,
-        )
+        line_num = get_node_line(node)
+
+        if node.type == NodeType.ENTRYPOINT and line_num and line_num in annotated.lines:
+            annotated.lines[line_num].is_entry = True
+
+        if line_num is None or line_num not in annotated.lines:
+            continue
+
+        annotated_line = annotated.lines[line_num]
 
         if node.irs_ssa:
             for operation in node.irs_ssa:
-                if isinstance(operation, Binary) and operation.lvalue:
-                    _process_binary_op(domain, operation, node_analysis)
-                elif isinstance(operation, Assignment) and operation.lvalue:
-                    _process_assignment_op(domain, operation, node_analysis)
-                elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)):
-                    if operation.lvalue:
-                        _process_call_op(domain, operation, node_analysis)
-                elif isinstance(operation, Return):
-                    _process_return_op(domain, operation, func_analysis)
+                _process_operation(operation, domain, annotated_line, annotated)
 
-        func_analysis.nodes.append(node_analysis)
-
-    return func_analysis
+    return annotated
 
 
-def _display_node_table(node_analysis: NodeAnalysis) -> None:
-    """Display variable table for a single node."""
-    header = f"[bold]Node {node_analysis.node_id}:[/bold] {node_analysis.node_type}"
-    console.print(header)
-    if node_analysis.expression:
-        console.print(f"[dim]Expression: {node_analysis.expression}[/dim]")
+def _process_operation(
+    operation: Union[Binary, Assignment, InternalCall, HighLevelCall, LibraryCall, Return],
+    domain: RoundingDomain,
+    annotated_line: AnnotatedLine,
+    annotated: AnnotatedFunction,
+) -> None:
+    """Process an operation and add annotations."""
+    if isinstance(operation, Binary) and operation.lvalue:
+        result_name = get_var_name(operation.lvalue)
+        result_tag = get_tag(domain, operation.lvalue)
+        note = build_annotation_note(operation, result_tag)
+        unknown_reason = (
+            get_unknown_reason(domain, operation.lvalue, result_tag)
+            if isinstance(operation.lvalue, Variable)
+            else None
+        )
+        if unknown_reason:
+            note = unknown_reason
+        annotated_line.annotations.append(
+            LineAnnotation(variable_name=result_name, tag=result_tag, note=note)
+        )
 
-    table = Table(
-        show_header=True, header_style="bold magenta", box=box.ROUNDED, show_lines=True
-    )
-    table.add_column("Variable", style="bold", width=25)
-    table.add_column("Rounding Tag", justify="center", width=20)
-    table.add_column("Operation", style="dim", overflow="fold")
+    elif isinstance(operation, Assignment) and operation.lvalue:
+        lvalue_name = get_var_name(operation.lvalue)
+        lvalue_tag = get_tag(domain, operation.lvalue)
+        annotated_line.annotations.append(
+            LineAnnotation(variable_name=lvalue_name, tag=lvalue_tag)
+        )
 
-    for var_name, var_info in sorted(node_analysis.variables.items()):
-        operation_text = Text(var_info.operation) if var_info.operation else Text("-")
-        table.add_row(var_name, format_tag(var_info.tag), operation_text)
-    console.print(table)
+    elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)) and operation.lvalue:
+        result_name = get_var_name(operation.lvalue)
+        result_tag = get_tag(domain, operation.lvalue)
+        func_name = _get_call_function_name(operation)
+        note = f"from {func_name}()"
+        annotated_line.annotations.append(
+            LineAnnotation(variable_name=result_name, tag=result_tag, note=note)
+        )
 
-
-def _display_return_values(func_analysis: FunctionAnalysis) -> None:
-    """Display return value tags if present."""
-    if not func_analysis.return_tags:
-        return
-
-    console.print("\n[bold]Return Values:[/bold]")
-    return_table = Table(show_header=True, header_style="bold green", box=box.ROUNDED)
-    return_table.add_column("Return Variable", style="bold")
-    return_table.add_column("Rounding Tag", justify="center")
-
-    for var_name, return_tag in func_analysis.return_tags.items():
-        return_table.add_row(var_name, format_tag(return_tag))
-    console.print(return_table)
-
-
-def _display_issues(func_analysis: FunctionAnalysis) -> None:
-    """Display inconsistencies and annotation mismatches."""
-    if func_analysis.inconsistencies:
-        console.print("\n[bold red]Rounding Inconsistencies Detected:[/bold red]")
-        for inconsistency in func_analysis.inconsistencies:
-            console.print(f"[red]✗[/red] {inconsistency}")
-
-    if func_analysis.annotation_mismatches:
-        console.print("\n[bold red]Rounding Annotation Mismatches Detected:[/bold red]")
-        for mismatch in func_analysis.annotation_mismatches:
-            console.print(f"[red]✗[/red] {mismatch}")
+    elif isinstance(operation, Return):
+        for return_value in operation.values:
+            if return_value:
+                var_name = get_var_name(return_value)
+                tag = get_tag(domain, return_value)
+                annotated.return_tags[var_name] = tag
+                annotated_line.annotations.append(
+                    LineAnnotation(variable_name=var_name, tag=tag, is_return=True)
+                )
 
 
-def display_function_analysis(func_analysis: FunctionAnalysis) -> None:
-    """Display analysis results for a function."""
+def _get_call_function_name(
+    operation: Union[InternalCall, HighLevelCall, LibraryCall]
+) -> str:
+    """Extract function name from call operation."""
+    if isinstance(operation, InternalCall):
+        return operation.function.name if operation.function else str(operation.function_name)
+    return str(operation.function_name.value)
+
+
+def display_annotated_source(annotated: AnnotatedFunction) -> None:
+    """Display annotated source code view."""
     console.print()
     console.print("=" * 80)
-    func_label = f"{func_analysis.contract_name}.{func_analysis.function_name}"
+    func_label = f"{annotated.contract_name}.{annotated.function_name}"
     console.print(f"[bold cyan]Function:[/bold cyan] [bold]{func_label}[/bold]")
     console.print("=" * 80)
 
-    for node_analysis in func_analysis.nodes:
-        if node_analysis.variables:
-            _display_node_table(node_analysis)
+    if annotated.filename:
+        relative_path = _get_relative_path(annotated.filename)
+        file_header = Text()
+        file_header.append(f"[{relative_path}:{annotated.start_line}:{annotated.end_line}]", style="dim")
+        console.print(file_header)
 
-    _display_return_values(func_analysis)
-    _display_issues(func_analysis)
+    line_width = len(str(annotated.end_line))
+
+    for line_num in range(annotated.start_line, annotated.end_line + 1):
+        if line_num not in annotated.lines:
+            continue
+
+        annotated_line = annotated.lines[line_num]
+        _display_source_line(annotated_line, line_width)
+        _display_annotations(annotated_line, line_width)
+
+    _display_return_summary(annotated)
+    _display_issues(annotated)
     console.print()
 
 
-def display_summary_table(analyses: List[FunctionAnalysis]) -> None:
-    """Display summary table of all functions."""
-    console.print("\n[bold cyan]" + "=" * 80)
-    console.print("SUMMARY: All Functions")
-    console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]\n")
+def _get_relative_path(filename: str) -> str:
+    """Get a shorter relative path for display."""
+    path = Path(filename)
+    try:
+        return str(path.relative_to(Path.cwd()))
+    except ValueError:
+        # If not relative to cwd, try to show just the last 2 components
+        parts = path.parts
+        if len(parts) >= 2:
+            return str(Path(*parts[-2:]))
+        return path.name
 
-    table = Table(show_header=True, header_style="bold cyan", box=box.ROUNDED, show_lines=True)
-    table.add_column("Function", style="bold", width=30)
-    table.add_column("Return Tag", justify="center", width=15)
 
-    for func_analysis in analyses:
-        function_name = f"{func_analysis.contract_name}.{func_analysis.function_name}"
-        return_tag = (
-            list(func_analysis.return_tags.values())[0] if func_analysis.return_tags else None
-        )
-        return_tag_str = format_tag(return_tag) if return_tag else "-"
+def _display_source_line(annotated_line: AnnotatedLine, line_width: int) -> None:
+    """Display a single source line with line number."""
+    line_num = annotated_line.line_number
+    source = annotated_line.source_text
 
-        table.add_row(function_name, return_tag_str)
-    console.print(table)
+    line_num_str = str(line_num).rjust(line_width)
+    entry_marker = "[bold magenta]→[/bold magenta]" if annotated_line.is_entry else " "
+
+    console.print(f"{line_num_str} {entry_marker} │ {source}")
+
+
+def _display_annotations(annotated_line: AnnotatedLine, line_width: int) -> None:
+    """Display annotations below a source line."""
+    if not annotated_line.annotations:
+        return
+
+    padding = " " * line_width
+    seen_vars: set = set()
+
+    for annotation in annotated_line.annotations:
+        if annotation.variable_name in seen_vars:
+            continue
+        seen_vars.add(annotation.variable_name)
+
+        prefix = "returns:" if annotation.is_return else ""
+        var_display = f'"{annotation.variable_name}"'
+
+        tag_text = format_tag_inline(annotation.tag)
+        note_text = f" ({annotation.note})" if annotation.note else ""
+
+        line = Text()
+        line.append(f"{padding}   │     └── ", style="dim")
+        if prefix:
+            line.append(f"{prefix} ", style="bold")
+        line.append(var_display, style="cyan")
+        line.append(" → ")
+        line.append(tag_text)
+        if note_text:
+            line.append(note_text, style="dim")
+
+        console.print(line)
+
+
+def _display_return_summary(annotated: AnnotatedFunction) -> None:
+    """Display return value summary."""
+    if not annotated.return_tags:
+        return
+
+    console.print()
+    returns_line = Text()
+    returns_line.append("Return Values: ", style="bold")
+
+    items = []
+    for var_name, tag in annotated.return_tags.items():
+        item = Text()
+        item.append(var_name, style="cyan")
+        item.append(" → ")
+        item.append(format_tag_inline(tag))
+        items.append(item)
+
+    for i, item in enumerate(items):
+        if i > 0:
+            returns_line.append(", ")
+        returns_line.append(item)
+
+    console.print(returns_line)
+
+
+def _display_issues(annotated: AnnotatedFunction) -> None:
+    """Display inconsistencies and annotation mismatches."""
+    if annotated.inconsistencies:
+        console.print()
+        console.print("[bold red]Rounding Inconsistencies:[/bold red]")
+        for inconsistency in annotated.inconsistencies:
+            console.print(f"  [red]✗[/red] {inconsistency}")
+
+    if annotated.annotation_mismatches:
+        console.print()
+        console.print("[bold red]Annotation Mismatches:[/bold red]")
+        for mismatch in annotated.annotation_mismatches:
+            console.print(f"  [red]✗[/red] {mismatch}")
+
+
+def display_summary_table(analyses: List[AnnotatedFunction]) -> None:
+    """Display summary of all analyzed functions."""
+    console.print()
+    console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
+    console.print("[bold]SUMMARY: All Functions[/bold]")
+    console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
+    console.print()
+
+    for func in analyses:
+        func_name = f"{func.contract_name}.{func.function_name}"
+        if func.return_tags:
+            for var_name, tag in func.return_tags.items():
+                line = Text()
+                line.append(f"  {func_name}", style="bold")
+                line.append(f" returns {var_name} → ")
+                line.append(format_tag_inline(tag))
+                console.print(line)
+        else:
+            console.print(f"  [bold]{func_name}[/bold] [dim](no return)[/dim]")
 
 
 def main():
@@ -410,13 +397,13 @@ def main():
         console.print(f"[red]Error:[/red] File not found: {contract_path}")
         sys.exit(1)
 
-    function_analyses = []
+    function_analyses: List[AnnotatedFunction] = []
     slither = Slither(str(contract_path))
     for contract in slither.contracts:
         for function in contract.functions:
             if isinstance(function, FunctionContract) and function.is_implemented:
                 try:
-                    function_analyses.append(analyze_function(function))
+                    function_analyses.append(analyze_function_annotated(function))
                 except Exception as e:
                     console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
 
@@ -436,7 +423,7 @@ def main():
             return
 
     for func_analysis in function_analyses:
-        display_function_analysis(func_analysis)
+        display_annotated_source(func_analysis)
 
     if len(function_analyses) > 1:
         display_summary_table(function_analyses)
