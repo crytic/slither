@@ -1,9 +1,10 @@
 """Visualization tool for rounding direction analysis."""
 
+import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 
 from rich.console import Console
 from rich.text import Text
@@ -13,6 +14,10 @@ from slither.analyses.data_flow.analyses.rounding.analysis.analysis import Round
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
+)
+from slither.analyses.data_flow.analyses.rounding.analysis.summary import (
+    FunctionSummary,
+    RoundingSummaryAnalyzer,
 )
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.engine.analysis import AnalysisState
@@ -98,6 +103,18 @@ def format_tag_inline(tag: RoundingTag) -> Text:
     }
     color = colors.get(tag, "white")
     return Text(tag.name, style=color)
+
+
+def format_tags_set(tags: Set[RoundingTag]) -> Text:
+    """Format a set of rounding tags with colors."""
+    result = Text("{")
+    sorted_tags = sorted(tags, key=lambda t: t.name)
+    for i, tag in enumerate(sorted_tags):
+        if i > 0:
+            result.append(", ")
+        result.append(format_tag_inline(tag))
+    result.append("}")
+    return result
 
 
 def read_source_lines(filename: str, start_line: int, end_line: int) -> Dict[int, str]:
@@ -386,47 +403,178 @@ def display_summary_table(analyses: List[AnnotatedFunction]) -> None:
             console.print(f"  [bold]{func_name}[/bold] [dim](no return)[/dim]")
 
 
+def display_function_summaries(
+    summaries: Dict[str, FunctionSummary],
+    query_tag: Optional[RoundingTag] = None,
+    analyzer: Optional[RoundingSummaryAnalyzer] = None,
+    functions: Optional[Dict[str, FunctionContract]] = None,
+) -> None:
+    """Display interprocedural function summaries with optional traces."""
+    console.print()
+    console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
+    if query_tag:
+        console.print(f"[bold]INTERPROCEDURAL ANALYSIS: canRound(*, {query_tag.name})[/bold]")
+    else:
+        console.print("[bold]INTERPROCEDURAL ANALYSIS: Function Summaries[/bold]")
+    console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
+    console.print()
+
+    for func_name, summary in sorted(summaries.items()):
+        line = Text()
+        line.append(f"  {func_name}", style="bold")
+        line.append(": ")
+        line.append(format_tags_set(summary.possible_tags))
+
+        if not summary.is_complete:
+            line.append(f" [incomplete: {summary.incomplete_reason}]", style="dim yellow")
+
+        if query_tag:
+            can_round = query_tag in summary.possible_tags
+            if can_round:
+                line.append("  ")
+                line.append("✓", style="bold green")
+            else:
+                line.append("  ")
+                line.append("✗", style="bold red")
+
+        console.print(line)
+
+        # Show trace for matching functions when query tag is provided
+        if query_tag and can_round and analyzer and functions:
+            func = functions.get(func_name)
+            if func:
+                trace_lines = analyzer.get_trace(func, query_tag, indent=2)
+                for trace_line in trace_lines:
+                    console.print(f"[dim]{trace_line}[/dim]")
+
+    console.print()
+
+
 def main():
     """Main entry point."""
-    if len(sys.argv) < 2:
-        console.print("[red]Usage:[/red] python test_rounding.py <contract_file> [function_name]")
+    parser = argparse.ArgumentParser(
+        description="Rounding direction analysis visualization tool"
+    )
+    parser.add_argument("project_path", help="Path to Solidity file or project directory")
+    parser.add_argument(
+        "-c", "--contract",
+        help="Filter to contracts in this file (e.g., MockLinearMath.sol)"
+    )
+    parser.add_argument(
+        "-f", "--function",
+        help="Filter to this specific function name"
+    )
+    parser.add_argument(
+        "-i", "--interprocedural",
+        action="store_true",
+        help="Enable interprocedural analysis"
+    )
+    parser.add_argument(
+        "--query-tag",
+        choices=["UP", "DOWN", "NEUTRAL", "UNKNOWN"],
+        help="Query if functions can produce this tag"
+    )
+    parser.add_argument(
+        "--show-summaries",
+        action="store_true",
+        help="Display function summaries (implies -i)"
+    )
+    args = parser.parse_args()
+
+    project_path = Path(args.project_path)
+    if not project_path.exists():
+        console.print(f"[red]Error:[/red] Path not found: {project_path}")
         sys.exit(1)
 
-    contract_path = Path(sys.argv[1])
-    if not contract_path.exists():
-        console.print(f"[red]Error:[/red] File not found: {contract_path}")
-        sys.exit(1)
+    # Enable interprocedural if showing summaries or querying tags
+    use_interprocedural = args.interprocedural or args.show_summaries or args.query_tag
 
-    function_analyses: List[AnnotatedFunction] = []
-    slither = Slither(str(contract_path))
+    slither = Slither(str(project_path))
+
+    # Collect functions to analyze
+    functions_to_analyze: List[FunctionContract] = []
     for contract in slither.contracts:
+        # Filter by contract file if specified
+        if args.contract:
+            contract_file = (
+                contract.source_mapping.filename.short if contract.source_mapping else ""
+            )
+            # Match if filter appears in path
+            if args.contract not in contract_file:
+                continue
+
         for function in contract.functions:
+            # Filter by function name if specified
+            if args.function and function.name != args.function:
+                continue
+
             if isinstance(function, FunctionContract) and function.is_implemented:
+                functions_to_analyze.append(function)
+
+    if not functions_to_analyze:
+        console.print("[yellow]No functions found to analyze[/yellow]")
+        return
+
+    # Run interprocedural analysis if requested
+    if use_interprocedural:
+        summary_analyzer = RoundingSummaryAnalyzer()
+        summaries: Dict[str, FunctionSummary] = {}
+        functions_by_label: Dict[str, FunctionContract] = {}
+
+        for function in functions_to_analyze:
+            contract_name = function.contract.name if function.contract else "Unknown"
+            func_label = f"{contract_name}.{function.name}"
+            try:
+                summary = summary_analyzer.get_summary(function)
+                summaries[func_label] = summary
+                functions_by_label[func_label] = function
+            except Exception as e:
+                console.print(f"[red]Error analyzing {func_label}:[/red] {e}")
+
+        # Parse query tag if provided
+        query_tag: Optional[RoundingTag] = None
+        if args.query_tag:
+            query_tag = RoundingTag[args.query_tag]
+
+        # Display summaries
+        if args.show_summaries or args.query_tag:
+            display_function_summaries(
+                summaries, query_tag, summary_analyzer, functions_by_label
+            )
+
+        # If not showing summaries, fall through to regular analysis
+        if not args.show_summaries and not args.query_tag:
+            # Regular analysis mode with interprocedural
+            function_analyses: List[AnnotatedFunction] = []
+            for function in functions_to_analyze:
                 try:
                     function_analyses.append(analyze_function_annotated(function))
                 except Exception as e:
                     console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
 
-    if not function_analyses:
-        console.print("[yellow]No functions found to analyze[/yellow]")
-        return
+            for func_analysis in function_analyses:
+                display_annotated_source(func_analysis)
 
-    if len(sys.argv) >= 3:
-        requested_function_name = sys.argv[2]
-        function_analyses = [
-            analysis
-            for analysis in function_analyses
-            if analysis.function_name == requested_function_name
-        ]
+            if len(function_analyses) > 1:
+                display_summary_table(function_analyses)
+    else:
+        # Regular intraprocedural analysis
+        function_analyses: List[AnnotatedFunction] = []
+        for function in functions_to_analyze:
+            try:
+                function_analyses.append(analyze_function_annotated(function))
+            except Exception as e:
+                console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
+
         if not function_analyses:
-            console.print(f"[yellow]Function '{requested_function_name}' not found[/yellow]")
+            console.print("[yellow]No functions found to analyze[/yellow]")
             return
 
-    for func_analysis in function_analyses:
-        display_annotated_source(func_analysis)
+        for func_analysis in function_analyses:
+            display_annotated_source(func_analysis)
 
-    if len(function_analyses) > 1:
-        display_summary_table(function_analyses)
+        if len(function_analyses) > 1:
+            display_summary_table(function_analyses)
 
 
 if __name__ == "__main__":
