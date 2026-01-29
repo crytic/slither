@@ -37,6 +37,9 @@ class PhiHandler(BaseOperationHandler):
         if operation is None or self.solver is None:
             return
 
+        # Try to detect constant branch conditions for path-sensitive phi handling
+        branch_info = self._analyze_branch_condition(node, domain)
+
         lvalue_var = self._get_or_create_lvalue_variable(operation.lvalue, domain)
 
         # Always try to propagate struct member fields, even if base Phi is skipped (for struct types)
@@ -61,7 +64,9 @@ class PhiHandler(BaseOperationHandler):
             )
             return
 
-        or_constraints = self._collect_phi_constraints(lvalue_var, operation.rvalues, domain)
+        or_constraints = self._collect_phi_constraints(
+            lvalue_var, operation.rvalues, domain, node, branch_info
+        )
         if not or_constraints:
             return
 
@@ -156,15 +161,25 @@ class PhiHandler(BaseOperationHandler):
         lvalue_var: "TrackedSMTVariable",
         rvalues: list[object],
         domain: "IntervalDomain",
+        node: "Node" = None,
+        branch_info: Optional[dict] = None,
     ) -> list[SMTTerm]:
         """Collect equality constraints for each rvalue in Phi operation.
 
         Also checks for missing SSA versions that should be included (workaround for SSA bugs).
+
+        If branch_info is provided with a known condition_value, uses path-sensitive
+        phi handling to only include rvalues from reachable branches.
         """
         or_constraints: list[SMTTerm] = []
         lvalue_name = lvalue_var.base.name
         used_rvalue_names: set[str] = set()
         rvalue_names_from_ssa: set[str] = set()
+
+        # Build mapping from rvalue to defining node (for path-sensitive analysis)
+        rvalue_to_father: dict[str, "Node"] = {}
+        if branch_info and node:
+            rvalue_to_father = self._map_rvalues_to_fathers(rvalues, node)
 
         # First, collect rvalue names from the SSA Phi
         for rvalue in rvalues:
@@ -197,6 +212,29 @@ class PhiHandler(BaseOperationHandler):
                 )
                 continue
 
+            # Path-sensitive filtering: skip rvalues from unreachable branches
+            if branch_info and branch_info.get('condition_value') is not None:
+                condition_value = branch_info['condition_value']
+                father = rvalue_to_father.get(rvalue_name)
+                if father is not None:
+                    true_father = branch_info.get('true_branch_father')
+                    false_father = branch_info.get('false_branch_father')
+
+                    # If condition is always True, skip rvalues from false branch
+                    if condition_value is True and father == false_father:
+                        self.logger.debug(
+                            "Excluding '{rvalue_name}' from Phi (unreachable false branch)",
+                            rvalue_name=rvalue_name,
+                        )
+                        continue
+                    # If condition is always False, skip rvalues from true branch
+                    if condition_value is False and father == true_father:
+                        self.logger.debug(
+                            "Excluding '{rvalue_name}' from Phi (unreachable true branch)",
+                            rvalue_name=rvalue_name,
+                        )
+                        continue
+
             rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
             if rvalue_var is None:
                 self.logger.debug(
@@ -227,6 +265,34 @@ class PhiHandler(BaseOperationHandler):
                 )
 
         return or_constraints
+
+    def _map_rvalues_to_fathers(
+        self,
+        rvalues: list[object],
+        phi_node: "Node",
+    ) -> dict[str, "Node"]:
+        """Map each rvalue name to the father node where it was defined.
+
+        This is used for path-sensitive phi handling to determine which branch
+        each rvalue comes from.
+        """
+        result: dict[str, "Node"] = {}
+
+        for father in phi_node.fathers:
+            # Check each IR in the father node to find variable assignments
+            for ir in father.irs_ssa or []:
+                # Look for assignment operations that define variables
+                if hasattr(ir, 'lvalue') and ir.lvalue is not None:
+                    lvalue_name = IntervalSMTUtils.resolve_variable_name(ir.lvalue)
+                    if lvalue_name:
+                        # Check if this matches any rvalue
+                        for rvalue in rvalues:
+                            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+                            if rvalue_name == lvalue_name:
+                                result[rvalue_name] = father
+                                break
+
+        return result
 
     def _is_input_param_version(self, var_name: str, domain: "IntervalDomain" = None) -> bool:
         """Check if this is an input parameter version (function param, ends with _0 or _1).
@@ -467,6 +533,93 @@ class PhiHandler(BaseOperationHandler):
             lvalue_name=lvalue_name,
             rvalue_names=rvalue_names,
         )
+
+    def _analyze_branch_condition(
+        self,
+        node: "Node",
+        domain: "IntervalDomain",
+    ) -> Optional[dict]:
+        """Analyze if the branch leading to this phi has a known constant condition.
+
+        Returns dict with:
+        - 'if_node': The IF node controlling the branch
+        - 'condition_var': The condition variable name
+        - 'condition_value': The constant value (True/False) if known, None otherwise
+        - 'true_branch_father': The father node from the true branch
+        - 'false_branch_father': The father node from the false branch
+
+        Returns None if no constant condition can be determined.
+        """
+        from z3 import sat, unsat
+
+        if self.solver is None or not hasattr(self.solver, 'solver'):
+            return None
+
+        # Find the common IF node ancestor
+        if_node = None
+        true_father = None
+        false_father = None
+
+        for father in node.fathers:
+            for gfather in father.fathers:
+                from slither.core.cfg.node import NodeType
+                if gfather.type == NodeType.IF:
+                    if_node = gfather
+                    # Determine which branch this father came from
+                    if len(gfather.sons) == 2:
+                        if father == gfather.sons[0]:
+                            true_father = father
+                        elif father == gfather.sons[1]:
+                            false_father = father
+                    break
+
+        if if_node is None:
+            return None
+
+        # Find the condition variable from the IF node
+        condition_name = None
+        for ir in if_node.irs_ssa or []:
+            if hasattr(ir, 'value'):
+                condition_name = IntervalSMTUtils.resolve_variable_name(ir.value)
+                break
+
+        if condition_name is None:
+            return None
+
+        # Get the condition variable from domain
+        condition_var = IntervalSMTUtils.get_tracked_variable(domain, condition_name)
+        if condition_var is None:
+            return None
+
+        # Check if condition has a known constant value using the solver
+        # Try checking if condition can only be true
+        z3_solver = self.solver.solver
+        z3_solver.push()
+        z3_solver.add(condition_var.term == 0)  # Add constraint: condition is false
+        result_false = z3_solver.check()
+        z3_solver.pop()
+
+        z3_solver.push()
+        z3_solver.add(condition_var.term != 0)  # Add constraint: condition is true
+        result_true = z3_solver.check()
+        z3_solver.pop()
+
+        condition_value = None
+        if result_false == unsat and result_true == sat:
+            # Condition can only be true
+            condition_value = True
+        elif result_true == unsat and result_false == sat:
+            # Condition can only be false
+            condition_value = False
+        # If both are sat or both unsat, condition value is unknown
+
+        return {
+            'if_node': if_node,
+            'condition_var': condition_name,
+            'condition_value': condition_value,
+            'true_branch_father': true_father,
+            'false_branch_father': false_father,
+        }
 
     def _propagate_struct_members(
         self,

@@ -1061,6 +1061,72 @@
     }),
   })
 # ---
+# name: TestIntervalAnalysis.test_contract_analysis[Member.sol]
+  dict({
+    'SimpleMember': dict({
+      'getBalance': dict({
+        'variables': dict({
+          'SimpleMember.user|user_6.balance': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'SimpleMember.user|user_6.id': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'getId': dict({
+        'variables': dict({
+          'SimpleMember.user|user_4.balance': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'SimpleMember.user|user_4.id': dict({
+            'overflow': 'NO',
+            'range': '[1, 1]',
+          }),
+          'SimpleMember.user|user_5.balance': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'SimpleMember.user|user_5.id': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'setUser': dict({
+        'variables': dict({
+          'SimpleMember.setUser(uint256,uint256)._balance|_balance_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 99]',
+          }),
+          'SimpleMember.setUser(uint256,uint256)._id|_id_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 9]',
+          }),
+          'SimpleMember.user|user_1.balance': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'SimpleMember.user|user_1.id': dict({
+            'overflow': 'NO',
+            'range': '[0, 9]',
+          }),
+          'SimpleMember.user|user_2.balance': dict({
+            'overflow': 'NO',
+            'range': '[0, 99]',
+          }),
+          'SimpleMember.user|user_2.id': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
 # name: TestIntervalAnalysis.test_contract_analysis[Require.sol]
   dict({
     'RequireTests': dict({
@@ -1331,6 +1397,152 @@
           'UnaryTests.logicalNotVariable(bool).value|value_1': dict({
             'overflow': 'NO',
             'range': '[0, 1]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
+# name: TestIntervalAnalysis.test_contract_analysis[UnpackTest.sol]
+  dict({
+    'UnpackTest': dict({
+      'unpackFirst': dict({
+        'variables': dict({
+          'TMP_1': dict({
+            'overflow': 'NO',
+            'range': '[20, 20]',
+          }),
+          'UnpackTest.unpackFirst().a': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.unpackFirst().a|a_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.unpackFirst().a|a_1': dict({
+            'overflow': 'NO',
+            'range': '[10, 10]',
+          }),
+        }),
+      }),
+      'unpackMixed': dict({
+        'variables': dict({
+        }),
+      }),
+      'unpackMultiple': dict({
+        'variables': dict({
+        }),
+      }),
+      'unpackSecond': dict({
+        'variables': dict({
+          'TMP_2': dict({
+            'overflow': 'NO',
+            'range': '[60, 60]',
+          }),
+          'UnpackTest.unpackSecond().b': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.unpackSecond().b|b_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.unpackSecond().b|b_1': dict({
+            'overflow': 'NO',
+            'range': '[20, 20]',
+          }),
+        }),
+      }),
+      'useMixedUnpack': dict({
+        'variables': dict({
+          'UnpackTest.useMixedUnpack().flag': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().flag|flag_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().flag|flag_1': dict({
+            'overflow': 'NO',
+            'range': '[1, 1]',
+          }),
+          'UnpackTest.useMixedUnpack().result': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().result|result_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().result|result_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().result|result_2': dict({
+            'overflow': 'NO',
+            'range': '[300, 300]',
+          }),
+          'UnpackTest.useMixedUnpack().result|result_3': dict({
+            'overflow': 'NO',
+            'range': '[300, 300]',
+          }),
+          'UnpackTest.useMixedUnpack().x': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().x|x_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().x|x_1': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'UnpackTest.useMixedUnpack().y': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().y|y_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useMixedUnpack().y|y_1': dict({
+            'overflow': 'NO',
+            'range': '[200, 200]',
+          }),
+        }),
+      }),
+      'useUnpacked': dict({
+        'variables': dict({
+          'TMP_0': dict({
+            'overflow': 'NO',
+            'range': '[30, 30]',
+          }),
+          'UnpackTest.useUnpacked().a': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useUnpacked().a|a_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useUnpacked().a|a_1': dict({
+            'overflow': 'NO',
+            'range': '[10, 10]',
+          }),
+          'UnpackTest.useUnpacked().b': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useUnpacked().b|b_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'UnpackTest.useUnpacked().b|b_1': dict({
+            'overflow': 'NO',
+            'range': '[20, 20]',
           }),
         }),
       }),
