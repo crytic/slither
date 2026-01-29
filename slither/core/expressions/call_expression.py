@@ -1,4 +1,4 @@
-from typing import Any, Optional, List
+from typing import Any
 
 from slither.core.expressions.expression import Expression
 
@@ -7,9 +7,9 @@ class CallExpression(Expression):
     def __init__(
         self,
         called: Expression,
-        arguments: List[Any],
+        arguments: list[Any],
         type_call: str,
-        names: Optional[List[str]] = None,
+        names: list[str] | None = None,
     ) -> None:
         """
         #### Parameters
@@ -27,18 +27,18 @@ class CallExpression(Expression):
         assert (names is None) or isinstance(names, list)
         super().__init__()
         self._called: Expression = called
-        self._arguments: List[Expression] = arguments
+        self._arguments: list[Expression] = arguments
         self._type_call: str = type_call
-        self._names: Optional[List[str]] = names
+        self._names: list[str] | None = names
         # gas and value are only available if the syntax is {gas: , value: }
         # For the .gas().value(), the member are considered as function call
         # And converted later to the correct info (convert.py)
-        self._gas: Optional[Expression] = None
-        self._value: Optional[Expression] = None
-        self._salt: Optional[Expression] = None
+        self._gas: Expression | None = None
+        self._value: Expression | None = None
+        self._salt: Expression | None = None
 
     @property
-    def names(self) -> Optional[List[str]]:
+    def names(self) -> list[str] | None:
         """
         For calls with named fields, list fields in call order.
         For calls without named fields, None.
@@ -46,27 +46,27 @@ class CallExpression(Expression):
         return self._names
 
     @property
-    def call_value(self) -> Optional[Expression]:
+    def call_value(self) -> Expression | None:
         return self._value
 
     @call_value.setter
-    def call_value(self, v: Optional[Expression]) -> None:
+    def call_value(self, v: Expression | None) -> None:
         self._value = v
 
     @property
-    def call_gas(self) -> Optional[Expression]:
+    def call_gas(self) -> Expression | None:
         return self._gas
 
     @call_gas.setter
-    def call_gas(self, gas: Optional[Expression]) -> None:
+    def call_gas(self, gas: Expression | None) -> None:
         self._gas = gas
 
     @property
-    def call_salt(self) -> Optional[Expression]:
+    def call_salt(self) -> Expression | None:
         return self._salt
 
     @call_salt.setter
-    def call_salt(self, salt: Optional[Expression]) -> None:
+    def call_salt(self, salt: Expression | None) -> None:
         self._salt = salt
 
     @property
@@ -74,7 +74,7 @@ class CallExpression(Expression):
         return self._called
 
     @property
-    def arguments(self) -> List[Expression]:
+    def arguments(self) -> list[Expression]:
         return self._arguments
 
     @property
@@ -91,7 +91,9 @@ class CallExpression(Expression):
                 options = [gas, value, salt]
                 txt += "{" + ",".join([o for o in options if o != ""]) + "}"
         args = (
-            "{" + ",".join([f"{n}:{a!s}" for (a, n) in zip(self._arguments, self._names)]) + "}"
+            "{"
+            + ",".join([f"{n}:{a!s}" for (a, n) in zip(self._arguments, self._names, strict=False)])
+            + "}"
             if self._names is not None
             else ",".join([str(a) for a in self._arguments])
         )

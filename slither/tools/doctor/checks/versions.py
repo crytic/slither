@@ -1,6 +1,6 @@
 from importlib import metadata
 import json
-from typing import Optional, Any
+from typing import Any
 import urllib
 
 from packaging.version import parse, Version
@@ -8,14 +8,14 @@ from packaging.version import parse, Version
 from slither.utils.colors import yellow, green
 
 
-def get_installed_version(name: str) -> Optional[Version]:
+def get_installed_version(name: str) -> Version | None:
     try:
         return parse(metadata.version(name))
     except metadata.PackageNotFoundError:
         return None
 
 
-def get_github_version(name: str) -> Optional[Version]:
+def get_github_version(name: str) -> Version | None:
     try:
         # type: ignore
         with urllib.request.urlopen(

@@ -11,9 +11,9 @@ import pstats
 import sys
 import traceback
 from importlib import metadata
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import Any
+from collections.abc import Sequence
 
-import importlib_metadata
 from crytic_compile import cryticparser, CryticCompile, compile_all, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile.platform.standard import generate_standard_export
@@ -24,7 +24,6 @@ from slither.exceptions import SlitherException
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils import codex
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     DEFAULT_JSON_OUTPUT_TYPES,
@@ -47,6 +46,7 @@ from slither.utils.output import (
     output_to_json,
     output_to_sarif,
     output_to_zip,
+    set_exclude_location,
 )
 from slither.utils.output_capture import StandardOutputCapture
 
@@ -63,11 +63,11 @@ logger = logging.getLogger("Slither")
 
 
 def process_single(
-    target: Union[str, CryticCompile],
+    target: str | CryticCompile,
     args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+) -> tuple[Slither, list[dict], list[Output], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -84,15 +84,19 @@ def process_single(
     if args.sarif_triage:
         slither.sarif_triage = args.sarif_triage
 
-    return _process(slither, detector_classes, printer_classes)
+    # Enable unused ignore tracking if requested
+    if args.warn_unused_ignores:
+        slither.warn_unused_ignores = True
+
+    return _process(slither, detector_classes, printer_classes, args.warn_unused_ignores)
 
 
 def process_all(
     target: str,
     args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[List[Slither], List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+) -> tuple[list[Slither], list[dict], list[Output], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -119,9 +123,10 @@ def process_all(
 
 def _process(
     slither: Slither,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Output], int]:
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
+    warn_unused_ignores: bool = False,
+) -> tuple[Slither, list[dict], list[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -138,6 +143,33 @@ def _process(
         detector_resultss = [x for x in detector_resultss if x]  # remove empty results
         detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
+
+        # Report unused ignore comments if enabled
+        if warn_unused_ignores:
+            unused_ignores = slither.get_unused_ignore_comments()
+            for unused in unused_ignores:
+                comment_type = unused["comment_type"]
+                if comment_type == "next-line":
+                    directive = "slither-disable-next-line"
+                else:
+                    directive = f"slither-disable-{comment_type}"
+                unused_dets = ",".join(unused["unused_detectors"])
+                logger.warning(
+                    f"Unused {directive} directive for {unused_dets} at "
+                    f"{unused['file']}#{unused['line']}"
+                )
+            # Add unused ignores to JSON output for structured output support
+            if unused_ignores:
+                results_detectors.append(
+                    {
+                        "check": "unused-ignore-directive",
+                        "impact": "Informational",
+                        "confidence": "High",
+                        "description": f"Found {len(unused_ignores)} unused slither-disable directive(s)",
+                        "elements": [],
+                        "unused_ignores": unused_ignores,
+                    }
+                )
 
     else:
         printer_results = slither.run_printers()
@@ -156,8 +188,8 @@ def _process(
 ###################################################################################
 
 
-def get_detectors_and_printers() -> Tuple[
-    List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
+def get_detectors_and_printers() -> tuple[
+    list[type[AbstractDetector]], list[type[AbstractPrinter]]
 ]:
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
@@ -166,7 +198,7 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    entry_points = importlib_metadata.entry_points(group="slither_analyzer.plugin")
+    entry_points = metadata.entry_points(group="slither_analyzer.plugin")
 
     for entry_point in entry_points:
         make_plugin = entry_point.load()
@@ -190,8 +222,8 @@ def get_detectors_and_printers() -> Tuple[
 
 
 def choose_detectors(
-    args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
-) -> List[Type[AbstractDetector]]:
+    args: argparse.Namespace, all_detector_classes: list[type[AbstractDetector]]
+) -> list[type[AbstractDetector]]:
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
@@ -232,10 +264,10 @@ def choose_detectors(
 
 
 def __include_detectors(
-    detectors_to_run: Set[Type[AbstractDetector]],
+    detectors_to_run: set[type[AbstractDetector]],
     detectors_to_include: str,
-    detectors: Dict[str, Type[AbstractDetector]],
-) -> List[Type[AbstractDetector]]:
+    detectors: dict[str, type[AbstractDetector]],
+) -> list[type[AbstractDetector]]:
     include_detectors = detectors_to_include.split(",")
 
     for detector in include_detectors:
@@ -248,8 +280,8 @@ def __include_detectors(
 
 
 def choose_printers(
-    args: argparse.Namespace, all_printer_classes: List[Type[AbstractPrinter]]
-) -> List[Type[AbstractPrinter]]:
+    args: argparse.Namespace, all_printer_classes: list[type[AbstractPrinter]]
+) -> list[type[AbstractPrinter]]:
     printers_to_run = []
 
     # disable default printer
@@ -276,7 +308,7 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
+def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> list[str]:
     paths = args.filter_paths if filter_path else args.include_paths
     if paths:
         return paths.split(",")
@@ -284,7 +316,8 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
 
 
 def parse_args(
-    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
+    detector_classes: list[type[AbstractDetector]],
+    printer_classes: list[type[AbstractPrinter]],
 ) -> argparse.Namespace:
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
@@ -410,6 +443,13 @@ def parse_args(
     )
 
     group_detector.add_argument(
+        "--exclude-location",
+        help="Exclude file location (filename and lines) from detector messages",
+        action="store_true",
+        default=defaults_flag_in_config["exclude_location"],
+    )
+
+    group_detector.add_argument(
         "--include-detectors",
         help="Comma-separated list of detectors that should be included",
         action="store",
@@ -461,6 +501,13 @@ def parse_args(
         help="Show all the findings",
         action="store_true",
         default=defaults_flag_in_config["show_ignored_findings"],
+    )
+
+    group_detector.add_argument(
+        "--warn-unused-ignores",
+        help="Warn about slither-disable comments that do not suppress any findings",
+        action="store_true",
+        default=defaults_flag_in_config["warn_unused_ignores"],
     )
 
     group_checklist.add_argument(
@@ -650,6 +697,13 @@ def parse_args(
         default=False,
     )
 
+    parser.add_argument(
+        "--timing",
+        help="Print phase-level timing breakdown",
+        action="store_true",
+        default=False,
+    )
+
     # Disable the throw/catch on partial analyses
     parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
@@ -701,7 +755,7 @@ class OutputMarkdown(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> None:
         detectors, printers = get_detectors_and_printers()
@@ -715,7 +769,7 @@ class OutputWiki(argparse.Action):
         self,
         parser: Any,
         args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
+        values: str | Sequence[Any] | None,
         option_string: Any = None,
     ) -> None:
         detectors, _ = get_detectors_and_printers()
@@ -762,8 +816,8 @@ def main() -> None:
 
 
 def main_impl(
-    all_detector_classes: List[Type[AbstractDetector]],
-    all_printer_classes: List[Type[AbstractPrinter]],
+    all_detector_classes: list[type[AbstractDetector]],
+    all_printer_classes: list[type[AbstractPrinter]],
 ) -> None:
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
@@ -773,16 +827,27 @@ def main_impl(
     logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
 
-    cp: Optional[cProfile.Profile] = None
+    cp: cProfile.Profile | None = None
     if args.perf:
         cp = cProfile.Profile()
         cp.enable()
 
+    # Enable phase timing if requested
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        timer = PhaseTimer.get()
+        timer.reset()  # Clear accumulated data from previous runs
+        timer.enabled = True
+
     # Set colorization option
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
+    # Set whether to exclude location info from detector messages
+    set_exclude_location(args.exclude_location)
+
     # Define some variables for potential JSON output
-    json_results: Dict[str, Any] = {}
+    json_results: dict[str, Any] = {}
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == "-"
@@ -820,7 +885,12 @@ def main_impl(
         logger_level = logging.getLogger(l_name)
         logger_level.setLevel(l_level)
 
-    console_handler = logging.StreamHandler()
+    # Output to stdout for better Unix CLI compatibility, but use stderr when
+    # JSON/SARIF is being output to stdout to avoid mixing logs with structured output
+    if outputting_json_stdout or outputting_sarif_stdout:
+        console_handler = logging.StreamHandler(sys.stderr)
+    else:
+        console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
 
     console_handler.setFormatter(FormatterCryticCompile())
@@ -830,8 +900,8 @@ def main_impl(
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
-    results_detectors: List[Dict] = []
-    results_printers: List[Output] = []
+    results_detectors: list[dict] = []
+    results_printers: list[Output] = []
     try:
         filename = args.filename
 
@@ -895,6 +965,12 @@ def main_impl(
                 _, printers = get_detectors_and_printers()
                 json_results["list-printers"] = output_printers_json(printers)
 
+            # Add timing data to JSON if requested
+            if "timing" in args.json_types and args.timing:
+                from slither.utils.timing import PhaseTimer
+
+                json_results["timing"] = PhaseTimer.get().report()
+
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
             output_results_to_markdown(
@@ -935,7 +1011,9 @@ def main_impl(
     if outputting_sarif:
         StandardOutputCapture.disable()
         output_to_sarif(
-            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
+            None if outputting_sarif_stdout else args.sarif,
+            json_results,
+            detector_classes,
         )
 
     if outputting_zip:
@@ -945,6 +1023,13 @@ def main_impl(
         cp.disable()
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
+
+    if args.timing:
+        from slither.utils.timing import PhaseTimer
+
+        # Skip text output when JSON goes to stdout to avoid corruption
+        if not outputting_json_stdout:
+            print("\n" + PhaseTimer.get().report_text())
 
     fail_on = FailOnLevel(args.fail_on)
     if fail_on == FailOnLevel.HIGH:

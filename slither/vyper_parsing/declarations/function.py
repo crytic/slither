@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, Node
 from slither.core.cfg.scope import Scope
@@ -62,10 +62,10 @@ class FunctionVyper:
         self._function.id = function_data.node_id
         self._functionNotParsed = function_data
         self._decoratorNotParsed = None
-        self._local_variables_parser: List[LocalVariableVyper] = []
+        self._local_variables_parser: list[LocalVariableVyper] = []
         self._variables_renamed = []
         self._contract_parser = contract_parser
-        self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
+        self._node_to_NodeVyper: dict[Node, NodeVyper] = {}
 
         for decorator in function_data.decorators:
             if isinstance(decorator, Call):
@@ -115,7 +115,7 @@ class FunctionVyper:
     @property
     def variables_renamed(
         self,
-    ) -> Dict[int, LocalVariableVyper]:
+    ) -> dict[int, LocalVariableVyper]:
         return self._variables_renamed
 
     def _add_local_variable(self, local_var_parser: LocalVariableVyper) -> None:
@@ -146,7 +146,7 @@ class FunctionVyper:
     ###################################################################################
 
     @property
-    def function_not_parsed(self) -> Dict:
+    def function_not_parsed(self) -> dict:
         return self._functionNotParsed
 
     def _analyze_function_type(self) -> None:
@@ -230,7 +230,7 @@ class FunctionVyper:
     ###################################################################################
 
     def _new_node(
-        self, node_type: NodeType, src: Union[str, Source], scope: Union[Scope, "Function"]
+        self, node_type: NodeType, src: str | Source, scope: Union[Scope, "Function"]
     ) -> NodeVyper:
         node = self._function.new_node(node_type, src, scope)
         node_parser = NodeVyper(node)
@@ -250,7 +250,7 @@ class FunctionVyper:
         for son in node.sons:
             self._update_reachability(son)
 
-    def _parse_cfg(self, cfg: List[ASTNode]) -> None:
+    def _parse_cfg(self, cfg: list[ASTNode]) -> None:
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
         self._function.entry_point = entry_node.underlying_node
         scope = Scope(True, False, self.underlying_function)
@@ -545,7 +545,7 @@ class FunctionVyper:
             local_var = self._add_param(param)
             self._function.add_parameters(local_var.underlying_variable)
 
-    def _parse_returns(self, returns: Union[Name, TupleVyper, Subscript]):
+    def _parse_returns(self, returns: Name | TupleVyper | Subscript):
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
         # Only the type of the arg is given, not a name. We create an `Arg` with an empty name
         # so that the function has the correct return type in its signature but doesn't clash with

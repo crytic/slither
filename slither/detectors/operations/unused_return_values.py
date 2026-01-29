@@ -2,8 +2,6 @@
 Module detecting unused return values from external calls
 """
 
-from typing import List
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
@@ -63,7 +61,7 @@ contract MyConc{
             )
         ) or (ir.node.type == NodeType.TRY and isinstance(ir, (Assignment, Unpack)))
 
-    def detect_unused_return_values(self, f: FunctionContract) -> List[Node]:
+    def detect_unused_return_values(self, f: FunctionContract) -> list[Node]:
         """
             Return the nodes where the return value of a call is unused
         Args:
@@ -93,9 +91,16 @@ contract MyConc{
                         if remove[1] is not None and (remove[0], None) in values_returned:
                             values_returned.remove((remove[0], None))
                         values_returned.remove(remove)
+                        # When a tuple is used as a whole (e.g., return A()), remove all
+                        # individual tuple element entries to avoid false positives
+                        if remove[1] is None and isinstance(read, TupleVariable) and read.type:
+                            for index in range(len(read.type)):
+                                tuple_elem = (read, index)
+                                if tuple_elem in values_returned:
+                                    values_returned.remove(tuple_elem)
         return [nodes_origin[value].node for (value, _) in values_returned]
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect high level calls which return a value that are never used"""
         results = []
         for c in self.compilation_unit.contracts_derived:

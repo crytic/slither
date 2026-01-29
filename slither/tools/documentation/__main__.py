@@ -1,7 +1,6 @@
 import argparse
 import logging
 import uuid
-from typing import Optional, Dict, List
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -61,7 +60,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _use_tab(char: str) -> Optional[bool]:
+def _use_tab(char: str) -> bool | None:
     """
     Check if the char is a tab
 
@@ -79,8 +78,8 @@ def _use_tab(char: str) -> Optional[bool]:
 
 
 def _post_processesing(
-    answer: str, starting_column: int, use_tab: Optional[bool], force_and_stopped: bool
-) -> Optional[str]:
+    answer: str, starting_column: int, use_tab: bool | None, force_and_stopped: bool
+) -> str | None:
     """
     Clean answers from codex
 
@@ -122,8 +121,8 @@ def _post_processesing(
 
 
 def _handle_codex(
-    answer: Dict, starting_column: int, use_tab: Optional[bool], force: bool
-) -> Optional[str]:
+    answer: dict, starting_column: int, use_tab: bool | None, force: bool
+) -> str | None:
     if "choices" in answer:
         if answer["choices"]:
             if "text" in answer["choices"][0]:
@@ -140,8 +139,8 @@ def _handle_codex(
 def _handle_function(
     function: Function,
     overwrite: bool,
-    all_patches: Dict,
-    logging_file: Optional[str],
+    all_patches: dict,
+    logging_file: str | None,
     slither: Slither,
     retry: int,
     force: bool,
@@ -176,7 +175,7 @@ def _handle_function(
         codex.log_codex(logging_file, "Q: " + prompt)
 
     tentative = 0
-    answer_processed: Optional[str] = None
+    answer_processed: str | None = None
     while tentative < retry:
         tentative += 1
 
@@ -217,7 +216,7 @@ def _handle_compilation_unit(
     retry: int,
     include_test: bool,
 ) -> None:
-    logging_file: Optional[str]
+    logging_file: str | None
     if slither.codex_log:
         logging_file = str(uuid.uuid4())
     else:
@@ -232,14 +231,14 @@ def _handle_compilation_unit(
         ):
             continue
 
-        functions_target: List[Function] = []
+        functions_target: list[Function] = []
 
         for contract in scope.contracts.values():
             functions_target += contract.functions_declared
 
         functions_target += list(scope.functions)
 
-        all_patches: Dict = {}
+        all_patches: dict = {}
 
         for function in functions_target:
             overwrite = _handle_function(

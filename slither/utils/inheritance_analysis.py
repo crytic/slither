@@ -3,7 +3,7 @@ Detects various properties of inheritance in provided contracts.
 """
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, Function
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def detect_c3_function_shadowing(
     contract: "Contract",
-) -> Dict["Function", Set["Function"]]:
+) -> dict["Function", set["Function"]]:
     """
     Detects and obtains functions which are indirectly shadowed via multiple inheritance by C3 linearization
     properties, despite not directly inheriting from each other.
@@ -21,13 +21,13 @@ def detect_c3_function_shadowing(
     :return: A dict (function winner -> [shadowed functions])
     """
 
-    targets: Dict[str, "Function"] = {
+    targets: dict[str, Function] = {
         f.full_name: f
         for f in contract.functions_inherited
         if f.shadows and not f.is_constructor and not f.is_constructor_variables
     }
 
-    collisions: Dict["Function", Set["Function"]] = defaultdict(set)
+    collisions: dict[Function, set[Function]] = defaultdict(set)
 
     for contract_inherited in contract.immediate_inheritance:
         for candidate in contract_inherited.functions:
@@ -39,8 +39,8 @@ def detect_c3_function_shadowing(
 
 
 def detect_state_variable_shadowing(
-    contracts: List["Contract"],
-) -> Set[Tuple["Contract", "StateVariable", "Contract", "StateVariable"]]:
+    contracts: list["Contract"],
+) -> set[tuple["Contract", "StateVariable", "Contract", "StateVariable"]]:
     """
     Detects all overshadowing and overshadowed state variables in the provided contracts.
     :param contracts: The contracts to detect shadowing within.
@@ -50,9 +50,9 @@ def detect_state_variable_shadowing(
     inherited. The contracts are simply included to denote the immediate inheritance path from which the shadowed
     variable originates.
     """
-    results: Set[Tuple["Contract", "StateVariable", "Contract", "StateVariable"]] = set()
+    results: set[tuple[Contract, StateVariable, Contract, StateVariable]] = set()
     for contract in contracts:
-        variables_declared: Dict[str, "StateVariable"] = {
+        variables_declared: dict[str, StateVariable] = {
             variable.name: variable for variable in contract.state_variables_declared
         }
         for immediate_base_contract in contract.immediate_inheritance:

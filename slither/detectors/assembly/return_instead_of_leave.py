@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.declarations import SolidityFunction, Function
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -38,8 +36,8 @@ The function will halt the execution, instead of returning a two uint."""
 
     WIKI_RECOMMENDATION = "Use the `leave` statement."
 
-    def _check_function(self, f: Function) -> List[Output]:
-        results: List[Output] = []
+    def _check_function(self, f: Function) -> list[Output]:
+        results: list[Output] = []
 
         for ir in f.solidity_calls:
             if ir.function == SolidityFunction("return(uint256,uint256)"):
@@ -49,8 +47,8 @@ The function will halt the execution, instead of returning a two uint."""
                 results.append(json)
         return results
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
         for c in self.contracts:
             for f in c.functions_declared:
                 if (

@@ -2,7 +2,6 @@
 Module detecting ABIEncoderV2 array bug
 """
 
-from typing import List, Set, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -63,7 +62,7 @@ contract A {
     @staticmethod
     def _detect_storage_abiencoderv2_arrays(
         contract: Contract,
-    ) -> Set[Tuple[FunctionContract, Node]]:
+    ) -> set[tuple[FunctionContract, Node]]:
         """
         Detects and returns all nodes with storage-allocated abiencoderv2 arrays of arrays/structs in abi.encode, events or external calls
         :param contract: Contract to detect within
@@ -108,7 +107,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect ABIEncoderV2 array bug
         """

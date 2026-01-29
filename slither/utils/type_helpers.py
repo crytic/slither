@@ -1,4 +1,4 @@
-from typing import Union, Tuple, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from slither.core.declarations import (
@@ -12,6 +12,6 @@ if TYPE_CHECKING:
 ### core.declaration
 
 InternalCallType = Union["Function", "SolidityFunction"]
-HighLevelCallType = Tuple["Contract", Union["Function", "Variable"]]
-LibraryCallType = Tuple["Contract", "Function"]
-LowLevelCallType = Tuple[Union["Variable", "SolidityVariable"], str]
+HighLevelCallType = tuple["Contract", Union["Function", "Variable"]]
+LibraryCallType = tuple["Contract", "Function"]
+LowLevelCallType = tuple[Union["Variable", "SolidityVariable"], str]

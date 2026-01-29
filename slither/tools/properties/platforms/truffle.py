@@ -1,7 +1,6 @@
 import logging
 import re
 from pathlib import Path
-from typing import List
 
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.properties.properties import (
@@ -15,7 +14,7 @@ PATTERN_TRUFFLE_MIGRATION = re.compile("^[0-9]*_")
 logger = logging.getLogger("Slither")
 
 
-def _extract_caller(p: PropertyCaller) -> List[str]:
+def _extract_caller(p: PropertyCaller) -> list[str]:
     if p == PropertyCaller.OWNER:
         return ["owner"]
     if p == PropertyCaller.SENDER:
@@ -71,7 +70,7 @@ async function catchRevertThrow(promise) {
 def generate_unit_test(
     test_contract: str,
     filename: str,
-    unit_tests: List[Property],
+    unit_tests: list[Property],
     output_dir: Path,
     addresses: Addresses,
     assert_message: str = "",

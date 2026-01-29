@@ -2,8 +2,7 @@
 Compute the data depenency between all the SSA variables
 """
 
-from collections import defaultdict
-from typing import Union, Set, Dict, TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -43,14 +42,14 @@ if TYPE_CHECKING:
 ###################################################################################
 
 
-SUPPORTED_TYPES = Union[Variable, SolidityVariable]
+SUPPORTED_TYPES = Variable | SolidityVariable
 
 # TODO refactor the data deps to be better suited for top level function object
 # Right now we allow to pass a node to ease the API, but we need something
 # better
 # The deps propagation for top level elements is also not working as expected
-Context_types_API = Union[Contract, Function, Node]
-Context_types = Union[Contract, Function]
+Context_types_API = Contract | Function | Node
+Context_types = Contract | Function
 
 
 def is_dependent(
@@ -204,7 +203,7 @@ def get_dependencies(
     variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
-) -> Set[Variable]:
+) -> set[Variable]:
     """
     Return the variables for which `variable` depends on.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -227,7 +226,7 @@ def get_dependencies(
 
 def get_all_dependencies(
     context: Context_types_API, only_unprotected: bool = False
-) -> Dict[Variable, Set[Variable]]:
+) -> dict[Variable, set[Variable]]:
     """
     Return the dictionary of dependencies.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -251,7 +250,7 @@ def get_dependencies_ssa(
     variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
-) -> Set[Variable]:
+) -> set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -274,7 +273,7 @@ def get_dependencies_ssa(
 
 def get_all_dependencies_ssa(
     context: Context_types_API, only_unprotected: bool = False
-) -> Dict[Variable, Set[Variable]]:
+) -> dict[Variable, set[Variable]]:
     """
     Return the dictionary of dependencies.
     If Node is provided as context, the context will be the broader context, either the contract or the function,
@@ -387,25 +386,45 @@ def propagate_function(
             contract.context[context_key][key].union(values)
 
 
+def _compute_transitive_closure(deps: dict[object, set[object]]) -> None:
+    """Compute transitive closure using worklist algorithm.
+
+    Uses a reverse dependency index to efficiently propagate dependencies:
+    when node N's dependencies change, only nodes that depend on N need updating.
+
+    Args:
+        deps: Dependency graph as adjacency dict, modified in place.
+    """
+    # Build reverse index: for each node, who depends on it?
+    reverse_deps: dict[object, set[object]] = {}
+    for key, items in deps.items():
+        for item in items:
+            if item not in reverse_deps:
+                reverse_deps[item] = set()
+            reverse_deps[item].add(key)
+
+    worklist = set(deps.keys())
+    while worklist:
+        node = worklist.pop()
+        node_deps = deps.get(node, set())
+        for dependent in reverse_deps.get(node, set()):
+            new_deps = node_deps - deps[dependent] - {dependent}
+            if new_deps:
+                deps[dependent] |= new_deps
+                for new_dep in new_deps:
+                    if new_dep not in reverse_deps:
+                        reverse_deps[new_dep] = set()
+                    reverse_deps[new_dep].add(dependent)
+                worklist.add(dependent)
+
+
 def transitive_close_dependencies(
     context: Context_types, context_key: str, context_key_non_ssa: str
 ) -> None:
-    # transitive closure
-    changed = True
-    keys = context.context[context_key].keys()
-    while changed:
-        changed = False
-        to_add = defaultdict(set)
-        for key, items in context.context[context_key].items():
-            for item in items & keys:
-                to_add[key].update(context.context[context_key][item] - {key} - items)
-        for k, v in to_add.items():
-            # Because we dont have any check on the update operation
-            # We might update an empty set with an empty set
-            if v:
-                changed = True
-                context.context[context_key][k] |= v
-    context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
+    """Compute transitive closure of data dependencies."""
+    deps = context.context[context_key]
+    _compute_transitive_closure(deps)
+    context.context[context_key_non_ssa] = convert_to_non_ssa(deps)
 
 
 def propagate_contract(contract: Contract, context_key: str, context_key_non_ssa: str) -> None:
@@ -417,7 +436,7 @@ def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_prote
         function.context[KEY_SSA][lvalue] = set()
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
-    read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
+    read: list[LVALUE | SolidityVariableComposed] | list[SlithIRVariable]
     if isinstance(ir, Index):
         read = [ir.variable_left]
     elif isinstance(ir, InternalCall) and ir.function:
@@ -489,10 +508,10 @@ def convert_variable_to_non_ssa(v: SUPPORTED_TYPES) -> SUPPORTED_TYPES:
 
 
 def convert_to_non_ssa(
-    data_depencies: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]],
-) -> Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]:
+    data_depencies: dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]],
+) -> dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]]:
     # Need to create new set() as its changed during iteration
-    ret: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]] = {}
+    ret: dict[SUPPORTED_TYPES, set[SUPPORTED_TYPES]] = {}
     for k, values in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if var not in ret:

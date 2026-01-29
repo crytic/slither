@@ -1,5 +1,5 @@
 import itertools
-from typing import Tuple, Optional, Any
+from typing import Any
 
 from slither.core.solidity_types.type import Type
 
@@ -176,7 +176,7 @@ class ElementaryType(Type):
         return self.type
 
     @property
-    def size(self) -> Optional[int]:
+    def size(self) -> int | None:
         """
             Return the size in bits
             Return None if the size is not known
@@ -197,7 +197,7 @@ class ElementaryType(Type):
         raise SlitherException(f"{t} does not have a size")
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         if self._type in ["string", "bytes"]:
             return 32, True
         if self.size is None:
@@ -220,9 +220,10 @@ class ElementaryType(Type):
         return self._type
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ElementaryType):
+        # Use type() and direct _type access for performance (41M calls in typical analysis)
+        if type(other) is not ElementaryType:
             return False
-        return self.type == other.type
+        return self._type == other._type
 
     def __hash__(self) -> int:
         return hash(self._type)

@@ -9,7 +9,7 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union, Tuple, TypeVar
+from typing import TypeVar
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
@@ -45,27 +45,27 @@ class SlitherCore(Context):
     def __init__(self) -> None:
         super().__init__()
 
-        self._filename: Optional[str] = None
-        self._raw_source_code: Dict[str, str] = {}
-        self._source_code_to_line: Optional[Dict[str, List[str]]] = None
+        self._filename: str | None = None
+        self._raw_source_code: dict[str, str] = {}
+        self._source_code_to_line: dict[str, list[str]] | None = None
 
         self._previous_results_filename: str = "slither.db.json"
 
         # TODO: add cli flag to set these variables
         self.sarif_input: str = "export.sarif"
         self.sarif_triage: str = "export.sarif.sarifexplorer"
-        self._results_to_hide: List = []
-        self._previous_results: List = []
+        self._results_to_hide: list = []
+        self._previous_results: list = []
         # From triaged result
-        self._previous_results_ids: Set[str] = set()
+        self._previous_results_ids: set[str] = set()
         # Every slither object has a list of result from detector
         # Because of the multiple compilation support, we might analyze
         # Multiple time the same result, so we remove duplicates
-        self._currently_seen_resuts: Set[str] = set()
-        self._paths_to_filter: Set[str] = set()
-        self._paths_to_include: Set[str] = set()
+        self._currently_seen_resuts: set[str] = set()
+        self._paths_to_filter: set[str] = set()
+        self._paths_to_include: set[str] = set()
 
-        self._crytic_compile: Optional[CryticCompile] = None
+        self._crytic_compile: CryticCompile | None = None
 
         self._generate_patches = False
         self._exclude_dependencies = False
@@ -80,20 +80,29 @@ class SlitherCore(Context):
 
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
-        self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
+        self._ignore_ranges: dict[str, dict[str, list[tuple[int, ...]]]] = defaultdict(
             lambda: defaultdict(lambda: [(-1, -1)])
         )
 
-        self._compilation_units: List[SlitherCompilationUnit] = []
+        # Track all ignore comments for unused ignore detection
+        # Maps from file to list of (line_number, comment_type, detectors)
+        # comment_type is "next-line", "start", or "end"
+        self._all_ignore_comments: dict[str, list[tuple[int, str, list[str]]]] = defaultdict(list)
+        # Set of (file, line_number, detector) tuples that were actually used
+        self._used_ignore_comments: set[tuple[str, int, str]] = set()
+        # Flag to enable warning about unused ignore comments
+        self._warn_unused_ignores: bool = False
 
-        self._contracts: List[Contract] = []
-        self._contracts_derived: List[Contract] = []
+        self._compilation_units: list[SlitherCompilationUnit] = []
 
-        self._offset_to_min_offset: Optional[Dict[Filename, Dict[int, Set[int]]]] = None
-        self._offset_to_objects: Optional[Dict[Filename, Dict[int, Set[SourceMapping]]]] = None
-        self._offset_to_references: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
-        self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
-        self._offset_to_definitions: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._contracts: list[Contract] = []
+        self._contracts_derived: list[Contract] = []
+
+        self._offset_to_min_offset: dict[Filename, dict[int, set[int]]] | None = None
+        self._offset_to_objects: dict[Filename, dict[int, set[SourceMapping]]] | None = None
+        self._offset_to_references: dict[Filename, dict[int, set[Source]]] | None = None
+        self._offset_to_implementations: dict[Filename, dict[int, set[Source]]] | None = None
+        self._offset_to_definitions: dict[Filename, dict[int, set[Source]]] | None = None
 
         # Line prefix is used during the source mapping generation
         # By default we generate file.sol#1
@@ -107,7 +116,7 @@ class SlitherCore(Context):
         self.skip_data_dependency = False
 
     @property
-    def compilation_units(self) -> List[SlitherCompilationUnit]:
+    def compilation_units(self) -> list[SlitherCompilationUnit]:
         return list(self._compilation_units)
 
     def add_compilation_unit(self, compilation_unit: SlitherCompilationUnit):
@@ -121,7 +130,7 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def contracts(self) -> List[Contract]:
+    def contracts(self) -> list[Contract]:
         if not self._contracts:
             all_contracts = [
                 compilation_unit.contracts for compilation_unit in self._compilation_units
@@ -130,7 +139,7 @@ class SlitherCore(Context):
         return self._contracts
 
     @property
-    def contracts_derived(self) -> List[Contract]:
+    def contracts_derived(self) -> list[Contract]:
         if not self._contracts_derived:
             all_contracts = [
                 compilation_unit.contracts_derived for compilation_unit in self._compilation_units
@@ -138,7 +147,7 @@ class SlitherCore(Context):
             self._contracts_derived = [item for sublist in all_contracts for item in sublist]
         return self._contracts_derived
 
-    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
+    def get_contract_from_name(self, contract_name: str | Constant) -> list[Contract]:
         """
             Return a contract from a name
         Args:
@@ -158,12 +167,12 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def source_code(self) -> Dict[str, str]:
+    def source_code(self) -> dict[str, str]:
         """{filename: source_code (str)}: source code"""
         return self._raw_source_code
 
     @property
-    def filename(self) -> Optional[str]:
+    def filename(self) -> str | None:
         """str: Filename."""
         return self._filename
 
@@ -313,8 +322,8 @@ class SlitherCore(Context):
     T = TypeVar("T", Source, SourceMapping)
 
     def _get_offset(
-        self, mapping: Dict[Filename, Dict[int, Set[T]]], filename_str: str, offset: int
-    ) -> Set[T]:
+        self, mapping: dict[Filename, dict[int, set[T]]], filename_str: str, offset: int
+    ) -> set[T]:
         """Get the Source/SourceMapping referenced by the offset.
 
         For performance reasons, references are only stored once at the lowest offset.
@@ -340,25 +349,25 @@ class SlitherCore(Context):
 
         return results
 
-    def offset_to_references(self, filename_str: str, offset: int) -> Set[Source]:
+    def offset_to_references(self, filename_str: str, offset: int) -> set[Source]:
         if self._offset_to_references is None:
             self._compute_offsets_to_ref_impl_decl()
 
         return self._get_offset(self._offset_to_references, filename_str, offset)
 
-    def offset_to_implementations(self, filename_str: str, offset: int) -> Set[Source]:
+    def offset_to_implementations(self, filename_str: str, offset: int) -> set[Source]:
         if self._offset_to_implementations is None:
             self._compute_offsets_to_ref_impl_decl()
 
         return self._get_offset(self._offset_to_implementations, filename_str, offset)
 
-    def offset_to_definitions(self, filename_str: str, offset: int) -> Set[Source]:
+    def offset_to_definitions(self, filename_str: str, offset: int) -> set[Source]:
         if self._offset_to_definitions is None:
             self._compute_offsets_to_ref_impl_decl()
 
         return self._get_offset(self._offset_to_definitions, filename_str, offset)
 
-    def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
+    def offset_to_objects(self, filename_str: str, offset: int) -> set[SourceMapping]:
         if self._offset_to_objects is None:
             self._compute_offsets_to_ref_impl_decl()
 
@@ -381,12 +390,16 @@ class SlitherCore(Context):
 
             start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
             end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            next_line_regex = r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)"
             start_match = re.findall(start_regex, line_text.decode("utf8"))
             end_match = re.findall(end_regex, line_text.decode("utf8"))
+            next_line_match = re.findall(next_line_regex, line_text.decode("utf8"))
 
             if start_match:
-                ignored = start_match[0].split(",")
+                ignored = [d.strip() for d in start_match[0].split(",") if d.strip()]
                 if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "start", ignored))
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
@@ -398,8 +411,10 @@ class SlitherCore(Context):
                             )
 
             if end_match:
-                ignored = end_match[0].split(",")
+                ignored = [d.strip() for d in end_match[0].split(",") if d.strip()]
                 if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "end", ignored))
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
@@ -408,12 +423,19 @@ class SlitherCore(Context):
                             )
                         self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
 
+            if next_line_match:
+                ignored = [d.strip() for d in next_line_match[0].split(",") if d.strip()]
+                if ignored:
+                    # Track this ignore comment for unused detection
+                    self._all_ignore_comments[file].append((line_number, "next-line", ignored))
+
             line_number += 1
 
-    def has_ignore_comment(self, r: Dict) -> bool:
+    def has_ignore_comment(self, r: dict) -> bool:
         """
         Check if the result has an ignore comment in the file or on the preceding line, in which
-        case, it is not valid
+        case, it is not valid.
+        Also tracks which ignore comments were used for unused ignore detection.
         """
         if not self.crytic_compile:
             return False
@@ -435,6 +457,12 @@ class SlitherCore(Context):
             for start, end in ignore_ranges:
                 # The full check must be within the ignore range to be ignored.
                 if start < lines[0] and end > lines[-1]:
+                    # Mark this range as used - find the start line that matches
+                    for comment_line, comment_type, detectors in self._all_ignore_comments[file]:
+                        if comment_type == "start" and comment_line == start:
+                            for det in detectors:
+                                if det == r["check"] or det == "all":
+                                    self._used_ignore_comments.add((file, comment_line, det))
                     return True
 
             # Check for next-line matchers.
@@ -446,13 +474,17 @@ class SlitherCore(Context):
                     ignore_line_text.decode("utf8"),
                 )
                 if match:
-                    ignored = match[0].split(",")
+                    ignored = [d.strip() for d in match[0].split(",") if d.strip()]
                     if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
+                        # Mark this next-line comment as used
+                        for det in ignored:
+                            if det == r["check"] or det == "all":
+                                self._used_ignore_comments.add((file, ignore_line_index, det))
                         return True
 
         return False
 
-    def valid_result(self, r: Dict) -> bool:
+    def valid_result(self, r: dict) -> bool:
         """
         Check if the result is valid
         A result is invalid if:
@@ -556,7 +588,7 @@ class SlitherCore(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results: List[Dict]) -> None:
+    def save_results_to_hide(self, results: list[dict]) -> None:
         self._results_to_hide += results
         self.write_results_to_hide()
 
@@ -573,6 +605,48 @@ class SlitherCore(Context):
         Path are used through direct comparison (no regex)
         """
         self._paths_to_include.add(path)
+
+    @property
+    def warn_unused_ignores(self) -> bool:
+        """Return True if warnings for unused ignore comments are enabled."""
+        return self._warn_unused_ignores
+
+    @warn_unused_ignores.setter
+    def warn_unused_ignores(self, value: bool) -> None:
+        self._warn_unused_ignores = value
+
+    def get_unused_ignore_comments(self) -> list[dict]:
+        """
+        Get a list of slither-disable comments that were not used to suppress any findings.
+
+        Returns:
+            List of dicts with keys: file, line, comment_type, detectors, unused_detectors
+        """
+        unused_comments: list[dict] = []
+
+        for file, comments in self._all_ignore_comments.items():
+            for line_number, comment_type, detectors in comments:
+                # Skip "end" comments as they don't suppress findings directly
+                if comment_type == "end":
+                    continue
+
+                unused_detectors = []
+                for detector in detectors:
+                    if (file, line_number, detector) not in self._used_ignore_comments:
+                        unused_detectors.append(detector)
+
+                if unused_detectors:
+                    unused_comments.append(
+                        {
+                            "file": file,
+                            "line": line_number,
+                            "comment_type": comment_type,
+                            "detectors": detectors,
+                            "unused_detectors": unused_detectors,
+                        }
+                    )
+
+        return unused_comments
 
     # endregion
     ###################################################################################

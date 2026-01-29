@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, FunctionContract
 from slither.slithir.operations import HighLevelCall
@@ -72,7 +70,7 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
     key = "OUTOFORDERRETRYABLE"
 
     def _detect_multiple_tickets(
-        self, function: FunctionContract, node: Node, visited: List[Node]
+        self, function: FunctionContract, node: Node, visited: list[Node]
     ) -> None:
         if node in visited:
             return
@@ -124,7 +122,7 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
         for son in node.sons:
             self._detect_multiple_tickets(function, son, visited)
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         self.results = []

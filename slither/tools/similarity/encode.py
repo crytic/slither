@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional, Tuple, List
 
 from slither import Slither
 from slither.core.declarations import (
@@ -61,7 +60,7 @@ slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)
 
 
-def parse_target(target: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+def parse_target(target: str | None) -> tuple[str | None, str | None]:
     if target is None:
         return None, None
 
@@ -89,9 +88,7 @@ def load_and_encode(infile: str, vmodel, ext=None, nsamples=None, **kwargs):
     return r
 
 
-def load_contracts(
-    dirname: str, ext: Optional[str] = None, nsamples: Optional[int] = None
-) -> List[str]:
+def load_contracts(dirname: str, ext: str | None = None, nsamples: int | None = None) -> list[str]:
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:

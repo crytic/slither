@@ -1,5 +1,3 @@
-from typing import Optional, Dict
-
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
 from slither.core.expressions.assignment_operation import (
@@ -8,6 +6,7 @@ from slither.core.expressions.assignment_operation import (
 )
 from slither.core.expressions.identifier import Identifier
 from slither.vyper_parsing.expressions.expression_parsing import parse_expression
+from slither.visitors.expression.call_classification import classify_calls
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -15,14 +14,14 @@ from slither.visitors.expression.write_var import WriteVar
 
 class NodeVyper:
     def __init__(self, node: Node) -> None:
-        self._unparsed_expression: Optional[Dict] = None
+        self._unparsed_expression: dict | None = None
         self._node = node
 
     @property
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict) -> None:
+    def add_unparsed_expression(self, expression: dict) -> None:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
@@ -57,9 +56,6 @@ class NodeVyper:
 
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
-            self._node.external_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
-            ]
-            self._node.internal_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
-            ]
+            internal, external = classify_calls(self._node.calls_as_expression)
+            self._node.internal_calls_as_expressions = internal
+            self._node.external_calls_as_expressions = external

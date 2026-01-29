@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.variables.variable import Variable
 from slither.core.solidity_types.user_defined_type import UserDefinedType
@@ -14,8 +14,8 @@ if TYPE_CHECKING:  # type: ignore
 class LocalVariable(Variable):
     def __init__(self) -> None:
         super().__init__()
-        self._location: Optional[str] = None
-        self._function: Optional["Function"] = None
+        self._location: str | None = None
+        self._function: Function | None = None
 
     def set_function(self, function: "Function") -> None:
         self._function = function
@@ -29,7 +29,7 @@ class LocalVariable(Variable):
         self._location = loc
 
     @property
-    def location(self) -> Optional[str]:
+    def location(self) -> str | None:
         """
             Variable Location
             Can be storage/memory or default

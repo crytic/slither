@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import sys
-from typing import Type, Optional, List
 
 import pytest
 from crytic_compile import CryticCompile, save_to_zip
@@ -17,10 +16,10 @@ from slither.detectors import all_detectors
 class Test:
     def __init__(
         self,
-        detector: Type[AbstractDetector],
+        detector: type[AbstractDetector],
         test_file: str,
         solc_ver: str,
-        additional_files: Optional[List[str]] = None,
+        additional_files: list[str] | None = None,
     ):
         """
 
@@ -889,6 +888,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ReentrancyBalance,
+        "reentrancy_balance.sol",
+        "0.8.10",
+    ),
+    Test(
         all_detectors.IncorrectStrictEquality,
         "incorrect_equality.sol",
         "0.4.25",
@@ -1358,6 +1362,11 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.DeadCode,
+        "dead-code-library.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.WriteAfterWrite,
         "write-after-write.sol",
         "0.8.0",
@@ -1481,6 +1490,11 @@ ALL_TESTS = [
     Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.MsgValueInNonPayable,
+        "msg_value_in_nonpayable.sol",
         "0.8.0",
     ),
     Test(

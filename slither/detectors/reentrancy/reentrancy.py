@@ -6,31 +6,30 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
 from collections import defaultdict
-from typing import Set, Dict, List, Tuple, Optional
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import Function, Contract
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import Call, EventCall, Operation
+from slither.slithir.operations import Call, EventCall, Operation, HighLevelCall, InternalCall
 from slither.utils.output import Output
 
 
-def union_dict(d1: Dict, d2: Dict) -> Dict:
+def union_dict(d1: dict, d2: dict) -> dict:
     d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
     return defaultdict(set, d3)
 
 
-def dict_are_equal(d1: Dict, d2: Dict) -> bool:
+def dict_are_equal(d1: dict, d2: dict) -> bool:
     if set(d1.keys()) != set(d2.keys()):
         return False
     return all(set(d1[k]) == set(d2[k]) for k in d1)
 
 
 def is_subset(
-    new_info: Dict,
-    old_info: Dict,
+    new_info: dict,
+    old_info: dict,
 ) -> bool:
     for k in new_info:
         if k not in old_info:
@@ -40,7 +39,7 @@ def is_subset(
     return True
 
 
-def to_hashable(d: Dict[Node, Set[Node]]) -> Tuple:
+def to_hashable(d: dict[Node, set[Node]]) -> tuple:
     list_tuple = [(k, tuple(sorted(values, key=lambda x: x.node_id))) for k, values in d.items()]
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
@@ -51,15 +50,17 @@ class AbstractState:
         # calls returns the list of calls that can callback
         # read returns the variable read
         # read_prior_calls returns the variable read prior a call
-        self._send_eth: Dict[Node, Set[Node]] = defaultdict(set)
-        self._calls: Dict[Node, Set[Node]] = defaultdict(set)
-        self._reads: Dict[Variable, Set[Node]] = defaultdict(set)
-        self._reads_prior_calls: Dict[Node, Set[Variable]] = defaultdict(set)
-        self._events: Dict[EventCall, Set[Node]] = defaultdict(set)
-        self._written: Dict[Variable, Set[Node]] = defaultdict(set)
+        self._send_eth: dict[Node, set[Node]] = defaultdict(set)
+        self._calls: dict[Node, set[Node]] = defaultdict(set)
+        self._reads: dict[Variable, set[Node]] = defaultdict(set)
+        self._reads_prior_calls: dict[Node, set[Variable]] = defaultdict(set)
+        self._high_level_custom_calls: dict[HighLevelCall, set[Node]] = defaultdict(set)
+        self._high_level_custom_calls_prior_calls: dict[Node, set[HighLevelCall]] = defaultdict(set)
+        self._events: dict[EventCall, set[Node]] = defaultdict(set)
+        self._written: dict[Variable, set[Node]] = defaultdict(set)
 
     @property
-    def send_eth(self) -> Dict[Node, Set[Node]]:
+    def send_eth(self) -> dict[Node, set[Node]]:
         """
         Return the list of calls sending value
         :return:
@@ -67,7 +68,7 @@ class AbstractState:
         return self._send_eth
 
     @property
-    def calls(self) -> Dict[Node, Set[Node]]:
+    def calls(self) -> dict[Node, set[Node]]:
         """
         Return the list of calls that can callback
         :return:
@@ -75,7 +76,7 @@ class AbstractState:
         return self._calls
 
     @property
-    def reads(self) -> Dict[Variable, Set[Node]]:
+    def reads(self) -> dict[Variable, set[Node]]:
         """
         Return of variables that are read
         :return:
@@ -83,7 +84,7 @@ class AbstractState:
         return self._reads
 
     @property
-    def written(self) -> Dict[Variable, Set[Node]]:
+    def written(self) -> dict[Variable, set[Node]]:
         """
         Return of variables that are written
         :return:
@@ -91,7 +92,7 @@ class AbstractState:
         return self._written
 
     @property
-    def reads_prior_calls(self) -> Dict[Node, Set[Variable]]:
+    def reads_prior_calls(self) -> dict[Node, set[Variable]]:
         """
         Return the dictionary node -> variables read before any call
         :return:
@@ -99,16 +100,30 @@ class AbstractState:
         return self._reads_prior_calls
 
     @property
-    def events(self) -> Dict[EventCall, Set[Node]]:
+    def high_level_custom_calls(self) -> dict[HighLevelCall, set[Node]]:
+        """
+        Return the dictionary HighLevelCall -> Node call
+        :return:
+        """
+        return self._high_level_custom_calls
+
+    @property
+    def high_level_custom_calls_prior_calls(self) -> dict[Node, set[HighLevelCall]]:
+        """
+        Return the dictionary Node -> HighLevelCall before any call
+        :return:
+        """
+        return self._high_level_custom_calls_prior_calls
+
+    @property
+    def events(self) -> dict[EventCall, set[Node]]:
         """
         Return the list of events
         :return:
         """
         return self._events
 
-    def merge_fathers(
-        self, node: Node, skip_father: Optional[Node], detector: "Reentrancy"
-    ) -> None:
+    def merge_fathers(self, node: Node, skip_father: Node | None, detector: "Reentrancy") -> None:
         for father in node.fathers:
             if detector.KEY in father.context:
                 self._send_eth = union_dict(
@@ -132,14 +147,22 @@ class AbstractState:
                     self.reads_prior_calls,
                     father.context[detector.KEY].reads_prior_calls,
                 )
+                self._high_level_custom_calls = union_dict(
+                    self._high_level_custom_calls,
+                    father.context[detector.KEY].high_level_custom_calls,
+                )
+                self._high_level_custom_calls_prior_calls = union_dict(
+                    self.high_level_custom_calls_prior_calls,
+                    father.context[detector.KEY].high_level_custom_calls_prior_calls,
+                )
 
     def analyze_node(self, node: Node, detector: "Reentrancy") -> bool:
-        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(
+        state_vars_read: dict[Variable, set[Node]] = defaultdict(
             set, {v: {node} for v in node.state_variables_read}
         )
 
         # All the state variables written
-        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(
+        state_vars_written: dict[Variable, set[Node]] = defaultdict(
             set, {v: {node} for v in node.state_variables_written}
         )
         slithir_operations = []
@@ -166,6 +189,10 @@ class AbstractState:
                     | set(node.context[detector.KEY].reads.keys())
                     | set(state_vars_read.keys())
                 )
+                self._high_level_custom_calls_prior_calls[node] = set(
+                    self._high_level_custom_calls_prior_calls.get(node, set())
+                    | node.context[detector.KEY].high_level_custom_calls.keys()
+                )
                 contains_call = True
 
             if detector.can_send_eth(ir):
@@ -173,6 +200,18 @@ class AbstractState:
 
             if isinstance(ir, EventCall):
                 self._events[ir] |= {ir.node, node}
+
+        for ir in node.irs:
+            if isinstance(ir, HighLevelCall) and detector.custom_read_high_level_call(ir):
+                self._high_level_custom_calls[ir].add(node)
+            if isinstance(ir, InternalCall):
+                function = ir.function
+                if isinstance(function, Function):
+                    for irr in ir.function.all_slithir_operations():
+                        if isinstance(irr, HighLevelCall) and detector.custom_read_high_level_call(
+                            irr
+                        ):
+                            self._high_level_custom_calls[ir].add(node)
 
         self._reads = union_dict(self._reads, state_vars_read)
 
@@ -183,13 +222,24 @@ class AbstractState:
         self._calls = union_dict(self._calls, fathers.calls)
         self._reads = union_dict(self._reads, fathers.reads)
         self._reads_prior_calls = union_dict(self._reads_prior_calls, fathers.reads_prior_calls)
+        self._high_level_custom_calls = union_dict(
+            self._high_level_custom_calls, fathers.high_level_custom_calls
+        )
+        self._high_level_custom_calls_prior_calls = union_dict(
+            self._high_level_custom_calls_prior_calls, fathers.high_level_custom_calls_prior_calls
+        )
 
     def does_not_bring_new_info(self, new_info: "AbstractState") -> bool:
         if is_subset(new_info.calls, self.calls):
             if is_subset(new_info.send_eth, self.send_eth):
                 if is_subset(new_info.reads, self.reads):
-                    if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
-                        return True
+                    if is_subset(new_info.high_level_custom_calls, self.high_level_custom_calls):
+                        if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
+                            if dict_are_equal(
+                                new_info.high_level_custom_calls_prior_calls,
+                                self.high_level_custom_calls_prior_calls,
+                            ):
+                                return True
         return False
 
 
@@ -235,7 +285,14 @@ class Reentrancy(AbstractDetector):
         """
         return isinstance(ir, Call) and ir.can_send_eth()
 
-    def _explore(self, node: Optional[Node], skip_father: Optional[Node] = None) -> None:
+    @staticmethod
+    def custom_read_high_level_call(_: HighLevelCall) -> bool:
+        """
+        Allow to detect custom HighLevelCall, a reentrancy detector should override this if needed
+        """
+        return False
+
+    def _explore(self, node: Node | None, skip_father: Node | None = None) -> None:
         """
         Explore the CFG and look for re-entrancy
         Heuristic: There is a re-entrancy if a state variable is written
@@ -289,7 +346,7 @@ class Reentrancy(AbstractDetector):
                     self._explore(function.entry_point)
                     function.context[self.KEY] = True
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         # if a node was already visited by another path
         # we will only explore it if the traversal brings

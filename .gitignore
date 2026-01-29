@@ -118,3 +118,6 @@ slither.db.json
 
 # Git worktrees
 .worktrees/
+
+# Serena runtime data
+.serena/memories/

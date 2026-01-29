@@ -7,7 +7,7 @@ The output is a dot file named filename.dot
 """
 
 from collections import defaultdict
-from typing import Optional, Union, Dict, Set, Tuple, Sequence
+from collections.abc import Sequence
 
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
@@ -23,8 +23,12 @@ def _contract_subgraph(contract: Contract) -> str:
 
 
 # return unique id for contract function to use as node name
-def _function_node(contract: Contract, function: Union[Function, Variable]) -> str:
-    return f"{contract.id}_{function.name}"
+def _function_node(contract: Contract, function: Function | Variable) -> str:
+    # Use full_name for Functions to distinguish overloaded functions
+    if isinstance(function, Function):
+        return f"{contract.id}_{function.full_name}"
+    # Variables use solidity_signature which includes parameter types
+    return f"{contract.id}_{function.solidity_signature}"
 
 
 # return unique id for solidity function to use as node name
@@ -38,7 +42,7 @@ def _edge(from_node: str, to_node: str) -> str:
 
 
 # return dot language string to add graph node (with optional label)
-def _node(node: str, label: Optional[str] = None) -> str:
+def _node(node: str, label: str | None = None) -> str:
     return " ".join(
         (
             f'"{node}"',
@@ -51,9 +55,9 @@ def _process_internal_call(
     contract: Contract,
     function: Function,
     internal_call: InternalCall,
-    contract_calls: Dict[Contract, Set[str]],
-    solidity_functions: Set[str],
-    solidity_calls: Set[str],
+    contract_calls: dict[Contract, set[str]],
+    solidity_functions: set[str],
+    solidity_calls: set[str],
 ) -> None:
     if isinstance(internal_call.function, (Function)):
         contract_calls[contract].add(
@@ -74,14 +78,14 @@ def _process_internal_call(
         )
 
 
-def _render_external_calls(external_calls: Set[str]) -> str:
+def _render_external_calls(external_calls: set[str]) -> str:
     return "\n".join(external_calls)
 
 
 def _render_internal_calls(
     contract: Contract,
-    contract_functions: Dict[Contract, Set[str]],
-    contract_calls: Dict[Contract, Set[str]],
+    contract_functions: dict[Contract, set[str]],
+    contract_calls: dict[Contract, set[str]],
 ) -> str:
     lines = []
 
@@ -96,7 +100,7 @@ def _render_internal_calls(
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str]) -> str:
+def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str]) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -113,10 +117,10 @@ def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str
 def _process_external_call(
     contract: Contract,
     function: Function,
-    external_call: Tuple[Contract, HighLevelCall],
-    contract_functions: Dict[Contract, Set[str]],
-    external_calls: Set[str],
-    all_contracts: Set[Contract],
+    external_call: tuple[Contract, HighLevelCall],
+    contract_functions: dict[Contract, set[str]],
+    external_calls: set[str],
+    all_contracts: set[Contract],
 ) -> None:
     external_contract, ir = external_call
 
@@ -128,7 +132,7 @@ def _process_external_call(
         contract_functions[external_contract].add(
             _node(
                 _function_node(external_contract, ir.function),
-                ir.function.name,
+                ir.function.solidity_signature,  # Use signature for consistency with node ID
             )
         )
 
@@ -143,15 +147,17 @@ def _process_external_call(
 def _process_function(
     contract: Contract,
     function: Function,
-    contract_functions: Dict[Contract, Set[str]],
-    contract_calls: Dict[Contract, Set[str]],
-    solidity_functions: Set[str],
-    solidity_calls: Set[str],
-    external_calls: Set[str],
-    all_contracts: Set[Contract],
+    contract_functions: dict[Contract, set[str]],
+    contract_calls: dict[Contract, set[str]],
+    solidity_functions: set[str],
+    solidity_calls: set[str],
+    external_calls: set[str],
+    all_contracts: set[Contract],
 ) -> None:
+    # Use full_name as label to distinguish overloaded functions
+    label = function.full_name if isinstance(function, Function) else function.name
     contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
+        _node(_function_node(contract, function), label),
     )
 
     for internal_call in function.internal_calls:
@@ -177,14 +183,14 @@ def _process_function(
 def _process_functions(functions: Sequence[Function]) -> str:
     # TODO  add support for top level function
 
-    contract_functions: Dict[Contract, Set[str]] = defaultdict(
+    contract_functions: dict[Contract, set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: Dict[Contract, Set[str]] = defaultdict(set)  # contract -> contract calls edges
+    contract_calls: dict[Contract, set[str]] = defaultdict(set)  # contract -> contract calls edges
 
-    solidity_functions: Set[str] = set()  # solidity function nodes
-    solidity_calls: Set[str] = set()  # solidity calls edges
-    external_calls: Set[str] = set()  # external calls edges
+    solidity_functions: set[str] = set()  # solidity function nodes
+    solidity_calls: set[str] = set()  # solidity calls edges
+    external_calls: set[str] = set()  # external calls edges
 
     all_contracts = set()
 

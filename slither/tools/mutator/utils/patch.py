@@ -1,14 +1,13 @@
-from typing import Dict, Union
 from collections import defaultdict
 
 
 def create_patch_with_line(
-    result: Dict,
+    result: dict,
     file: str,
     start: int,
     end: int,
-    old_str: Union[str, bytes],
-    new_str: Union[str, bytes],
+    old_str: str | bytes,
+    new_str: str | bytes,
     line_no: int,
 ) -> None:
     if isinstance(old_str, bytes):

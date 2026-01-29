@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, NamedTuple, Union
+from typing import NamedTuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -36,7 +36,7 @@ from slither.utils.output import Output
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 
-def _get_name(f: Union[Function, Variable]) -> str:
+def _get_name(f: Function | Variable) -> str:
     # Return the name of the function or variable
     if isinstance(f, Function):
         if f.is_fallback or f.is_receive:
@@ -44,8 +44,8 @@ def _get_name(f: Union[Function, Variable]) -> str:
     return f.solidity_signature
 
 
-def _extract_payable(contracts: List[Contract]) -> Dict[str, List[str]]:
-    ret: Dict[str, List[str]] = {}
+def _extract_payable(contracts: list[Contract]) -> dict[str, list[str]]:
+    ret: dict[str, list[str]] = {}
     for contract in contracts:
         payable_functions = [_get_name(f) for f in contract.functions_entry_points if f.payable]
         if payable_functions:
@@ -53,10 +53,34 @@ def _extract_payable(contracts: List[Contract]) -> Dict[str, List[str]]:
     return ret
 
 
+def _extract_enum_ranges(contracts: list[Contract]) -> dict[str, dict[str, int]]:
+    """
+    Extract enum definitions and their valid ranges.
+
+    For each contract, produces a mapping of enum name to the number of valid values.
+    This helps Echidna generate valid calldata for enum parameters.
+
+    Uses enums_declared to avoid processing inherited enums multiple times.
+
+    Returns:
+        Dict mapping contract name to dict of enum name to count of valid values.
+        Example: {"MyContract": {"Status": 4}} means Status has values 0, 1, 2, 3
+    """
+    ret: dict[str, dict[str, int]] = {}
+    for contract in contracts:
+        enum_ranges: dict[str, int] = {}
+        for enum in contract.enums_declared:
+            # max is the index of the last element (0-indexed), so add 1 for count
+            enum_ranges[enum.name] = enum.max + 1
+        if enum_ranges:
+            ret[contract.name] = enum_ranges
+    return ret
+
+
 def _extract_solidity_variable_usage(
-    contracts: List[Contract], sol_var: SolidityVariable
-) -> Dict[str, List[str]]:
-    ret: Dict[str, List[str]] = {}
+    contracts: list[Contract], sol_var: SolidityVariable
+) -> dict[str, list[str]]:
+    ret: dict[str, list[str]] = {}
     for contract in contracts:
         functions_using_sol_var = []
         for f in contract.functions_entry_points:
@@ -115,8 +139,8 @@ def _is_constant(f: Function) -> bool:
     return True
 
 
-def _extract_constant_functions(contracts: List[Contract]) -> Dict[str, List[str]]:
-    ret: Dict[str, List[str]] = {}
+def _extract_constant_functions(contracts: list[Contract]) -> dict[str, list[str]]:
+    ret: dict[str, list[str]] = {}
     for contract in contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [
@@ -127,7 +151,7 @@ def _extract_constant_functions(contracts: List[Contract]) -> Dict[str, List[str
     return ret
 
 
-def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]]]:
+def _extract_assert(contracts: list[Contract]) -> dict[str, dict[str, list[dict]]]:
     """
     Return the list of contract -> function name -> List(source mapping of the assert))
 
@@ -137,9 +161,9 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     Returns:
 
     """
-    ret: Dict[str, Dict[str, List[Dict]]] = {}
+    ret: dict[str, dict[str, list[dict]]] = {}
     for contract in contracts:
-        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
+        functions_using_assert: dict[str, list[dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
             for ir in f.all_solidity_calls():
                 if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
@@ -155,7 +179,7 @@ def json_serializable(cls):
     my_super = super
 
     def as_dict(self):
-        yield dict(zip(self._fields, my_super(cls, self).__iter__()))
+        yield dict(zip(self._fields, my_super(cls, self).__iter__(), strict=False))
 
     cls.__iter__ = as_dict
     return cls
@@ -173,9 +197,9 @@ class ConstantValue(NamedTuple):
 def _extract_constant_from_read(
     ir: Operation,
     r: SourceMapping,
-    all_cst_used: List[ConstantValue],
-    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
-    context_explored: Set[Node],
+    all_cst_used: list[ConstantValue],
+    all_cst_used_in_binary: dict[str, list[ConstantValue]],
+    context_explored: set[Node],
 ) -> None:
     var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
     # Do not report struct_name in a.struct_name
@@ -213,8 +237,8 @@ def _extract_constant_from_read(
 
 def _extract_constant_from_binary(
     ir: Binary,
-    all_cst_used: List[ConstantValue],
-    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
+    all_cst_used: list[ConstantValue],
+    all_cst_used_in_binary: dict[str, list[ConstantValue]],
 ):
     for r in ir.read:
         if isinstance(r, Constant):
@@ -230,10 +254,10 @@ def _extract_constant_from_binary(
 
 
 def _extract_constants_from_irs(
-    irs: List[Operation],
-    all_cst_used: List[ConstantValue],
-    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
-    context_explored: Set[Node],
+    irs: list[Operation],
+    all_cst_used: list[ConstantValue],
+    all_cst_used_in_binary: dict[str, list[ConstantValue]],
+    context_explored: set[Node],
 ) -> None:
     for ir in irs:
         if isinstance(ir, Binary):
@@ -264,16 +288,16 @@ def _extract_constants_from_irs(
 
 
 def _extract_constants(
-    contracts: List[Contract],
-) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
+    contracts: list[Contract],
+) -> tuple[dict[str, dict[str, list]], dict[str, dict[str, dict]]]:
     # contract -> function -> [ {"value": value, "type": type} ]
-    ret_cst_used: Dict[str, Dict[str, List[ConstantValue]]] = defaultdict(dict)
+    ret_cst_used: dict[str, dict[str, list[ConstantValue]]] = defaultdict(dict)
     # contract -> function -> binary_operand -> [ {"value": value, "type": type ]
-    ret_cst_used_in_binary: Dict[str, Dict[str, Dict[str, List[ConstantValue]]]] = defaultdict(dict)
+    ret_cst_used_in_binary: dict[str, dict[str, dict[str, list[ConstantValue]]]] = defaultdict(dict)
     for contract in contracts:
         for function in contract.functions_entry_points:
-            all_cst_used: List = []
-            all_cst_used_in_binary: Dict = defaultdict(list)
+            all_cst_used: list = []
+            all_cst_used_in_binary: dict = defaultdict(list)
 
             context_explored = set()
             context_explored.add(function)
@@ -296,10 +320,10 @@ def _extract_constants(
 
 
 def _extract_function_relations(
-    contracts: List[Contract],
-) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+    contracts: list[Contract],
+) -> dict[str, dict[str, dict[str, list[str]]]]:
     # contract -> function -> [functions]
-    ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
+    ret: dict[str, dict[str, dict[str, list[str]]]] = defaultdict(dict)
     for contract in contracts:
         ret[contract.name] = defaultdict(dict)
         written = {
@@ -324,13 +348,13 @@ def _extract_function_relations(
     return ret
 
 
-def _have_external_calls(contracts: List[Contract]) -> Dict[str, List[str]]:
+def _have_external_calls(contracts: list[Contract]) -> dict[str, list[str]]:
     """
     Detect the functions with external calls
     :param slither:
     :return:
     """
-    ret: Dict[str, List[str]] = defaultdict(list)
+    ret: dict[str, list[str]] = defaultdict(list)
     for contract in contracts:
         for function in contract.functions_entry_points:
             if function.all_high_level_calls() or function.all_low_level_calls():
@@ -340,13 +364,13 @@ def _have_external_calls(contracts: List[Contract]) -> Dict[str, List[str]]:
     return ret
 
 
-def _use_balance(contracts: List[Contract]) -> Dict[str, List[str]]:
+def _use_balance(contracts: list[Contract]) -> dict[str, list[str]]:
     """
     Detect the functions with external calls
     :param slither:
     :return:
     """
-    ret: Dict[str, List[str]] = defaultdict(list)
+    ret: dict[str, list[str]] = defaultdict(list)
     for contract in contracts:
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
@@ -359,8 +383,8 @@ def _use_balance(contracts: List[Contract]) -> Dict[str, List[str]]:
     return ret
 
 
-def _with_fallback(contracts: List[Contract]) -> Set[str]:
-    ret: Set[str] = set()
+def _with_fallback(contracts: list[Contract]) -> set[str]:
+    ret: set[str] = set()
     for contract in contracts:
         for function in contract.functions_entry_points:
             if function.is_fallback:
@@ -368,8 +392,8 @@ def _with_fallback(contracts: List[Contract]) -> Set[str]:
     return ret
 
 
-def _with_receive(contracts: List[Contract]) -> Set[str]:
-    ret: Set[str] = set()
+def _with_receive(contracts: list[Contract]) -> set[str]:
+    ret: set[str] = set()
     for contract in contracts:
         for function in contract.functions_entry_points:
             if function.is_receive:
@@ -377,14 +401,14 @@ def _with_receive(contracts: List[Contract]) -> Set[str]:
     return ret
 
 
-def _call_a_parameter(slither: SlitherCore, contracts: List[Contract]) -> Dict[str, List[Dict]]:
+def _call_a_parameter(slither: SlitherCore, contracts: list[Contract]) -> dict[str, list[dict]]:
     """
     Detect the functions with external calls
     :param slither:
     :return:
     """
     # contract -> [ (function, idx, interface_called) ]
-    ret: Dict[str, List[Dict]] = defaultdict(list)
+    ret: dict[str, list[dict]] = defaultdict(list)
     for contract in contracts:
         for function in contract.functions_entry_points:
             try:
@@ -434,6 +458,14 @@ class Echidna(AbstractPrinter):
         contracts = self.slither.contracts
 
         payable = _extract_payable(contracts)
+        enum_ranges = _extract_enum_ranges(contracts)
+
+        # Extract top-level (file-level) enum ranges
+        enum_ranges_top_level: dict[str, int] = {}
+        for unit in self.slither.compilation_units:
+            for enum in unit.enums_top_level:
+                # max is the index of the last element (0-indexed), so add 1 for count
+                enum_ranges_top_level[enum.canonical_name] = enum.max + 1
         timestamp = _extract_solidity_variable_usage(
             contracts, SolidityVariableComposed("block.timestamp")
         )
@@ -468,6 +500,8 @@ class Echidna(AbstractPrinter):
 
         d = {
             "payable": payable,
+            "enum_ranges": enum_ranges,
+            "enum_ranges_top_level": enum_ranges_top_level if enum_ranges_top_level else {},
             "timestamp": timestamp,
             "block_number": block_number,
             "msg_sender": msg_sender,

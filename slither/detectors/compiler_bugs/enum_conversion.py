@@ -2,8 +2,6 @@
 Module detecting dangerous conversion to enum
 """
 
-from typing import List, Tuple
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -18,7 +16,7 @@ from slither.core.declarations.enum import Enum
 from slither.utils.output import Output
 
 
-def _detect_dangerous_enum_conversions(contract: Contract) -> List[Tuple[Node, SourceMapping]]:
+def _detect_dangerous_enum_conversions(contract: Contract) -> list[tuple[Node, SourceMapping]]:
     """Detect dangerous conversion to enum by checking IR
     Args:
          contract (Contract)
@@ -68,7 +66,7 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
 
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 0, 4)
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect dangerous conversion to enum"""
         results = []
 

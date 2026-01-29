@@ -17,6 +17,7 @@ from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
+from .reentrancy.reentrancy_balance import ReentrancyBalance
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.could_be_constant import CouldBeConstant
 from .variables.could_be_immutable import CouldBeImmutable
@@ -82,6 +83,7 @@ from .operations.missing_zero_address_validation import MissingZeroAddressValida
 from .functions.dead_code import DeadCode
 from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
+from .statements.msg_value_in_nonpayable import MsgValueInNonPayable
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision

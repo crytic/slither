@@ -110,6 +110,7 @@ Modernization targets:
 - Test detectors across Solidity 0.4.x–0.8.x
 - Update snapshots: `tests/e2e/detectors/snapshots/`
 - Use `compile_force_framework="solc"` when crytic-compile behavior changes
+- **Run e2e tests early** when changing core classes (`Literal`, `Expression`, etc.)—snapshots capture exact `__str__` output, so behavioral changes break many tests
 
 ## Slither Internals
 
@@ -120,15 +121,17 @@ Modernization targets:
 - CLI features should have Python API equivalents in the `Slither` class
 
 ### Traversal patterns
-- **Use `_declared` suffix** - `functions_declared`, `state_variables_declared` avoid processing inherited items multiple times
+- **Per-definition analysis** (naming, arithmetic, structure): Use `contracts_derived` + `functions_declared`
+- **Reachability analysis** (call graphs, taint): Use `contracts_derived` + `functions` (inherited functions needed)
+- **Global deduplication**: Use `compilation_unit.functions` directly to process each function exactly once
 - Filter by `function.contract_declarer == contract` when iterating `contract.functions`
 - `high_level_calls` returns `List[Tuple[Contract, Call]]` - don't forget tuple unpacking
-- Standard detector loop: contracts → `functions_and_modifiers_declared` → nodes → irs
 
 ### Type handling
 - Expand `isinstance()` checks rather than removing assertions
 - Add type guards before accessing type-specific attributes in AST visitors
 - Check local scope before broader scope when resolving identifiers
+- **`ElementaryType` comparison pitfall**: `ElementaryType.__eq__` only matches other `ElementaryType` instances. `ElementaryType("uint256") in ["uint256"]` is **always False**. Convert to string first: `str(t) in ["uint256"]`
 
 ### SlithIR and SSA
 - **Use `node.irs`** for most detectors—simpler, sufficient for most analyses

@@ -3,7 +3,7 @@ Detect if all the given variables are written in all the paths of the function
 """
 
 from collections import defaultdict
-from typing import Dict, Set, List, Any, Optional
+from typing import Any
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import SolidityFunction, Function
@@ -30,15 +30,15 @@ class State:
         # Here in the endIF node, v can be written, or can be not written. If we were merging the paths
         # We would lose this information
         # In other words, in each in the list represents a set of path that has the same outcome
-        self.nodes: Dict[Node, List[Set[Variable]]] = defaultdict(list)
+        self.nodes: dict[Node, list[set[Variable]]] = defaultdict(list)
 
 
 def _visit(
-    node: Optional[Node],
+    node: Node | None,
     state: State,
-    variables_written: Set[Variable],
-    variables_to_write: List[Variable],
-) -> List[Variable]:
+    variables_written: set[Variable],
+    variables_to_write: list[Variable],
+) -> list[Variable]:
     """
     Explore all the nodes to look for values not written when the node's function return
     Fixpoint reaches if no new written variables are found
@@ -85,7 +85,7 @@ def _visit(
                 variables_written.add(refs_lvalues)
             lvalue = refs_lvalues
 
-    ret: List[Variable] = []
+    ret: list[Variable] = []
     if not node.sons and node.type is not NodeType.THROW:
         ret += [v for v in variables_to_write if v not in variables_written]
 
@@ -101,7 +101,7 @@ def _visit(
     return ret
 
 
-def are_variables_written(function: Function, variables_to_write: List[Variable]) -> List[Variable]:
+def are_variables_written(function: Function, variables_to_write: list[Variable]) -> list[Variable]:
     """
         Return the list of variable that are not written at the end of the function
 

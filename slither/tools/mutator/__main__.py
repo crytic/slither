@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Type, List, Any, Optional, Union, Set
+from typing import Any
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
@@ -113,7 +113,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMutator]]:
+def _get_mutators(mutators_list: list[str] | None) -> list[type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
     if mutators_list is not None:
         detectors = [
@@ -143,7 +143,7 @@ class ListMutators(argparse.Action):
 ###################################################################################
 
 
-def parse_target_selectors(selector_str: str) -> Set[int]:
+def parse_target_selectors(selector_str: str) -> set[int]:
     """Parse comma-separated selectors (hex or signature format)
 
     Handles signatures with commas like transfer(address,uint256) by
@@ -151,7 +151,7 @@ def parse_target_selectors(selector_str: str) -> Set[int]:
     """
     from slither.utils.function import get_function_id
 
-    selectors: Set[int] = set()
+    selectors: set[int] = set()
 
     # Split on commas only when not inside parentheses
     parts = []
@@ -204,14 +204,14 @@ def main() -> None:
 
     # arguments
     test_command: str = args.test_cmd
-    test_directory: Optional[str] = args.test_dir
-    paths_to_ignore: Optional[str] = args.ignore_dirs
-    output_dir: Optional[str] = args.output_dir
-    timeout: Optional[int] = args.timeout
-    solc_remappings: Optional[str] = args.solc_remaps
-    verbose: Optional[bool] = args.verbose
-    mutators_to_run: Optional[List[str]] = args.mutators_to_run
-    comprehensive_flag: Optional[bool] = args.comprehensive
+    test_directory: str | None = args.test_dir
+    paths_to_ignore: str | None = args.ignore_dirs
+    output_dir: str | None = args.output_dir
+    timeout: int | None = args.timeout
+    solc_remappings: str | None = args.solc_remaps
+    verbose: bool | None = args.verbose
+    mutators_to_run: list[str] | None = args.mutators_to_run
+    comprehensive_flag: bool | None = args.comprehensive
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
@@ -220,16 +220,16 @@ def main() -> None:
     else:
         paths_to_ignore_list = []
 
-    contract_names: List[str] = []
+    contract_names: list[str] = []
     if args.contract_names:
         contract_names = args.contract_names.split(",")
 
-    target_selectors: Optional[Set[int]] = None
+    target_selectors: set[int] | None = None
     if args.target_functions:
         target_selectors = parse_target_selectors(args.target_functions)
 
     # get all the contracts as a list from given codebase
-    sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
+    sol_file_list: list[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
     if not contract_names:
         logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
@@ -290,7 +290,7 @@ def main() -> None:
     )
 
     # Keep a list of all already mutated contracts so we don't mutate them twice
-    mutated_contracts: List[str] = []
+    mutated_contracts: list[str] = []
 
     for filename in sol_file_list:
         file_name = os.path.split(filename)[1].split(".sol")[0]
@@ -338,7 +338,7 @@ def main() -> None:
                 logger.info(blue(f"Mutating contract {target_contract}"))
 
                 # Validate target selectors and collect target modifiers
-                target_modifiers: Optional[Set[str]] = None
+                target_modifiers: set[str] | None = None
                 if target_selectors:
                     from slither.utils.function import get_function_id
 

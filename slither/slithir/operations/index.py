@@ -1,5 +1,3 @@
-from typing import List, Union
-
 from slither.core.declarations import SolidityVariableComposed
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
@@ -25,15 +23,15 @@ class Index(OperationWithLValue):
         self._lvalue: ReferenceVariable = result
 
     @property
-    def read(self) -> List[SourceMapping]:
+    def read(self) -> list[SourceMapping]:
         return list(self.variables)
 
     @property
-    def variables(self) -> List[Union[LVALUE, RVALUE, SolidityVariableComposed]]:
+    def variables(self) -> list[LVALUE | RVALUE | SolidityVariableComposed]:
         return self._variables  # type: ignore
 
     @property
-    def variable_left(self) -> Union[LVALUE, SolidityVariableComposed]:
+    def variable_left(self) -> LVALUE | SolidityVariableComposed:
         return self._variables[0]  # type: ignore
 
     @property

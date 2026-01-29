@@ -2,7 +2,7 @@
 Module detecting re-used base constructors in inheritance hierarchy.
 """
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -16,10 +16,10 @@ from slither.utils.output import Output
 
 # Helper: adds explicitly called constructors with arguments to the results lookup.
 def _add_constructors_with_args(
-    base_constructors: List[Union[Any, FunctionContract]],
+    base_constructors: list[Any | FunctionContract],
     called_by_constructor: bool,
     current_contract: Contract,
-    results: Dict[FunctionContract, List[Tuple[Contract, bool]]],
+    results: dict[FunctionContract, list[tuple[Contract, bool]]],
 ) -> None:
     for explicit_base_constructor in base_constructors:
         if len(explicit_base_constructor.parameters) > 0:
@@ -87,7 +87,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
     def _detect_explicitly_called_base_constructors(
         self, contract: Contract
-    ) -> Dict[FunctionContract, List[Tuple[Contract, bool]]]:
+    ) -> dict[FunctionContract, list[tuple[Contract, bool]]]:
         """
         Detects explicitly calls to base constructors with arguments in the inheritance hierarchy.
         :param contract: The contract to detect explicit calls to a base constructor with arguments to.
@@ -133,7 +133,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect reused base constructors.
         :return: Returns a list of JSON results.

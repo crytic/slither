@@ -2,7 +2,7 @@
 EventTopLevel module
 """
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.variables.event_variable import EventVariable
@@ -20,7 +20,7 @@ class EventTopLevelSolc(CallerContextExpression):
     """
 
     def __init__(
-        self, event: EventTopLevel, event_data: Dict, slither_parser: "SlitherCompilationUnitSolc"
+        self, event: EventTopLevel, event_data: dict, slither_parser: "SlitherCompilationUnitSolc"
     ) -> None:
         self._event = event
         self._slither_parser = slither_parser

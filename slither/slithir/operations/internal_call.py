@@ -1,4 +1,4 @@
-from typing import Any, Union, Tuple, List, Optional
+from typing import Any
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
@@ -14,13 +14,11 @@ from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 class InternalCall(Call, OperationWithLValue):
     def __init__(
         self,
-        function: Union[Function, Tuple[str, str]],
+        function: Function | tuple[str, str],
         nbr_arguments: int,
-        result: Optional[
-            Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]
-        ],
+        result: TupleVariableSSA | TemporaryVariableSSA | TupleVariable | TemporaryVariable | None,
         type_call: str,
-        names: Optional[List[str]] = None,
+        names: list[str] | None = None,
     ) -> None:
         """
         #### Parameters
@@ -31,7 +29,7 @@ class InternalCall(Call, OperationWithLValue):
         super().__init__(names=names)
         self._contract_name = ""
         if isinstance(function, Function):
-            self._function: Optional[Function] = function
+            self._function: Function | None = function
             self._function_name = function.name
             if isinstance(function, FunctionContract):
                 self._contract_name = function.contract_declarer.name
@@ -45,14 +43,14 @@ class InternalCall(Call, OperationWithLValue):
         # function_candidates is only used as an helper to retrieve the "function" object
         # For top level function called through a import renamed
         # See SolidityImportPlaceHolder usages
-        self.function_candidates: Optional[List[Function]] = None
+        self.function_candidates: list[Function] | None = None
 
     @property
-    def read(self) -> List[Any]:
+    def read(self) -> list[Any]:
         return list(self._unroll(self.arguments))
 
     @property
-    def function(self) -> Optional[Function]:
+    def function(self) -> Function | None:
         return self._function
 
     @function.setter

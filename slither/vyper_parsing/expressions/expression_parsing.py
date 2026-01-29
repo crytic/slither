@@ -1,4 +1,4 @@
-from typing import Optional, List, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from collections import deque
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
 
-def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
+def vars_to_typestr(rets: list["Expression"] | None) -> str:
     if rets is None:
         return "tuple()"
     if len(rets) == 1:
@@ -73,7 +73,7 @@ def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
 
 
 def parse_expression(
-    expression: ASTNode, caller_context: Union[FunctionContract, Contract]
+    expression: ASTNode, caller_context: FunctionContract | Contract
 ) -> "Expression":
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))

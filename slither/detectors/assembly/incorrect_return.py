@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from slither.core.declarations import SolidityFunction, Function
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -10,7 +8,7 @@ from slither.slithir.operations import SolidityCall
 from slither.utils.output import Output
 
 
-def _assembly_node(function: Function) -> Optional[SolidityCall]:
+def _assembly_node(function: Function) -> SolidityCall | None:
     """
     Check if there is a node that use return in assembly
 
@@ -63,8 +61,8 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
 
     WIKI_RECOMMENDATION = "Use the `leave` statement."
 
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
         for c in self.contracts:
             for f in c.functions_and_modifiers_declared:
                 for ir in f.internal_calls:

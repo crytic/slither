@@ -1,4 +1,3 @@
-from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -12,7 +11,7 @@ from slither.slithir.variables.constant import Constant
 from slither.core.variables import Variable
 from slither.core.expressions.literal import Literal
 
-Result = List[Tuple[Node, List[str]]]
+Result = list[tuple[Node, list[str]]]
 
 
 def detect_msg_value_in_loop(contract: Contract) -> Result:
@@ -24,10 +23,10 @@ def detect_msg_value_in_loop(contract: Contract) -> Result:
 
 
 def msg_value_in_loop(
-    node: Optional[Node],
+    node: Node | None,
     in_loop_counter: int,
-    visited: List[Node],
-    calls_stack: List[str],
+    visited: list[Node],
+    calls_stack: list[str],
     results: Result,
 ) -> None:
     if node is None:
@@ -107,9 +106,9 @@ contract MsgValueInLoop{
 Provide an explicit array of amounts alongside the receivers array, and check that the sum of all amounts matches `msg.value`.
 """
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
-        results: List[Output] = []
+        results: list[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_msg_value_in_loop(c)
             for node, calls_stack in values:

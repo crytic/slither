@@ -2,7 +2,7 @@
 Variable module
 """
 
-from typing import Optional, TYPE_CHECKING, List, Union, Tuple
+from typing import Optional, TYPE_CHECKING, Union
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
@@ -16,15 +16,15 @@ if TYPE_CHECKING:
 class Variable(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
-        self._name: Optional[str] = None
-        self._initial_expression: Optional["Expression"] = None
-        self._type: Optional[Union[List, Type, "Function", str]] = None
-        self._initialized: Optional[bool] = None
-        self._visibility: Optional[str] = None
+        self._name: str | None = None
+        self._initial_expression: Expression | None = None
+        self._type: list | Type | Function | str | None = None
+        self._initialized: bool | None = None
+        self._visibility: str | None = None
         self._is_constant = False
         self._is_immutable: bool = False
         self._is_reentrant: bool = True
-        self._write_protection: Optional[List[str]] = None
+        self._write_protection: list[str] | None = None
 
     @property
     def is_scalar(self) -> bool:
@@ -50,7 +50,7 @@ class Variable(SourceMapping):
         self._initial_expression = expr
 
     @property
-    def initialized(self) -> Optional[bool]:
+    def initialized(self) -> bool | None:
         """
         boolean: True if the variable is initialized at construction
         """
@@ -68,7 +68,7 @@ class Variable(SourceMapping):
         return not self._initialized
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """
         str: variable name
         """
@@ -79,7 +79,7 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self) -> Optional[Union[List, Type, "Function", str]]:
+    def type(self) -> Union[list, Type, "Function", str] | None:
         return self._type
 
     @type.setter
@@ -104,15 +104,15 @@ class Variable(SourceMapping):
         self._is_reentrant = is_reentrant
 
     @property
-    def write_protection(self) -> Optional[List[str]]:
+    def write_protection(self) -> list[str] | None:
         return self._write_protection
 
     @write_protection.setter
-    def write_protection(self, write_protection: List[str]) -> None:
+    def write_protection(self, write_protection: list[str]) -> None:
         self._write_protection = write_protection
 
     @property
-    def visibility(self) -> Optional[str]:
+    def visibility(self) -> str | None:
         """
         str: variable visibility
         """
@@ -122,7 +122,7 @@ class Variable(SourceMapping):
     def visibility(self, v: str) -> None:
         self._visibility = v
 
-    def set_type(self, t: Optional[Union[List, Type, "Function", str]]) -> None:
+    def set_type(self, t: Union[list, Type, "Function", str] | None) -> None:
         if isinstance(t, str):
             self._type = ElementaryType(t)
             return
@@ -149,7 +149,7 @@ class Variable(SourceMapping):
     ###################################################################################
 
     @property
-    def signature(self) -> Tuple[str, List[str], List[str]]:
+    def signature(self) -> tuple[str, list[str], list[str]]:
         """
         Return the signature of the state variable as a function signature
         :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)

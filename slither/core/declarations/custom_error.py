@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Optional, Type
+from typing import TYPE_CHECKING
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -12,11 +12,11 @@ class CustomError(SourceMapping):
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__()
         self._name: str = ""
-        self._parameters: List[LocalVariable] = []
+        self._parameters: list[LocalVariable] = []
         self._compilation_unit = compilation_unit
 
-        self._solidity_signature: Optional[str] = None
-        self._full_name: Optional[str] = None
+        self._solidity_signature: str | None = None
+        self._full_name: str | None = None
         self._pattern = "error"
 
     @property
@@ -28,7 +28,7 @@ class CustomError(SourceMapping):
         self._name = new_name
 
     @property
-    def parameters(self) -> List[LocalVariable]:
+    def parameters(self) -> list[LocalVariable]:
         return self._parameters
 
     def add_parameters(self, p: "LocalVariable") -> None:
@@ -43,7 +43,7 @@ class CustomError(SourceMapping):
     ###################################################################################
 
     @staticmethod
-    def _convert_type_for_solidity_signature(t: Optional[Type]) -> str:
+    def _convert_type_for_solidity_signature(t: type | None) -> str:
         if is_underlying_type_address(t):
             return "address"
         return str(t)
@@ -76,7 +76,7 @@ class CustomError(SourceMapping):
         self._solidity_signature = self.name + "(" + ",".join(solidity_parameters) + ")"
 
     @property
-    def full_name(self) -> Optional[str]:
+    def full_name(self) -> str | None:
         """
         Return the error signature without
         converting contract into address

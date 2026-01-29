@@ -2,8 +2,6 @@
 Module detecting redundant statements.
 """
 
-from typing import List
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
@@ -58,7 +56,7 @@ Each commented line references types/identifiers, but performs no action with th
     # This is a disallowed list of tuple (node.type, type(node.expression))
     REDUNDANT_TOP_LEVEL_EXPRESSIONS = (ElementaryTypeNameExpression, Identifier)
 
-    def detect_redundant_statements_contract(self, contract: Contract) -> List[Node]:
+    def detect_redundant_statements_contract(self, contract: Contract) -> list[Node]:
         """Detects the usage of redundant statements in a contract.
 
         Returns:
@@ -77,7 +75,7 @@ Each commented line references types/identifiers, but performs no action with th
 
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect redundant statements
 
         Recursively visit the calls

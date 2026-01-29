@@ -3,7 +3,6 @@ Module detecting numbers with too many digits.
 """
 
 import re
-from typing import List
 
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
@@ -66,7 +65,7 @@ Use:
     # endregion wiki_recommendation
 
     @staticmethod
-    def _detect_too_many_digits(f: FunctionContract) -> List[Node]:
+    def _detect_too_many_digits(f: FunctionContract) -> list[Node]:
         ret = []
         for node in f.nodes:
             # each node contains a list of IR instruction
@@ -82,7 +81,7 @@ Use:
                             ret.append(node)
         return ret
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         # iterate over all contracts

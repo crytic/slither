@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -53,7 +51,7 @@ The function `A` uses the deprecated `getPrice` Pyth function.
             "getEmaPrice",
             "getPrice",
         ]
-        results: List[Output] = []
+        results: list[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:

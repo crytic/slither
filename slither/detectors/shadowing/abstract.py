@@ -3,8 +3,6 @@ Module detecting shadowing variables on abstract contract
 Recursively check the called functions
 """
 
-from typing import List
-
 from slither.core.declarations import Contract
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -12,8 +10,8 @@ from slither.utils.output import Output, AllSupportedOutput
 from .common import is_upgradable_gap_variable
 
 
-def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
-    ret: List[List[StateVariable]] = []
+def detect_shadowing(contract: Contract) -> list[list[StateVariable]]:
+    ret: list[list[StateVariable]] = []
     variables_fathers = []
     for father in contract.inheritance:
         if all(not f.is_implemented for f in father.functions + list(father.modifiers)):
@@ -24,7 +22,7 @@ def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
         if is_upgradable_gap_variable(contract, var):
             continue
 
-        shadow: List[StateVariable] = [v for v in variables_fathers if v.name == var.name]
+        shadow: list[StateVariable] = [v for v in variables_fathers if v.name == var.name]
         if shadow:
             ret.append([var] + shadow)
     return ret
@@ -61,7 +59,7 @@ contract DerivedContract is BaseContract{
 
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect shadowing
 
         Recursively visit the calls
@@ -69,14 +67,14 @@ contract DerivedContract is BaseContract{
             list: {'vuln', 'filename,'contract','func', 'shadow'}
 
         """
-        results: List[Output] = []
+        results: list[Output] = []
         for contract in self.contracts:
             shadowing = detect_shadowing(contract)
             if shadowing:
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info: List[AllSupportedOutput] = [shadow, " shadows:\n"]
+                    info: list[AllSupportedOutput] = [shadow, " shadows:\n"]
                     for var in variables:
                         info += ["\t- ", var, "\n"]
 

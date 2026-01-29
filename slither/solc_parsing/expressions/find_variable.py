@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union, List, Tuple
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
@@ -30,13 +30,12 @@ from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.contract import ContractSolc
 
 
 # CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
-def _get_pointer_name(variable: Variable) -> Optional[str]:
+def _get_pointer_name(variable: Variable) -> str | None:
     curr_type = variable.type
     while isinstance(curr_type, (ArrayType, MappingType)):
         if isinstance(curr_type, ArrayType):
@@ -51,12 +50,12 @@ def _get_pointer_name(variable: Variable) -> Optional[str]:
 
 
 def _find_variable_from_ref_declaration(
-    referenced_declaration: Optional[int],
-    all_contracts: List["Contract"],
-    all_functions: List["Function"],
+    referenced_declaration: int | None,
+    all_contracts: list["Contract"],
+    all_functions: list["Function"],
     function_parser: Optional["FunctionSolc"],
     contract_declarer: Optional["Contract"],
-) -> Optional[Union[Contract, Function]]:
+) -> Contract | Function | None:
     """
     Reference declarations take the highest priority, but they are not available for legacy AST.
     """
@@ -86,7 +85,7 @@ def _find_variable_from_ref_declaration(
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionSolc"],
-) -> Optional[Variable]:
+) -> Variable | None:
     if function_parser is None:
         return None
     # If not found, check for name
@@ -109,8 +108,8 @@ def _find_variable_in_function_parser(
 
 def find_top_level(
     var_name: str, scope: "FileScope"
-) -> Tuple[
-    Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
+) -> tuple[
+    Enum | Structure | SolidityImportPlaceHolder | CustomError | TopLevelVariable | None, bool
 ]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
@@ -167,11 +166,11 @@ def find_top_level(
 
 def _find_in_contract(
     var_name: str,
-    contract: Optional[Contract],
-    contract_declarer: Optional[Contract],
+    contract: Contract | None,
+    contract_declarer: Contract | None,
     is_super: bool,
     is_identifier_path: bool = False,
-) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
+) -> Variable | Function | Contract | Event | Enum | Structure | CustomError | None:
     if contract is None or contract_declarer is None:
         return None
 
@@ -261,9 +260,9 @@ def _find_in_contract(
 
 def _find_variable_init(
     caller_context: CallerContextExpression,
-) -> Tuple[
-    List[Contract],
-    List["Function"],
+) -> tuple[
+    list[Contract],
+    list["Function"],
     FileScope,
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -273,8 +272,8 @@ def _find_variable_init(
     from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 
-    direct_contracts: List[Contract]
-    direct_functions_parser: List[Function]
+    direct_contracts: list[Contract]
+    direct_functions_parser: list[Function]
     scope: FileScope
 
     if isinstance(caller_context, FileScope):
@@ -348,22 +347,20 @@ def _find_variable_init(
 def find_variable(
     var_name: str,
     caller_context: CallerContextExpression,
-    referenced_declaration: Optional[int] = None,
+    referenced_declaration: int | None = None,
     is_super: bool = False,
     is_identifier_path: bool = False,
-) -> Tuple[
-    Union[
-        Variable,
-        Function,
-        Contract,
-        SolidityVariable,
-        SolidityFunction,
-        Event,
-        Enum,
-        Structure,
-        CustomError,
-        TypeAlias,
-    ],
+) -> tuple[
+    Variable
+    | Function
+    | Contract
+    | SolidityVariable
+    | SolidityFunction
+    | Event
+    | Enum
+    | Structure
+    | CustomError
+    | TypeAlias,
     bool,
 ]:
     """
@@ -411,8 +408,8 @@ def find_variable(
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
 
-    contract: Optional[Contract] = None
-    contract_declarer: Optional[Contract] = None
+    contract: Contract | None = None
+    contract_declarer: Contract | None = None
     if isinstance(caller_context, ContractSolc):
         contract = caller_context.underlying_contract
         contract_declarer = caller_context.underlying_contract
@@ -433,7 +430,7 @@ def find_variable(
                 if var_name == var.name:
                     return var, False
 
-    function_parser: Optional[FunctionSolc] = (
+    function_parser: FunctionSolc | None = (
         caller_context if isinstance(caller_context, FunctionSolc) else None
     )
     # Use ret0/ret1 to help mypy

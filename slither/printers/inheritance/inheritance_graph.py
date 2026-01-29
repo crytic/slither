@@ -122,7 +122,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
-            and not f.is_virtual
+            and not (f.is_virtual and not f.overridden_by)
             and f.contract_declarer == contract
             and f.visibility in visibilities
         ]

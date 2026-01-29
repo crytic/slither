@@ -1,4 +1,3 @@
-from typing import List, Optional, Tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -16,7 +15,7 @@ from slither.slithir.operations import (
     InternalCall,
 )
 
-Result = List[Tuple[Node, List[str]]]
+Result = list[tuple[Node, list[str]]]
 
 
 def detect_call_in_loop(contract: Contract) -> Result:
@@ -29,10 +28,10 @@ def detect_call_in_loop(contract: Contract) -> Result:
 
 
 def call_in_loop(
-    node: Optional[Node],
+    node: Node | None,
     in_loop_counter: int,
-    visited: List[Node],
-    calls_stack: List[str],
+    visited: list[Node],
+    calls_stack: list[str],
     ret: Result,
 ) -> None:
     if node is None:
@@ -97,9 +96,9 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
 
     WIKI_RECOMMENDATION = "Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
-        results: List[Output] = []
+        results: list[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_call_in_loop(c)
             for node, calls_stack in values:

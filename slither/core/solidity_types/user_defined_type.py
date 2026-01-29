@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING, Tuple, Any
+from typing import Union, TYPE_CHECKING, Any
 import math
 
 from slither.core.solidity_types.type import Type
@@ -29,7 +29,7 @@ class UserDefinedType(Type):
         return self._type
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         from slither.core.declarations.structure import Structure
         from slither.core.declarations.enum import Enum
         from slither.core.declarations.contract import Contract

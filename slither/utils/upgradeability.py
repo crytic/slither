@@ -1,5 +1,3 @@
-from typing import Optional, Tuple, List
-
 from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
@@ -28,22 +26,22 @@ from slither.utils.encoding import encode_ir_for_upgradeability_compare
 class TaintedExternalContract:
     def __init__(self, contract: "Contract") -> None:
         self._contract: Contract = contract
-        self._tainted_functions: List[Function] = []
-        self._tainted_variables: List[Variable] = []
+        self._tainted_functions: list[Function] = []
+        self._tainted_variables: list[Variable] = []
 
     @property
     def contract(self) -> Contract:
         return self._contract
 
     @property
-    def tainted_functions(self) -> List[Function]:
+    def tainted_functions(self) -> list[Function]:
         return self._tainted_functions
 
     def add_tainted_function(self, f: Function):
         self._tainted_functions.append(f)
 
     @property
-    def tainted_variables(self) -> List[Variable]:
+    def tainted_variables(self) -> list[Variable]:
         return self._tainted_variables
 
     def add_tainted_variable(self, v: Variable):
@@ -52,13 +50,13 @@ class TaintedExternalContract:
 
 def compare(
     v1: Contract, v2: Contract, include_external: bool = False
-) -> Tuple[
-    List[Variable],
-    List[Variable],
-    List[Variable],
-    List[Function],
-    List[Function],
-    List[Function],
+) -> tuple[
+    list[Variable],
+    list[Variable],
+    list[Variable],
+    list[Function],
+    list[Function],
+    list[Function],
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
@@ -162,7 +160,7 @@ def compare(
     )
 
 
-def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalContract]:
+def tainted_external_contracts(funcs: list[Function]) -> list[TaintedExternalContract]:
     """
     Takes a list of functions from one contract, finds any calls in these to functions in external contracts,
     and determines which variables and functions in the external contracts are tainted by these external calls.
@@ -226,8 +224,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
 
 
 def tainted_inheriting_contracts(
-    tainted_contracts: List[TaintedExternalContract], contracts: List[Contract] = None
-) -> List[TaintedExternalContract]:
+    tainted_contracts: list[TaintedExternalContract], contracts: list[Contract] | None = None
+) -> list[TaintedExternalContract]:
     """
     Takes a list of TaintedExternalContract obtained from tainted_external_contracts, and finds any contracts which
     inherit a tainted contract, as well as any functions that call tainted functions or read tainted variables in
@@ -294,7 +292,7 @@ def tainted_inheriting_contracts(
     return tainted_contracts
 
 
-def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
+def get_missing_vars(v1: Contract, v2: Contract) -> list[StateVariable]:
     """
     Gets all non-constant/immutable StateVariables that appear in v1 but not v2
     Args:
@@ -351,7 +349,7 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
     return False
 
 
-def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
+def get_proxy_implementation_slot(proxy: Contract) -> SlotInfo | None:
     """
     Gets information about the storage slot where a proxy's implementation address is stored.
     Args:
@@ -377,7 +375,7 @@ def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
     return None
 
 
-def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
+def get_proxy_implementation_var(proxy: Contract) -> Variable | None:
     """
     Gets the Variable that stores a proxy's implementation address. Uses data dependency to trace any LocalVariable
     that is passed into a delegatecall as the target address back to its data source, ideally a StateVariable.
@@ -402,7 +400,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
     return delegate
 
 
-def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
+def find_delegate_in_fallback(proxy: Contract) -> Variable | None:
     """
     Searches a proxy's fallback function for a delegatecall, then extracts the Variable being passed in as the target.
     Can return a newly created StateVariable if an `sload` from a hardcoded storage slot is found in assembly.
@@ -413,7 +411,7 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
     Returns:
         (`Variable`) | None : The variable being passed as the destination argument in a delegatecall in the fallback.
     """
-    delegate: Optional[Variable] = None
+    delegate: Variable | None = None
     fallback = proxy.fallback_function
     for node in fallback.all_nodes():
         for ir in node.irs:
@@ -452,7 +450,7 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
     return delegate
 
 
-def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variable]:
+def extract_delegate_from_asm(contract: Contract, node: Node) -> Variable | None:
     """
     Finds a Variable with a name matching the argument passed into a delegatecall, when all we have is an Assembly node
     with a block of code as one long string. Usually only the case for solc versions < 0.6.0.
@@ -501,7 +499,7 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
 
 def find_delegate_from_name(
     contract: Contract, dest: str, parent_func: Function
-) -> Optional[Variable]:
+) -> Variable | None:
     """
     Searches for a variable with a given name, starting with StateVariables declared in the contract, followed by
     LocalVariables in the parent function, either declared in the function body or as parameters in the signature.
@@ -553,7 +551,7 @@ def find_delegate_from_name(
     return None
 
 
-def create_state_variable_from_slot(slot: str, name: str = None) -> Optional[StateVariable]:
+def create_state_variable_from_slot(slot: str, name: str | None = None) -> StateVariable | None:
     """
     Creates a new StateVariable object to wrap a hardcoded storage slot found in assembly.
     Args:

@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
+from typing import Union, TYPE_CHECKING, Any
 
 from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
@@ -23,13 +23,13 @@ class Source:
         self.length: int = 0
         self.filename: Filename = Filename("", "", "", "")
         self.is_dependency: bool = False
-        self.lines: List[int] = []
+        self.lines: list[int] = []
         self.starting_column: int = 0
         self.ending_column: int = 0
         self.end: int = 0
         self.compilation_unit = compilation_unit
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "start": self.start,
             "length": self.length,
@@ -128,7 +128,7 @@ class Source:
 
 def _compute_line(
     compilation_unit: "SlitherCompilationUnit", filename: Filename, start: int, length: int
-) -> Tuple[List[int], int, int]:
+) -> tuple[list[int], int, int]:
     """
     Compute line(s) numbers and starting/ending columns
     from a start/end offset. All numbers start from 1.
@@ -179,13 +179,15 @@ def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUn
         new_source.start = s
         new_source.length = l
         return new_source
-    filename_used = sourceUnits[f]
-
-    # If possible, convert the filename to its absolute/relative version
-    assert compilation_unit.core.crytic_compile
-
-    filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
-    is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+    # Use cached filename lookup to avoid repeated expensive calls (367K+ calls per analysis)
+    if f in compilation_unit._filename_lookup_cache:
+        filename, is_dependency = compilation_unit._filename_lookup_cache[f]
+    else:
+        filename_used = sourceUnits[f]
+        assert compilation_unit.core.crytic_compile
+        filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
+        is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+        compilation_unit._filename_lookup_cache[f] = (filename, is_dependency)
 
     (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
 
@@ -205,10 +207,10 @@ def _convert_source_mapping(offset: str, compilation_unit: "SlitherCompilationUn
 class SourceMapping(Context):
     def __init__(self) -> None:
         super().__init__()
-        self.source_mapping: Optional[Source] = None
-        self.references: List[Source] = []
+        self.source_mapping: Source | None = None
+        self.references: list[Source] = []
 
-        self._pattern: Union[str, None] = None
+        self._pattern: str | None = None
 
     def set_offset(
         self, offset: Union["Source", str], compilation_unit: "SlitherCompilationUnit"

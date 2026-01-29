@@ -1,4 +1,4 @@
-from typing import List, Tuple, Any
+from typing import Any
 
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
@@ -7,29 +7,29 @@ from slither.core.variables.function_type_variable import FunctionTypeVariable
 class FunctionType(Type):
     def __init__(
         self,
-        params: List[FunctionTypeVariable],
-        return_values: List[FunctionTypeVariable],
+        params: list[FunctionTypeVariable],
+        return_values: list[FunctionTypeVariable],
     ) -> None:
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
         super().__init__()
-        self._params: List[FunctionTypeVariable] = params
-        self._return_values: List[FunctionTypeVariable] = return_values
+        self._params: list[FunctionTypeVariable] = params
+        self._return_values: list[FunctionTypeVariable] = return_values
 
     @property
-    def params(self) -> List[FunctionTypeVariable]:
+    def params(self) -> list[FunctionTypeVariable]:
         return self._params
 
     @property
-    def return_values(self) -> List[FunctionTypeVariable]:
+    def return_values(self) -> list[FunctionTypeVariable]:
         return self._return_values
 
     @property
-    def return_type(self) -> List[Type]:
+    def return_type(self) -> list[Type]:
         return [x.type for x in self.return_values]
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         return 24, False
 
     @property
@@ -69,9 +69,10 @@ class FunctionType(Type):
         return f"({params})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, FunctionType):
+        # Use type() and direct attribute access for performance
+        if type(other) is not FunctionType:
             return False
-        return self.params == other.params and self.return_values == other.return_values
+        return self._params == other._params and self._return_values == other._return_values
 
     def __hash__(self):
         return hash(str(self))

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from slither.vyper_parsing.ast.types import (
     Module,
     FunctionDef,
@@ -37,7 +37,7 @@ class ContractVyper:
         self, slither_parser: "VyperCompilationUnit", contract: Contract, module: Module
     ) -> None:
         self._contract: Contract = contract
-        self._slither_parser: "VyperCompilationUnit" = slither_parser
+        self._slither_parser: VyperCompilationUnit = slither_parser
         self._data = module
         # Vyper models only have one contract (aside from interfaces) and the name is the file path
         # We use the stem to make it a more user friendly name that is easy to query via canonical name
@@ -45,16 +45,16 @@ class ContractVyper:
         self._contract.id = module.node_id
         self._is_analyzed: bool = False
 
-        self._enumsNotParsed: List[EnumDef] = []
-        self._structuresNotParsed: List[StructDef] = []
-        self._variablesNotParsed: List[VariableDecl] = []
-        self._eventsNotParsed: List[EventDef] = []
-        self._functionsNotParsed: List[FunctionDef] = []
+        self._enumsNotParsed: list[EnumDef] = []
+        self._structuresNotParsed: list[StructDef] = []
+        self._variablesNotParsed: list[VariableDecl] = []
+        self._eventsNotParsed: list[EventDef] = []
+        self._functionsNotParsed: list[FunctionDef] = []
 
-        self._structures_parser: List[StructVyper] = []
-        self._variables_parser: List[StateVariableVyper] = []
-        self._events_parser: List[EventVyper] = []
-        self._functions_parser: List[FunctionVyper] = []
+        self._structures_parser: list[StructVyper] = []
+        self._variables_parser: list[StateVariableVyper] = []
+        self._events_parser: list[EventVyper] = []
+        self._functions_parser: list[FunctionVyper] = []
 
         self._parse_contract_items()
 

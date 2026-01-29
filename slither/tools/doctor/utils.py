@@ -1,11 +1,10 @@
 from contextlib import contextmanager
 import logging
-from typing import Optional
 from slither.utils.colors import bold, yellow, red
 
 
 @contextmanager
-def snip_section(message: Optional[str]) -> None:
+def snip_section(message: str | None) -> None:
     if message:
         print(red(message), end="\n\n")
 

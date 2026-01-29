@@ -2,8 +2,6 @@
 Module detecting deprecated standards.
 """
 
-from typing import List, Tuple, Union
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.solidity_variables import (
@@ -85,7 +83,7 @@ contract ContractWithDeprecatedReferences {
 
     def detect_deprecation_in_expression(
         self, expression: Expression
-    ) -> List[Tuple[str, str, str]]:
+    ) -> list[tuple[str, str, str]]:
         """Detects if an expression makes use of any deprecated standards.
 
         Returns:
@@ -109,13 +107,13 @@ contract ContractWithDeprecatedReferences {
 
     def detect_deprecated_references_in_node(
         self, node: Node
-    ) -> List[Tuple[Union[str, NodeType], str, str]]:
+    ) -> list[tuple[str | NodeType, str, str]]:
         """Detects if a node makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
         # Define our results list
-        results: List[Tuple[Union[str, NodeType], str, str]] = []
+        results: list[tuple[str | NodeType, str, str]] = []
 
         # If this node has an expression, we check the underlying expression.
         if node.expression:
@@ -130,21 +128,17 @@ contract ContractWithDeprecatedReferences {
 
     def detect_deprecated_references_in_contract(
         self, contract: Contract
-    ) -> List[
-        Union[
-            Tuple[StateVariable, List[Tuple[str, str, str]]],
-            Tuple[Node, List[Tuple[Union[str, NodeType], str, str]]],
-        ]
+    ) -> list[
+        tuple[StateVariable, list[tuple[str, str, str]]]
+        | tuple[Node, list[tuple[str | NodeType, str, str]]]
     ]:
         """Detects the usage of any deprecated built-in symbols.
 
         Returns:
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
-        results: List[
-            Union[
-                Tuple[StateVariable, List[Tuple[str, str, str]]],
-                Tuple[Node, List[Tuple[Union[str, NodeType], str, str]]],
-            ]
+        results: list[
+            tuple[StateVariable, list[tuple[str, str, str]]]
+            | tuple[Node, list[tuple[str | NodeType, str, str]]]
         ] = []
 
         for state_variable in contract.state_variables_declared:
@@ -176,7 +170,7 @@ contract ContractWithDeprecatedReferences {
 
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls
