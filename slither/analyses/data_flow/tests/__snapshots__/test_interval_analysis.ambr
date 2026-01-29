@@ -669,6 +669,84 @@
     }),
   })
 # ---
+# name: TestIntervalAnalysis.test_contract_analysis[Length.sol]
+  dict({
+    'Length': dict({
+      'getDynamicBytesLength': dict({
+        'variables': dict({
+          'Length.getDynamicBytesLength(bytes).data|data_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'getDynamicMemoryBytesLength': dict({
+        'variables': dict({
+          'Length.getDynamicMemoryBytesLength(bytes).data|data_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'getHardcodedBytesLength': dict({
+        'variables': dict({
+          'Length.getHardcodedBytesLength().data|data_1': dict({
+            'overflow': 'NO',
+            'range': '[2864434397, 2864434397]',
+          }),
+        }),
+      }),
+      'getHardcodedStringLength': dict({
+        'variables': dict({
+          'Length.getHardcodedStringLength().data|data_1': dict({
+            'overflow': 'NO',
+            'range': '[5735816763073854918203775149089, 5735816763073854918203775149089]',
+          }),
+        }),
+      }),
+      'getLengthMinusOffset': dict({
+        'variables': dict({
+          'Length.getLengthMinusOffset(bytes).data|data_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'Length.getLengthMinusOffset(bytes).len|len_1': dict({
+            'overflow': 'NO',
+            'range': '[32, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'Length.getLengthMinusOffset(bytes).res': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'Length.getLengthMinusOffset(bytes).res|res_0': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'Length.getLengthMinusOffset(bytes).res|res_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+          'Length.getLengthMinusOffset(bytes).res|res_2': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]',
+          }),
+          'Length.getLengthMinusOffset(bytes).res|res_3': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]',
+          }),
+        }),
+      }),
+      'getStateArrayLength': dict({
+        'variables': dict({
+          'Length.dynamicArray|dynamicArray_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
 # name: TestIntervalAnalysis.test_contract_analysis[Math.sol]
   dict({
     'MathOperations': dict({
@@ -1079,6 +1157,180 @@
           'RequireTests.requireUpperBound(uint8).value|value_1': dict({
             'overflow': 'NO',
             'range': '[0, 100]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
+# name: TestIntervalAnalysis.test_contract_analysis[StateVariables.sol]
+  dict({
+    'SimpleCounter': dict({
+      'getDoubleMaxCount': dict({
+        'variables': dict({
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_0': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_1': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_2': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.getDoubleMaxCount().b|b_1': dict({
+            'overflow': 'NO',
+            'range': '[200, 200]',
+          }),
+        }),
+      }),
+      'getMaxCount': dict({
+        'variables': dict({
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_0': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_1': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+        }),
+      }),
+      'getMaxCountPlusOne': dict({
+        'variables': dict({
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_0': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_1': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.MAX_COUNT|MAX_COUNT_3': dict({
+            'overflow': 'NO',
+            'range': '[100, 100]',
+          }),
+          'SimpleCounter.getMaxCountPlusOne().b|b_1': dict({
+            'overflow': 'NO',
+            'range': '[101, 101]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
+# name: TestIntervalAnalysis.test_contract_analysis[Timestamp.sol]
+  dict({
+    'TimestampTests': dict({
+      'timestampArithmetic': dict({
+        'variables': dict({
+          'TimestampTests.timestampArithmetic().future|future_1': dict({
+            'overflow': 'NO',
+            'range': '[86400, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'TimestampTests.timestampArithmetic().ts|ts_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129553535]',
+          }),
+        }),
+      }),
+      'timestampAssignment': dict({
+        'variables': dict({
+          'TimestampTests.timestampAssignment().ts|ts_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+    }),
+  })
+# ---
+# name: TestIntervalAnalysis.test_contract_analysis[Unary.sol]
+  dict({
+    'UnaryTests': dict({
+      'bitwiseNotConstant': dict({
+        'variables': dict({
+          'UnaryTests.bitwiseNotConstant().x|x_1': dict({
+            'overflow': 'NO',
+            'range': '[115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'bitwiseNotUint8': dict({
+        'variables': dict({
+          'UnaryTests.bitwiseNotUint8(uint8).result|result_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 255]',
+          }),
+          'UnaryTests.bitwiseNotUint8(uint8).value|value_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 255]',
+          }),
+        }),
+      }),
+      'bitwiseNotVariable': dict({
+        'variables': dict({
+          'UnaryTests.bitwiseNotVariable(uint256).result|result_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'UnaryTests.bitwiseNotVariable(uint256).value|value_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'complexUnary': dict({
+        'variables': dict({
+          'UnaryTests.complexUnary(uint256,bool).a|a_1': dict({
+            'overflow': 'NO',
+            'range': '[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).b|b_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 1]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).notA|notA_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).notB|notB_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 1]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).result|result_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).result|result_2': dict({
+            'overflow': 'NO',
+            'range': '[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+          'UnaryTests.complexUnary(uint256,bool).result|result_3': dict({
+            'overflow': 'NO',
+            'range': '[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]',
+          }),
+        }),
+      }),
+      'logicalNotConstant': dict({
+        'variables': dict({
+          'UnaryTests.logicalNotConstant().x|x_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 0]',
+          }),
+        }),
+      }),
+      'logicalNotVariable': dict({
+        'variables': dict({
+          'UnaryTests.logicalNotVariable(bool).result|result_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 1]',
+          }),
+          'UnaryTests.logicalNotVariable(bool).value|value_1': dict({
+            'overflow': 'NO',
+            'range': '[0, 1]',
           }),
         }),
       }),

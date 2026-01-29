@@ -103,6 +103,16 @@ class LengthHandler(BaseOperationHandler):
         value_name = IntervalSMTUtils.resolve_variable_name(value)
         if value_name is not None:
             value_tracked = IntervalSMTUtils.get_tracked_variable(domain, value_name)
+
+            # If not found, try prefix-based lookup for SSA-versioned variables
+            # Domain stores "Foo.bar|bar_1" but value_name may be "Foo.bar"
+            if value_tracked is None:
+                candidate_vars = domain.state.get_variables_by_prefix(value_name + "|")
+                for var_name in candidate_vars:
+                    value_tracked = domain.state.range_variables.get(var_name)
+                    if value_tracked is not None:
+                        break
+
             if value_tracked is not None:
                 # Check for byte length metadata stored during constant assignment
                 bytes_length = value_tracked.base.metadata.get("bytes_length")
