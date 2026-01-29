@@ -15,9 +15,9 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
 )
-from slither.analyses.data_flow.analyses.rounding.analysis.summary import (
-    FunctionSummary,
-    RoundingSummaryAnalyzer,
+from slither.analyses.data_flow.analyses.rounding.analysis.interprocedural import (
+    RoundingInterproceduralAnalyzer,
+    RoundingResult,
 )
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.engine.analysis import AnalysisState
@@ -403,33 +403,30 @@ def display_summary_table(analyses: List[AnnotatedFunction]) -> None:
             console.print(f"  [bold]{func_name}[/bold] [dim](no return)[/dim]")
 
 
-def display_function_summaries(
-    summaries: Dict[str, FunctionSummary],
+def display_function_results(
+    results: Dict[str, RoundingResult],
     query_tag: Optional[RoundingTag] = None,
-    analyzer: Optional[RoundingSummaryAnalyzer] = None,
+    analyzer: Optional[RoundingInterproceduralAnalyzer] = None,
     functions: Optional[Dict[str, FunctionContract]] = None,
 ) -> None:
-    """Display interprocedural function summaries with optional traces."""
+    """Display interprocedural analysis results with optional traces."""
     console.print()
     console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
     if query_tag:
         console.print(f"[bold]INTERPROCEDURAL ANALYSIS: canRound(*, {query_tag.name})[/bold]")
     else:
-        console.print("[bold]INTERPROCEDURAL ANALYSIS: Function Summaries[/bold]")
+        console.print("[bold]INTERPROCEDURAL ANALYSIS: Function Results[/bold]")
     console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
     console.print()
 
-    for func_name, summary in sorted(summaries.items()):
+    for func_name, result in sorted(results.items()):
         line = Text()
         line.append(f"  {func_name}", style="bold")
         line.append(": ")
-        line.append(format_tags_set(summary.possible_tags))
-
-        if not summary.is_complete:
-            line.append(f" [incomplete: {summary.incomplete_reason}]", style="dim yellow")
+        line.append(format_tags_set(result.possible_tags))
 
         if query_tag:
-            can_round = query_tag in summary.possible_tags
+            can_round = query_tag in result.possible_tags
             if can_round:
                 line.append("  ")
                 line.append("✓", style="bold green")
@@ -517,16 +514,18 @@ def main():
 
     # Run interprocedural analysis if requested
     if use_interprocedural:
-        summary_analyzer = RoundingSummaryAnalyzer()
-        summaries: Dict[str, FunctionSummary] = {}
+        # Create a dummy analysis for the interprocedural analyzer
+        base_analysis = RoundingAnalysis()
+        interproc_analyzer = RoundingInterproceduralAnalyzer(base_analysis)
+        results: Dict[str, RoundingResult] = {}
         functions_by_label: Dict[str, FunctionContract] = {}
 
         for function in functions_to_analyze:
             contract_name = function.contract.name if function.contract else "Unknown"
             func_label = f"{contract_name}.{function.name}"
             try:
-                summary = summary_analyzer.get_summary(function)
-                summaries[func_label] = summary
+                result = interproc_analyzer.analyze_call(function)
+                results[func_label] = result
                 functions_by_label[func_label] = function
             except Exception as e:
                 console.print(f"[red]Error analyzing {func_label}:[/red] {e}")
@@ -536,10 +535,10 @@ def main():
         if args.query_tag:
             query_tag = RoundingTag[args.query_tag]
 
-        # Display summaries
+        # Display results
         if args.show_summaries or args.query_tag:
-            display_function_summaries(
-                summaries, query_tag, summary_analyzer, functions_by_label
+            display_function_results(
+                results, query_tag, interproc_analyzer, functions_by_label
             )
 
         # If not showing summaries, fall through to regular analysis

@@ -28,9 +28,8 @@ from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.rounding.analysis.summary import (
-        FunctionSummary,
-        RoundingSummaryAnalyzer,
+    from slither.analyses.data_flow.analyses.rounding.analysis.interprocedural import (
+        RoundingInterproceduralAnalyzer,
     )
 
 
@@ -38,13 +37,13 @@ class RoundingAnalysis(Analysis):
     """Analysis that tracks rounding direction metadata through data flow"""
 
     def __init__(
-        self, summary_analyzer: Optional["RoundingSummaryAnalyzer"] = None
+        self, interprocedural: Optional["RoundingInterproceduralAnalyzer"] = None
     ) -> None:
         self._direction: Direction = Forward()
         self._logger = get_logger(enable_ipython_embed=False, log_level="ERROR")
         self.inconsistencies: List[str] = []
         self.annotation_mismatches: List[str] = []
-        self._summary_analyzer = summary_analyzer
+        self._interprocedural = interprocedural
 
     def domain(self) -> Domain:
         """Return initial domain for analysis."""
@@ -258,22 +257,11 @@ class RoundingAnalysis(Analysis):
         domain: RoundingDomain,
         node: Node,
     ) -> None:
-        """Handle function calls - infer rounding from function name or interprocedural analysis"""
+        """Handle function calls - infer rounding from name first, then interprocedural."""
         if not operation.lvalue:
             return
 
-        # Try interprocedural analysis for internal calls if enabled
-        if self._summary_analyzer and isinstance(operation, InternalCall):
-            callee = operation.function
-            if isinstance(callee, Function) and callee.nodes:
-                summary = self._summary_analyzer.get_summary(callee)
-                tag = self._derive_tag_from_summary(summary)
-                self._set_tag_with_annotation(
-                    operation.lvalue, tag, operation, node, domain
-                )
-                return
-
-        # Fall back to name-based inference
+        # Get function name first
         func_name: str
         if isinstance(operation, InternalCall):
             if operation.function:
@@ -285,25 +273,37 @@ class RoundingAnalysis(Analysis):
 
         # Apply division consistency check for named divUp/divDown helpers.
         if self._is_named_division_function(func_name):
-            # Ensure numerator/denominator ordering before enforcing the rule.
             self._check_named_division_consistency(operation, domain, node)
 
-        # Infer tag from function name
+        # First try name-based inference (fast path)
         tag = self._infer_tag_from_name(func_name)
+        if tag != RoundingTag.NEUTRAL:
+            # Name tells us the rounding direction, no need for interprocedural
+            self._set_tag_with_annotation(operation.lvalue, tag, operation, node, domain)
+            return
+
+        # Name didn't help - try interprocedural analysis if enabled
+        if self._interprocedural and isinstance(operation, InternalCall):
+            callee = operation.function
+            if isinstance(callee, Function) and callee.nodes:
+                result = self._interprocedural.analyze_call(callee)
+                tag = self._derive_tag_from_result(result.possible_tags)
+                self._set_tag_with_annotation(
+                    operation.lvalue, tag, operation, node, domain
+                )
+                return
+
+        # Fall back to NEUTRAL
         self._set_tag_with_annotation(operation.lvalue, tag, operation, node, domain)
 
-    def _derive_tag_from_summary(
-        self, summary: "FunctionSummary"
-    ) -> RoundingTag:
-        """Derive a single tag from a function summary.
+    def _derive_tag_from_result(self, tags: set) -> RoundingTag:
+        """Derive a single tag from interprocedural result.
 
         Rules:
         - Single tag -> use it
         - Multiple non-NEUTRAL tags -> UNKNOWN (conservative)
         - Multiple with only one non-NEUTRAL -> use that tag
         """
-        tags = summary.possible_tags
-
         if not tags:
             return RoundingTag.NEUTRAL
 
