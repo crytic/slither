@@ -534,6 +534,52 @@ class PhiHandler(BaseOperationHandler):
             rvalue_names=rvalue_names,
         )
 
+    def _get_explicit_constant_value(
+        self,
+        condition_var: "TrackedSMTVariable",
+    ) -> Optional[bool]:
+        """Check if the condition variable has an explicit constant value.
+
+        Looks for direct equality constraints like `var == 0` or `var == 1`
+        in the solver assertions. This is more reliable than satisfiability
+        checks because it only considers explicit constraints, not derived
+        constraints from overflow analysis.
+
+        Returns:
+            True if explicitly constrained to non-zero (true)
+            False if explicitly constrained to zero (false)
+            None if no explicit constant constraint found
+        """
+        if self.solver is None:
+            return None
+
+        term = condition_var.term
+        term_str = str(term)
+
+        # Look through solver assertions for explicit equality constraints
+        for assertion in self.solver.get_assertions():
+            # Check for direct equality: term == constant or constant == term
+            if self.solver.is_eq_constraint(assertion):
+                operands = self.solver.get_eq_operands(assertion)
+                if operands is None:
+                    continue
+                lhs, rhs = operands
+                lhs_str, rhs_str = str(lhs), str(rhs)
+
+                # Check if LHS is our variable and RHS is a constant
+                if lhs_str == term_str:
+                    const_val = self.solver.get_constant_as_long(rhs)
+                    if const_val is not None:
+                        return const_val != 0
+
+                # Check if RHS is our variable and LHS is a constant
+                if rhs_str == term_str:
+                    const_val = self.solver.get_constant_as_long(lhs)
+                    if const_val is not None:
+                        return const_val != 0
+
+        return None
+
     def _analyze_branch_condition(
         self,
         node: "Node",
@@ -550,9 +596,7 @@ class PhiHandler(BaseOperationHandler):
 
         Returns None if no constant condition can be determined.
         """
-        from z3 import sat, unsat
-
-        if self.solver is None or not hasattr(self.solver, 'solver'):
+        if self.solver is None:
             return None
 
         # Find the common IF node ancestor
@@ -591,27 +635,11 @@ class PhiHandler(BaseOperationHandler):
         if condition_var is None:
             return None
 
-        # Check if condition has a known constant value using the solver
-        # Try checking if condition can only be true
-        z3_solver = self.solver.solver
-        z3_solver.push()
-        z3_solver.add(condition_var.term == 0)  # Add constraint: condition is false
-        result_false = z3_solver.check()
-        z3_solver.pop()
-
-        z3_solver.push()
-        z3_solver.add(condition_var.term != 0)  # Add constraint: condition is true
-        result_true = z3_solver.check()
-        z3_solver.pop()
-
-        condition_value = None
-        if result_false == unsat and result_true == sat:
-            # Condition can only be true
-            condition_value = True
-        elif result_true == unsat and result_false == sat:
-            # Condition can only be false
-            condition_value = False
-        # If both are sat or both unsat, condition value is unknown
+        # Check if condition has a known constant value by looking for explicit
+        # equality constraints in the solver (e.g., from interprocedural analysis).
+        # We avoid using satisfiability checks because the solver may contain
+        # overflow constraints that make branches appear unreachable when they aren't.
+        condition_value = self._get_explicit_constant_value(condition_var)
 
         return {
             'if_node': if_node,

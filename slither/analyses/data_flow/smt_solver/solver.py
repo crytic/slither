@@ -291,8 +291,30 @@ class SMTSolver(ABC):
         """List all declared variable names"""
         return list(self.variables.keys())
 
-    # Note: get_assertions() removed - was unused and relied on redundant self.assertions list
-    # Use solver.solver.assertions() directly to access Z3's native assertion tracking
+    @abstractmethod
+    def get_assertions(self) -> List[SMTTerm]:
+        """Get the list of current assertions in the solver."""
+        pass
+
+    @abstractmethod
+    def is_eq_constraint(self, term: SMTTerm) -> bool:
+        """Check if a term is an equality constraint (a == b)."""
+        pass
+
+    @abstractmethod
+    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+        """Get the two operands of an equality constraint. Returns None if not an equality."""
+        pass
+
+    @abstractmethod
+    def is_constant_value(self, term: SMTTerm) -> bool:
+        """Check if a term is a constant value (not a variable or expression)."""
+        pass
+
+    @abstractmethod
+    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+        """Get the integer value of a constant term. Returns None if not a constant."""
+        pass
 
     @abstractmethod
     def to_smtlib(self) -> str:

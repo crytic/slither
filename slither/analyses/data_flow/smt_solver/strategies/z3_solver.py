@@ -45,6 +45,9 @@ from z3 import (
     URem,
     ZeroExt,
     is_bv,
+    is_bv_value,
+    is_eq,
+    is_int_value,
     sat,
     unsat,
     unknown,
@@ -381,3 +384,30 @@ class Z3Solver(SMTSolver):
         lines.append("(get-model)")
 
         return "\n".join(lines)
+
+    def get_assertions(self) -> list:
+        """Get the list of current assertions in the solver."""
+        return list(self.solver.assertions())
+
+    def is_eq_constraint(self, term: SMTTerm) -> bool:
+        """Check if a term is an equality constraint (a == b)."""
+        return is_eq(term)
+
+    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+        """Get the two operands of an equality constraint. Returns None if not an equality."""
+        if not is_eq(term):
+            return None
+        children = term.children()
+        if len(children) != 2:
+            return None
+        return (children[0], children[1])
+
+    def is_constant_value(self, term: SMTTerm) -> bool:
+        """Check if a term is a constant value (not a variable or expression)."""
+        return is_bv_value(term) or is_int_value(term)
+
+    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+        """Get the integer value of a constant term. Returns None if not a constant."""
+        if is_bv_value(term) or is_int_value(term):
+            return term.as_long()
+        return None

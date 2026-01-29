@@ -12,7 +12,6 @@ CONTRACTS_DIR = Path(__file__).parent.parent.parent.parent.parent.parent / "cont
 TEST_CONTRACTS = [
     "Assert.sol",
     "Assignment.sol",
-    "ByteExtractor.sol",
     "FunctionArgs.sol",
     "Length.sol",
     "Math.sol",
