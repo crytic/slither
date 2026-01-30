@@ -86,7 +86,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     LANGUAGE: str | None = None
 
     def __init__(
-        self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
+        self,
+        compilation_unit: SlitherCompilationUnit,
+        slither: "Slither",
+        logger: Logger,
     ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: list[Contract] = compilation_unit.contracts
@@ -282,6 +285,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         output.data["check"] = self.ARGUMENT
         output.data["impact"] = classification_txt[self.IMPACT]
         output.data["confidence"] = classification_txt[self.CONFIDENCE]
+        output.data["reference"] = self.WIKI
 
         return output
 
