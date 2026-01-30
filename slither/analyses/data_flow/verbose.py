@@ -28,7 +28,6 @@ from slither.core.declarations.function import Function
 if TYPE_CHECKING:
     from slither.analyses.data_flow.logger import DataFlowLogger, LogMessages
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
-    from z3 import Optimize
 
 
 # Default timeout for optimization queries
@@ -45,7 +44,6 @@ def analyze_function_verbose(
     timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
     skip_range_solving: bool = False,
     cache: Optional["RangeQueryCache"] = None,
-    optimizer: Optional["Optimize"] = None,
 ) -> None:
     """Run interval analysis on a single function with verbose output organized by source line.
 
@@ -58,7 +56,6 @@ def analyze_function_verbose(
         timeout_ms: Timeout in milliseconds for each optimization query.
         skip_range_solving: If True, skip SMT optimization and use type bounds.
         cache: Optional RangeQueryCache for memoization.
-        optimizer: Optional reusable Optimize instance.
     """
     # Import here to avoid circular imports
     from slither.analyses.data_flow.analysis import solve_variable_range
@@ -199,7 +196,6 @@ def analyze_function_verbose(
                 timeout_ms=timeout_ms,
                 skip_optimization=skip_range_solving,
                 cache=cache,
-                optimizer=None,  # Fresh optimizer for each query
             )
 
             if min_result and max_result:
@@ -361,9 +357,6 @@ def run_verbose(
                 solver = Z3Solver(use_optimizer=True)
                 analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
 
-                # Get the optimizer from the solver for reuse
-                optimizer = solver.solver if hasattr(solver, "solver") else None
-
                 analyze_function_verbose(
                     function,
                     analysis,
@@ -373,7 +366,6 @@ def run_verbose(
                     timeout_ms=timeout_ms,
                     skip_range_solving=skip_range_solving,
                     cache=cache,
-                    optimizer=optimizer,
                 )
             except Exception as e:
                 # Log error with context, then stop execution
@@ -431,8 +423,8 @@ def show_test_output(
     logging.getLogger("slither.analyses.data_flow").setLevel(logging.ERROR)
 
     # Also suppress rich console output from logger
-    from slither.analyses.data_flow.logger import get_logger, DataFlowLogger
+    from slither.analyses.data_flow.logger import get_logger
 
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=False, log_level="ERROR")
+    get_logger(enable_ipython_embed=False, log_level="ERROR")
 
     run_verbose(str(contract_path), debug=False, function_name=function_name)

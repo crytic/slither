@@ -1,8 +1,8 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.function import Function
 from slither.core.expressions.literal import Literal
-from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType, Byte
+from slither.core.solidity_types.elementary_type import Int, Uint, ElementaryType
 from slither.core.solidity_types.array_type import ArrayType
 
 # Import for global Solidity variables
@@ -14,11 +14,7 @@ try:
 except ImportError:
     SolidityVariableComposed = None
     SOLIDITY_VARIABLES_COMPOSED = {}
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
-from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
 from slither.utils.integer_conversion import convert_string_to_int
 
 if TYPE_CHECKING:

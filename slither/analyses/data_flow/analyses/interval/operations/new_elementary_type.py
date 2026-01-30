@@ -4,9 +4,6 @@ from typing import TYPE_CHECKING, Optional
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
-from slither.core.cfg.scope import Scope
-from slither.core.declarations.function import Function
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.new_elementary_type import NewElementaryType
 from slither.slithir.variables.constant import Constant
 

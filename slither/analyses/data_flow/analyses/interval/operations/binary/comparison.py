@@ -11,7 +11,6 @@ from slither.core.cfg.node import Node
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class ComparisonBinaryHandler(BaseOperationHandler):

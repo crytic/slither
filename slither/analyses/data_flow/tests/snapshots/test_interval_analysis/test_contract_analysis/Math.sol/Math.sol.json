@@ -1,0 +1,312 @@
+{
+  "MathOperations": {
+    "addNoOverflow": {
+      "variables": {
+        "MathOperations.addNoOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.addNoOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "MathOperations.addNoOverflow().c|c_1": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        }
+      }
+    },
+    "addWithOverflow": {
+      "variables": {
+        "MathOperations.addWithOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "MathOperations.addWithOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "complexExpression": {
+      "variables": {
+        "MathOperations.complexExpression().a|a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "MathOperations.complexExpression().b|b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "MathOperations.complexExpression().c|c_1": {
+          "overflow": "NO",
+          "range": "[60, 60]"
+        },
+        "MathOperations.complexExpression().d|d_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "MathOperations.complexExpression().e|e_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "complexExpressionOverflow": {
+      "variables": {
+        "MathOperations.complexExpressionOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.complexExpressionOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "divideByZero": {
+      "variables": {
+        "MathOperations.divideByZero().a|a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.divideByZero().b|b_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "divideNumbers": {
+      "variables": {
+        "MathOperations.divideNumbers().a|a_1": {
+          "overflow": "NO",
+          "range": "[144, 144]"
+        },
+        "MathOperations.divideNumbers().b|b_1": {
+          "overflow": "NO",
+          "range": "[12, 12]"
+        },
+        "MathOperations.divideNumbers().c|c_1": {
+          "overflow": "NO",
+          "range": "[12, 12]"
+        }
+      }
+    },
+    "exponentiationNoOverflow": {
+      "variables": {
+        "MathOperations.exponentiationNoOverflow().base|base_1": {
+          "overflow": "NO",
+          "range": "[2, 2]"
+        },
+        "MathOperations.exponentiationNoOverflow().result|result_1": {
+          "overflow": "NO",
+          "range": "[128, 128]"
+        }
+      }
+    },
+    "exponentiationOverflow": {
+      "variables": {
+        "MathOperations.exponentiationOverflow().base|base_1": {
+          "overflow": "NO",
+          "range": "[2, 2]"
+        },
+        "MathOperations.exponentiationOverflow().exp|exp_1": {
+          "overflow": "NO",
+          "range": "[8, 8]"
+        }
+      }
+    },
+    "leftShiftNoOverflow": {
+      "variables": {
+        "MathOperations.leftShiftNoOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "MathOperations.leftShiftNoOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[128, 128]"
+        }
+      }
+    },
+    "leftShiftOverflow": {
+      "variables": {
+        "MathOperations.leftShiftOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "MathOperations.leftShiftOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "mixedSignedUnsigned": {
+      "variables": {
+        "MathOperations.mixedSignedUnsigned().a|a_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "MathOperations.mixedSignedUnsigned().b|b_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.mixedSignedUnsigned().c|c_1": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        }
+      }
+    },
+    "moduloOperation": {
+      "variables": {
+        "MathOperations.moduloOperation().a|a_1": {
+          "overflow": "NO",
+          "range": "[17, 17]"
+        },
+        "MathOperations.moduloOperation().b|b_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "MathOperations.moduloOperation().c|c_1": {
+          "overflow": "NO",
+          "range": "[2, 2]"
+        }
+      }
+    },
+    "multiplyNoOverflow": {
+      "variables": {
+        "MathOperations.multiplyNoOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "MathOperations.multiplyNoOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[17, 17]"
+        },
+        "MathOperations.multiplyNoOverflow().c|c_1": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        }
+      }
+    },
+    "multiplyWithOverflow": {
+      "variables": {
+        "MathOperations.multiplyWithOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[16, 16]"
+        },
+        "MathOperations.multiplyWithOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[16, 16]"
+        }
+      }
+    },
+    "rightShift": {
+      "variables": {
+        "MathOperations.rightShift().a|a_1": {
+          "overflow": "NO",
+          "range": "[128, 128]"
+        },
+        "MathOperations.rightShift().b|b_1": {
+          "overflow": "NO",
+          "range": "[16, 16]"
+        }
+      }
+    },
+    "signedAdditionOverflow": {
+      "variables": {
+        "MathOperations.signedAdditionOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.signedAdditionOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        }
+      }
+    },
+    "signedMultiplicationOverflow": {
+      "variables": {
+        "MathOperations.signedMultiplicationOverflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[-128, -128]"
+        },
+        "MathOperations.signedMultiplicationOverflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[-1, -1]"
+        }
+      }
+    },
+    "signedSubtractionUnderflow": {
+      "variables": {
+        "MathOperations.signedSubtractionUnderflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[-100, -100]"
+        },
+        "MathOperations.signedSubtractionUnderflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        }
+      }
+    },
+    "subtractNoUnderflow": {
+      "variables": {
+        "MathOperations.subtractNoUnderflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "MathOperations.subtractNoUnderflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "MathOperations.subtractNoUnderflow().c|c_1": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        }
+      }
+    },
+    "subtractWithUnderflow": {
+      "variables": {
+        "MathOperations.subtractWithUnderflow().a|a_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "MathOperations.subtractWithUnderflow().b|b_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "uncheckedArithmetic": {
+      "variables": {
+        "MathOperations.uncheckedArithmetic().a|a_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "MathOperations.uncheckedArithmetic().b|b_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "MathOperations.uncheckedArithmetic().c|c_1": {
+          "overflow": "NO",
+          "range": "[44, 44]"
+        }
+      }
+    },
+    "uninitializedVariable": {
+      "variables": {
+        "MathOperations.uninitializedVariable().a": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "MathOperations.uninitializedVariable().a|a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "MathOperations.uninitializedVariable().b|b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    }
+  }
+}

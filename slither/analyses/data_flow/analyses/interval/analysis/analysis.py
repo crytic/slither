@@ -31,7 +31,6 @@ from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
-from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
 from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.slithir.operations.condition import Condition

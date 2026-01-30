@@ -1,0 +1,76 @@
+{
+  "Length": {
+    "getDynamicBytesLength": {
+      "variables": {
+        "Length.getDynamicBytesLength(bytes).data|data_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "getDynamicMemoryBytesLength": {
+      "variables": {
+        "Length.getDynamicMemoryBytesLength(bytes).data|data_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "getHardcodedBytesLength": {
+      "variables": {
+        "Length.getHardcodedBytesLength().data|data_1": {
+          "overflow": "NO",
+          "range": "[2864434397, 2864434397]"
+        }
+      }
+    },
+    "getHardcodedStringLength": {
+      "variables": {
+        "Length.getHardcodedStringLength().data|data_1": {
+          "overflow": "NO",
+          "range": "[5735816763073854918203775149089, 5735816763073854918203775149089]"
+        }
+      }
+    },
+    "getLengthMinusOffset": {
+      "variables": {
+        "Length.getLengthMinusOffset(bytes).data|data_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "Length.getLengthMinusOffset(bytes).len|len_1": {
+          "overflow": "NO",
+          "range": "[32, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "Length.getLengthMinusOffset(bytes).res": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "Length.getLengthMinusOffset(bytes).res|res_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "Length.getLengthMinusOffset(bytes).res|res_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "Length.getLengthMinusOffset(bytes).res|res_2": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]"
+        },
+        "Length.getLengthMinusOffset(bytes).res|res_3": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639903]"
+        }
+      }
+    },
+    "getStateArrayLength": {
+      "variables": {
+        "Length.dynamicArray|dynamicArray_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    }
+  }
+}

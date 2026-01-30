@@ -1,27 +1,8 @@
 """Z3 solver strategy implementation."""
 
-import time
 import os
+import time
 from typing import Dict, List, Optional
-
-# Constraint dumping for debugging
-DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
-DUMP_FILE = "/tmp/constraints_dump.txt"
-_dump_file_handle = None
-_constraint_history: List[str] = []  # Keep track of constraints for dumping
-
-def _get_dump_file():
-    global _dump_file_handle
-    if _dump_file_handle is None and DUMP_CONSTRAINTS:
-        _dump_file_handle = open(DUMP_FILE, "w")
-    return _dump_file_handle
-
-def _dump(msg: str):
-    if DUMP_CONSTRAINTS:
-        f = _get_dump_file()
-        if f:
-            f.write(msg + "\n")
-            f.flush()
 
 from z3 import (
     BitVec,
@@ -50,11 +31,31 @@ from z3 import (
     is_int_value,
     sat,
     unsat,
-    unknown,
 )
 
-from ..types import SMTVariable, Sort, SortKind, CheckSatResult, SMTTerm
 from ..solver import SMTSolver
+from ..types import CheckSatResult, SMTTerm, SMTVariable, Sort, SortKind
+
+# Constraint dumping for debugging
+DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
+DUMP_FILE = "/tmp/constraints_dump.txt"
+_dump_file_handle = None
+_constraint_history: List[str] = []  # Keep track of constraints for dumping
+
+
+def _get_dump_file():
+    global _dump_file_handle
+    if _dump_file_handle is None and DUMP_CONSTRAINTS:
+        _dump_file_handle = open(DUMP_FILE, "w")
+    return _dump_file_handle
+
+
+def _dump(msg: str):
+    if DUMP_CONSTRAINTS:
+        f = _get_dump_file()
+        if f:
+            f.write(msg + "\n")
+            f.flush()
 
 
 class Z3Solver(SMTSolver):
@@ -125,7 +126,7 @@ class Z3Solver(SMTSolver):
 
     def create_constant(self, value: int, sort: Sort) -> SMTTerm:
         """Create a constant value term in Z3."""
-        from z3 import BitVecVal, BoolVal, IntVal
+        from z3 import BoolVal, IntVal
 
         if sort.kind == SortKind.BOOL:
             return BoolVal(bool(value))
@@ -172,10 +173,10 @@ class Z3Solver(SMTSolver):
                 for i, a in enumerate(assertions):
                     _dump(f"  [{i}] {str(a)[:150]}")
             else:
-                _dump(f"  First 5:")
+                _dump("  First 5:")
                 for i, a in enumerate(assertions[:5]):
                     _dump(f"  [{i}] {str(a)[:150]}")
-                _dump(f"  Last 5:")
+                _dump("  Last 5:")
                 for i, a in enumerate(assertions[-5:]):
                     _dump(f"  [{len(assertions)-5+i}] {str(a)[:150]}")
 
@@ -410,4 +411,67 @@ class Z3Solver(SMTSolver):
         """Get the integer value of a constant term. Returns None if not a constant."""
         if is_bv_value(term) or is_int_value(term):
             return term.as_long()
+        return None
+
+    def is_bool_true(self, term: SMTTerm) -> bool:
+        """Check if a boolean term is the constant True."""
+        from z3 import is_true
+        return is_true(term)
+
+    def solve_range(
+        self,
+        term: SMTTerm,
+        extra_constraints: Optional[list] = None,
+        timeout_ms: int = 500,
+    ) -> tuple[Optional[int], Optional[int]]:
+        """Find minimum and maximum values of a bitvector term."""
+        from z3 import Optimize, sat
+
+        def _optimize_bound(maximize: bool) -> Optional[int]:
+            opt = Optimize()
+            opt.set("timeout", timeout_ms)
+
+            # Copy current assertions
+            for assertion in self.solver.assertions():
+                opt.add(assertion)
+
+            # Add extra constraints
+            if extra_constraints:
+                for constraint in extra_constraints:
+                    opt.add(constraint)
+
+            # Set objective
+            if maximize:
+                opt.maximize(term)
+            else:
+                opt.minimize(term)
+
+            # Solve
+            result = opt.check()
+            if result != sat:
+                return None
+
+            model = opt.model()
+            if model is None:
+                return None
+
+            value = model.eval(term, model_completion=True)
+            if hasattr(value, "as_long"):
+                return value.as_long()
+            return None
+
+        min_val = _optimize_bound(maximize=False)
+        max_val = _optimize_bound(maximize=True)
+        return min_val, max_val
+
+    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+        """Evaluate a term in the current model and return its integer value."""
+        if self.model is None:
+            return None
+        try:
+            value = self.model.eval(term, model_completion=True)
+            if hasattr(value, "as_long"):
+                return value.as_long()
+        except Exception:
+            pass
         return None

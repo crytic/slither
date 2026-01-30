@@ -1,0 +1,142 @@
+{
+  "UnpackTest": {
+    "unpackFirst": {
+      "variables": {
+        "TMP_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "UnpackTest.unpackFirst().a": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.unpackFirst().a|a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.unpackFirst().a|a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "unpackMixed": {
+      "variables": {}
+    },
+    "unpackMultiple": {
+      "variables": {}
+    },
+    "unpackSecond": {
+      "variables": {
+        "TMP_2": {
+          "overflow": "NO",
+          "range": "[60, 60]"
+        },
+        "UnpackTest.unpackSecond().b": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.unpackSecond().b|b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.unpackSecond().b|b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "useMixedUnpack": {
+      "variables": {
+        "UnpackTest.useMixedUnpack().flag": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().flag|flag_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().flag|flag_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "UnpackTest.useMixedUnpack().result": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().result|result_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().result|result_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().result|result_2": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        },
+        "UnpackTest.useMixedUnpack().result|result_3": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        },
+        "UnpackTest.useMixedUnpack().x": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().x|x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().x|x_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "UnpackTest.useMixedUnpack().y": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().y|y_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useMixedUnpack().y|y_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        }
+      }
+    },
+    "useUnpacked": {
+      "variables": {
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "UnpackTest.useUnpacked().a": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useUnpacked().a|a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useUnpacked().a|a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "UnpackTest.useUnpacked().b": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useUnpacked().b|b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "UnpackTest.useUnpacked().b|b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    }
+  }
+}

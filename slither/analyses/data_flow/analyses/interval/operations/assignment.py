@@ -148,114 +148,151 @@ class AssignmentHandler(BaseOperationHandler):
         operation: Assignment,
     ) -> bool:
         """Process assignment from another variable; return False if unsupported."""
+        rvalue_var = self._resolve_rvalue_variable(
+            rvalue, rvalue_name, fallback_type, domain, node, operation
+        )
+        if rvalue_var is None:
+            return False
+
+        self._apply_assignment_constraint(lvalue_var, rvalue_var)
+        self._propagate_assignment_metadata(lvalue_var, rvalue_var, lvalue_name, rvalue_name, domain)
+        self._handle_assignment_overflow(lvalue_var, rvalue_var, rvalue_name, is_checked)
+        return True
+
+    def _resolve_rvalue_variable(
+        self,
+        rvalue: object,
+        rvalue_name: str,
+        fallback_type: Optional[ElementaryType],
+        domain: "IntervalDomain",
+        node: "Node",
+        operation: Assignment,
+    ) -> Optional[TrackedSMTVariable]:
+        """Resolve the rvalue to a tracked variable, creating if needed."""
         rvalue_type = IntervalSMTUtils.resolve_elementary_type(getattr(rvalue, "type", None))
         if rvalue_type is None:
             rvalue_type = fallback_type
             if rvalue_type is None:
-                self.logger.debug(
-                    "Unsupported rvalue type for assignment; skipping interval update."
-                )
-                return False
+                self.logger.debug("Unsupported rvalue type; skipping.")
+                return None
 
         rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+        if rvalue_var is not None:
+            return rvalue_var
+
+        # Try to materialize struct fields
+        rvalue_actual_type = getattr(rvalue, "type", None)
+        if isinstance(rvalue_actual_type, UserDefinedType) and isinstance(
+            rvalue_actual_type.type, Structure
+        ):
+            self._materialize_struct_fields(domain, rvalue_name, rvalue_actual_type.type)
+            return None
+
+        # Synthesize a tracked variable
+        return self._synthesize_rvalue_variable(
+            rvalue_name, rvalue_actual_type, rvalue_type, domain, node, operation
+        )
+
+    def _synthesize_rvalue_variable(
+        self,
+        rvalue_name: str,
+        rvalue_actual_type: object,
+        rvalue_type: ElementaryType,
+        domain: "IntervalDomain",
+        node: "Node",
+        operation: Assignment,
+    ) -> Optional[TrackedSMTVariable]:
+        """Create a new tracked variable for the rvalue."""
+        candidate_type = IntervalSMTUtils.resolve_elementary_type(rvalue_actual_type) or rvalue_type
+        if (
+            candidate_type is None
+            or IntervalSMTUtils.solidity_type_to_smt_sort(candidate_type) is None
+            or self.solver is None
+        ):
+            self.logger.error_and_raise(
+                "Variable '{var_name}' not found in domain",
+                ValueError,
+                var_name=rvalue_name,
+                embed_on_error=True,
+                node=node, operation=operation, domain=domain,
+            )
+
+        rvalue_var = IntervalSMTUtils.create_tracked_variable(
+            self.solver, rvalue_name, candidate_type
+        )
         if rvalue_var is None:
-            # Guard: attempt to materialize struct fields when the rvalue is a struct.
-            rvalue_actual_type = getattr(rvalue, "type", None)
-            if isinstance(rvalue_actual_type, UserDefinedType) and isinstance(
-                rvalue_actual_type.type, Structure
-            ):
-                self._materialize_struct_fields(domain, rvalue_name, rvalue_actual_type.type)
-                return False
-
-            # Fallback: attempt to synthesize a tracked variable for supported elementary types.
-            candidate_type = (
-                IntervalSMTUtils.resolve_elementary_type(rvalue_actual_type) or rvalue_type
+            self.logger.error_and_raise(
+                "Could not synthesize variable '{var_name}'",
+                ValueError,
+                var_name=rvalue_name,
+                embed_on_error=True,
+                node=node, operation=operation, domain=domain,
             )
-            if (
-                candidate_type is None
-                or IntervalSMTUtils.solidity_type_to_smt_sort(candidate_type) is None
-                or self.solver is None
-            ):
-                self.logger.error_and_raise(
-                    "Variable '{var_name}' not found in domain for assignment rvalue",
-                    ValueError,
-                    var_name=rvalue_name,
-                    embed_on_error=True,
-                    node=node,
-                    operation=operation,
-                    domain=domain,
-                )
+        domain.state.set_range_variable(rvalue_name, rvalue_var)
+        return rvalue_var
 
-            rvalue_var = IntervalSMTUtils.create_tracked_variable(
-                self.solver, rvalue_name, candidate_type
-            )
-            if rvalue_var is None:
-                self.logger.error_and_raise(
-                    "Variable '{var_name}' not found and could not be synthesized for assignment rvalue",
-                    ValueError,
-                    var_name=rvalue_name,
-                    embed_on_error=True,
-                    node=node,
-                    operation=operation,
-                    domain=domain,
-                )
-            domain.state.set_range_variable(rvalue_name, rvalue_var)
-
-        # Add constraint: lvalue == rvalue
-        # First check if sizes match
+    def _apply_assignment_constraint(
+        self, lvalue_var: TrackedSMTVariable, rvalue_var: TrackedSMTVariable
+    ) -> None:
+        """Apply the equality constraint between lvalue and rvalue."""
         lvalue_width = self.solver.bv_size(lvalue_var.term)
         rvalue_width = self.solver.bv_size(rvalue_var.term)
+
         if lvalue_width != rvalue_width:
-            self.logger.error(
-                f"Size mismatch in assignment: lvalue width={lvalue_width}, rvalue width={rvalue_width}"
-            )
-            # Extend or truncate rvalue to match lvalue
-            rvalue_term = rvalue_var.term
-            if rvalue_width < lvalue_width:
-                # Extend rvalue - check if signed from metadata
-                is_signed = bool(rvalue_var.base.metadata.get("is_signed", False))
-                rvalue_term = IntervalSMTUtils.extend_to_width(
-                    self.solver, rvalue_term, lvalue_width, is_signed
-                )
-            else:
-                # Truncate rvalue
-                rvalue_term = IntervalSMTUtils.truncate_to_width(
-                    self.solver, rvalue_term, lvalue_width
-                )
-            constraint: SMTTerm = lvalue_var.term == rvalue_term
+            rvalue_term = self._adjust_term_width(rvalue_var, lvalue_width, rvalue_width)
+            constraint = lvalue_var.term == rvalue_term
         else:
-            constraint: SMTTerm = lvalue_var.term == rvalue_var.term
+            constraint = lvalue_var.term == rvalue_var.term
         self.solver.assert_constraint(constraint)
 
-        # Propagate binary operation mapping if rvalue has one
-        # This allows require(condition) to find the original comparison when condition = TMP_0
+    def _adjust_term_width(
+        self, rvalue_var: TrackedSMTVariable, target_width: int, current_width: int
+    ) -> SMTTerm:
+        """Adjust rvalue term width to match target."""
+        rvalue_term = rvalue_var.term
+        if current_width < target_width:
+            is_signed = bool(rvalue_var.base.metadata.get("is_signed", False))
+            return IntervalSMTUtils.extend_to_width(
+                self.solver, rvalue_term, target_width, is_signed
+            )
+        return IntervalSMTUtils.truncate_to_width(self.solver, rvalue_term, target_width)
+
+    def _propagate_assignment_metadata(
+        self,
+        lvalue_var: TrackedSMTVariable,
+        rvalue_var: TrackedSMTVariable,
+        lvalue_name: str,
+        rvalue_name: str,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Propagate metadata from rvalue to lvalue."""
+        # Propagate binary operation mapping
         rvalue_binary_op = domain.state.get_binary_operation(rvalue_name)
         if rvalue_binary_op is not None:
             domain.state.set_binary_operation(lvalue_name, rvalue_binary_op)
 
-        # Propagate bytes_length metadata if rvalue has it (for Length handler)
+        # Propagate bytes_length metadata
         rvalue_bytes_length = rvalue_var.base.metadata.get("bytes_length")
         if rvalue_bytes_length is not None:
             lvalue_var.base.metadata["bytes_length"] = rvalue_bytes_length
 
-        # Propagate safety context for memory safety analysis
+        # Propagate safety context
         self._propagate_safety_context(rvalue_name, lvalue_name)
 
-        # Handle overflow propagation
+    def _handle_assignment_overflow(
+        self,
+        lvalue_var: TrackedSMTVariable,
+        rvalue_var: TrackedSMTVariable,
+        rvalue_name: str,
+        is_checked: bool,
+    ) -> None:
+        """Handle overflow propagation for assignment."""
         if self._is_temporary_name(rvalue_name):
-            # Temporary from an operation - copy its overflow status
             lvalue_var.copy_overflow_from(self.solver, rvalue_var)
-            # In checked mode, operations must not overflow
             if is_checked:
-                # Assert that the operation didn't overflow
-                # This makes the solver UNSAT if overflow occurred
                 lvalue_var.assert_no_overflow(self.solver)
         else:
-            # Regular variable-to-variable assignment
-            # The assignment itself doesn't cause overflow
             lvalue_var.assert_no_overflow(self.solver)
-
-        return True
 
     def _materialize_struct_fields(
         self, domain: "IntervalDomain", base_name: str, struct_type: Structure

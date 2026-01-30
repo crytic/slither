@@ -1,0 +1,100 @@
+{
+  "RequireTests": {
+    "requireAlwaysFalse": {
+      "variables": {
+        "RequireTests.requireAlwaysFalse().x|x_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "requireComplexExpression": {
+      "variables": {
+        "RequireTests.requireComplexExpression(uint256,uint256).a|a_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "RequireTests.requireComplexExpression(uint256,uint256).b|b_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "RequireTests.requireComplexExpression(uint256,uint256).c|c_1": {
+          "overflow": "NO",
+          "range": "[200, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "requireExactValue": {
+      "variables": {
+        "RequireTests.requireExactValue(uint256).result|result_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "RequireTests.requireExactValue(uint256).value|value_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "requireLowerBound": {
+      "variables": {
+        "RequireTests.requireLowerBound(uint256).x|x_1": {
+          "overflow": "NO",
+          "range": "[100, 115792089237316195423570985008687907853269984665640564039457584007913129639925]"
+        },
+        "RequireTests.requireLowerBound(uint256).y|y_1": {
+          "overflow": "NO",
+          "range": "[110, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "requireMultipleConstraints": {
+      "variables": {
+        "RequireTests.requireMultipleConstraints(uint8).result|result_1": {
+          "overflow": "NO",
+          "range": "[61, 159]"
+        },
+        "RequireTests.requireMultipleConstraints(uint8).value|value_1": {
+          "overflow": "NO",
+          "range": "[51, 149]"
+        }
+      }
+    },
+    "requireRange": {
+      "variables": {
+        "RequireTests.requireRange(uint256).x|x_1": {
+          "overflow": "NO",
+          "range": "[100, 200]"
+        },
+        "RequireTests.requireRange(uint256).y|y_1": {
+          "overflow": "NO",
+          "range": "[200, 400]"
+        }
+      }
+    },
+    "requireSignedRange": {
+      "variables": {
+        "RequireTests.requireSignedRange(int8).x|x_1": {
+          "overflow": "NO",
+          "range": "[-1, 0]"
+        },
+        "RequireTests.requireSignedRange(int8).y|y_1": {
+          "overflow": "NO",
+          "range": "[-2, 0]"
+        }
+      }
+    },
+    "requireUpperBound": {
+      "variables": {
+        "RequireTests.requireUpperBound(uint8).result|result_1": {
+          "overflow": "NO",
+          "range": "[50, 150]"
+        },
+        "RequireTests.requireUpperBound(uint8).value|value_1": {
+          "overflow": "NO",
+          "range": "[0, 100]"
+        }
+      }
+    }
+  }
+}

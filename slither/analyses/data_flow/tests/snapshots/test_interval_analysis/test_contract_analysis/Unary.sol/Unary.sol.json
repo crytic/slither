@@ -1,0 +1,88 @@
+{
+  "UnaryTests": {
+    "bitwiseNotConstant": {
+      "variables": {
+        "UnaryTests.bitwiseNotConstant().x|x_1": {
+          "overflow": "NO",
+          "range": "[115792089237316195423570985008687907853269984665640564039457584007913129639935, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "bitwiseNotUint8": {
+      "variables": {
+        "UnaryTests.bitwiseNotUint8(uint8).result|result_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "UnaryTests.bitwiseNotUint8(uint8).value|value_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        }
+      }
+    },
+    "bitwiseNotVariable": {
+      "variables": {
+        "UnaryTests.bitwiseNotVariable(uint256).result|result_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "UnaryTests.bitwiseNotVariable(uint256).value|value_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "complexUnary": {
+      "variables": {
+        "UnaryTests.complexUnary(uint256,bool).a|a_1": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).b|b_1": {
+          "overflow": "NO",
+          "range": "[0, 1]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).notA|notA_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).notB|notB_1": {
+          "overflow": "NO",
+          "range": "[0, 1]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).result|result_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).result|result_2": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "UnaryTests.complexUnary(uint256,bool).result|result_3": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "logicalNotConstant": {
+      "variables": {
+        "UnaryTests.logicalNotConstant().x|x_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "logicalNotVariable": {
+      "variables": {
+        "UnaryTests.logicalNotVariable(bool).result|result_1": {
+          "overflow": "NO",
+          "range": "[0, 1]"
+        },
+        "UnaryTests.logicalNotVariable(bool).value|value_1": {
+          "overflow": "NO",
+          "range": "[0, 1]"
+        }
+      }
+    }
+  }
+}

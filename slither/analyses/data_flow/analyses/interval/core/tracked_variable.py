@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional, Set, TYPE_CHECKING
+from dataclasses import dataclass
+from typing import Set, TYPE_CHECKING
 
 from slither.analyses.data_flow.smt_solver.types import (
     SMTVariable,
@@ -94,7 +94,8 @@ class TrackedSMTVariable:
         if var_name in _asserted_overflow_vars:
             return
 
-        solver.assert_constraint(self.overflow_flag.term == False)
+        false_const = solver.create_constant(False, Sort(kind=SortKind.BOOL))
+        solver.assert_constraint(self.overflow_flag.term == false_const)
         solver.assert_constraint(self.overflow_amount.term == 0)
         _asserted_overflow_vars.add(var_name)
 

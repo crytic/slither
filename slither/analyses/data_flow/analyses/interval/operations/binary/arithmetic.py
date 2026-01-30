@@ -36,165 +36,206 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
+        """Handle arithmetic binary operations."""
         if operation is None or self.solver is None:
             return
 
+        # Resolve operand names
         left_name = IntervalSMTUtils.resolve_variable_name(operation.variable_left)
         right_name = IntervalSMTUtils.resolve_variable_name(operation.variable_right)
-
         if left_name is None or right_name is None:
-            self.logger.debug(
-                "Skipping arithmetic binary operation due to unresolved operand names."
-            )
+            self.logger.debug("Skipping: unresolved operand names.")
             return
 
+        # Infer result type
         result_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
-        result_type: Optional[ElementaryType] = None
-        # Prefer the lvalue type to keep the width narrow (e.g., uint8 stays uint8)
+        result_type = self._infer_result_type(operation, node)
+        if result_name is None or result_type is None:
+            self.logger.debug("Skipping: unsupported lvalue metadata.")
+            return
+
+        # Get operand terms
+        is_checked = node.scope.is_checked
+        left_term, right_term = self._get_operand_terms(
+            domain, operation, left_name, right_name, result_type, is_checked, node
+        )
+        if left_term is None or right_term is None:
+            return
+
+        # Setup result variable
+        result_var = self._setup_result_variable(domain, result_name, result_type)
+        if result_var is None:
+            return
+
+        # Compute and apply the result
+        self._compute_and_apply_result(
+            operation, domain, node, result_var, result_type,
+            left_term, right_term, left_name, right_name, result_name, is_checked,
+        )
+
+    def _infer_result_type(
+        self, operation: Binary, node: "Node"
+    ) -> Optional[ElementaryType]:
+        """Infer the result type for the binary operation."""
+        # Prefer the lvalue type
         try:
             lvalue_type = operation.lvalue.type  # type: ignore[attr-defined]
         except AttributeError:
             lvalue_type = None
-        if isinstance(lvalue_type, ElementaryType):
-            result_type = lvalue_type
 
-        expression = node.expression if isinstance(node.expression, AssignmentOperation) else None
-        # For default wide types (uint256/int256), try to infer a narrower type from the expression
-        # This handles cases like -10 (converted to 0 - 10) where the temp gets uint256 but should be int8
-        is_default_wide_type = result_type is not None and result_type.type in ("uint256", "int256")
-        if (result_type is None or is_default_wide_type) and expression is not None:
-            right_expr = expression.expression_right
-            right_expr_type: Optional[ElementaryType] = None
-            if right_expr is not None:
-                try:
-                    candidate = right_expr.type  # type: ignore[attr-defined]
-                except AttributeError:
-                    candidate = None
-                if isinstance(candidate, ElementaryType):
-                    right_expr_type = candidate
-            if right_expr_type is not None:
-                result_type = right_expr_type
+        result_type = lvalue_type if isinstance(lvalue_type, ElementaryType) else None
 
-            if result_type is None or is_default_wide_type:
-                return_type = expression.expression_return_type
-                if isinstance(return_type, ElementaryType):
-                    result_type = return_type
-
-        if result_name is None or result_type is None:
-            self.logger.debug(
-                "Skipping arithmetic binary operation due to unsupported lvalue metadata."
-            )
-            return
-
-        is_checked = node.scope.is_checked
-
-        left_term, left_var = self._get_operand_term(
-            domain,
-            operation.variable_left,
-            left_name,
-            fallback_type=result_type,
-            is_checked=is_checked,
-            node=node,
-            operation=operation,
+        # For wide types, try to infer narrower type from expression
+        expression = (
+            node.expression if isinstance(node.expression, AssignmentOperation) else None
         )
-        right_term, right_var = self._get_operand_term(
-            domain,
-            operation.variable_right,
-            right_name,
-            fallback_type=result_type,
-            is_checked=is_checked,
-            node=node,
-            operation=operation,
-        )
+        is_wide = result_type is not None and result_type.type in ("uint256", "int256")
 
+        if (result_type is None or is_wide) and expression is not None:
+            result_type = self._infer_type_from_expression(expression, result_type, is_wide)
+
+        return result_type
+
+    def _infer_type_from_expression(
+        self,
+        expression: AssignmentOperation,
+        current_type: Optional[ElementaryType],
+        is_wide: bool,
+    ) -> Optional[ElementaryType]:
+        """Try to infer a narrower type from the expression."""
+        right_expr = expression.expression_right
+        if right_expr is not None:
+            try:
+                candidate = right_expr.type  # type: ignore[attr-defined]
+            except AttributeError:
+                candidate = None
+            if isinstance(candidate, ElementaryType):
+                return candidate
+
+        if current_type is None or is_wide:
+            return_type = expression.expression_return_type
+            if isinstance(return_type, ElementaryType):
+                return return_type
+
+        return current_type
+
+    def _get_operand_terms(
+        self,
+        domain: "IntervalDomain",
+        operation: Binary,
+        left_name: str,
+        right_name: str,
+        result_type: ElementaryType,
+        is_checked: bool,
+        node: "Node",
+    ) -> tuple[Optional[SMTTerm], Optional[SMTTerm]]:
+        """Get SMT terms for both operands."""
+        left_term, _ = self._get_operand_term(
+            domain, operation.variable_left, left_name,
+            fallback_type=result_type, is_checked=is_checked, node=node, operation=operation
+        )
+        right_term, _ = self._get_operand_term(
+            domain, operation.variable_right, right_name,
+            fallback_type=result_type, is_checked=is_checked, node=node, operation=operation
+        )
         if left_term is None or right_term is None:
-            self.logger.error(
-                "Skipping arithmetic binary operation; operands missing in SMT state."
-            )
-            return
+            self.logger.error("Operands missing in SMT state.")
+        return left_term, right_term
 
+    def _setup_result_variable(
+        self,
+        domain: "IntervalDomain",
+        result_name: str,
+        result_type: ElementaryType,
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create the result variable."""
         result_var = IntervalSMTUtils.get_tracked_variable(domain, result_name)
         if result_var is None:
             result_var = IntervalSMTUtils.create_tracked_variable(
                 self.solver, result_name, result_type
             )
             if result_var is None:
-                self.logger.error(
-                    "Unable to create SMT variable for binary result '%s'.", result_name
-                )
-                return
+                self.logger.error("Unable to create SMT variable for '%s'.", result_name)
+                return None
             domain.state.set_range_variable(result_name, result_var)
+        return result_var
 
-        is_power = operation.type == BinaryType.POWER
-        is_shift = operation.type in (BinaryType.LEFT_SHIFT, BinaryType.RIGHT_SHIFT)
-
-        is_result_signed = IntervalSMTUtils.is_signed_type(result_type)
+    def _compute_and_apply_result(
+        self,
+        operation: Binary,
+        domain: "IntervalDomain",
+        _node: "Node",  # Unused but kept for API consistency
+        result_var: TrackedSMTVariable,
+        result_type: ElementaryType,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        left_name: str,
+        right_name: str,
+        result_name: str,
+        is_checked: bool,
+    ) -> None:
+        """Compute the operation result and apply constraints."""
+        is_signed = IntervalSMTUtils.is_signed_type(result_type)
         result_width = IntervalSMTUtils.type_bit_width(result_type)
+        operation_width = self._get_operation_width(operation, left_term, result_width)
 
-        # For shift operations, we need to perform the operation at the left operand's width
-        # to preserve the bits being shifted, then truncate the result to the target width.
-        # Otherwise the upper bits would be lost before the shift.
-        if is_shift:
-            left_operand_width = self.solver.bv_size(left_term)
-            operation_width = max(left_operand_width, result_width)
-        else:
-            operation_width = result_width
-
-        # Extend operands to operation width for the computation
-        left_term_extended = IntervalSMTUtils.extend_to_width(
-            self.solver, left_term, operation_width, is_result_signed
+        # Extend operands
+        left_ext = IntervalSMTUtils.extend_to_width(
+            self.solver, left_term, operation_width, is_signed
         )
-        right_term_extended = IntervalSMTUtils.extend_to_width(
-            self.solver, right_term, operation_width, is_result_signed
+        right_ext = IntervalSMTUtils.extend_to_width(
+            self.solver, right_term, operation_width, is_signed
         )
 
-        # Check for division/modulo by zero (always reverts in Solidity)
+        # Check division by zero
         if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
-            if self._check_division_by_zero(right_term_extended, domain, is_checked):
-                return  # Path is unreachable due to division by zero
+            if self._check_division_by_zero(right_ext, domain, is_checked):
+                return
 
-        if is_power:
-            raw_expr = self._compute_power_expression(
-                operation,
-                result_var,
-                left_term_extended,
-                right_term_extended,
-            )
-        else:
-            raw_expr = self._compute_expression(operation, left_term_extended, right_term_extended)
-
+        # Compute expression
+        raw_expr = self._compute_operation(operation, result_var, left_ext, right_ext)
         if raw_expr is None:
             return
 
-        # If operation was performed at a wider width, truncate result to target width
-        if is_shift and operation_width > result_width:
+        # Truncate if needed
+        if self._is_shift(operation) and operation_width > result_width:
             raw_expr = IntervalSMTUtils.truncate_to_width(self.solver, raw_expr, result_width)
 
-        # Constrain the bitvector result
+        # Apply constraints
         self.solver.assert_constraint(result_var.term == raw_expr)
-
-        # Enforce type bounds to ensure result stays within valid range
         IntervalSMTUtils.enforce_type_bounds(self.solver, result_var)
 
-        # Add overflow detection constraint for arithmetic operations
         self._add_overflow_constraint(
-            result_var,
-            left_term_extended,
-            right_term_extended,
-            operation,
-            result_type,
-            is_checked,
-            domain,
+            result_var, left_ext, right_ext, operation, result_type, is_checked, domain
         )
 
-        # Store binary operation for later retrieval (needed for bytes memory constant tracking)
-        if result_name is not None:
-            domain.state.set_binary_operation(result_name, operation)
+        domain.state.set_binary_operation(result_name, operation)
+        self._track_pointer_arithmetic(result_name, left_name, right_name, operation, domain)
 
-        # Track pointer arithmetic for memory safety analysis
-        self._track_pointer_arithmetic(
-            result_name, left_name, right_name, operation, domain
-        )
+    def _get_operation_width(
+        self, operation: Binary, left_term: SMTTerm, result_width: int
+    ) -> int:
+        """Determine the width to use for the operation."""
+        if self._is_shift(operation):
+            left_width = self.solver.bv_size(left_term)
+            return max(left_width, result_width)
+        return result_width
+
+    def _is_shift(self, operation: Binary) -> bool:
+        """Check if operation is a shift."""
+        return operation.type in (BinaryType.LEFT_SHIFT, BinaryType.RIGHT_SHIFT)
+
+    def _compute_operation(
+        self,
+        operation: Binary,
+        result_var: TrackedSMTVariable,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+    ) -> Optional[SMTTerm]:
+        """Compute the SMT expression for the operation."""
+        if operation.type == BinaryType.POWER:
+            return self._compute_power_expression(operation, result_var, left_term, right_term)
+        return self._compute_expression(operation, left_term, right_term)
 
     def _compute_expression(
         self,
@@ -277,8 +318,6 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
         if exponent_value == 0:
             return bitvec_result
-
-        width = width_parameters[0]
 
         for _ in range(exponent_value):
             bitvec_result = bitvec_result * left_term
@@ -453,10 +492,86 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         is_signed: bool,
     ) -> SMTTerm:
         """Detect overflow by performing operation at extended width and comparing."""
-        solver = self.solver
         op_type = operation.type
 
-        # Extend operands by 1 bit to detect overflow
+        if op_type == BinaryType.MULTIPLICATION:
+            return self._detect_mul_overflow(left_term, right_term, result_width, is_signed)
+        if op_type == BinaryType.POWER:
+            return self._detect_power_overflow(
+                operation, left_term, result_width, is_signed
+            )
+        if op_type in (BinaryType.ADDITION, BinaryType.SUBTRACTION):
+            return self._detect_add_sub_overflow(
+                left_term, right_term, op_type, result_width, is_signed
+            )
+        # Bitwise, division, modulo, shifts don't overflow
+        return self._bool_false()
+
+    def _detect_mul_overflow(
+        self,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        result_width: int,
+        is_signed: bool,
+    ) -> SMTTerm:
+        """Detect overflow in multiplication operations."""
+        solver = self.solver
+        if is_signed:
+            left_ext = solver.bv_sign_ext(left_term, result_width)
+            right_ext = solver.bv_sign_ext(right_term, result_width)
+        else:
+            left_ext = solver.bv_zero_ext(left_term, result_width)
+            right_ext = solver.bv_zero_ext(right_term, result_width)
+
+        result_ext = left_ext * right_ext
+        lower = solver.bv_extract(result_ext, result_width - 1, 0)
+        if is_signed:
+            extended_back = solver.bv_sign_ext(lower, result_width)
+        else:
+            extended_back = solver.bv_zero_ext(lower, result_width)
+        return extended_back != result_ext
+
+    def _detect_power_overflow(
+        self,
+        operation: Binary,
+        left_term: SMTTerm,
+        result_width: int,
+        is_signed: bool,
+    ) -> SMTTerm:
+        """Detect overflow in power operations."""
+        solver = self.solver
+        exponent_value = self._resolve_constant_value(operation.variable_right)
+        if exponent_value is None or exponent_value <= 0:
+            return self._bool_false()
+
+        extended_width = result_width * 2
+        if is_signed:
+            base_ext = solver.bv_sign_ext(left_term, result_width)
+        else:
+            base_ext = solver.bv_zero_ext(left_term, result_width)
+
+        extended_sort = Sort(kind=SortKind.BITVEC, parameters=[extended_width])
+        power_result = solver.create_constant(1, extended_sort)
+        for _ in range(exponent_value):
+            power_result = power_result * base_ext
+
+        lower = solver.bv_extract(power_result, result_width - 1, 0)
+        if is_signed:
+            extended_back = solver.bv_sign_ext(lower, result_width)
+        else:
+            extended_back = solver.bv_zero_ext(lower, result_width)
+        return extended_back != power_result
+
+    def _detect_add_sub_overflow(
+        self,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        op_type: BinaryType,
+        result_width: int,
+        is_signed: bool,
+    ) -> SMTTerm:
+        """Detect overflow in addition/subtraction operations."""
+        solver = self.solver
         if is_signed:
             left_ext = solver.bv_sign_ext(left_term, 1)
             right_ext = solver.bv_sign_ext(right_term, 1)
@@ -464,62 +579,11 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             left_ext = solver.bv_zero_ext(left_term, 1)
             right_ext = solver.bv_zero_ext(right_term, 1)
 
-        # Perform operation at extended width
         if op_type == BinaryType.ADDITION:
             result_ext = left_ext + right_ext
-        elif op_type == BinaryType.SUBTRACTION:
-            result_ext = left_ext - right_ext
-        elif op_type == BinaryType.MULTIPLICATION:
-            # For multiplication, extend by full width to catch all overflow cases
-            if is_signed:
-                left_mul_ext = solver.bv_sign_ext(left_term, result_width)
-                right_mul_ext = solver.bv_sign_ext(right_term, result_width)
-            else:
-                left_mul_ext = solver.bv_zero_ext(left_term, result_width)
-                right_mul_ext = solver.bv_zero_ext(right_term, result_width)
-            result_ext = left_mul_ext * right_mul_ext
-            # Check if upper bits are non-zero (for unsigned) or don't match sign extension (for signed)
-            lower = solver.bv_extract(result_ext, result_width - 1, 0)
-            if is_signed:
-                extended_back = solver.bv_sign_ext(lower, result_width)
-            else:
-                extended_back = solver.bv_zero_ext(lower, result_width)
-            return extended_back != result_ext
-        elif op_type == BinaryType.POWER:
-            # For power, we need the exponent value to compute overflow
-            # The exponent should be a constant for us to handle it
-            exponent_value = self._resolve_constant_value(operation.variable_right)
-            if exponent_value is None or exponent_value <= 0:
-                return self._bool_false()
-
-            # Compute power at extended width (double width to catch overflow)
-            extended_width = result_width * 2
-            if is_signed:
-                base_ext = solver.bv_sign_ext(left_term, result_width)
-            else:
-                base_ext = solver.bv_zero_ext(left_term, result_width)
-
-            # Compute power at extended width
-            extended_sort = Sort(kind=SortKind.BITVEC, parameters=[extended_width])
-            power_result = solver.create_constant(1, extended_sort)
-            for _ in range(exponent_value):
-                power_result = power_result * base_ext
-
-            # Check if upper bits are non-zero (overflow occurred)
-            lower = solver.bv_extract(power_result, result_width - 1, 0)
-            if is_signed:
-                extended_back = solver.bv_sign_ext(lower, result_width)
-            else:
-                extended_back = solver.bv_zero_ext(lower, result_width)
-            return extended_back != power_result
-        elif op_type in [BinaryType.AND, BinaryType.OR, BinaryType.CARET]:
-            # Bitwise operations don't overflow
-            return self._bool_false()
         else:
-            # Division, modulo, shifts don't overflow in the traditional sense
-            return self._bool_false()
+            result_ext = left_ext - right_ext
 
-        # For add/sub: check if truncated result differs from extended result
         lower = solver.bv_extract(result_ext, result_width - 1, 0)
         if is_signed:
             extended_back = solver.bv_sign_ext(lower, 1)
@@ -540,112 +604,83 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         operation: Binary,
         domain: "IntervalDomain",
     ) -> None:
-        """Track pointer arithmetic for memory safety analysis.
-
-        This identifies when a result is computed by adding a base pointer
-        to an offset, especially when the offset is attacker-controlled.
-        """
-        if self.analysis is None:
-            return
-
-        # Only track addition operations (pointer + offset)
-        if operation.type != BinaryType.ADDITION:
+        """Track pointer arithmetic for memory safety analysis."""
+        if self.analysis is None or operation.type != BinaryType.ADDITION:
             return
 
         safety_ctx = self.analysis.safety_context
 
-        def matches_any(name: str, name_set: set) -> bool:
-            """Check if a name matches any entry in the set (flexible matching).
-
-            Handles variable name format differences:
-            - Binary operations use short names like 'ptr_processData_asm_0'
-            - Safety context uses full names like 
-              'VulnerableExample.processData(bytes).ptr_processData_asm_0|ptr_processData_asm_0_1'
-            """
-            if name in name_set:
-                return True
-
-            # Extract the base name (strip SSA version suffix)
-            name_base = name.split("|")[0] if "|" in name else name
-
-            for entry in name_set:
-                # Check exact match with entry
-                if entry == name:
-                    return True
-
-                # Extract entry base name
-                entry_base = entry.split("|")[0] if "|" in entry else entry
-
-                # Check if the entry's base ends with the name (handles full qualified names)
-                # e.g., 'VulnerableExample.processData(bytes).ptr_processData_asm_0' ends with 'ptr_processData_asm_0'
-                if entry_base.endswith(f".{name_base}") or entry_base.endswith(f".{name}"):
-                    return True
-
-                # Check if the name's base ends with the entry (handles reverse)
-                if name_base.endswith(f".{entry_base}") or name.endswith(f".{entry}"):
-                    return True
-
-                # Check if the last component matches
-                entry_last = entry_base.split(".")[-1] if "." in entry_base else entry_base
-                name_last = name_base.split(".")[-1] if "." in name_base else name_base
-                if entry_last == name_last:
-                    return True
-
-            return False
-
-        # Check if either operand is a free memory pointer or derived from one
-        left_is_ptr = matches_any(left_name, safety_ctx.free_memory_pointers)
-        right_is_ptr = matches_any(right_name, safety_ctx.free_memory_pointers)
-
-        # Check if this is adding to an existing pointer arithmetic result
-        left_is_derived = matches_any(left_name, set(safety_ctx.pointer_arithmetic.keys()))
-        right_is_derived = matches_any(right_name, set(safety_ctx.pointer_arithmetic.keys()))
-
-        # Check if operands are attacker-controlled
-        left_is_calldata = matches_any(left_name, safety_ctx.calldata_variables)
-        right_is_calldata = matches_any(right_name, safety_ctx.calldata_variables)
+        # Check operand classifications
+        left_is_ptr = self._matches_name_set(left_name, safety_ctx.free_memory_pointers)
+        right_is_ptr = self._matches_name_set(right_name, safety_ctx.free_memory_pointers)
+        left_is_derived = self._matches_name_set(
+            left_name, set(safety_ctx.pointer_arithmetic.keys())
+        )
+        right_is_derived = self._matches_name_set(
+            right_name, set(safety_ctx.pointer_arithmetic.keys())
+        )
 
         if left_is_ptr or left_is_derived:
-            # result = ptr + offset or result = derived_ptr + offset
-            base_name = left_name
-            if left_is_derived:
-                # Get the original base
-                prev_info = safety_ctx.pointer_arithmetic.get(left_name, {})
-                base_name = prev_info.get("base", left_name)
-                prev_offsets = list(prev_info.get("offsets", []))
-            else:
-                prev_offsets = []
-
-            offsets = prev_offsets + [right_name]
-            safety_ctx.pointer_arithmetic[result_name] = {
-                "base": base_name,
-                "offsets": offsets,
-            }
-            self.logger.debug(
-                "Tracking pointer arithmetic: {result} = {base} + {offsets}",
-                result=result_name,
-                base=base_name,
-                offsets=offsets,
+            self._record_pointer_arithmetic(
+                safety_ctx, result_name, left_name, right_name, left_is_derived
             )
-
         elif right_is_ptr or right_is_derived:
-            # result = offset + ptr (less common but possible)
-            base_name = right_name
-            if right_is_derived:
-                prev_info = safety_ctx.pointer_arithmetic.get(right_name, {})
-                base_name = prev_info.get("base", right_name)
-                prev_offsets = list(prev_info.get("offsets", []))
-            else:
-                prev_offsets = []
-
-            offsets = prev_offsets + [left_name]
-            safety_ctx.pointer_arithmetic[result_name] = {
-                "base": base_name,
-                "offsets": offsets,
-            }
-            self.logger.debug(
-                "Tracking pointer arithmetic: {result} = {base} + {offsets}",
-                result=result_name,
-                base=base_name,
-                offsets=offsets,
+            self._record_pointer_arithmetic(
+                safety_ctx, result_name, right_name, left_name, right_is_derived
             )
+
+    def _matches_name_set(self, name: str, name_set: set) -> bool:
+        """Check if a name matches any entry in the set (flexible matching)."""
+        if name in name_set:
+            return True
+
+        name_base = name.split("|")[0] if "|" in name else name
+
+        for entry in name_set:
+            if entry == name:
+                return True
+
+            entry_base = entry.split("|")[0] if "|" in entry else entry
+
+            # Check suffix matches for fully qualified names
+            if entry_base.endswith(f".{name_base}") or entry_base.endswith(f".{name}"):
+                return True
+            if name_base.endswith(f".{entry_base}") or name.endswith(f".{entry}"):
+                return True
+
+            # Check if the last component matches
+            entry_last = entry_base.split(".")[-1] if "." in entry_base else entry_base
+            name_last = name_base.split(".")[-1] if "." in name_base else name_base
+            if entry_last == name_last:
+                return True
+
+        return False
+
+    def _record_pointer_arithmetic(
+        self,
+        safety_ctx,
+        result_name: str,
+        ptr_name: str,
+        offset_name: str,
+        is_derived: bool,
+    ) -> None:
+        """Record pointer arithmetic in the safety context."""
+        if is_derived:
+            prev_info = safety_ctx.pointer_arithmetic.get(ptr_name, {})
+            base_name = prev_info.get("base", ptr_name)
+            prev_offsets = list(prev_info.get("offsets", []))
+        else:
+            base_name = ptr_name
+            prev_offsets = []
+
+        offsets = prev_offsets + [offset_name]
+        safety_ctx.pointer_arithmetic[result_name] = {
+            "base": base_name,
+            "offsets": offsets,
+        }
+        self.logger.debug(
+            "Tracking pointer arithmetic: {result} = {base} + {offsets}",
+            result=result_name,
+            base=base_name,
+            offsets=offsets,
+        )

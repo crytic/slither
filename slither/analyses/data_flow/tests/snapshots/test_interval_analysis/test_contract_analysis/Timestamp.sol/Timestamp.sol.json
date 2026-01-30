@@ -1,0 +1,24 @@
+{
+  "TimestampTests": {
+    "timestampArithmetic": {
+      "variables": {
+        "TimestampTests.timestampArithmetic().future|future_1": {
+          "overflow": "NO",
+          "range": "[86400, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "TimestampTests.timestampArithmetic().ts|ts_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129553535]"
+        }
+      }
+    },
+    "timestampAssignment": {
+      "variables": {
+        "TimestampTests.timestampAssignment().ts|ts_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    }
+  }
+}

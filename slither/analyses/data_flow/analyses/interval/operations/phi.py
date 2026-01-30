@@ -4,15 +4,13 @@ from typing import Optional, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.analyses.interval.utils import IntervalSMTUtils
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.phi import Phi
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
-    from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-        TrackedSMTVariable,
-    )
     from slither.core.cfg.node import Node
 
 
@@ -663,116 +661,132 @@ class PhiHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        # Find all struct member variables for the lvalue (e.g., "user_5.id", "user_5.balance")
-        # First, get or create the lvalue member variables
-        lvalue_base = lvalue_name.split("|")[0] if "|" in lvalue_name else lvalue_name
+        member_names = self._find_struct_member_names(rvalues, domain)
+        if not member_names:
+            return
 
-        # Find existing struct members from rvalues to determine which members exist
-        # Use prefix index for fast lookup
+        for member_name in member_names:
+            self._propagate_single_member(lvalue_name, member_name, rvalues, domain)
+
+    def _find_struct_member_names(
+        self, rvalues: list[object], domain: "IntervalDomain"
+    ) -> set[str]:
+        """Find all struct member names from rvalues."""
         member_names: set[str] = set()
-
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
                 continue
-
-            # Use prefix index to find struct member variables for this rvalue
             rvalue_prefix = f"{rvalue_name}."
-            candidate_vars = domain.state.get_variables_by_prefix(rvalue_prefix)
-
-            for var_name in candidate_vars:
-                # Extract member name (everything after the prefix)
+            for var_name in domain.state.get_variables_by_prefix(rvalue_prefix):
                 member_name = var_name[len(rvalue_prefix):]
                 member_names.add(member_name)
-                self.logger.debug(
-                    "Found struct member '{var_name}' matching rvalue '{rvalue}'",
-                    var_name=var_name,
-                    rvalue=rvalue_name,
-                )
+        return member_names
 
-        if not member_names:
+    def _propagate_single_member(
+        self,
+        lvalue_name: str,
+        member_name: str,
+        rvalues: list[object],
+        domain: "IntervalDomain",
+    ) -> None:
+        """Propagate a single struct member through Phi."""
+        lvalue_member_name = f"{lvalue_name}.{member_name}"
+        lvalue_member_var = self._get_or_create_member_var(
+            lvalue_member_name, member_name, rvalues, domain
+        )
+        if lvalue_member_var is None:
             return
 
-        # For each struct member, create a Phi operation
-        for member_name in member_names:
-            lvalue_member_name = f"{lvalue_name}.{member_name}"
+        constraints = self._collect_member_constraints(
+            lvalue_member_var, member_name, rvalues, domain
+        )
+        self._apply_or_constraints(constraints, lvalue_member_name)
 
-            # Get or create lvalue member variable
-            lvalue_member_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_member_name)
-            if lvalue_member_var is None:
-                # Try to infer type from rvalue members
-                member_type: Optional[ElementaryType] = None
-                for rvalue in rvalues:
-                    rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
-                    if rvalue_name is None:
-                        continue
-                    rvalue_member_name = f"{rvalue_name}.{member_name}"
-                    rvalue_member_var = IntervalSMTUtils.get_tracked_variable(
-                        domain, rvalue_member_name
-                    )
-                    if rvalue_member_var is not None:
-                        # Use the same type as the rvalue member
-                        if hasattr(rvalue_member_var.base, "metadata"):
-                            type_str = rvalue_member_var.base.metadata.get("solidity_type")
-                            if type_str:
-                                from slither.core.solidity_types.elementary_type import (
-                                    ElementaryType,
-                                )
+    def _get_or_create_member_var(
+        self,
+        lvalue_member_name: str,
+        member_name: str,
+        rvalues: list[object],
+        domain: "IntervalDomain",
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create the lvalue member variable."""
+        var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_member_name)
+        if var is not None:
+            return var
 
-                                member_type = ElementaryType(type_str)
-                                break
+        member_type = self._infer_member_type(member_name, rvalues, domain)
+        if member_type is None:
+            return None
 
-                if member_type is None:
-                    continue
+        var = IntervalSMTUtils.create_tracked_variable(
+            self.solver, lvalue_member_name, member_type
+        )
+        if var is None:
+            return None
+        domain.state.set_range_variable(lvalue_member_name, var)
+        var.assert_no_overflow(self.solver)
+        return var
 
-                lvalue_member_var = IntervalSMTUtils.create_tracked_variable(
-                    self.solver, lvalue_member_name, member_type
-                )
-                if lvalue_member_var is None:
-                    continue
-                domain.state.set_range_variable(lvalue_member_name, lvalue_member_var)
-                lvalue_member_var.assert_no_overflow(self.solver)
+    def _infer_member_type(
+        self, member_name: str, rvalues: list[object], domain: "IntervalDomain"
+    ) -> Optional[ElementaryType]:
+        """Infer member type from rvalue members."""
+        for rvalue in rvalues:
+            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+            if rvalue_name is None:
+                continue
+            rvalue_member = IntervalSMTUtils.get_tracked_variable(
+                domain, f"{rvalue_name}.{member_name}"
+            )
+            if rvalue_member is not None:
+                type_str = rvalue_member.base.metadata.get("solidity_type")
+                if type_str:
+                    return ElementaryType(type_str)
+        return None
 
-            # Collect equality constraints for each rvalue member
-            or_constraints: list[SMTTerm] = []
-            for rvalue in rvalues:
-                rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
-                if rvalue_name is None:
-                    continue
+    def _collect_member_constraints(
+        self,
+        lvalue_var: TrackedSMTVariable,
+        member_name: str,
+        rvalues: list[object],
+        domain: "IntervalDomain",
+    ) -> list[SMTTerm]:
+        """Collect equality constraints for rvalue members."""
+        constraints: list[SMTTerm] = []
+        for rvalue in rvalues:
+            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+            if rvalue_name is None:
+                continue
+            rvalue_var = self._find_rvalue_member(rvalue_name, member_name, domain)
+            if rvalue_var is None:
+                continue
+            constraint = self._create_equality_constraint(lvalue_var, rvalue_var)
+            if constraint is not None:
+                constraints.append(constraint)
+        return constraints
 
-                rvalue_member_name = f"{rvalue_name}.{member_name}"
-                rvalue_member_var = IntervalSMTUtils.get_tracked_variable(
-                    domain, rvalue_member_name
-                )
+    def _find_rvalue_member(
+        self, rvalue_name: str, member_name: str, domain: "IntervalDomain"
+    ) -> Optional[TrackedSMTVariable]:
+        """Find rvalue member variable, trying alternate names."""
+        var = IntervalSMTUtils.get_tracked_variable(domain, f"{rvalue_name}.{member_name}")
+        if var is not None:
+            return var
+        # Try base name without SSA version
+        rvalue_base = rvalue_name.split("|")[0] if "|" in rvalue_name else rvalue_name
+        return IntervalSMTUtils.get_tracked_variable(domain, f"{rvalue_base}.{member_name}")
 
-                # Also try with base name in case of SSA version differences
-                if rvalue_member_var is None:
-                    rvalue_base = rvalue_name.split("|")[0] if "|" in rvalue_name else rvalue_name
-                    alt_rvalue_member_name = f"{rvalue_base}.{member_name}"
-                    rvalue_member_var = IntervalSMTUtils.get_tracked_variable(
-                        domain, alt_rvalue_member_name
-                    )
-
-                if rvalue_member_var is None:
-                    continue
-
-                # Create equality constraint
-                constraint = self._create_equality_constraint(lvalue_member_var, rvalue_member_var)
-                if constraint is not None:
-                    or_constraints.append(constraint)
-
-            # Apply OR constraint for this struct member
-            if or_constraints:
-                if len(or_constraints) == 1:
-                    # Single constraint, use direct equality
-                    self.solver.assert_constraint(or_constraints[0])
-                else:
-                    # Multiple constraints, use OR
-                    or_constraint: SMTTerm = self.solver.Or(*or_constraints)
-                    self.solver.assert_constraint(or_constraint)
-
-                self.logger.debug(
-                    "Propagated struct member '{lvalue_member}' through Phi from {count} rvalue(s)",
-                    lvalue_member=lvalue_member_name,
-                    count=len(or_constraints),
-                )
+    def _apply_or_constraints(self, constraints: list[SMTTerm], member_name: str) -> None:
+        """Apply OR constraints for struct member."""
+        if not constraints:
+            return
+        if len(constraints) == 1:
+            self.solver.assert_constraint(constraints[0])
+        else:
+            self.solver.assert_constraint(self.solver.Or(*constraints))
+        self.logger.debug(
+            "Propagated struct member '{member}' from {count} rvalue(s)",
+            member=member_name,
+            count=len(constraints),
+        )

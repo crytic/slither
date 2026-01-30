@@ -1,0 +1,132 @@
+{
+  "FunctionArgsTests": {
+    "callDouble": {
+      "variables": {
+        "FunctionArgsTests.callDouble().arg|arg_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "FunctionArgsTests.callDouble().result|result_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "FunctionArgsTests.double(uint8).x|x_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "FunctionArgsTests.double(uint8).x|x_2": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "complexExpression": {
+      "variables": {
+        "FunctionArgsTests.complexExpression(uint256).x|x_1": {
+          "overflow": "NO",
+          "range": "[1, 499]"
+        },
+        "FunctionArgsTests.complexExpression(uint256).y|y_1": {
+          "overflow": "NO",
+          "range": "[2, 998]"
+        },
+        "TMP_24": {
+          "overflow": "NO",
+          "range": "[12, 1008]"
+        }
+      }
+    },
+    "constrainedAdd": {
+      "variables": {
+        "FunctionArgsTests.constrainedAdd(uint8,uint8).a|a_1": {
+          "overflow": "NO",
+          "range": "[10, 100]"
+        },
+        "FunctionArgsTests.constrainedAdd(uint8,uint8).b|b_1": {
+          "overflow": "NO",
+          "range": "[20, 50]"
+        },
+        "TMP_12": {
+          "overflow": "NO",
+          "range": "[30, 150]"
+        }
+      }
+    },
+    "double": {
+      "variables": {
+        "FunctionArgsTests.double(uint8).x|x_1": {
+          "overflow": "NO",
+          "range": "[0, 49]"
+        },
+        "FunctionArgsTests.double(uint8).x|x_2": {
+          "overflow": "NO",
+          "range": "[0, 98]"
+        }
+      }
+    },
+    "multipleCalls": {
+      "variables": {
+        "FunctionArgsTests.constrainedAdd(uint8,uint8).a|a_1": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "FunctionArgsTests.constrainedAdd(uint8,uint8).b|b_1": {
+          "overflow": "NO",
+          "range": "[25, 25]"
+        },
+        "FunctionArgsTests.double(uint8).x|x_1": {
+          "overflow": "NO",
+          "range": "[25, 25]"
+        },
+        "FunctionArgsTests.double(uint8).x|x_2": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "FunctionArgsTests.multipleCalls().a|a_1": {
+          "overflow": "NO",
+          "range": "[25, 25]"
+        },
+        "FunctionArgsTests.multipleCalls().b|b_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "FunctionArgsTests.multipleCalls().c|c_1": {
+          "overflow": "NO",
+          "range": "[55, 55]"
+        },
+        "FunctionArgsTests.multipleCalls().d|d_1": {
+          "overflow": "NO",
+          "range": "[105, 105]"
+        }
+      }
+    },
+    "potentialOverflow": {
+      "variables": {
+        "FunctionArgsTests.potentialOverflow(uint8).x|x_1": {
+          "overflow": "NO",
+          "range": "[201, 255]"
+        }
+      }
+    },
+    "potentialUnderflow": {
+      "variables": {
+        "FunctionArgsTests.potentialUnderflow(int8).x|x_1": {
+          "overflow": "NO",
+          "range": "[-128, -101]"
+        }
+      }
+    },
+    "signedOperation": {
+      "variables": {
+        "FunctionArgsTests.signedOperation(int8).x|x_1": {
+          "overflow": "NO",
+          "range": "[-1, 0]"
+        },
+        "TMP_18": {
+          "overflow": "NO",
+          "range": "[-2, 0]"
+        }
+      }
+    }
+  }
+}

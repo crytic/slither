@@ -1,0 +1,56 @@
+{
+  "SimpleCounter": {
+    "getDoubleMaxCount": {
+      "variables": {
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_2": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.getDoubleMaxCount().b|b_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        }
+      }
+    },
+    "getMaxCount": {
+      "variables": {
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "getMaxCountPlusOne": {
+      "variables": {
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_0": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.MAX_COUNT|MAX_COUNT_3": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "SimpleCounter.getMaxCountPlusOne().b|b_1": {
+          "overflow": "NO",
+          "range": "[101, 101]"
+        }
+      }
+    }
+  }
+}

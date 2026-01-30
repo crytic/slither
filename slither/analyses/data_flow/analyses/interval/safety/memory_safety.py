@@ -24,9 +24,7 @@ if TYPE_CHECKING:
         TrackedSMTVariable,
     )
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
-    from slither.analyses.data_flow.smt_solver.types import SMTTerm
     from slither.core.cfg.node import Node
-    from slither.slithir.operations.solidity_call import SolidityCall
 
 
 class ViolationType(Enum):
@@ -295,25 +293,13 @@ class MemorySafetyChecker:
         write_loc_var: "TrackedSMTVariable",
         node: Optional["Node"],
     ) -> Optional[MemorySafetyViolation]:
-        """
-        Check if write location could be less than the base pointer.
-
-        This is the key vulnerability detection: if writeLocation = ptr + offset,
-        and offset is attacker-controlled (full uint256 range), then writeLocation
-        could wrap around and be less than ptr.
-        """
-        from slither.analyses.data_flow.smt_solver.types import CheckSatResult, Sort, SortKind
-
+        """Check if write location could be less than the base pointer."""
         # Look for pointer arithmetic context
         arith_info = self.context.pointer_arithmetic.get(offset_name)
         if arith_info is None:
-            # Try to find the base by checking if any free memory pointer variable
-            # is involved in computing this value
             arith_info = self._infer_pointer_arithmetic(offset_name)
 
         if arith_info is None:
-            # No pointer arithmetic context - check if write location can be
-            # below the minimum valid memory region
             return self._check_write_below_minimum(offset_name, write_loc_var, node)
 
         base_name = arith_info.get("base")
@@ -321,17 +307,10 @@ class MemorySafetyChecker:
             return None
 
         # Check if any offsets are attacker-controlled
-        offsets = arith_info.get("offsets", [])
-        attacker_controlled_offsets = [
-            o for o in offsets if o in self.context.calldata_variables
-        ]
-
-        # If no offsets are attacker-controlled, skip the underflow check.
-        # Constant offsets (like 32, 64) cannot cause underflow - they only
-        # add positive values to the base pointer.
-        if not attacker_controlled_offsets:
+        attacker_offsets = self._get_attacker_controlled_offsets(arith_info)
+        if not attacker_offsets:
             self.logger.debug(
-                "Skipping underflow check for '{name}': all offsets are constants or trusted",
+                "Skipping underflow check for '{name}': all offsets are trusted",
                 name=offset_name,
             )
             return None
@@ -340,48 +319,73 @@ class MemorySafetyChecker:
         if base_var is None:
             return None
 
-        # Check if writeLocation < base is satisfiable
+        # Check if underflow is possible
+        if self._is_underflow_possible(write_loc_var, base_var):
+            return self._create_underflow_violation(
+                offset_name, base_name, write_loc_var, base_var, attacker_offsets, node
+            )
+        return None
+
+    def _get_attacker_controlled_offsets(
+        self,
+        arith_info: Dict[str, object],
+    ) -> List[str]:
+        """Get list of attacker-controlled offsets from arithmetic info."""
+        offsets = arith_info.get("offsets", [])
+        return [o for o in offsets if o in self.context.calldata_variables]
+
+    def _is_underflow_possible(
+        self,
+        write_loc_var: "TrackedSMTVariable",
+        base_var: "TrackedSMTVariable",
+    ) -> bool:
+        """Check if writeLocation < base is satisfiable."""
+        from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+
         self.solver.push()
         try:
-            # Apply path constraints from the current execution path
             self._apply_path_constraints()
-
-            # Create the constraint: writeLocation < base
             underflow_condition = self.solver.bv_ult(
                 write_loc_var.term, base_var.term
             )
             self.solver.assert_constraint(underflow_condition)
-
             result = self.solver.check_sat()
-            if result == CheckSatResult.SAT:
-                # Memory underflow is possible!
-                # Get the actual ranges for reporting
-                write_range = self._get_variable_range(write_loc_var)
-                base_range = self._get_variable_range(base_var)
-
-                message = (
-                    f"Memory underflow: '{offset_name}' can be less than base pointer '{base_name}'. "
-                    f"Attacker-controlled offset(s): {attacker_controlled_offsets}"
-                )
-
-                return MemorySafetyViolation(
-                    violation_type=ViolationType.MEMORY_UNDERFLOW,
-                    message=message,
-                    write_location_name=offset_name,
-                    base_pointer_name=base_name,
-                    write_location_range=write_range,
-                    base_pointer_range=base_range,
-                    node=node,
-                    severity="CRITICAL",
-                    recommendation=(
-                        "Add bounds checks to ensure writeLocation >= ptr. "
-                        "Example: require(offset <= type(uint128).max)"
-                    ),
-                )
+            return result == CheckSatResult.SAT
         finally:
             self.solver.pop()
 
-        return None
+    def _create_underflow_violation(
+        self,
+        offset_name: str,
+        base_name: str,
+        write_loc_var: "TrackedSMTVariable",
+        base_var: "TrackedSMTVariable",
+        attacker_offsets: List[str],
+        node: Optional["Node"],
+    ) -> MemorySafetyViolation:
+        """Create a memory underflow violation report."""
+        write_range = self._get_variable_range(write_loc_var)
+        base_range = self._get_variable_range(base_var)
+
+        message = (
+            f"Memory underflow: '{offset_name}' can be less than base pointer "
+            f"'{base_name}'. Attacker-controlled offset(s): {attacker_offsets}"
+        )
+
+        return MemorySafetyViolation(
+            violation_type=ViolationType.MEMORY_UNDERFLOW,
+            message=message,
+            write_location_name=offset_name,
+            base_pointer_name=base_name,
+            write_location_range=write_range,
+            base_pointer_range=base_range,
+            node=node,
+            severity="CRITICAL",
+            recommendation=(
+                "Add bounds checks to ensure writeLocation >= ptr. "
+                "Example: require(offset <= type(uint128).max)"
+            ),
+        )
 
     def _check_write_below_minimum(
         self,
@@ -390,7 +394,7 @@ class MemorySafetyChecker:
         node: Optional["Node"],
     ) -> Optional[MemorySafetyViolation]:
         """Check if write location can be below minimum valid memory (0x80)."""
-        from slither.analyses.data_flow.smt_solver.types import CheckSatResult, Sort, SortKind
+        from slither.analyses.data_flow.smt_solver.types import CheckSatResult
 
         # Check if writeLocation < 0x80 is satisfiable
         self.solver.push()
@@ -451,9 +455,6 @@ class MemorySafetyChecker:
             return None
 
         min_val, max_val = write_range
-
-        # If the range spans the entire uint256 space, it's an arbitrary write
-        max_uint256 = (1 << 256) - 1
         range_size = max_val - min_val
 
         # Consider it arbitrary if it spans more than 2^128 values

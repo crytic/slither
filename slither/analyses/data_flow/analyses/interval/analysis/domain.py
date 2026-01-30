@@ -1,12 +1,12 @@
 from enum import Enum, auto
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.smt_solver.types import SMTTerm
+    pass
 
 
 class DomainVariant(Enum):

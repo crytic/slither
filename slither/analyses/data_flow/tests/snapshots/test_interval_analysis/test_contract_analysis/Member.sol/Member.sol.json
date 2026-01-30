@@ -1,0 +1,64 @@
+{
+  "SimpleMember": {
+    "getBalance": {
+      "variables": {
+        "SimpleMember.user|user_6.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "SimpleMember.user|user_6.id": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "getId": {
+      "variables": {
+        "SimpleMember.user|user_4.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "SimpleMember.user|user_4.id": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "SimpleMember.user|user_5.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "SimpleMember.user|user_5.id": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "setUser": {
+      "variables": {
+        "SimpleMember.setUser(uint256,uint256)._balance|_balance_1": {
+          "overflow": "NO",
+          "range": "[0, 99]"
+        },
+        "SimpleMember.setUser(uint256,uint256)._id|_id_1": {
+          "overflow": "NO",
+          "range": "[0, 9]"
+        },
+        "SimpleMember.user|user_1.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "SimpleMember.user|user_1.id": {
+          "overflow": "NO",
+          "range": "[0, 9]"
+        },
+        "SimpleMember.user|user_2.balance": {
+          "overflow": "NO",
+          "range": "[0, 99]"
+        },
+        "SimpleMember.user|user_2.id": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "AssertTests": {
+    "assertAlwaysFalse": {
+      "variables": {
+        "AssertTests.assertAlwaysFalse().x|x_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "AssertTests.assertAlwaysFalse().y|y_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "assertExactValue": {
+      "variables": {
+        "AssertTests.assertExactValue().x|x_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "AssertTests.assertExactValue().y|y_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "AssertTests.assertExactValue().z|z_1": {
+          "overflow": "NO",
+          "range": "[16, 16]"
+        }
+      }
+    },
+    "assertMultipleConstraints": {
+      "variables": {
+        "AssertTests.assertMultipleConstraints().result|result_1": {
+          "overflow": "NO",
+          "range": "[160, 160]"
+        },
+        "AssertTests.assertMultipleConstraints().value|value_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "AssertTests.assertMultipleConstraints().value|value_2": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        }
+      }
+    },
+    "assertRangeNarrowing": {
+      "variables": {
+        "AssertTests.assertRangeNarrowing().a|a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "AssertTests.assertRangeNarrowing().b|b_1": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        },
+        "AssertTests.assertRangeNarrowing().c|c_1": {
+          "overflow": "NO",
+          "range": "[160, 160]"
+        }
+      }
+    },
+    "assertSignedRange": {
+      "variables": {
+        "AssertTests.assertSignedRange().x|x_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "AssertTests.assertSignedRange().y|y_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "AssertTests.assertSignedRange().z|z_1": {
+          "overflow": "NO",
+          "range": "[40, 40]"
+        }
+      }
+    }
+  }
+}

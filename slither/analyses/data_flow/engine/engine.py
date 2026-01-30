@@ -1,3 +1,9 @@
+"""Data flow analysis engine using worklist algorithm.
+
+Implements the generic fixpoint computation framework for
+both forward and backward data flow analyses.
+"""
+
 import time
 from collections import defaultdict, deque
 from typing import Deque, Dict, Generic, List
@@ -8,11 +14,26 @@ from slither.core.declarations.function import Function
 
 
 class Engine(Generic[A]):
-    def __init__(self):
+    """Worklist-based data flow analysis engine.
+
+    Computes fixpoints for data flow analyses over function CFGs.
+    Tracks iteration counts and node visits for performance profiling.
+
+    Attributes:
+        state: Mapping from node IDs to pre/post analysis states.
+        nodes: List of CFG nodes in the analyzed function.
+        analysis: The analysis instance providing transfer functions.
+        function: The function being analyzed.
+        iteration_count: Total worklist iterations performed.
+        node_visit_count: Visit count per node for cycle detection.
+    """
+
+    def __init__(self) -> None:
+        """Initialize an empty engine instance."""
         self.state: Dict[int, AnalysisState[A]] = {}
         self.nodes: List[Node] = []
         self.analysis: Analysis
-        self.function: Function  # Single function being analyzed
+        self.function: Function
 
         # Performance instrumentation
         self.iteration_count = 0
@@ -21,13 +42,21 @@ class Engine(Generic[A]):
         self.last_progress_time: float = 0.0
 
     @classmethod
-    def new(cls, analysis: Analysis, function: Function):
+    def new(cls, analysis: Analysis, function: Function) -> "Engine[A]":
+        """Create a new engine for analyzing a function.
+
+        Args:
+            analysis: The analysis to run.
+            function: The function to analyze.
+
+        Returns:
+            An initialized engine ready to run analysis.
+        """
         engine = cls()
         engine.analysis = analysis
-        engine.function = function  # Store single function
+        engine.function = function
 
         # Create state mapping for nodes in this single function only
-        # Data flow analysis operates on one function's CFG at a time
         for node in function.nodes:
             engine.nodes.append(node)
             engine.state[node.node_id] = AnalysisState(
@@ -36,7 +65,8 @@ class Engine(Generic[A]):
 
         return engine
 
-    def run_analysis(self):
+    def run_analysis(self) -> None:
+        """Run the worklist algorithm until fixpoint is reached."""
         worklist: Deque[Node] = deque()
 
         # Instrumentation constants
@@ -65,7 +95,7 @@ class Engine(Generic[A]):
             if self.iteration_count > MAX_ITERATIONS:
                 print(f"\n[ENGINE] ERROR: Exceeded {MAX_ITERATIONS} iterations!")
                 print(f"[ENGINE] Worklist size: {len(worklist)}")
-                print(f"[ENGINE] Top 10 most visited nodes:")
+                print("[ENGINE] Top 10 most visited nodes:")
                 for node_id, count in sorted(
                     self.node_visit_count.items(), key=lambda x: x[1], reverse=True
                 )[:10]:
@@ -111,6 +141,11 @@ class Engine(Generic[A]):
         )
 
     def result(self) -> Dict[Node, AnalysisState[A]]:
+        """Return analysis results mapped by CFG node.
+
+        Returns:
+            Dict mapping each node to its final pre/post analysis state.
+        """
         result = {}
         for node in self.nodes:
             result[node] = self.state[node.node_id]

@@ -1,11 +1,7 @@
-from typing import Optional
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
-)
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 from slither.analyses.data_flow.analyses.interval.operations.binary.comparison import (

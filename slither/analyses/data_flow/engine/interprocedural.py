@@ -213,73 +213,94 @@ class InterproceduralAnalyzer:
         for i, param in enumerate(called_function.parameters):
             if i >= len(operation.arguments):
                 break
+            self._constrain_single_parameter(
+                operation.arguments[i], param, caller_domain, callee_domain
+            )
 
-            arg = operation.arguments[i]
-            param_name = IntervalSMTUtils.resolve_variable_name(param)
-            if param_name is None:
-                continue
+    def _constrain_single_parameter(
+        self,
+        arg,
+        param,
+        caller_domain: IntervalDomain,
+        callee_domain: IntervalDomain,
+    ) -> None:
+        """Constrain a single parameter based on its corresponding argument."""
+        param_name = IntervalSMTUtils.resolve_variable_name(param)
+        param_type = IntervalSMTUtils.resolve_elementary_type(param.type)
+        if param_name is None or param_type is None:
+            return
 
-            param_type = IntervalSMTUtils.resolve_elementary_type(param.type)
-            if param_type is None:
-                continue
+        # Get or create parameter variable in callee domain
+        param_tracked = self._get_or_create_param_tracked(
+            callee_domain, param_name, param_type
+        )
+        if param_tracked is None:
+            return
 
-            # Get or create parameter variable in callee domain
-            param_tracked = IntervalSMTUtils.get_tracked_variable(callee_domain, param_name)
+        # Handle constant argument
+        if isinstance(arg, Constant):
+            self._constrain_parameter_to_constant(
+                param_name, param_tracked, arg.value, param_type, callee_domain
+            )
+            return
+
+        # Handle variable argument
+        self._constrain_parameter_to_variable(
+            arg, param_name, param_tracked, param_type, caller_domain, callee_domain
+        )
+
+    def _get_or_create_param_tracked(
+        self,
+        callee_domain: IntervalDomain,
+        param_name: str,
+        param_type: ElementaryType,
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create the tracked variable for a parameter."""
+        param_tracked = IntervalSMTUtils.get_tracked_variable(callee_domain, param_name)
+        if param_tracked is None:
+            param_tracked = IntervalSMTUtils.create_tracked_variable(
+                self.solver, param_name, param_type
+            )
             if param_tracked is None:
-                param_tracked = IntervalSMTUtils.create_tracked_variable(
-                    self.solver, param_name, param_type
-                )
-                if param_tracked is None:
-                    continue
-                callee_domain.state.set_range_variable(param_name, param_tracked)
-                param_tracked.assert_no_overflow(self.solver)
+                return None
+            callee_domain.state.set_range_variable(param_name, param_tracked)
+            param_tracked.assert_no_overflow(self.solver)
+        return param_tracked
 
-            # Handle argument: constant or variable
-            if isinstance(arg, Constant):
-                const_value = arg.value
+    def _constrain_parameter_to_variable(
+        self,
+        arg,
+        param_name: str,
+        param_tracked: TrackedSMTVariable,
+        param_type: ElementaryType,
+        caller_domain: IntervalDomain,
+        callee_domain: IntervalDomain,
+    ) -> None:
+        """Constrain a parameter to equal a variable argument."""
+        arg_name = IntervalSMTUtils.resolve_variable_name(arg)
+        if arg_name is None:
+            return
+
+        arg_tracked = IntervalSMTUtils.get_tracked_variable(caller_domain, arg_name)
+        if arg_tracked is None:
+            if hasattr(arg, "value"):
                 self._constrain_parameter_to_constant(
-                    param_name=param_name,
-                    param_tracked=param_tracked,
-                    const_value=const_value,
-                    param_type=param_type,
-                    callee_domain=callee_domain,
+                    param_name, param_tracked, arg.value, param_type, callee_domain
                 )
-                continue
+            return
 
-            # Argument is a variable - get its tracked variable from caller domain
-            arg_name = IntervalSMTUtils.resolve_variable_name(arg)
-            if arg_name is None:
-                continue
+        constraint: SMTTerm = param_tracked.term == arg_tracked.term
+        self.solver.assert_constraint(constraint)
+        self.logger.debug(
+            "Constrained {label} parameter '{param}' to equal argument '{arg}'",
+            label=self._call_type_label,
+            param=param_name,
+            arg=arg_name,
+        )
 
-            arg_tracked = IntervalSMTUtils.get_tracked_variable(caller_domain, arg_name)
-            if arg_tracked is None:
-                if hasattr(arg, "value"):
-                    const_value = arg.value
-                    self._constrain_parameter_to_constant(
-                        param_name=param_name,
-                        param_tracked=param_tracked,
-                        const_value=const_value,
-                        param_type=param_type,
-                        callee_domain=callee_domain,
-                    )
-                continue
-
-            # Constrain parameter to equal argument value
-            constraint: SMTTerm = param_tracked.term == arg_tracked.term
-            self.solver.assert_constraint(constraint)
-            self.logger.debug(
-                "Constrained {label} parameter '{param}' to equal argument '{arg}'",
-                label=self._call_type_label,
-                param=param_name,
-                arg=arg_name,
-            )
-
-            self._constrain_parameter_ssa_versions(
-                base_name=param_name,
-                rhs_term=arg_tracked.term,
-                param_type=param_type,
-                callee_domain=callee_domain,
-            )
+        self._constrain_parameter_ssa_versions(
+            param_name, arg_tracked.term, param_type, callee_domain
+        )
 
     def _reconstrain_parameters_after_analysis(
         self,
@@ -293,74 +314,107 @@ class InterproceduralAnalyzer:
         if not operation.arguments or not called_function.parameters:
             return
 
-        # Get all domain states from all nodes
-        all_domains: List[IntervalDomain] = []
-        for node in called_function.nodes:
-            node_state = engine.state.get(node.node_id)
-            if node_state and node_state.post.variant == DomainVariant.STATE:
-                all_domains.append(node_state.post)
-
+        all_domains = self._collect_analyzed_domains(called_function, engine)
         if not all_domains:
             return
 
         for i, param in enumerate(called_function.parameters):
             if i >= len(operation.arguments):
                 break
+            self._reconstrain_single_parameter(
+                operation.arguments[i], param, caller_domain, all_domains
+            )
 
-            arg = operation.arguments[i]
-            param_name = IntervalSMTUtils.resolve_variable_name(param)
-            if param_name is None:
-                continue
+    def _collect_analyzed_domains(
+        self,
+        called_function: Function,
+        engine: Engine,
+    ) -> List[IntervalDomain]:
+        """Collect all domain states from analyzed nodes."""
+        all_domains: List[IntervalDomain] = []
+        for node in called_function.nodes:
+            node_state = engine.state.get(node.node_id)
+            if node_state and node_state.post.variant == DomainVariant.STATE:
+                all_domains.append(node_state.post)
+        return all_domains
 
-            param_type = IntervalSMTUtils.resolve_elementary_type(param.type)
-            if param_type is None:
-                continue
+    def _reconstrain_single_parameter(
+        self,
+        arg,
+        param,
+        caller_domain: IntervalDomain,
+        all_domains: List[IntervalDomain],
+    ) -> None:
+        """Re-constrain a single parameter across all analyzed domains."""
+        param_name = IntervalSMTUtils.resolve_variable_name(param)
+        param_type = IntervalSMTUtils.resolve_elementary_type(param.type)
+        if param_name is None or param_type is None:
+            return
 
-            # Get the constraint value (constant or variable term)
-            rhs_term: Optional[SMTTerm] = None
-            if isinstance(arg, Constant):
-                const_value = arg.value
-                for domain in all_domains:
-                    param_tracked = IntervalSMTUtils.get_tracked_variable(domain, param_name)
-                    if param_tracked is not None:
-                        rhs_term = self.solver.create_constant(const_value, param_tracked.sort)
-                        break
-                if rhs_term is None:
-                    temp_tracked = IntervalSMTUtils.create_tracked_variable(
-                        self.solver, param_name, param_type
-                    )
-                    if temp_tracked is not None:
-                        rhs_term = self.solver.create_constant(const_value, temp_tracked.sort)
-            else:
-                arg_name = IntervalSMTUtils.resolve_variable_name(arg)
-                if arg_name is None:
-                    continue
-                arg_tracked = IntervalSMTUtils.get_tracked_variable(caller_domain, arg_name)
-                if arg_tracked is None:
-                    continue
-                rhs_term = arg_tracked.term
+        rhs_term = self._resolve_rhs_term(arg, param_name, param_type, caller_domain, all_domains)
+        if rhs_term is None:
+            return
 
-            if rhs_term is None:
-                continue
+        for domain in all_domains:
+            self._apply_parameter_constraint(domain, param_name, param_type, rhs_term)
 
-            # Constrain in ALL analyzed domains
-            for domain in all_domains:
-                param_tracked = IntervalSMTUtils.get_tracked_variable(domain, param_name)
-                if param_tracked is not None:
-                    constraint: SMTTerm = param_tracked.term == rhs_term
-                    self.solver.assert_constraint(constraint)
-                    self.logger.debug(
-                        "Re-constrained {label} base parameter '{param}'",
-                        label=self._call_type_label,
-                        param=param_name,
-                    )
+    def _resolve_rhs_term(
+        self,
+        arg,
+        param_name: str,
+        param_type: ElementaryType,
+        caller_domain: IntervalDomain,
+        all_domains: List[IntervalDomain],
+    ) -> Optional[SMTTerm]:
+        """Resolve the RHS term for a parameter constraint."""
+        if isinstance(arg, Constant):
+            return self._resolve_constant_rhs(arg.value, param_name, param_type, all_domains)
 
-                self._constrain_parameter_ssa_versions(
-                    base_name=param_name,
-                    rhs_term=rhs_term,
-                    param_type=param_type,
-                    callee_domain=domain,
-                )
+        arg_name = IntervalSMTUtils.resolve_variable_name(arg)
+        if arg_name is None:
+            return None
+        arg_tracked = IntervalSMTUtils.get_tracked_variable(caller_domain, arg_name)
+        return arg_tracked.term if arg_tracked else None
+
+    def _resolve_constant_rhs(
+        self,
+        const_value: int,
+        param_name: str,
+        param_type: ElementaryType,
+        all_domains: List[IntervalDomain],
+    ) -> Optional[SMTTerm]:
+        """Resolve an RHS term for a constant argument."""
+        for domain in all_domains:
+            param_tracked = IntervalSMTUtils.get_tracked_variable(domain, param_name)
+            if param_tracked is not None:
+                return self.solver.create_constant(const_value, param_tracked.sort)
+
+        temp_tracked = IntervalSMTUtils.create_tracked_variable(
+            self.solver, param_name, param_type
+        )
+        if temp_tracked is not None:
+            return self.solver.create_constant(const_value, temp_tracked.sort)
+        return None
+
+    def _apply_parameter_constraint(
+        self,
+        domain: IntervalDomain,
+        param_name: str,
+        param_type: ElementaryType,
+        rhs_term: SMTTerm,
+    ) -> None:
+        """Apply parameter constraint to a domain."""
+        param_tracked = IntervalSMTUtils.get_tracked_variable(domain, param_name)
+        if param_tracked is not None:
+            constraint: SMTTerm = param_tracked.term == rhs_term
+            self.solver.assert_constraint(constraint)
+            self.logger.debug(
+                "Re-constrained {label} base parameter '{param}'",
+                label=self._call_type_label,
+                param=param_name,
+            )
+
+        self._constrain_parameter_ssa_versions(param_name, rhs_term, param_type, domain)
 
     def _get_final_domain(self, function: Function, engine: Engine) -> Optional[IntervalDomain]:
         """Get the final domain state from function exit points (return statements)."""
@@ -435,27 +489,60 @@ class InterproceduralAnalyzer:
             self._handle_return_value_fallback(operation, caller_domain)
             return
 
-        lvalue = operation.lvalue
-        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
+        lvalue_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
         if lvalue_name is None:
             return
 
-        called_function = operation.function
-        return_values = []
-        for node in called_function.nodes:
-            for ir in node.irs:
-                from slither.slithir.operations.return_operation import Return
+        # Find the return value tracked variable
+        return_tracked = self._find_return_value_tracked(operation, callee_domain)
+        if return_tracked is None:
+            self._handle_return_value_fallback(operation, caller_domain)
+            return
 
-                if isinstance(ir, Return) and ir.values:
-                    return_values.extend(ir.values)
+        return_value_name, return_value_tracked = return_tracked
 
+        # Determine return type and create lvalue variable
+        return_type = self._determine_return_type(operation)
+        if return_type is None:
+            self.logger.debug(
+                "Could not determine {label} return type for '{name}', using fallback",
+                label=self._call_type_label,
+                name=lvalue_name,
+            )
+            self._handle_return_value_fallback(operation, caller_domain)
+            return
+
+        lvalue_tracked = self._get_or_create_lvalue(
+            caller_domain, lvalue_name, return_type
+        )
+        if lvalue_tracked is None:
+            self._handle_return_value_fallback(operation, caller_domain)
+            return
+
+        # Apply the constraint
+        constraint: SMTTerm = lvalue_tracked.term == return_value_tracked.term
+        self.solver.assert_constraint(constraint)
+        self.logger.debug(
+            "Extracted {label} return value '{name}', constrained to '{return_name}'",
+            label=self._call_type_label,
+            name=lvalue_name,
+            return_name=return_value_name,
+        )
+
+    def _find_return_value_tracked(
+        self,
+        operation: CallOperation,
+        callee_domain: IntervalDomain,
+    ) -> Optional[tuple[str, TrackedSMTVariable]]:
+        """Find the tracked variable for the function's return value."""
+        # Collect return values from function nodes
+        return_values = self._collect_return_values(operation.function)
         if not return_values:
             self.logger.debug(
                 "No return values found in {label} function, using fallback",
                 label=self._call_type_label,
             )
-            self._handle_return_value_fallback(operation, caller_domain)
-            return
+            return None
 
         return_value = return_values[0]
         return_value_base = getattr(return_value, "canonical_name", None) or getattr(
@@ -467,27 +554,17 @@ class InterproceduralAnalyzer:
                 "{label} return value has no identifiable name, using fallback",
                 label=self._call_type_label.capitalize(),
             )
-            self._handle_return_value_fallback(operation, caller_domain)
-            return
+            return None
 
-        # Gather all candidate variables that match the return value base
-        candidates: List[tuple[int, str, TrackedSMTVariable]] = []
-        for var_name, tracked_var in callee_domain.state.get_range_variables().items():
-            if var_name == return_value_base:
-                candidates.append((-1, var_name, tracked_var))
-            elif var_name.startswith(f"{return_value_base}|"):
-                ssa_suffix = var_name.split("|", 1)[1]
-                ssa_index = self._extract_ssa_index(ssa_suffix)
-                candidates.append((ssa_index, var_name, tracked_var))
-
+        # Find the best matching tracked variable
+        candidates = self._gather_return_candidates(callee_domain, return_value_base)
         if not candidates:
             self.logger.debug(
-                "{label} return value base '{base}' not present in callee domain, using fallback",
+                "{label} return value base '{base}' not present in callee domain",
                 label=self._call_type_label.capitalize(),
                 base=return_value_base,
             )
-            self._handle_return_value_fallback(operation, caller_domain)
-            return
+            return None
 
         # Select the candidate with the highest SSA index (latest version)
         candidates.sort(key=lambda item: item[0])
@@ -498,45 +575,75 @@ class InterproceduralAnalyzer:
             name=return_value_name,
             index=return_value_index,
         )
+        return return_value_name, return_value_tracked
 
-        # Determine return type
-        return_type: Optional[ElementaryType] = None
+    def _collect_return_values(self, called_function: Function) -> List:
+        """Collect all return values from the function's Return operations."""
+        from slither.slithir.operations.return_operation import Return
+
+        return_values = []
+        for node in called_function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Return) and ir.values:
+                    return_values.extend(ir.values)
+        return return_values
+
+    def _gather_return_candidates(
+        self,
+        callee_domain: IntervalDomain,
+        return_value_base: str,
+    ) -> List[tuple[int, str, TrackedSMTVariable]]:
+        """Gather candidate variables matching the return value base name."""
+        candidates: List[tuple[int, str, TrackedSMTVariable]] = []
+        for var_name, tracked_var in callee_domain.state.get_range_variables().items():
+            if var_name == return_value_base:
+                candidates.append((-1, var_name, tracked_var))
+            elif var_name.startswith(f"{return_value_base}|"):
+                ssa_suffix = var_name.split("|", 1)[1]
+                ssa_index = self._extract_ssa_index(ssa_suffix)
+                candidates.append((ssa_index, var_name, tracked_var))
+        return candidates
+
+    def _determine_return_type(
+        self,
+        operation: CallOperation,
+    ) -> Optional[ElementaryType]:
+        """Determine the return type from the operation or function."""
         if hasattr(operation, "variable_return_type"):
-            return_type = IntervalSMTUtils.resolve_elementary_type(operation.variable_return_type)
-        if return_type is None and isinstance(called_function, Function):
-            if called_function.return_type:
-                return_type = IntervalSMTUtils.resolve_elementary_type(called_function.return_type)
-        if return_type is None and hasattr(return_value, "type"):
-            return_type = IntervalSMTUtils.resolve_elementary_type(return_value.type)
+            result = IntervalSMTUtils.resolve_elementary_type(operation.variable_return_type)
+            if result is not None:
+                return result
 
-        if return_type is None:
-            self.logger.debug(
-                "Could not determine {label} return type for '{name}', using fallback",
-                label=self._call_type_label,
-                name=lvalue_name,
-            )
-            self._handle_return_value_fallback(operation, caller_domain)
-            return
+        called_function = operation.function
+        if isinstance(called_function, Function) and called_function.return_type:
+            result = IntervalSMTUtils.resolve_elementary_type(called_function.return_type)
+            if result is not None:
+                return result
 
+        # Try to get type from return values
+        return_values = self._collect_return_values(called_function)
+        if return_values and hasattr(return_values[0], "type"):
+            return IntervalSMTUtils.resolve_elementary_type(return_values[0].type)
+
+        return None
+
+    def _get_or_create_lvalue(
+        self,
+        caller_domain: IntervalDomain,
+        lvalue_name: str,
+        return_type: ElementaryType,
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create the lvalue tracked variable."""
         lvalue_tracked = IntervalSMTUtils.get_tracked_variable(caller_domain, lvalue_name)
         if lvalue_tracked is None:
             lvalue_tracked = IntervalSMTUtils.create_tracked_variable(
                 self.solver, lvalue_name, return_type
             )
             if lvalue_tracked is None:
-                self._handle_return_value_fallback(operation, caller_domain)
-                return
+                return None
             caller_domain.state.set_range_variable(lvalue_name, lvalue_tracked)
             lvalue_tracked.assert_no_overflow(self.solver)
-
-        constraint: SMTTerm = lvalue_tracked.term == return_value_tracked.term
-        self.solver.assert_constraint(constraint)
-        self.logger.debug(
-            "Extracted {label} return value '{name}', constrained to '{return_name}'",
-            label=self._call_type_label,
-            name=lvalue_name,
-            return_name=return_value_name,
-        )
+        return lvalue_tracked
 
     def _handle_return_value_fallback(
         self,

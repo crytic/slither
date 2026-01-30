@@ -10,6 +10,7 @@ Run single contract:
     pytest -k "Assert.sol" -v
 """
 
+import json
 import pytest
 from pathlib import Path
 
@@ -38,4 +39,6 @@ class TestIntervalAnalysis:
             pytest.skip(f"Contract not found: {contract_path}")
 
         results = analyze_contract(contract_path)
-        assert results == snapshot
+        # Convert to JSON string for snapshot comparison
+        results_json = json.dumps(results, indent=2, sort_keys=True)
+        snapshot.assert_match(results_json, f"{contract_file}.json")

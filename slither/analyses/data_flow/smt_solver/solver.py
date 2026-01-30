@@ -323,3 +323,41 @@ class SMTSolver(ABC):
         Useful for debugging or using with other solvers.
         """
         pass
+
+    @abstractmethod
+    def is_bool_true(self, term: SMTTerm) -> bool:
+        """Check if a boolean term is the constant True."""
+        pass
+
+    @abstractmethod
+    def solve_range(
+        self,
+        term: SMTTerm,
+        extra_constraints: Optional[List[SMTTerm]] = None,
+        timeout_ms: int = 500,
+    ) -> tuple[Optional[int], Optional[int]]:
+        """Find minimum and maximum values of a bitvector term.
+
+        Creates a fresh optimizer context, copies current assertions,
+        adds extra_constraints if provided, and optimizes.
+
+        Args:
+            term: The bitvector term to optimize.
+            extra_constraints: Additional constraints for this query only.
+            timeout_ms: Timeout in milliseconds for each optimization.
+
+        Returns:
+            Tuple of (min_value, max_value) as integers, or (None, None) on failure.
+        """
+        pass
+
+    @abstractmethod
+    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+        """Evaluate a term in the current model and return its integer value.
+
+        Must be called after a successful check_sat() that returned SAT.
+
+        Returns:
+            The integer value of the term, or None if evaluation fails.
+        """
+        pass

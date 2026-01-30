@@ -1,0 +1,160 @@
+{
+  "SimpleIf": {
+    "testIf": {
+      "variables": {
+        "SimpleIf.testIf(uint8).variable|variable_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_2": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_3": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_4": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_5": {
+          "overflow": "NO",
+          "range": "[20, 30]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_6": {
+          "overflow": "NO",
+          "range": "[10, 30]"
+        },
+        "SimpleIf.testIf(uint8).variable|variable_7": {
+          "overflow": "NO",
+          "range": "[11, 31]"
+        }
+      }
+    },
+    "testIfMultiple": {
+      "variables": {
+        "SimpleIf.testIfMultiple(uint8).variable|variable_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_2": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_3": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_4": {
+          "overflow": "NO",
+          "range": "[2, 2]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_5": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_6": {
+          "overflow": "NO",
+          "range": "[3, 3]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_7": {
+          "overflow": "NO",
+          "range": "[0, 245]"
+        },
+        "SimpleIf.testIfMultiple(uint8).variable|variable_8": {
+          "overflow": "NO",
+          "range": "[10, 255]"
+        }
+      }
+    },
+    "testIfNested": {
+      "variables": {
+        "SimpleIf.testIfNested(uint8).variable|variable_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_2": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_3": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_4": {
+          "overflow": "NO",
+          "range": "[55, 55]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_5": {
+          "overflow": "NO",
+          "range": "[50, 55]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_6": {
+          "overflow": "NO",
+          "range": "[5, 50]"
+        },
+        "SimpleIf.testIfNested(uint8).variable|variable_7": {
+          "overflow": "NO",
+          "range": "[10, 100]"
+        }
+      }
+    },
+    "testIfTwoVariables": {
+      "variables": {
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_2": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_3": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_4": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_5": {
+          "overflow": "NO",
+          "range": "[20, 30]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_6": {
+          "overflow": "NO",
+          "range": "[10, 30]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).a|a_7": {
+          "overflow": "NO",
+          "range": "[11, 70]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_1": {
+          "overflow": "NO",
+          "range": "[0, 255]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_2": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_3": {
+          "overflow": "NO",
+          "range": "[40, 40]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_4": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_5": {
+          "overflow": "NO",
+          "range": "[20, 40]"
+        },
+        "SimpleIf.testIfTwoVariables(uint8,uint8).b|b_6": {
+          "overflow": "NO",
+          "range": "[1, 40]"
+        }
+      }
+    }
+  }
+}

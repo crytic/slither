@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # Path to test contracts - relative to this file
 # tests/conftest.py -> data_flow/ -> analyses/ -> slither/ -> slither/ -> contracts/src
