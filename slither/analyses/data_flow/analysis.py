@@ -1,27 +1,14 @@
-"""Core analysis functions for Slither data flow interval analysis."""
+"""Core range solving functions for Slither data flow interval analysis."""
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
-import sys
 
-from slither import Slither
-from slither.analyses.data_flow.analyses.interval.analysis.analysis import IntervalAnalysis
-from slither.analyses.data_flow.analyses.interval.analysis.domain import DomainVariant
-from slither.analyses.data_flow.engine.engine import Engine
-from slither.analyses.data_flow.engine.analysis import AnalysisState
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import TrackedSMTVariable
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry, SolverTelemetry
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
-from slither.analyses.data_flow.models import (
-    VariableResult,
-    FunctionResult,
-    ContractResult,
-)
-from slither.core.cfg.node import Node
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
@@ -60,16 +47,6 @@ class RangeSolveContext:
     smt_var: TrackedSMTVariable
     path_constraints: Optional[List[SMTTerm]]
     telemetry: Optional[SolverTelemetry]
-    cache: Optional["RangeQueryCache"]
-
-
-@dataclass
-class CollectionConfig:
-    """Config for variable result collection."""
-
-    solver: SMTSolver
-    timeout_ms: int
-    skip_range_solving: bool
     cache: Optional["RangeQueryCache"]
 
 
@@ -193,8 +170,6 @@ def _solve_range_with_solver(
         decoded_min = _decode_model_value(min_val, meta)
         decoded_max = _decode_model_value(max_val, meta)
 
-        # For now, overflow detection is not supported in solver-agnostic mode
-        # TODO: Add overflow tracking to solve_range interface
         min_result = {"value": decoded_min, "overflow": False, "overflow_amount": 0}
         max_result = {"value": decoded_max, "overflow": False, "overflow_amount": 0}
 
@@ -219,6 +194,12 @@ def solve_variable_range(
         solver: The SMT solver to use.
         smt_var: The tracked SMT variable to solve range for.
         config: Optional configuration for the range query. If None, uses defaults.
+
+    Returns:
+        Tuple of (min_result, max_result) dictionaries with keys:
+        - value: The integer value
+        - overflow: Boolean indicating overflow
+        - overflow_amount: Amount of overflow if any
     """
     if config is None:
         config = RangeQueryConfig()
@@ -291,268 +272,3 @@ def _count_telemetry(telemetry: Optional[SolverTelemetry], name: str) -> None:
     """Count telemetry if enabled."""
     if telemetry:
         telemetry.count(name)
-
-
-# =============================================================================
-# ANALYSIS FUNCTIONS
-# =============================================================================
-
-
-def analyze_function_quiet(
-    function: Function,
-    analysis: IntervalAnalysis,
-    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
-    skip_range_solving: bool = False,
-    cache: Optional["RangeQueryCache"] = None,
-) -> FunctionResult:
-    """Run interval analysis on a function and return structured results."""
-    result = FunctionResult(
-        function_name=function.name,
-        contract_name=function.contract.name if function.contract else "Unknown",
-    )
-
-    if not function.nodes:
-        result.error = "Function has no nodes"
-        return result
-
-    try:
-        results = _run_analysis(function, analysis)
-        solver = analysis.solver
-        if not solver:
-            result.error = "No solver available"
-            return result
-
-        nodes_to_process = _get_nodes_to_process(function, results)
-        return_value_vars = _find_return_value_vars(function)
-        coll_config = CollectionConfig(solver, timeout_ms, skip_range_solving, cache)
-
-        _collect_variable_results(
-            nodes_to_process, results, result, return_value_vars, coll_config
-        )
-
-    except Exception as e:
-        _handle_analysis_exception(e, function)
-        raise
-
-    return result
-
-
-def _run_analysis(
-    function: Function, analysis: IntervalAnalysis
-) -> Dict[Node, AnalysisState[IntervalAnalysis]]:
-    """Run the engine analysis."""
-    engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
-    engine.run_analysis()
-    return engine.result()
-
-
-def _get_nodes_to_process(
-    function: Function, results: Dict[Node, AnalysisState[IntervalAnalysis]]
-) -> List[Node]:
-    """Get nodes to process for result collection."""
-    return_nodes = [node for node in function.nodes if not node.sons]
-    if not return_nodes:
-        return_nodes = [function.nodes[-1]] if function.nodes else []
-
-    all_unreachable = all(
-        node not in results or results[node].post.variant != DomainVariant.STATE
-        for node in return_nodes
-    )
-
-    if all_unreachable:
-        for node in reversed(function.nodes):
-            if node in results and results[node].post.variant == DomainVariant.STATE:
-                return [node]
-
-    return return_nodes
-
-
-def _find_return_value_vars(function: Function) -> set[str]:
-    """Find variable names that are returned from the function."""
-    return_vars: set[str] = set()
-    for node in function.nodes:
-        for ir in node.irs:
-            if type(ir).__name__ == "Return" and hasattr(ir, "values"):
-                for val in ir.values:
-                    val_name = getattr(val, "name", None)
-                    if val_name:
-                        return_vars.add(val_name)
-    return return_vars
-
-
-def _collect_variable_results(
-    nodes: List[Node],
-    results: Dict[Node, AnalysisState[IntervalAnalysis]],
-    result: FunctionResult,
-    return_value_vars: set[str],
-    config: CollectionConfig,
-) -> None:
-    """Collect variable results from nodes."""
-    for node in nodes:
-        if node not in results:
-            continue
-        state = results[node]
-        if state.post.variant != DomainVariant.STATE:
-            continue
-
-        post_state_vars = state.post.state.get_range_variables()
-        used_vars = state.post.state.get_used_variables()
-        path_constraints = state.post.state.get_path_constraints()
-
-        for var_name, smt_var in post_state_vars.items():
-            if _should_skip_var(var_name, used_vars, return_value_vars, result):
-                continue
-
-            var_result = _solve_and_create_result(var_name, smt_var, path_constraints, config)
-            if var_result:
-                result.variables[var_name] = var_result
-
-
-def _should_skip_var(
-    var_name: str, used_vars: set, return_value_vars: set[str], result: FunctionResult
-) -> bool:
-    """Check if variable should be skipped."""
-    if var_name.startswith("CONST_"):
-        return True
-    if var_name.startswith("TMP_") and var_name not in return_value_vars:
-        return True
-    if var_name.startswith("REF_"):
-        return True
-    if var_name not in used_vars:
-        return True
-    if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
-        return True
-    if var_name in result.variables:
-        return True
-    return False
-
-
-def _solve_and_create_result(
-    var_name: str,
-    smt_var: TrackedSMTVariable,
-    path_constraints,
-    config: CollectionConfig,
-) -> Optional[VariableResult]:
-    """Solve variable range and create result."""
-    range_config = RangeQueryConfig(
-        path_constraints=path_constraints,
-        timeout_ms=config.timeout_ms,
-        skip_optimization=config.skip_range_solving,
-        cache=config.cache,
-    )
-    min_result, max_result = solve_variable_range(config.solver, smt_var, range_config)
-
-    if not (min_result and max_result):
-        return None
-
-    has_overflow = min_result.get("overflow", False) or max_result.get("overflow", False)
-    is_wrapped = min_result["value"] > max_result["value"]
-
-    if is_wrapped:
-        range_str = f"[{max_result['value']}, {min_result['value']}]"
-    else:
-        range_str = f"[{min_result['value']}, {max_result['value']}]"
-
-    return VariableResult(
-        name=var_name,
-        range_str=range_str,
-        overflow="YES" if has_overflow else "NO",
-        overflow_amount=max(
-            min_result.get("overflow_amount", 0),
-            max_result.get("overflow_amount", 0),
-        ),
-    )
-
-
-def _handle_analysis_exception(e: Exception, function: Function) -> None:
-    """Handle exception during analysis."""
-    from slither.analyses.data_flow.logger import get_logger, LogMessages
-
-    logger = get_logger()
-    logger.exception(
-        LogMessages.ERROR_ANALYSIS_FAILED,
-        error=str(e),
-        function_name=function.name,
-        embed_on_error=False,
-    )
-
-
-def analyze_contract_quiet(
-    contract_path: Path,
-    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
-    skip_range_solving: bool = False,
-) -> List[ContractResult]:
-    """Analyze a contract file and return structured results.
-
-    Args:
-        contract_path: Path to the contract file.
-        timeout_ms: Timeout in milliseconds for each optimization query.
-        skip_range_solving: If True, skip SMT optimization and use type bounds.
-    """
-    from slither.analyses.data_flow.smt_solver import Z3Solver
-    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
-
-    results: List[ContractResult] = []
-
-    try:
-        slither = Slither(str(contract_path))
-        contracts: List[Contract] = []
-        if slither.compilation_units:
-            for cu in slither.compilation_units:
-                contracts.extend(cu.contracts)
-        else:
-            contracts = slither.contracts
-
-        for contract in contracts:
-            contract_result = ContractResult(
-                contract_file=contract_path.name,
-                contract_name=contract.name,
-            )
-
-            functions = contract.functions_and_modifiers_declared
-            implemented_functions = [
-                f for f in functions if f.is_implemented and not f.is_constructor
-            ]
-
-            # Create shared cache for all functions in this contract
-            cache = RangeQueryCache(max_size=1000)
-
-            for function in implemented_functions:
-                solver = Z3Solver(use_optimizer=True)
-                analysis = IntervalAnalysis(solver=solver)
-
-                func_result = analyze_function_quiet(
-                    function,
-                    analysis,
-                    timeout_ms=timeout_ms,
-                    skip_range_solving=skip_range_solving,
-                    cache=cache,
-                )
-                contract_result.functions[function.name] = func_result
-
-            results.append(contract_result)
-
-    except Exception:
-        # Log error with context, then stop execution
-        from slither.analyses.data_flow.logger import get_logger
-
-        logger = get_logger()
-        logger.exception(
-            "Failed to analyze contract: {contract_path}",
-            contract_path=str(contract_path),
-            embed_on_error=False,
-        )
-        raise
-
-    return results
-
-
-# =============================================================================
-# MAIN ENTRY POINT
-# =============================================================================
-
-
-if __name__ == "__main__":
-    from slither.analyses.data_flow.cli import main
-
-    sys.exit(main())

@@ -38,24 +38,20 @@ def analyze_contract():
     Returns a function that analyzes a contract file and returns
     results as a dictionary suitable for snapshot comparison.
     """
-    from slither.analyses.data_flow.analysis import analyze_contract_quiet
+    from slither import Slither
+    from slither.analyses.data_flow.run_analysis import (
+        AnalysisConfig,
+        _get_contracts,
+        _analyze_contracts_json,
+    )
+    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
 
     def _analyze(contract_path: Path, timeout_ms: int = 1000) -> Dict[str, Any]:
         """Analyze a contract and return results as a dictionary."""
-        results = analyze_contract_quiet(contract_path, timeout_ms=timeout_ms)
-
-        output = {}
-        for contract_result in results:
-            contract_data = {}
-            for func_name, func_result in sorted(contract_result.functions.items()):
-                variables = {}
-                for var_name, var_result in sorted(func_result.variables.items()):
-                    variables[var_name] = {
-                        "range": var_result.range_str,
-                        "overflow": var_result.overflow,
-                    }
-                contract_data[func_name] = {"variables": variables}
-            output[contract_result.contract_name] = contract_data
-        return output
+        slither = Slither(str(contract_path))
+        contracts = _get_contracts(slither)
+        cache = RangeQueryCache(max_size=1000)
+        config = AnalysisConfig(timeout_ms=timeout_ms)
+        return _analyze_contracts_json(contracts, config, cache)
 
     return _analyze
