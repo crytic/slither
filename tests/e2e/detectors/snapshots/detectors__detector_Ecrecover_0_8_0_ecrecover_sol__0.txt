@@ -1,0 +1,25 @@
+A.bad_withRequire_noNonce(A.Info,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#46-59) lacks a nonce on :
+		- hash = keccak256(bytes)(abi.encode(info)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#52)
+		- data = keccak256(bytes)(abi.encodePacked(Ethereum Signed Message:
+32,hash)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#53-55)
+
+A.bad_noSignerCheck_noNonce(A.Info,uint8,bytes32,bytes32).receiver (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#28) lacks a zero-check on :
+		- receiver = ecrecover(bytes32,uint8,bytes32,bytes32)(data,v,r,s) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#28)
+
+A.bad_noSignerCheck_withNonce(A.Info,uint8,bytes32,bytes32).receiver (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#42) lacks a zero-check on :
+		- receiver = ecrecover(bytes32,uint8,bytes32,bytes32)(data,v,r,s) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#42)
+
+A.bad_withIF_noNonce(A.Info,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#61-74) lacks a nonce on :
+		- hash = keccak256(bytes)(abi.encode(info)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#67)
+		- data = keccak256(bytes)(abi.encodePacked(Ethereum Signed Message:
+32,hash)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#68-70)
+
+A.bad_noSignerCheck_noNonce(A.Info,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#18-30) lacks a nonce on :
+		- hash = keccak256(bytes)(abi.encode(info)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#24)
+		- data = keccak256(bytes)(abi.encodePacked(Ethereum Signed Message:
+32,hash)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#25-27)
+
+A.bad_noSignerCheck_withNonce(A.Info,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#32-44) lacks a nonce on :
+		- data = keccak256(bytes)(abi.encodePacked(Ethereum Signed Message:
+32,hash)) (tests/e2e/detectors/test_data/ecrecover/0.8.0/ecrecover.sol#39-41)
+
