@@ -124,7 +124,7 @@ def encode_ir_for_upgradeability_compare(ir: operations.Operation) -> str:
     if isinstance(ir, operations.LowLevelCall):  # TODO: improve
         return "low_level_call"
     if isinstance(ir, operations.TypeConversion):
-        return f"type_conversion({ntype(ir.type)})"
+        return f"type_conversion({encode_var_for_compare(ir.variable)},{ntype(ir.type)})"
     if isinstance(ir, operations.Return):  # this can be improved using values
         return "return"  # .format(ntype(ir.type))
     if isinstance(ir, operations.Transfer):
