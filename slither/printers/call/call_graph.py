@@ -39,7 +39,7 @@ def _solidity_function_node(solidity_function: SolidityFunction) -> str:
 
 # return unique id for top level function to use as node name
 def _toplevel_function_node(function: FunctionTopLevel) -> str:
-    return f"toplevel_{function.name}"
+    return f"toplevel_{function.full_name}"
 
 
 # return dot language string to add graph edge
@@ -78,7 +78,7 @@ def _process_internal_call(
         toplevel_functions.add(
             _node(
                 _toplevel_function_node(internal_call.function),
-                internal_call.function.name,
+                internal_call.function.full_name,
             ),
         )
         toplevel_calls.add(_edge(caller_node, _toplevel_function_node(internal_call.function)))
@@ -196,7 +196,7 @@ def _process_function(
 ) -> None:
     if isinstance(function, FunctionTopLevel):
         toplevel_functions.add(
-            _node(_toplevel_function_node(function), function.name),
+            _node(_toplevel_function_node(function), function.full_name),
         )
     else:
         # Use full_name as label to distinguish overloaded functions
