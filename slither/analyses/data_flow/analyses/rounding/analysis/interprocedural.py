@@ -1,4 +1,4 @@
-"""Interprocedural analysis for rounding direction tracking."""
+"""Goal-directed interprocedural analysis for rounding direction tracking."""
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, TYPE_CHECKING
@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Set, TYPE_CHECKING
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
+from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
@@ -14,28 +15,63 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class PathConstraint:
+    """A constraint along a path to a rounding outcome."""
+
+    expression: str  # The condition expression
+    is_true_branch: bool  # Whether we took the true or false branch
+
+    def __str__(self) -> str:
+        if self.is_true_branch:
+            return self.expression
+        return f"!({self.expression})"
+
+
+@dataclass
+class RoundingPath:
+    """A path to a specific rounding outcome."""
+
+    tag: RoundingTag
+    constraints: List[PathConstraint] = field(default_factory=list)
+    call_chain: List[str] = field(default_factory=list)  # Function names
+    leaf_operation: str = ""  # e.g., "floor division", "roundDown()"
+
+    def __str__(self) -> str:
+        parts = []
+        if self.constraints:
+            conds = " && ".join(str(c) for c in self.constraints)
+            parts.append(f"when: {conds}")
+        if self.call_chain:
+            parts.append(f"via: {' → '.join(self.call_chain)}")
+        parts.append(f"→ {self.leaf_operation}")
+        return " | ".join(parts)
+
+
+@dataclass
 class RoundingResult:
     """Result of analyzing a function for rounding behavior."""
 
     possible_tags: Set[RoundingTag] = field(default_factory=set)
-    condition: Optional[str] = None  # Guarding condition if inside a branch
+    paths: List[RoundingPath] = field(default_factory=list)  # Paths to each tag
+
+    def get_paths_for_tag(self, tag: RoundingTag) -> List[RoundingPath]:
+        """Get all paths that lead to a specific tag."""
+        return [p for p in self.paths if p.tag == tag]
 
     def __str__(self) -> str:
         tags = ", ".join(sorted(t.name for t in self.possible_tags))
-        cond = f" when {self.condition}" if self.condition else ""
-        return f"{{{tags}}}{cond}"
+        return f"{{{tags}}}"
 
 
 class RoundingInterproceduralAnalyzer:
-    """Inline interprocedural analyzer for rounding direction.
+    """Goal-directed interprocedural analyzer for rounding direction.
 
-    When a call is encountered:
-    1. Check if function name indicates rounding (fast path)
-    2. If not, recursively analyze the callee
-    3. Continue until hitting a named function or leaf operation
+    When analyzing with a target tag:
+    1. Only explore paths that can lead to the target
+    2. Track constraints along the path
+    3. Report the path with conditions needed to reach that rounding behavior
     """
 
-    # Global call stack for recursion detection
     _call_stack: Set[Function] = set()
 
     def __init__(self, analysis: "RoundingAnalysis") -> None:
@@ -60,31 +96,32 @@ class RoundingInterproceduralAnalyzer:
     def analyze_call(
         self,
         callee: Function,
-        condition: Optional[str] = None,
+        target_tag: Optional[RoundingTag] = None,
     ) -> RoundingResult:
         """Analyze a function call for rounding behavior.
 
         Args:
             callee: The called function
-            condition: Guarding condition if inside a branch
+            target_tag: If specified, only find paths to this tag (goal-directed)
 
         Returns:
-            RoundingResult with possible tags
+            RoundingResult with possible tags and paths
         """
         # Fast path: check if function name indicates rounding
         tag = self._infer_from_name(callee.name)
         if tag != RoundingTag.NEUTRAL:
-            return RoundingResult(possible_tags={tag}, condition=condition)
+            # If target specified and doesn't match, return empty
+            if target_tag and tag != target_tag:
+                return RoundingResult()
+            path = RoundingPath(
+                tag=tag,
+                leaf_operation=f"{callee.name}() [name-based]",
+            )
+            return RoundingResult(possible_tags={tag}, paths=[path])
 
-        # Check cache
-        if callee in self._cache:
-            result = self._cache[callee]
-            # Add condition if provided
-            if condition and not result.condition:
-                result = RoundingResult(
-                    possible_tags=result.possible_tags, condition=condition
-                )
-            return result
+        # Check cache (only for full analysis, not goal-directed)
+        if target_tag is None and callee in self._cache:
+            return self._cache[callee]
 
         # Recursion detection
         if self.is_in_call_stack(callee):
@@ -97,52 +134,100 @@ class RoundingInterproceduralAnalyzer:
         # Recursive analysis
         self.add_to_call_stack(callee)
         try:
-            result = self._analyze_function(callee)
-            if condition:
-                result = RoundingResult(
-                    possible_tags=result.possible_tags, condition=condition
-                )
-            self._cache[callee] = result
+            result = self._analyze_function(callee, target_tag)
+            if target_tag is None:
+                self._cache[callee] = result
             return result
         finally:
             self.remove_from_call_stack(callee)
 
-    def _analyze_function(self, function: Function) -> RoundingResult:
-        """Recursively analyze a function for rounding behavior."""
+    def _analyze_function(
+        self,
+        function: Function,
+        target_tag: Optional[RoundingTag] = None,
+    ) -> RoundingResult:
+        """Analyze a function, optionally goal-directed toward a specific tag."""
         from slither.slithir.operations.binary import Binary, BinaryType
         from slither.slithir.operations.internal_call import InternalCall
+        from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 
-        possible_tags: Set[RoundingTag] = set()
+        result = RoundingResult()
 
-        # Analyze all nodes looking for rounding operations and calls
         for node in function.nodes:
             if not node.irs_ssa:
                 continue
 
-            condition = self._get_guarding_condition(node)
+            # Get the guarding condition for this node
+            guard = self._get_guard_info(node)
 
             for operation in node.irs_ssa:
                 # Direct division -> DOWN (floor) by default
-                if isinstance(operation, Binary):
-                    if operation.type == BinaryType.DIVISION:
-                        # Check for ceiling pattern
-                        if self._is_ceiling_pattern(operation, node):
-                            possible_tags.add(RoundingTag.UP)
-                        else:
-                            possible_tags.add(RoundingTag.DOWN)
+                if isinstance(operation, Binary) and operation.type == BinaryType.DIVISION:
+                    tag = RoundingTag.DOWN
+                    # Skip if goal-directed and doesn't match
+                    if target_tag and tag != target_tag:
+                        continue
+
+                    result.possible_tags.add(tag)
+                    path = RoundingPath(
+                        tag=tag,
+                        leaf_operation="floor division",
+                    )
+                    if guard:
+                        path.constraints.append(guard)
+                    result.paths.append(path)
 
                 # Internal call -> recurse
                 elif isinstance(operation, InternalCall):
                     callee = operation.function
                     if isinstance(callee, Function):
-                        result = self.analyze_call(callee, condition)
-                        possible_tags.update(result.possible_tags)
+                        # Recurse with same target (goal-directed)
+                        callee_result = self.analyze_call(callee, target_tag)
+
+                        for callee_path in callee_result.paths:
+                            # Skip if goal-directed and doesn't match
+                            if target_tag and callee_path.tag != target_tag:
+                                continue
+
+                            result.possible_tags.add(callee_path.tag)
+
+                            # Build path through this call
+                            new_path = RoundingPath(
+                                tag=callee_path.tag,
+                                constraints=list(callee_path.constraints),
+                                call_chain=[callee.name] + callee_path.call_chain,
+                                leaf_operation=callee_path.leaf_operation,
+                            )
+                            if guard:
+                                new_path.constraints.insert(0, guard)
+                            result.paths.append(new_path)
+
+                # Internal dynamic call (function pointer) -> find possible targets
+                elif isinstance(operation, InternalDynamicCall):
+                    func_var = operation.function
+                    candidates = self._get_dynamic_call_targets(func_var, function)
+
+                    for callee in candidates:
+                        callee_result = self.analyze_call(callee, target_tag)
+                        for callee_path in callee_result.paths:
+                            if target_tag and callee_path.tag != target_tag:
+                                continue
+                            result.possible_tags.add(callee_path.tag)
+                            new_path = RoundingPath(
+                                tag=callee_path.tag,
+                                constraints=list(callee_path.constraints),
+                                call_chain=[callee.name] + callee_path.call_chain,
+                                leaf_operation=callee_path.leaf_operation,
+                            )
+                            if guard:
+                                new_path.constraints.insert(0, guard)
+                            result.paths.append(new_path)
 
         # Default to NEUTRAL if nothing found
-        if not possible_tags:
-            possible_tags.add(RoundingTag.NEUTRAL)
+        if not result.possible_tags:
+            result.possible_tags.add(RoundingTag.NEUTRAL)
 
-        return RoundingResult(possible_tags=possible_tags)
+        return result
 
     def _infer_from_name(self, name: str) -> RoundingTag:
         """Infer rounding direction from function name."""
@@ -153,18 +238,84 @@ class RoundingInterproceduralAnalyzer:
             return RoundingTag.UP
         return RoundingTag.NEUTRAL
 
-    def _get_guarding_condition(self, node: Node) -> Optional[str]:
-        """Extract guarding condition from dominating IF node."""
+    def _get_dynamic_call_targets(
+        self,
+        func_var: Variable,
+        containing_func: Function,
+    ) -> List[Function]:
+        """Find possible function targets for a dynamic call variable.
+
+        In SSA form, when a ternary expression like `cond ? funcA : funcB` is used,
+        the function pointer variable is assigned via Assignment operations where
+        the rvalue is a Function. We trace all such assignments to find the possible
+        targets.
+        """
+        from slither.slithir.operations.assignment import Assignment
+        from slither.slithir.operations.phi import Phi
+
+        targets: List[Function] = []
+        visited_vars: Set[Variable] = set()
+
+        def trace_var(var: Variable) -> None:
+            """Recursively trace variable definitions to find function targets."""
+            if var in visited_vars:
+                return
+            visited_vars.add(var)
+
+            for node in containing_func.nodes:
+                for op in node.irs_ssa:
+                    # Direct assignment: var := Function
+                    if isinstance(op, Assignment) and op.lvalue == var:
+                        if isinstance(op.rvalue, Function):
+                            if op.rvalue not in targets:
+                                targets.append(op.rvalue)
+                        elif isinstance(op.rvalue, Variable):
+                            trace_var(op.rvalue)
+
+                    # Phi node: var := φ(var1, var2, ...)
+                    if isinstance(op, Phi) and op.lvalue == var:
+                        for rvalue in op.rvalues:
+                            if isinstance(rvalue, Function):
+                                if rvalue not in targets:
+                                    targets.append(rvalue)
+                            elif isinstance(rvalue, Variable):
+                                trace_var(rvalue)
+
+        trace_var(func_var)
+        return targets
+
+    def _get_guard_info(self, node: Node) -> Optional[PathConstraint]:
+        """Get the guarding condition for a node."""
+        # Find the nearest IF dominator
         for dominator in node.dominators:
             if dominator.type == NodeType.IF and dominator.expression:
-                return str(dominator.expression)
+                # Determine if we're in true or false branch
+                is_true = self._is_in_true_branch(dominator, node)
+                return PathConstraint(
+                    expression=str(dominator.expression),
+                    is_true_branch=is_true,
+                )
         return None
 
-    def _is_ceiling_pattern(self, operation: object, node: Node) -> bool:  # noqa: ARG002
-        """Detect ceiling division pattern: (a + b - 1) / b."""
-        # Simplified check - the full analysis handles this better
-        # This is just a quick heuristic for the interprocedural case
-        _ = operation, node  # Suppress unused warnings
+    def _is_in_true_branch(self, if_node: Node, target_node: Node) -> bool:
+        """Determine if target_node is in the true branch of if_node."""
+        # The true branch is typically the first son
+        if if_node.sons and len(if_node.sons) >= 1:
+            true_branch = if_node.sons[0]
+            # Check if target_node is reachable from true_branch
+            return self._is_reachable(true_branch, target_node, set())
+        return True  # Default to true branch
+
+    def _is_reachable(self, start: Node, target: Node, visited: Set[int]) -> bool:
+        """Check if target is reachable from start via DFS."""
+        if start.node_id == target.node_id:
+            return True
+        if start.node_id in visited:
+            return False
+        visited.add(start.node_id)
+        for son in start.sons:
+            if self._is_reachable(son, target, visited):
+                return True
         return False
 
     def get_trace(
@@ -177,43 +328,27 @@ class RoundingInterproceduralAnalyzer:
         lines: List[str] = []
         prefix = "  " * indent
 
-        result = self.analyze_call(function)
-        if target_tag not in result.possible_tags:
-            return lines
+        # Goal-directed analysis - only find paths to target
+        result = self.analyze_call(function, target_tag)
+        paths = result.get_paths_for_tag(target_tag)
 
-        # Analyze to find the path
-        from slither.slithir.operations.binary import Binary, BinaryType
-        from slither.slithir.operations.internal_call import InternalCall
+        for path in paths:
+            # Show constraints
+            for constraint in path.constraints:
+                lines.append(f"{prefix}└─ when {constraint}")
+                prefix = prefix + "   "
 
-        for node in function.nodes:
-            if not node.irs_ssa:
-                continue
+            # Show call chain (skip last call if it matches the leaf operation)
+            call_chain = path.call_chain
+            if call_chain and path.leaf_operation.startswith(f"{call_chain[-1]}()"):
+                call_chain = call_chain[:-1]
 
-            condition = self._get_guarding_condition(node)
+            for call in call_chain:
+                lines.append(f"{prefix}→ {call}()")
+                prefix = prefix + "  "
 
-            for operation in node.irs_ssa:
-                if isinstance(operation, Binary) and operation.type == BinaryType.DIVISION:
-                    tag = RoundingTag.DOWN  # Default floor division
-                    if tag == target_tag:
-                        if condition:
-                            lines.append(f"{prefix}└─ when {condition}")
-                            lines.append(f"{prefix}   → floor division")
-                        else:
-                            lines.append(f"{prefix}→ floor division")
-
-                elif isinstance(operation, InternalCall):
-                    callee = operation.function
-                    if isinstance(callee, Function):
-                        callee_result = self.analyze_call(callee, condition)
-                        if target_tag in callee_result.possible_tags:
-                            if condition:
-                                lines.append(f"{prefix}└─ when {condition}")
-                                lines.append(f"{prefix}   → {callee.name}()")
-                                sub_trace = self.get_trace(callee, target_tag, indent + 2)
-                            else:
-                                lines.append(f"{prefix}→ {callee.name}()")
-                                sub_trace = self.get_trace(callee, target_tag, indent + 1)
-                            lines.extend(sub_trace)
+            # Show leaf
+            lines.append(f"{prefix}→ {path.leaf_operation}")
 
         return lines
 

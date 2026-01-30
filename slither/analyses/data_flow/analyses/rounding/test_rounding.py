@@ -70,6 +70,8 @@ class AnnotatedFunction:
     return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
     inconsistencies: List[str] = field(default_factory=list)
     annotation_mismatches: List[str] = field(default_factory=list)
+    path_traces: List[str] = field(default_factory=list)  # Interprocedural path traces
+    query_tag: Optional[RoundingTag] = None  # Tag being queried
 
 
 def get_var_name(var: Optional[Union[RVALUE, Variable]]) -> str:
@@ -148,7 +150,11 @@ def build_annotation_note(op: Binary, result_tag: RoundingTag) -> str:
     return ""
 
 
-def analyze_function_annotated(function: FunctionContract) -> AnnotatedFunction:
+def analyze_function_annotated(
+    function: FunctionContract,
+    interprocedural: Optional[RoundingInterproceduralAnalyzer] = None,
+    query_tag: Optional[RoundingTag] = None,
+) -> AnnotatedFunction:
     """Analyze a function and build annotated source view."""
     source_mapping = function.source_mapping
     filename = source_mapping.filename.absolute if source_mapping else ""
@@ -161,7 +167,13 @@ def analyze_function_annotated(function: FunctionContract) -> AnnotatedFunction:
         filename=filename,
         start_line=start_line,
         end_line=end_line,
+        query_tag=query_tag,
     )
+
+    # Get interprocedural path traces if querying a specific tag
+    if interprocedural and query_tag:
+        trace_lines = interprocedural.get_trace(function, query_tag)
+        annotated.path_traces = trace_lines
 
     source_lines = read_source_lines(filename, start_line, end_line)
     for line_num, text in source_lines.items():
@@ -170,7 +182,7 @@ def analyze_function_annotated(function: FunctionContract) -> AnnotatedFunction:
             source_text=text,
         )
 
-    rounding_analysis = RoundingAnalysis()
+    rounding_analysis = RoundingAnalysis(interprocedural=interprocedural)
     engine = Engine.new(rounding_analysis, function)
     engine.run_analysis()
     node_results: Dict[Node, AnalysisState] = engine.result()
@@ -282,6 +294,7 @@ def display_annotated_source(annotated: AnnotatedFunction) -> None:
         _display_annotations(annotated_line, line_width)
 
     _display_return_summary(annotated)
+    _display_path_traces(annotated)
     _display_issues(annotated)
     console.print()
 
@@ -365,6 +378,22 @@ def _display_return_summary(annotated: AnnotatedFunction) -> None:
         returns_line.append(item)
 
     console.print(returns_line)
+
+
+def _display_path_traces(annotated: AnnotatedFunction) -> None:
+    """Display interprocedural path traces for the queried tag."""
+    if not annotated.path_traces or not annotated.query_tag:
+        return
+
+    console.print()
+    header = Text()
+    header.append("Path to ", style="bold")
+    header.append(format_tag_inline(annotated.query_tag))
+    header.append(":", style="bold")
+    console.print(header)
+
+    for trace_line in annotated.path_traces:
+        console.print(f"  [dim]{trace_line}[/dim]")
 
 
 def _display_issues(annotated: AnnotatedFunction) -> None:
@@ -536,12 +565,31 @@ def main():
             query_tag = RoundingTag[args.query_tag]
 
         # Display results
-        if args.show_summaries or args.query_tag:
+        if args.show_summaries:
             display_function_results(
                 results, query_tag, interproc_analyzer, functions_by_label
             )
 
-        # If not showing summaries, fall through to regular analysis
+        # Query tag shows annotated source view with path traces
+        if args.query_tag:
+            function_analyses: List[AnnotatedFunction] = []
+            for function in functions_to_analyze:
+                try:
+                    func_analysis = analyze_function_annotated(
+                        function, interproc_analyzer, query_tag
+                    )
+                    # Only show functions that can produce the queried tag
+                    contract_name = function.contract.name if function.contract else "Unknown"
+                    func_label = f"{contract_name}.{function.name}"
+                    if func_label in results and query_tag in results[func_label].possible_tags:
+                        function_analyses.append(func_analysis)
+                except Exception as e:
+                    console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
+
+            for func_analysis in function_analyses:
+                display_annotated_source(func_analysis)
+
+        # If not showing summaries or query tag, fall through to regular analysis
         if not args.show_summaries and not args.query_tag:
             # Regular analysis mode with interprocedural
             function_analyses: List[AnnotatedFunction] = []
