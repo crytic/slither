@@ -223,7 +223,13 @@ class State:
         copied_bytes_constants = dict(self.bytes_memory_constants)
         # Copy prefix index (shallow copy of sets)
         copied_prefix_index = {k: set(v) for k, v in self._var_by_prefix.items()}
-        new_state = State(copied_vars, copied_ops, copied_constraints, copied_bytes_constants, copied_prefix_index)
+        new_state = State(
+            copied_vars,
+            copied_ops,
+            copied_constraints,
+            copied_bytes_constants,
+            copied_prefix_index,
+        )
         # Copy used variables set
         new_state.used_variables = set(self.used_variables)
         return new_state

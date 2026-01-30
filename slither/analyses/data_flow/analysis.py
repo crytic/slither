@@ -35,9 +35,11 @@ DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 class RangeQueryConfig:
     """Configuration for range solving queries."""
 
+    path_constraints: Optional[List[SMTTerm]] = None
     timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS
     skip_optimization: bool = False
     debug: bool = False
+    cache: Optional["RangeQueryCache"] = None
 
 
 @dataclass
@@ -48,6 +50,27 @@ class VariableMetadata:
     bit_width: int
     min_bound: Optional[int]
     max_bound: Optional[int]
+
+
+@dataclass
+class RangeSolveContext:
+    """Context for range solving operations."""
+
+    solver: SMTSolver
+    smt_var: TrackedSMTVariable
+    path_constraints: Optional[List[SMTTerm]]
+    telemetry: Optional[SolverTelemetry]
+    cache: Optional["RangeQueryCache"]
+
+
+@dataclass
+class CollectionConfig:
+    """Config for variable result collection."""
+
+    solver: SMTSolver
+    timeout_ms: int
+    skip_range_solving: bool
+    cache: Optional["RangeQueryCache"]
 
 
 # =============================================================================
@@ -147,22 +170,19 @@ def _unpack_cached_result(
 
 
 def _solve_range_with_solver(
-    solver: SMTSolver,
-    smt_var: TrackedSMTVariable,
+    ctx: RangeSolveContext,
     meta: VariableMetadata,
-    path_constraints: Optional[List[SMTTerm]],
     config: RangeQueryConfig,
-    telemetry: Optional[SolverTelemetry],
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """Use solver's range solving to find min/max values."""
-    if telemetry:
-        telemetry.count("optimize_min")
-        telemetry.count("optimize_max")
+    if ctx.telemetry:
+        ctx.telemetry.count("optimize_min")
+        ctx.telemetry.count("optimize_max")
 
     try:
-        min_val, max_val = solver.solve_range(
-            term=smt_var.term,
-            extra_constraints=path_constraints,
+        min_val, max_val = ctx.solver.solve_range(
+            term=ctx.smt_var.term,
+            extra_constraints=ctx.path_constraints,
             timeout_ms=config.timeout_ms,
         )
 
@@ -191,43 +211,27 @@ def _solve_range_with_solver(
 def solve_variable_range(
     solver: SMTSolver,
     smt_var: TrackedSMTVariable,
-    path_constraints: Optional[List[SMTTerm]] = None,
-    debug: bool = False,
-    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
-    skip_optimization: bool = False,
-    cache: Optional["RangeQueryCache"] = None,
+    config: Optional[RangeQueryConfig] = None,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """Solve for min/max values of a variable using SMT optimization.
 
     Args:
-        solver: The SMT solver instance.
-        smt_var: The tracked SMT variable to solve for.
-        path_constraints: Optional list of path constraints to apply.
-        debug: Enable debug output.
-        timeout_ms: Timeout in milliseconds for each optimization query.
-        skip_optimization: If True, return type bounds without SMT solving.
-        cache: Optional RangeQueryCache for memoization.
-
-    Returns:
-        Tuple of (min_result, max_result) dicts, or (None, None) on failure.
+        solver: The SMT solver to use.
+        smt_var: The tracked SMT variable to solve range for.
+        config: Optional configuration for the range query. If None, uses defaults.
     """
+    if config is None:
+        config = RangeQueryConfig()
+
     telemetry = get_telemetry()
-    config = RangeQueryConfig(
-        timeout_ms=timeout_ms, skip_optimization=skip_optimization, debug=debug
+    ctx = RangeSolveContext(
+        solver, smt_var, config.path_constraints, telemetry, config.cache
     )
 
-    # Check cache first
-    if cache is not None and not skip_optimization:
-        var_id, constraints_tuple = _build_cache_key(smt_var, solver, path_constraints)
-        cached_result = cache.get(var_id, constraints_tuple)
-        if cached_result is not None:
-            if telemetry:
-                telemetry.count("cache_hit")
-            return _unpack_cached_result(cached_result)
-        if telemetry:
-            telemetry.count("cache_miss")
+    cached = _check_cache(ctx, config.skip_optimization)
+    if cached is not None:
+        return cached
 
-    # Validate term is a bitvector
     if not solver.is_bitvector(smt_var.term):
         return None, None
 
@@ -235,29 +239,58 @@ def solve_variable_range(
     if meta is None:
         return None, None
 
-    if skip_optimization:
-        if telemetry:
-            telemetry.count("range_solve_skipped")
+    if config.skip_optimization:
+        _count_telemetry(telemetry, "range_solve_skipped")
         return _get_fallback_range(meta)
 
-    min_result, max_result = _solve_range_with_solver(
-        solver, smt_var, meta, path_constraints, config, telemetry
-    )
+    return _solve_and_cache(ctx, meta, config)
+
+
+def _check_cache(
+    ctx: RangeSolveContext,
+    skip_optimization: bool,
+) -> Optional[tuple[Optional[Dict], Optional[Dict]]]:
+    """Check cache for existing result."""
+    if ctx.cache is None or skip_optimization:
+        return None
+
+    var_id, constraints_tuple = _build_cache_key(ctx.smt_var, ctx.solver, ctx.path_constraints)
+    cached_result = ctx.cache.get(var_id, constraints_tuple)
+    if cached_result is not None:
+        _count_telemetry(ctx.telemetry, "cache_hit")
+        return _unpack_cached_result(cached_result)
+
+    _count_telemetry(ctx.telemetry, "cache_miss")
+    return None
+
+
+def _solve_and_cache(
+    ctx: RangeSolveContext,
+    meta: VariableMetadata,
+    config: RangeQueryConfig,
+) -> tuple[Optional[Dict], Optional[Dict]]:
+    """Solve range and cache result."""
+    min_result, max_result = _solve_range_with_solver(ctx, meta, config)
 
     if min_result is None or max_result is None:
-        if telemetry:
-            telemetry.count("range_solve_fallback")
+        _count_telemetry(ctx.telemetry, "range_solve_fallback")
         return _get_fallback_range(meta)
 
-    if telemetry:
-        telemetry.count("range_solve_success")
+    _count_telemetry(ctx.telemetry, "range_solve_success")
 
-    # Store in cache
-    if cache is not None:
-        var_id, constraints_tuple = _build_cache_key(smt_var, solver, path_constraints)
-        cache.put(var_id, constraints_tuple, min_result, max_result)
+    if ctx.cache is not None:
+        var_id, constraints_tuple = _build_cache_key(
+            ctx.smt_var, ctx.solver, ctx.path_constraints
+        )
+        ctx.cache.put(var_id, constraints_tuple, min_result, max_result)
 
     return min_result, max_result
+
+
+def _count_telemetry(telemetry: Optional[SolverTelemetry], name: str) -> None:
+    """Count telemetry if enabled."""
+    if telemetry:
+        telemetry.count(name)
 
 
 # =============================================================================
@@ -272,15 +305,7 @@ def analyze_function_quiet(
     skip_range_solving: bool = False,
     cache: Optional["RangeQueryCache"] = None,
 ) -> FunctionResult:
-    """Run interval analysis on a function and return structured results.
-
-    Args:
-        function: The function to analyze.
-        analysis: The interval analysis instance.
-        timeout_ms: Timeout in milliseconds for each optimization query.
-        skip_range_solving: If True, skip SMT optimization and use type bounds.
-        cache: Optional RangeQueryCache for memoization.
-    """
+    """Run interval analysis on a function and return structured results."""
     result = FunctionResult(
         function_name=function.name,
         contract_name=function.contract.name if function.contract else "Unknown",
@@ -291,128 +316,165 @@ def analyze_function_quiet(
         return result
 
     try:
-        engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
-        engine.run_analysis()
-        results: Dict[Node, AnalysisState[IntervalAnalysis]] = engine.result()
-
+        results = _run_analysis(function, analysis)
         solver = analysis.solver
         if not solver:
             result.error = "No solver available"
             return result
 
-        # Process results - only collect from final nodes (return nodes or nodes with no successors)
-        # Find return nodes (nodes with no sons)
-        return_nodes = [node for node in function.nodes if not node.sons]
-        if not return_nodes:
-            # If no explicit return nodes, use the last node
-            return_nodes = [function.nodes[-1]] if function.nodes else []
+        nodes_to_process = _get_nodes_to_process(function, results)
+        return_value_vars = _find_return_value_vars(function)
+        coll_config = CollectionConfig(solver, timeout_ms, skip_range_solving, cache)
 
-        # Check if return nodes are unreachable (BOTTOM/TOP variant)
-        # If so, find the last node with STATE variant to get pre-revert state
-        nodes_to_process = return_nodes
-        all_unreachable = all(
-            node not in results or results[node].post.variant != DomainVariant.STATE
-            for node in return_nodes
+        _collect_variable_results(
+            nodes_to_process, results, result, return_value_vars, coll_config
         )
-        if all_unreachable:
-            # Find the last node with STATE variant (before the revert point)
-            for node in reversed(function.nodes):
-                if node in results and results[node].post.variant == DomainVariant.STATE:
-                    nodes_to_process = [node]
-                    break
-
-        # Collect variables from selected nodes, filtering out temporary variables
-
-        # First, identify return value variable names (TMPs that are returned)
-        return_value_vars: set[str] = set()
-        for node in function.nodes:
-            for ir in node.irs:
-                # Check for Return operations
-                if type(ir).__name__ == "Return" and hasattr(ir, "values"):
-                    for val in ir.values:
-                        val_name = getattr(val, "name", None)
-                        if val_name:
-                            return_value_vars.add(val_name)
-
-        for node in nodes_to_process:
-            if node not in results:
-                continue
-            state = results[node]
-            if state.post.variant == DomainVariant.STATE:
-                post_state_vars: Dict[str, TrackedSMTVariable] = (
-                    state.post.state.get_range_variables()
-                )
-
-                # Only show variables that were actually used
-                used_vars = state.post.state.get_used_variables()
-                for var_name, smt_var in post_state_vars.items():
-                    # Filter out constants and most temporary variables
-                    # But keep return value TMPs (they represent the function's output)
-                    is_return_value = var_name in return_value_vars
-                    if var_name.startswith("CONST_"):
-                        continue
-                    if var_name.startswith("TMP_") and not is_return_value:
-                        continue
-                    # Filter out REF_ variables (internal references)
-                    if var_name.startswith("REF_"):
-                        continue
-                    # Filter out unused variables
-                    if var_name not in used_vars:
-                        continue
-                    # Filter out global variables with unbounded ranges (not useful for analysis)
-                    if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
-                        continue
-
-                    # Skip if we've already solved this exact variable
-                    if var_name in result.variables:
-                        continue
-
-                    # Get path constraints from the domain state
-                    path_constraints = state.post.state.get_path_constraints()
-                    min_result, max_result = solve_variable_range(
-                        solver,
-                        smt_var,
-                        path_constraints=path_constraints,
-                        timeout_ms=timeout_ms,
-                        skip_optimization=skip_range_solving,
-                        cache=cache,
-                    )
-
-                    if min_result and max_result:
-                        has_overflow = min_result.get("overflow", False) or max_result.get(
-                            "overflow", False
-                        )
-                        is_wrapped = min_result["value"] > max_result["value"]
-
-                        if is_wrapped:
-                            range_str = f"[{max_result['value']}, {min_result['value']}]"
-                        else:
-                            range_str = f"[{min_result['value']}, {max_result['value']}]"
-
-                        result.variables[var_name] = VariableResult(
-                            name=var_name,
-                            range_str=range_str,
-                            overflow="YES" if has_overflow else "NO",
-                            overflow_amount=max(
-                                min_result.get("overflow_amount", 0),
-                                max_result.get("overflow_amount", 0),
-                            ),
-                        )
 
     except Exception as e:
-        # Log error with context, then stop execution
-        from slither.analyses.data_flow.logger import get_logger, LogMessages
-
-        logger = get_logger()
-        logger.exception(
-            LogMessages.ERROR_ANALYSIS_FAILED,
-            error=str(e),
-            function_name=function.name,
-            embed_on_error=False,
-        )
+        _handle_analysis_exception(e, function)
         raise
 
     return result
+
+
+def _run_analysis(
+    function: Function, analysis: IntervalAnalysis
+) -> Dict[Node, AnalysisState[IntervalAnalysis]]:
+    """Run the engine analysis."""
+    engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
+    engine.run_analysis()
+    return engine.result()
+
+
+def _get_nodes_to_process(
+    function: Function, results: Dict[Node, AnalysisState[IntervalAnalysis]]
+) -> List[Node]:
+    """Get nodes to process for result collection."""
+    return_nodes = [node for node in function.nodes if not node.sons]
+    if not return_nodes:
+        return_nodes = [function.nodes[-1]] if function.nodes else []
+
+    all_unreachable = all(
+        node not in results or results[node].post.variant != DomainVariant.STATE
+        for node in return_nodes
+    )
+
+    if all_unreachable:
+        for node in reversed(function.nodes):
+            if node in results and results[node].post.variant == DomainVariant.STATE:
+                return [node]
+
+    return return_nodes
+
+
+def _find_return_value_vars(function: Function) -> set[str]:
+    """Find variable names that are returned from the function."""
+    return_vars: set[str] = set()
+    for node in function.nodes:
+        for ir in node.irs:
+            if type(ir).__name__ == "Return" and hasattr(ir, "values"):
+                for val in ir.values:
+                    val_name = getattr(val, "name", None)
+                    if val_name:
+                        return_vars.add(val_name)
+    return return_vars
+
+
+def _collect_variable_results(
+    nodes: List[Node],
+    results: Dict[Node, AnalysisState[IntervalAnalysis]],
+    result: FunctionResult,
+    return_value_vars: set[str],
+    config: CollectionConfig,
+) -> None:
+    """Collect variable results from nodes."""
+    for node in nodes:
+        if node not in results:
+            continue
+        state = results[node]
+        if state.post.variant != DomainVariant.STATE:
+            continue
+
+        post_state_vars = state.post.state.get_range_variables()
+        used_vars = state.post.state.get_used_variables()
+        path_constraints = state.post.state.get_path_constraints()
+
+        for var_name, smt_var in post_state_vars.items():
+            if _should_skip_var(var_name, used_vars, return_value_vars, result):
+                continue
+
+            var_result = _solve_and_create_result(var_name, smt_var, path_constraints, config)
+            if var_result:
+                result.variables[var_name] = var_result
+
+
+def _should_skip_var(
+    var_name: str, used_vars: set, return_value_vars: set[str], result: FunctionResult
+) -> bool:
+    """Check if variable should be skipped."""
+    if var_name.startswith("CONST_"):
+        return True
+    if var_name.startswith("TMP_") and var_name not in return_value_vars:
+        return True
+    if var_name.startswith("REF_"):
+        return True
+    if var_name not in used_vars:
+        return True
+    if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
+        return True
+    if var_name in result.variables:
+        return True
+    return False
+
+
+def _solve_and_create_result(
+    var_name: str,
+    smt_var: TrackedSMTVariable,
+    path_constraints,
+    config: CollectionConfig,
+) -> Optional[VariableResult]:
+    """Solve variable range and create result."""
+    range_config = RangeQueryConfig(
+        path_constraints=path_constraints,
+        timeout_ms=config.timeout_ms,
+        skip_optimization=config.skip_range_solving,
+        cache=config.cache,
+    )
+    min_result, max_result = solve_variable_range(config.solver, smt_var, range_config)
+
+    if not (min_result and max_result):
+        return None
+
+    has_overflow = min_result.get("overflow", False) or max_result.get("overflow", False)
+    is_wrapped = min_result["value"] > max_result["value"]
+
+    if is_wrapped:
+        range_str = f"[{max_result['value']}, {min_result['value']}]"
+    else:
+        range_str = f"[{min_result['value']}, {max_result['value']}]"
+
+    return VariableResult(
+        name=var_name,
+        range_str=range_str,
+        overflow="YES" if has_overflow else "NO",
+        overflow_amount=max(
+            min_result.get("overflow_amount", 0),
+            max_result.get("overflow_amount", 0),
+        ),
+    )
+
+
+def _handle_analysis_exception(e: Exception, function: Function) -> None:
+    """Handle exception during analysis."""
+    from slither.analyses.data_flow.logger import get_logger, LogMessages
+
+    logger = get_logger()
+    logger.exception(
+        LogMessages.ERROR_ANALYSIS_FAILED,
+        error=str(e),
+        function_name=function.name,
+        embed_on_error=False,
+    )
 
 
 def analyze_contract_quiet(

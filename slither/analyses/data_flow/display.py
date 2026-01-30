@@ -12,19 +12,53 @@ if TYPE_CHECKING:
 console = Console()
 
 
+def _abbreviate_asm_pattern(var_part: str, func_name: str, prefix: str) -> str:
+    """Abbreviate word_ or ptr_ assembly variable patterns."""
+    remaining = var_part[len(prefix):]  # Remove prefix (word_ or ptr_)
+    short_prefix = "w_" if prefix == "word_" else "p_"
+
+    if "_a_" in remaining:
+        func_part, rest = remaining.split("_a_", 1)
+        if func_name and func_part.startswith(func_name):
+            func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
+        elif func_part:
+            func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
+        else:
+            return f"{short_prefix}{remaining[:8]}"
+        return f"{short_prefix}{func_abbrev}_a_{rest}"
+
+    return f"{short_prefix}{remaining[:8]}" if len(remaining) > 8 else f"{short_prefix}{remaining}"
+
+
+def _abbreviate_contract_func(contract_func: str) -> str:
+    """Abbreviate contract.function pattern if too long."""
+    if "." not in contract_func:
+        return contract_func
+
+    contract, func = contract_func.rsplit(".", 1)
+    if len(func) > 10:
+        func_abbrev = func[:8] + ".." if len(func) > 8 else func
+        return f"{contract}.{func_abbrev}"
+    if len(contract) > 15:
+        return f"{contract[:12]}..{func}"
+    return contract_func
+
+
+def _truncate_with_ssa(result: str, max_length: int) -> str:
+    """Truncate result while preserving SSA suffix after pipe."""
+    if "|" in result:
+        prefix_part, ssa_part = result.rsplit("|", 1)
+        available = max_length - len(ssa_part) - 1
+        if available > 10:
+            prefix_part = prefix_part[:available] + ".."
+        else:
+            prefix_part = prefix_part[: max(10, max_length - len(ssa_part) - 1)]
+        return f"{prefix_part}|{ssa_part}"
+    return result[: max_length - 3] + "..."
+
+
 def abbreviate_variable_name(var_name: str, max_length: int = 60) -> str:
-    """
-    Abbreviate variable names to prevent truncation in table output.
-
-    Handles names like:
-    - Contract.function().variable|variable_SSA
-    - Contract.function().word_functionName_asm_0|word_functionName_asm_0_0
-
-    Strategy:
-    1. Keep contract and function names but abbreviate if needed
-    2. Abbreviate long variable names (especially assembly vars)
-    3. Preserve SSA suffix information
-    """
+    """Abbreviate variable names to prevent truncation in table output."""
     if len(var_name) <= max_length:
         return var_name
 
@@ -32,101 +66,33 @@ def abbreviate_variable_name(var_name: str, max_length: int = 60) -> str:
     if "|" in var_name:
         prefix, ssa_suffix = var_name.rsplit("|", 1)
     else:
-        prefix = var_name
-        ssa_suffix = ""
+        prefix, ssa_suffix = var_name, ""
 
-    # Abbreviate common patterns in the prefix
     # Replace long assembly variable patterns
     prefix = prefix.replace("_asm_", "_a_")
 
-    # If prefix contains function call pattern like "Contract.function().var"
+    # Handle function call pattern like "Contract.function().var"
     if "()." in prefix:
         parts = prefix.split("().", 1)
         if len(parts) == 2:
-            contract_func = parts[0]  # "Contract.function"
-            var_part = parts[1]  # "variable" or "word_functionName_a_0"
+            contract_func, var_part = parts
+            func_name = contract_func.rsplit(".", 1)[1] if "." in contract_func else ""
 
-            # Extract function name from contract_func for abbreviation
-            func_name = ""
-            if "." in contract_func:
-                func_name = contract_func.rsplit(".", 1)[1]
-
-            # Abbreviate long variable names
-            # For patterns like "word_readFirstThreeBytes_a_0", shorten significantly
+            # Abbreviate word_ and ptr_ patterns
             if var_part.startswith("word_") and len(var_part) > 12:
-                remaining = var_part[5:]  # Remove "word_"
-                if "_a_" in remaining:
-                    func_part, rest = remaining.split("_a_", 1)
-                    # If function name is repeated in variable, abbreviate it
-                    if func_name and func_part.startswith(func_name):
-                        # Function name is repeated, use very short abbrev
-                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
-                        var_part = f"w_{func_abbrev}_a_{rest}"
-                    elif func_part:
-                        # Take first 3-4 characters of function name
-                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
-                        var_part = f"w_{func_abbrev}_a_{rest}"
-                else:
-                    # Just truncate if no _a_ pattern
-                    var_part = f"w_{remaining[:8]}" if len(remaining) > 8 else f"w_{remaining}"
-
-            # Similar for "ptr_" pattern
+                var_part = _abbreviate_asm_pattern(var_part, func_name, "word_")
             elif var_part.startswith("ptr_") and len(var_part) > 12:
-                remaining = var_part[4:]  # Remove "ptr_"
-                if "_a_" in remaining:
-                    func_part, rest = remaining.split("_a_", 1)
-                    # If function name is repeated in variable, abbreviate it
-                    if func_name and func_part.startswith(func_name):
-                        func_abbrev = func_name[:3] if len(func_name) > 3 else func_name
-                        var_part = f"p_{func_abbrev}_a_{rest}"
-                    elif func_part:
-                        func_abbrev = func_part[:4] if len(func_part) > 4 else func_part
-                        var_part = f"p_{func_abbrev}_a_{rest}"
-                else:
-                    var_part = f"p_{remaining[:8]}" if len(remaining) > 8 else f"p_{remaining}"
+                var_part = _abbreviate_asm_pattern(var_part, func_name, "ptr_")
 
-            # Keep SSA suffix unchanged - don't abbreviate anything after |
-
-            # Abbreviate contract.function if still too long
-            if "." in contract_func:
-                contract, func = contract_func.rsplit(".", 1)
-                # Abbreviate function name more aggressively
-                if len(func) > 10:
-                    # Take first 6-8 chars of function name
-                    func_abbrev = func[:8] + ".." if len(func) > 8 else func
-                    contract_func = f"{contract}.{func_abbrev}"
-                # Also abbreviate contract if very long
-                elif len(contract) > 15:
-                    contract = contract[:12] + ".."
-                    contract_func = f"{contract}.{func}"
-
+            contract_func = _abbreviate_contract_func(contract_func)
             prefix = f"{contract_func}().{var_part}"
 
-    # Reconstruct the name
-    if ssa_suffix:
-        result = f"{prefix}|{ssa_suffix}"
-    else:
-        result = prefix
+    # Reconstruct with SSA suffix
+    result = f"{prefix}|{ssa_suffix}" if ssa_suffix else prefix
 
-    # Final check: if still too long, truncate intelligently
-    # Always preserve everything after | (SSA suffix)
+    # Final truncation if still too long
     if len(result) > max_length:
-        if "|" in result:
-            prefix_part, ssa_part = result.rsplit("|", 1)
-            # Calculate available space for prefix (leave room for | and SSA suffix)
-            available = max_length - len(ssa_part) - 1  # -1 for the |
-            if available > 10:
-                # Truncate prefix but keep SSA suffix intact
-                prefix_part = prefix_part[:available] + ".."
-                result = f"{prefix_part}|{ssa_part}"
-            else:
-                # If SSA suffix itself is too long, we still keep it but truncate prefix minimally
-                # This shouldn't happen often, but handle it gracefully
-                prefix_part = prefix_part[: max(10, max_length - len(ssa_part) - 1)]
-                result = f"{prefix_part}|{ssa_part}"
-        else:
-            # No pipe, just truncate normally
-            result = result[: max_length - 3] + "..."
+        result = _truncate_with_ssa(result, max_length)
 
     return result
 
@@ -188,58 +154,61 @@ def display_variable_ranges_table(variable_results: List[Dict]) -> None:
 def display_test_results(results: List["ContractTestResult"], verbose: bool) -> None:
     """Display test results with rich formatting."""
     for contract_test in results:
-        passed_funcs = sum(1 for f in contract_test.function_results.values() if f.passed)
-        total_funcs = len(contract_test.function_results)
+        _display_contract_summary(contract_test)
+        _display_function_results(contract_test, verbose)
 
-        if contract_test.passed:
-            console.print(
-                f"[bold green]V[/bold green] {contract_test.contract_file} - "
-                f"[green]PASSED[/green] ({passed_funcs}/{total_funcs} functions)"
-            )
+
+def _display_contract_summary(contract_test: "ContractTestResult") -> None:
+    """Display contract-level test summary."""
+    passed_funcs = sum(1 for f in contract_test.function_results.values() if f.passed)
+    total_funcs = len(contract_test.function_results)
+
+    if contract_test.passed:
+        console.print(
+            f"[bold green]V[/bold green] {contract_test.contract_file} - "
+            f"[green]PASSED[/green] ({passed_funcs}/{total_funcs} functions)"
+        )
+    else:
+        console.print(
+            f"[bold red]X[/bold red] {contract_test.contract_file} - "
+            f"[red]FAILED[/red] ({passed_funcs}/{total_funcs} functions)"
+        )
+
+
+def _display_function_results(contract_test: "ContractTestResult", verbose: bool) -> None:
+    """Display function-level test results."""
+    for func_name, func_test in contract_test.function_results.items():
+        cname = contract_test.contract_name
+        if func_test.passed:
+            console.print(f"  [green]V[/green] {cname}.{func_name} - All vars correct")
         else:
-            console.print(
-                f"[bold red]X[/bold red] {contract_test.contract_file} - "
-                f"[red]FAILED[/red] ({passed_funcs}/{total_funcs} functions)"
-            )
+            console.print(f"  [red]X[/red] {cname}.{func_name} - Variable mismatch")
+            _display_function_failures(func_test, verbose)
 
-        # Show function details
-        for func_name, func_test in contract_test.function_results.items():
-            if func_test.passed:
-                console.print(
-                    f"  [green]V[/green] {contract_test.contract_name}.{func_name} - All variables correct"
-                )
-            else:
-                console.print(
-                    f"  [red]X[/red] {contract_test.contract_name}.{func_name} - Variable mismatch"
-                )
 
-                # Show mismatches
-                for comparison in func_test.comparisons:
-                    if not comparison.passed:
-                        console.print(f"    [yellow]Variable:[/yellow] {comparison.variable_name}")
-                        if comparison.expected_range != comparison.actual_range:
-                            console.print(
-                                f"      Expected range: [cyan]{comparison.expected_range}[/cyan]"
-                            )
-                            console.print(
-                                f"      Got range:      [red]{comparison.actual_range}[/red]"
-                            )
-                        if comparison.expected_overflow != comparison.actual_overflow:
-                            console.print(
-                                f"      Expected overflow: [cyan]{comparison.expected_overflow}[/cyan]"
-                            )
-                            console.print(
-                                f"      Got overflow:      [red]{comparison.actual_overflow}[/red]"
-                            )
+def _display_function_failures(func_test, verbose: bool) -> None:
+    """Display failures for a single function."""
+    for comparison in func_test.comparisons:
+        if not comparison.passed:
+            _display_comparison_failure(comparison)
 
-                # Show missing variables
-                for missing in func_test.missing_expected:
-                    console.print(f"    [red]Missing expected variable:[/red] {missing}")
+    for missing in func_test.missing_expected:
+        console.print(f"    [red]Missing expected variable:[/red] {missing}")
 
-                # Show unexpected variables (informational)
-                if verbose and func_test.unexpected_vars:
-                    for unexpected in func_test.unexpected_vars:
-                        console.print(f"    [dim]Unexpected variable:[/dim] {unexpected}")
+    if verbose and func_test.unexpected_vars:
+        for unexpected in func_test.unexpected_vars:
+            console.print(f"    [dim]Unexpected variable:[/dim] {unexpected}")
+
+
+def _display_comparison_failure(comparison) -> None:
+    """Display a single comparison failure."""
+    console.print(f"    [yellow]Variable:[/yellow] {comparison.variable_name}")
+    if comparison.expected_range != comparison.actual_range:
+        console.print(f"      Expected range: [cyan]{comparison.expected_range}[/cyan]")
+        console.print(f"      Got range:      [red]{comparison.actual_range}[/red]")
+    if comparison.expected_overflow != comparison.actual_overflow:
+        console.print(f"      Expected overflow: [cyan]{comparison.expected_overflow}[/cyan]")
+        console.print(f"      Got overflow:      [red]{comparison.actual_overflow}[/red]")
 
 
 def display_safety_violations(violations: List) -> None:

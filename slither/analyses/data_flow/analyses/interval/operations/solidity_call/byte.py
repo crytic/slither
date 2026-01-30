@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class ByteHandler(BaseOperationHandler):
-    """Handle `byte(uint256,uint256)`, modeling its byte extraction as an unconstrained uint8 within type bounds."""
+    """Handle `byte(uint256,uint256)`, modeling byte extraction as unconstrained uint8."""
 
     def handle(
         self,
@@ -30,69 +30,82 @@ class ByteHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        # Guard: ensure we have a valid SolidityCall operation
+        if not self._validate_preconditions(operation, domain):
+            return
+
+        lvalue_name, return_type = self._resolve_lvalue_info(operation)
+        if lvalue_name is None or return_type is None:
+            return
+
+        tracked = self._get_or_create_tracked(domain, lvalue_name, return_type)
+        if tracked is None:
+            return
+
+        self._apply_byte_constraints(operation, tracked, domain)
+
+    def _validate_preconditions(
+        self, operation: Optional[SolidityCall], domain: "IntervalDomain"
+    ) -> bool:
+        """Validate operation, solver, and domain state."""
         if operation is None or not isinstance(operation, SolidityCall):
-            return
-
-        # Guard: solver is required to create SMT variables
+            return False
         if self.solver is None:
-            return
-
-        # Guard: only update when we have a concrete state domain
+            return False
         if domain.variant != DomainVariant.STATE:
-            return
+            return False
+        return True
 
+    def _resolve_lvalue_info(
+        self, operation: SolidityCall
+    ) -> tuple[Optional[str], Optional[ElementaryType]]:
+        """Resolve lvalue name and return type from operation."""
         lvalue: Optional["Variable"] = operation.lvalue
-        # Guard: nothing to track if there is no lvalue for the call result
         if lvalue is None:
-            return
+            return None, None
 
         lvalue_name: Optional[str] = IntervalSMTUtils.resolve_variable_name(lvalue)
-        # Guard: skip if we cannot resolve a stable name
         if lvalue_name is None:
-            return
+            return None, None
 
-        # Derive the return elementary type from Slither's type analysis.
-        # Note: byte(uint256,uint256) returns bytes1 (equivalent to uint8) in Solidity,
-        # but we rely on Slither's type_call or lvalue.type rather than hardcoding it.
-        return_type: Optional[ElementaryType] = None
+        return_type = self._resolve_return_type(operation, lvalue)
+        if return_type is None or IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
+            return None, None
 
-        # Prefer the explicit type information from the SolidityCall itself.
+        return lvalue_name, return_type
+
+    def _resolve_return_type(
+        self, operation: SolidityCall, lvalue: "Variable"
+    ) -> Optional[ElementaryType]:
+        """Resolve return type from operation or lvalue."""
         type_call: Union[str, List[ElementaryType], None] = getattr(operation, "type_call", None)
         if isinstance(type_call, list) and type_call:
             candidate: Union[str, ElementaryType] = type_call[0]
-            return_type = IntervalSMTUtils.resolve_elementary_type(candidate)
+            resolved = IntervalSMTUtils.resolve_elementary_type(candidate)
+            if resolved is not None:
+                return resolved
 
-        # Fallback to lvalue.type if needed.
-        if return_type is None and hasattr(lvalue, "type"):
-            return_type = IntervalSMTUtils.resolve_elementary_type(lvalue.type)
+        if hasattr(lvalue, "type"):
+            return IntervalSMTUtils.resolve_elementary_type(lvalue.type)
+        return None
 
-        # Guard: skip if we still cannot determine a supported return type
-        if return_type is None:
-            return
+    def _get_or_create_tracked(
+        self, domain: "IntervalDomain", lvalue_name: str, return_type: ElementaryType
+    ) -> Optional["TrackedSMTVariable"]:
+        """Get existing or create new tracked variable."""
+        tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
+        if tracked is not None:
+            return tracked
 
-        if IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
-            # Guard: unsupported type for interval tracking
-            return
-
-        # Fetch existing tracked variable if present.
-        tracked: Optional["TrackedSMTVariable"] = IntervalSMTUtils.get_tracked_variable(
-            domain, lvalue_name
-        )
+        tracked = IntervalSMTUtils.create_tracked_variable(self.solver, lvalue_name, return_type)
         if tracked is None:
-            # Create a fresh tracked variable for the byte result.
-            tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver,
-                lvalue_name,
-                return_type,
-            )
-            # Guard: creation may fail for unsupported types
-            if tracked is None:
-                return
-            domain.state.set_range_variable(lvalue_name, tracked)
+            return None
+        domain.state.set_range_variable(lvalue_name, tracked)
+        return tracked
 
-        # Try to extract constraints from arguments if available.
-        # byte(uint256 index, uint256 value) extracts byte at position index from value.
+    def _apply_byte_constraints(
+        self, operation: SolidityCall, tracked: "TrackedSMTVariable", domain: "IntervalDomain"
+    ) -> None:
+        """Apply byte extraction constraints or fallback to unconstrained."""
         if operation.arguments and len(operation.arguments) >= 2:
             index_arg = operation.arguments[0]
             value_arg = operation.arguments[1]
@@ -102,7 +115,6 @@ class ByteHandler(BaseOperationHandler):
                 tracked.assert_no_overflow(self.solver)
                 return
 
-        # Fallback: model as unconstrained value within type bounds [0, 255].
         tracked.assert_no_overflow(self.solver)
 
     def _extract_byte_constraint(

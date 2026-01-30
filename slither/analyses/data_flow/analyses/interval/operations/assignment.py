@@ -1,5 +1,6 @@
 """Assignment operation handler for interval analysis."""
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
@@ -27,6 +28,24 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
+@dataclass
+class AssignmentContext:
+    """Context for assignment operation handling."""
+
+    operation: Assignment
+    domain: "IntervalDomain"
+    node: "Node"
+    is_checked: bool
+
+
+@dataclass
+class RvalueInfo:
+    """Info about the rvalue in an assignment."""
+
+    value: object
+    name: str
+
+
 class AssignmentHandler(BaseOperationHandler):
     """Handler for assignment operations in interval analysis."""
 
@@ -36,100 +55,120 @@ class AssignmentHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        """
-        Handle an assignment operation.
-
-        Args:
-            operation: The assignment operation
-            domain: The current interval domain
-            node: The CFG node containing the operation
-        """
+        """Handle an assignment operation."""
         if operation is None or self.solver is None:
             return
 
         self.logger.debug(f"Handling assignment operation: {operation}")
 
-        lvalue = operation.lvalue
-        rvalue = operation.rvalue
+        lvalue_info = self._resolve_lvalue_info(operation)
+        if lvalue_info is None:
+            return
+        lvalue_name, lvalue_type = lvalue_info
 
-        # Get variable name for lvalue
-        lvalue_name = self._get_variable_name(lvalue)
-        self._logger.debug(f"Lvalue name: {lvalue_name}")
-        if lvalue_name is None:
+        ctx = AssignmentContext(operation, domain, node, self._get_is_checked(node))
+        lvalue_var = self._ensure_lvalue_tracked(lvalue_name, lvalue_type, ctx)
+        if lvalue_var is None:
             return
 
-        # Determine the best type information available for the lvalue
+        if not self._process_rvalue(lvalue_var, lvalue_name, lvalue_type, ctx):
+            return
+
+        domain.state.set_range_variable(lvalue_name, lvalue_var)
+        self._update_references_if_needed(operation.lvalue, lvalue_var, ctx)
+
+    def _resolve_lvalue_info(
+        self, operation: Assignment
+    ) -> Optional[tuple[str, ElementaryType]]:
+        """Resolve lvalue name and type."""
+        lvalue = operation.lvalue
+        lvalue_name = self._get_variable_name(lvalue)
+        if lvalue_name is None:
+            return None
+
         lvalue_type_attr = lvalue.type if hasattr(lvalue, "type") else None
         lvalue_type = IntervalSMTUtils.resolve_elementary_type(
             operation.variable_return_type, lvalue_type_attr
         )
         if lvalue_type is None:
-            self.logger.debug("Unsupported lvalue type for assignment; skipping interval update.")
-            return
+            self.logger.debug("Unsupported lvalue type for assignment; skipping.")
+            return None
 
-        # Get is_checked from scope (Scope has attribute, Function has method)
-        is_checked = False
+        return lvalue_name, lvalue_type
+
+    def _get_is_checked(self, node: "Node") -> bool:
+        """Get is_checked status from node scope."""
         if isinstance(node.scope, Scope):
-            is_checked = node.scope.is_checked
-        elif isinstance(node.scope, Function):
-            is_checked = node.scope.is_checked()
+            return node.scope.is_checked
+        if isinstance(node.scope, Function):
+            return node.scope.is_checked()
+        return False
 
-        # Fetch or create SMT variable for lvalue (assignments may create new variables)
-        lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
-        if lvalue_var is None:
-            # Check if type is supported for interval analysis
-            if IntervalSMTUtils.solidity_type_to_smt_sort(lvalue_type) is None:
-                self.logger.debug(
-                    "Elementary type '%s' not supported for interval analysis; skipping.",
-                    getattr(lvalue_type, "type", lvalue_type),
-                )
-                return
-            lvalue_var = IntervalSMTUtils.create_tracked_variable(
-                self.solver, lvalue_name, lvalue_type
+    def _ensure_lvalue_tracked(
+        self,
+        lvalue_name: str,
+        lvalue_type: ElementaryType,
+        ctx: AssignmentContext,
+    ) -> Optional[TrackedSMTVariable]:
+        """Ensure lvalue is tracked, creating if needed."""
+        lvalue_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, lvalue_name)
+        if lvalue_var is not None:
+            return lvalue_var
+
+        if IntervalSMTUtils.solidity_type_to_smt_sort(lvalue_type) is None:
+            self.logger.debug(
+                "Elementary type '%s' not supported; skipping.",
+                getattr(lvalue_type, "type", lvalue_type),
             )
-            if lvalue_var is None:
-                self.logger.error_and_raise(
-                    "Failed to create tracked variable for type '{type_name}' and variable '{var_name}'",
-                    ValueError,
-                    var_name=lvalue_name,
-                    type_name=getattr(lvalue_type, "type", lvalue_type),
-                    embed_on_error=True,
-                    node=node,
-                    operation=operation,
-                    domain=domain,
-                )
-            domain.state.set_range_variable(lvalue_name, lvalue_var)
+            return None
 
-        # Handle rvalue: constant or variable
+        lvalue_var = IntervalSMTUtils.create_tracked_variable(
+            self.solver, lvalue_name, lvalue_type
+        )
+        if lvalue_var is None:
+            self.logger.error_and_raise(
+                "Failed to create tracked variable for '{var_name}'",
+                ValueError,
+                var_name=lvalue_name,
+                embed_on_error=True,
+                node=ctx.node, operation=ctx.operation, domain=ctx.domain,
+            )
+        ctx.domain.state.set_range_variable(lvalue_name, lvalue_var)
+        return lvalue_var
+
+    def _process_rvalue(
+        self,
+        lvalue_var: TrackedSMTVariable,
+        lvalue_name: str,
+        lvalue_type: ElementaryType,
+        ctx: AssignmentContext,
+    ) -> bool:
+        """Process the rvalue of the assignment. Returns True if successful."""
+        rvalue = ctx.operation.rvalue
         if isinstance(rvalue, Constant):
-            # Handle constant assignment
-            self.logger.debug(f"Handling constant assignment: {rvalue}")
-            self._handle_constant_assignment(lvalue_var, rvalue, is_checked, lvalue_type, lvalue_name, domain)
-        else:
-            # Handle variable assignment
-            rvalue_name = self._get_variable_name(rvalue)
-            if rvalue_name is not None:
-                if not self._handle_variable_assignment(
-                    lvalue_var,
-                    rvalue,
-                    rvalue_name,
-                    lvalue_name,
-                    domain,
-                    is_checked,
-                    lvalue_type,
-                    node,
-                    operation,
-                ):
-                    return  # Unsupported rvalue type; skip update
+            self._handle_constant_assignment(lvalue_var, rvalue, lvalue_type, lvalue_name, ctx)
+            return True
 
-        # Update domain state
-        self.logger.debug(f"Setting range variable {lvalue_name} to {lvalue_var}")
-        domain.state.set_range_variable(lvalue_name, lvalue_var)
+        rvalue_name = self._get_variable_name(rvalue)
+        if rvalue_name is None:
+            return True
 
-        # If lvalue is a ReferenceVariable that points to a struct member or array element, also update it
-        if hasattr(lvalue, "points_to") and lvalue.points_to is not None:
-            self._update_struct_member_if_reference(lvalue, lvalue_var, domain, node, operation)
-            self._update_array_element_if_reference(lvalue, lvalue_var, domain, node, operation)
+        rvalue_info = RvalueInfo(rvalue, rvalue_name)
+        return self._handle_variable_assignment(
+            lvalue_var, rvalue_info, lvalue_name, lvalue_type, ctx
+        )
+
+    def _update_references_if_needed(
+        self,
+        lvalue: object,
+        lvalue_var: TrackedSMTVariable,
+        ctx: AssignmentContext,
+    ) -> None:
+        """Update struct/array references if lvalue points to them."""
+        if not hasattr(lvalue, "points_to") or lvalue.points_to is None:
+            return
+        self._update_struct_member_if_reference(lvalue, lvalue_var, ctx)
+        self._update_array_element_if_reference(lvalue, lvalue_var, ctx)
 
     def _get_variable_name(self, var: Union[object, Constant]) -> Optional[str]:
         """Extract variable name from SlitherIR variable."""
@@ -138,25 +177,25 @@ class AssignmentHandler(BaseOperationHandler):
     def _handle_variable_assignment(
         self,
         lvalue_var: TrackedSMTVariable,
-        rvalue: object,
-        rvalue_name: str,
+        rvalue_info: RvalueInfo,
         lvalue_name: str,
-        domain: "IntervalDomain",
-        is_checked: bool,
         fallback_type: Optional[ElementaryType],
-        node: "Node",
-        operation: Assignment,
+        ctx: AssignmentContext,
     ) -> bool:
         """Process assignment from another variable; return False if unsupported."""
         rvalue_var = self._resolve_rvalue_variable(
-            rvalue, rvalue_name, fallback_type, domain, node, operation
+            rvalue_info.value, rvalue_info.name, fallback_type, ctx
         )
         if rvalue_var is None:
             return False
 
         self._apply_assignment_constraint(lvalue_var, rvalue_var)
-        self._propagate_assignment_metadata(lvalue_var, rvalue_var, lvalue_name, rvalue_name, domain)
-        self._handle_assignment_overflow(lvalue_var, rvalue_var, rvalue_name, is_checked)
+        self._propagate_assignment_metadata(
+            lvalue_var, rvalue_var, lvalue_name, rvalue_info.name, ctx.domain
+        )
+        self._handle_assignment_overflow(
+            lvalue_var, rvalue_var, rvalue_info.name, ctx.is_checked
+        )
         return True
 
     def _resolve_rvalue_variable(
@@ -164,9 +203,7 @@ class AssignmentHandler(BaseOperationHandler):
         rvalue: object,
         rvalue_name: str,
         fallback_type: Optional[ElementaryType],
-        domain: "IntervalDomain",
-        node: "Node",
-        operation: Assignment,
+        ctx: AssignmentContext,
     ) -> Optional[TrackedSMTVariable]:
         """Resolve the rvalue to a tracked variable, creating if needed."""
         rvalue_type = IntervalSMTUtils.resolve_elementary_type(getattr(rvalue, "type", None))
@@ -176,7 +213,7 @@ class AssignmentHandler(BaseOperationHandler):
                 self.logger.debug("Unsupported rvalue type; skipping.")
                 return None
 
-        rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+        rvalue_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, rvalue_name)
         if rvalue_var is not None:
             return rvalue_var
 
@@ -185,22 +222,18 @@ class AssignmentHandler(BaseOperationHandler):
         if isinstance(rvalue_actual_type, UserDefinedType) and isinstance(
             rvalue_actual_type.type, Structure
         ):
-            self._materialize_struct_fields(domain, rvalue_name, rvalue_actual_type.type)
+            self._materialize_struct_fields(ctx.domain, rvalue_name, rvalue_actual_type.type)
             return None
 
         # Synthesize a tracked variable
-        return self._synthesize_rvalue_variable(
-            rvalue_name, rvalue_actual_type, rvalue_type, domain, node, operation
-        )
+        return self._synthesize_rvalue_variable(rvalue_name, rvalue_actual_type, rvalue_type, ctx)
 
     def _synthesize_rvalue_variable(
         self,
         rvalue_name: str,
         rvalue_actual_type: object,
         rvalue_type: ElementaryType,
-        domain: "IntervalDomain",
-        node: "Node",
-        operation: Assignment,
+        ctx: AssignmentContext,
     ) -> Optional[TrackedSMTVariable]:
         """Create a new tracked variable for the rvalue."""
         candidate_type = IntervalSMTUtils.resolve_elementary_type(rvalue_actual_type) or rvalue_type
@@ -214,7 +247,7 @@ class AssignmentHandler(BaseOperationHandler):
                 ValueError,
                 var_name=rvalue_name,
                 embed_on_error=True,
-                node=node, operation=operation, domain=domain,
+                node=ctx.node, operation=ctx.operation, domain=ctx.domain,
             )
 
         rvalue_var = IntervalSMTUtils.create_tracked_variable(
@@ -226,9 +259,9 @@ class AssignmentHandler(BaseOperationHandler):
                 ValueError,
                 var_name=rvalue_name,
                 embed_on_error=True,
-                node=node, operation=operation, domain=domain,
+                node=ctx.node, operation=ctx.operation, domain=ctx.domain,
             )
-        domain.state.set_range_variable(rvalue_name, rvalue_var)
+        ctx.domain.state.set_range_variable(rvalue_name, rvalue_var)
         return rvalue_var
 
     def _apply_assignment_constraint(
@@ -329,28 +362,41 @@ class AssignmentHandler(BaseOperationHandler):
         self,
         lvalue_var: TrackedSMTVariable,
         constant: Constant,
-        is_checked: bool,
         var_type: ElementaryType,
-        lvalue_name: Optional[str] = None,
-        domain: Optional["IntervalDomain"] = None,
+        lvalue_name: str,
+        ctx: AssignmentContext,
     ) -> None:
         """Handle assignment from a constant value."""
         if self.solver is None:
             return
 
-        # Get constant value
-        const_value = constant.value
-        original_string_value = None
+        const_value, original_string = self._convert_constant_value(constant)
+        if const_value is None:
+            return
 
-        # Convert hex string constants (e.g., bytes32) to integers
+        if original_string is not None:
+            self._store_byte_length_metadata(lvalue_var, original_string)
+
+        const_term: SMTTerm = self.solver.create_constant(const_value, lvalue_var.sort)
+        self.solver.assert_constraint(lvalue_var.term == const_term)
+        lvalue_var.assert_no_overflow(self.solver)
+
+        if original_string is not None:
+            self._store_bytes_memory_constant(
+                original_string, var_type, lvalue_name, ctx.domain
+            )
+
+    def _convert_constant_value(self, constant: Constant) -> tuple[Optional[int], Optional[str]]:
+        """Convert constant to integer value and return original string if applicable."""
+        const_value = constant.value
+        original_string = None
+
         if isinstance(const_value, str):
-            original_string_value = const_value
-            # Try to convert to integer - first try hex, then try ASCII string
+            original_string = const_value
             try:
                 const_value = convert_string_to_int(const_value)
             except (ValueError, TypeError):
-                # Not a hex string - try converting as ASCII string
-                ascii_value = self._string_to_int(original_string_value)
+                ascii_value = self._string_to_int(original_string)
                 if ascii_value is not None:
                     const_value = ascii_value
                 else:
@@ -358,57 +404,51 @@ class AssignmentHandler(BaseOperationHandler):
                         "Unable to convert constant string '%s' to integer; skipping.",
                         const_value,
                     )
-                    return
+                    return None, None
 
         if not isinstance(const_value, int):
+            return None, None
+
+        return const_value, original_string
+
+    def _store_byte_length_metadata(
+        self, lvalue_var: TrackedSMTVariable, original_string: str
+    ) -> None:
+        """Store byte length metadata for bytes/string constants."""
+        byte_length = self._compute_byte_length(original_string)
+        if byte_length is not None:
+            lvalue_var.base.metadata["bytes_length"] = byte_length
+
+    def _store_bytes_memory_constant(
+        self,
+        original_string: str,
+        var_type: ElementaryType,
+        lvalue_name: str,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Store bytes memory constant if this is a dynamic bytes type."""
+        type_str = getattr(var_type, "type", None)
+        if type_str != "bytes":
             return
 
-        # Store byte length metadata for bytes/string constants
-        # This allows the Length handler to get the actual length
-        if original_string_value is not None:
-            byte_length = self._compute_byte_length(original_string_value)
-            if byte_length is not None:
-                lvalue_var.base.metadata["bytes_length"] = byte_length
+        if not (original_string.startswith("0x") or original_string.startswith("0X")):
+            return
 
-        # Create constant term using solver's create_constant method
-        const_term: SMTTerm = self.solver.create_constant(const_value, lvalue_var.sort)
-
-        # Add constraint: lvalue == constant
-        constraint: SMTTerm = lvalue_var.term == const_term
-        self.solver.assert_constraint(constraint)
-
-        # Constants cannot overflow
-        lvalue_var.assert_no_overflow(self.solver)
-        
-        # Track bytes memory constants: if this is a bytes memory variable with hex string content,
-        # store the concrete byte content for memory load operations
-        if original_string_value is not None and var_type is not None and lvalue_name is not None and domain is not None:
-            # Check if this is a bytes memory type (dynamic bytes, not bytes32/bytes1/etc)
-            type_str = getattr(var_type, "type", None)
-            # bytes (dynamic) has type "bytes" exactly, bytes32 has type "bytes32"
-            if type_str == "bytes":
-                # Convert hex string to bytes
-                try:
-                    if original_string_value.startswith("0x") or original_string_value.startswith("0X"):
-                        hex_part = original_string_value[2:]
-                        # Remove any whitespace
-                        hex_part = hex_part.replace(" ", "").replace("\n", "")
-                        # Convert to bytes
-                        byte_content = bytes.fromhex(hex_part)
-                        # Store in domain state for memory load tracking
-                        domain.state.set_bytes_memory_constant(lvalue_name, byte_content)
-                        self.logger.debug(
-                            "Stored bytes memory constant for '{name}': {length} bytes",
-                            name=lvalue_name,
-                            length=len(byte_content),
-                        )
-                except (ValueError, TypeError) as e:
-                    # Not a valid hex string, skip
-                    self.logger.debug(
-                        "Could not convert hex string to bytes for '{name}': {error}",
-                        name=lvalue_name,
-                        error=str(e),
-                    )
+        try:
+            hex_part = original_string[2:].replace(" ", "").replace("\n", "")
+            byte_content = bytes.fromhex(hex_part)
+            domain.state.set_bytes_memory_constant(lvalue_name, byte_content)
+            self.logger.debug(
+                "Stored bytes memory constant for '{name}': {length} bytes",
+                name=lvalue_name,
+                length=len(byte_content),
+            )
+        except (ValueError, TypeError) as e:
+            self.logger.debug(
+                "Could not convert hex string to bytes for '{name}': {error}",
+                name=lvalue_name,
+                error=str(e),
+            )
 
     @staticmethod
     def _compute_byte_length(string_value: str) -> Optional[int]:
@@ -483,11 +523,11 @@ class AssignmentHandler(BaseOperationHandler):
 
     @staticmethod
     def _is_solidity_variable(var: object) -> bool:
-        """Check if variable is a Solidity global variable (should have full range, not initialized to 0)."""
+        """Check if variable is a Solidity global (full range, not initialized to 0)."""
         return isinstance(var, (SolidityVariableComposed, SolidityVariable))
 
     def _initialize_variable_to_zero(self, var: TrackedSMTVariable) -> None:
-        """Initialize a variable to 0 (Solidity default value for uninitialized variables)."""
+        """Initialize a variable to 0 (Solidity default for uninitialized vars)."""
         if self.solver is None:
             return
         zero_constant = self.solver.create_constant(0, var.sort)
@@ -497,148 +537,127 @@ class AssignmentHandler(BaseOperationHandler):
         self,
         lvalue: object,
         lvalue_var: TrackedSMTVariable,
-        domain: "IntervalDomain",
-        node: "Node",
-        operation: Assignment,
+        ctx: AssignmentContext,
     ) -> None:
-        """Update struct member when assigning to a reference variable that points to a struct member."""
-        if self.solver is None:
+        """Update struct member when assigning to a reference pointing to struct member."""
+        ref_info = self._get_reference_info(lvalue)
+        if ref_info is None:
             return
+        lvalue_name, points_to_name = ref_info
 
-        # Guard: only process ReferenceVariable lvalues
-        if not isinstance(lvalue, (ReferenceVariable, ReferenceVariableSSA)):
-            return
-
-        # Find struct member variables that might be constrained to equal this reference
-        # Look for variables with pattern "*.member_name" where the base matches points_to
-        points_to = getattr(lvalue, "points_to", None)
-        if points_to is None:
-            return
-
-        points_to_name = IntervalSMTUtils.resolve_variable_name(points_to)
-        if points_to_name is None:
-            return
-
-        # Search for struct member variables that start with the points_to name
-        # and are constrained to equal this reference
-        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
-        if lvalue_name is None:
-            return
-
-        # Use prefix index for fast lookup of struct member variables
-        # Look for "{points_to_name}." prefix
-        prefix = points_to_name + "."
-        candidate_vars = domain.state.get_variables_by_prefix(prefix)
-
-        # Also check with base name (without SSA version) if different
-        points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else None
-        if points_to_base and points_to_base != points_to_name:
-            candidate_vars = candidate_vars.union(domain.state.get_variables_by_prefix(points_to_base + "."))
-
-        for var_name in candidate_vars:
-            tracked_var = domain.state.range_variables.get(var_name)
-            if tracked_var is None:
-                continue
-
-            # Check if this variable name matches the pattern of a struct member
-            base_name = var_name.split(".", 1)[0]
-            # Check if base name matches (accounting for SSA versions)
-            if base_name.startswith(points_to_name) or points_to_name.startswith(
-                base_name.split("|")[0]
-            ):
-                # This might be the struct member - update it to match the reference
-                # The constraint REF == struct.member should already exist from Member handler
-                # We just need to ensure the struct member is updated when REF is updated
-                # Since they're constrained to be equal, updating REF should propagate
-                # But we can explicitly update the struct member to be safe
-                member_width = self.solver.bv_size(tracked_var.term)
-                ref_width = self.solver.bv_size(lvalue_var.term)
-
-                if member_width == ref_width:
-                    # Explicitly constrain struct member to equal the reference
-                    constraint: SMTTerm = tracked_var.term == lvalue_var.term
-                    self.solver.assert_constraint(constraint)
-                    self.logger.debug(
-                        "Updated struct member '{member}' to match reference '{ref}'",
-                        member=var_name,
-                        ref=lvalue_name,
-                    )
-                    # Only update the first matching struct member (should be unique per reference)
-                    break
+        candidates = self._get_struct_member_candidates(points_to_name, ctx.domain)
+        self._update_matching_variable(
+            candidates, lvalue_var, lvalue_name, points_to_name, ctx.domain
+        )
 
     def _update_array_element_if_reference(
         self,
         lvalue: object,
         lvalue_var: TrackedSMTVariable,
-        domain: "IntervalDomain",
-        node: "Node",
-        operation: Assignment,
+        ctx: AssignmentContext,
     ) -> None:
-        """Update array element when assigning to a reference variable that points to an array element."""
+        """Update array element when assigning to a reference pointing to array element."""
+        ref_info = self._get_reference_info(lvalue)
+        if ref_info is None:
+            return
+        lvalue_name, points_to_name = ref_info
+
+        candidates = self._get_array_element_candidates(points_to_name, ctx.domain)
+        self._update_matching_variable(
+            candidates, lvalue_var, lvalue_name, points_to_name, ctx.domain
+        )
+
+    def _get_reference_info(self, lvalue: object) -> Optional[tuple[str, str]]:
+        """Get lvalue name and points_to name for a reference variable."""
         if self.solver is None:
-            return
-
-        # Guard: only process ReferenceVariable lvalues
+            return None
         if not isinstance(lvalue, (ReferenceVariable, ReferenceVariableSSA)):
-            return
+            return None
 
-        # Find array element variables that might be constrained to equal this reference
-        # Look for variables with pattern "array[index]" where the array matches points_to
         points_to = getattr(lvalue, "points_to", None)
         if points_to is None:
-            return
+            return None
 
         points_to_name = IntervalSMTUtils.resolve_variable_name(points_to)
         if points_to_name is None:
-            return
+            return None
 
         lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
         if lvalue_name is None:
-            return
+            return None
 
-        # Use prefix index for fast lookup of array element variables
-        # Look for "{points_to_name}[" prefix
+        return lvalue_name, points_to_name
+
+    def _get_struct_member_candidates(
+        self, points_to_name: str, domain: "IntervalDomain"
+    ) -> set[str]:
+        """Get candidate struct member variables."""
+        candidates = domain.state.get_variables_by_prefix(points_to_name + ".")
+        points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else None
+        if points_to_base and points_to_base != points_to_name:
+            candidates = candidates.union(
+                domain.state.get_variables_by_prefix(points_to_base + ".")
+            )
+        return candidates
+
+    def _get_array_element_candidates(
+        self, points_to_name: str, domain: "IntervalDomain"
+    ) -> set[str]:
+        """Get candidate array element variables."""
+        candidates = domain.state.get_variables_by_prefix(points_to_name + "[")
         points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else points_to_name
-
-        # Get candidate variables using prefix index
-        prefix = points_to_name + "["
-        candidate_vars = domain.state.get_variables_by_prefix(prefix)
-
-        # Also check with base name (without SSA version) if different
         if points_to_base != points_to_name:
-            candidate_vars = candidate_vars.union(domain.state.get_variables_by_prefix(points_to_base + "["))
+            candidates = candidates.union(
+                domain.state.get_variables_by_prefix(points_to_base + "[")
+            )
+        return candidates
 
-        for var_name in candidate_vars:
+    def _update_matching_variable(
+        self,
+        candidates: set[str],
+        lvalue_var: TrackedSMTVariable,
+        lvalue_name: str,
+        points_to_name: str,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Update the first matching variable to equal the reference."""
+        points_to_base = points_to_name.split("|")[0] if "|" in points_to_name else points_to_name
+        ref_width = self.solver.bv_size(lvalue_var.term)
+
+        for var_name in candidates:
             tracked_var = domain.state.range_variables.get(var_name)
             if tracked_var is None:
                 continue
 
-            # Extract array base name (before the first "[")
-            var_base = var_name.split("[", 1)[0]
-            var_base_clean = var_base.split("|")[0] if "|" in var_base else var_base
-
-            # Match base names, ignoring SSA versions (e.g., "Index.fixedArray" matches "Index.fixedArray|fixedArray_0")
-            if not (
-                var_base_clean == points_to_base
-                or var_base.startswith(points_to_base)
-                or points_to_base.startswith(var_base_clean)
-            ):
+            if not self._is_matching_base(var_name, points_to_name, points_to_base):
                 continue
 
-            # Update array element to match the reference (constraint REF == array[index] exists from Index handler)
-            element_width = self.solver.bv_size(tracked_var.term)
-            ref_width = self.solver.bv_size(lvalue_var.term)
-
-            if element_width != ref_width:
+            var_width = self.solver.bv_size(tracked_var.term)
+            if var_width != ref_width:
                 continue
 
-            # Explicitly constrain array element to equal the reference
-            constraint: SMTTerm = tracked_var.term == lvalue_var.term
-            self.solver.assert_constraint(constraint)
+            self.solver.assert_constraint(tracked_var.term == lvalue_var.term)
             self.logger.debug(
-                "Updated array element '{element}' to match reference '{ref}'",
-                element=var_name,
+                "Updated variable '{var}' to match reference '{ref}'",
+                var=var_name,
                 ref=lvalue_name,
             )
-            # Only update the first matching array element (should be unique per reference)
             break
+
+    def _is_matching_base(
+        self, var_name: str, points_to_name: str, points_to_base: str
+    ) -> bool:
+        """Check if variable base matches the points_to base."""
+        # Determine separator based on variable name pattern
+        separator = "." if "." in var_name and "[" not in var_name.split(".", 1)[0] else "["
+        var_base = var_name.split(separator, 1)[0]
+        var_base_clean = var_base.split("|")[0] if "|" in var_base else var_base
+
+        if separator == ".":
+            return var_base.startswith(points_to_name) or points_to_name.startswith(var_base_clean)
+
+        return (
+            var_base_clean == points_to_base
+            or var_base.startswith(points_to_base)
+            or points_to_base.startswith(var_base_clean)
+        )

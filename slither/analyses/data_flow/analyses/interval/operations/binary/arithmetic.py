@@ -1,5 +1,6 @@
 """Arithmetic binary operation handler."""
 
+from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING, Union
 
 from slither.analyses.data_flow.smt_solver.types import CheckSatResult, SMTTerm, Sort, SortKind
@@ -20,6 +21,35 @@ from slither.utils.integer_conversion import convert_string_to_int
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.core.cfg.node import Node
+
+
+@dataclass
+class OperandContext:
+    """Context for binary operation operands."""
+
+    left_term: SMTTerm
+    right_term: SMTTerm
+    left_name: str
+    right_name: str
+
+
+@dataclass
+class ResultContext:
+    """Context for binary operation result."""
+
+    var: TrackedSMTVariable
+    type: ElementaryType
+    name: str
+
+
+@dataclass
+class BinaryOperationContext:
+    """Context for binary operation handling."""
+
+    domain: "IntervalDomain"
+    operation: Binary
+    node: "Node"
+    is_checked: bool
 
 
 class ArithmeticBinaryHandler(BaseOperationHandler):
@@ -56,8 +86,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
         # Get operand terms
         is_checked = node.scope.is_checked
+        op_ctx = BinaryOperationContext(domain, operation, node, is_checked)
         left_term, right_term = self._get_operand_terms(
-            domain, operation, left_name, right_name, result_type, is_checked, node
+            left_name, right_name, result_type, op_ctx
         )
         if left_term is None or right_term is None:
             return
@@ -68,10 +99,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             return
 
         # Compute and apply the result
-        self._compute_and_apply_result(
-            operation, domain, node, result_var, result_type,
-            left_term, right_term, left_name, right_name, result_name, is_checked,
-        )
+        operand_ctx = OperandContext(left_term, right_term, left_name, right_name)
+        result_ctx = ResultContext(result_var, result_type, result_name)
+        self._compute_and_apply_result(operand_ctx, result_ctx, op_ctx)
 
     def _infer_result_type(
         self, operation: Binary, node: "Node"
@@ -121,22 +151,17 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _get_operand_terms(
         self,
-        domain: "IntervalDomain",
-        operation: Binary,
         left_name: str,
         right_name: str,
         result_type: ElementaryType,
-        is_checked: bool,
-        node: "Node",
+        ctx: BinaryOperationContext,
     ) -> tuple[Optional[SMTTerm], Optional[SMTTerm]]:
         """Get SMT terms for both operands."""
         left_term, _ = self._get_operand_term(
-            domain, operation.variable_left, left_name,
-            fallback_type=result_type, is_checked=is_checked, node=node, operation=operation
+            ctx.operation.variable_left, left_name, result_type, ctx
         )
         right_term, _ = self._get_operand_term(
-            domain, operation.variable_right, right_name,
-            fallback_type=result_type, is_checked=is_checked, node=node, operation=operation
+            ctx.operation.variable_right, right_name, result_type, ctx
         )
         if left_term is None or right_term is None:
             self.logger.error("Operands missing in SMT state.")
@@ -162,55 +187,50 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _compute_and_apply_result(
         self,
-        operation: Binary,
-        domain: "IntervalDomain",
-        _node: "Node",  # Unused but kept for API consistency
-        result_var: TrackedSMTVariable,
-        result_type: ElementaryType,
-        left_term: SMTTerm,
-        right_term: SMTTerm,
-        left_name: str,
-        right_name: str,
-        result_name: str,
-        is_checked: bool,
+        operand_ctx: OperandContext,
+        result_ctx: ResultContext,
+        ctx: BinaryOperationContext,
     ) -> None:
         """Compute the operation result and apply constraints."""
-        is_signed = IntervalSMTUtils.is_signed_type(result_type)
-        result_width = IntervalSMTUtils.type_bit_width(result_type)
-        operation_width = self._get_operation_width(operation, left_term, result_width)
+        is_signed = IntervalSMTUtils.is_signed_type(result_ctx.type)
+        result_width = IntervalSMTUtils.type_bit_width(result_ctx.type)
+        operation_width = self._get_operation_width(
+            ctx.operation, operand_ctx.left_term, result_width
+        )
 
         # Extend operands
         left_ext = IntervalSMTUtils.extend_to_width(
-            self.solver, left_term, operation_width, is_signed
+            self.solver, operand_ctx.left_term, operation_width, is_signed
         )
         right_ext = IntervalSMTUtils.extend_to_width(
-            self.solver, right_term, operation_width, is_signed
+            self.solver, operand_ctx.right_term, operation_width, is_signed
         )
 
         # Check division by zero
-        if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
-            if self._check_division_by_zero(right_ext, domain, is_checked):
+        if ctx.operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
+            if self._check_division_by_zero(right_ext, ctx.domain, ctx.is_checked):
                 return
 
         # Compute expression
-        raw_expr = self._compute_operation(operation, result_var, left_ext, right_ext)
+        raw_expr = self._compute_operation(ctx.operation, result_ctx.var, left_ext, right_ext)
         if raw_expr is None:
             return
 
         # Truncate if needed
-        if self._is_shift(operation) and operation_width > result_width:
+        if self._is_shift(ctx.operation) and operation_width > result_width:
             raw_expr = IntervalSMTUtils.truncate_to_width(self.solver, raw_expr, result_width)
 
         # Apply constraints
-        self.solver.assert_constraint(result_var.term == raw_expr)
-        IntervalSMTUtils.enforce_type_bounds(self.solver, result_var)
+        self.solver.assert_constraint(result_ctx.var.term == raw_expr)
+        IntervalSMTUtils.enforce_type_bounds(self.solver, result_ctx.var)
 
-        self._add_overflow_constraint(
-            result_var, left_ext, right_ext, operation, result_type, is_checked, domain
+        self._add_overflow_constraint(result_ctx, left_ext, right_ext, ctx)
+
+        ctx.domain.state.set_binary_operation(result_ctx.name, ctx.operation)
+        self._track_pointer_arithmetic(
+            result_ctx.name, operand_ctx.left_name, operand_ctx.right_name,
+            ctx.operation, ctx.domain
         )
-
-        domain.state.set_binary_operation(result_name, operation)
-        self._track_pointer_arithmetic(result_name, left_name, right_name, operation, domain)
 
     def _get_operation_width(
         self, operation: Binary, left_term: SMTTerm, result_width: int
@@ -245,26 +265,28 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
     ) -> Optional[SMTTerm]:
         """Build the SMT expression for the arithmetic binary operation."""
         op_type = operation.type
-        if op_type == BinaryType.ADDITION:
-            return left_term + right_term
-        if op_type == BinaryType.SUBTRACTION:
-            return left_term - right_term
-        if op_type == BinaryType.MULTIPLICATION:
-            return left_term * right_term
+
+        # Simple operations using Python operators
+        simple_ops = {
+            BinaryType.ADDITION: lambda x, y: x + y,
+            BinaryType.SUBTRACTION: lambda x, y: x - y,
+            BinaryType.MULTIPLICATION: lambda x, y: x * y,
+            BinaryType.LEFT_SHIFT: lambda x, y: x << y,
+            BinaryType.AND: lambda x, y: x & y,
+            BinaryType.OR: lambda x, y: x | y,
+            BinaryType.CARET: lambda x, y: x ^ y,
+        }
+
+        if op_type in simple_ops:
+            return simple_ops[op_type](left_term, right_term)
+
+        # Solver-specific operations
         if op_type == BinaryType.DIVISION:
             return self.solver.bv_udiv(left_term, right_term)
         if op_type == BinaryType.MODULO:
             return self.solver.bv_urem(left_term, right_term)
-        if op_type == BinaryType.LEFT_SHIFT:
-            return left_term << right_term
         if op_type == BinaryType.RIGHT_SHIFT:
             return self.solver.bv_lshr(left_term, right_term)
-        if op_type == BinaryType.AND:
-            return left_term & right_term
-        if op_type == BinaryType.OR:
-            return left_term | right_term
-        if op_type == BinaryType.CARET:
-            return left_term ^ right_term
 
         self.logger.debug("Unsupported arithmetic binary operation type: %s", op_type)
         return None
@@ -345,59 +367,66 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _add_overflow_constraint(
         self,
-        result_var: TrackedSMTVariable,
+        result_ctx: ResultContext,
         left_term: SMTTerm,
         right_term: SMTTerm,
-        operation: Binary,
-        result_type: ElementaryType,
-        is_checked: bool,
-        domain: "IntervalDomain",
+        ctx: BinaryOperationContext,
     ) -> None:
         # Skip overflow detection for constant-only expressions.
         # Expressions like "0 - 50" represent the negative literal -50, not a runtime underflow.
         # These are computed at compile time and don't cause actual overflows.
-        if isinstance(operation.variable_left, Constant) and isinstance(
-            operation.variable_right, Constant
+        if isinstance(ctx.operation.variable_left, Constant) and isinstance(
+            ctx.operation.variable_right, Constant
         ):
             return
 
         solver = self.solver
-        result_width = IntervalSMTUtils.type_bit_width(result_type)
-        is_signed = IntervalSMTUtils.is_signed_type(result_type)
+        result_width = IntervalSMTUtils.type_bit_width(result_ctx.type)
+        is_signed = IntervalSMTUtils.is_signed_type(result_ctx.type)
         overflow_cond = self._detect_width_overflow(
-            left_term, right_term, operation, result_width, is_signed
+            left_term, right_term, ctx.operation, result_width, is_signed
         )
 
-        int_sort = result_var.overflow_amount.sort
+        int_sort = result_ctx.var.overflow_amount.sort
         zero = solver.create_constant(0, int_sort)
         one = solver.create_constant(1, int_sort)
         overflow_amount = solver.make_ite(overflow_cond, one, zero)
 
-        result_var.mark_overflow_condition(
+        result_ctx.var.mark_overflow_condition(
             solver,
             overflow_cond,
             overflow_amount,
         )
 
-        if is_checked:
-            # In checked mode, check if overflow is possible
-            # If overflow MUST occur, mark path as unreachable
-            solver.push()
-            # Try to find a model where no overflow occurs
-            no_overflow = solver.create_constant(False, Sort(kind=SortKind.BOOL))
-            solver.assert_constraint(overflow_cond == no_overflow)
-            sat_result = solver.check_sat()
-            solver.pop()
+        if ctx.is_checked:
+            self._handle_checked_overflow(solver, overflow_cond, result_ctx.var, ctx.domain)
 
-            if sat_result == CheckSatResult.UNSAT:
-                # No model exists where overflow doesn't occur
-                # This means overflow ALWAYS happens for current constraints
-                self.logger.debug("Overflow detected in checked mode - marking path as unreachable")
-                domain.variant = DomainVariant.TOP
-                return
+    def _handle_checked_overflow(
+        self,
+        solver,
+        overflow_cond: SMTTerm,
+        result_var: TrackedSMTVariable,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Handle overflow in checked mode."""
+        # In checked mode, check if overflow is possible
+        # If overflow MUST occur, mark path as unreachable
+        solver.push()
+        # Try to find a model where no overflow occurs
+        no_overflow = solver.create_constant(False, Sort(kind=SortKind.BOOL))
+        solver.assert_constraint(overflow_cond == no_overflow)
+        sat_result = solver.check_sat()
+        solver.pop()
 
-            # Otherwise, assert no overflow (constraining to valid paths)
-            result_var.assert_no_overflow(solver)
+        if sat_result == CheckSatResult.UNSAT:
+            # No model exists where overflow doesn't occur
+            # This means overflow ALWAYS happens for current constraints
+            self.logger.debug("Overflow detected in checked mode - marking path as unreachable")
+            domain.variant = DomainVariant.TOP
+            return
+
+        # Otherwise, assert no overflow (constraining to valid paths)
+        result_var.assert_no_overflow(solver)
 
     def _check_division_by_zero(
         self,
@@ -434,13 +463,10 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
 
     def _get_operand_term(
         self,
-        domain: "IntervalDomain",
         operand: Union[Variable, SlithIRVariable, Constant],
         name: Optional[str],
         fallback_type: Optional[ElementaryType],
-        is_checked: bool,
-        node: "Node",
-        operation: Binary,
+        ctx: BinaryOperationContext,
     ) -> tuple[Optional[SMTTerm], Optional[TrackedSMTVariable]]:
         if isinstance(operand, Constant):
             var_type = IntervalSMTUtils.resolve_elementary_type(getattr(operand, "type", None))
@@ -469,16 +495,16 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         if var_type is None:
             var_type = fallback_type
 
-        tracked = IntervalSMTUtils.get_tracked_variable(domain, operand_name)
+        tracked = IntervalSMTUtils.get_tracked_variable(ctx.domain, operand_name)
         if tracked is None:
             self.logger.error_and_raise(
                 "Variable '{var_name}' not found in domain for binary operation operand",
                 ValueError,
                 var_name=operand_name,
                 embed_on_error=True,
-                node=node,
-                operation=operation,
-                domain=domain,
+                node=ctx.node,
+                operation=ctx.operation,
+                domain=ctx.domain,
             )
 
         return tracked.term, tracked

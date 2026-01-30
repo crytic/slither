@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class CalldataLoadHandler(BaseOperationHandler):
-    """Handle `calldataload(uint256)`, modeling its 32-byte calldata read as an unconstrained uint256 within type bounds."""
+    """Handle `calldataload(uint256)`, modeling 32-byte calldata read as unconstrained uint256."""
 
     def handle(
         self,
@@ -24,71 +24,81 @@ class CalldataLoadHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        # Guard: ensure we have a valid SolidityCall operation
+        if not self._validate_preconditions(operation, domain):
+            return
+
+        lvalue_name, return_type = self._resolve_lvalue_info(operation)
+        if lvalue_name is None or return_type is None:
+            return
+
+        tracked = self._get_or_create_tracked(domain, lvalue_name, return_type)
+        if tracked is None:
+            return
+
+        self._track_as_attacker_controlled(lvalue_name)
+        tracked.assert_no_overflow(self.solver)
+
+    def _validate_preconditions(
+        self, operation: Optional[SolidityCall], domain: "IntervalDomain"
+    ) -> bool:
+        """Validate operation, solver, and domain state."""
         if operation is None or not isinstance(operation, SolidityCall):
-            return
-
-        # Guard: solver is required to create SMT variables
+            return False
         if self.solver is None:
-            return
-
-        # Guard: only update when we have a concrete state domain
+            return False
         if domain.variant != DomainVariant.STATE:
-            return
+            return False
+        return True
 
+    def _resolve_lvalue_info(
+        self, operation: SolidityCall
+    ) -> tuple[Optional[str], Optional[ElementaryType]]:
+        """Resolve lvalue name and return type from operation."""
         lvalue = operation.lvalue
-        # Guard: nothing to track if there is no lvalue for the call result
         if lvalue is None:
-            return
+            return None, None
 
         lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
-        # Guard: skip if we cannot resolve a stable name
         if lvalue_name is None:
-            return
+            return None, None
 
-        # Derive the return elementary type.
-        return_type: Optional[ElementaryType] = None
+        return_type = self._resolve_return_type(operation, lvalue)
+        if return_type is None or IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
+            return None, None
 
-        # Prefer the explicit type information from the SolidityCall itself.
+        return lvalue_name, return_type
+
+    def _resolve_return_type(self, operation: SolidityCall, lvalue) -> Optional[ElementaryType]:
+        """Resolve return type from operation or lvalue."""
         type_call = getattr(operation, "type_call", None)
         if isinstance(type_call, list) and type_call:
-            candidate = type_call[0]
-            return_type = IntervalSMTUtils.resolve_elementary_type(candidate)
+            resolved = IntervalSMTUtils.resolve_elementary_type(type_call[0])
+            if resolved is not None:
+                return resolved
 
-        # Fallback to lvalue.type if needed.
-        if return_type is None and hasattr(lvalue, "type"):
-            return_type = IntervalSMTUtils.resolve_elementary_type(lvalue.type)
+        if hasattr(lvalue, "type"):
+            return IntervalSMTUtils.resolve_elementary_type(lvalue.type)
+        return None
 
-        # Guard: skip if we still cannot determine a supported return type
-        if return_type is None:
-            return
-
-        if IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
-            # Guard: unsupported type for interval tracking
-            return
-
-        # Fetch existing tracked variable if present.
+    def _get_or_create_tracked(
+        self, domain: "IntervalDomain", lvalue_name: str, return_type: ElementaryType
+    ):
+        """Get existing or create new tracked variable."""
         tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
-        if tracked is None:
-            # Create a fresh tracked variable for the calldataload result.
-            tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver,
-                lvalue_name,
-                return_type,
-            )
-            # Guard: creation may fail for unsupported types
-            if tracked is None:
-                return
-            domain.state.set_range_variable(lvalue_name, tracked)
+        if tracked is not None:
+            return tracked
 
-        # Track this variable as attacker-controlled for safety analysis
+        tracked = IntervalSMTUtils.create_tracked_variable(self.solver, lvalue_name, return_type)
+        if tracked is None:
+            return None
+        domain.state.set_range_variable(lvalue_name, tracked)
+        return tracked
+
+    def _track_as_attacker_controlled(self, lvalue_name: str) -> None:
+        """Track this variable as attacker-controlled for safety analysis."""
         if self.analysis is not None:
             self.analysis.safety_context.calldata_variables.add(lvalue_name)
             self.logger.debug(
                 "Tracking calldata variable as attacker-controlled: {var_name}",
                 var_name=lvalue_name,
             )
-
-        # For now we do not add additional constraints: calldata contents are modelled
-        # as an unconstrained value within the type bounds.
-        tracked.assert_no_overflow(self.solver)

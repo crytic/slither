@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.function import Function
 from slither.core.expressions.literal import Literal
@@ -20,6 +21,19 @@ from slither.utils.integer_conversion import convert_string_to_int
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+    from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+        TrackedSMTVariable,
+    )
+
+
+@dataclass
+class StateVarInfo:
+    """Info about a state variable being initialized."""
+
+    var: object
+    name: str
+    type: object
+    const_value: int
 
 
 def handle_variable_declaration(
@@ -160,7 +174,7 @@ def initialize_function_parameters(
         if param_type is None:
             continue
 
-        # Create tracked variable for base parameter name (without initializing to 0 - parameters have full range)
+        # Create tracked variable for base parameter name (params have full range)
         tracked_var = IntervalSMTUtils.create_tracked_variable(solver, param_name, param_type)
         if tracked_var is not None:
             # Use add_range_variable for initialization (doesn't mark as used)
@@ -168,10 +182,10 @@ def initialize_function_parameters(
             # Function parameters have no overflow - they are input values
             tracked_var.assert_no_overflow(solver)
 
-        # Also initialize the first SSA version (e.g., paramName|paramName_1) which is used in assignments
+        # Also initialize the first SSA version (e.g., name|name_1) for assignments
         base_var_name = getattr(param, "name", None)
         if base_var_name is not None:
-            # Extract base name from canonical name if it exists (e.g., "newNumber" from "Counter.setNumber(uint256).newNumber")
+            # Extract base name from canonical name (e.g., "foo" from "A.f(uint).foo")
             if "." in param_name:
                 base_var_name = param_name.split(".")[-1]
             # Construct first SSA version name: canonicalName|baseName_1
@@ -190,169 +204,180 @@ def initialize_function_parameters(
 def initialize_state_variables_with_constants(
     solver: "SMTSolver", domain: "IntervalDomain", function: Function
 ) -> None:
-    """Pre-initialize state variables that have constant initial values.
+    """Pre-initialize state variables that have constant initial values."""
+    state_vars = _get_state_variables(function)
+    if not state_vars:
+        return
 
-    For state variables like `bytes32 public data = 0x1234...`, we constrain
-    the tracked variable to the constant value instead of using full range.
-    """
-    # Guard: function must have a contract
+    for state_var in state_vars:
+        _initialize_constant_state_var(solver, domain, state_var)
+
+
+def _get_state_variables(function: Function) -> list:
+    """Get state variables from function's contract."""
     if not hasattr(function, "contract") or function.contract is None:
-        return
-
+        return []
     contract = function.contract
-
-    # Guard: contract must have state variables
     if not hasattr(contract, "state_variables") or not contract.state_variables:
+        return []
+    return contract.state_variables
+
+
+def _initialize_constant_state_var(
+    solver: "SMTSolver", domain: "IntervalDomain", state_var
+) -> None:
+    """Initialize a single state variable with its constant value."""
+    if not state_var.initialized or state_var.expression is None:
+        return
+    if not isinstance(state_var.expression, Literal):
         return
 
-    # Process each state variable
-    for state_var in contract.state_variables:
-        # Guard: must have an initial expression (constant value)
-        if not state_var.initialized or state_var.expression is None:
+    var_type = IntervalSMTUtils.resolve_elementary_type(state_var.type, None)
+    if var_type is None or IntervalSMTUtils.solidity_type_to_smt_sort(var_type) is None:
+        return
+
+    const_value = _get_constant_value(state_var.expression)
+    if const_value is None:
+        return
+
+    state_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
+    if state_var_name is None:
+        return
+
+    tracked_var = _get_or_create_state_var(solver, domain, state_var_name, var_type)
+    if tracked_var is None:
+        return
+
+    _constrain_to_constant(solver, tracked_var, const_value)
+    var_info = StateVarInfo(state_var, state_var_name, var_type, const_value)
+    _initialize_ssa_versions(solver, domain, var_info)
+
+
+def _get_constant_value(expr: Literal) -> Optional[int]:
+    """Extract integer constant value from literal."""
+    const_value = expr.converted_value
+    if isinstance(const_value, str):
+        try:
+            const_value = convert_string_to_int(const_value)
+        except (ValueError, TypeError):
+            return None
+    if not isinstance(const_value, int):
+        return None
+    return const_value
+
+
+def _get_or_create_state_var(
+    solver: "SMTSolver", domain: "IntervalDomain", name: str, var_type
+) -> Optional["TrackedSMTVariable"]:
+    """Get or create tracked variable for state variable."""
+    tracked_var = IntervalSMTUtils.get_tracked_variable(domain, name)
+    if tracked_var is not None:
+        return tracked_var
+
+    tracked_var = IntervalSMTUtils.create_tracked_variable(solver, name, var_type)
+    if tracked_var is None:
+        return None
+
+    domain.state.add_range_variable(name, tracked_var)
+    return tracked_var
+
+
+def _constrain_to_constant(solver: "SMTSolver", tracked_var, const_value: int) -> None:
+    """Constrain tracked variable to constant value."""
+    const_term = solver.create_constant(const_value, tracked_var.sort)
+    solver.assert_constraint(tracked_var.term == const_term)
+    tracked_var.assert_no_overflow(solver)
+
+
+def _initialize_ssa_versions(
+    solver: "SMTSolver",
+    domain: "IntervalDomain",
+    var_info: StateVarInfo,
+) -> None:
+    """Initialize SSA versions (_0 and _1) for state variable."""
+    base_var_name = getattr(var_info.var, "name", None)
+    if base_var_name is None:
+        return
+
+    for suffix in ("_0", "_1"):
+        ssa_name = f"{var_info.name}|{base_var_name}{suffix}"
+        if domain.state.has_range_variable(ssa_name):
             continue
 
-        # Guard: expression must be a literal (constant)
-        expr = state_var.expression
-        if not isinstance(expr, Literal):
-            continue
-
-        # Get the variable type
-        var_type = IntervalSMTUtils.resolve_elementary_type(state_var.type, None)
-        if var_type is None:
-            continue
-
-        # Guard: must be a supported type
-        if IntervalSMTUtils.solidity_type_to_smt_sort(var_type) is None:
-            continue
-
-        # Get the constant value from the literal
-        const_value = expr.converted_value
-        # Handle hex strings (e.g., bytes32)
-        if isinstance(const_value, str):
-            try:
-                const_value = convert_string_to_int(const_value)
-            except (ValueError, TypeError):
-                continue
-        if not isinstance(const_value, int):
-            continue
-
-        # Build the canonical state variable name
-        state_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
-        if state_var_name is None:
-            continue
-
-        # Create tracked variable if not exists
-        tracked_var = IntervalSMTUtils.get_tracked_variable(domain, state_var_name)
-        if tracked_var is None:
-            tracked_var = IntervalSMTUtils.create_tracked_variable(solver, state_var_name, var_type)
-            if tracked_var is None:
-                continue
-            domain.state.add_range_variable(state_var_name, tracked_var)
-
-        # Constrain to the constant value
-        const_term = solver.create_constant(const_value, tracked_var.sort)
-        solver.assert_constraint(tracked_var.term == const_term)
-        tracked_var.assert_no_overflow(solver)
-
-        # Also initialize the SSA versions consumed by Phi (_0) and by first assignments (_1)
-        base_var_name = getattr(state_var, "name", None)
-        if base_var_name is not None:
-            # Create and constrain the _0 version so Phi rvalues resolve (e.g., MAX_COUNT_0)
-            first_ssa_zero_name = f"{state_var_name}|{base_var_name}_0"
-            if not domain.state.has_range_variable(first_ssa_zero_name):
-                ssa_zero_tracked = IntervalSMTUtils.create_tracked_variable(
-                    solver, first_ssa_zero_name, var_type
-                )
-                # Ensure Phi can bind to the constant initializer
-                if ssa_zero_tracked is not None:
-                    domain.state.add_range_variable(first_ssa_zero_name, ssa_zero_tracked)
-                    ssa_zero_const_term = solver.create_constant(const_value, ssa_zero_tracked.sort)
-                    solver.assert_constraint(ssa_zero_tracked.term == ssa_zero_const_term)
-                    ssa_zero_tracked.assert_no_overflow(solver)
-
-            # Construct first SSA version name
-            first_ssa_name = f"{state_var_name}|{base_var_name}_1"
-            if not domain.state.has_range_variable(first_ssa_name):
-                ssa_tracked = IntervalSMTUtils.create_tracked_variable(
-                    solver, first_ssa_name, var_type
-                )
-                if ssa_tracked is not None:
-                    domain.state.add_range_variable(first_ssa_name, ssa_tracked)
-                    # Constrain SSA version to the same constant value
-                    ssa_const_term = solver.create_constant(const_value, ssa_tracked.sort)
-                    solver.assert_constraint(ssa_tracked.term == ssa_const_term)
-                    ssa_tracked.assert_no_overflow(solver)
+        ssa_tracked = IntervalSMTUtils.create_tracked_variable(solver, ssa_name, var_info.type)
+        if ssa_tracked is not None:
+            domain.state.add_range_variable(ssa_name, ssa_tracked)
+            _constrain_to_constant(solver, ssa_tracked, var_info.const_value)
 
 
 def initialize_fixed_length_arrays(
     solver: "SMTSolver", domain: "IntervalDomain", function: Function
 ) -> None:
-    """Pre-initialize all elements of fixed-length array state variables to 0.
-
-    For fixed-length arrays like `uint256[5] fixedArray`, we create tracked variables
-    for all array elements (e.g., fixedArray[0], fixedArray[1], ..., fixedArray[4])
-    and initialize them to 0 (Solidity default value).
-    """
-    # Guard: function must have a contract
-    if not hasattr(function, "contract") or function.contract is None:
+    """Pre-initialize all elements of fixed-length array state variables."""
+    state_vars = _get_state_variables(function)
+    if not state_vars:
         return
 
-    contract = function.contract
+    for state_var in state_vars:
+        _initialize_fixed_array(solver, domain, state_var)
 
-    # Guard: contract must have state variables
-    if not hasattr(contract, "state_variables") or not contract.state_variables:
+
+def _initialize_fixed_array(
+    solver: "SMTSolver", domain: "IntervalDomain", state_var
+) -> None:
+    """Initialize a single fixed-length array."""
+    array_info = _get_fixed_array_info(state_var)
+    if array_info is None:
         return
 
-    # Process each state variable
-    for state_var in contract.state_variables:
-        # Guard: must be a fixed-length array
-        if not isinstance(state_var.type, ArrayType):
-            continue
+    array_var_name, array_length, element_type = array_info
 
-        array_type = state_var.type
-        if not array_type.is_fixed_array:
-            continue
+    for i in range(array_length):
+        _initialize_array_element(solver, domain, array_var_name, i, element_type)
 
-        # Get the array length
-        if array_type.length_value is None:
-            continue
 
-        try:
-            array_length = int(str(array_type.length_value))
-        except (ValueError, TypeError):
-            continue
+def _get_fixed_array_info(state_var) -> Optional[tuple[str, int, ElementaryType]]:
+    """Get info for a fixed-length array state variable."""
+    if not isinstance(state_var.type, ArrayType):
+        return None
 
-        # Get the element type
-        element_type = IntervalSMTUtils.resolve_elementary_type(array_type.type)
-        if element_type is None:
-            continue
+    array_type = state_var.type
+    if not array_type.is_fixed_array or array_type.length_value is None:
+        return None
 
-        # Guard: must be a supported type for interval tracking
-        if IntervalSMTUtils.solidity_type_to_smt_sort(element_type) is None:
-            continue
+    try:
+        array_length = int(str(array_type.length_value))
+    except (ValueError, TypeError):
+        return None
 
-        # Build the base array variable name
-        array_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
-        if array_var_name is None:
-            continue
+    element_type = IntervalSMTUtils.resolve_elementary_type(array_type.type)
+    if element_type is None:
+        return None
+    if IntervalSMTUtils.solidity_type_to_smt_sort(element_type) is None:
+        return None
 
-        # Pre-initialize all array elements to 0
-        for i in range(array_length):
-            array_element_name = f"{array_var_name}[{i}]"
+    array_var_name = IntervalSMTUtils.resolve_variable_name(state_var)
+    if array_var_name is None:
+        return None
 
-            # Skip if already exists
-            if domain.state.has_range_variable(array_element_name):
-                continue
+    return array_var_name, array_length, element_type
 
-            # Create tracked variable for the array element
-            tracked_var = IntervalSMTUtils.create_tracked_variable(
-                solver, array_element_name, element_type
-            )
-            if tracked_var is None:
-                continue
 
-            domain.state.add_range_variable(array_element_name, tracked_var)
-            tracked_var.assert_no_overflow(solver)
-            # Note: Array elements are NOT initialized to 0 with hard constraints because
-            # we need to allow assignments to update their values. The value will be set
-            # by the assignment handler when an assignment occurs.
+def _initialize_array_element(
+    solver: "SMTSolver",
+    domain: "IntervalDomain",
+    array_var_name: str,
+    index: int,
+    element_type: ElementaryType,
+) -> None:
+    """Initialize a single array element."""
+    element_name = f"{array_var_name}[{index}]"
+    if domain.state.has_range_variable(element_name):
+        return
+
+    tracked_var = IntervalSMTUtils.create_tracked_variable(solver, element_name, element_type)
+    if tracked_var is None:
+        return
+
+    domain.state.add_range_variable(element_name, tracked_var)
+    tracked_var.assert_no_overflow(solver)

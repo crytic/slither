@@ -131,7 +131,7 @@ class BaseAssertionHandler(BaseOperationHandler):
             # For example: if value = 0 and constraint is value >= 10, this is UNSAT
             domain.variant = DomainVariant.TOP
             self.logger.debug(
-                "{type} condition '{name}' is unsatisfiable, setting domain to TOP (unreachable path)",
+                "{type} condition '{name}' is unsatisfiable, setting domain to TOP",
                 type=self.assertion_type,
                 name=condition_name,
             )

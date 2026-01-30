@@ -47,7 +47,7 @@ class NewElementaryTypeHandler(BaseOperationHandler):
             )
         if lvalue_type is None:
             self.logger.debug(
-                "Unsupported lvalue type for new elementary type operation; skipping interval update."
+                "Unsupported lvalue type for new elementary type op; skipping."
             )
             return
 
@@ -59,7 +59,7 @@ class NewElementaryTypeHandler(BaseOperationHandler):
             )
             return
 
-        # Fetch or create SMT variable for lvalue (new elementary type operations create new variables)
+        # Fetch or create SMT variable for lvalue (new elem type ops create new vars)
         lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
         if lvalue_var is None:
             lvalue_var = IntervalSMTUtils.create_tracked_variable(
@@ -67,7 +67,8 @@ class NewElementaryTypeHandler(BaseOperationHandler):
             )
             if lvalue_var is None:
                 self.logger.error_and_raise(
-                    "Failed to create tracked variable for type '{type_name}' and variable '{var_name}'",
+                    "Failed to create tracked variable for "
+                    "type '{type_name}' and variable '{var_name}'",
                     ValueError,
                     var_name=lvalue_name,
                     type_name=getattr(lvalue_type, "type", lvalue_type),
@@ -82,7 +83,10 @@ class NewElementaryTypeHandler(BaseOperationHandler):
         if not operation.arguments:
             self._initialize_to_zero(lvalue_var)
         else:
-            self._handle_argument_initialization(operation.arguments[0], lvalue_var, domain, node, operation)
+            first_arg = operation.arguments[0]
+            self._handle_argument_initialization(
+                first_arg, lvalue_var, domain, node, operation
+            )
 
         lvalue_var.assert_no_overflow(self.solver)
         domain.state.set_range_variable(lvalue_name, lvalue_var)

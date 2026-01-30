@@ -1,6 +1,7 @@
 """Central interprocedural analysis logic for interval analysis."""
 
 import time
+from dataclasses import dataclass
 from typing import List, Optional, Set, Protocol, runtime_checkable, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -36,6 +37,15 @@ class CallOperation(Protocol):
 
     @property
     def lvalue(self): ...
+
+
+@dataclass
+class ParameterInfo:
+    """Info about a function parameter being constrained."""
+
+    name: str
+    tracked: TrackedSMTVariable
+    type: ElementaryType
 
 
 class InterproceduralAnalyzer:
@@ -245,9 +255,8 @@ class InterproceduralAnalyzer:
             return
 
         # Handle variable argument
-        self._constrain_parameter_to_variable(
-            arg, param_name, param_tracked, param_type, caller_domain, callee_domain
-        )
+        param_info = ParameterInfo(param_name, param_tracked, param_type)
+        self._constrain_parameter_to_variable(arg, param_info, caller_domain, callee_domain)
 
     def _get_or_create_param_tracked(
         self,
@@ -270,9 +279,7 @@ class InterproceduralAnalyzer:
     def _constrain_parameter_to_variable(
         self,
         arg,
-        param_name: str,
-        param_tracked: TrackedSMTVariable,
-        param_type: ElementaryType,
+        param_info: ParameterInfo,
         caller_domain: IntervalDomain,
         callee_domain: IntervalDomain,
     ) -> None:
@@ -285,21 +292,22 @@ class InterproceduralAnalyzer:
         if arg_tracked is None:
             if hasattr(arg, "value"):
                 self._constrain_parameter_to_constant(
-                    param_name, param_tracked, arg.value, param_type, callee_domain
+                    param_info.name, param_info.tracked, arg.value,
+                    param_info.type, callee_domain
                 )
             return
 
-        constraint: SMTTerm = param_tracked.term == arg_tracked.term
+        constraint: SMTTerm = param_info.tracked.term == arg_tracked.term
         self.solver.assert_constraint(constraint)
         self.logger.debug(
             "Constrained {label} parameter '{param}' to equal argument '{arg}'",
             label=self._call_type_label,
-            param=param_name,
+            param=param_info.name,
             arg=arg_name,
         )
 
         self._constrain_parameter_ssa_versions(
-            param_name, arg_tracked.term, param_type, callee_domain
+            param_info.name, arg_tracked.term, param_info.type, callee_domain
         )
 
     def _reconstrain_parameters_after_analysis(

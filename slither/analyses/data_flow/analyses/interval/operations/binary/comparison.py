@@ -38,8 +38,8 @@ class ComparisonBinaryHandler(BaseOperationHandler):
         self.solver.assert_constraint(result_var.term == comparison_bitvec)
         result_var.assert_no_overflow(self.solver)
 
-        # Store the operation for all variables (temporaries and locals) that result from comparison/logical operations
-        # This allows require() to retrieve the original constraint
+        # Store the operation for variables (temporaries/locals) from comparison/logical ops.
+        # This allows require() to retrieve the original constraint.
         result_name = IntervalSMTUtils.resolve_variable_name(operation.lvalue)
         if result_name is not None:
             domain.state.set_binary_operation(result_name, operation)
@@ -76,7 +76,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             return None
 
         # Determine signedness from operand types
-        is_signed = self._is_comparison_signed(operation.variable_left, operation.variable_right, domain)
+        is_signed = self._is_comparison_signed(
+            operation.variable_left, operation.variable_right, domain
+        )
 
         # Normalize widths if they differ (extend smaller to match larger)
         left_bv, right_bv = self._normalize_widths(left_bv, right_bv, is_signed)
@@ -86,13 +88,21 @@ class ComparisonBinaryHandler(BaseOperationHandler):
 
         # Use pure bitvector comparisons (no BV2Int conversion)
         if comp_type.value == ">=":
-            bool_expr = self.solver.bv_sge(left_bv, right_bv) if is_signed else self.solver.bv_uge(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sge(left_bv, right_bv)
+            unsigned_cmp = self.solver.bv_uge(left_bv, right_bv)
+            bool_expr = signed_cmp if is_signed else unsigned_cmp
         elif comp_type.value == ">":
-            bool_expr = self.solver.bv_sgt(left_bv, right_bv) if is_signed else self.solver.bv_ugt(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sgt(left_bv, right_bv)
+            unsigned_cmp = self.solver.bv_ugt(left_bv, right_bv)
+            bool_expr = signed_cmp if is_signed else unsigned_cmp
         elif comp_type.value == "<=":
-            bool_expr = self.solver.bv_sle(left_bv, right_bv) if is_signed else self.solver.bv_ule(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sle(left_bv, right_bv)
+            unsigned_cmp = self.solver.bv_ule(left_bv, right_bv)
+            bool_expr = signed_cmp if is_signed else unsigned_cmp
         elif comp_type.value == "<":
-            bool_expr = self.solver.bv_slt(left_bv, right_bv) if is_signed else self.solver.bv_ult(left_bv, right_bv)
+            signed_cmp = self.solver.bv_slt(left_bv, right_bv)
+            unsigned_cmp = self.solver.bv_ult(left_bv, right_bv)
+            bool_expr = signed_cmp if is_signed else unsigned_cmp
         elif comp_type.value == "==":
             bool_expr = left_bv == right_bv
         elif comp_type.value == "!=":
@@ -103,7 +113,9 @@ class ComparisonBinaryHandler(BaseOperationHandler):
 
         return self._bool_to_bitvec(bool_expr)
 
-    def _normalize_widths(self, left: SMTTerm, right: SMTTerm, is_signed: bool) -> tuple[SMTTerm, SMTTerm]:
+    def _normalize_widths(
+        self, left: SMTTerm, right: SMTTerm, is_signed: bool
+    ) -> tuple[SMTTerm, SMTTerm]:
         """Normalize bitvector widths to match (extend smaller to match larger)."""
         left_width = self.solver.bv_size(left)
         right_width = self.solver.bv_size(right)
@@ -238,7 +250,7 @@ class ComparisonBinaryHandler(BaseOperationHandler):
     def validate_constraint_from_temp(
         temp_var_name: str, domain: IntervalDomain
     ) -> Optional[Binary]:
-        """Validate that a temporary variable represents a valid constraint from a Binary operation."""
+        """Validate that a temp variable represents a valid Binary operation constraint."""
         operation = domain.state.get_binary_operation(temp_var_name)
         if operation is None:
             return None
@@ -276,20 +288,26 @@ class ComparisonBinaryHandler(BaseOperationHandler):
             return None
 
         # Determine signedness from operand types
-        is_signed = self._is_comparison_signed(binary_op.variable_left, binary_op.variable_right, domain)
+        is_signed = self._is_comparison_signed(
+            binary_op.variable_left, binary_op.variable_right, domain
+        )
 
         # Normalize widths if they differ
         left_bv, right_bv = self._normalize_widths(left_bv, right_bv, is_signed)
 
         comp_type = binary_op.type
         if comp_type == BinaryType.GREATER_EQUAL:
-            return self.solver.bv_sge(left_bv, right_bv) if is_signed else self.solver.bv_uge(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sge(left_bv, right_bv)
+            return signed_cmp if is_signed else self.solver.bv_uge(left_bv, right_bv)
         if comp_type == BinaryType.GREATER:
-            return self.solver.bv_sgt(left_bv, right_bv) if is_signed else self.solver.bv_ugt(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sgt(left_bv, right_bv)
+            return signed_cmp if is_signed else self.solver.bv_ugt(left_bv, right_bv)
         if comp_type == BinaryType.LESS_EQUAL:
-            return self.solver.bv_sle(left_bv, right_bv) if is_signed else self.solver.bv_ule(left_bv, right_bv)
+            signed_cmp = self.solver.bv_sle(left_bv, right_bv)
+            return signed_cmp if is_signed else self.solver.bv_ule(left_bv, right_bv)
         if comp_type == BinaryType.LESS:
-            return self.solver.bv_slt(left_bv, right_bv) if is_signed else self.solver.bv_ult(left_bv, right_bv)
+            signed_cmp = self.solver.bv_slt(left_bv, right_bv)
+            return signed_cmp if is_signed else self.solver.bv_ult(left_bv, right_bv)
         if comp_type == BinaryType.EQUAL:
             return left_bv == right_bv
         if comp_type == BinaryType.NOT_EQUAL:

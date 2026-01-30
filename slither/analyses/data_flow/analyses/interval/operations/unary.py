@@ -28,93 +28,135 @@ class UnaryHandler(BaseOperationHandler):
         node: "Node",
     ) -> None:
         """Handle a unary operation."""
-        # Guard: ensure we have a valid Unary operation
+        if not self._validate_operation(operation, domain):
+            return
+
+        lvalue_name, lvalue_type = self._resolve_lvalue(operation)
+        if lvalue_name is None or lvalue_type is None:
+            return
+
+        lvalue_tracked = self._get_or_create_lvalue_var(lvalue_name, lvalue_type, domain)
+        if lvalue_tracked is None:
+            return
+
+        if not self._handle_rvalue(operation, lvalue_tracked, lvalue_type, domain):
+            return
+
+        lvalue_tracked.assert_no_overflow(self.solver)
+        self.logger.debug(
+            "Handled unary operation: {op_type} {rvalue} -> {lvalue}",
+            op_type=operation.type,
+            rvalue=operation.rvalue,
+            lvalue=lvalue_name,
+        )
+
+    def _validate_operation(
+        self, operation: Optional[Unary], domain: "IntervalDomain"
+    ) -> bool:
+        """Validate the operation can be processed."""
         if operation is None or not isinstance(operation, Unary):
-            return
-
-        # Guard: solver is required to create SMT variables
+            return False
         if self.solver is None:
-            return
-
-        # Guard: only update when we have a concrete state domain
+            return False
         if domain.variant != DomainVariant.STATE:
-            return
+            return False
+        if operation.lvalue is None:
+            return False
+        return True
 
+    def _resolve_lvalue(
+        self, operation: Unary
+    ) -> tuple[Optional[str], Optional[ElementaryType]]:
+        """Resolve lvalue name and type."""
         lvalue = operation.lvalue
-        # Guard: nothing to track if there is no lvalue for the result
-        if lvalue is None:
-            return
-
         lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
-        # Guard: skip if we cannot resolve a stable name
         if lvalue_name is None:
-            return
+            return None, None
 
-        # Resolve the type for the result
         lvalue_type: Optional[ElementaryType] = None
         if hasattr(lvalue, "type"):
             lvalue_type = IntervalSMTUtils.resolve_elementary_type(lvalue.type)
 
-        # Guard: skip if we cannot determine a supported return type
         if lvalue_type is None:
-            return
-
+            return None, None
         if IntervalSMTUtils.solidity_type_to_smt_sort(lvalue_type) is None:
-            # Guard: unsupported type for interval tracking
-            return
+            return None, None
 
-        # Get or create tracked variable for the lvalue
-        lvalue_tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
-        if lvalue_tracked is None:
-            lvalue_tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver,
-                lvalue_name,
-                lvalue_type,
-            )
-            # Guard: creation may fail for unsupported types
-            if lvalue_tracked is None:
-                return
-            domain.state.set_range_variable(lvalue_name, lvalue_tracked)
+        return lvalue_name, lvalue_type
 
-        # Handle the rvalue (operand)
+    def _get_or_create_lvalue_var(
+        self,
+        lvalue_name: str,
+        lvalue_type: ElementaryType,
+        domain: "IntervalDomain",
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create tracked variable for the lvalue."""
+        tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
+        if tracked is not None:
+            return tracked
+
+        tracked = IntervalSMTUtils.create_tracked_variable(
+            self.solver, lvalue_name, lvalue_type
+        )
+        if tracked is None:
+            return None
+
+        domain.state.set_range_variable(lvalue_name, tracked)
+        return tracked
+
+    def _handle_rvalue(
+        self,
+        operation: Unary,
+        lvalue_tracked: TrackedSMTVariable,
+        lvalue_type: ElementaryType,
+        domain: "IntervalDomain",
+    ) -> bool:
+        """Handle the rvalue operand. Returns True if handled successfully."""
         rvalue = operation.rvalue
         if isinstance(rvalue, Constant):
-            # Handle constant operand
-            self._handle_constant_unary(lvalue_tracked, rvalue, operation.type, lvalue_type)
-        else:
-            # Handle variable operand
-            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
-            if rvalue_name is None:
-                return
+            self._handle_constant_unary(
+                lvalue_tracked, rvalue, operation.type, lvalue_type
+            )
+            return True
 
-            rvalue_tracked = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
-            if rvalue_tracked is None:
-                # Create tracked variable for rvalue if it doesn't exist
-                rvalue_type = IntervalSMTUtils.resolve_elementary_type(
-                    getattr(rvalue, "type", None)
-                )
-                if rvalue_type is None:
-                    rvalue_type = lvalue_type
-                rvalue_tracked = IntervalSMTUtils.create_tracked_variable(
-                    self.solver,
-                    rvalue_name,
-                    rvalue_type,
-                )
-                if rvalue_tracked is None:
-                    return
-                domain.state.set_range_variable(rvalue_name, rvalue_tracked)
+        rvalue_tracked = self._get_or_create_rvalue_var(rvalue, lvalue_type, domain)
+        if rvalue_tracked is None:
+            return False
 
-            self._handle_variable_unary(lvalue_tracked, rvalue_tracked, operation.type, lvalue_type)
-
-        # Unary operations don't overflow
-        lvalue_tracked.assert_no_overflow(self.solver)
-
-        self.logger.debug(
-            "Handled unary operation: {op_type} {rvalue} -> {lvalue}",
-            op_type=operation.type,
-            rvalue=rvalue,
-            lvalue=lvalue_name,
+        self._handle_variable_unary(
+            lvalue_tracked, rvalue_tracked, operation.type, lvalue_type
         )
+        return True
+
+    def _get_or_create_rvalue_var(
+        self,
+        rvalue: object,
+        fallback_type: ElementaryType,
+        domain: "IntervalDomain",
+    ) -> Optional[TrackedSMTVariable]:
+        """Get or create tracked variable for the rvalue."""
+        rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
+        if rvalue_name is None:
+            return None
+
+        tracked = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+        if tracked is not None:
+            return tracked
+
+        rvalue_type = IntervalSMTUtils.resolve_elementary_type(
+            getattr(rvalue, "type", None)
+        )
+        if rvalue_type is None:
+            rvalue_type = fallback_type
+
+        tracked = IntervalSMTUtils.create_tracked_variable(
+            self.solver, rvalue_name, rvalue_type
+        )
+        if tracked is None:
+            return None
+
+        domain.state.set_range_variable(rvalue_name, tracked)
+        return tracked
 
     def _handle_constant_unary(
         self,

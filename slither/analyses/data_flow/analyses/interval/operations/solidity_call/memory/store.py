@@ -33,59 +33,82 @@ class MemoryStoreHandler(MemoryBaseHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        # Guard: only process SolidityCall operations.
-        if operation is None or not isinstance(operation, SolidityCall):
+        if not self._validate_preconditions(operation, domain):
             return
 
-        # Guard: solver is required to build constraints.
-        if self.solver is None:
+        offset_arg, value_arg = self._extract_arguments(operation)
+        if offset_arg is None or value_arg is None:
             return
 
-        # Guard: skip non-concrete states.
-        if domain.variant != DomainVariant.STATE:
-            return
-
-        # Guard: need offset and value arguments to model the store.
-        if not operation.arguments or len(operation.arguments) < 2:
-            return
-
-        offset_arg = operation.arguments[0]
-        value_arg = operation.arguments[1]
-
-        # Perform memory safety checks before the store
         self._check_memory_safety(offset_arg, value_arg, domain, node)
 
         slot_name = self._resolve_memory_slot_name(offset_arg, domain)
-        # Guard: skip if we cannot resolve a stable memory slot name.
         if slot_name is None:
             return
 
-        # Decide the memory cell type based on the store width or value type.
+        memory_type = self._determine_memory_type(value_arg)
+        if memory_type is None:
+            return
+
+        memory_var = self._get_or_create_memory_var(domain, slot_name, memory_type)
+        if memory_var is None:
+            return
+
+        self._apply_store_constraint(value_arg, memory_var, domain, memory_type)
+
+    def _validate_preconditions(
+        self, operation: Optional[SolidityCall], domain: "IntervalDomain"
+    ) -> bool:
+        """Validate operation, solver, and domain state."""
+        if operation is None or not isinstance(operation, SolidityCall):
+            return False
+        if self.solver is None:
+            return False
+        if domain.variant != DomainVariant.STATE:
+            return False
+        return True
+
+    def _extract_arguments(
+        self, operation: SolidityCall
+    ) -> tuple[Optional[object], Optional[object]]:
+        """Extract offset and value arguments from operation."""
+        if not operation.arguments or len(operation.arguments) < 2:
+            return None, None
+        return operation.arguments[0], operation.arguments[1]
+
+    def _determine_memory_type(self, value_arg: object) -> Optional[ElementaryType]:
+        """Determine the memory cell type based on store width or value type."""
         value_type = IntervalSMTUtils.resolve_elementary_type(getattr(value_arg, "type", None))
-        memory_type: ElementaryType = self._memory_elementary_type(self.byte_size)
+        memory_type = self._memory_elementary_type(self.byte_size)
         if value_type is not None and self.byte_size == 32:
             memory_type = value_type
 
-        # Guard: ensure the memory type can be represented.
         if IntervalSMTUtils.solidity_type_to_smt_sort(memory_type) is None:
-            return
+            return None
+        return memory_type
 
+    def _get_or_create_memory_var(
+        self, domain: "IntervalDomain", slot_name: str, memory_type: ElementaryType
+    ):
+        """Get existing or create new memory variable."""
         memory_var = IntervalSMTUtils.get_tracked_variable(domain, slot_name)
-        if memory_var is None:
-            memory_var = IntervalSMTUtils.create_tracked_variable(
-                self.solver, slot_name, memory_type
-            )
-            # Guard: creation may fail for unsupported types.
-            if memory_var is None:
-                return
-            domain.state.set_range_variable(slot_name, memory_var)
+        if memory_var is not None:
+            return memory_var
 
+        memory_var = IntervalSMTUtils.create_tracked_variable(self.solver, slot_name, memory_type)
+        if memory_var is None:
+            return None
+        domain.state.set_range_variable(slot_name, memory_var)
+        return memory_var
+
+    def _apply_store_constraint(
+        self, value_arg: object, memory_var, domain: "IntervalDomain", memory_type: ElementaryType
+    ) -> None:
+        """Apply store constraint to memory variable."""
         value_term = self._resolve_value_term(value_arg, memory_var, domain, memory_type)
-        # Guard: skip if the value cannot be modeled.
         if value_term is None:
             return
 
-        # Constrain memory cell to the stored value.
         self.solver.assert_constraint(memory_var.term == value_term)
         memory_var.assert_no_overflow(self.solver)
 

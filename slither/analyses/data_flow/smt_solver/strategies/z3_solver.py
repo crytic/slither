@@ -33,8 +33,14 @@ from z3 import (
     unsat,
 )
 
-from ..solver import SMTSolver
-from ..types import CheckSatResult, SMTTerm, SMTVariable, Sort, SortKind
+from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.types import (
+    CheckSatResult,
+    SMTTerm,
+    SMTVariable,
+    Sort,
+    SortKind,
+)
 
 # Constraint dumping for debugging
 DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"

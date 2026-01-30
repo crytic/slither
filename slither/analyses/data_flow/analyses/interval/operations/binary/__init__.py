@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 from slither.slithir.operations.binary import Binary, BinaryType
 
-from ..base import BaseOperationHandler
+from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain

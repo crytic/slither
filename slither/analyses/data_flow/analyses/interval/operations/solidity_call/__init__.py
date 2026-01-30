@@ -36,7 +36,7 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.memor
 )
 from slither.slithir.operations.solidity_call import SolidityCall
 
-from ..base import BaseOperationHandler
+from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
@@ -62,81 +62,68 @@ class SolidityCallHandler(BaseOperationHandler):
 
         function_full_name = operation.function.full_name
 
-        # Dispatch require/assert/revert by substring as they are high-level helpers.
-        if "require" in function_full_name:
-            RequireHandler(self.solver).handle(operation, domain, node)
+        if self._try_dispatch_by_substring(function_full_name, operation, domain, node):
             return
 
-        if "assert" in function_full_name:
-            AssertHandler(self.solver).handle(operation, domain, node)
+        if self._try_dispatch_by_prefix(function_full_name, operation, domain, node):
             return
 
-        if "revert" in function_full_name:
-            RevertHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Handle low-level builtin calldataload(uint256).
-        if "calldataload" in function_full_name:
-            CalldataLoadHandler(self.solver, self.analysis).handle(operation, domain, node)
-            return
-
-        # Handle low-level builtin byte(uint256,uint256).
-        if "byte(" in function_full_name:
-            ByteHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Handle timestamp() which returns block.timestamp.
-        if "timestamp()" in function_full_name:
-            TimestampHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Handle gas()/gasleft() which returns remaining gas.
-        if "gas()" in function_full_name or "gasleft()" in function_full_name:
-            GasHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Handle low-level EVM call opcodes (call, staticcall, delegatecall, callcode).
-        # These return a boolean success value.
-        if (
-            function_full_name.startswith("call(")
-            or function_full_name.startswith("staticcall(")
-            or function_full_name.startswith("delegatecall(")
-            or function_full_name.startswith("callcode(")
-        ):
-            LowLevelCallHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Handle low-level memory builtins (mstore/mstore8/mload).
-        if (
-            function_full_name.startswith("mstore(")
-            or function_full_name.startswith("mstore8(")
-            or function_full_name.startswith("mload(")
-        ):
-            # Branch: mstore8 uses a single byte, mstore uses a full word.
-            if function_full_name.startswith("mstore8("):
-                MemoryStoreHandler(self.solver, self.analysis, byte_size=1).handle(operation, domain, node)
-                return
-
-            if function_full_name.startswith("mstore("):
-                MemoryStoreHandler(self.solver, self.analysis, byte_size=32).handle(operation, domain, node)
-                return
-
-            MemoryLoadHandler(self.solver, self.analysis).handle(operation, domain, node)
-            return
-
-        # Handle calldatacopy(uint256,uint256,uint256).
-        # This operation copies calldata to memory but doesn't return a value, so we treat it as a no-op.
-        if "calldatacopy" in function_full_name:
-            CalldataCopyHandler(self.solver).handle(operation, domain, node)
-            return
-
-        # Fallback: handle any other EVM builtin generically.
-        # This covers opcodes like returndatasize, calldatasize, codesize, chainid,
-        # origin, gasprice, coinbase, difficulty, number, basefee, caller, callvalue,
-        # address, balance, extcodehash, blockhash, sload, keccak256, arithmetic ops, etc.
-        # These are modeled as returning unconstrained values within their type bounds.
         self.logger.debug(
             "Using generic EVM builtin handler for: {function_full_name}",
             function_full_name=function_full_name,
         )
         EvmBuiltinHandler(self.solver).handle(operation, domain, node)
+
+    def _try_dispatch_by_substring(
+        self, name: str, operation: SolidityCall, domain: "IntervalDomain", node: "Node"
+    ) -> bool:
+        """Try to dispatch based on substring match. Returns True if handled."""
+        substring_handlers = [
+            ("require", lambda: RequireHandler(self.solver)),
+            ("assert", lambda: AssertHandler(self.solver)),
+            ("revert", lambda: RevertHandler(self.solver)),
+            ("calldataload", lambda: CalldataLoadHandler(self.solver, self.analysis)),
+            ("byte(", lambda: ByteHandler(self.solver)),
+            ("timestamp()", lambda: TimestampHandler(self.solver)),
+            ("calldatacopy", lambda: CalldataCopyHandler(self.solver)),
+        ]
+
+        for substring, handler_factory in substring_handlers:
+            if substring in name:
+                handler_factory().handle(operation, domain, node)
+                return True
+
+        if "gas()" in name or "gasleft()" in name:
+            GasHandler(self.solver).handle(operation, domain, node)
+            return True
+
+        return False
+
+    def _try_dispatch_by_prefix(
+        self, name: str, operation: SolidityCall, domain: "IntervalDomain", node: "Node"
+    ) -> bool:
+        """Try to dispatch based on prefix match. Returns True if handled."""
+        # Low-level call opcodes
+        call_prefixes = ("call(", "staticcall(", "delegatecall(", "callcode(")
+        if any(name.startswith(p) for p in call_prefixes):
+            LowLevelCallHandler(self.solver).handle(operation, domain, node)
+            return True
+
+        # Memory operations
+        if name.startswith("mstore8("):
+            MemoryStoreHandler(self.solver, self.analysis, byte_size=1).handle(
+                operation, domain, node
+            )
+            return True
+
+        if name.startswith("mstore("):
+            MemoryStoreHandler(self.solver, self.analysis, byte_size=32).handle(
+                operation, domain, node
+            )
+            return True
+
+        if name.startswith("mload("):
+            MemoryLoadHandler(self.solver, self.analysis).handle(operation, domain, node)
+            return True
+
+        return False

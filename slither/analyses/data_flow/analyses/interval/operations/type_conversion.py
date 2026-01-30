@@ -1,5 +1,6 @@
 """Type conversion operation handler for interval analysis."""
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
@@ -25,6 +26,15 @@ except ImportError:
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.core.cfg.node import Node
+
+
+@dataclass
+class ConversionContext:
+    """Context for type conversion operation."""
+
+    domain: "IntervalDomain"
+    node: "Node"
+    operation: TypeConversion
 
 
 class TypeConversionHandler(BaseOperationHandler):
@@ -53,30 +63,27 @@ class TypeConversionHandler(BaseOperationHandler):
         if lvalue_name is None:
             return
 
-        lvalue_var = self._get_or_create_lvalue(domain, lvalue_name, target_type, node, operation)
+        ctx = ConversionContext(domain, node, operation)
+        lvalue_var = self._get_or_create_lvalue(lvalue_name, target_type, ctx)
         if lvalue_var is None:
             return
 
         if isinstance(operation.variable, Constant):
             self._handle_constant_conversion(lvalue_var, operation.variable, target_type)
         else:
-            self._handle_variable_conversion(
-                domain, operation.variable, lvalue_var, target_type, node, operation
-            )
+            self._handle_variable_conversion(operation.variable, lvalue_var, target_type, ctx)
 
         lvalue_var.assert_no_overflow(self.solver)
         domain.state.set_range_variable(lvalue_name, lvalue_var)
 
     def _get_or_create_lvalue(
         self,
-        domain: "IntervalDomain",
         lvalue_name: str,
         target_type: ElementaryType,
-        node: "Node",
-        operation: TypeConversion,
+        ctx: ConversionContext,
     ) -> Optional[TrackedSMTVariable]:
         """Get or create lvalue variable for type conversion."""
-        lvalue_var = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
+        lvalue_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, lvalue_name)
         if lvalue_var is not None:
             return lvalue_var
 
@@ -92,28 +99,27 @@ class TypeConversionHandler(BaseOperationHandler):
         )
         if lvalue_var is None:
             self.logger.error_and_raise(
-                "Failed to create tracked variable for type '{type_name}' and variable '{var_name}'",
+                "Failed to create tracked variable for "
+                "type '{type_name}' and variable '{var_name}'",
                 ValueError,
                 var_name=lvalue_name,
                 type_name=getattr(target_type, "type", target_type),
                 embed_on_error=True,
-                node=node,
-                operation=operation,
-                domain=domain,
+                node=ctx.node,
+                operation=ctx.operation,
+                domain=ctx.domain,
             )
             return None
 
-        domain.state.set_range_variable(lvalue_name, lvalue_var)
+        ctx.domain.state.set_range_variable(lvalue_name, lvalue_var)
         return lvalue_var
 
     def _handle_variable_conversion(
         self,
-        domain: "IntervalDomain",
         variable: object,
         lvalue_var: TrackedSMTVariable,
         target_type: ElementaryType,
-        node: "Node",
-        operation: TypeConversion,
+        ctx: ConversionContext,
     ) -> None:
         """Handle type conversion from a variable."""
         variable_name = IntervalSMTUtils.resolve_variable_name(variable)
@@ -127,9 +133,7 @@ class TypeConversionHandler(BaseOperationHandler):
             )
             return
 
-        source_var = self._get_or_create_source_variable(
-            domain, variable, variable_name, source_type, node, operation
-        )
+        source_var = self._get_or_create_source_variable(variable, variable_name, source_type, ctx)
         if source_var is None:
             return
 
@@ -157,15 +161,13 @@ class TypeConversionHandler(BaseOperationHandler):
 
     def _get_or_create_source_variable(
         self,
-        domain: "IntervalDomain",
         variable: object,
         variable_name: str,
         source_type: ElementaryType,
-        node: "Node",
-        operation: TypeConversion,
+        ctx: ConversionContext,
     ) -> Optional[TrackedSMTVariable]:
         """Get or create source variable for type conversion."""
-        source_var = IntervalSMTUtils.get_tracked_variable(domain, variable_name)
+        source_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, variable_name)
         if source_var is not None:
             return source_var
 
@@ -180,7 +182,7 @@ class TypeConversionHandler(BaseOperationHandler):
                 self.solver, variable_name, source_type
             )
             if source_var is not None:
-                domain.state.set_range_variable(variable_name, source_var)
+                ctx.domain.state.set_range_variable(variable_name, source_var)
                 return source_var
 
         self.logger.error_and_raise(
@@ -188,9 +190,9 @@ class TypeConversionHandler(BaseOperationHandler):
             ValueError,
             var_name=variable_name,
             embed_on_error=True,
-            node=node,
-            operation=operation,
-            domain=domain,
+            node=ctx.node,
+            operation=ctx.operation,
+            domain=ctx.domain,
         )
         return None
 

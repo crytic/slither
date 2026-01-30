@@ -65,7 +65,7 @@ class IntervalSMTUtils:
     def create_tracked_variable(
         solver: "SMTSolver", name: str, solidity_type: ElementaryType
     ) -> Optional[TrackedSMTVariable]:
-        """Create and declare a new tracked SMT variable for the provided elementary Solidity type."""
+        """Create and declare a new tracked SMT variable for an elementary Solidity type."""
         sort = IntervalSMTUtils.solidity_type_to_smt_sort(solidity_type)
         if sort is None:
             return None
@@ -132,41 +132,43 @@ class IntervalSMTUtils:
         type_str = solidity_type.type
 
         if type_str in Uint:
-            if type_str == "uint":
-                width = 256
-            else:
-                width = int(type_str.replace("uint", ""))
-            return 0, (1 << width) - 1
+            return IntervalSMTUtils._uint_bounds(type_str)
 
         if type_str in Int:
-            if type_str == "int":
-                width = 256
-            else:
-                width = int(type_str.replace("int", ""))
-            min_val = -(1 << (width - 1))
-            max_val = (1 << (width - 1)) - 1
-            return min_val, max_val
+            return IntervalSMTUtils._int_bounds(type_str)
 
         if type_str == "bool":
             return 0, 1
 
-        if type_str == "address" or type_str == "address payable":
-            # Address is 160 bits, range is 0 to 2^160 - 1
+        if type_str in ("address", "address payable"):
             return 0, (1 << 160) - 1
 
         if type_str in Byte:
-            if type_str == "bytes":
-                # Dynamic bytes: track length, range is 0 to max uint256
-                return 0, (1 << 256) - 1
-            if type_str.startswith("bytes") and type_str != "bytes":
-                # Fixed-size bytes: N bytes can represent 0 to 2^(8*N) - 1
-                width = int(type_str.replace("bytes", "")) * 8
-                return 0, (1 << width) - 1
-            if type_str == "byte":
-                # byte is alias for bytes1
-                return 0, 255
+            return IntervalSMTUtils._byte_bounds(type_str)
 
         return None
+
+    @staticmethod
+    def _uint_bounds(type_str: str) -> tuple[int, int]:
+        """Get bounds for unsigned integer type."""
+        width = 256 if type_str == "uint" else int(type_str.replace("uint", ""))
+        return 0, (1 << width) - 1
+
+    @staticmethod
+    def _int_bounds(type_str: str) -> tuple[int, int]:
+        """Get bounds for signed integer type."""
+        width = 256 if type_str == "int" else int(type_str.replace("int", ""))
+        return -(1 << (width - 1)), (1 << (width - 1)) - 1
+
+    @staticmethod
+    def _byte_bounds(type_str: str) -> tuple[int, int]:
+        """Get bounds for byte type."""
+        if type_str == "bytes":
+            return 0, (1 << 256) - 1
+        if type_str == "byte":
+            return 0, 255
+        width = int(type_str.replace("bytes", "")) * 8
+        return 0, (1 << width) - 1
 
     @staticmethod
     def create_constant_term(

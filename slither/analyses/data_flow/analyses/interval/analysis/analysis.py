@@ -108,7 +108,7 @@ class IntervalAnalysis(Analysis):
         handler.handle(operation, domain, node)
 
     def _initialize_domain_from_bottom(self, node: Node, domain: IntervalDomain) -> None:
-        """Initialize domain state from bottom variant with global Solidity variables and function parameters."""
+        """Initialize domain state from bottom with global vars and function params."""
         domain.variant = DomainVariant.STATE
         # Initialize global Solidity variables with full range
         initialize_global_solidity_variables(self._solver, domain)

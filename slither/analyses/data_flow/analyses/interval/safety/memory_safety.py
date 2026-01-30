@@ -36,6 +36,16 @@ class ViolationType(Enum):
 
 
 @dataclass
+class PointerPairInfo:
+    """Info about write location and base pointer for underflow checks."""
+
+    offset_name: str
+    base_name: str
+    write_loc_var: "TrackedSMTVariable"
+    base_var: "TrackedSMTVariable"
+
+
+@dataclass
 class MemorySafetyViolation:
     """Represents a detected memory safety violation."""
 
@@ -236,7 +246,7 @@ class MemorySafetyChecker:
         write_loc_var: "TrackedSMTVariable",
         node: Optional["Node"],
     ) -> Optional[MemorySafetyViolation]:
-        """Check if the write location computation could overflow due to attacker-controlled input."""
+        """Check if write location could overflow due to attacker-controlled input."""
         from slither.analyses.data_flow.smt_solver.types import CheckSatResult
 
         # First check if this involves attacker-controlled data
@@ -321,9 +331,8 @@ class MemorySafetyChecker:
 
         # Check if underflow is possible
         if self._is_underflow_possible(write_loc_var, base_var):
-            return self._create_underflow_violation(
-                offset_name, base_name, write_loc_var, base_var, attacker_offsets, node
-            )
+            ptr_info = PointerPairInfo(offset_name, base_name, write_loc_var, base_var)
+            return self._create_underflow_violation(ptr_info, attacker_offsets, node)
         return None
 
     def _get_attacker_controlled_offsets(
@@ -356,27 +365,24 @@ class MemorySafetyChecker:
 
     def _create_underflow_violation(
         self,
-        offset_name: str,
-        base_name: str,
-        write_loc_var: "TrackedSMTVariable",
-        base_var: "TrackedSMTVariable",
+        ptr_info: PointerPairInfo,
         attacker_offsets: List[str],
         node: Optional["Node"],
     ) -> MemorySafetyViolation:
         """Create a memory underflow violation report."""
-        write_range = self._get_variable_range(write_loc_var)
-        base_range = self._get_variable_range(base_var)
+        write_range = self._get_variable_range(ptr_info.write_loc_var)
+        base_range = self._get_variable_range(ptr_info.base_var)
 
         message = (
-            f"Memory underflow: '{offset_name}' can be less than base pointer "
-            f"'{base_name}'. Attacker-controlled offset(s): {attacker_offsets}"
+            f"Memory underflow: '{ptr_info.offset_name}' can be less than base pointer "
+            f"'{ptr_info.base_name}'. Attacker-controlled offset(s): {attacker_offsets}"
         )
 
         return MemorySafetyViolation(
             violation_type=ViolationType.MEMORY_UNDERFLOW,
             message=message,
-            write_location_name=offset_name,
-            base_pointer_name=base_name,
+            write_location_name=ptr_info.offset_name,
+            base_pointer_name=ptr_info.base_name,
             write_location_range=write_range,
             base_pointer_range=base_range,
             node=node,
@@ -518,15 +524,17 @@ class MemorySafetyChecker:
         # Use the optimized solve_variable_range function which handles caching and reuse
         try:
             # Import here to avoid circular dependency
-            from slither.analyses.data_flow.analysis import solve_variable_range
+            from slither.analyses.data_flow.analysis import (
+                solve_variable_range,
+                RangeQueryConfig,
+            )
 
-            min_result, max_result = solve_variable_range(
-                solver=self.solver,
-                smt_var=tracked_var,
+            range_config = RangeQueryConfig(
                 path_constraints=self.domain.state.get_path_constraints(),
                 timeout_ms=50,
                 skip_optimization=True,  # Use type bounds for fast safety checks
             )
+            min_result, max_result = solve_variable_range(self.solver, tracked_var, range_config)
 
             if min_result is None or max_result is None:
                 self._range_cache[cache_key] = None

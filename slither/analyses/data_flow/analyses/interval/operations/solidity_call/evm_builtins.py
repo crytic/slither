@@ -74,59 +74,70 @@ class EvmBuiltinHandler(BaseOperationHandler):
         if operation is None:
             return
 
-        self.logger.debug(
-            "Handling EVM builtin: {operation}",
-            operation=operation,
-        )
+        self.logger.debug("Handling EVM builtin: {operation}", operation=operation)
 
-        if self.solver is None:
-            self.logger.warning("Solver is None, skipping EVM builtin")
+        if not self._validate_preconditions(domain):
             return
 
-        if domain.variant != DomainVariant.STATE:
-            self.logger.debug("Domain is not in STATE variant, skipping EVM builtin")
+        lvalue_name, return_type = self._resolve_lvalue_info(operation)
+        if lvalue_name is None or return_type is None:
             return
 
-        # Get the lvalue (return value) of the call
-        lvalue = operation.lvalue
-        if lvalue is None:
-            # Some builtins don't have return values (e.g., log0, stop, selfdestruct)
-            self.logger.debug("EVM builtin has no lvalue, nothing to track")
-            return
-
-        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
-        if lvalue_name is None:
-            self.logger.debug("Could not resolve lvalue name for EVM builtin")
-            return
-
-        # Resolve the return type from the lvalue, default to uint256
-        return_type: Optional[ElementaryType] = None
-        if hasattr(lvalue, "type"):
-            return_type = IntervalSMTUtils.resolve_elementary_type(lvalue.type)
-
-        # Most EVM builtins return uint256, fallback if we couldn't resolve
-        if return_type is None:
-            return_type = ElementaryType("uint256")
-
-        if IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
-            self.logger.debug(
-                "Unsupported return type for EVM builtin: {type}",
-                type=return_type,
-            )
-            return
-
-        # Create a tracked variable for the return value with full range (unconstrained)
-        lvalue_tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
-        if lvalue_tracked is None:
-            lvalue_tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver, lvalue_name, return_type
-            )
-            if lvalue_tracked is None:
-                return
-            domain.state.set_range_variable(lvalue_name, lvalue_tracked)
-            lvalue_tracked.assert_no_overflow(self.solver)
-
+        self._get_or_create_tracked(domain, lvalue_name, return_type)
         self.logger.debug(
             "Created unconstrained return variable for EVM builtin: {lvalue}",
             lvalue=lvalue_name,
         )
+
+    def _validate_preconditions(self, domain: IntervalDomain) -> bool:
+        """Validate solver and domain state."""
+        if self.solver is None:
+            self.logger.warning("Solver is None, skipping EVM builtin")
+            return False
+        if domain.variant != DomainVariant.STATE:
+            self.logger.debug("Domain is not in STATE variant, skipping EVM builtin")
+            return False
+        return True
+
+    def _resolve_lvalue_info(
+        self, operation: SolidityCall
+    ) -> tuple[Optional[str], Optional[ElementaryType]]:
+        """Resolve lvalue name and return type from operation."""
+        lvalue = operation.lvalue
+        if lvalue is None:
+            self.logger.debug("EVM builtin has no lvalue, nothing to track")
+            return None, None
+
+        lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
+        if lvalue_name is None:
+            self.logger.debug("Could not resolve lvalue name for EVM builtin")
+            return None, None
+
+        return_type = self._resolve_return_type(lvalue)
+        if IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
+            self.logger.debug("Unsupported return type for EVM builtin: {type}", type=return_type)
+            return None, None
+
+        return lvalue_name, return_type
+
+    def _resolve_return_type(self, lvalue) -> ElementaryType:
+        """Resolve return type from lvalue, defaulting to uint256."""
+        if hasattr(lvalue, "type"):
+            resolved = IntervalSMTUtils.resolve_elementary_type(lvalue.type)
+            if resolved is not None:
+                return resolved
+        return ElementaryType("uint256")
+
+    def _get_or_create_tracked(
+        self, domain: IntervalDomain, lvalue_name: str, return_type: ElementaryType
+    ) -> None:
+        """Get existing or create new tracked variable."""
+        tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
+        if tracked is None:
+            tracked = IntervalSMTUtils.create_tracked_variable(
+                self.solver, lvalue_name, return_type
+            )
+            if tracked is None:
+                return
+            domain.state.set_range_variable(lvalue_name, tracked)
+            tracked.assert_no_overflow(self.solver)

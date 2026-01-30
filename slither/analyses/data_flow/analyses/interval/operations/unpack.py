@@ -32,47 +32,85 @@ class UnpackHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        if operation is None or not isinstance(operation, Unpack):
-            return
-        if self.solver is None:
-            return
-        if domain.variant != DomainVariant.STATE:
+        if not self._validate_preconditions(operation, domain):
             return
 
+        lvalue_info = self._resolve_lvalue_info(operation)
+        if lvalue_info is None:
+            return
+        lvalue_name, return_type = lvalue_info
+
+        lvalue_tracked = self._get_or_create_tracked(domain, lvalue_name, return_type)
+        if lvalue_tracked is None:
+            return
+
+        self._try_constrain_from_source(operation, node, lvalue_tracked, domain)
+
+    def _validate_preconditions(
+        self, operation: Optional[Unpack], domain: "IntervalDomain"
+    ) -> bool:
+        """Validate operation, solver, and domain state."""
+        if operation is None or not isinstance(operation, Unpack):
+            return False
+        if self.solver is None:
+            return False
+        if domain.variant != DomainVariant.STATE:
+            return False
+        return True
+
+    def _resolve_lvalue_info(
+        self, operation: Unpack
+    ) -> Optional[tuple[str, ElementaryType]]:
+        """Resolve lvalue name and return type from operation."""
         lvalue = operation.lvalue
         if lvalue is None:
-            return
+            return None
 
         lvalue_name = IntervalSMTUtils.resolve_variable_name(lvalue)
         if lvalue_name is None:
-            return
+            return None
 
-        return_type: Optional[ElementaryType] = IntervalSMTUtils.resolve_elementary_type(
-            getattr(lvalue, "type", None)
-        )
+        return_type = IntervalSMTUtils.resolve_elementary_type(getattr(lvalue, "type", None))
         if return_type is None:
             self.logger.debug(
                 "Could not determine return type for unpack operation '{name}', skipping",
                 name=lvalue_name,
             )
-            return
+            return None
+
         if IntervalSMTUtils.solidity_type_to_smt_sort(return_type) is None:
             self.logger.debug(
                 "Unsupported type for unpack operation '{name}', skipping",
                 name=lvalue_name,
             )
-            return
+            return None
 
-        lvalue_tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
-        if lvalue_tracked is None:
-            lvalue_tracked = IntervalSMTUtils.create_tracked_variable(
-                self.solver, lvalue_name, return_type
-            )
-            if lvalue_tracked is None:
-                return
-            domain.state.set_range_variable(lvalue_name, lvalue_tracked)
-            lvalue_tracked.assert_no_overflow(self.solver)
+        return lvalue_name, return_type
 
+    def _get_or_create_tracked(
+        self, domain: "IntervalDomain", lvalue_name: str, return_type: ElementaryType
+    ) -> Optional["TrackedSMTVariable"]:
+        """Get existing or create new tracked variable."""
+        tracked = IntervalSMTUtils.get_tracked_variable(domain, lvalue_name)
+        if tracked is not None:
+            return tracked
+
+        tracked = IntervalSMTUtils.create_tracked_variable(self.solver, lvalue_name, return_type)
+        if tracked is None:
+            return None
+        domain.state.set_range_variable(lvalue_name, tracked)
+        tracked.assert_no_overflow(self.solver)
+        return tracked
+
+    def _try_constrain_from_source(
+        self,
+        operation: Unpack,
+        node: "Node",
+        lvalue_tracked: "TrackedSMTVariable",
+        domain: "IntervalDomain",
+    ) -> None:
+        """Try to constrain from source call, or log as unconstrained."""
+        lvalue_name = lvalue_tracked.base.name
         tuple_var = operation.tuple
         tuple_name = IntervalSMTUtils.resolve_variable_name(tuple_var)
 
@@ -80,25 +118,28 @@ class UnpackHandler(BaseOperationHandler):
         if source_call is not None:
             element_value = self._extract_return_element(source_call, operation.index)
             if element_value is not None:
-                self._constrain_unpacked_value(
-                    lvalue_tracked, element_value, return_type, domain, lvalue_name
-                )
+                self._constrain_unpacked_value(lvalue_tracked, element_value, domain, lvalue_name)
                 return
 
+        self._log_unconstrained(lvalue_name, tuple_name, operation.index)
+
+    def _log_unconstrained(
+        self, lvalue_name: str, tuple_name: Optional[str], index: int
+    ) -> None:
+        """Log unconstrained unpack operation."""
         if tuple_name is not None:
             self.logger.debug(
                 "Unpacked element '{lvalue}' from tuple '{tuple}' at index {index} (unconstrained)",
                 lvalue=lvalue_name,
                 tuple=tuple_name,
-                index=operation.index,
+                index=index,
             )
-            return
-
-        self.logger.debug(
-            "Unpacked element '{lvalue}' from tuple at index {index} (unconstrained)",
-            lvalue=lvalue_name,
-            index=operation.index,
-        )
+        else:
+            self.logger.debug(
+                "Unpacked element '{lvalue}' from tuple at index {index} (unconstrained)",
+                lvalue=lvalue_name,
+                index=index,
+            )
 
     def _find_tuple_source_call(self, node: "Node", tuple_var) -> Optional[object]:
         """Find the call operation that created the tuple variable."""
@@ -156,7 +197,6 @@ class UnpackHandler(BaseOperationHandler):
         self,
         lvalue_tracked: "TrackedSMTVariable",
         element_value: object,
-        return_type: ElementaryType,
         domain: "IntervalDomain",
         lvalue_name: str,
     ) -> None:

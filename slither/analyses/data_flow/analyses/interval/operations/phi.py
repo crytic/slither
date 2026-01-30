@@ -1,5 +1,6 @@
 """Handler for Phi operations (SSA merge points)."""
 
+from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.operations.base import BaseOperationHandler
@@ -12,6 +13,24 @@ from slither.slithir.operations.phi import Phi
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.core.cfg.node import Node
+
+
+@dataclass
+class PhiContext:
+    """Context for phi operation handling."""
+
+    domain: "IntervalDomain"
+    branch_info: Optional[dict]
+    rvalue_to_father: dict[str, "Node"]
+    should_exclude_input: bool
+
+
+@dataclass
+class PhiConstraintsState:
+    """State accumulated during phi constraint building."""
+
+    or_constraints: list[SMTTerm]
+    used_names: set[str]
 
 
 class PhiHandler(BaseOperationHandler):
@@ -40,7 +59,7 @@ class PhiHandler(BaseOperationHandler):
 
         lvalue_var = self._get_or_create_lvalue_variable(operation.lvalue, domain)
 
-        # Always try to propagate struct member fields, even if base Phi is skipped (for struct types)
+        # Always try to propagate struct member fields, even if base Phi is skipped
         self._propagate_struct_members(operation.lvalue, operation.rvalues, domain)
 
         # If lvalue is not an elementary type (e.g., struct), skip the base Phi constraint
@@ -79,56 +98,66 @@ class PhiHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         lvalue_name: str,
     ) -> bool:
-        """Check if all rvalues exist in the domain state.
+        """Check if all rvalues exist in the domain state."""
+        rvalue_names_found = self._collect_existing_rvalues(rvalues, domain)
+        if rvalue_names_found is None:
+            return False
 
-        Also checks if enough SSA versions exist to ensure we have all branches covered.
-        """
-        rvalue_names_found = []
+        if len(rvalue_names_found) <= 1:
+            return self._check_sufficient_versions(rvalues, lvalue_name, domain)
 
+        return True
+
+    def _collect_existing_rvalues(
+        self, rvalues: list[object], domain: "IntervalDomain"
+    ) -> Optional[list[str]]:
+        """Collect rvalue names that exist in domain. Returns None if any missing."""
+        names_found = []
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
-                return False
-            # Input parameters (_0, _1) always exist, check for others
+                return None
             if self._is_input_param_version(rvalue_name, domain):
                 continue
-            rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
-            if rvalue_var is None:
-                # Try to materialize missing constant versions for state variables (e.g., _BASE_POINTS_3)
-                rvalue_var = self._materialize_missing_constant_version(rvalue_name, domain)
-                if rvalue_var is None:
-                    return False
-            rvalue_names_found.append(rvalue_name)
+            if not self._ensure_rvalue_exists(rvalue_name, domain):
+                return None
+            names_found.append(rvalue_name)
+        return names_found
 
-        # Additional check: make sure we have enough SSA versions
-        # If there's only 1 non-input rvalue:
-        # - Accept immediately when the Phi has only one rvalue (e.g., constant/state initializer)
-        # - Otherwise keep the conservative wait for more concrete versions
-        if len(rvalue_names_found) <= 1:
-            if len(rvalues) == 1:
-                return True
+    def _ensure_rvalue_exists(self, rvalue_name: str, domain: "IntervalDomain") -> bool:
+        """Ensure rvalue exists, materializing if needed."""
+        rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+        if rvalue_var is not None:
+            return True
+        rvalue_var = self._materialize_missing_constant_version(rvalue_name, domain)
+        return rvalue_var is not None
 
-            # Get base variable name for checking other versions
-            base_name = self._get_base_name(lvalue_name)
+    def _check_sufficient_versions(
+        self, rvalues: list[object], lvalue_name: str, domain: "IntervalDomain"
+    ) -> bool:
+        """Check if there are sufficient SSA versions for phi."""
+        if len(rvalues) == 1:
+            return True
 
-            if base_name:
-                # Count how many versions exist (excluding input params and lvalue)
-                version_count = 0
-                all_vars = list(domain.state.get_range_variables().keys())
-                for var_name in all_vars:
-                    # Skip the lvalue itself
-                    if var_name == lvalue_name:
-                        continue
-                    if var_name.startswith(base_name + "_"):
-                        ssa_num = self._get_ssa_num(var_name)
-                        if ssa_num >= 2:  # Not input param
-                            version_count += 1
+        base_name = self._get_base_name(lvalue_name)
+        if not base_name:
+            return True
 
-                # Wait for at least 2 concrete versions (typical for if-else branches)
-                if version_count < 2:
-                    return False
+        version_count = self._count_concrete_versions(base_name, lvalue_name, domain)
+        return version_count >= 2
 
-        return True
+    def _count_concrete_versions(
+        self, base_name: str, lvalue_name: str, domain: "IntervalDomain"
+    ) -> int:
+        """Count concrete SSA versions (excluding input params)."""
+        count = 0
+        for var_name in domain.state.get_range_variables().keys():
+            if var_name == lvalue_name:
+                continue
+            if var_name.startswith(base_name + "_"):
+                if self._get_ssa_num(var_name) >= 2:
+                    count += 1
+        return count
 
     def _get_or_create_lvalue_variable(
         self, lvalue: object, domain: "IntervalDomain"
@@ -162,78 +191,57 @@ class PhiHandler(BaseOperationHandler):
         node: "Node" = None,
         branch_info: Optional[dict] = None,
     ) -> list[SMTTerm]:
-        """Collect equality constraints for each rvalue in Phi operation.
-
-        Also checks for missing SSA versions that should be included (workaround for SSA bugs).
-
-        If branch_info is provided with a known condition_value, uses path-sensitive
-        phi handling to only include rvalues from reachable branches.
-        """
-        or_constraints: list[SMTTerm] = []
+        """Collect equality constraints for each rvalue in Phi operation."""
         lvalue_name = lvalue_var.base.name
-        used_rvalue_names: set[str] = set()
-        rvalue_names_from_ssa: set[str] = set()
+        rvalue_names_from_ssa = self._collect_rvalue_names(rvalues)
 
-        # Build mapping from rvalue to defining node (for path-sensitive analysis)
-        rvalue_to_father: dict[str, "Node"] = {}
-        if branch_info and node:
-            rvalue_to_father = self._map_rvalues_to_fathers(rvalues, node)
-
-        # First, collect rvalue names from the SSA Phi
-        for rvalue in rvalues:
-            rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
-            if rvalue_name:
-                rvalue_names_from_ssa.add(rvalue_name)
-
-        # Find missing SSA versions first to determine if input param should be excluded
         missing_versions = self._find_missing_phi_rvalues(
             lvalue_name, rvalue_names_from_ssa, domain
         )
-
-        # Check if we should exclude input parameter (version _1)
-        # If there are concrete assignment versions, the input shouldn't flow through
         should_exclude_input = self._should_exclude_input_param(
             lvalue_name, rvalue_names_from_ssa, missing_versions, domain
         )
 
-        # Collect constraints from explicit rvalues (excluding input if needed)
+        rvalue_to_father: dict[str, "Node"] = {}
+        if branch_info and node:
+            rvalue_to_father = self._map_rvalues_to_fathers(rvalues, node)
+
+        ctx = PhiContext(domain, branch_info, rvalue_to_father, should_exclude_input)
+        or_constraints, used_names = self._constraints_from_rvalues(lvalue_var, rvalues, ctx)
+
+        state = PhiConstraintsState(or_constraints, used_names)
+        self._add_missing_version_constraints(lvalue_var, missing_versions, lvalue_name, state, ctx)
+
+        return state.or_constraints
+
+    def _collect_rvalue_names(self, rvalues: list[object]) -> set[str]:
+        """Collect resolved names from rvalues."""
+        names: set[str] = set()
+        for rvalue in rvalues:
+            name = IntervalSMTUtils.resolve_variable_name(rvalue)
+            if name:
+                names.add(name)
+        return names
+
+    def _constraints_from_rvalues(
+        self,
+        lvalue_var: "TrackedSMTVariable",
+        rvalues: list[object],
+        ctx: PhiContext,
+    ) -> tuple[list[SMTTerm], set[str]]:
+        """Collect constraints from explicit rvalues."""
+        or_constraints: list[SMTTerm] = []
+        used_names: set[str] = set()
+
         for rvalue in rvalues:
             rvalue_name = IntervalSMTUtils.resolve_variable_name(rvalue)
             if rvalue_name is None:
                 continue
 
-            # Skip input parameter if we determined it shouldn't be included
-            if should_exclude_input and self._is_input_param_version(rvalue_name, domain):
-                self.logger.debug(
-                    "Excluding input param '{rvalue_name}' from Phi (all branches assign)",
-                    rvalue_name=rvalue_name,
-                )
+            if self._should_skip_rvalue(rvalue_name, ctx):
                 continue
 
-            # Path-sensitive filtering: skip rvalues from unreachable branches
-            if branch_info and branch_info.get('condition_value') is not None:
-                condition_value = branch_info['condition_value']
-                father = rvalue_to_father.get(rvalue_name)
-                if father is not None:
-                    true_father = branch_info.get('true_branch_father')
-                    false_father = branch_info.get('false_branch_father')
-
-                    # If condition is always True, skip rvalues from false branch
-                    if condition_value is True and father == false_father:
-                        self.logger.debug(
-                            "Excluding '{rvalue_name}' from Phi (unreachable false branch)",
-                            rvalue_name=rvalue_name,
-                        )
-                        continue
-                    # If condition is always False, skip rvalues from true branch
-                    if condition_value is False and father == true_father:
-                        self.logger.debug(
-                            "Excluding '{rvalue_name}' from Phi (unreachable true branch)",
-                            rvalue_name=rvalue_name,
-                        )
-                        continue
-
-            rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+            rvalue_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, rvalue_name)
             if rvalue_var is None:
                 self.logger.debug(
                     "Rvalue '{rvalue_name}' not found in domain for Phi operation",
@@ -244,25 +252,81 @@ class PhiHandler(BaseOperationHandler):
             constraint = self._create_equality_constraint(lvalue_var, rvalue_var)
             if constraint is not None:
                 or_constraints.append(constraint)
-                used_rvalue_names.add(rvalue_name)
+                used_names.add(rvalue_name)
 
-        # Add missing SSA versions
+        return or_constraints, used_names
+
+    def _should_skip_rvalue(self, rvalue_name: str, ctx: PhiContext) -> bool:
+        """Determine if rvalue should be skipped."""
+        if ctx.should_exclude_input and self._is_input_param_version(rvalue_name, ctx.domain):
+            self.logger.debug(
+                "Excluding input param '{rvalue_name}' from Phi (all branches assign)",
+                rvalue_name=rvalue_name,
+            )
+            return True
+
+        if self._is_unreachable_branch(rvalue_name, ctx.branch_info, ctx.rvalue_to_father):
+            return True
+
+        return False
+
+    def _is_unreachable_branch(
+        self,
+        rvalue_name: str,
+        branch_info: Optional[dict],
+        rvalue_to_father: dict[str, "Node"],
+    ) -> bool:
+        """Check if rvalue is from an unreachable branch."""
+        if not branch_info or branch_info.get('condition_value') is None:
+            return False
+
+        father = rvalue_to_father.get(rvalue_name)
+        if father is None:
+            return False
+
+        condition_value = branch_info['condition_value']
+        true_father = branch_info.get('true_branch_father')
+        false_father = branch_info.get('false_branch_father')
+
+        if condition_value is True and father == false_father:
+            self.logger.debug(
+                "Excluding '{rvalue_name}' from Phi (unreachable false branch)",
+                rvalue_name=rvalue_name,
+            )
+            return True
+
+        if condition_value is False and father == true_father:
+            self.logger.debug(
+                "Excluding '{rvalue_name}' from Phi (unreachable true branch)",
+                rvalue_name=rvalue_name,
+            )
+            return True
+
+        return False
+
+    def _add_missing_version_constraints(
+        self,
+        lvalue_var: "TrackedSMTVariable",
+        missing_versions: list[str],
+        lvalue_name: str,
+        state: PhiConstraintsState,
+        ctx: PhiContext,
+    ) -> None:
+        """Add constraints for missing SSA versions."""
         for rvalue_name in missing_versions:
-            if rvalue_name in used_rvalue_names:
+            if rvalue_name in state.used_names:
                 continue
-            rvalue_var = IntervalSMTUtils.get_tracked_variable(domain, rvalue_name)
+            rvalue_var = IntervalSMTUtils.get_tracked_variable(ctx.domain, rvalue_name)
             if rvalue_var is None:
                 continue
             constraint = self._create_equality_constraint(lvalue_var, rvalue_var)
             if constraint is not None:
-                or_constraints.append(constraint)
+                state.or_constraints.append(constraint)
                 self.logger.debug(
                     "Added missing SSA version '{rvalue_name}' to Phi for '{lvalue_name}'",
                     rvalue_name=rvalue_name,
                     lvalue_name=lvalue_name,
                 )
-
-        return or_constraints
 
     def _map_rvalues_to_fathers(
         self,
@@ -351,7 +415,7 @@ class PhiHandler(BaseOperationHandler):
     def _materialize_missing_constant_version(
         self, rvalue_name: str, domain: "IntervalDomain"
     ) -> Optional["TrackedSMTVariable"]:
-        """Create a missing SSA version for constant/state variables by cloning an existing version."""
+        """Create a missing SSA version for constant/state vars by cloning an existing one."""
         # Guard: need base name to search for sibling versions
         base_name = self._get_base_name(rvalue_name)
         if base_name is None:
@@ -419,63 +483,71 @@ class PhiHandler(BaseOperationHandler):
 
         This works around Slither SSA bugs where nested if-else results aren't included.
         """
-        # Extract base variable name (before SSA suffix like _6)
-        # Format: "Contract.func().var|var_6" → extract "var" to find "var_5", "var_4", etc.
-        base_name = lvalue_name
-        lvalue_ssa_num = -1
-
-        # Handle the "|var_N" suffix format
-        if "|" in lvalue_name:
-            parts = lvalue_name.rsplit("|", 1)
-            prefix = parts[0]  # "Contract.func().var"
-            ssa_part = parts[1]  # "var_6"
-
-            # Extract SSA number from the ssa_part
-            if "_" in ssa_part:
-                base_var_name, ssa_num_str = ssa_part.rsplit("_", 1)
-                try:
-                    lvalue_ssa_num = int(ssa_num_str)
-                    base_name = f"{prefix}|{base_var_name}"
-                except ValueError:
-                    return []
-            else:
-                return []
-        else:
+        parsed = self._parse_ssa_variable_name(lvalue_name)
+        if parsed is None:
             return []
+        base_name, lvalue_ssa_num = parsed
 
-        # Look for other SSA versions in the domain that we haven't used
         missing: list[str] = []
-        all_var_names = domain.state.get_range_variables().keys()
-
-        for var_name in all_var_names:
-            # Skip if already used
-            if var_name in used_rvalue_names:
-                continue
-            # Skip the lvalue itself
-            if var_name == lvalue_name:
-                continue
-
-            # Check if this is another SSA version of the same variable
-            if var_name.startswith(base_name + "_"):
-                suffix = var_name[len(base_name) + 1 :]
-                try:
-                    ssa_num = int(suffix)
-                    # Only include versions less than lvalue (predecessors in SSA)
-                    # but greater than the minimum used (to catch nested results like variable_5)
-                    if ssa_num < lvalue_ssa_num:
-                        # Check if there's a used version with lower number
-                        # If so, we might need this version (nested if-else result)
-                        has_lower_used = any(
-                            self._get_ssa_num(used) < ssa_num
-                            for used in used_rvalue_names
-                            if used.startswith(base_name + "_")
-                        )
-                        if has_lower_used:
-                            missing.append(var_name)
-                except ValueError:
-                    continue
-
+        for var_name in domain.state.get_range_variables().keys():
+            if self._is_missing_predecessor(
+                var_name, lvalue_name, base_name, lvalue_ssa_num, used_rvalue_names
+            ):
+                missing.append(var_name)
         return missing
+
+    def _parse_ssa_variable_name(self, lvalue_name: str) -> Optional[tuple[str, int]]:
+        """Parse variable name to extract base name and SSA number.
+
+        Format: "Contract.func().var|var_6" → ("Contract.func().var|var", 6)
+        Returns None if the format doesn't match.
+        """
+        if "|" not in lvalue_name:
+            return None
+
+        parts = lvalue_name.rsplit("|", 1)
+        prefix, ssa_part = parts[0], parts[1]
+
+        if "_" not in ssa_part:
+            return None
+
+        base_var_name, ssa_num_str = ssa_part.rsplit("_", 1)
+        try:
+            ssa_num = int(ssa_num_str)
+            return f"{prefix}|{base_var_name}", ssa_num
+        except ValueError:
+            return None
+
+    def _is_missing_predecessor(
+        self,
+        var_name: str,
+        lvalue_name: str,
+        base_name: str,
+        lvalue_ssa_num: int,
+        used_rvalue_names: set[str],
+    ) -> bool:
+        """Check if var_name is a missing SSA predecessor for the phi."""
+        if var_name in used_rvalue_names or var_name == lvalue_name:
+            return False
+
+        if not var_name.startswith(base_name + "_"):
+            return False
+
+        suffix = var_name[len(base_name) + 1:]
+        try:
+            ssa_num = int(suffix)
+        except ValueError:
+            return False
+
+        if ssa_num >= lvalue_ssa_num:
+            return False
+
+        # Check if there's a used version with lower number (nested if-else case)
+        return any(
+            self._get_ssa_num(used) < ssa_num
+            for used in used_rvalue_names
+            if used.startswith(base_name + "_")
+        )
 
     def _get_ssa_num(self, var_name: str) -> int:
         """Extract SSA number from variable name."""
@@ -579,64 +651,26 @@ class PhiHandler(BaseOperationHandler):
         return None
 
     def _analyze_branch_condition(
-        self,
-        node: "Node",
-        domain: "IntervalDomain",
+        self, node: "Node", domain: "IntervalDomain"
     ) -> Optional[dict]:
-        """Analyze if the branch leading to this phi has a known constant condition.
-
-        Returns dict with:
-        - 'if_node': The IF node controlling the branch
-        - 'condition_var': The condition variable name
-        - 'condition_value': The constant value (True/False) if known, None otherwise
-        - 'true_branch_father': The father node from the true branch
-        - 'false_branch_father': The father node from the false branch
-
-        Returns None if no constant condition can be determined.
-        """
+        """Analyze if the branch leading to this phi has a known constant condition."""
         if self.solver is None:
             return None
 
-        # Find the common IF node ancestor
-        if_node = None
-        true_father = None
-        false_father = None
-
-        for father in node.fathers:
-            for gfather in father.fathers:
-                from slither.core.cfg.node import NodeType
-                if gfather.type == NodeType.IF:
-                    if_node = gfather
-                    # Determine which branch this father came from
-                    if len(gfather.sons) == 2:
-                        if father == gfather.sons[0]:
-                            true_father = father
-                        elif father == gfather.sons[1]:
-                            false_father = father
-                    break
-
-        if if_node is None:
+        if_info = self._find_if_node_ancestor(node)
+        if if_info is None:
             return None
 
-        # Find the condition variable from the IF node
-        condition_name = None
-        for ir in if_node.irs_ssa or []:
-            if hasattr(ir, 'value'):
-                condition_name = IntervalSMTUtils.resolve_variable_name(ir.value)
-                break
+        if_node, true_father, false_father = if_info
 
+        condition_name = self._find_condition_name(if_node)
         if condition_name is None:
             return None
 
-        # Get the condition variable from domain
         condition_var = IntervalSMTUtils.get_tracked_variable(domain, condition_name)
         if condition_var is None:
             return None
 
-        # Check if condition has a known constant value by looking for explicit
-        # equality constraints in the solver (e.g., from interprocedural analysis).
-        # We avoid using satisfiability checks because the solver may contain
-        # overflow constraints that make branches appear unreachable when they aren't.
         condition_value = self._get_explicit_constant_value(condition_var)
 
         return {
@@ -646,6 +680,37 @@ class PhiHandler(BaseOperationHandler):
             'true_branch_father': true_father,
             'false_branch_father': false_father,
         }
+
+    def _find_if_node_ancestor(self, node: "Node") -> Optional[tuple]:
+        """Find the IF node ancestor and branch fathers."""
+        from slither.core.cfg.node import NodeType
+
+        for father in node.fathers:
+            for gfather in father.fathers:
+                if gfather.type == NodeType.IF:
+                    true_father, false_father = self._identify_branch_fathers(gfather, father)
+                    return (gfather, true_father, false_father)
+        return None
+
+    def _identify_branch_fathers(
+        self, if_node: "Node", current_father: "Node"
+    ) -> tuple[Optional["Node"], Optional["Node"]]:
+        """Identify which branch the current father came from."""
+        true_father = None
+        false_father = None
+        if len(if_node.sons) == 2:
+            if current_father == if_node.sons[0]:
+                true_father = current_father
+            elif current_father == if_node.sons[1]:
+                false_father = current_father
+        return true_father, false_father
+
+    def _find_condition_name(self, if_node: "Node") -> Optional[str]:
+        """Find the condition variable name from an IF node."""
+        for ir in if_node.irs_ssa or []:
+            if hasattr(ir, 'value'):
+                return IntervalSMTUtils.resolve_variable_name(ir.value)
+        return None
 
     def _propagate_struct_members(
         self,

@@ -1,6 +1,7 @@
 """Verbose mode analysis functions for data flow analysis."""
 
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 
@@ -35,37 +36,37 @@ if TYPE_CHECKING:
 DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
 
 
+@dataclass
+class VerboseConfig:
+    """Configuration for verbose analysis."""
+
+    debug: bool = False
+    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS
+    skip_range_solving: bool = False
+    cache: Optional["RangeQueryCache"] = None
+    show_telemetry: bool = False
+    function_name: Optional[str] = None
+    contract_name: Optional[str] = None
+    embed: bool = False
+    skip_compile: bool = False
+
+
 def analyze_function_verbose(
     function: Function,
     analysis: IntervalAnalysis,
     logger: "DataFlowLogger",
     LogMessages: "type[LogMessages]",
-    debug: bool = False,
-    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
-    skip_range_solving: bool = False,
-    cache: Optional["RangeQueryCache"] = None,
+    config: Optional[VerboseConfig] = None,
 ) -> None:
-    """Run interval analysis on a single function with verbose output organized by source line.
-
-    Args:
-        function: The function to analyze.
-        analysis: The interval analysis instance.
-        logger: The data flow logger.
-        LogMessages: Log message constants class.
-        debug: Enable debug output.
-        timeout_ms: Timeout in milliseconds for each optimization query.
-        skip_range_solving: If True, skip SMT optimization and use type bounds.
-        cache: Optional RangeQueryCache for memoization.
-    """
-    # Import here to avoid circular imports
-    from slither.analyses.data_flow.analysis import solve_variable_range
+    """Run interval analysis on a single function with verbose output."""
+    if config is None:
+        config = VerboseConfig()
 
     logger.info(
         "Analyzing function: {function_name} ({signature})",
         function_name=function.name,
         signature=function.signature,
     )
-
     console.print(f"\n[bold blue]=== Function: {function.name} ===[/bold blue]")
 
     if not function.nodes:
@@ -76,23 +77,43 @@ def analyze_function_verbose(
         )
         return
 
+    results = _run_engine_analysis(function, analysis, logger, LogMessages)
+    line_data = _group_results_by_line(results, logger)
+
+    solver = analysis.solver
+    if not solver:
+        logger.warning("No solver available for range solving")
+        return
+
+    _display_line_ranges(line_data, solver, logger, config)
+    display_safety_violations(analysis.safety_violations)
+
+
+def _run_engine_analysis(
+    function: Function,
+    analysis: IntervalAnalysis,
+    logger: "DataFlowLogger",
+    LogMessages: "type[LogMessages]",
+) -> Dict[Node, AnalysisState[IntervalAnalysis]]:
+    """Run the engine analysis and return results."""
     logger.info(LogMessages.ENGINE_INIT, function_name=function.name)
     engine: Engine[IntervalAnalysis] = Engine.new(analysis=analysis, function=function)
 
     logger.debug(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
     engine.run_analysis()
 
-    results: Dict[Node, AnalysisState[IntervalAnalysis]] = engine.result()
+    results = engine.result()
     logger.info("Analysis complete! Processed {count} nodes.", count=len(results))
+    return results
 
-    # Group results by source line instead of processing node-by-node
-    # This dramatically reduces duplicate range queries
+
+def _group_results_by_line(
+    results: Dict[Node, AnalysisState[IntervalAnalysis]],
+    logger: "DataFlowLogger",
+) -> Dict[int, Dict]:
+    """Group analysis results by source line."""
     line_data: Dict[int, Dict] = defaultdict(
-        lambda: {
-            "code": None,
-            "nodes": [],
-            "variables": {},  # var_name -> (smt_var, constraints_tuple, state)
-        }
+        lambda: {"code": None, "nodes": [], "variables": {}}
     )
 
     for node, state in results.items():
@@ -106,112 +127,95 @@ def analyze_function_verbose(
         if state.post.variant != DomainVariant.STATE:
             continue
 
-        post_state_vars: Dict[str, TrackedSMTVariable] = state.post.state.get_range_variables()
+        post_state_vars = state.post.state.get_range_variables()
         if not post_state_vars:
             continue
 
-        # Get source line(s) for this node
-        lines = []
-        if hasattr(node, "source_mapping") and node.source_mapping and node.source_mapping.lines:
-            lines = node.source_mapping.lines
+        lines = _get_source_lines(node)
+        node_code = _get_node_code(node)
 
-        # If no source mapping, create synthetic line number based on node_id
-        if not lines:
-            lines = [-node.node_id]  # Negative to distinguish from real lines
-
-        # Get node code for display
-        node_code: str = ""
-        if node.expression:
-            node_code = str(node.expression)
-        elif hasattr(node, "source_mapping") and node.source_mapping:
-            node_code = node.source_mapping.content.strip()
-        elif str(node):
-            node_code = str(node)
-
-        # Add this node's data to each line it spans
         for line_num in lines:
-            line_info = line_data[line_num]
-            line_info["nodes"].append(node)
+            _add_node_to_line_data(
+                line_data[line_num], node, node_code, post_state_vars, state
+            )
 
-            # Store code (prefer non-empty)
-            if node_code and not line_info["code"]:
-                line_info["code"] = node_code
+    return line_data
 
-            # Get path constraints for deduplication
-            path_constraints = state.post.state.get_path_constraints()
-            constraints_tuple = tuple(str(c) for c in path_constraints)
 
-            # Only show variables that were actually used
-            used_vars = state.post.state.get_used_variables()
+def _get_source_lines(node: Node) -> List[int]:
+    """Get source lines for a node."""
+    if hasattr(node, "source_mapping") and node.source_mapping and node.source_mapping.lines:
+        return node.source_mapping.lines
+    return [-node.node_id]
 
-            for var_name, smt_var in post_state_vars.items():
-                # Filter out constants, temporaries, and unused variables
-                if (
-                    var_name.startswith("CONST_")
-                    or var_name.startswith("TMP_")
-                    or var_name not in used_vars
-                ):
-                    continue
-                # Filter out global variables with unbounded ranges (not useful for analysis)
-                if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
-                    continue
 
-                # Deduplicate: only store unique (var_name, constraints) pairs
-                var_key = (var_name, constraints_tuple)
-                if var_key not in line_info["variables"]:
-                    line_info["variables"][var_key] = (smt_var, path_constraints, state)
+def _get_node_code(node: Node) -> str:
+    """Get display code for a node."""
+    if node.expression:
+        return str(node.expression)
+    if hasattr(node, "source_mapping") and node.source_mapping:
+        return node.source_mapping.content.strip()
+    if str(node):
+        return str(node)
+    return ""
 
-    # Now process each line in order and compute ranges once per unique variable state
-    solver = analysis.solver
-    if not solver:
-        logger.warning("No solver available for range solving")
-        return
+
+def _add_node_to_line_data(
+    line_info: Dict,
+    node: Node,
+    node_code: str,
+    post_state_vars: Dict[str, TrackedSMTVariable],
+    state: AnalysisState[IntervalAnalysis],
+) -> None:
+    """Add a node's data to line info."""
+    line_info["nodes"].append(node)
+
+    if node_code and not line_info["code"]:
+        line_info["code"] = node_code
+
+    path_constraints = state.post.state.get_path_constraints()
+    constraints_tuple = tuple(str(c) for c in path_constraints)
+    used_vars = state.post.state.get_used_variables()
+
+    for var_name, smt_var in post_state_vars.items():
+        if _should_skip_variable(var_name, used_vars):
+            continue
+
+        var_key = (var_name, constraints_tuple)
+        if var_key not in line_info["variables"]:
+            line_info["variables"][var_key] = (smt_var, path_constraints, state)
+
+
+def _should_skip_variable(var_name: str, used_vars: set) -> bool:
+    """Check if variable should be skipped from display."""
+    if var_name.startswith("CONST_") or var_name.startswith("TMP_"):
+        return True
+    if var_name not in used_vars:
+        return True
+    if any(var_name.startswith(prefix) for prefix in ("block.", "msg.", "tx.")):
+        return True
+    return False
+
+
+def _display_line_ranges(
+    line_data: Dict[int, Dict],
+    solver,
+    logger: "DataFlowLogger",
+    config: VerboseConfig,
+) -> None:
+    """Display ranges for each line."""
 
     for line_num in sorted(line_data.keys()):
         line_info = line_data[line_num]
-
         if not line_info["variables"]:
             continue
 
-        # Display the code for this line
         if line_info["code"]:
             console.print(f"\n[bold white]Code:[/bold white] [dim]{line_info['code']}[/dim]")
 
-        # Compute ranges for unique variables at this line
-        variable_results: List[Dict] = []
-        for (var_name, constraints_tuple), (smt_var, path_constraints, state) in sorted(
-            line_info["variables"].items(), key=lambda x: x[0][0]  # Sort by var_name
-        ):
-            if debug:
-                console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
-
-            # Note: We don't reuse the optimizer here because Z3's Optimize
-            # doesn't properly scope maximize/minimize objectives with push/pop.
-            # Each range query needs a fresh optimizer to avoid accumulating objectives.
-            min_result, max_result = solve_variable_range(
-                solver,
-                smt_var,
-                path_constraints=path_constraints,
-                debug=debug,
-                timeout_ms=timeout_ms,
-                skip_optimization=skip_range_solving,
-                cache=cache,
-            )
-
-            if min_result and max_result:
-                variable_results.append(
-                    {
-                        "name": var_name,
-                        "sort": smt_var.sort,
-                        "min": min_result,
-                        "max": max_result,
-                    }
-                )
-            else:
-                logger.debug(
-                    "Could not solve range for variable {var_name}",
-                    var_name=var_name,
-                )
+        variable_results = _compute_variable_ranges(
+            line_info["variables"], solver, logger, config
+        )
 
         if variable_results:
             display_variable_ranges_table(variable_results)
@@ -223,168 +227,226 @@ def analyze_function_verbose(
                     f"{', '.join(sorted(var_names))}[/yellow]"
                 )
 
-    # Display safety violations if any were detected
-    display_safety_violations(analysis.safety_violations)
+
+def _compute_variable_ranges(
+    variables: Dict,
+    solver,
+    logger: "DataFlowLogger",
+    config: VerboseConfig,
+) -> List[Dict]:
+    """Compute ranges for variables at a line."""
+    from slither.analyses.data_flow.analysis import solve_variable_range, RangeQueryConfig
+
+    results: List[Dict] = []
+    for (var_name, _), (smt_var, path_constraints, _) in sorted(
+        variables.items(), key=lambda x: x[0][0]
+    ):
+        if config.debug:
+            console.print(f"\n[bold]Solving range for: {var_name}[/bold]")
+
+        range_config = RangeQueryConfig(
+            path_constraints=path_constraints,
+            debug=config.debug,
+            timeout_ms=config.timeout_ms,
+            skip_optimization=config.skip_range_solving,
+            cache=config.cache,
+        )
+        min_result, max_result = solve_variable_range(solver, smt_var, range_config)
+
+        if min_result and max_result:
+            results.append({
+                "name": var_name,
+                "sort": smt_var.sort,
+                "min": min_result,
+                "max": max_result,
+            })
+        else:
+            logger.debug("Could not solve range for variable {var_name}", var_name=var_name)
+
+    return results
 
 
 def run_verbose(
     contract_path: str,
-    debug: bool = False,
-    function_name: Optional[str] = None,
-    contract_name: Optional[str] = None,
-    embed: bool = False,
-    skip_compile: bool = False,
-    timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS,
-    skip_range_solving: bool = False,
-    show_telemetry: bool = False,
+    config: Optional[VerboseConfig] = None,
 ) -> None:
-    """Run analysis with verbose output (original behavior).
+    """Run analysis with verbose output.
 
     Args:
-        contract_path: Path to the contract file or directory (project root)
-        debug: Enable debug output
-        function_name: Optional function name to filter to (if None, shows all functions)
-        contract_name: Optional contract name to filter to (if None, shows all contracts)
-        embed: Enable IPython embed on errors for interactive debugging
-        skip_compile: Skip compilation step (use existing artifacts)
-        timeout_ms: Timeout in milliseconds for each optimization query
-        skip_range_solving: If True, skip SMT optimization and use type bounds
-        show_telemetry: If True, print solver telemetry at the end
+        contract_path: Path to the contract file or directory.
+        config: Optional configuration for verbose analysis. If None, uses defaults.
     """
-    from slither.analyses.data_flow.logger import get_logger, LogMessages, DataFlowLogger
-    from slither.analyses.data_flow.smt_solver import Z3Solver
-    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
+    from slither.analyses.data_flow.logger import get_logger, LogMessages
 
-    # Enable telemetry if requested
-    if show_telemetry:
+    if config is None:
+        config = VerboseConfig()
+
+    if config.show_telemetry:
         enable_telemetry()
         reset_telemetry()
 
-    logger: DataFlowLogger = get_logger(enable_ipython_embed=embed, log_level="DEBUG")
+    logger = get_logger(enable_ipython_embed=config.embed, log_level="DEBUG")
     logger.info(LogMessages.ENGINE_START)
 
-    logger.info("Loading contract from: {path}", path=contract_path)
-    try:
-        slither: Slither = Slither(contract_path, ignore_compile=skip_compile)
-    except SlitherError as e:
-        error_msg = str(e)
-        # Check if this is a Foundry compilation error
-        if "build-info" in error_msg or "Compilation failed" in error_msg:
-            contract_path_obj = Path(contract_path)
-            # Check if foundry.toml exists (indicates Foundry project)
-            foundry_toml = contract_path_obj / "foundry.toml"
-            if not foundry_toml.exists() and contract_path_obj.is_file():
-                # If it's a file, check parent directory
-                foundry_toml = contract_path_obj.parent / "foundry.toml"
-
-            if foundry_toml.exists():
-                logger.error(
-                    "Foundry project compilation failed. Please build the project first:\n"
-                    "  cd {project_dir}\n"
-                    "  forge build",
-                    project_dir=foundry_toml.parent,
-                )
-            else:
-                logger.error(
-                    "Compilation failed. Please ensure the project is built.\n"
-                    "Original error: {error}",
-                    error=error_msg,
-                )
-        else:
-            logger.error("Slither initialization failed: {error}", error=error_msg)
-        raise
-
-    contracts: List[Contract]
-    if slither.compilation_units:
-        contracts = []
-        for compilation_unit in slither.compilation_units:
-            contracts.extend(compilation_unit.contracts)
-    else:
-        contracts = slither.contracts
-
-    if not contracts:
-        logger.warning("No contracts found!")
+    contracts = _load_contracts(contract_path, config.skip_compile, logger)
+    if contracts is None:
         return
 
-    # Collect all contract names for error message
-    all_contract_names = sorted(set(c.name for c in contracts))
-
-    # Filter by contract name if specified
-    if contract_name:
-        contracts = [c for c in contracts if c.name == contract_name]
-        if not contracts:
-            console.print(f"[red]Contract '{contract_name}' not found![/red]")
-            console.print(f"[dim]Available contracts: {', '.join(all_contract_names)}[/dim]")
-            return
-        logger.info("Filtered to contract: {contract_name}", contract_name=contract_name)
+    contracts = _filter_contracts(contracts, config.contract_name, logger)
+    if contracts is None:
+        return
 
     logger.info("Found {count} contract(s)", count=len(contracts))
     logger.info(LogMessages.ANALYSIS_START, analysis_name="IntervalAnalysis")
 
     for contract in contracts:
-        logger.info("Processing contract: {contract_name}", contract_name=contract.name)
-
-        functions: List[Function] = contract.functions_and_modifiers_declared
-        implemented_functions: List[Function] = [
-            f for f in functions if f.is_implemented and not f.is_constructor
-        ]
-
-        if function_name:
-            implemented_functions = [f for f in implemented_functions if f.name == function_name]
-            if not implemented_functions:
-                console.print(
-                    f"[yellow]Function '{function_name}' not found in contract '{contract.name}'[/yellow]"
-                )
-                continue
-
-        if not implemented_functions:
-            logger.warning(
-                "No implemented functions found in {contract_name}", contract_name=contract.name
-            )
-            continue
-
-        logger.info(
-            "Found {count} implemented function(s) in {contract_name}",
-            count=len(implemented_functions),
-            contract_name=contract.name,
-        )
-
-        # Create shared cache for all functions in this contract
-        cache = RangeQueryCache(max_size=1000)
-
-        for function in implemented_functions:
-            try:
-                solver = Z3Solver(use_optimizer=True)
-                analysis: IntervalAnalysis = IntervalAnalysis(solver=solver)
-
-                analyze_function_verbose(
-                    function,
-                    analysis,
-                    logger,
-                    LogMessages,
-                    debug=debug,
-                    timeout_ms=timeout_ms,
-                    skip_range_solving=skip_range_solving,
-                    cache=cache,
-                )
-            except Exception as e:
-                # Log error with context, then stop execution
-                logger.exception(
-                    LogMessages.ERROR_ANALYSIS_FAILED,
-                    error=str(e),
-                    function_name=function.name,
-                    embed_on_error=False,
-                )
-                raise
+        _process_contract_verbose(contract, logger, LogMessages, config)
 
     logger.info(LogMessages.ENGINE_COMPLETE)
+    _print_telemetry_if_enabled(config.show_telemetry)
 
-    # Print telemetry if enabled
-    if show_telemetry:
-        telemetry = get_telemetry()
-        if telemetry:
-            console.print("\n")
-            telemetry.print_summary(console)
+
+def _load_contracts(
+    contract_path: str, skip_compile: bool, logger: "DataFlowLogger"
+) -> Optional[List[Contract]]:
+    """Load contracts from path."""
+    logger.info("Loading contract from: {path}", path=contract_path)
+    try:
+        slither: Slither = Slither(contract_path, ignore_compile=skip_compile)
+    except SlitherError as e:
+        _handle_slither_error(e, contract_path, logger)
+        raise
+
+    contracts: List[Contract] = []
+    if slither.compilation_units:
+        for cu in slither.compilation_units:
+            contracts.extend(cu.contracts)
+    else:
+        contracts = slither.contracts
+
+    if not contracts:
+        logger.warning("No contracts found!")
+        return None
+
+    return contracts
+
+
+def _handle_slither_error(e: SlitherError, contract_path: str, logger: "DataFlowLogger") -> None:
+    """Handle Slither initialization error."""
+    error_msg = str(e)
+    if "build-info" not in error_msg and "Compilation failed" not in error_msg:
+        logger.error("Slither initialization failed: {error}", error=error_msg)
+        return
+
+    contract_path_obj = Path(contract_path)
+    foundry_toml = contract_path_obj / "foundry.toml"
+    if not foundry_toml.exists() and contract_path_obj.is_file():
+        foundry_toml = contract_path_obj.parent / "foundry.toml"
+
+    if foundry_toml.exists():
+        logger.error(
+            "Foundry project compilation failed. Please build the project first:\n"
+            "  cd {project_dir}\n  forge build",
+            project_dir=foundry_toml.parent,
+        )
+    else:
+        logger.error(
+            "Compilation failed. Please ensure the project is built.\nOriginal error: {error}",
+            error=error_msg,
+        )
+
+
+def _filter_contracts(
+    contracts: List[Contract], contract_name: Optional[str], logger: "DataFlowLogger"
+) -> Optional[List[Contract]]:
+    """Filter contracts by name if specified."""
+    if not contract_name:
+        return contracts
+
+    all_contract_names = sorted(set(c.name for c in contracts))
+    filtered = [c for c in contracts if c.name == contract_name]
+
+    if not filtered:
+        console.print(f"[red]Contract '{contract_name}' not found![/red]")
+        console.print(f"[dim]Available contracts: {', '.join(all_contract_names)}[/dim]")
+        return None
+
+    logger.info("Filtered to contract: {contract_name}", contract_name=contract_name)
+    return filtered
+
+
+def _process_contract_verbose(
+    contract: Contract,
+    logger: "DataFlowLogger",
+    LogMessages: "type[LogMessages]",
+    config: VerboseConfig,
+) -> None:
+    """Process a single contract in verbose mode."""
+    from slither.analyses.data_flow.smt_solver import Z3Solver
+    from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
+
+    logger.info("Processing contract: {contract_name}", contract_name=contract.name)
+
+    functions = _get_implemented_functions(contract, config.function_name, logger)
+    if not functions:
+        return
+
+    logger.info(
+        "Found {count} implemented function(s) in {contract_name}",
+        count=len(functions),
+        contract_name=contract.name,
+    )
+
+    cache = RangeQueryCache(max_size=1000)
+    func_config = VerboseConfig(
+        debug=config.debug,
+        timeout_ms=config.timeout_ms,
+        skip_range_solving=config.skip_range_solving,
+        cache=cache,
+    )
+    for function in functions:
+        try:
+            solver = Z3Solver(use_optimizer=True)
+            analysis = IntervalAnalysis(solver=solver)
+            analyze_function_verbose(function, analysis, logger, LogMessages, func_config)
+        except Exception as e:
+            logger.exception(
+                LogMessages.ERROR_ANALYSIS_FAILED, error=str(e),
+                function_name=function.name, embed_on_error=False,
+            )
+            raise
+
+
+def _get_implemented_functions(
+    contract: Contract, function_name: Optional[str], logger: "DataFlowLogger"
+) -> List[Function]:
+    """Get implemented functions, optionally filtered by name."""
+    functions = contract.functions_and_modifiers_declared
+    implemented = [f for f in functions if f.is_implemented and not f.is_constructor]
+
+    if function_name:
+        implemented = [f for f in implemented if f.name == function_name]
+        if not implemented:
+            msg = f"[yellow]Function '{function_name}' not found in '{contract.name}'[/yellow]"
+            console.print(msg)
+            return []
+
+    if not implemented:
+        logger.warning(
+            "No implemented functions found in {contract_name}", contract_name=contract.name
+        )
+
+    return implemented
+
+
+def _print_telemetry_if_enabled(show_telemetry: bool) -> None:
+    """Print telemetry summary if enabled."""
+    if not show_telemetry:
+        return
+    telemetry = get_telemetry()
+    if telemetry:
+        console.print("\n")
+        telemetry.print_summary(console)
 
 
 def show_test_output(
@@ -395,7 +457,7 @@ def show_test_output(
     Args:
         contract_file: Name of the contract file (e.g., "FunctionArgs.sol") or full path
         function_name: Optional function name to filter to
-        contracts_dir: Directory containing contract files (used if contract_file is just a filename)
+        contracts_dir: Directory containing contract files (for relative paths)
     """
     # Check if contract_file is already a full path
     contract_file_path = Path(contract_file)
@@ -427,4 +489,5 @@ def show_test_output(
 
     get_logger(enable_ipython_embed=False, log_level="ERROR")
 
-    run_verbose(str(contract_path), debug=False, function_name=function_name)
+    config = VerboseConfig(debug=False, function_name=function_name)
+    run_verbose(str(contract_path), config)
