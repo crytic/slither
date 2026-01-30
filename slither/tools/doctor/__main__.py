@@ -3,6 +3,7 @@ import logging
 import sys
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither.tools.doctor.utils import report_section
 from slither.tools.doctor.checks import ALL_CHECKS
@@ -18,6 +19,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-doctor project",
     )
 
+    shtab.add_argument_to(parser)
+
     parser.add_argument("project", help="The codebase to be tested.")
 
     # Add default arguments from crytic-compile
@@ -27,11 +30,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    # log on stdout to keep output in order
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
-
     args = parse_args()
     kwargs = vars(args)
+
+    # log on stdout to keep output in order
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
 
     for check in ALL_CHECKS:
         with report_section(check.title):
