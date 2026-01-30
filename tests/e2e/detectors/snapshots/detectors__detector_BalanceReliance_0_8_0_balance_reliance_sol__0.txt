@@ -1,0 +1,24 @@
+BalanceRelianceTest.saveCurrentBalance() (balance_reliance.sol#25-27) uses address.balance in state variable assignment:
+	- savedBalance = address(this).balance (balance_reliance.sol#26)
+
+BalanceRelianceTest.indirectSave() (balance_reliance.sol#30-33) uses address.balance in state variable assignment:
+	- savedBalance = bal (balance_reliance.sol#32)
+
+ExternalBalanceTest.saveTargetBalance() (balance_reliance.sol#81-83) uses address.balance in state variable assignment:
+	- externalBalance = target.balance (balance_reliance.sol#82)
+
+BalanceRelianceTest.requireExact() (balance_reliance.sol#36-38) uses address.balance in strict equality (==):
+	- require(bool,string)(address(this).balance == 100000000000000000000,Must be exactly 100 ETH) (balance_reliance.sol#37)
+
+BalanceRelianceTest.checkExactBalance() (balance_reliance.sol#9-11) uses address.balance in strict equality (==):
+	- address(this).balance == 1000000000000000000 (balance_reliance.sol#10)
+
+BalanceRelianceTest.indirectCheck(uint256) (balance_reliance.sol#19-22) uses address.balance in strict equality (==):
+	- currentBal == expected (balance_reliance.sol#21)
+
+ExternalBalanceTest.checkTargetBalance() (balance_reliance.sol#76-78) uses address.balance in strict equality (==):
+	- target.balance == 1000000000000000000 (balance_reliance.sol#77)
+
+BalanceRelianceTest.checkNotBalance() (balance_reliance.sol#14-16) uses address.balance in strict equality (!=):
+	- address(this).balance != 0 (balance_reliance.sol#15)
+
