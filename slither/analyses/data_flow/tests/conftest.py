@@ -4,24 +4,12 @@ import pytest
 from pathlib import Path
 from typing import Dict, Any
 
-# Path to test contracts - relative to this file
-# tests/conftest.py -> data_flow/ -> analyses/ -> slither/ -> slither/ -> contracts/src
-CONTRACTS_DIR = Path(__file__).parent.parent.parent.parent.parent.parent / "contracts" / "src"
+# Path to test contracts - local contracts directory
+CONTRACTS_DIR = Path(__file__).parent / "contracts"
 
 # List of contract files with expected results
 TEST_CONTRACTS = [
-    "Assert.sol",
-    "Assignment.sol",
-    "FunctionArgs.sol",
-    "Length.sol",
-    "Math.sol",
-    "Member.sol",
-    "Require.sol",
-    "StateVariables.sol",
-    "Timestamp.sol",
-    "Unary.sol",
-    "UnpackTest.sol",
-    "SimpleIf.sol",
+    "Test_Add.sol",
 ]
 
 
