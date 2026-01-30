@@ -1958,6 +1958,11 @@ ALL_TESTS = [
     #     "C.sol",
     #     "0.8.16",
     # ),
+    Test(
+        all_detectors.UnusedCustomErrors,
+        "unused_custom_error.sol",
+        "0.8.4",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
