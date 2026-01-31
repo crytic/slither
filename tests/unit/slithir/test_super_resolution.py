@@ -3,6 +3,7 @@
 Verifies that super calls in inherited functions are resolved based on the
 inheriting contract's C3 linearization, not the declaring contract's linearization.
 """
+
 from pathlib import Path
 
 from slither import Slither
@@ -38,9 +39,7 @@ def test_super_resolution_diamond_inheritance(solc_binary_path) -> None:
 
     # Get all setValue functions in D's context
     set_value_funcs = {
-        f.contract_declarer.name: f
-        for f in contract_d.functions
-        if f.name == "setValue"
+        f.contract_declarer.name: f for f in contract_d.functions if f.name == "setValue"
     }
 
     # Verify D.setValue super -> C.setValue
