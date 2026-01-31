@@ -98,10 +98,128 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         if result_var is None:
             return
 
+        # Fix signedness for negative literal constants first
+        # This updates metadata to mark negative literals as signed
+        self._fix_negative_literal_signedness(operation, result_var)
+
+        # For constant-only operations, constrain to exact value and set bounds
+        # This provides a fallback when SMT optimization times out
+        const_result = self._try_evaluate_constant_operation(operation)
+        if const_result is not None:
+            bit_width = IntervalSMTUtils.type_bit_width(result_type)
+            const_term = self.solver.create_constant(
+                const_result,
+                Sort(kind=SortKind.BITVEC, parameters=[bit_width])
+            )
+            self.solver.assert_constraint(result_var.term == const_term)
+
+            # Set metadata bounds for fallback when optimization times out
+            # Check if metadata was marked as signed by _fix_negative_literal_signedness
+            is_signed = result_var.base.metadata.get("is_signed", False)
+            if not is_signed:
+                # Fall back to type-based signedness
+                is_signed = IntervalSMTUtils.is_signed_type(result_type)
+
+            if is_signed:
+                # Interpret as signed value
+                if const_result >= (1 << (bit_width - 1)):
+                    signed_value = const_result - (1 << bit_width)
+                else:
+                    signed_value = const_result
+                result_var.base.metadata["min_value"] = signed_value
+                result_var.base.metadata["max_value"] = signed_value
+            else:
+                result_var.base.metadata["min_value"] = const_result
+                result_var.base.metadata["max_value"] = const_result
+
         # Compute and apply the result
         operand_ctx = OperandContext(left_term, right_term, left_name, right_name)
         result_ctx = ResultContext(result_var, result_type, result_name)
         self._compute_and_apply_result(operand_ctx, result_ctx, op_ctx)
+
+    def _try_evaluate_constant_operation(self, operation: Binary) -> Optional[int]:
+        """Try to evaluate a constant-only operation to its concrete value.
+
+        Returns the wrapped bitvector value if both operands are constants,
+        None otherwise.
+        """
+        # Only handle constant-only operations
+        if not isinstance(operation.variable_left, Constant):
+            return None
+        if not isinstance(operation.variable_right, Constant):
+            return None
+
+        left_val = operation.variable_left.value
+        right_val = operation.variable_right.value
+
+        # Check if both are integers
+        if not isinstance(left_val, int) or not isinstance(right_val, int):
+            return None
+
+        # Get bit width from operation type
+        try:
+            lvalue_type = operation.lvalue.type  # type: ignore[attr-defined]
+        except AttributeError:
+            return None
+
+        if not isinstance(lvalue_type, ElementaryType):
+            return None
+
+        bit_width = IntervalSMTUtils.type_bit_width(lvalue_type)
+        modulus = 1 << bit_width
+
+        # Evaluate the operation with wraparound semantics
+        op_type = operation.type
+        if op_type == BinaryType.ADDITION:
+            result = (left_val + right_val) % modulus
+        elif op_type == BinaryType.SUBTRACTION:
+            result = (left_val - right_val) % modulus
+        elif op_type == BinaryType.MULTIPLICATION:
+            result = (left_val * right_val) % modulus
+        else:
+            # Other operations not yet supported for constant evaluation
+            return None
+
+        return result
+
+    def _fix_negative_literal_signedness(
+        self, operation: Binary, result_var: TrackedSMTVariable
+    ) -> None:
+        """Fix signedness metadata for constant subtractions that produce negative literals.
+
+        When Solidity compiles "x - (-5)", it creates IR like:
+            TMP = 0 - 5  (typed as uint256)
+            result = x - TMP
+
+        The intermediate TMP is typed as uint256 but semantically represents -5.
+        We detect this pattern and mark the variable as signed for correct display.
+        """
+        if operation.type != BinaryType.SUBTRACTION:
+            return
+
+        # Only handle constant-only operations
+        if not isinstance(operation.variable_left, Constant):
+            return
+        if not isinstance(operation.variable_right, Constant):
+            return
+
+        left_val = operation.variable_left.value
+        right_val = operation.variable_right.value
+
+        # Check if both are integers
+        if not isinstance(left_val, int) or not isinstance(right_val, int):
+            return
+
+        # If left < right, the result wraps to a negative value
+        # Mark as signed so it displays correctly
+        if left_val < right_val:
+            result_var.base.metadata["is_signed"] = True
+            # Update bounds for signed interpretation
+            bit_width = result_var.base.metadata.get("bit_width", 256)
+            signed_min = -(1 << (bit_width - 1))
+            signed_max = (1 << (bit_width - 1)) - 1
+            result_var.base.metadata["min_value"] = signed_min
+            result_var.base.metadata["max_value"] = signed_max
 
     def _infer_result_type(
         self, operation: Binary, node: "Node"
@@ -223,6 +341,17 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         # Apply constraints
         self.solver.assert_constraint(result_ctx.var.term == raw_expr)
         IntervalSMTUtils.enforce_type_bounds(self.solver, result_ctx.var)
+
+        # For self-multiplication of signed values, add non-negative constraint
+        if (ctx.operation.type == BinaryType.MULTIPLICATION and
+            is_signed and
+            self._is_same_variable(ctx.operation.variable_left, ctx.operation.variable_right)):
+            zero = self.solver.create_constant(
+                0, Sort(kind=SortKind.BITVEC, parameters=[result_width])
+            )
+            self.solver.assert_constraint(self.solver.bv_sge(result_ctx.var.term, zero))
+            # Set min_value for fallback when optimization times out
+            result_ctx.var.base.metadata["min_value"] = 0
 
         self._add_overflow_constraint(result_ctx, left_ext, right_ext, ctx)
 
@@ -425,7 +554,10 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
             domain.variant = DomainVariant.TOP
             return
 
-        # Otherwise, assert no overflow (constraining to valid paths)
+        # Assert no overflow - this constrains input variables to valid ranges
+        # e.g., for x * x, this adds: Not(x != 0 && x > MAX / x)
+        # which constrains x to [0, sqrt(MAX)]
+        solver.assert_constraint(solver.Not(overflow_cond))
         result_var.assert_no_overflow(solver)
 
     def _check_division_by_zero(
@@ -521,7 +653,9 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         op_type = operation.type
 
         if op_type == BinaryType.MULTIPLICATION:
-            return self._detect_mul_overflow(left_term, right_term, result_width, is_signed)
+            return self._detect_mul_overflow(
+                left_term, right_term, result_width, is_signed, operation
+            )
         if op_type == BinaryType.POWER:
             return self._detect_power_overflow(
                 operation, left_term, result_width, is_signed
@@ -539,23 +673,139 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         right_term: SMTTerm,
         result_width: int,
         is_signed: bool,
+        operation: Binary,
     ) -> SMTTerm:
-        """Detect overflow in multiplication operations."""
-        solver = self.solver
-        if is_signed:
-            left_ext = solver.bv_sign_ext(left_term, result_width)
-            right_ext = solver.bv_sign_ext(right_term, result_width)
-        else:
-            left_ext = solver.bv_zero_ext(left_term, result_width)
-            right_ext = solver.bv_zero_ext(right_term, result_width)
+        """Detect overflow in multiplication using division-based check.
 
-        result_ext = left_ext * right_ext
-        lower = solver.bv_extract(result_ext, result_width - 1, 0)
+        Uses the arithmetic property:
+        - Unsigned: overflow iff b != 0 && a > MAX / b
+        - Signed: split by operand signs, compare against MAX/b or MIN/b
+
+        Special case for self-multiplication (a * a):
+        - Use sqrt(MAX) as the bound directly to avoid non-linear constraints
+        """
+        solver = self.solver
+        bv_sort = Sort(kind=SortKind.BITVEC, parameters=[result_width])
+        zero = solver.create_constant(0, bv_sort)
+
+        # Check for self-multiplication (a * a)
+        is_self_mul = self._is_same_variable(operation.variable_left, operation.variable_right)
+
         if is_signed:
-            extended_back = solver.bv_sign_ext(lower, result_width)
-        else:
-            extended_back = solver.bv_zero_ext(lower, result_width)
-        return extended_back != result_ext
+            return self._detect_signed_mul_overflow(
+                solver, left_term, right_term, result_width, zero, is_self_mul
+            )
+        return self._detect_unsigned_mul_overflow(
+            solver, left_term, right_term, result_width, zero, is_self_mul
+        )
+
+    def _is_same_variable(self, left, right) -> bool:
+        """Check if two operands refer to the same variable."""
+        if left is right:
+            return True
+        left_name = IntervalSMTUtils.resolve_variable_name(left)
+        right_name = IntervalSMTUtils.resolve_variable_name(right)
+        if left_name is None or right_name is None:
+            return False
+        # Compare base names (strip SSA suffixes like |x_1)
+        left_base = left_name.split("|")[0] if "|" in left_name else left_name
+        right_base = right_name.split("|")[0] if "|" in right_name else right_name
+        return left_base == right_base
+
+    def _detect_unsigned_mul_overflow(
+        self,
+        solver,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        result_width: int,
+        zero: SMTTerm,
+        is_self_mul: bool = False,
+    ) -> SMTTerm:
+        """Detect unsigned multiplication overflow: b != 0 && a > MAX / b.
+
+        For self-multiplication (a * a), use a > sqrt(MAX) instead to avoid
+        non-linear constraints that SMT solvers can't simplify for range queries.
+        """
+        bv_sort = Sort(kind=SortKind.BITVEC, parameters=[result_width])
+        max_val = solver.create_constant((1 << result_width) - 1, bv_sort)
+
+        if is_self_mul:
+            # For a * a, overflow when a > sqrt(MAX)
+            # sqrt(2^256 - 1) = 2^128 - 1 (approximately)
+            sqrt_max = solver.create_constant((1 << (result_width // 2)) - 1, bv_sort)
+            return solver.bv_ugt(left_term, sqrt_max)
+
+        # b != 0 && a > MAX / b
+        right_nonzero = right_term != zero
+        max_div_right = solver.bv_udiv(max_val, right_term)
+        left_too_large = solver.bv_ugt(left_term, max_div_right)
+
+        return solver.And(right_nonzero, left_too_large)
+
+    def _detect_signed_mul_overflow(
+        self,
+        solver,
+        left_term: SMTTerm,
+        right_term: SMTTerm,
+        result_width: int,
+        zero: SMTTerm,
+        is_self_mul: bool = False,
+    ) -> SMTTerm:
+        """Detect signed multiplication overflow by operand sign cases."""
+        bv_sort = Sort(kind=SortKind.BITVEC, parameters=[result_width])
+        max_val = solver.create_constant((1 << (result_width - 1)) - 1, bv_sort)
+        min_val = solver.create_constant(1 << (result_width - 1), bv_sort)
+
+        if is_self_mul:
+            # For a * a (signed), result is always non-negative
+            # Overflow when |a| > sqrt(MAX)
+            # sqrt(2^255 - 1) ≈ 2^127.5, use 2^127 - 1 conservatively
+            sqrt_max = solver.create_constant((1 << ((result_width - 1) // 2)) - 1, bv_sort)
+            neg_sqrt_max = solver.create_constant(
+                (1 << result_width) - ((1 << ((result_width - 1) // 2)) - 1), bv_sort
+            )
+            # Overflow if a > sqrt_max OR a < -sqrt_max
+            too_positive = solver.bv_sgt(left_term, sqrt_max)
+            too_negative = solver.bv_slt(left_term, neg_sqrt_max)
+            return solver.Or(too_positive, too_negative)
+
+        a_pos = solver.bv_sgt(left_term, zero)
+        a_neg = solver.bv_slt(left_term, zero)
+        b_pos = solver.bv_sgt(right_term, zero)
+        b_neg = solver.bv_slt(right_term, zero)
+
+        # Case 1: a > 0, b > 0 -> overflow if a > MAX / b
+        max_div_b = solver.bv_sdiv(max_val, right_term)
+        case1 = solver.And(
+            solver.And(a_pos, b_pos),
+            solver.bv_sgt(left_term, max_div_b)
+        )
+
+        # Case 2: a > 0, b < 0 -> overflow if b < MIN / a
+        min_div_a = solver.bv_sdiv(min_val, left_term)
+        case2 = solver.And(
+            solver.And(a_pos, b_neg),
+            solver.bv_slt(right_term, min_div_a)
+        )
+
+        # Case 3: a < 0, b > 0 -> overflow if a < MIN / b
+        min_div_b = solver.bv_sdiv(min_val, right_term)
+        case3 = solver.And(
+            solver.And(a_neg, b_pos),
+            solver.bv_slt(left_term, min_div_b)
+        )
+
+        # Case 4: a < 0, b < 0 -> overflow if a < MAX / b (both negative, product positive)
+        max_div_b_neg = solver.bv_sdiv(max_val, right_term)
+        case4 = solver.And(
+            solver.And(a_neg, b_neg),
+            solver.bv_slt(left_term, max_div_b_neg)
+        )
+
+        return solver.Or(
+            solver.Or(case1, case2),
+            solver.Or(case3, case4)
+        )
 
     def _detect_power_overflow(
         self,
@@ -596,26 +846,58 @@ class ArithmeticBinaryHandler(BaseOperationHandler):
         result_width: int,
         is_signed: bool,
     ) -> SMTTerm:
-        """Detect overflow in addition/subtraction operations."""
+        """Detect overflow using bit-level sign properties.
+
+        For signed arithmetic, overflow depends only on sign bits:
+        - Addition overflows when both operands have same sign but result differs
+        - Subtraction overflows when operands differ in sign and result differs from left
+
+        For unsigned arithmetic, overflow is carry/borrow:
+        - Addition overflows if result < operand
+        - Subtraction overflows if left < right
+        """
         solver = self.solver
-        if is_signed:
-            left_ext = solver.bv_sign_ext(left_term, 1)
-            right_ext = solver.bv_sign_ext(right_term, 1)
-        else:
-            left_ext = solver.bv_zero_ext(left_term, 1)
-            right_ext = solver.bv_zero_ext(right_term, 1)
 
         if op_type == BinaryType.ADDITION:
-            result_ext = left_ext + right_ext
+            result = left_term + right_term
         else:
-            result_ext = left_ext - right_ext
+            result = left_term - right_term
 
-        lower = solver.bv_extract(result_ext, result_width - 1, 0)
         if is_signed:
-            extended_back = solver.bv_sign_ext(lower, 1)
+            # Extract sign bits (MSB)
+            msb = result_width - 1
+            a_neg = solver.bv_extract(left_term, msb, msb)
+            b_neg = solver.bv_extract(right_term, msb, msb)
+            r_neg = solver.bv_extract(result, msb, msb)
+
+            bv1_sort = Sort(kind=SortKind.BITVEC, parameters=[1])
+            one = solver.create_constant(1, bv1_sort)
+            zero = solver.create_constant(0, bv1_sort)
+
+            if op_type == BinaryType.ADDITION:
+                # Overflow when: same signs in, different sign out
+                # (a >= 0 && b >= 0 && r < 0) || (a < 0 && b < 0 && r >= 0)
+                both_pos = solver.And(a_neg == zero, b_neg == zero)
+                both_neg = solver.And(a_neg == one, b_neg == one)
+                pos_overflow = solver.And(both_pos, r_neg == one)
+                neg_overflow = solver.And(both_neg, r_neg == zero)
+            else:
+                # Subtraction overflow when: different signs and result sign != left sign
+                # (a >= 0 && b < 0 && r < 0) || (a < 0 && b >= 0 && r >= 0)
+                a_pos_b_neg = solver.And(a_neg == zero, b_neg == one)
+                a_neg_b_pos = solver.And(a_neg == one, b_neg == zero)
+                pos_overflow = solver.And(a_pos_b_neg, r_neg == one)
+                neg_overflow = solver.And(a_neg_b_pos, r_neg == zero)
+
+            return solver.Or(pos_overflow, neg_overflow)
         else:
-            extended_back = solver.bv_zero_ext(lower, 1)
-        return extended_back != result_ext
+            # Unsigned overflow
+            if op_type == BinaryType.ADDITION:
+                # Overflow if result < left (wrapped around)
+                return solver.bv_ult(result, left_term)
+            else:
+                # Underflow if left < right
+                return solver.bv_ult(left_term, right_term)
 
     def _bool_false(self) -> SMTTerm:
         if not hasattr(self, "_bool_false_term"):

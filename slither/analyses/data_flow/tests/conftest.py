@@ -11,6 +11,7 @@ CONTRACTS_DIR = Path(__file__).parent / "contracts"
 TEST_CONTRACTS = [
     "Test_Add.sol",
     "Test_Sub.sol",
+    "Test_Mul.sol",
 ]
 
 
