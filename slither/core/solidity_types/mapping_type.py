@@ -4,14 +4,14 @@ from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.solidity_types.elementary_type import ElementaryType
-    from slither.core.solidity_types.type_alias import TypeAliasTopLevel
+    from slither.core.solidity_types.type_alias import TypeAlias
 
 
 class MappingType(Type):
     def __init__(
         self,
-        type_from: "ElementaryType",
-        type_to: Union["MappingType", "TypeAliasTopLevel", "ElementaryType"],
+        type_from: Union["ElementaryType", "TypeAlias"],
+        type_to: Union["MappingType", "TypeAlias", "ElementaryType"],
     ) -> None:
         assert isinstance(type_from, Type)
         assert isinstance(type_to, Type)

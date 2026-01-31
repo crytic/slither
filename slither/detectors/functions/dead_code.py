@@ -75,6 +75,16 @@ contract Contract{
             # Continue if the function is not implemented because it means the contract is abstract
             if not function.is_implemented:
                 continue
+            # Continue if the function is virtual and is overridden by other functions
+            # This indicates it's part of an inheritance design pattern where the base
+            # implementation provides a default that derived contracts can override
+            # Fixes: https://github.com/crytic/slither/issues/2500
+            if (
+                isinstance(function, FunctionContract)
+                and function.is_virtual
+                and function.overridden_by
+            ):
+                continue
             info: DETECTOR_INFO = [function, " is never used and should be removed\n"]
             res = self.generate_result(info)
             results.append(res)

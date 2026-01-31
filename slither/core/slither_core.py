@@ -16,6 +16,7 @@ from crytic_compile.utils.naming import Filename
 
 from slither.core.declarations.contract_level import ContractLevel
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.exceptions import SlitherException
 from slither.core.context.context import Context
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.top_level import TopLevel
@@ -405,10 +406,9 @@ class SlitherCore(Context):
                             # First item in the array, or the prior item is fully populated.
                             self._ignore_ranges[file][check].append((line_number, float("inf")))
                         else:
-                            logger.error(
+                            raise SlitherException(
                                 f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"
                             )
-                            return
 
             if end_match:
                 ignored = [d.strip() for d in end_match[0].split(",") if d.strip()]
@@ -418,10 +418,9 @@ class SlitherCore(Context):
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
-                            logger.error(
+                            raise SlitherException(
                                 f"slither-disable-end without slither-disable-start in {file}#{line_number}"
                             )
-                            return
                         self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
 
             if next_line_match:

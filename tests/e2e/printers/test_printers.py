@@ -8,6 +8,7 @@ from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
+from slither.printers.call.call_graph import PrinterCallGraph
 from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.inheritance.c3_linearization import PrinterC3Linearization
@@ -57,11 +58,13 @@ def test_inheritance_graph_printer(solc_binary_path) -> None:
 
 
 @pytest.mark.skipif(
-    not foundry_available or not project_ready, reason="requires Foundry and project setup"
+    not foundry_available or not project_ready,
+    reason="requires Foundry and project setup",
 )
 def test_printer_cheatcode():
     slither = Slither(
-        Path(TEST_DATA_DIR, "test_printer_cheatcode").as_posix(), foundry_compile_all=True
+        Path(TEST_DATA_DIR, "test_printer_cheatcode").as_posix(),
+        foundry_compile_all=True,
     )
 
     printer = CheatcodePrinter(slither=slither, logger=None)
@@ -125,6 +128,49 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
         immediate = data["base_to_child"][contract_name]["immediate"]
         # not_immediate should not contain any contracts that are also in immediate
         assert not set(not_immediate) & set(immediate)
+
+
+def test_callgraph_printer_toplevel(solc_binary_path) -> None:
+    """Test that call-graph printer handles top-level functions without crashing (issue #1437)."""
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(
+        Path(TEST_DATA_DIR, "test_callgraph_toplevel", "toplevel.sol").as_posix()
+    )
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    printer = PrinterCallGraph(slither, logger=None)
+    output = printer.output("test_callgraph_toplevel")
+    content = output.elements[0]["name"]["content"]
+
+    # Check that top-level functions are rendered in their own cluster
+    assert "cluster_toplevel" in content
+    assert 'label = "[Top Level]"' in content
+
+    # Check that top-level functions are present as nodes (with full signatures)
+    assert "toplevel_add(uint256,uint256)" in content
+    assert "toplevel_multiply(uint256,uint256)" in content
+    assert "toplevel_calculate(uint256,uint256)" in content
+
+    # Check that calls between top-level functions are rendered
+    # calculate calls add and multiply
+    assert '"toplevel_calculate(uint256,uint256)" -> "toplevel_add(uint256,uint256)"' in content
+    assert (
+        '"toplevel_calculate(uint256,uint256)" -> "toplevel_multiply(uint256,uint256)"' in content
+    )
+
+    # Check that contract-to-top-level call edges are rendered
+    # Calculator.compute calls calculate, Calculator.simpleAdd calls add
+    # Node IDs include contract.id which varies, so we check for the pattern
+    assert '" -> "toplevel_calculate(uint256,uint256)"' in content  # compute -> calculate
+    assert (
+        '" -> "toplevel_add(uint256,uint256)"' in content
+    )  # simpleAdd -> add (and calculate -> add)
+
+    # Clean up generated files
+    Path("test_callgraph_toplevel.all_contracts.call-graph.dot").unlink(missing_ok=True)
+    Path("test_callgraph_toplevel.Calculator.call-graph.dot").unlink(missing_ok=True)
 
 
 def test_c3_linearization_printer(solc_binary_path) -> None:
