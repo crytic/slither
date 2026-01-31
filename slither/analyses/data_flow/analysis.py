@@ -161,12 +161,15 @@ def _solve_range_with_solver(
             term=ctx.smt_var.term,
             extra_constraints=ctx.path_constraints,
             timeout_ms=config.timeout_ms,
+            signed=meta.is_signed,
         )
 
         if min_val is None or max_val is None:
             return None, None
 
         # Decode values according to signedness
+        # Note: solve_range now uses signed optimization, so the raw values
+        # are correctly ordered. _decode_model_value still converts to signed.
         decoded_min = _decode_model_value(min_val, meta)
         decoded_max = _decode_model_value(max_val, meta)
 

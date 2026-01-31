@@ -5,6 +5,7 @@ import time
 from typing import Dict, List, Optional
 
 from z3 import (
+    And as Z3And,
     BitVec,
     BitVecVal,
     Bool,
@@ -288,12 +289,24 @@ class Z3Solver(SMTSolver):
             return terms[0]
         return Or(*terms)
 
+    def And(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a conjunction (AND) of multiple boolean terms."""
+        if not terms:
+            raise ValueError("And() requires at least one term")
+        if len(terms) == 1:
+            return terms[0]
+        return Z3And(*terms)
+
     def Not(self, term: SMTTerm) -> SMTTerm:
         """Create a negation (NOT) of a boolean term."""
         return Z3Not(term)
 
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         return UDiv(left, right)
+
+    def bv_sdiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed division for bitvectors."""
+        return left / right
 
     def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         return URem(left, right)
@@ -429,9 +442,20 @@ class Z3Solver(SMTSolver):
         term: SMTTerm,
         extra_constraints: Optional[list] = None,
         timeout_ms: int = 500,
+        signed: bool = False,
     ) -> tuple[Optional[int], Optional[int]]:
         """Find minimum and maximum values of a bitvector term."""
         from z3 import Optimize, sat
+
+        # For signed optimization, flip sign bit to convert signed ordering to unsigned ordering
+        # This is faster than BV2Int + If because it stays in BV domain
+        # For unsigned, optimize the bitvector directly
+        if signed:
+            width = self.bv_size(term)
+            sign_bit_mask = BitVecVal(1 << (width - 1), width)
+            objective_term = term ^ sign_bit_mask  # Flip sign bit
+        else:
+            objective_term = term
 
         def _optimize_bound(maximize: bool) -> Optional[int]:
             opt = Optimize()
@@ -448,9 +472,9 @@ class Z3Solver(SMTSolver):
 
             # Set objective
             if maximize:
-                opt.maximize(term)
+                opt.maximize(objective_term)
             else:
-                opt.minimize(term)
+                opt.minimize(objective_term)
 
             # Solve
             result = opt.check()

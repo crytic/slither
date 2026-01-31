@@ -97,6 +97,11 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def And(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a conjunction (AND) of multiple boolean terms."""
+        pass
+
+    @abstractmethod
     def Not(self, term: SMTTerm) -> SMTTerm:
         """Create a negation (NOT) of a boolean term."""
         pass
@@ -104,6 +109,11 @@ class SMTSolver(ABC):
     @abstractmethod
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Unsigned division for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sdiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed division for bitvectors."""
         pass
 
     @abstractmethod
@@ -335,6 +345,7 @@ class SMTSolver(ABC):
         term: SMTTerm,
         extra_constraints: Optional[List[SMTTerm]] = None,
         timeout_ms: int = 500,
+        signed: bool = False,
     ) -> tuple[Optional[int], Optional[int]]:
         """Find minimum and maximum values of a bitvector term.
 
@@ -345,6 +356,7 @@ class SMTSolver(ABC):
             term: The bitvector term to optimize.
             extra_constraints: Additional constraints for this query only.
             timeout_ms: Timeout in milliseconds for each optimization.
+            signed: If True, optimize using signed interpretation.
 
         Returns:
             Tuple of (min_value, max_value) as integers, or (None, None) on failure.
