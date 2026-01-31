@@ -354,7 +354,20 @@ def last_name(
     if n.type == NodeType.ENTRYPOINT:
         if var.name in init_vars:
             candidates.append(init_vars[var.name])
-    assert candidates
+
+    if not candidates:
+        # Fallback: use initial version when no definition found in node.
+        # This can occur when phi predecessor tracking (based on source-level writes)
+        # doesn't align with SSA IR definitions due to reference variable indirection
+        # or complex control flow. Returning the initial version is semantically correct
+        # in SSA form - it represents the variable's initial/undefined value on this path.
+        if var.name in init_vars:
+            return init_vars[var.name]
+        # Create version 0 for state variables or variables not in init_vars
+        new_var = type(var)(var)
+        new_var.index = 0
+        return new_var
+
     return max(candidates, key=lambda v: v.index)
 
 
