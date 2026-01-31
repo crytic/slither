@@ -425,3 +425,25 @@ def __default__():
             ElementaryType("address"),
             MappingType(ElementaryType("address"), ElementaryType("uint256")),
         )
+
+
+def test_is_returning_msg_sender(solc_binary_path):
+    solc_path = solc_binary_path("0.8.0")
+    file = Path(FUNC_DELC_TEST_ROOT, "test_returning_msg_sender.sol").as_posix()
+    slither = Slither(file, solc=solc_path)
+    contract = slither.get_contract_from_name("TestReturningMsgSender")[0]
+    functions = contract.available_functions_as_dict()
+
+    # Should return True - direct and aliased returns of msg.sender
+    assert functions["directSender()"].is_returning_msg_sender() is True
+    assert functions["aliasSender()"].is_returning_msg_sender() is True
+    assert functions["multiAliasSender()"].is_returning_msg_sender() is True
+    assert functions["reassignSender()"].is_returning_msg_sender() is True
+    assert functions["_getSender()"].is_returning_msg_sender() is True
+
+    # Should return False - conversions, internal calls, unrelated returns
+    assert functions["conversionSender()"].is_returning_msg_sender() is False
+    assert functions["returnsViaInternal()"].is_returning_msg_sender() is False
+    assert functions["unrelatedReturn()"].is_returning_msg_sender() is False
+    assert functions["notMsgSender()"].is_returning_msg_sender() is False
+    assert functions["notAddress()"].is_returning_msg_sender() is False
