@@ -185,34 +185,39 @@ def _find_in_contract(
         return conc_variables_ptr[var_name]
 
     if is_super:
-        getter_available = lambda f: f.functions_declared
-        d = {f.canonical_name: f for f in contract.functions}
-        functions = {
-            f.full_name: f
-            for f in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
-            ).values()
-        }
+        # For super calls, resolve based on the inheriting contract's C3 linearization
+        # starting from the position after the declaring contract
+        linearization = list(contract.inheritance) if contract else []
+
+        # Find starting position in linearization
+        start_idx = 0
+        if contract_declarer and contract_declarer != contract:
+            try:
+                start_idx = linearization.index(contract_declarer) + 1
+            except ValueError:
+                pass  # contract_declarer not in linearization, start from beginning
+
+        # Search through parents in C3 order for functions
+        for parent in linearization[start_idx:]:
+            for func in parent.functions_declared:
+                if func.full_name == var_name:
+                    return func
+
+        # Search through parents in C3 order for modifiers
+        for parent in linearization[start_idx:]:
+            for mod in parent.modifiers_declared:
+                if mod.full_name == var_name:
+                    return mod
     else:
         functions = {f.full_name: f for f in contract.functions if not f.is_shadowed}
-    if var_name in functions:
-        return functions[var_name]
+        if var_name in functions:
+            return functions[var_name]
 
-    if is_super:
-        getter_available = lambda m: m.modifiers_declared
-        d = {m.canonical_name: m for m in contract.modifiers}
-        modifiers = {
-            m.full_name: m
-            for m in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
-            ).values()
-        }
-    else:
         modifiers = contract.available_modifiers_as_dict()
-    if var_name in modifiers:
-        return modifiers[var_name]
+        if var_name in modifiers:
+            return modifiers[var_name]
 
-    if is_identifier_path:
+    if is_identifier_path and not is_super:
         for sig, modifier in modifiers.items():
             if "(" in sig:
                 sig = sig[0 : sig.find("(")]
