@@ -37,7 +37,7 @@ When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in
 - phi_callback
 - ~~return_operation~~
 - send
-- solidity_call
+- ~~solidity_call~~
 - transfer
 - ~~type_conversion~~
 - ~~unary~~
