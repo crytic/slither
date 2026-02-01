@@ -17,6 +17,7 @@ TEST_CONTRACTS = [
     "Test_Mod.sol",
     "Test_Shift.sol",
     "Test_Unary.sol",
+    "Test_TypeConversion.sol",
 ]
 
 
