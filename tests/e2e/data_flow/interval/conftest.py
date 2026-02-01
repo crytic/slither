@@ -20,6 +20,7 @@ TEST_CONTRACTS = [
     "Test_TypeConversion.sol",
     "Test_Comparison.sol",
     "Test_RequireAssert.sol",
+    "Test_LibraryCall.sol",
 ]
 
 

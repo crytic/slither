@@ -362,9 +362,15 @@ def _should_skip_var_json(
 ) -> bool:
     """Check if variable should be skipped for JSON output.
 
-    JSON output includes everything - only skip duplicates.
+    JSON output includes everything except:
+    - Duplicates
+    - Internal library call variables (prefixed with _lib)
     """
-    return var_name in existing
+    if var_name in existing:
+        return True
+    if var_name.startswith("_lib"):
+        return True
+    return False
 
 
 def analyze_function(
@@ -558,6 +564,10 @@ def _should_skip_variable(
     var_name: str, used_vars: set[str], show_all: bool = False
 ) -> bool:
     """Check if variable should be skipped from annotations."""
+    # Always skip internal library call variables
+    if var_name.startswith("_lib"):
+        return True
+
     # In show_all mode, only skip unused variables
     if show_all:
         return var_name not in used_vars
