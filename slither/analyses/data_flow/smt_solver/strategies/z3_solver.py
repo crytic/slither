@@ -10,6 +10,14 @@ from z3 import (
     BitVecVal,
     Bool,
     BV2Int,
+    BVAddNoOverflow,
+    BVAddNoUnderflow,
+    BVMulNoOverflow,
+    BVMulNoUnderflow,
+    BVSDivNoOverflow,
+    BVSNegNoOverflow,
+    BVSubNoOverflow,
+    BVSubNoUnderflow,
     Concat,
     Extract,
     If,
@@ -19,6 +27,7 @@ from z3 import (
     Or,
     SignExt,
     Solver,
+    SRem,
     UDiv,
     UGE,
     UGT,
@@ -301,7 +310,28 @@ class Z3Solver(SMTSolver):
         """Create a negation (NOT) of a boolean term."""
         return Z3Not(term)
 
+    # ========================================================================
+    # Bitvector Arithmetic Operations
+    # ========================================================================
+
+    def bv_add(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement addition for bitvectors."""
+        return left + right
+
+    def bv_sub(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement subtraction for bitvectors."""
+        return left - right
+
+    def bv_mul(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement multiplication for bitvectors."""
+        return left * right
+
+    def bv_neg(self, term: SMTTerm) -> SMTTerm:
+        """Two's complement negation for bitvectors."""
+        return -term
+
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned division for bitvectors."""
         return UDiv(left, right)
 
     def bv_sdiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
@@ -309,10 +339,76 @@ class Z3Solver(SMTSolver):
         return left / right
 
     def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned remainder for bitvectors."""
         return URem(left, right)
 
+    def bv_srem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed remainder for bitvectors (sign follows dividend)."""
+        return SRem(left, right)
+
+    def bv_shl(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Left shift for bitvectors."""
+        return left << right
+
     def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Logical right shift for bitvectors."""
         return LShR(left, right)
+
+    def bv_ashr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Arithmetic right shift for bitvectors (sign-preserving)."""
+        return left >> right
+
+    # ========================================================================
+    # Bitvector Bitwise Operations
+    # ========================================================================
+
+    def bv_and(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise AND for bitvectors."""
+        return left & right
+
+    def bv_or(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise OR for bitvectors."""
+        return left | right
+
+    def bv_xor(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise XOR for bitvectors."""
+        return left ^ right
+
+    # ========================================================================
+    # Bitvector Overflow/Underflow Detection
+    # ========================================================================
+
+    def bv_add_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if addition does not overflow."""
+        return BVAddNoOverflow(left, right, signed)
+
+    def bv_add_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed addition does not underflow."""
+        return BVAddNoUnderflow(left, right)
+
+    def bv_sub_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed subtraction does not overflow."""
+        return BVSubNoOverflow(left, right)
+
+    def bv_sub_no_underflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if subtraction does not underflow."""
+        return BVSubNoUnderflow(left, right, signed)
+
+    def bv_mul_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if multiplication does not overflow."""
+        return BVMulNoOverflow(left, right, signed)
+
+    def bv_mul_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed multiplication does not underflow."""
+        return BVMulNoUnderflow(left, right)
+
+    def bv_sdiv_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed division does not overflow."""
+        return BVSDivNoOverflow(left, right)
+
+    def bv_neg_no_overflow(self, term: SMTTerm) -> SMTTerm:
+        """Returns True if negation does not overflow."""
+        return BVSNegNoOverflow(term)
 
     def bv_sign_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
         """Sign-extend a bitvector by extra_bits."""

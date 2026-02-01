@@ -106,6 +106,30 @@ class SMTSolver(ABC):
         """Create a negation (NOT) of a boolean term."""
         pass
 
+    # ========================================================================
+    # Bitvector Arithmetic Operations
+    # ========================================================================
+
+    @abstractmethod
+    def bv_add(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement addition for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sub(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement subtraction for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_mul(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement multiplication for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_neg(self, term: SMTTerm) -> SMTTerm:
+        """Two's complement negation for bitvectors."""
+        pass
+
     @abstractmethod
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Unsigned division for bitvectors."""
@@ -122,8 +146,86 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_srem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed remainder for bitvectors (sign follows dividend)."""
+        pass
+
+    @abstractmethod
+    def bv_shl(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Left shift for bitvectors."""
+        pass
+
+    @abstractmethod
     def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Logical right shift for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_ashr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Arithmetic right shift for bitvectors (sign-preserving)."""
+        pass
+
+    # ========================================================================
+    # Bitvector Bitwise Operations
+    # ========================================================================
+
+    @abstractmethod
+    def bv_and(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise AND for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_or(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise OR for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_xor(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise XOR for bitvectors."""
+        pass
+
+    # ========================================================================
+    # Bitvector Overflow/Underflow Detection
+    # ========================================================================
+
+    @abstractmethod
+    def bv_add_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if addition does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_add_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed addition does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_sub_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed subtraction does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_sub_no_underflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if subtraction does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_mul_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if multiplication does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_mul_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed multiplication does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_sdiv_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed division does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_neg_no_overflow(self, term: SMTTerm) -> SMTTerm:
+        """Returns True if negation does not overflow."""
         pass
 
     @abstractmethod

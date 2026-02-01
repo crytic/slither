@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable
 
-from slither.core.solidity_types.elementary_type import ElementaryType, Int
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables.constant import Constant
-from slither.slithir.utils.utils import LVALUE, RVALUE
+from slither.slithir.utils.utils import RVALUE
 
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
@@ -17,6 +17,12 @@ from slither.analyses.data_flow.analyses.interval.operations.base import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
     match_width_to_int,
+)
+from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_variable_name,
+    is_signed_type,
+    get_bit_width,
+    constant_to_term,
 )
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -74,11 +80,11 @@ class ArithmeticHandler(BaseOperationHandler):
         if result_type is None:
             return
 
-        result_name = self._get_variable_name(operation.lvalue)
-        bit_width = self._get_bit_width(result_type)
-        is_signed, both_constants = self._determine_signedness(operation, result_type)
+        result_name = get_variable_name(operation.lvalue)
+        bit_width = get_bit_width(result_type)
+        signed, both_constants = self._determine_signedness(operation, result_type)
 
-        result_var = self._create_result_variable(result_name, bit_width, is_signed)
+        result_var = self._create_result_variable(result_name, bit_width, signed)
         left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
         right_term = self._resolve_operand(operation.variable_right, domain, bit_width)
 
@@ -91,12 +97,12 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.assert_constraint(result_var.term == result_term)
 
         overflow_predicates = self._compute_overflow_predicates(
-            operation.type, left_term, right_term, is_signed, both_constants
+            operation.type, left_term, right_term, signed, both_constants
         )
 
         should_check = node.scope.is_checked and result_term is not None and not both_constants
         if should_check:
-            context = ConstraintContext(left_term, right_term, result_term, is_signed, bit_width)
+            context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
             self._assert_checked_constraints(operation.type, context)
 
         result_var = result_var.with_overflow_predicates(**overflow_predicates)
@@ -108,14 +114,14 @@ class ArithmeticHandler(BaseOperationHandler):
         result_type: ElementaryType,
     ) -> tuple[bool, bool]:
         """Determine signedness and whether both operands are constants."""
-        is_signed = self._is_signed_type(result_type)
+        signed = is_signed_type(result_type)
         both_constants = (
             isinstance(operation.variable_left, Constant)
             and isinstance(operation.variable_right, Constant)
         )
         if both_constants and operation.type == BinaryType.SUBTRACTION:
-            is_signed = self._check_constant_subtraction_signed(operation, is_signed)
-        return is_signed, both_constants
+            signed = self._check_constant_subtraction_signed(operation, signed)
+        return signed, both_constants
 
     def _create_result_variable(
         self,
@@ -260,30 +266,12 @@ class ArithmeticHandler(BaseOperationHandler):
             no_underflow = self.solver.bv_mul_no_underflow(context.left, context.right)
             self.solver.assert_constraint(no_underflow)
 
-    def _get_variable_name(self, variable: LVALUE | RVALUE) -> str:
-        """Get the name for a variable, handling SSA and temporary variables."""
-        ssa_name = getattr(variable, "ssa_name", None)
-        if ssa_name is not None:
-            return ssa_name
-        return variable.name
-
     def _get_result_type(self, operation: Binary) -> ElementaryType | None:
         """Get the result type from the operation."""
         lvalue_type = operation.lvalue.type
         if isinstance(lvalue_type, ElementaryType):
             return lvalue_type
         return None
-
-    def _get_bit_width(self, element_type: ElementaryType) -> int:
-        """Get bit width for an elementary type."""
-        type_str = element_type.type
-        if type_str in ("uint", "int"):
-            return 256
-        if type_str.startswith("uint"):
-            return int(type_str[4:])
-        if type_str.startswith("int"):
-            return int(type_str[3:])
-        return 256
 
     def _resolve_operand(
         self,
@@ -302,30 +290,65 @@ class ArithmeticHandler(BaseOperationHandler):
             SMT term for the operand, or None if unsupported
 
         Raises:
-            ValueError: If operand is a variable not found in state
+            ValueError: If operand is a variable not found in state and not a parameter
         """
         if isinstance(operand, Constant):
             return self._constant_to_term(operand, target_width)
 
-        operand_name = self._get_variable_name(operand)
+        operand_name = get_variable_name(operand)
         tracked = domain.state.get_variable(operand_name)
 
-        if tracked is None:
-            logger.error_and_raise(
-                f"Variable '{operand_name}' not found in state", ValueError
-            )
+        if tracked is not None:
+            return match_width_to_int(self.solver, tracked.term, target_width)
 
-        return match_width_to_int(self.solver, tracked.term, target_width)
+        # Variable not in state - check if it's a function parameter
+        tracked = self._try_create_parameter_variable(operand, operand_name, domain)
+        if tracked is not None:
+            return match_width_to_int(self.solver, tracked.term, target_width)
+
+        logger.error_and_raise(
+            f"Variable '{operand_name}' not found in state", ValueError
+        )
+        return None
+
+    def _try_create_parameter_variable(
+        self,
+        operand: RVALUE,
+        operand_name: str,
+        domain: "IntervalDomain",
+    ) -> TrackedSMTVariable | None:
+        """Create a tracked variable for a function parameter if applicable."""
+        non_ssa = getattr(operand, "non_ssa_version", None)
+        if non_ssa is None:
+            return None
+
+        function = getattr(non_ssa, "function", None)
+        if function is None:
+            return None
+
+        if non_ssa not in function.parameters:
+            return None
+
+        operand_type = operand.type
+        if not isinstance(operand_type, ElementaryType):
+            return None
+
+        bit_width = get_bit_width(operand_type)
+        signed = is_signed_type(operand_type)
+        sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
+
+        tracked = TrackedSMTVariable.create(
+            self.solver, operand_name, sort, is_signed=signed, bit_width=bit_width
+        )
+        domain.state.set_variable(operand_name, tracked)
+        return tracked
 
     def _constant_to_term(self, constant: Constant, bit_width: int) -> SMTTerm | None:
         """Convert a constant to an SMT term."""
         value = constant.value
         if not isinstance(value, (int, bool)):
             return None
-
-        int_value = 1 if value is True else (0 if value is False else value)
-        sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
-        return self.solver.create_constant(int_value, sort)
+        return constant_to_term(self.solver, value, bit_width)
 
     def _compute_result(
         self,
@@ -335,16 +358,16 @@ class ArithmeticHandler(BaseOperationHandler):
         result_type: ElementaryType,
     ) -> SMTTerm | None:
         """Compute the result term for the operation."""
-        is_signed = self._is_signed_type(result_type)
+        signed = is_signed_type(result_type)
 
         dispatch: dict[BinaryType, Callable[[], SMTTerm]] = {
             BinaryType.ADDITION: lambda: self.solver.bv_add(left, right),
             BinaryType.SUBTRACTION: lambda: self.solver.bv_sub(left, right),
             BinaryType.MULTIPLICATION: lambda: self.solver.bv_mul(left, right),
-            BinaryType.DIVISION: lambda: self._division(left, right, is_signed),
-            BinaryType.MODULO: lambda: self._modulo(left, right, is_signed),
+            BinaryType.DIVISION: lambda: self._division(left, right, signed),
+            BinaryType.MODULO: lambda: self._modulo(left, right, signed),
             BinaryType.LEFT_SHIFT: lambda: self.solver.bv_shl(left, right),
-            BinaryType.RIGHT_SHIFT: lambda: self._right_shift(left, right, is_signed),
+            BinaryType.RIGHT_SHIFT: lambda: self._right_shift(left, right, signed),
             BinaryType.AND: lambda: self.solver.bv_and(left, right),
             BinaryType.OR: lambda: self.solver.bv_or(left, right),
             BinaryType.CARET: lambda: self.solver.bv_xor(left, right),
@@ -355,10 +378,6 @@ class ArithmeticHandler(BaseOperationHandler):
         if handler is None:
             return None
         return handler()
-
-    def _is_signed_type(self, element_type: ElementaryType) -> bool:
-        """Check if the type is signed."""
-        return element_type.type in Int
 
     def _get_overflow_predicates(
         self,

@@ -51,35 +51,35 @@ contract Test_Assignment {
         return x;
     }
 
-    // ===== Signed Integer Types (positive values only - no Binary op) =====
+    // ===== Signed Integer Types (negative values - uses Binary subtraction) =====
 
-    /// @dev int8 assignment (8-bit signed, positive)
-    function test_int8() public pure returns (int8) {
-        int8 x = 127;
+    /// @dev int8 assignment (8-bit signed, negative)
+    function test_int8_negative() public pure returns (int8) {
+        int8 x = -128;
         return x;
     }
 
-    /// @dev int16 assignment (16-bit signed, positive)
-    function test_int16() public pure returns (int16) {
-        int16 x = 32767;
+    /// @dev int16 assignment (16-bit signed, negative)
+    function test_int16_negative() public pure returns (int16) {
+        int16 x = -32768;
         return x;
     }
 
-    /// @dev int64 assignment (64-bit signed, positive)
-    function test_int64() public pure returns (int64) {
-        int64 x = 1000000;
+    /// @dev int64 assignment (64-bit signed, negative)
+    function test_int64_negative() public pure returns (int64) {
+        int64 x = -1000000;
         return x;
     }
 
-    /// @dev int128 assignment (128-bit signed, positive)
-    function test_int128() public pure returns (int128) {
-        int128 x = 170141183460469231731687303715884105727;
+    /// @dev int128 assignment (128-bit signed, negative)
+    function test_int128_negative() public pure returns (int128) {
+        int128 x = -170141183460469231731687303715884105728;
         return x;
     }
 
-    /// @dev int256 assignment (256-bit signed, positive)
-    function test_int256() public pure returns (int256) {
-        int256 x = 1;
+    /// @dev int256 assignment (256-bit signed, negative)
+    function test_int256_negative() public pure returns (int256) {
+        int256 x = -1;
         return x;
     }
 

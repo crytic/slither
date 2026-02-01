@@ -80,43 +80,63 @@
         }
       }
     },
-    "test_int128": {
+    "test_int128_negative": {
       "variables": {
+        "TMP_3": {
+          "overflow": "NO",
+          "range": "[-170141183460469231731687303715884105728, -170141183460469231731687303715884105728]"
+        },
         "x_1": {
           "overflow": "NO",
-          "range": "[170141183460469231731687303715884105727, 170141183460469231731687303715884105727]"
+          "range": "[-170141183460469231731687303715884105728, -170141183460469231731687303715884105728]"
         }
       }
     },
-    "test_int16": {
+    "test_int16_negative": {
       "variables": {
+        "TMP_1": {
+          "overflow": "NO",
+          "range": "[-32768, -32768]"
+        },
         "x_1": {
           "overflow": "NO",
-          "range": "[32767, 32767]"
+          "range": "[-32768, -32768]"
         }
       }
     },
-    "test_int256": {
+    "test_int256_negative": {
       "variables": {
+        "TMP_4": {
+          "overflow": "NO",
+          "range": "[-1, -1]"
+        },
         "x_1": {
           "overflow": "NO",
-          "range": "[1, 1]"
+          "range": "[-1, -1]"
         }
       }
     },
-    "test_int64": {
+    "test_int64_negative": {
       "variables": {
+        "TMP_2": {
+          "overflow": "NO",
+          "range": "[-1000000, -1000000]"
+        },
         "x_1": {
           "overflow": "NO",
-          "range": "[1000000, 1000000]"
+          "range": "[-1000000, -1000000]"
         }
       }
     },
-    "test_int8": {
+    "test_int8_negative": {
       "variables": {
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[-128, -128]"
+        },
         "x_1": {
           "overflow": "NO",
-          "range": "[127, 127]"
+          "range": "[-128, -128]"
         }
       }
     },

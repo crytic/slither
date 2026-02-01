@@ -57,17 +57,11 @@ class IntervalAnalysis(Analysis):
             return
 
         if domain.variant == DomainVariant.BOTTOM:
-            self._initialize_domain_from_bottom(node, domain)
-            self._dispatch_operation(operation, domain, node)
-            return
+            self._initialize_domain_from_bottom(domain)
 
         self._dispatch_operation(operation, domain, node)
 
-    def _initialize_domain_from_bottom(
-        self,
-        node: Node,
-        domain: IntervalDomain,
-    ) -> None:
+    def _initialize_domain_from_bottom(self, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom."""
         domain.variant = DomainVariant.STATE
         domain.state = State({})

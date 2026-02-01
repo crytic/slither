@@ -8,7 +8,7 @@ from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
 )
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry, SolverTelemetry
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
-from slither.analyses.data_flow.smt_solver.types import SMTTerm
+from slither.analyses.data_flow.smt_solver.types import CheckSatResult, SMTTerm
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
@@ -48,6 +48,46 @@ class RangeSolveContext:
     path_constraints: Optional[List[SMTTerm]]
     telemetry: Optional[SolverTelemetry]
     cache: Optional["RangeQueryCache"]
+
+
+def _check_overflow_possible(
+    solver: SMTSolver,
+    smt_var: TrackedSMTVariable,
+    path_constraints: Optional[List[SMTTerm]] = None,
+) -> bool:
+    """Check if overflow or underflow is possible for a variable.
+
+    Tests whether Not(no_overflow) or Not(no_underflow) is satisfiable
+    given the current constraints.
+
+    Returns:
+        True if overflow/underflow is possible, False otherwise.
+    """
+    if smt_var.no_overflow is None and smt_var.no_underflow is None:
+        return False
+
+    solver.push()
+    try:
+        if path_constraints:
+            for constraint in path_constraints:
+                solver.assert_constraint(constraint)
+
+        predicates_to_check: list[SMTTerm] = []
+        if smt_var.no_overflow is not None:
+            predicates_to_check.append(solver.Not(smt_var.no_overflow))
+        if smt_var.no_underflow is not None:
+            predicates_to_check.append(solver.Not(smt_var.no_underflow))
+
+        if not predicates_to_check:
+            return False
+
+        overflow_possible = solver.Or(*predicates_to_check)
+        solver.assert_constraint(overflow_possible)
+
+        result = solver.check_sat()
+        return result == CheckSatResult.SAT
+    finally:
+        solver.pop()
 
 
 # =============================================================================
@@ -107,8 +147,8 @@ def _get_fallback_range(meta: VariableMetadata) -> tuple[Dict, Dict]:
     if meta.max_bound is not None:
         fallback_max = meta.max_bound
     return (
-        {"value": fallback_min, "overflow": False, "overflow_amount": 0},
-        {"value": fallback_max, "overflow": False, "overflow_amount": 0},
+        {"value": fallback_min, "overflow": False},
+        {"value": fallback_max, "overflow": False},
     )
 
 
@@ -126,6 +166,16 @@ def _build_cache_key(
     return var_id, tuple(constraint_strs)
 
 
+def _cached_value_to_dict(val: Any) -> Dict:
+    """Convert a cached value to a result dictionary."""
+    if isinstance(val, dict):
+        return {
+            "value": val.get("value"),
+            "overflow": val.get("overflow", False),
+        }
+    return {"value": val, "overflow": False}
+
+
 def _unpack_cached_result(
     cached_result: tuple,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
@@ -134,16 +184,7 @@ def _unpack_cached_result(
     if min_val is None or max_val is None:
         return None, None
 
-    def _to_dict(val: Any) -> Dict:
-        if isinstance(val, dict):
-            return {
-                "value": val.get("value"),
-                "overflow": val.get("overflow", False),
-                "overflow_amount": val.get("overflow_amount", 0),
-            }
-        return {"value": val, "overflow": False, "overflow_amount": 0}
-
-    return _to_dict(min_val), _to_dict(max_val)
+    return _cached_value_to_dict(min_val), _cached_value_to_dict(max_val)
 
 
 def _solve_range_with_solver(
@@ -173,11 +214,16 @@ def _solve_range_with_solver(
         decoded_min = _decode_model_value(min_val, meta)
         decoded_max = _decode_model_value(max_val, meta)
 
-        min_result = {"value": decoded_min, "overflow": False, "overflow_amount": 0}
-        max_result = {"value": decoded_max, "overflow": False, "overflow_amount": 0}
+        # Check if overflow is possible given constraints
+        has_overflow = _check_overflow_possible(
+            ctx.solver, ctx.smt_var, ctx.path_constraints
+        )
+
+        min_result = {"value": decoded_min, "overflow": has_overflow}
+        max_result = {"value": decoded_max, "overflow": has_overflow}
 
         return min_result, max_result
-    except Exception:
+    except (ValueError, TypeError, RuntimeError):
         return None, None
 
 
@@ -201,8 +247,7 @@ def solve_variable_range(
     Returns:
         Tuple of (min_result, max_result) dictionaries with keys:
         - value: The integer value
-        - overflow: Boolean indicating overflow
-        - overflow_amount: Amount of overflow if any
+        - overflow: Boolean indicating if overflow/underflow is possible
     """
     if config is None:
         config = RangeQueryConfig()
