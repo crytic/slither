@@ -1,0 +1,292 @@
+{
+  "Test_RequireAssert": {
+    "test_assert_gt_zero": {
+      "variables": {
+        "TMP_26": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_assert_lt": {
+      "variables": {
+        "TMP_28": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 99]"
+        }
+      }
+    },
+    "test_impossible_assert": {
+      "variables": {
+        "x_2": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        }
+      }
+    },
+    "test_impossible_contradiction": {
+      "variables": {
+        "TMP_53": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        }
+      }
+    },
+    "test_impossible_gt": {
+      "variables": {
+        "x_2": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        }
+      }
+    },
+    "test_impossible_lt": {
+      "variables": {
+        "x_2": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        }
+      }
+    },
+    "test_impossible_neq": {
+      "variables": {
+        "x_2": {
+          "overflow": "NO",
+          "range": "\u22a5 (unreachable)"
+        }
+      }
+    },
+    "test_require_bounded": {
+      "variables": {
+        "TMP_16": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "TMP_18": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[5, 10]"
+        }
+      }
+    },
+    "test_require_eq": {
+      "variables": {
+        "TMP_8": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "test_require_equal_vars": {
+      "variables": {
+        "TMP_43": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "y_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_require_expr_add": {
+      "variables": {
+        "TMP_20": {
+          "overflow": "NO",
+          "range": "[6, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "TMP_21": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[5, 115792089237316195423570985008687907853269984665640564039457584007913129639934]"
+        }
+      }
+    },
+    "test_require_expr_mul": {
+      "variables": {
+        "TMP_23": {
+          "overflow": "NO",
+          "range": "[0, 98]"
+        },
+        "TMP_24": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 49]"
+        }
+      }
+    },
+    "test_require_gt_zero": {
+      "variables": {
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_require_gte": {
+      "variables": {
+        "TMP_4": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_require_lt_constant": {
+      "variables": {
+        "TMP_2": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 99]"
+        }
+      }
+    },
+    "test_require_lte": {
+      "variables": {
+        "TMP_6": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 50]"
+        }
+      }
+    },
+    "test_require_neq_zero": {
+      "variables": {
+        "TMP_10": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_require_range": {
+      "variables": {
+        "TMP_12": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "TMP_14": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[11, 19]"
+        }
+      }
+    },
+    "test_require_signed_gt": {
+      "variables": {
+        "TMP_30": {
+          "overflow": "NO",
+          "range": "[-10, -10]"
+        },
+        "TMP_31": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[-9, 57896044618658097711785492504343953926634992332820282019728792003956564819967]"
+        }
+      }
+    },
+    "test_require_signed_negative": {
+      "variables": {
+        "TMP_33": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[-57896044618658097711785492504343953926634992332820282019728792003956564819968, -1]"
+        }
+      }
+    },
+    "test_require_signed_range": {
+      "variables": {
+        "TMP_35": {
+          "overflow": "NO",
+          "range": "[-5, -5]"
+        },
+        "TMP_36": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "TMP_38": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[-5, 5]"
+        }
+      }
+    },
+    "test_require_two_vars": {
+      "variables": {
+        "TMP_40": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "TMP_42": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 57896044618658097711785492504343953926634992332820282019728792003956564819967]"
+        },
+        "y_1": {
+          "overflow": "NO",
+          "range": "[1, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    }
+  }
+}

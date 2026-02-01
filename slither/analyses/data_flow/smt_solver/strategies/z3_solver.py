@@ -46,6 +46,7 @@ from z3 import (
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.types import (
     CheckSatResult,
+    RangeSolveStatus,
     SMTTerm,
     SMTVariable,
     Sort,
@@ -539,9 +540,22 @@ class Z3Solver(SMTSolver):
         extra_constraints: Optional[list] = None,
         timeout_ms: int = 500,
         signed: bool = False,
-    ) -> tuple[Optional[int], Optional[int]]:
-        """Find minimum and maximum values of a bitvector term."""
-        from z3 import Optimize, sat
+    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
+        """Find minimum and maximum values of a bitvector term.
+
+        Returns:
+            Tuple of (status, min_value, max_value).
+            - SUCCESS: Range computed, min/max are valid integers.
+            - UNSAT: Constraints unsatisfiable (unreachable path), min/max are None.
+            - TIMEOUT/ERROR: Could not compute, min/max are None.
+        """
+        from z3 import Optimize, sat, unsat
+
+        # Quick check for unsatisfiability (only return UNSAT if certain)
+        sat_check = self._quick_sat_check(extra_constraints, timeout_ms)
+        if sat_check == unsat:
+            return RangeSolveStatus.UNSAT, None, None
+        # For sat or unknown, proceed with optimization
 
         # For signed optimization, flip sign bit to convert signed ordering to unsigned ordering
         # This is faster than BV2Int + If because it stays in BV domain
@@ -588,7 +602,31 @@ class Z3Solver(SMTSolver):
 
         min_val = _optimize_bound(maximize=False)
         max_val = _optimize_bound(maximize=True)
-        return min_val, max_val
+
+        if min_val is None or max_val is None:
+            return RangeSolveStatus.ERROR, None, None
+
+        return RangeSolveStatus.SUCCESS, min_val, max_val
+
+    def _quick_sat_check(
+        self,
+        extra_constraints: Optional[list],
+        timeout_ms: int,
+    ) -> object:
+        """Quick satisfiability check before optimization."""
+        from z3 import Solver
+
+        solver = Solver()
+        solver.set("timeout", min(timeout_ms, 100))  # Use shorter timeout for quick check
+
+        for assertion in self.solver.assertions():
+            solver.add(assertion)
+
+        if extra_constraints:
+            for constraint in extra_constraints:
+                solver.add(constraint)
+
+        return solver.check()
 
     def eval_in_model(self, term: SMTTerm) -> Optional[int]:
         """Evaluate a term in the current model and return its integer value."""

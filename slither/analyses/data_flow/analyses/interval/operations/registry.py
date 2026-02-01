@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.unary import Unary
 
@@ -29,6 +30,9 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
 from slither.analyses.data_flow.analyses.interval.operations.unary import (
     UnaryHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
+    SolidityCallHandler,
+)
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
@@ -49,6 +53,7 @@ class OperationHandlerRegistry:
         self._handlers[Assignment] = AssignmentHandler(self._solver)
         self._handlers[Binary] = BinaryHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
+        self._handlers[SolidityCall] = SolidityCallHandler(self._solver)
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)
         self._handlers[Unary] = UnaryHandler(self._solver)
 

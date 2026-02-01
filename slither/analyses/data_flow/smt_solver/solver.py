@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-from .types import SMTVariable, Sort, CheckSatResult, SMTTerm
+from .types import SMTVariable, Sort, CheckSatResult, RangeSolveStatus, SMTTerm
 
 
 class SMTSolver(ABC):
@@ -448,7 +448,7 @@ class SMTSolver(ABC):
         extra_constraints: Optional[List[SMTTerm]] = None,
         timeout_ms: int = 500,
         signed: bool = False,
-    ) -> tuple[Optional[int], Optional[int]]:
+    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
         """Find minimum and maximum values of a bitvector term.
 
         Creates a fresh optimizer context, copies current assertions,
@@ -461,7 +461,10 @@ class SMTSolver(ABC):
             signed: If True, optimize using signed interpretation.
 
         Returns:
-            Tuple of (min_value, max_value) as integers, or (None, None) on failure.
+            Tuple of (status, min_value, max_value).
+            - SUCCESS: Range computed successfully.
+            - UNSAT: Constraints unsatisfiable (unreachable path).
+            - TIMEOUT/ERROR: Could not compute range.
         """
         pass
 

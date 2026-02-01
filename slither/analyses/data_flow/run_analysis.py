@@ -301,6 +301,14 @@ def _analyze_function_json(
             if not min_result or not max_result:
                 continue
 
+            # Handle unreachable paths
+            if min_result.get("unreachable"):
+                variables[var_name] = {
+                    "range": "⊥ (unreachable)",
+                    "overflow": "NO",
+                }
+                continue
+
             min_val = min_result["value"]
             max_val = max_result["value"]
             has_overflow = min_result.get("overflow", False) or max_result.get(
@@ -647,6 +655,20 @@ def _create_annotation(
 
     if not min_result or not max_result:
         return None
+
+    # Check for unreachable path
+    if min_result.get("unreachable"):
+        display_name = _simplify_var_name(var_name, keep_ssa=config.show_ssa)
+        if var_name.startswith("TMP_") and tmp_expressions:
+            expr = tmp_expressions.get(var_name)
+            if expr:
+                display_name = f"{display_name} = {expr}"
+        return LineAnnotation(
+            variable_name=display_name,
+            range_min="⊥",
+            range_max="⊥",
+            constraints="(unreachable)",
+        )
 
     min_val = min_result["value"]
     max_val = max_result["value"]

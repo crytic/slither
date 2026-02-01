@@ -193,19 +193,25 @@ def _solve_range_with_solver(
     config: RangeQueryConfig,
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """Use solver's range solving to find min/max values."""
+    from slither.analyses.data_flow.smt_solver.types import RangeSolveStatus
+
     if ctx.telemetry:
         ctx.telemetry.count("optimize_min")
         ctx.telemetry.count("optimize_max")
 
     try:
-        min_val, max_val = ctx.solver.solve_range(
+        status, min_val, max_val = ctx.solver.solve_range(
             term=ctx.smt_var.term,
             extra_constraints=ctx.path_constraints,
             timeout_ms=config.timeout_ms,
             signed=meta.is_signed,
         )
 
-        if min_val is None or max_val is None:
+        if status == RangeSolveStatus.UNSAT:
+            # Return special marker for unreachable paths
+            return {"unreachable": True}, {"unreachable": True}
+
+        if status != RangeSolveStatus.SUCCESS or min_val is None or max_val is None:
             return None, None
 
         # Decode values according to signedness
@@ -300,6 +306,11 @@ def _solve_and_cache(
 ) -> tuple[Optional[Dict], Optional[Dict]]:
     """Solve range and cache result."""
     min_result, max_result = _solve_range_with_solver(ctx, meta, config)
+
+    # Check for unreachable path marker
+    if min_result is not None and min_result.get("unreachable"):
+        _count_telemetry(ctx.telemetry, "range_solve_unreachable")
+        return min_result, max_result
 
     if min_result is None or max_result is None:
         _count_telemetry(ctx.telemetry, "range_solve_fallback")

@@ -57,6 +57,8 @@ class IntervalAnalysis(Analysis):
             return
 
         if domain.variant == DomainVariant.BOTTOM:
+            if domain.state is not None:
+                return  # Detected unreachable path - skip further processing
             self._initialize_domain_from_bottom(domain)
 
         self._dispatch_operation(operation, domain, node)
