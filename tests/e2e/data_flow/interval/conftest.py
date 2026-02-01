@@ -18,6 +18,7 @@ TEST_CONTRACTS = [
     "Test_Shift.sol",
     "Test_Unary.sol",
     "Test_TypeConversion.sol",
+    "Test_Comparison.sol",
 ]
 
 
