@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from slither import Slither
+from slither.slithir.convert import reorder_arguments
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.new_structure import NewStructure
 from slither.slithir.variables.constant import Constant
@@ -104,3 +105,55 @@ def test_overridden_function_reorder(solc_binary_path) -> None:
         isinstance(internal_calls[0].arguments[2], Constant)
         and internal_calls[0].arguments[2].value == 34
     )
+
+
+def test_reorder_arguments_mismatched_decl_lengths() -> None:
+    """Regression test for https://github.com/crytic/slither/issues/2217
+
+    reorder_arguments should not crash when decl_names contains entries
+    whose length doesn't match the call argument count. This can happen
+    when Slither misresolves a struct to a same-named struct with a
+    different number of fields.
+    """
+    args = ["a_val", "b_val", "c_val"]
+    call_names = ["a", "b", "c"]
+
+    # All decl_names entries have a mismatched length — args returned as-is
+    decl_names_all_wrong = [["x"], ["p", "q"]]
+    result = reorder_arguments(args, call_names, decl_names_all_wrong)
+    assert result == args
+
+    # One matching entry among mismatched ones — reordering still works
+    decl_names_mixed = [["x"], ["c", "a", "b"], ["p", "q"]]
+    result = reorder_arguments(args, call_names, decl_names_mixed)
+    assert result == ["c_val", "a_val", "b_val"]
+
+    # Empty decl_names — args returned as-is
+    result = reorder_arguments(args, call_names, [])
+    assert result == args
+
+
+def test_same_name_struct_no_crash(solc_binary_path) -> None:
+    """Regression test for https://github.com/crytic/slither/issues/2217
+
+    Two contracts define structs with the same name but different field
+    counts. Slither must not crash when processing named struct constructor
+    arguments.
+    """
+    solc_path = solc_binary_path("0.8.15")
+    slither = Slither(
+        Path(ARG_REORDER_TEST_ROOT, "test_same_name_structs.sol").as_posix(), solc=solc_path
+    )
+
+    # Verify both contracts were parsed without crashing
+    contract_names = [c.name for c in slither.contracts]
+    assert "A" in contract_names
+    assert "B" in contract_names
+
+    # Verify struct constructors were found in both contracts
+    for contract in slither.contracts:
+        test_func = next(f for f in contract.functions if f.name == "test")
+        constructor_calls = [
+            op for op in test_func.slithir_operations if isinstance(op, NewStructure)
+        ]
+        assert len(constructor_calls) >= 1
