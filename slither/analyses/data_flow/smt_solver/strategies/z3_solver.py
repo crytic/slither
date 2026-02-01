@@ -549,75 +549,27 @@ class Z3Solver(SMTSolver):
             - UNSAT: Constraints unsatisfiable (unreachable path), min/max are None.
             - TIMEOUT/ERROR: Could not compute, min/max are None.
         """
-        from z3 import Optimize, sat, unsat
-
-        # Quick check for unsatisfiability (only return UNSAT if certain)
-        sat_check = self._quick_sat_check(extra_constraints, timeout_ms)
-        if sat_check == unsat:
+        if self._is_unsat_with_constraints(extra_constraints, timeout_ms):
             return RangeSolveStatus.UNSAT, None, None
-        # For sat or unknown, proceed with optimization
 
-        # For signed optimization, flip sign bit to convert signed ordering to unsigned ordering
-        # This is faster than BV2Int + If because it stays in BV domain
-        # For unsigned, optimize the bitvector directly
-        if signed:
-            width = self.bv_size(term)
-            sign_bit_mask = BitVecVal(1 << (width - 1), width)
-            objective_term = term ^ sign_bit_mask  # Flip sign bit
-        else:
-            objective_term = term
+        objective_term = self._prepare_objective_term(term, signed)
 
-        def _optimize_bound(maximize: bool) -> Optional[int]:
-            opt = Optimize()
-            opt.set("timeout", timeout_ms)
-
-            # Copy current assertions
-            for assertion in self.solver.assertions():
-                opt.add(assertion)
-
-            # Add extra constraints
-            if extra_constraints:
-                for constraint in extra_constraints:
-                    opt.add(constraint)
-
-            # Set objective
-            if maximize:
-                opt.maximize(objective_term)
-            else:
-                opt.minimize(objective_term)
-
-            # Solve
-            result = opt.check()
-            if result != sat:
-                return None
-
-            model = opt.model()
-            if model is None:
-                return None
-
-            value = model.eval(term, model_completion=True)
-            if hasattr(value, "as_long"):
-                return value.as_long()
-            return None
-
-        min_val = _optimize_bound(maximize=False)
-        max_val = _optimize_bound(maximize=True)
+        min_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, False)
+        max_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, True)
 
         if min_val is None or max_val is None:
             return RangeSolveStatus.ERROR, None, None
 
         return RangeSolveStatus.SUCCESS, min_val, max_val
 
-    def _quick_sat_check(
+    def _is_unsat_with_constraints(
         self,
         extra_constraints: Optional[list],
         timeout_ms: int,
-    ) -> object:
-        """Quick satisfiability check before optimization."""
-        from z3 import Solver
-
+    ) -> bool:
+        """Quick check if constraints are unsatisfiable."""
         solver = Solver()
-        solver.set("timeout", min(timeout_ms, 100))  # Use shorter timeout for quick check
+        solver.set("timeout", min(timeout_ms, 100))
 
         for assertion in self.solver.assertions():
             solver.add(assertion)
@@ -626,7 +578,49 @@ class Z3Solver(SMTSolver):
             for constraint in extra_constraints:
                 solver.add(constraint)
 
-        return solver.check()
+        return solver.check() == unsat
+
+    def _prepare_objective_term(self, term: SMTTerm, signed: bool) -> SMTTerm:
+        """Prepare term for optimization, flipping sign bit for signed values."""
+        if not signed:
+            return term
+        width = self.bv_size(term)
+        sign_bit_mask = BitVecVal(1 << (width - 1), width)
+        return term ^ sign_bit_mask
+
+    def _optimize_bound(
+        self,
+        term: SMTTerm,
+        objective_term: SMTTerm,
+        extra_constraints: Optional[list],
+        timeout_ms: int,
+        maximize: bool,
+    ) -> Optional[int]:
+        """Optimize for min or max bound of a term."""
+        optimizer = Optimize()
+        optimizer.set("timeout", timeout_ms)
+
+        for assertion in self.solver.assertions():
+            optimizer.add(assertion)
+
+        if extra_constraints:
+            for constraint in extra_constraints:
+                optimizer.add(constraint)
+
+        if maximize:
+            optimizer.maximize(objective_term)
+        else:
+            optimizer.minimize(objective_term)
+
+        if optimizer.check() != sat:
+            return None
+
+        model = optimizer.model()
+        if model is None:
+            return None
+
+        value = model.eval(term, model_completion=True)
+        return value.as_long() if is_bv_value(value) else None
 
     def eval_in_model(self, term: SMTTerm) -> Optional[int]:
         """Evaluate a term in the current model and return its integer value."""

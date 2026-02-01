@@ -16,6 +16,9 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
 )
+from slither.analyses.data_flow.logger import get_logger
+
+logger = get_logger()
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -48,6 +51,12 @@ class SolidityCallHandler(BaseOperationHandler):
 
         if function_name in REQUIRE_ASSERT_FUNCTIONS:
             self._handle_require_assert(operation, domain)
+            return
+
+        logger.error_and_raise(
+            f"Solidity function '{function_name}' is not implemented",
+            NotImplementedError,
+        )
 
     def _handle_require_assert(
         self,
