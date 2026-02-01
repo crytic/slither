@@ -1,0 +1,49 @@
+"""Operation handler registry."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from slither.slithir.operations import Assignment, Operation
+from slither.slithir.operations.return_operation import Return
+
+from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.analyses.interval.operations.base import (
+    BaseOperationHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.assignment import (
+    AssignmentHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.return_operation import (
+    ReturnHandler,
+)
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+
+logger = get_logger()
+
+
+class OperationHandlerRegistry:
+    """Maps operation types to handlers."""
+
+    def __init__(self, solver: "SMTSolver"):
+        self._solver = solver
+        self._handlers: dict[type[Operation], BaseOperationHandler] = {}
+        self._register_handlers()
+
+    def _register_handlers(self) -> None:
+        """Register all implemented operation handlers."""
+        self._handlers[Assignment] = AssignmentHandler(self._solver)
+        self._handlers[Return] = ReturnHandler(self._solver)
+
+    def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
+        """Get handler for operation type."""
+        if op_type not in self._handlers:
+            implemented = [handler.__name__ for handler in self._handlers.keys()]
+            logger.error_and_raise(
+                f"Operation '{op_type.__name__}' is not implemented. "
+                f"Implemented: {implemented}",
+                NotImplementedError,
+            )
+        return self._handlers[op_type]

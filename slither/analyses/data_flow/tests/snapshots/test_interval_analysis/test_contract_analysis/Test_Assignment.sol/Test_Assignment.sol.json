@@ -1,0 +1,168 @@
+{
+  "Test_Assignment": {
+    "test_address": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1271253980042238172183243620132319847648413614080, 1271253980042238172183243620132319847648413614080]"
+        }
+      }
+    },
+    "test_bool_false": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_bool_true": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        }
+      }
+    },
+    "test_bytes1": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        }
+      }
+    },
+    "test_bytes16": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1339673755198158349044581307228491536, 1339673755198158349044581307228491536]"
+        }
+      }
+    },
+    "test_bytes32": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[455867356320691211509944977504407603390036387149619137164185182714736811808, 455867356320691211509944977504407603390036387149619137164185182714736811808]"
+        }
+      }
+    },
+    "test_bytes4": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[3735928559, 3735928559]"
+        }
+      }
+    },
+    "test_chain": {
+      "variables": {
+        "a_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "c_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        }
+      }
+    },
+    "test_constant": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        }
+      }
+    },
+    "test_int128": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[170141183460469231731687303715884105727, 170141183460469231731687303715884105727]"
+        }
+      }
+    },
+    "test_int16": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[32767, 32767]"
+        }
+      }
+    },
+    "test_int256": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        }
+      }
+    },
+    "test_int64": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1000000, 1000000]"
+        }
+      }
+    },
+    "test_int8": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[127, 127]"
+        }
+      }
+    },
+    "test_uint128": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[340282366920938463463374607431768211455, 340282366920938463463374607431768211455]"
+        }
+      }
+    },
+    "test_uint16": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[65535, 65535]"
+        }
+      }
+    },
+    "test_uint64": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[1000000, 1000000]"
+        }
+      }
+    },
+    "test_uint8": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        }
+      }
+    },
+    "test_var_to_var": {
+      "variables": {
+        "x_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "y_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    }
+  }
+}
