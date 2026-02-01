@@ -22,9 +22,14 @@ def pytest_unconfigure(config):
         shutil.rmtree(config.stash["shared_directory"])
 
 
-def pytest_configure_node(node):
-    """Configure each worker node with the shared directory."""
-    node.workerinput["shared_directory"] = node.config.stash["shared_directory"]
+try:
+    import xdist  # noqa: F401
+
+    def pytest_configure_node(node):
+        """Configure each worker node with the shared directory."""
+        node.workerinput["shared_directory"] = node.config.stash["shared_directory"]
+except ImportError:
+    pass  # pytest-xdist not installed, skip the hook
 
 
 def is_master():

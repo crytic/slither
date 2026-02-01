@@ -1,13 +1,13 @@
 """Pytest tests for interval analysis using snapshot testing.
 
 Run tests:
-    pytest slither/analyses/data_flow/tests/ -v
+    pytest tests/e2e/data_flow/interval/ -v
 
 Update snapshots:
-    pytest slither/analyses/data_flow/tests/ --snapshot-update
+    pytest tests/e2e/data_flow/interval/ --snapshot-update
 
 Run single contract:
-    pytest -k "Assert.sol" -v
+    pytest -k "Assignment" -v
 """
 
 import json

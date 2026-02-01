@@ -2,8 +2,8 @@
 """Analyze Solidity contracts and print IR operations.
 
 Usage:
-    python slither/analyses/data_flow/tests/analyze_ir.py <contract_path>
-    python slither/analyses/data_flow/tests/analyze_ir.py contracts/Test_Assignment.sol
+    python tests/e2e/data_flow/interval/analyze_ir.py <contract_path>
+    python tests/e2e/data_flow/interval/analyze_ir.py tests/e2e/data_flow/interval/contracts/Test_Assignment.sol
 """
 
 from __future__ import annotations
