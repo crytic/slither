@@ -8,6 +8,7 @@ from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.operations.unary import Unary
 
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -24,6 +25,9 @@ from slither.analyses.data_flow.analyses.interval.operations.return_operation im
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
     TypeConversionHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.unary import (
+    UnaryHandler,
 )
 
 if TYPE_CHECKING:
@@ -46,6 +50,7 @@ class OperationHandlerRegistry:
         self._handlers[Binary] = BinaryHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)
+        self._handlers[Unary] = UnaryHandler(self._solver)
 
     def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
         """Get handler for operation type."""

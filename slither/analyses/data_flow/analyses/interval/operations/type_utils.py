@@ -8,9 +8,13 @@ from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uin
 
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
     from slither.slithir.utils.utils import LVALUE, RVALUE
 
 logger = get_logger()
@@ -117,3 +121,46 @@ def constant_to_term(
     int_value = 1 if value is True else (0 if value is False else value)
     sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
     return solver.create_constant(int_value, sort)
+
+
+def try_create_parameter_variable(
+    solver: "SMTSolver",
+    operand: "RVALUE",
+    operand_name: str,
+    domain: "IntervalDomain",
+) -> TrackedSMTVariable | None:
+    """Create a tracked variable for a function parameter if applicable.
+
+    Args:
+        solver: The SMT solver instance.
+        operand: The operand to check.
+        operand_name: The SSA name of the operand.
+        domain: The interval domain to add the variable to.
+
+    Returns:
+        The created TrackedSMTVariable, or None if not a parameter.
+    """
+    non_ssa = getattr(operand, "non_ssa_version", None)
+    if non_ssa is None:
+        return None
+
+    function = getattr(non_ssa, "function", None)
+    if function is None:
+        return None
+
+    if non_ssa not in function.parameters:
+        return None
+
+    operand_type = operand.type
+    if not isinstance(operand_type, ElementaryType):
+        return None
+
+    bit_width = get_bit_width(operand_type)
+    signed = is_signed_type(operand_type)
+    sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
+
+    tracked = TrackedSMTVariable.create(
+        solver, operand_name, sort, is_signed=signed, bit_width=bit_width
+    )
+    domain.state.set_variable(operand_name, tracked)
+    return tracked

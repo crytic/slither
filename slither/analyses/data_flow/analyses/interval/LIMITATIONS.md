@@ -40,5 +40,5 @@ When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in
 - solidity_call
 - transfer
 - ~~type_conversion~~
-- unary
+- ~~unary~~
 - unpack

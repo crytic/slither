@@ -23,6 +23,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     is_signed_type,
     get_bit_width,
     constant_to_term,
+    try_create_parameter_variable,
 )
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -313,7 +314,7 @@ class ArithmeticHandler(BaseOperationHandler):
             return match_width_to_int(self.solver, tracked.term, target_width)
 
         # Variable not in state - check if it's a function parameter
-        tracked = self._try_create_parameter_variable(operand, operand_name, domain)
+        tracked = try_create_parameter_variable(self.solver, operand, operand_name, domain)
         if tracked is not None:
             return match_width_to_int(self.solver, tracked.term, target_width)
 
@@ -321,38 +322,6 @@ class ArithmeticHandler(BaseOperationHandler):
             f"Variable '{operand_name}' not found in state", ValueError
         )
         return None
-
-    def _try_create_parameter_variable(
-        self,
-        operand: RVALUE,
-        operand_name: str,
-        domain: "IntervalDomain",
-    ) -> TrackedSMTVariable | None:
-        """Create a tracked variable for a function parameter if applicable."""
-        non_ssa = getattr(operand, "non_ssa_version", None)
-        if non_ssa is None:
-            return None
-
-        function = getattr(non_ssa, "function", None)
-        if function is None:
-            return None
-
-        if non_ssa not in function.parameters:
-            return None
-
-        operand_type = operand.type
-        if not isinstance(operand_type, ElementaryType):
-            return None
-
-        bit_width = get_bit_width(operand_type)
-        signed = is_signed_type(operand_type)
-        sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
-
-        tracked = TrackedSMTVariable.create(
-            self.solver, operand_name, sort, is_signed=signed, bit_width=bit_width
-        )
-        domain.state.set_variable(operand_name, tracked)
-        return tracked
 
     def _constant_to_term(self, constant: Constant, bit_width: int) -> SMTTerm | None:
         """Convert a constant to an SMT term."""

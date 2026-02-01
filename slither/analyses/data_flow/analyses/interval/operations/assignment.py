@@ -46,7 +46,7 @@ class AssignmentHandler(BaseOperationHandler):
     ) -> None:
         """Process assignment operation."""
         lvalue: LVALUE = operation.lvalue
-        lvalue_name = lvalue.ssa_name
+        lvalue_name = get_variable_name(lvalue)
         lvalue_type = self._get_elementary_type(lvalue, operation)
         if lvalue_type is None:
             return
