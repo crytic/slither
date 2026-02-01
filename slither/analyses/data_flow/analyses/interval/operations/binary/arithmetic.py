@@ -92,7 +92,10 @@ class ArithmeticHandler(BaseOperationHandler):
             domain.state.set_variable(result_name, result_var)
             return
 
-        result_term = self._compute_result(operation.type, left_term, right_term, result_type)
+        is_self_operation = self._is_same_operand(operation)
+        result_term = self._compute_result(
+            operation.type, left_term, right_term, result_type, is_self_operation, bit_width
+        )
         if result_term is not None:
             self.solver.assert_constraint(result_var.term == result_term)
 
@@ -358,15 +361,31 @@ class ArithmeticHandler(BaseOperationHandler):
             return None
         return constant_to_term(self.solver, value, bit_width)
 
+    def _is_same_operand(self, operation: Binary) -> bool:
+        """Check if both operands refer to the same variable."""
+        left_name = get_variable_name(operation.variable_left)
+        right_name = get_variable_name(operation.variable_right)
+        return left_name == right_name
+
     def _compute_result(
         self,
         operation_type: BinaryType,
         left: SMTTerm,
         right: SMTTerm,
         result_type: ElementaryType,
+        is_self_operation: bool = False,
+        bit_width: int = 256,
     ) -> SMTTerm | None:
         """Compute the result term for the operation."""
         signed = is_signed_type(result_type)
+
+        if is_self_operation:
+            if operation_type == BinaryType.DIVISION:
+                return self.solver.create_constant(1, Sort(SortKind.BITVEC, [bit_width]))
+            if operation_type == BinaryType.MODULO:
+                return self.solver.create_constant(0, Sort(SortKind.BITVEC, [bit_width]))
+            if operation_type == BinaryType.SUBTRACTION:
+                return self.solver.create_constant(0, Sort(SortKind.BITVEC, [bit_width]))
 
         dispatch: dict[BinaryType, Callable[[], SMTTerm]] = {
             BinaryType.ADDITION: lambda: self.solver.bv_add(left, right),

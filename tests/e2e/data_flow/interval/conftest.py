@@ -13,6 +13,7 @@ TEST_CONTRACTS = [
     "Test_Add.sol",
     "Test_Sub.sol",
     "Test_Mul.sol",
+    "Test_Div.sol",
 ]
 
 
