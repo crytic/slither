@@ -1,9 +1,9 @@
 # Interval Analysis Limitations
 
-## Multiplication with Computed Constants
+## Computed Constants in Non-Linear Operations
 
-When multiplying by a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`), the variable's range is not narrowed optimally. The result range is correct, but the input variable retains its full type range.
+When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in multiplication or division, the variable's range is not narrowed optimally. The result range is correct, but the input variable retains its full type range.
 
-**Cause:** Z3's `bv_mul_no_overflow` doesn't back-propagate through non-linear constraints when both operands are SMT variables.
+**Cause:** Z3's overflow predicates don't back-propagate through non-linear constraints when both operands are SMT variables.
 
-**Fix:** Detect grounded operands and add explicit division-based bounds.
+**Fix:** Detect grounded operands and add explicit bounds.

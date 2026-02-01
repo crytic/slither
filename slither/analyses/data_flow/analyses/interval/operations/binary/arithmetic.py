@@ -96,6 +96,9 @@ class ArithmeticHandler(BaseOperationHandler):
         if result_term is not None:
             self.solver.assert_constraint(result_var.term == result_term)
 
+        if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
+            self._assert_divisor_nonzero(right_term, bit_width)
+
         overflow_predicates = self._compute_overflow_predicates(
             operation.type, left_term, right_term, signed, both_constants
         )
@@ -265,6 +268,11 @@ class ArithmeticHandler(BaseOperationHandler):
         if context.is_signed:
             no_underflow = self.solver.bv_mul_no_underflow(context.left, context.right)
             self.solver.assert_constraint(no_underflow)
+
+    def _assert_divisor_nonzero(self, divisor: SMTTerm, bit_width: int) -> None:
+        """Assert that divisor is not zero (division by zero reverts)."""
+        zero = self.solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[bit_width]))
+        self.solver.assert_constraint(self.solver.Not(divisor == zero))
 
     def _get_result_type(self, operation: Binary) -> ElementaryType | None:
         """Get the result type from the operation."""
