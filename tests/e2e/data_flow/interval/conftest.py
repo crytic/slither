@@ -14,6 +14,7 @@ TEST_CONTRACTS = [
     "Test_Sub.sol",
     "Test_Mul.sol",
     "Test_Div.sol",
+    "Test_Mod.sol",
 ]
 
 
