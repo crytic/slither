@@ -8,9 +8,9 @@ from typing import Dict, Any
 CONTRACTS_DIR = Path(__file__).parent / "contracts"
 
 # List of contract files with expected results
-# Pending: Test_Add.sol, Test_Sub.sol, Test_Mul.sol require full Binary arithmetic
 TEST_CONTRACTS = [
     "Test_Assignment.sol",
+    "Test_Add.sol",
 ]
 
 
