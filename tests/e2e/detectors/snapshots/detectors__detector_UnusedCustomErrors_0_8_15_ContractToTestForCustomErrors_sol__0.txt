@@ -1,0 +1,10 @@
+ParentContract.UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#10) is declared but never used.
+
+UnusedTopLevelErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#4) is declared but never used.
+
+Lib.UnusedLibError() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/CustomErrorsLib.sol#5) is declared but never used.
+
+ParentContract.UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol#11) is declared but never used.
+
+ErrorLibConsumer.UnusedErrorLibConsumerErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ErrorLibConsumer.sol#7) is declared but never used.
+

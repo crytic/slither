@@ -1,0 +1,94 @@
+"""
+Module detecting unused custom errors
+"""
+
+from typing import List, Set
+from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.solidity_variables import SolidityCustomRevert
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
+
+
+class UnusedCustomErrors(AbstractDetector):
+    """
+    Unused custom errors detector
+    """
+
+    ARGUMENT = "unused-custom-errors"
+    HELP = "Detects unused custom errors"
+    IMPACT = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
+
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-custom-errors"
+
+    WIKI_TITLE = "Unused Custom Errors"
+    WIKI_DESCRIPTION = "Declaring a custom error, but never using it might indicate a mistake."
+
+    # region wiki_exploit_scenario
+    WIKI_EXPLOIT_SCENARIO = """
+    ```solidity
+    contract A {
+        error ZeroAddressNotAllowed();
+        
+        address public owner;
+        
+        constructor(address _owner) {
+            owner = _owner;
+        }
+    }
+    ```
+    Custom error `ZeroAddressNotAllowed` is declared but never used. It shall be either invoked where needed, or removed if there's no need for it.
+    """
+    # endregion wiki_exploit_scenario = ""
+    WIKI_RECOMMENDATION = "Remove the unused custom errors."
+
+    def _detect(self) -> List[Output]:
+        """Detect unused custom errors"""
+        declared_custom_errors: Set[CustomError] = set()
+        custom_reverts: Set[SolidityCustomRevert] = set()
+        unused_custom_errors: List[CustomError] = []
+
+        # Collect all custom errors defined in the contracts
+        for contract in self.compilation_unit.contracts:
+            for custom_error in contract.custom_errors:
+                declared_custom_errors.add(custom_error)
+
+        # Add custom errors defined outside of contracts
+        for custom_error in self.compilation_unit.custom_errors:
+            declared_custom_errors.add(custom_error)
+
+        # Collect all custom errors invoked in revert statements
+        for contract in self.compilation_unit.contracts:
+            for function in contract.functions_and_modifiers:
+                for internal_call in function.internal_calls:
+                    if isinstance(internal_call.function, SolidityCustomRevert):
+                        custom_reverts.add(internal_call.function)
+
+        # Also check top-level functions
+        for function in self.compilation_unit.functions_top_level:
+            for internal_call in function.internal_calls:
+                if isinstance(internal_call.function, SolidityCustomRevert):
+                    custom_reverts.add(internal_call.function)
+
+        # Get the set of actually used custom errors
+        used_custom_errors: Set[CustomError] = {
+            custom_revert.custom_error for custom_revert in custom_reverts
+        }
+
+        # Find unused custom errors
+        unused_custom_errors = list(declared_custom_errors - used_custom_errors)
+
+        # Sort by error name
+        unused_custom_errors = sorted(unused_custom_errors, key=lambda err: err.name)
+
+        # Format results - one finding per unused error
+        results = []
+        for custom_error in unused_custom_errors:
+            info: DETECTOR_INFO = [custom_error, " is declared but never used.\n"]
+            results.append(self.generate_result(info))
+
+        return results
