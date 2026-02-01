@@ -6,24 +6,33 @@ from typing import TYPE_CHECKING
 
 from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.unary import Unary
 
-from slither.analyses.data_flow.logger import get_logger
-from slither.analyses.data_flow.analyses.interval.operations.base import (
-    BaseOperationHandler,
-)
 from slither.analyses.data_flow.analyses.interval.operations.assignment import (
     AssignmentHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.base import (
+    BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.binary import (
     BinaryHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
+    InternalCallHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.library_call import (
+    LibraryCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.return_operation import (
     ReturnHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
+    SolidityCallHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
     TypeConversionHandler,
@@ -31,12 +40,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
 from slither.analyses.data_flow.analyses.interval.operations.unary import (
     UnaryHandler,
 )
-from slither.analyses.data_flow.analyses.interval.operations.solidity_call import (
-    SolidityCallHandler,
-)
-from slither.analyses.data_flow.analyses.interval.operations.library_call import (
-    LibraryCallHandler,
-)
+from slither.analyses.data_flow.logger import get_logger
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
@@ -56,6 +60,7 @@ class OperationHandlerRegistry:
         """Register all implemented operation handlers."""
         self._handlers[Assignment] = AssignmentHandler(self._solver)
         self._handlers[Binary] = BinaryHandler(self._solver)
+        self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
         self._handlers[SolidityCall] = SolidityCallHandler(self._solver)

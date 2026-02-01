@@ -20,7 +20,7 @@ When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in
 - high_level_call
 - index
 - init_array
-- internal_call
+- ~~internal_call~~
 - internal_dynamic_call
 - length
 - ~~library_call~~
