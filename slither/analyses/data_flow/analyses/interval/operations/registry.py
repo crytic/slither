@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
@@ -24,6 +25,9 @@ from slither.analyses.data_flow.analyses.interval.operations.base import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.binary import (
     BinaryHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.condition import (
+    ConditionHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.high_level_call import (
     HighLevelCallHandler,
@@ -72,6 +76,7 @@ class OperationHandlerRegistry:
         """Register all implemented operation handlers."""
         self._handlers[Assignment] = AssignmentHandler(self._solver)
         self._handlers[Binary] = BinaryHandler(self._solver)
+        self._handlers[Condition] = ConditionHandler(self._solver)
         self._handlers[HighLevelCall] = HighLevelCallHandler(self._solver)
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)

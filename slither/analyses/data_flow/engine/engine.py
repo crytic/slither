@@ -9,8 +9,11 @@ from collections import defaultdict, deque
 from typing import Deque, Dict, Generic, List
 
 from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
+
+logger = get_logger()
 
 
 class Engine(Generic[A]):
@@ -83,7 +86,7 @@ class Engine(Generic[A]):
             entry_point = self.function.entry_point
             if entry_point is not None:
                 worklist.append(entry_point)
-                print(f"[ENGINE] Starting analysis of {self.function.name}")
+                logger.info("Starting analysis of {name}", name=self.function.name)
         else:
             raise NotImplementedError("Backward analysis is not implemented")
 
@@ -93,22 +96,27 @@ class Engine(Generic[A]):
 
             # Safety limit check
             if self.iteration_count > MAX_ITERATIONS:
-                print(f"\n[ENGINE] ERROR: Exceeded {MAX_ITERATIONS} iterations!")
-                print(f"[ENGINE] Worklist size: {len(worklist)}")
-                print("[ENGINE] Top 10 most visited nodes:")
-                for node_id, count in sorted(
+                logger.error(
+                    "Exceeded {max} iterations! Worklist size: {size}",
+                    max=MAX_ITERATIONS,
+                    size=len(worklist),
+                )
+                top_nodes = sorted(
                     self.node_visit_count.items(), key=lambda x: x[1], reverse=True
-                )[:10]:
-                    print(f"  Node {node_id}: {count} visits")
+                )[:10]
+                for node_id, count in top_nodes:
+                    logger.error("Node {node_id}: {count} visits", node_id=node_id, count=count)
                 break
 
             # Progress logging every PROGRESS_INTERVAL seconds
             current_time = time.time()
             if current_time - self.last_progress_time > PROGRESS_INTERVAL:
                 elapsed = current_time - self.start_time
-                print(
-                    f"[ENGINE] Progress: {self.iteration_count} iterations, "
-                    f"worklist={len(worklist)}, {elapsed:.1f}s elapsed"
+                logger.info(
+                    "Progress: {iterations} iterations, worklist={size}, {elapsed:.1f}s elapsed",
+                    iterations=self.iteration_count,
+                    size=len(worklist),
+                    elapsed=elapsed,
                 )
                 self.last_progress_time = current_time
 
@@ -117,9 +125,9 @@ class Engine(Generic[A]):
             # Track node visits
             self.node_visit_count[node.node_id] += 1
             if self.node_visit_count[node.node_id] == 50:
-                print(f"[ENGINE] WARNING: Node {node.node_id} visited 50 times!")
+                logger.warning("Node {node_id} visited 50 times!", node_id=node.node_id)
             if self.node_visit_count[node.node_id] == 100:
-                print(f"[ENGINE] CRITICAL: Node {node.node_id} visited 100 times!")
+                logger.error("Node {node_id} visited 100 times!", node_id=node.node_id)
 
             current_state = AnalysisState(
                 pre=self.state[node.node_id].pre, post=self.state[node.node_id].post
@@ -135,9 +143,11 @@ class Engine(Generic[A]):
 
         # Final statistics
         total_time = time.time() - self.start_time
-        print(
-            f"[ENGINE] Analysis of {self.function.name} complete: "
-            f"{self.iteration_count} iterations in {total_time:.2f}s"
+        logger.info(
+            "Analysis of {name} complete: {iterations} iterations in {time:.2f}s",
+            name=self.function.name,
+            iterations=self.iteration_count,
+            time=total_time,
         )
 
     def result(self) -> Dict[Node, AnalysisState[A]]:
