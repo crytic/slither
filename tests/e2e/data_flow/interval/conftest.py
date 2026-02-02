@@ -54,7 +54,7 @@ def analyze_contract():
     )
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
 
-    def _analyze(contract_path: Path, timeout_ms: int = 1000) -> Dict[str, Any]:
+    def _analyze(contract_path: Path, timeout_ms: int = 10000) -> Dict[str, Any]:
         """Analyze a contract and return results as a dictionary."""
         slither = Slither(str(contract_path))
         contracts = _get_contracts(slither)
