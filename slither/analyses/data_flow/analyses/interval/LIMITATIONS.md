@@ -18,7 +18,30 @@ Phi nodes in SSA form merge values from different control flow paths. Our implem
 
 **Rationale:** In Slither's interprocedural SSA, function entry Phi nodes merge values from ALL call sites. When we bind parameters during call handling, we want those precise bindings preserved rather than widened by the Phi's incoming values from other (potentially unanalyzed) call sites.
 
-**Limitation:** We do not perform path-sensitive merging or narrowing based on control flow conditions. The disjunction approach is sound but may be imprecise when many paths converge.
+**Limitation:** The disjunction constraint `(result == op1 OR result == op2)` doesn't narrow ranges well because the solver finds values satisfying *either* equality. At merge points, Phi results typically show full type range even when operands have precise bounds within their branches.
+
+**Example:**
+```solidity
+uint256 result;
+if (x < 50) {
+    result = x + 10;  // result_1 ∈ [10, 59] in true branch
+} else {
+    result = x - 10;  // result_2 ∈ [40, max-10] in false branch
+}
+return result;  // result_3 shows [0, max] instead of hull [10, max-10]
+```
+
+**Impact:** Branch-specific narrowing works correctly. Only merge points show imprecise ranges.
+
+**Why Query-Time Bound Injection Doesn't Work:**
+- Overflow constraints are path-scoped (stored in State, not solver)
+- At merge points, path constraints from only one branch are available
+- Querying operand bounds without their branch's path constraints yields full type range
+
+**Potential Fixes:**
+1. **Disjunctive interval domain**: Track `{[10, 59], [40, max-10]}` directly in domain, collapse to hull when exceeding K disjuncts
+2. **Store bounds at definition time**: Compute and cache intervals when operations produce them, before merge
+3. **Track pre-merge states**: Query operand bounds from branch-specific states before merging
 
 ## Supported Operations
 

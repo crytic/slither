@@ -19,6 +19,7 @@ TEST_CONTRACTS = [
     "Test_Unary.sol",
     "Test_TypeConversion.sol",
     "Test_Comparison.sol",
+    "Test_Condition.sol",
     "Test_RequireAssert.sol",
     "Test_LibraryCall.sol",
     "Test_InternalCall.sol",
