@@ -8,24 +8,6 @@ When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in
 
 **Fix:** Detect grounded operands and add explicit bounds.
 
-## Cross-Branch Constraint Pollution
-
-The SMT solver is shared across all branches during analysis. When the solver accumulates overflow/underflow constraints from one branch (e.g., `ULE(x - 50, x)` asserting x >= 50 to avoid underflow), these constraints affect queries for other branches.
-
-**Example:**
-```solidity
-if (x > 99) {
-    return x - 50;  // Adds constraint: x >= 50 (no underflow)
-}
-return x + 50;  // Query for x here sees x >= 50 from the OTHER branch
-```
-
-**Impact:** In the false branch, x should be in `[0, 99]`, but the solver reports `[50, 99]` due to the constraint from the true branch.
-
-**Cause:** Global solver state doesn't distinguish which constraints belong to which branch.
-
-**Potential Fix:** Track constraint provenance and filter by branch, or use branch-specific solver contexts.
-
 ## Phi Nodes
 
 Phi nodes in SSA form merge values from different control flow paths. Our implementation uses a conservative approach:
