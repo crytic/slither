@@ -8,6 +8,7 @@ from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
+from slither.slithir.operations.phi import Phi
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
@@ -27,6 +28,9 @@ from slither.analyses.data_flow.analyses.interval.operations.internal_call impor
 )
 from slither.analyses.data_flow.analyses.interval.operations.library_call import (
     LibraryCallHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.phi import (
+    PhiHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.return_operation import (
     ReturnHandler,
@@ -62,6 +66,7 @@ class OperationHandlerRegistry:
         self._handlers[Binary] = BinaryHandler(self._solver)
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)
+        self._handlers[Phi] = PhiHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
         self._handlers[SolidityCall] = SolidityCallHandler(self._solver)
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)

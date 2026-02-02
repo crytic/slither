@@ -152,7 +152,11 @@ class InterproceduralHandler(BaseOperationHandler):
         argument,
         domain: "IntervalDomain",
     ) -> SMTTerm | None:
-        """Resolve a single argument to an SMT term."""
+        """Resolve a single argument to an SMT term.
+
+        If the argument is an untracked variable, creates a tracked variable
+        for it so that constraints from the called function can propagate back.
+        """
         if isinstance(argument, Constant):
             return self._constant_to_term(argument)
 
@@ -161,7 +165,31 @@ class InterproceduralHandler(BaseOperationHandler):
         if tracked is not None:
             return tracked.term
 
-        return None
+        return self._create_tracked_argument(argument, arg_name, domain)
+
+    def _create_tracked_argument(
+        self,
+        argument,
+        arg_name: str,
+        domain: "IntervalDomain",
+    ) -> SMTTerm | None:
+        """Create a tracked variable for an untracked argument.
+
+        This enables constraint back-propagation from called functions.
+        """
+        arg_type = argument.type
+        if not isinstance(arg_type, ElementaryType):
+            return None
+
+        sort = type_to_sort(arg_type)
+        is_signed = is_signed_type(arg_type)
+        bit_width = get_bit_width(arg_type)
+
+        tracked_arg = TrackedSMTVariable.create(
+            self.solver, arg_name, sort, is_signed=is_signed, bit_width=bit_width
+        )
+        domain.state.set_variable(arg_name, tracked_arg)
+        return tracked_arg.term
 
     def _constant_to_term(self, constant: Constant) -> SMTTerm | None:
         """Convert a constant to an SMT term."""
