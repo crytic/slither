@@ -26,6 +26,7 @@ TEST_CONTRACTS = [
     "Test_HighLevelCall.sol",
     "Test_HighLevelCallConcrete.sol",
     "Test_Uninitialized.sol",
+    "Test_StateVariable.sol",
 ]
 
 
