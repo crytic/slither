@@ -59,6 +59,10 @@ class PrefixedStateWrapper:
         """Set variable with prefixed name."""
         self._state.set_variable(self._prefix + name, variable)
 
+    def add_path_constraint(self, constraint: SMTTerm) -> None:
+        """Forward path constraint to underlying state."""
+        self._state.add_path_constraint(constraint)
+
 
 class PrefixedDomainWrapper:
     """Wrapper that provides prefixed state access for function call analysis."""

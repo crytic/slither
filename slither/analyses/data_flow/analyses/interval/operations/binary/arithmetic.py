@@ -101,7 +101,7 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.assert_constraint(result_var.term == result_term)
 
         if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
-            self._assert_divisor_nonzero(right_term, bit_width)
+            self._add_divisor_nonzero_constraint(right_term, bit_width, domain)
 
         overflow_predicates = self._compute_overflow_predicates(
             operation.type, left_term, right_term, signed, both_constants
@@ -110,7 +110,7 @@ class ArithmeticHandler(BaseOperationHandler):
         should_check = node.scope.is_checked and result_term is not None and not both_constants
         if should_check:
             context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
-            self._assert_checked_constraints(operation.type, context)
+            self._assert_checked_constraints(operation.type, context, domain)
 
         result_var = result_var.with_overflow_predicates(**overflow_predicates)
         domain.state.set_variable(result_name, result_var)
@@ -174,31 +174,37 @@ class ArithmeticHandler(BaseOperationHandler):
         self,
         operation_type: BinaryType,
         context: ConstraintContext,
+        domain: "IntervalDomain",
     ) -> None:
-        """Assert direct overflow/underflow constraints for checked arithmetic.
+        """Add overflow/underflow constraints as path constraints for checked arithmetic.
 
-        Creates direct constraints that narrow input ranges to valid values.
+        Creates path-scoped constraints that narrow input ranges to valid values.
+        Using path constraints ensures these don't pollute other branches.
         """
         if operation_type == BinaryType.ADDITION:
-            self._assert_add_constraints(context)
+            self._add_addition_constraints(context, domain)
         elif operation_type == BinaryType.SUBTRACTION:
-            self._assert_sub_constraints(context)
+            self._add_subtraction_constraints(context, domain)
         elif operation_type == BinaryType.MULTIPLICATION:
-            self._assert_mul_constraints(context)
+            self._add_multiplication_constraints(context, domain)
 
-    def _assert_add_constraints(self, context: ConstraintContext) -> None:
-        """Assert addition overflow constraints.
+    def _add_addition_constraints(
+        self, context: ConstraintContext, domain: "IntervalDomain"
+    ) -> None:
+        """Add addition overflow constraints as path constraints.
 
         For unsigned: result >= left (no wraparound)
         For signed: result must maintain sign consistency
         """
         if context.is_signed:
-            self._assert_signed_add_constraints(context)
+            self._add_signed_addition_constraints(context, domain)
         else:
-            self.solver.assert_constraint(self.solver.bv_uge(context.result, context.left))
+            domain.state.add_path_constraint(self.solver.bv_uge(context.result, context.left))
 
-    def _assert_signed_add_constraints(self, context: ConstraintContext) -> None:
-        """Assert signed addition overflow constraints."""
+    def _add_signed_addition_constraints(
+        self, context: ConstraintContext, domain: "IntervalDomain"
+    ) -> None:
+        """Add signed addition overflow constraints as path constraints."""
         # Signed overflow: pos + pos = neg, or neg + neg = pos
         # Constraint: (left > 0 ∧ right > 0) → result >= 0
         #             (left < 0 ∧ right < 0) → result <= 0
@@ -220,22 +226,26 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.Not(self.solver.And(left_negative, right_negative)),
             self.solver.bv_sle(context.result, zero)
         )
-        self.solver.assert_constraint(no_overflow)
-        self.solver.assert_constraint(no_underflow)
+        domain.state.add_path_constraint(no_overflow)
+        domain.state.add_path_constraint(no_underflow)
 
-    def _assert_sub_constraints(self, context: ConstraintContext) -> None:
-        """Assert subtraction underflow constraints.
+    def _add_subtraction_constraints(
+        self, context: ConstraintContext, domain: "IntervalDomain"
+    ) -> None:
+        """Add subtraction underflow constraints as path constraints.
 
         For unsigned: result <= left (no wraparound)
         For signed: result must maintain sign consistency
         """
         if context.is_signed:
-            self._assert_signed_sub_constraints(context)
+            self._add_signed_subtraction_constraints(context, domain)
         else:
-            self.solver.assert_constraint(self.solver.bv_ule(context.result, context.left))
+            domain.state.add_path_constraint(self.solver.bv_ule(context.result, context.left))
 
-    def _assert_signed_sub_constraints(self, context: ConstraintContext) -> None:
-        """Assert signed subtraction overflow/underflow constraints."""
+    def _add_signed_subtraction_constraints(
+        self, context: ConstraintContext, domain: "IntervalDomain"
+    ) -> None:
+        """Add signed subtraction overflow/underflow constraints as path constraints."""
         # Signed: pos - neg can overflow, neg - pos can underflow
         zero = self.solver.create_constant(
             0, Sort(kind=SortKind.BITVEC, parameters=[context.bit_width])
@@ -257,26 +267,30 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.Not(self.solver.And(left_negative, right_positive)),
             result_negative
         )
-        self.solver.assert_constraint(no_overflow)
-        self.solver.assert_constraint(no_underflow)
+        domain.state.add_path_constraint(no_overflow)
+        domain.state.add_path_constraint(no_underflow)
 
-    def _assert_mul_constraints(self, context: ConstraintContext) -> None:
-        """Assert multiplication overflow constraints.
+    def _add_multiplication_constraints(
+        self, context: ConstraintContext, domain: "IntervalDomain"
+    ) -> None:
+        """Add multiplication overflow constraints as path constraints.
 
-        Uses the Z3 built-in predicates which work correctly for multiplication.
+        Uses the solver's built-in predicates for multiplication overflow detection.
         """
         no_overflow = self.solver.bv_mul_no_overflow(
             context.left, context.right, context.is_signed
         )
-        self.solver.assert_constraint(no_overflow)
+        domain.state.add_path_constraint(no_overflow)
         if context.is_signed:
             no_underflow = self.solver.bv_mul_no_underflow(context.left, context.right)
-            self.solver.assert_constraint(no_underflow)
+            domain.state.add_path_constraint(no_underflow)
 
-    def _assert_divisor_nonzero(self, divisor: SMTTerm, bit_width: int) -> None:
-        """Assert that divisor is not zero (division by zero reverts)."""
+    def _add_divisor_nonzero_constraint(
+        self, divisor: SMTTerm, bit_width: int, domain: "IntervalDomain"
+    ) -> None:
+        """Add divisor nonzero constraint as path constraint (division by zero reverts)."""
         zero = self.solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[bit_width]))
-        self.solver.assert_constraint(self.solver.Not(divisor == zero))
+        domain.state.add_path_constraint(self.solver.Not(divisor == zero))
 
     def _get_result_type(self, operation: Binary) -> ElementaryType | None:
         """Get the result type from the operation."""
