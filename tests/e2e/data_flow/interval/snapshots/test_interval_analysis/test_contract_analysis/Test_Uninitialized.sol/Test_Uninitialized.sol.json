@@ -1,0 +1,176 @@
+{
+  "Test_Uninitialized": {
+    "test_add_to_zero": {
+      "variables": {
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "result_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_address": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_assign_after": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "test_bool": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_bytes1": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_bytes32": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int128": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int16": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int256": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int32": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int64": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_int8": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_two_uninitialized": {
+      "variables": {
+        "TMP_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint128": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint16": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint256": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint32": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint64": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    },
+    "test_uint8": {
+      "variables": {
+        "x_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        }
+      }
+    }
+  }
+}
