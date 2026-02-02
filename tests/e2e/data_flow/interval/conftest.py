@@ -28,6 +28,8 @@ TEST_CONTRACTS = [
     "Test_Uninitialized.sol",
     "Test_StateVariable.sol",
     "Test_Unpack.sol",
+    "Test_Array.sol",
+    "Test_Mapping.sol",
 ]
 
 
