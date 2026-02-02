@@ -16,6 +16,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.unary import Unary
+from slither.slithir.operations.unpack import Unpack
 
 from slither.analyses.data_flow.analyses.interval.operations.assignment import (
     AssignmentHandler,
@@ -56,6 +57,9 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
 from slither.analyses.data_flow.analyses.interval.operations.unary import (
     UnaryHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.unpack import (
+    UnpackHandler,
+)
 from slither.analyses.data_flow.logger import get_logger
 
 if TYPE_CHECKING:
@@ -86,6 +90,7 @@ class OperationHandlerRegistry:
         self._handlers[SolidityCall] = SolidityCallHandler(self._solver)
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)
         self._handlers[Unary] = UnaryHandler(self._solver)
+        self._handlers[Unpack] = UnpackHandler(self._solver)
 
     def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
         """Get handler for operation type."""

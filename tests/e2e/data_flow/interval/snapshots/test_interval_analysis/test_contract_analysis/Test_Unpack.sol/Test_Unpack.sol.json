@@ -1,0 +1,292 @@
+{
+  "Test_Unpack": {
+    "returnMixed": {
+      "variables": {
+        "1000": {
+          "overflow": "NO",
+          "range": "[1000, 1000]"
+        },
+        "255": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        },
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[-50, -50]"
+        }
+      }
+    },
+    "returnThree": {
+      "variables": {
+        "100": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "200": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "300": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        }
+      }
+    },
+    "returnTwo": {
+      "variables": {
+        "10": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "20": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "returnWithZero": {
+      "variables": {
+        "0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "42": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "test_unpack_arithmetic": {
+      "variables": {
+        "TMP_1": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "TUPLE_4[0]": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "TUPLE_4[1]": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "test_unpack_ignore_first": {
+      "variables": {
+        "TUPLE_5[0]": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "TUPLE_5[1]": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "test_unpack_ignore_second": {
+      "variables": {
+        "TUPLE_6[0]": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "TUPLE_6[1]": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "test_unpack_middle": {
+      "variables": {
+        "TUPLE_7[0]": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "TUPLE_7[1]": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "TUPLE_7[2]": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        }
+      }
+    },
+    "test_unpack_mixed": {
+      "variables": {
+        "TUPLE_2[0]": {
+          "overflow": "NO",
+          "range": "[1000, 1000]"
+        },
+        "TUPLE_2[1]": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        },
+        "TUPLE_2[2]": {
+          "overflow": "NO",
+          "range": "[-50, -50]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[1000, 1000]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[255, 255]"
+        },
+        "c_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "c_1": {
+          "overflow": "NO",
+          "range": "[-50, -50]"
+        }
+      }
+    },
+    "test_unpack_three": {
+      "variables": {
+        "TUPLE_1[0]": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "TUPLE_1[1]": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "TUPLE_1[2]": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "c_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "c_1": {
+          "overflow": "NO",
+          "range": "[300, 300]"
+        }
+      }
+    },
+    "test_unpack_two": {
+      "variables": {
+        "TUPLE_0[0]": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "TUPLE_0[1]": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[20, 20]"
+        }
+      }
+    },
+    "test_unpack_with_zero": {
+      "variables": {
+        "TUPLE_3[0]": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "TUPLE_3[1]": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        },
+        "a_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_0": {
+          "overflow": "NO",
+          "range": "[0, 0]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    }
+  }
+}

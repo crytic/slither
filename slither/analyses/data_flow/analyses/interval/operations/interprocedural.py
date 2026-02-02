@@ -13,6 +13,9 @@ from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
+    match_width,
+)
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     constant_to_term,
     get_bit_width,
@@ -25,6 +28,7 @@ from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.variable import Variable
 
 if TYPE_CHECKING:
@@ -109,11 +113,18 @@ class InterproceduralHandler(BaseOperationHandler):
         if operation.lvalue is None:
             return
 
-        lvalue_type = operation.lvalue.type
+        lvalue = operation.lvalue
+        lvalue_type = lvalue.type
+
+        # Handle tuple returns separately
+        if isinstance(lvalue, TupleVariable):
+            self._handle_tuple_return(operation, domain)
+            return
+
         if not isinstance(lvalue_type, ElementaryType):
             return
 
-        result_name = get_variable_name(operation.lvalue)
+        result_name = get_variable_name(lvalue)
         called_function = self._get_called_function(operation)
 
         if called_function is None:
@@ -128,6 +139,121 @@ class InterproceduralHandler(BaseOperationHandler):
         call_prefix = self._build_call_prefix(operation)
         context = CallContext(result_name, lvalue_type, call_prefix)
         self._analyze_called_function(called_function, argument_terms, domain, context)
+
+    def _handle_tuple_return(
+        self,
+        operation: "Call",
+        domain: "IntervalDomain",
+    ) -> None:
+        """Handle function calls that return tuples."""
+        lvalue = operation.lvalue
+        tuple_name = get_variable_name(lvalue)
+        called_function = self._get_called_function(operation)
+
+        if called_function is None:
+            self._create_unconstrained_tuple(tuple_name, lvalue.type, domain)
+            return
+
+        argument_terms = self._resolve_arguments(operation.arguments, domain)
+        if argument_terms is None:
+            self._create_unconstrained_tuple(tuple_name, lvalue.type, domain)
+            return
+
+        call_prefix = self._build_call_prefix(operation)
+        self._analyze_tuple_function(
+            called_function, argument_terms, domain, tuple_name, lvalue.type, call_prefix
+        )
+
+    def _create_unconstrained_tuple(
+        self,
+        tuple_name: str,
+        tuple_types: List,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Create unconstrained variables for each tuple element."""
+        for index, element_type in enumerate(tuple_types):
+            if not isinstance(element_type, ElementaryType):
+                continue
+            element_name = f"{tuple_name}[{index}]"
+            self._create_unconstrained_result(element_name, element_type, domain)
+
+    def _analyze_tuple_function(
+        self,
+        function: Function,
+        argument_terms: List[SMTTerm],
+        domain: "IntervalDomain",
+        tuple_name: str,
+        tuple_types: List,
+        call_prefix: str,
+    ) -> None:
+        """Analyze a function that returns a tuple and extract all return values."""
+        parameters = function.parameters
+
+        if len(parameters) != len(argument_terms):
+            self._create_unconstrained_tuple(tuple_name, tuple_types, domain)
+            return
+
+        param_name_to_term = self._build_parameter_mapping(parameters, argument_terms)
+        self._bind_parameter_reads(function, param_name_to_term, domain, call_prefix)
+        self._analyze_function_body(function, domain, call_prefix)
+        self._extract_tuple_return_values(
+            function, domain, tuple_name, tuple_types, call_prefix
+        )
+
+    def _extract_tuple_return_values(
+        self,
+        function: Function,
+        domain: "IntervalDomain",
+        tuple_name: str,
+        tuple_types: List,
+        call_prefix: str,
+    ) -> None:
+        """Extract all return values from a tuple-returning function."""
+        return_values = self._find_all_return_values(function, domain, call_prefix)
+
+        for index, element_type in enumerate(tuple_types):
+            if not isinstance(element_type, ElementaryType):
+                continue
+
+            element_name = f"{tuple_name}[{index}]"
+            sort = type_to_sort(element_type)
+            is_signed = is_signed_type(element_type)
+            bit_width = get_bit_width(element_type)
+
+            result_var = TrackedSMTVariable.create(
+                self.solver, element_name, sort, is_signed=is_signed, bit_width=bit_width
+            )
+
+            if index < len(return_values) and return_values[index] is not None:
+                return_term = match_width(
+                    self.solver, return_values[index].term, result_var.term
+                )
+                self.solver.assert_constraint(result_var.term == return_term)
+
+            domain.state.set_variable(element_name, result_var)
+
+    def _find_all_return_values(
+        self,
+        function: Function,
+        domain: "IntervalDomain",
+        call_prefix: str,
+    ) -> List[TrackedSMTVariable | None]:
+        """Find all return values from the function's return operations."""
+        for node in function.nodes:
+            for operation in node.irs_ssa:
+                if not isinstance(operation, Return):
+                    continue
+                if not operation.values:
+                    continue
+
+                result = []
+                for return_val in operation.values:
+                    return_name = call_prefix + get_variable_name(return_val)
+                    tracked = domain.state.get_variable(return_name)
+                    result.append(tracked)
+                return result
+
+        return []
 
     @abstractmethod
     def _get_called_function(self, operation: "Call") -> Function | None:

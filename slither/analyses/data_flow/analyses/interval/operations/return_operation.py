@@ -47,8 +47,15 @@ class ReturnHandler(BaseOperationHandler):
         if not operation.values:
             return
 
-        return_value = operation.values[0]
+        for return_value in operation.values:
+            self._track_return_value(return_value, domain)
 
+    def _track_return_value(
+        self,
+        return_value,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Track a single return value if it's a constant."""
         if not isinstance(return_value, Constant):
             return
 
