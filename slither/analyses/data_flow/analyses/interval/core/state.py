@@ -2,16 +2,39 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.types import SMTTerm
+
+
+class ComparisonInfo:
+    """Stores comparison information for condition narrowing.
+
+    When a comparison operation (e.g., x < 10) is processed, we store
+    the condition SMT term so it can be used later for branch narrowing.
+    """
+
+    def __init__(self, condition: "SMTTerm") -> None:
+        self.condition = condition
 
 
 class State:
     """Tracks variable SMT terms for interval analysis."""
 
-    def __init__(self, variables: dict[str, TrackedSMTVariable] | None = None):
+    def __init__(
+        self,
+        variables: dict[str, TrackedSMTVariable] | None = None,
+        comparisons: dict[str, ComparisonInfo] | None = None,
+        path_constraints: list["SMTTerm"] | None = None,
+    ):
         self._variables: dict[str, TrackedSMTVariable] = variables or {}
+        self._comparisons: dict[str, ComparisonInfo] = comparisons or {}
+        self._path_constraints: list["SMTTerm"] = path_constraints or []
 
     def get_variable(self, name: str) -> TrackedSMTVariable | None:
         """Get tracked variable by name, or None if not tracked."""
@@ -33,10 +56,26 @@ class State:
         """Get used variable names. Currently returns all tracked."""
         return set(self._variables.keys())
 
-    def get_path_constraints(self) -> list:
-        """Get path constraints. Currently empty."""
-        return []
+    def get_path_constraints(self) -> list["SMTTerm"]:
+        """Get path constraints for this branch."""
+        return self._path_constraints
+
+    def add_path_constraint(self, constraint: "SMTTerm") -> None:
+        """Add a path constraint for branch narrowing."""
+        self._path_constraints.append(constraint)
+
+    def set_comparison(self, name: str, info: ComparisonInfo) -> None:
+        """Store comparison info for a boolean result variable."""
+        self._comparisons[name] = info
+
+    def get_comparison(self, name: str) -> ComparisonInfo | None:
+        """Get comparison info for a boolean result variable."""
+        return self._comparisons.get(name)
 
     def deep_copy(self) -> "State":
         """Create a deep copy of the state."""
-        return State(dict(self._variables))
+        return State(
+            dict(self._variables),
+            dict(self._comparisons),
+            list(self._path_constraints),
+        )

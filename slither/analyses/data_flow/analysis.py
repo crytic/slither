@@ -14,8 +14,9 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
 
 # Default timeout for Optimize queries (milliseconds)
-# 500ms is needed for correct results on 256-bit inequality constraints.
-DEFAULT_OPTIMIZE_TIMEOUT_MS = 500
+# 3000ms is needed for correct results on 256-bit inequality constraints
+# with path constraints from condition narrowing and overflow checks.
+DEFAULT_OPTIMIZE_TIMEOUT_MS = 3000
 
 
 @dataclass

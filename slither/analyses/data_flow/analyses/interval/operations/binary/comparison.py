@@ -22,6 +22,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
+from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -71,6 +72,8 @@ class ComparisonHandler(BaseOperationHandler):
         if condition is not None:
             result_term = self._bool_to_bitvector(condition)
             self.solver.assert_constraint(result_var.term == result_term)
+            # Store comparison info for condition narrowing
+            domain.state.set_comparison(result_name, ComparisonInfo(condition))
 
         domain.state.set_variable(result_name, result_var)
 

@@ -36,7 +36,8 @@ if TYPE_CHECKING:
     from slither.core.declarations.function import Function
 
 # Default timeout for optimization queries (milliseconds)
-DEFAULT_TIMEOUT_MS = 500
+# Importing from analysis.py to keep timeout consistent
+from slither.analyses.data_flow.analysis import DEFAULT_OPTIMIZE_TIMEOUT_MS as DEFAULT_TIMEOUT_MS
 
 
 @dataclass
