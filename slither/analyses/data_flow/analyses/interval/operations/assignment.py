@@ -51,13 +51,19 @@ class AssignmentHandler(BaseOperationHandler):
         if lvalue_type is None:
             return
 
+        is_reassignment = domain.state.get_variable(lvalue_name) is not None
+
         sort = type_to_sort(lvalue_type)
         signed = is_signed_type(lvalue_type)
         bit_width = get_bit_width(lvalue_type)
         tracked_lvalue = TrackedSMTVariable.create(
             self.solver, lvalue_name, sort, is_signed=signed, bit_width=bit_width
         )
-        self._process_rvalue(operation.rvalue, tracked_lvalue, lvalue_type, domain)
+
+        is_constant_rvalue = isinstance(operation.rvalue, Constant)
+        if is_constant_rvalue or not is_reassignment:
+            self._process_rvalue(operation.rvalue, tracked_lvalue, lvalue_type, domain)
+
         domain.state.set_variable(lvalue_name, tracked_lvalue)
 
     def _get_elementary_type(

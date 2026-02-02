@@ -43,6 +43,33 @@ return result;  // result_3 shows [0, max] instead of hull [10, max-10]
 2. **Store bounds at definition time**: Compute and cache intervals when operations produce them, before merge
 3. **Track pre-merge states**: Query operand bounds from branch-specific states before merging
 
+## Dynamic Array Operations
+
+Dynamic array operations (`push()`, `pop()`, dynamic indexing) are intentionally unconstrained.
+
+**Behavior:** All dynamic array elements and lengths return full type range `[0, max]`.
+
+**Rationale:** Solidity's `push()` compiles to IR that reassigns reference variables:
+```
+REF_N -> LENGTH array     // read length
+TMP = REF_N + 1           // increment
+REF_N := TMP              // reassign same reference
+REF_M -> array[TMP]       // index element
+REF_M := value            // write value
+```
+
+Tracking precise values through variable-to-variable reassignments would create circular SMT constraints (since the same variable name maps to the same SMT variable). Instead, we skip variable constraints on reassigned references, yielding safe but imprecise `[0, max]` ranges for lengths.
+
+**What works:**
+- Constant writes to array elements: `arr[0] = 42` → `[42, 42]`
+- Fixed array reads/writes with constant indices
+- Push values: `dynamicArray.push(10)` → element constrained to `[10, 10]`
+
+**What doesn't work:**
+- Dynamic array lengths: always `[0, max]`
+- State array reads without prior write in same function: `[0, max]`
+- Initialized array values (state variable initializers not tracked)
+
 ## Supported Operations
 
 - ~~assignment~~
@@ -53,11 +80,11 @@ return result;  // result_3 shows [0, max] instead of hull [10, max-10]
 - delete
 - event_call
 - ~~high_level_call~~
-- index
+- ~~index~~
 - init_array
 - ~~internal_call~~
 - internal_dynamic_call
-- length
+- ~~length~~
 - ~~library_call~~
 - low_level_call
 - lvalue

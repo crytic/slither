@@ -15,6 +15,8 @@ from slither.slithir.operations.phi_callback import PhiCallback
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.operations.index import Index
+from slither.slithir.operations.length import Length
 from slither.slithir.operations.unary import Unary
 from slither.slithir.operations.unpack import Unpack
 
@@ -33,8 +35,14 @@ from slither.analyses.data_flow.analyses.interval.operations.condition import (
 from slither.analyses.data_flow.analyses.interval.operations.high_level_call import (
     HighLevelCallHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.index import (
+    IndexHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
     InternalCallHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.length import (
+    LengthHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.library_call import (
     LibraryCallHandler,
@@ -91,6 +99,8 @@ class OperationHandlerRegistry:
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)
         self._handlers[Unary] = UnaryHandler(self._solver)
         self._handlers[Unpack] = UnpackHandler(self._solver)
+        self._handlers[Index] = IndexHandler(self._solver)
+        self._handlers[Length] = LengthHandler(self._solver)
 
     def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
         """Get handler for operation type."""
