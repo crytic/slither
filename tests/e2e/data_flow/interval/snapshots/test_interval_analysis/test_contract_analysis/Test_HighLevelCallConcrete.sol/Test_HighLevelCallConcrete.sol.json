@@ -1,0 +1,342 @@
+{
+  "Calculator": {
+    "add": {
+      "variables": {
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "double": {
+      "variables": {
+        "TMP_3": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639934]"
+        },
+        "x_1": {
+          "overflow": "NO",
+          "range": "[0, 57896044618658097711785492504343953926634992332820282019728792003956564819967]"
+        }
+      }
+    },
+    "getConstant": {
+      "variables": {
+        "42": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "mul": {
+      "variables": {
+        "TMP_2": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "sub": {
+      "variables": {
+        "TMP_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    }
+  },
+  "Test_HighLevelCallConcrete": {
+    "test_concrete_add_constants": {
+      "variables": {
+        "TMP_4": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext1_add_TMP_0": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext1_add_a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "_ext1_add_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        }
+      }
+    },
+    "test_concrete_add_param": {
+      "variables": {
+        "TMP_5": {
+          "overflow": "NO",
+          "range": "[10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "_ext2_add_TMP_0": {
+          "overflow": "NO",
+          "range": "[10, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "_ext2_add_a_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639925]"
+        },
+        "_ext2_add_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "param_1": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639925]"
+        }
+      }
+    },
+    "test_concrete_chained": {
+      "variables": {
+        "TMP_7": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "TMP_8": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "_ext4_add_TMP_0": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext4_add_a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "_ext4_add_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "_ext5_double_TMP_3": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "_ext5_double_x_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "step1_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        }
+      }
+    },
+    "test_concrete_constant": {
+      "variables": {
+        "TMP_6": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        },
+        "_ext3_getConstant_42": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "test_concrete_sub": {
+      "variables": {
+        "TMP_16": {
+          "overflow": "NO",
+          "range": "[7, 7]"
+        },
+        "_ext10_sub_TMP_1": {
+          "overflow": "NO",
+          "range": "[7, 7]"
+        },
+        "_ext10_sub_a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "_ext10_sub_b_1": {
+          "overflow": "NO",
+          "range": "[3, 3]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[3, 3]"
+        }
+      }
+    },
+    "test_concrete_with_local_computation": {
+      "variables": {
+        "TMP_10": {
+          "overflow": "NO",
+          "range": "[115, 115]"
+        },
+        "TMP_9": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext6_add_TMP_0": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext6_add_a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "_ext6_add_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "extResult_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "localAdd_1": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "test_local_then_concrete": {
+      "variables": {
+        "TMP_11": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "TMP_12": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "_ext7_double_TMP_3": {
+          "overflow": "NO",
+          "range": "[30, 30]"
+        },
+        "_ext7_double_x_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "sum_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        }
+      }
+    },
+    "test_multiple_concrete_calls": {
+      "variables": {
+        "TMP_13": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "TMP_14": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "TMP_15": {
+          "overflow": "NO",
+          "range": "[65, 65]"
+        },
+        "_ext8_add_TMP_0": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "_ext8_add_a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "_ext8_add_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "_ext9_mul_TMP_2": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "_ext9_mul_a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "_ext9_mul_b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "a_1": {
+          "overflow": "NO",
+          "range": "[5, 5]"
+        },
+        "b_1": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "r1_1": {
+          "overflow": "NO",
+          "range": "[15, 15]"
+        },
+        "r2_1": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        }
+      }
+    }
+  }
+}

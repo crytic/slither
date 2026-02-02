@@ -6,9 +6,11 @@ from typing import TYPE_CHECKING
 
 from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
+from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.phi import Phi
+from slither.slithir.operations.phi_callback import PhiCallback
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
@@ -23,6 +25,9 @@ from slither.analyses.data_flow.analyses.interval.operations.base import (
 from slither.analyses.data_flow.analyses.interval.operations.binary import (
     BinaryHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.high_level_call import (
+    HighLevelCallHandler,
+)
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
     InternalCallHandler,
 )
@@ -31,6 +36,9 @@ from slither.analyses.data_flow.analyses.interval.operations.library_call import
 )
 from slither.analyses.data_flow.analyses.interval.operations.phi import (
     PhiHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.phi_callback import (
+    PhiCallbackHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.return_operation import (
     ReturnHandler,
@@ -64,9 +72,11 @@ class OperationHandlerRegistry:
         """Register all implemented operation handlers."""
         self._handlers[Assignment] = AssignmentHandler(self._solver)
         self._handlers[Binary] = BinaryHandler(self._solver)
+        self._handlers[HighLevelCall] = HighLevelCallHandler(self._solver)
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)
         self._handlers[Phi] = PhiHandler(self._solver)
+        self._handlers[PhiCallback] = PhiCallbackHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
         self._handlers[SolidityCall] = SolidityCallHandler(self._solver)
         self._handlers[TypeConversion] = TypeConversionHandler(self._solver)

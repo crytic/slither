@@ -22,6 +22,8 @@ TEST_CONTRACTS = [
     "Test_RequireAssert.sol",
     "Test_LibraryCall.sol",
     "Test_InternalCall.sol",
+    "Test_HighLevelCall.sol",
+    "Test_HighLevelCallConcrete.sol",
 ]
 
 

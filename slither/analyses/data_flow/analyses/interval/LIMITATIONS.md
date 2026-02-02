@@ -29,7 +29,7 @@ Phi nodes in SSA form merge values from different control flow paths. Our implem
 - condition
 - delete
 - event_call
-- high_level_call
+- ~~high_level_call~~
 - index
 - init_array
 - ~~internal_call~~
@@ -46,7 +46,7 @@ Phi nodes in SSA form merge values from different control flow paths. Our implem
 - nop
 - operation
 - ~~phi~~
-- phi_callback
+- ~~phi_callback~~
 - ~~return_operation~~
 - send
 - ~~solidity_call~~
