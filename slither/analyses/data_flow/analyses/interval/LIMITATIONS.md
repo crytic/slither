@@ -43,6 +43,27 @@ return result;  // result_3 shows [0, max] instead of hull [10, max-10]
 2. **Store bounds at definition time**: Compute and cache intervals when operations produce them, before merge
 3. **Track pre-merge states**: Query operand bounds from branch-specific states before merging
 
+## Internal Dynamic Calls (Function Pointers)
+
+Internal dynamic calls through function-type variables are always unconstrained.
+
+**Behavior:** All results from `InternalDynamicCall` operations return full type range `[0, max]`.
+
+**Rationale:** Function pointers hold references to functions determined at runtime. The target function is unknown at compile time, so we conservatively return unconstrained results.
+
+**Note:** When function pointers are assigned conditionally across branches:
+```solidity
+function(uint256) pure returns (uint256) fn;
+if (flag) {
+    fn = double;
+} else {
+    fn = identity;
+}
+uint256 result = fn(x);  // unconstrained
+```
+
+This may be related to how branches and phi nodes merge control flow, not the `InternalDynamicCall` handler itself. Needs further investigation.
+
 ## Dynamic Array Operations
 
 Dynamic array operations (`push()`, `pop()`, dynamic indexing) are intentionally unconstrained.
@@ -83,7 +104,7 @@ Tracking precise values through variable-to-variable reassignments would create 
 - ~~index~~
 - init_array
 - ~~internal_call~~
-- internal_dynamic_call
+- ~~internal_dynamic_call~~
 - ~~length~~
 - ~~library_call~~
 - low_level_call

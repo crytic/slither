@@ -9,6 +9,7 @@ from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.internal_dynamic_call import InternalDynamicCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.phi import Phi
 from slither.slithir.operations.phi_callback import PhiCallback
@@ -41,6 +42,9 @@ from slither.analyses.data_flow.analyses.interval.operations.index import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
     InternalCallHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.internal_dynamic_call import (
+    InternalDynamicCallHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.length import (
     LengthHandler,
@@ -95,6 +99,7 @@ class OperationHandlerRegistry:
         self._handlers[Condition] = ConditionHandler(self._solver)
         self._handlers[HighLevelCall] = HighLevelCallHandler(self._solver)
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
+        self._handlers[InternalDynamicCall] = InternalDynamicCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)
         self._handlers[Phi] = PhiHandler(self._solver)
         self._handlers[PhiCallback] = PhiCallbackHandler(self._solver)
