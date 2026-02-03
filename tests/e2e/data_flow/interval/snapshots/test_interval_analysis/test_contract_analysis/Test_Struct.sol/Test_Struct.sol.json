@@ -1,0 +1,172 @@
+{
+  "Test_Struct": {
+    "test_memory_struct": {
+      "variables": {
+        "REF_10": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "REF_11": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "REF_12": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        },
+        "u_1.id": {
+          "overflow": "NO",
+          "range": "[10, 10]"
+        },
+        "u_2.balance": {
+          "overflow": "NO",
+          "range": "[200, 200]"
+        }
+      }
+    },
+    "test_nested_read": {
+      "variables": {
+        "REF_19.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "REF_20": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_nested_write": {
+      "variables": {
+        "REF_14": {
+          "overflow": "NO",
+          "range": "[999, 999]"
+        },
+        "REF_15.id": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "REF_16": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "REF_17.balance": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "REF_18": {
+          "overflow": "NO",
+          "range": "[50, 50]"
+        },
+        "nested_2.value": {
+          "overflow": "NO",
+          "range": "[999, 999]"
+        }
+      }
+    },
+    "test_read_field": {
+      "variables": {
+        "REF_3": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "user_6.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_set_then_add": {
+      "variables": {
+        "REF_6": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "REF_7": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        },
+        "REF_8": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "REF_9": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        },
+        "TMP_0": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        },
+        "user_10.balance": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "user_11.balance": {
+          "overflow": "NO",
+          "range": "[150, 150]"
+        }
+      }
+    },
+    "test_struct_param": {
+      "variables": {
+        "REF_13": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        },
+        "u_1.balance": {
+          "overflow": "NO",
+          "range": "[0, 115792089237316195423570985008687907853269984665640564039457584007913129639935]"
+        }
+      }
+    },
+    "test_write_field": {
+      "variables": {
+        "REF_0": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        },
+        "user_2.id": {
+          "overflow": "NO",
+          "range": "[42, 42]"
+        }
+      }
+    },
+    "test_write_multiple_fields": {
+      "variables": {
+        "REF_1": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "REF_2": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        },
+        "user_4.id": {
+          "overflow": "NO",
+          "range": "[1, 1]"
+        },
+        "user_5.balance": {
+          "overflow": "NO",
+          "range": "[100, 100]"
+        }
+      }
+    },
+    "test_write_read_field": {
+      "variables": {
+        "REF_4": {
+          "overflow": "NO",
+          "range": "[500, 500]"
+        },
+        "REF_5": {
+          "overflow": "NO",
+          "range": "[500, 500]"
+        },
+        "user_8.balance": {
+          "overflow": "NO",
+          "range": "[500, 500]"
+        }
+      }
+    }
+  }
+}

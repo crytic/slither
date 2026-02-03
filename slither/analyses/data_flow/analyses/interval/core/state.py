@@ -31,10 +31,12 @@ class State:
         variables: dict[str, TrackedSMTVariable] | None = None,
         comparisons: dict[str, ComparisonInfo] | None = None,
         path_constraints: list["SMTTerm"] | None = None,
+        dependencies: dict[str, set[str]] | None = None,
     ):
         self._variables: dict[str, TrackedSMTVariable] = variables or {}
         self._comparisons: dict[str, ComparisonInfo] = comparisons or {}
         self._path_constraints: list["SMTTerm"] = path_constraints or []
+        self._dependencies: dict[str, set[str]] = dependencies or {}
 
     def get_variable(self, name: str) -> TrackedSMTVariable | None:
         """Get tracked variable by name, or None if not tracked."""
@@ -72,10 +74,46 @@ class State:
         """Get comparison info for a boolean result variable."""
         return self._comparisons.get(name)
 
+    def add_dependency(self, variable: str, depends_on: str) -> None:
+        """Record that variable depends on depends_on."""
+        if variable not in self._dependencies:
+            self._dependencies[variable] = set()
+        self._dependencies[variable].add(depends_on)
+
+    def add_dependencies(self, variable: str, depends_on: set[str]) -> None:
+        """Record that variable depends on multiple variables."""
+        if variable not in self._dependencies:
+            self._dependencies[variable] = set()
+        self._dependencies[variable].update(depends_on)
+
+    def get_dependencies(self, variable: str) -> set[str]:
+        """Get direct dependencies for a variable."""
+        return self._dependencies.get(variable, set())
+
+    def has_transitive_dependency(self, source: str, target: str) -> bool:
+        """Check if source transitively depends on target."""
+        visited: set[str] = set()
+        stack = [source]
+
+        while stack:
+            current = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+
+            deps = self._dependencies.get(current, set())
+            if target in deps:
+                return True
+            stack.extend(deps)
+
+        return False
+
     def deep_copy(self) -> "State":
         """Create a deep copy of the state."""
+        copied_deps = {k: set(v) for k, v in self._dependencies.items()}
         return State(
             dict(self._variables),
             dict(self._comparisons),
             list(self._path_constraints),
+            copied_deps,
         )

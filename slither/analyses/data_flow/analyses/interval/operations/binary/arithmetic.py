@@ -114,6 +114,22 @@ class ArithmeticHandler(BaseOperationHandler):
 
         result_var = result_var.with_overflow_predicates(**overflow_predicates)
         domain.state.set_variable(result_name, result_var)
+        self._record_operand_dependencies(operation, result_name, domain)
+
+    def _record_operand_dependencies(
+        self,
+        operation: Binary,
+        result_name: str,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Record that result depends on operands for cycle detection."""
+        for operand in (operation.variable_left, operation.variable_right):
+            if isinstance(operand, Constant):
+                continue
+            operand_name = get_variable_name(operand)
+            operand_deps = domain.state.get_dependencies(operand_name)
+            domain.state.add_dependency(result_name, operand_name)
+            domain.state.add_dependencies(result_name, operand_deps)
 
     def _determine_signedness(
         self,

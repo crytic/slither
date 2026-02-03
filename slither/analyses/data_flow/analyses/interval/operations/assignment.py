@@ -51,8 +51,6 @@ class AssignmentHandler(BaseOperationHandler):
         if lvalue_type is None:
             return
 
-        is_reassignment = domain.state.get_variable(lvalue_name) is not None
-
         sort = type_to_sort(lvalue_type)
         signed = is_signed_type(lvalue_type)
         bit_width = get_bit_width(lvalue_type)
@@ -60,11 +58,45 @@ class AssignmentHandler(BaseOperationHandler):
             self.solver, lvalue_name, sort, is_signed=signed, bit_width=bit_width
         )
 
-        is_constant_rvalue = isinstance(operation.rvalue, Constant)
-        if is_constant_rvalue or not is_reassignment:
+        should_add_constraint = self._should_add_constraint(
+            operation.rvalue, lvalue_name, domain
+        )
+        if should_add_constraint:
             self._process_rvalue(operation.rvalue, tracked_lvalue, lvalue_type, domain)
+            self._record_dependency(operation.rvalue, lvalue_name, domain)
 
         domain.state.set_variable(lvalue_name, tracked_lvalue)
+
+    def _record_dependency(
+        self,
+        rvalue: RVALUE | Function | TupleVariable,
+        lvalue_name: str,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Record that lvalue depends on rvalue."""
+        if isinstance(rvalue, Constant):
+            return
+
+        rvalue_name = get_variable_name(rvalue)
+        rvalue_deps = domain.state.get_dependencies(rvalue_name)
+        domain.state.add_dependency(lvalue_name, rvalue_name)
+        domain.state.add_dependencies(lvalue_name, rvalue_deps)
+
+    def _should_add_constraint(
+        self,
+        rvalue: RVALUE | Function | TupleVariable,
+        lvalue_name: str,
+        domain: "IntervalDomain",
+    ) -> bool:
+        """Determine if we should add the equality constraint.
+
+        Skip only if adding the constraint would create a circular dependency.
+        """
+        if isinstance(rvalue, Constant):
+            return True
+
+        rvalue_name = get_variable_name(rvalue)
+        return not domain.state.has_transitive_dependency(rvalue_name, lvalue_name)
 
     def _get_elementary_type(
         self,

@@ -754,9 +754,17 @@ def _simplify_var_name(var_name: str, keep_ssa: bool = False) -> str:
         base_name = base_name.split("().", 1)[1]
     elif "." in base_name:
         # Handle Contract.var or Contract.function.var patterns
+        # But preserve struct field access like "user_2.id"
         parts = base_name.split(".")
         if len(parts) >= 2:
-            base_name = parts[-1]
+            # Check if first part looks like an SSA variable (ends with _N)
+            first_part = parts[0]
+            is_struct_field = (
+                "_" in first_part
+                and first_part.rsplit("_", 1)[-1].isdigit()
+            )
+            if not is_struct_field:
+                base_name = parts[-1]
 
     return f"{base_name}|{ssa_suffix}" if keep_ssa and ssa_suffix else base_name
 

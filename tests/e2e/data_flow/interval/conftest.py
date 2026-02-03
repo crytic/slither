@@ -30,6 +30,7 @@ TEST_CONTRACTS = [
     "Test_Unpack.sol",
     "Test_Array.sol",
     "Test_Mapping.sol",
+    "Test_Struct.sol",
 ]
 
 

@@ -67,6 +67,27 @@ class PrefixedStateWrapper:
         """Forward path constraint to underlying state."""
         self._state.add_path_constraint(constraint)
 
+    def add_dependency(self, variable: str, depends_on: str) -> None:
+        """Record dependency with prefixed names."""
+        self._state.add_dependency(self._prefix + variable, self._prefix + depends_on)
+
+    def add_dependencies(self, variable: str, depends_on: set[str]) -> None:
+        """Record dependencies with prefixed names."""
+        prefixed_deps = {self._prefix + dep for dep in depends_on}
+        self._state.add_dependencies(self._prefix + variable, prefixed_deps)
+
+    def get_dependencies(self, variable: str) -> set[str]:
+        """Get dependencies for prefixed variable, returning unprefixed names."""
+        prefixed_deps = self._state.get_dependencies(self._prefix + variable)
+        prefix_len = len(self._prefix)
+        return {dep[prefix_len:] if dep.startswith(self._prefix) else dep for dep in prefixed_deps}
+
+    def has_transitive_dependency(self, source: str, target: str) -> bool:
+        """Check transitive dependency with prefixed names."""
+        return self._state.has_transitive_dependency(
+            self._prefix + source, self._prefix + target
+        )
+
 
 class PrefixedDomainWrapper:
     """Wrapper that provides prefixed state access for function call analysis."""
