@@ -1773,6 +1773,11 @@ ALL_TESTS = [
         "unindexed_event_address.sol",
         "0.8.22",
     ),
+    Test(
+        all_detectors.MerkleSinglyHashedLeaf,
+        "merkle_singly_hashed_leaf.sol",
+        "0.8.20",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
