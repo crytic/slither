@@ -93,6 +93,7 @@ from .statements.incorrect_using_for import IncorrectUsingFor
 from .operations.encode_packed import EncodePackedCollision
 from .assembly.incorrect_return import IncorrectReturn
 from .assembly.return_instead_of_leave import ReturnInsteadOfLeave
+from .assembly.invalid_memory_safe_assembly import InvalidMemorySafeAssembly
 from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
