@@ -12,6 +12,7 @@ TEST_CONTRACTS: list[str] = [
     "Test_NameInference.sol",
     "Test_Addition.sol",
     "Test_Multiplication.sol",
+    "Test_Subtraction.sol",
 ]
 
 
