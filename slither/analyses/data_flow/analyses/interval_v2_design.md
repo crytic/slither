@@ -5,7 +5,7 @@
 Forward interval analysis using SMT-based constraints for Solidity smart contracts. Implements
 threshold-based loop widening, interprocedural analysis, and branch-specific narrowing.
 
-## Directory Structure (31 files)
+## Directory Structure (32 files)
 
 ```
 slither/analyses/data_flow/analyses/interval/
@@ -37,7 +37,9 @@ slither/analyses/data_flow/analyses/interval/
     ├── internal_dynamic_call.py # InternalDynamicCallHandler (function pointers)
     ├── high_level_call.py       # HighLevelCallHandler (external calls)
     ├── library_call.py          # LibraryCallHandler
-    ├── solidity_call.py         # SolidityCallHandler (require/assert)
+    ├── solidity_call/
+    │   ├── __init__.py          # SolidityCallHandler dispatcher
+    │   └── require_assert.py    # require(), assert()
     ├── index.py                 # IndexHandler - array access
     ├── member.py                # MemberHandler - struct fields
     ├── length.py                # LengthHandler - array/bytes length

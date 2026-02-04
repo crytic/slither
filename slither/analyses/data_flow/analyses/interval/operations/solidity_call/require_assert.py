@@ -1,4 +1,4 @@
-"""Solidity call operation handler for interval analysis."""
+"""Require and assert operation handlers for interval analysis."""
 
 from __future__ import annotations
 
@@ -16,9 +16,6 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
 )
-from slither.analyses.data_flow.logger import get_logger
-
-logger = get_logger()
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -34,10 +31,11 @@ REQUIRE_ASSERT_FUNCTIONS = frozenset({
 })
 
 
-class SolidityCallHandler(BaseOperationHandler):
-    """Handler for Solidity built-in function calls.
+class RequireAssertHandler(BaseOperationHandler):
+    """Handler for require() and assert() calls.
 
-    Supports: require(), assert()
+    Constrains the condition argument to be true, marking the path as
+    unreachable (BOTTOM) if that makes constraints unsatisfiable.
     """
 
     def handle(
@@ -46,24 +44,7 @@ class SolidityCallHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         node: "Node",
     ) -> None:
-        """Process Solidity call operation."""
-        function_name = operation.function.full_name
-
-        if function_name in REQUIRE_ASSERT_FUNCTIONS:
-            self._handle_require_assert(operation, domain)
-            return
-
-        logger.error_and_raise(
-            f"Solidity function '{function_name}' is not implemented",
-            NotImplementedError,
-        )
-
-    def _handle_require_assert(
-        self,
-        operation: SolidityCall,
-        domain: "IntervalDomain",
-    ) -> None:
-        """Handle require/assert by constraining condition to true."""
+        """Process require/assert by constraining condition to true."""
         if not operation.arguments:
             return
 
