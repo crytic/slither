@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -27,19 +27,6 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.return_operation import Return
 
-if TYPE_CHECKING:
-    from slither.analyses.data_flow.analyses.rounding.operations.registry import (
-        OperationHandlerRegistry,
-    )
-
-
-def _create_registry(analysis: "BaseOperationHandler") -> "OperationHandlerRegistry":
-    """Create operation handler registry, avoiding circular import at module level."""
-    from slither.analyses.data_flow.analyses.rounding.operations.registry import (
-        OperationHandlerRegistry,
-    )
-
-    return OperationHandlerRegistry(analysis.analysis)
 
 
 class InterproceduralHandler(BaseOperationHandler):
@@ -152,21 +139,19 @@ class InterproceduralHandler(BaseOperationHandler):
         callee_domain: RoundingDomain,
     ) -> None:
         """Analyze the function body operations."""
-        registry = _create_registry(self)
         for node in function.nodes:
-            self._analyze_node_operations(node, callee_domain, registry)
+            self._analyze_node_operations(node, callee_domain)
 
     def _analyze_node_operations(
         self,
         node: Node,
         callee_domain: RoundingDomain,
-        registry: "OperationHandlerRegistry",
     ) -> None:
         """Analyze all operations in a single node."""
         if not node.irs_ssa:
             return
         for operation in node.irs_ssa:
-            handler = registry.get_handler(type(operation))
+            handler = self.analysis._registry.get_handler(type(operation))
             if handler is not None:
                 handler.handle(operation, callee_domain, node)
 
@@ -265,14 +250,14 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def _set_tag(
         self,
-        variable: object,
+        variable: Optional[Variable],
         tag: RoundingTag,
         operation: Call,
         node: Node,
         domain: RoundingDomain,
     ) -> None:
         """Set tag and check annotation."""
-        if not isinstance(variable, Variable):
+        if variable is None:
             return
         domain.state.set_tag(variable, tag, operation)
         self.analysis._check_annotation_for_variable(
@@ -281,14 +266,14 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def _set_tags(
         self,
-        variable: object,
+        variable: Optional[Variable],
         tags: TagSet,
         operation: Call,
         node: Node,
         domain: RoundingDomain,
     ) -> None:
         """Set tag set and check annotation."""
-        if not isinstance(variable, Variable):
+        if variable is None:
             return
         domain.state.set_tag(variable, tags, operation)
         actual_tag = domain.state.get_tag(variable)
