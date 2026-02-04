@@ -43,6 +43,151 @@ return result;  // result_3 shows [0, max] instead of hull [10, max-10]
 2. **Store bounds at definition time**: Compute and cache intervals when operations produce them, before merge
 3. **Track pre-merge states**: Query operand bounds from branch-specific states before merging
 
+## Loop Analysis (Widening)
+
+Loops require special handling to guarantee analysis termination. Without intervention, loop iterations could produce ever-increasing bounds that never stabilize.
+
+### Threshold Widening
+
+We use **threshold widening** to ensure termination while preserving precision. Thresholds are collected from the function's numeric literals, bounded by type extremes:
+
+```
+thresholds = [type_min, ...constants_from_function..., type_max]
+```
+
+For uint256: `[0, ...constants..., 2^256 - 1]`
+
+When a bound grows past a threshold, it jumps to the next threshold. If values don't stabilize, widening eventually reaches the type extremes (guaranteed fixpoint).
+
+### Architecture
+
+The engine and analysis layers are separated:
+
+1. **Engine layer** (`direction.py`): Detects back edges (propagation to `NodeType.IFLOOP`) and calls `analysis.apply_widening()`
+2. **Analysis layer** (`IntervalAnalysis`):
+   - `prepare_for_function()`: Collects thresholds from function literals
+   - `apply_widening()`: Applies domain-specific widening logic
+3. **Phi handler** (`phi.py`): At loop headers, creates unconstrained variables
+
+```python
+# Engine detects back edge, delegates to analysis
+is_back_edge = successor.type == NodeType.IFLOOP
+if is_back_edge:
+    state_to_propagate = analysis.apply_widening(state_to_propagate, son_state.pre, set())
+```
+
+This maintains abstraction: the engine knows *when* to widen (back edges) but delegates *how* to widen to each concrete analysis.
+
+### Selective Widening (Attempted)
+
+The implementation attempts **selective widening**: only widen variables whose bounds actually grew, preserve stable ones. However, this doesn't achieve the desired effect due to SMT architecture limitations.
+
+**Algorithm (in `apply_widening`):**
+```
+for each variable v:
+    current_bounds = query_smt(current_state, v)
+    previous_bounds = query_smt(previous_state, v)  # matched by base name
+
+    if current_bounds ⊆ previous_bounds:
+        # Stable - keep current variable
+        result[v] = current[v]
+    else:
+        # Grew - widen to unconstrained
+        result[v] = create_unconstrained_variable()
+```
+
+**Why It Doesn't Work:**
+
+The issue is that phi nodes at loop headers must create **unconstrained** variables:
+
+1. If we constrain phi variables to incoming values (e.g., `i_2 == i_1`), the SMT constraints are permanent
+2. When the loop counter increments (`i_3 = i_2 + 1`), the back-edge value can't feed back because `i_2` is stuck at 0
+3. This makes loop exits unreachable (the solver finds the path unsatisfiable)
+
+Since phi creates unconstrained variables:
+- All loop variables start at `[0, MAX]`
+- Selective widening compares `[0, MAX]` to `[0, MAX]` → always stable
+- No precision is gained
+
+**Example - stable variable that should stay `[0, 0]`:**
+```solidity
+function test_constant_increment() public pure returns (uint256) {
+    uint256 result = 0;
+    for (uint256 i = 0; i < 5; i++) {
+        result = result;  // never changes!
+    }
+    return result;
+}
+```
+
+**Actual analysis output:**
+```
+Line 21: result_1 ∈ [0, 0]         # Before loop - precise ✓
+Line 22: result_2 ∈ [0, MAX]       # Loop header phi - widened ✗
+         i_2 ∈ [5, MAX]            # At exit - narrowed ✓
+Line 23: result_2 ∈ [0, MAX]       # In body - still widened ✗
+         result_3 ∈ [0, MAX]       # After assignment - widened ✗
+Line 25: result_2 ∈ [0, MAX]       # At return - widened ✗ (should be [0, 0])
+```
+
+Even though `result = result` never changes the value, the analysis reports `[0, MAX]` because the phi at the loop header creates an unconstrained variable.
+
+**Potential Fixes (require architectural changes):**
+1. Track bounds as metadata instead of SMT constraints
+2. Use solver push/pop to scope constraints per iteration
+3. Use unique SMT variable names per iteration (e.g., `i_2_iter1`, `i_2_iter2`)
+
+### Results
+
+Loop analysis produces **sound but conservative** results:
+
+```solidity
+function test_fixed_bound_loop() public pure returns (uint256) {
+    uint256 sum = 0;
+    for (uint256 i = 0; i < 10; i++) {
+        sum += i;
+    }
+    return sum;
+}
+```
+
+**Actual analysis output:**
+```
+Line 10: sum_1 ∈ [0, 0]                    # Before loop - precise
+Line 11: i_1 ∈ [0, 0]                      # Loop init - precise
+         sum_2 ∈ [0, MAX]                  # Loop header phi - widened
+         i_2 ∈ [10, MAX]                   # At exit check - narrowed by i >= 10
+Line 12: i_2 ∈ [0, 9]                      # In body - narrowed by i < 10
+         sum_3 ∈ [0, MAX]                  # After sum += i - widened
+         i_3 ∈ [1, 10]                     # After i++ - narrowed
+Line 15: sum_2 ∈ [0, MAX]                  # At return - widened (actual: 45)
+         i_2 ∈ [10, MAX]                   # At return - narrowed (actual: 10)
+```
+
+**What works:**
+- `i_2` in loop body: `[0, 9]` ✓ (correctly narrowed by `i < 10`)
+- `i_2` at return: `[10, MAX]` ✓ (correctly narrowed by exit `i >= 10`)
+
+**What doesn't work:**
+- `sum_2` everywhere: `[0, MAX]` ✗ (should be `[0, 45]` or at return exactly `45`)
+
+### Trade-offs
+
+| Aspect | Behavior |
+|--------|----------|
+| **Termination** | Guaranteed - widening forces fixpoint |
+| **Soundness** | Maintained - intervals are over-approximations |
+| **Precision** | Conservative - loop-modified variables lose bounds |
+| **Loop counters** | Narrowed by exit conditions (correct final range) |
+| **Accumulators** | Full type range (no symbolic loop summarization) |
+
+### Limitations
+
+1. **No narrowing phase**: Don't recover precision after widening by propagating exit conditions backward
+2. **No loop unrolling**: Fixed-bound loops aren't unrolled for precise analysis
+3. **No symbolic summarization**: Can't express "sum = 0 + 1 + ... + 9 = 45"
+4. **SMT overhead**: Each widening comparison requires SMT solver queries for bounds
+
 ## Internal Dynamic Calls (Function Pointers)
 
 Internal dynamic calls through function-type variables are always unconstrained.

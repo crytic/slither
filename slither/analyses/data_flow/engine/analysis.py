@@ -4,13 +4,16 @@ Defines the interface that concrete analyses must implement.
 """
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from slither.analyses.data_flow.engine.direction import Direction
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.core.cfg.node import Node
 from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.operation import Operation
+
+if TYPE_CHECKING:
+    from slither.core.declarations.function import Function
 
 
 class Analysis(ABC):
@@ -63,7 +66,7 @@ class Analysis(ABC):
         return domain
 
     def apply_widening(
-        self, current_state: Domain, previous_state: Domain, set_b: set
+        self, current_state: Domain, previous_state: Domain, widening_thresholds: set[int]
     ) -> Domain:
         """Apply widening to accelerate fixpoint convergence.
 
@@ -73,12 +76,22 @@ class Analysis(ABC):
         Args:
             current_state: The state after the current iteration.
             previous_state: The state from the previous iteration.
-            set_b: Set of variables to potentially widen.
+            widening_thresholds: Set of threshold values for widening.
 
         Returns:
             The widened state.
         """
         return current_state
+
+    def prepare_for_function(self, function: "Function") -> None:
+        """Prepare analysis for a specific function.
+
+        Called by Engine.new after function is set. Override to collect
+        function-specific data like widening thresholds.
+
+        Args:
+            function: The function about to be analyzed.
+        """
 
 
 A = TypeVar("A", bound=Analysis)

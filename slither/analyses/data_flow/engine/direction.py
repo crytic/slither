@@ -68,7 +68,7 @@ class Forward(Direction):
         node: Node,
         worklist: Deque[Node],
         global_state: Dict[int, "AnalysisState[A]"],
-    ):
+    ) -> None:
         # Apply transfer function to current node
         condition_op: Optional[Condition] = None
         for operation in node.irs_ssa or [None]:
@@ -88,11 +88,14 @@ class Forward(Direction):
         )
 
         # Propagate to successors with condition filtering if applicable
-        for i, successor in enumerate[Node](node.sons):
+        for i, successor in enumerate(node.sons):
             if not successor or successor.node_id not in global_state:
                 continue
 
             son_state = global_state[successor.node_id]
+
+            # Detect back edge: propagating to a loop header (IFLOOP)
+            is_back_edge = successor.type == NodeType.IFLOOP
 
             if is_conditional:
                 # sons[0] is then branch, sons[1] is else branch
@@ -100,10 +103,20 @@ class Forward(Direction):
                 filtered_domain = analysis.apply_condition(
                     current_state.pre, condition_op, branch_taken
                 )
+                # Widen on back edges before joining
+                if is_back_edge:
+                    filtered_domain = analysis.apply_widening(
+                        filtered_domain, son_state.pre, set()
+                    )
                 changed = son_state.pre.join(filtered_domain)
             else:
-                # Non-conditional node: propagate without filtering
-                changed = son_state.pre.join(current_state.pre)
+                state_to_propagate = current_state.pre
+                # Widen on back edges before joining
+                if is_back_edge:
+                    state_to_propagate = analysis.apply_widening(
+                        state_to_propagate, son_state.pre, set()
+                    )
+                changed = son_state.pre.join(state_to_propagate)
 
             if changed and successor not in worklist:
                 worklist.append(successor)

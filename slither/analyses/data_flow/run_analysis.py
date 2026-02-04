@@ -266,7 +266,7 @@ def _analyze_function_json(
     if not function.nodes:
         return None
 
-    analysis = IntervalAnalysis(solver=solver)
+    analysis = IntervalAnalysis(solver=solver, timeout_ms=config.timeout_ms)
     engine = Engine.new(analysis=analysis, function=function)
     engine.run_analysis()
     results = engine.result()
@@ -386,7 +386,7 @@ def analyze_function(
     )
     from slither.analyses.data_flow.engine.engine import Engine
 
-    analysis = IntervalAnalysis(solver=solver)
+    analysis = IntervalAnalysis(solver=solver, timeout_ms=config.timeout_ms)
     if not function.nodes:
         return None
 

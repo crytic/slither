@@ -59,6 +59,9 @@ class Engine(Generic[A]):
         engine.analysis = analysis
         engine.function = function
 
+        # Allow analysis to prepare for this function (e.g., collect thresholds)
+        analysis.prepare_for_function(function)
+
         # Create state mapping for nodes in this single function only
         for node in function.nodes:
             engine.nodes.append(node)
