@@ -119,11 +119,11 @@ class DivisionHandler(BinaryOperationHandler):
         if not isinstance(dividend, Variable):
             return False
 
-        add_result = self._check_subtraction_minus_one(dividend, domain)
-        if add_result is None:
+        addition_result = self._check_subtraction_minus_one(dividend, domain)
+        if addition_result is None:
             return False
 
-        return self._check_addition_includes_divisor(add_result, divisor, domain)
+        return self._check_addition_includes_divisor(addition_result, divisor, domain)
 
     def _check_subtraction_minus_one(
         self, variable: Variable, domain: "RoundingDomain"
@@ -134,28 +134,31 @@ class DivisionHandler(BinaryOperationHandler):
             return None
         if subtraction_operation.type != BinaryType.SUBTRACTION:
             return None
-
         if not isinstance(subtraction_operation.variable_right, Constant):
             return None
-        try:
-            if int(subtraction_operation.variable_right.value) != 1:
-                return None
-        except (ValueError, TypeError, AttributeError):
+        if not self._is_constant_one(subtraction_operation.variable_right):
             return None
 
-        add_result = subtraction_operation.variable_left
-        if not isinstance(add_result, Variable):
+        addition_result = subtraction_operation.variable_left
+        if not isinstance(addition_result, Variable):
             return None
-        return add_result
+        return addition_result
+
+    def _is_constant_one(self, constant: Constant) -> bool:
+        """Check if a constant has value 1."""
+        try:
+            return int(constant.value) == 1
+        except (ValueError, TypeError, AttributeError):
+            return False
 
     def _check_addition_includes_divisor(
         self,
-        add_result: Variable,
+        addition_result: Variable,
         divisor: Union[RVALUE, Function],
         domain: "RoundingDomain",
     ) -> bool:
-        """Check if add_result was produced by addition including divisor."""
-        addition_operation = domain.state.get_producer(add_result)
+        """Check if addition_result was produced by addition including divisor."""
+        addition_operation = domain.state.get_producer(addition_result)
         if not isinstance(addition_operation, Binary):
             return False
         if addition_operation.type != BinaryType.ADDITION:
