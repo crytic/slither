@@ -100,11 +100,21 @@ def combine_tag_sets(left: TagSet, right: TagSet) -> tuple[TagSet, bool]:
 def infer_tag_from_name(function_name: Optional[object]) -> RoundingTag:
     """Infer rounding direction from function name.
 
-    Accepts non-string inputs and coerces to string for name checks.
+    If name contains both up/ceil and down/floor indicators, returns NEUTRAL
+    to fall back to interprocedural analysis (e.g., _downscaleUp).
     """
     name_lower = str(function_name).lower() if function_name is not None else ""
-    if "down" in name_lower or "floor" in name_lower:
+
+    has_down = "down" in name_lower or "floor" in name_lower
+    has_up = "up" in name_lower or "ceil" in name_lower
+
+    # Ambiguous - fall back to interprocedural analysis
+    if has_down and has_up:
+        return RoundingTag.NEUTRAL
+
+    if has_down:
         return RoundingTag.DOWN
-    elif "up" in name_lower or "ceil" in name_lower:
+    if has_up:
         return RoundingTag.UP
+
     return RoundingTag.NEUTRAL
