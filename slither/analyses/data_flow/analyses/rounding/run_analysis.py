@@ -4,7 +4,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import Optional, Union
 
 from rich.console import Console
 from rich.text import Text
@@ -52,7 +52,7 @@ class AnnotatedLine:
 
     line_number: int
     source_text: str
-    annotations: List[LineAnnotation] = field(default_factory=list)
+    annotations: list[LineAnnotation] = field(default_factory=list)
     is_entry: bool = False
     is_exit: bool = False
 
@@ -66,32 +66,34 @@ class AnnotatedFunction:
     filename: str
     start_line: int
     end_line: int
-    lines: Dict[int, AnnotatedLine] = field(default_factory=dict)
-    return_tags: Dict[str, RoundingTag] = field(default_factory=dict)
-    inconsistencies: List[str] = field(default_factory=list)
-    annotation_mismatches: List[str] = field(default_factory=list)
-    path_traces: List[str] = field(default_factory=list)  # Interprocedural path traces
+    lines: dict[int, AnnotatedLine] = field(default_factory=dict)
+    return_tags: dict[str, RoundingTag] = field(default_factory=dict)
+    inconsistencies: list[str] = field(default_factory=list)
+    annotation_mismatches: list[str] = field(default_factory=list)
+    path_traces: list[str] = field(default_factory=list)  # Interprocedural path traces
     query_tag: Optional[RoundingTag] = None  # Tag being queried
 
 
-def get_var_name(var: Optional[Union[RVALUE, Variable]]) -> str:
+def get_variable_name(variable: Optional[Union[RVALUE, Variable]]) -> str:
     """Get variable name, or string representation if not a Variable."""
-    if isinstance(var, Variable):
-        return var.name
-    return str(var) if var else "?"
+    if isinstance(variable, Variable):
+        return variable.name
+    return str(variable) if variable else "?"
 
 
-def get_tag(domain: RoundingDomain, var: Optional[Union[RVALUE, Variable]]) -> RoundingTag:
+def get_tag(domain: RoundingDomain, variable: Optional[Union[RVALUE, Variable]]) -> RoundingTag:
     """Get rounding tag for a variable, defaulting to NEUTRAL for non-variables."""
-    if isinstance(var, Variable):
-        return domain.state.get_tag(var)
+    if isinstance(variable, Variable):
+        return domain.state.get_tag(variable)
     return RoundingTag.NEUTRAL
 
 
-def get_unknown_reason(domain: RoundingDomain, var: Variable, tag: RoundingTag) -> Optional[str]:
+def get_unknown_reason(
+    domain: RoundingDomain, variable: Variable, tag: RoundingTag
+) -> Optional[str]:
     """Get unknown reason if tag is UNKNOWN."""
     if tag == RoundingTag.UNKNOWN:
-        return domain.state.get_unknown_reason(var)
+        return domain.state.get_unknown_reason(variable)
     return None
 
 
@@ -107,7 +109,7 @@ def format_tag_inline(tag: RoundingTag) -> Text:
     return Text(tag.name, style=color)
 
 
-def format_tags_set(tags: Set[RoundingTag]) -> Text:
+def format_tags_set(tags: set[RoundingTag]) -> Text:
     """Format a set of rounding tags with colors."""
     result = Text("{")
     sorted_tags = sorted(tags, key=lambda t: t.name)
@@ -119,9 +121,9 @@ def format_tags_set(tags: Set[RoundingTag]) -> Text:
     return result
 
 
-def read_source_lines(filename: str, start_line: int, end_line: int) -> Dict[int, str]:
+def read_source_lines(filename: str, start_line: int, end_line: int) -> dict[int, str]:
     """Read source file lines within the given range."""
-    lines: Dict[int, str] = {}
+    lines: dict[int, str] = {}
     try:
         with open(filename, encoding="utf-8") as f:
             for i, line in enumerate(f, start=1):
@@ -141,27 +143,26 @@ def get_node_line(node: Node) -> Optional[int]:
     return None
 
 
-def build_annotation_note(op: Binary, result_tag: RoundingTag) -> str:
+def build_annotation_note(operation: Binary, result_tag: RoundingTag) -> str:
     """Build annotation note for division operations."""
-    if op.type == BinaryType.DIVISION:
+    if operation.type == BinaryType.DIVISION:
         if result_tag == RoundingTag.UP:
             return "ceiling pattern"
         return "floor division"
     return ""
 
 
-def analyze_function_annotated(
+def _create_annotated_function(
     function: FunctionContract,
-    interprocedural: Optional[RoundingInterproceduralAnalyzer] = None,
     query_tag: Optional[RoundingTag] = None,
 ) -> AnnotatedFunction:
-    """Analyze a function and build annotated source view."""
+    """Create initial AnnotatedFunction from function metadata."""
     source_mapping = function.source_mapping
     filename = source_mapping.filename.absolute if source_mapping else ""
     start_line = source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
     end_line = source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
 
-    annotated = AnnotatedFunction(
+    return AnnotatedFunction(
         function_name=function.name,
         contract_name=function.contract.name if function.contract else "Unknown",
         filename=filename,
@@ -170,27 +171,29 @@ def analyze_function_annotated(
         query_tag=query_tag,
     )
 
-    # Get interprocedural path traces if querying a specific tag
-    if interprocedural and query_tag:
-        trace_lines = interprocedural.get_trace(function, query_tag)
-        annotated.path_traces = trace_lines
 
-    source_lines = read_source_lines(filename, start_line, end_line)
+def _populate_source_lines(annotated: AnnotatedFunction) -> None:
+    """Populate annotated function with source lines."""
+    source_lines = read_source_lines(
+        annotated.filename, annotated.start_line, annotated.end_line
+    )
     for line_num, text in source_lines.items():
         annotated.lines[line_num] = AnnotatedLine(
             line_number=line_num,
             source_text=text,
         )
 
-    rounding_analysis = RoundingAnalysis(interprocedural=interprocedural)
-    engine = Engine.new(rounding_analysis, function)
-    engine.run_analysis()
-    node_results: Dict[Node, AnalysisState] = engine.result()
-    annotated.inconsistencies = rounding_analysis.inconsistencies
-    annotated.annotation_mismatches = rounding_analysis.annotation_mismatches
 
+def _process_node_results(
+    function: FunctionContract,
+    node_results: dict[Node, AnalysisState],
+    annotated: AnnotatedFunction,
+) -> None:
+    """Process analysis results and add annotations to lines."""
     for node in function.nodes:
-        if node not in node_results or node_results[node].post.variant != DomainVariant.STATE:
+        if node not in node_results:
+            continue
+        if node_results[node].post.variant != DomainVariant.STATE:
             continue
 
         domain = node_results[node].post
@@ -203,11 +206,33 @@ def analyze_function_annotated(
             continue
 
         annotated_line = annotated.lines[line_num]
-
         if node.irs_ssa:
             for operation in node.irs_ssa:
                 _process_operation(operation, domain, annotated_line, annotated)
 
+
+def analyze_function_annotated(
+    function: FunctionContract,
+    interprocedural: Optional[RoundingInterproceduralAnalyzer] = None,
+    query_tag: Optional[RoundingTag] = None,
+) -> AnnotatedFunction:
+    """Analyze a function and build annotated source view."""
+    annotated = _create_annotated_function(function, query_tag)
+
+    if interprocedural and query_tag:
+        annotated.path_traces = interprocedural.get_trace(function, query_tag)
+
+    _populate_source_lines(annotated)
+
+    rounding_analysis = RoundingAnalysis(interprocedural=interprocedural)
+    engine = Engine.new(rounding_analysis, function)
+    engine.run_analysis()
+    node_results: dict[Node, AnalysisState] = engine.result()
+
+    annotated.inconsistencies = rounding_analysis.inconsistencies
+    annotated.annotation_mismatches = rounding_analysis.annotation_mismatches
+
+    _process_node_results(function, node_results, annotated)
     return annotated
 
 
@@ -219,7 +244,7 @@ def _process_operation(
 ) -> None:
     """Process an operation and add annotations."""
     if isinstance(operation, Binary) and operation.lvalue:
-        result_name = get_var_name(operation.lvalue)
+        result_name = get_variable_name(operation.lvalue)
         result_tag = get_tag(domain, operation.lvalue)
         note = build_annotation_note(operation, result_tag)
         unknown_reason = (
@@ -234,14 +259,14 @@ def _process_operation(
         )
 
     elif isinstance(operation, Assignment) and operation.lvalue:
-        lvalue_name = get_var_name(operation.lvalue)
+        lvalue_name = get_variable_name(operation.lvalue)
         lvalue_tag = get_tag(domain, operation.lvalue)
         annotated_line.annotations.append(
             LineAnnotation(variable_name=lvalue_name, tag=lvalue_tag)
         )
 
     elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)) and operation.lvalue:
-        result_name = get_var_name(operation.lvalue)
+        result_name = get_variable_name(operation.lvalue)
         result_tag = get_tag(domain, operation.lvalue)
         func_name = _get_call_function_name(operation)
         note = f"from {func_name}()"
@@ -252,7 +277,7 @@ def _process_operation(
     elif isinstance(operation, Return):
         for return_value in operation.values:
             if return_value:
-                var_name = get_var_name(return_value)
+                var_name = get_variable_name(return_value)
                 tag = get_tag(domain, return_value)
                 annotated.return_tags[var_name] = tag
                 annotated_line.annotations.append(
@@ -280,7 +305,8 @@ def display_annotated_source(annotated: AnnotatedFunction) -> None:
     if annotated.filename:
         relative_path = _get_relative_path(annotated.filename)
         file_header = Text()
-        file_header.append(f"[{relative_path}:{annotated.start_line}:{annotated.end_line}]", style="dim")
+        location = f"[{relative_path}:{annotated.start_line}:{annotated.end_line}]"
+        file_header.append(location, style="dim")
         console.print(file_header)
 
     line_width = len(str(annotated.end_line))
@@ -411,7 +437,7 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
             console.print(f"  [red]✗[/red] {mismatch}")
 
 
-def display_summary_table(analyses: List[AnnotatedFunction]) -> None:
+def display_summary_table(analyses: list[AnnotatedFunction]) -> None:
     """Display summary of all analyzed functions."""
     console.print()
     console.print("[bold cyan]" + "=" * 80 + "[/bold cyan]")
@@ -433,10 +459,10 @@ def display_summary_table(analyses: List[AnnotatedFunction]) -> None:
 
 
 def display_function_results(
-    results: Dict[str, RoundingResult],
+    results: dict[str, RoundingResult],
     query_tag: Optional[RoundingTag] = None,
     analyzer: Optional[RoundingInterproceduralAnalyzer] = None,
-    functions: Optional[Dict[str, FunctionContract]] = None,
+    functions: Optional[dict[str, FunctionContract]] = None,
 ) -> None:
     """Display interprocedural analysis results with optional traces."""
     console.print()
@@ -476,8 +502,8 @@ def display_function_results(
     console.print()
 
 
-def main():
-    """Main entry point."""
+def _create_argument_parser() -> argparse.ArgumentParser:
+    """Create and configure the argument parser."""
     parser = argparse.ArgumentParser(
         description="Rounding direction analysis visualization tool"
     )
@@ -486,25 +512,111 @@ def main():
         "-c", "--contract",
         help="Filter to contracts in this file (e.g., MockLinearMath.sol)"
     )
+    parser.add_argument("-f", "--function", help="Filter to this specific function name")
     parser.add_argument(
-        "-f", "--function",
-        help="Filter to this specific function name"
-    )
-    parser.add_argument(
-        "-i", "--interprocedural",
-        action="store_true",
+        "-i", "--interprocedural", action="store_true",
         help="Enable interprocedural analysis"
     )
     parser.add_argument(
-        "--query-tag",
-        choices=["UP", "DOWN", "NEUTRAL", "UNKNOWN"],
+        "--query-tag", choices=["UP", "DOWN", "NEUTRAL", "UNKNOWN"],
         help="Query if functions can produce this tag"
     )
     parser.add_argument(
-        "--show-summaries",
-        action="store_true",
+        "--show-summaries", action="store_true",
         help="Display function summaries (implies -i)"
     )
+    return parser
+
+
+def _collect_functions(
+    slither: Slither,
+    contract_filter: Optional[str],
+    function_filter: Optional[str],
+) -> list[FunctionContract]:
+    """Collect functions to analyze based on filters."""
+    functions: list[FunctionContract] = []
+    for contract in slither.contracts:
+        if contract_filter:
+            contract_file = (
+                contract.source_mapping.filename.short if contract.source_mapping else ""
+            )
+            if contract_filter not in contract_file:
+                continue
+
+        for function in contract.functions:
+            if function_filter and function.name != function_filter:
+                continue
+            if isinstance(function, FunctionContract) and function.is_implemented:
+                functions.append(function)
+    return functions
+
+
+def _run_interprocedural_analysis(
+    functions: list[FunctionContract],
+) -> tuple[RoundingInterproceduralAnalyzer, dict[str, RoundingResult], dict[str, FunctionContract]]:
+    """Run interprocedural analysis on functions."""
+    base_analysis = RoundingAnalysis()
+    analyzer = RoundingInterproceduralAnalyzer(base_analysis)
+    results: dict[str, RoundingResult] = {}
+    functions_by_label: dict[str, FunctionContract] = {}
+
+    for function in functions:
+        contract_name = function.contract.name if function.contract else "Unknown"
+        function_label = f"{contract_name}.{function.name}"
+        try:
+            results[function_label] = analyzer.analyze_call(function)
+            functions_by_label[function_label] = function
+        except Exception as exception:
+            console.print(f"[red]Error analyzing {function_label}:[/red] {exception}")
+
+    return analyzer, results, functions_by_label
+
+
+def _analyze_with_query_tag(
+    functions: list[FunctionContract],
+    analyzer: RoundingInterproceduralAnalyzer,
+    results: dict[str, RoundingResult],
+    query_tag: RoundingTag,
+) -> None:
+    """Analyze and display functions matching a query tag."""
+    function_analyses: list[AnnotatedFunction] = []
+    for function in functions:
+        try:
+            analysis = analyze_function_annotated(function, analyzer, query_tag)
+            contract_name = function.contract.name if function.contract else "Unknown"
+            function_label = f"{contract_name}.{function.name}"
+            if function_label in results and query_tag in results[function_label].possible_tags:
+                function_analyses.append(analysis)
+        except Exception as exception:
+            console.print(f"[red]Error analyzing {function.name}:[/red] {exception}")
+
+    for analysis in function_analyses:
+        display_annotated_source(analysis)
+
+
+def _run_basic_analysis(functions: list[FunctionContract]) -> None:
+    """Run basic intraprocedural analysis and display results."""
+    function_analyses: list[AnnotatedFunction] = []
+    for function in functions:
+        try:
+            function_analyses.append(analyze_function_annotated(function))
+        except Exception as exception:
+            console.print(f"[red]Error analyzing {function.name}:[/red] {exception}")
+
+    if not function_analyses:
+        console.print("[yellow]No functions found to analyze[/yellow]")
+        return
+
+    for analysis in function_analyses:
+        display_annotated_source(analysis)
+
+    if len(function_analyses) > 1:
+        display_summary_table(function_analyses)
+
+
+def main() -> None:
+    """Main entry point."""
+    parser = _create_argument_parser()
     args = parser.parse_args()
 
     project_path = Path(args.project_path)
@@ -512,116 +624,32 @@ def main():
         console.print(f"[red]Error:[/red] Path not found: {project_path}")
         sys.exit(1)
 
-    # Enable interprocedural if showing summaries or querying tags
-    use_interprocedural = args.interprocedural or args.show_summaries or args.query_tag
-
     slither = Slither(str(project_path))
+    functions = _collect_functions(slither, args.contract, args.function)
 
-    # Collect functions to analyze
-    functions_to_analyze: List[FunctionContract] = []
-    for contract in slither.contracts:
-        # Filter by contract file if specified
-        if args.contract:
-            contract_file = (
-                contract.source_mapping.filename.short if contract.source_mapping else ""
-            )
-            # Match if filter appears in path
-            if args.contract not in contract_file:
-                continue
-
-        for function in contract.functions:
-            # Filter by function name if specified
-            if args.function and function.name != args.function:
-                continue
-
-            if isinstance(function, FunctionContract) and function.is_implemented:
-                functions_to_analyze.append(function)
-
-    if not functions_to_analyze:
+    if not functions:
         console.print("[yellow]No functions found to analyze[/yellow]")
         return
 
-    # Run interprocedural analysis if requested
-    if use_interprocedural:
-        # Create a dummy analysis for the interprocedural analyzer
-        base_analysis = RoundingAnalysis()
-        interproc_analyzer = RoundingInterproceduralAnalyzer(base_analysis)
-        results: Dict[str, RoundingResult] = {}
-        functions_by_label: Dict[str, FunctionContract] = {}
+    use_interprocedural = args.interprocedural or args.show_summaries or args.query_tag
 
-        for function in functions_to_analyze:
-            contract_name = function.contract.name if function.contract else "Unknown"
-            func_label = f"{contract_name}.{function.name}"
-            try:
-                result = interproc_analyzer.analyze_call(function)
-                results[func_label] = result
-                functions_by_label[func_label] = function
-            except Exception as e:
-                console.print(f"[red]Error analyzing {func_label}:[/red] {e}")
+    if not use_interprocedural:
+        _run_basic_analysis(functions)
+        return
 
-        # Parse query tag if provided
-        query_tag: Optional[RoundingTag] = None
-        if args.query_tag:
-            query_tag = RoundingTag[args.query_tag]
+    analyzer, results, functions_by_label = _run_interprocedural_analysis(functions)
 
-        # Display results
-        if args.show_summaries:
-            display_function_results(
-                results, query_tag, interproc_analyzer, functions_by_label
-            )
+    query_tag: Optional[RoundingTag] = None
+    if args.query_tag:
+        query_tag = RoundingTag[args.query_tag]
 
-        # Query tag shows annotated source view with path traces
-        if args.query_tag:
-            function_analyses: List[AnnotatedFunction] = []
-            for function in functions_to_analyze:
-                try:
-                    func_analysis = analyze_function_annotated(
-                        function, interproc_analyzer, query_tag
-                    )
-                    # Only show functions that can produce the queried tag
-                    contract_name = function.contract.name if function.contract else "Unknown"
-                    func_label = f"{contract_name}.{function.name}"
-                    if func_label in results and query_tag in results[func_label].possible_tags:
-                        function_analyses.append(func_analysis)
-                except Exception as e:
-                    console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
+    if args.show_summaries:
+        display_function_results(results, query_tag, analyzer, functions_by_label)
 
-            for func_analysis in function_analyses:
-                display_annotated_source(func_analysis)
-
-        # If not showing summaries or query tag, fall through to regular analysis
-        if not args.show_summaries and not args.query_tag:
-            # Regular analysis mode with interprocedural
-            function_analyses: List[AnnotatedFunction] = []
-            for function in functions_to_analyze:
-                try:
-                    function_analyses.append(analyze_function_annotated(function))
-                except Exception as e:
-                    console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
-
-            for func_analysis in function_analyses:
-                display_annotated_source(func_analysis)
-
-            if len(function_analyses) > 1:
-                display_summary_table(function_analyses)
-    else:
-        # Regular intraprocedural analysis
-        function_analyses: List[AnnotatedFunction] = []
-        for function in functions_to_analyze:
-            try:
-                function_analyses.append(analyze_function_annotated(function))
-            except Exception as e:
-                console.print(f"[red]Error analyzing {function.name}:[/red] {e}")
-
-        if not function_analyses:
-            console.print("[yellow]No functions found to analyze[/yellow]")
-            return
-
-        for func_analysis in function_analyses:
-            display_annotated_source(func_analysis)
-
-        if len(function_analyses) > 1:
-            display_summary_table(function_analyses)
+    if query_tag:
+        _analyze_with_query_tag(functions, analyzer, results, query_tag)
+    elif not args.show_summaries:
+        _run_basic_analysis(functions)
 
 
 if __name__ == "__main__":

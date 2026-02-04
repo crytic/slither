@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Optional
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -11,9 +11,18 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
+from slither.slithir.operations.assignment import Assignment
+from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.return_operation import Return
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
+        RoundingAnalysis,
+    )
 
 
 class TagSourceType(Enum):
@@ -45,8 +54,8 @@ class TagSource:
 class FunctionSummary:
     """Summary of possible rounding tags a function can return."""
 
-    possible_tags: Set[RoundingTag] = field(default_factory=set)
-    tag_sources: Dict[RoundingTag, List[TagSource]] = field(default_factory=dict)
+    possible_tags: set[RoundingTag] = field(default_factory=set)
+    tag_sources: dict[RoundingTag, list[TagSource]] = field(default_factory=dict)
     is_complete: bool = True
     incomplete_reason: Optional[str] = None
 
@@ -57,13 +66,16 @@ class FunctionSummary:
             self.tag_sources[source.tag] = []
         self.tag_sources[source.tag].append(source)
 
-    def get_sources_for_tag(self, tag: RoundingTag) -> List[TagSource]:
+    def get_sources_for_tag(self, tag: RoundingTag) -> list[TagSource]:
         """Get all sources that can produce a given tag."""
         return self.tag_sources.get(tag, [])
 
     def __str__(self) -> str:
         tags_str = ", ".join(sorted(t.name for t in self.possible_tags))
-        completeness = "" if self.is_complete else f" (incomplete: {self.incomplete_reason})"
+        if self.is_complete:
+            completeness = ""
+        else:
+            completeness = f" (incomplete: {self.incomplete_reason})"
         return f"{{{tags_str}}}{completeness}"
 
 
@@ -74,8 +86,8 @@ class RoundingSummaryAnalyzer:
     """
 
     def __init__(self, max_depth: int = 10) -> None:
-        self._summaries: Dict[Function, FunctionSummary] = {}
-        self._call_stack: Set[Function] = set()
+        self._summaries: dict[Function, FunctionSummary] = {}
+        self._call_stack: set[Function] = set()
         self._max_depth: int = max_depth
 
     def get_summary(self, function: Function) -> FunctionSummary:
@@ -91,10 +103,10 @@ class RoundingSummaryAnalyzer:
 
     def get_trace(
         self, function: Function, tag: RoundingTag, indent: int = 0
-    ) -> List[str]:
+    ) -> list[str]:
         """Get a trace showing how a function can produce a given tag."""
         summary = self.get_summary(function)
-        lines: List[str] = []
+        lines: list[str] = []
         prefix = "  " * indent
 
         if tag not in summary.possible_tags:
@@ -176,6 +188,7 @@ class RoundingSummaryAnalyzer:
 
     def _analyze_function(self, function: Function) -> FunctionSummary:
         """Run intraprocedural analysis and collect return tags with sources."""
+        # Import here to avoid circular import (analysis.py <-> summary.py via __init__)
         from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
             RoundingAnalysis,
         )
@@ -183,10 +196,10 @@ class RoundingSummaryAnalyzer:
         analysis = RoundingAnalysis(summary_analyzer=self)
         engine = Engine.new(analysis, function)
         engine.run_analysis()
-        node_results: Dict = engine.result()
+        node_results: dict = engine.result()
 
         summary = FunctionSummary()
-        var_sources: Dict[Variable, TagSource] = {}
+        var_sources: dict[Variable, TagSource] = {}
 
         # Two-pass analysis: first collect sources, then trace returns
         self._collect_operation_sources(function, node_results, var_sources)
@@ -200,8 +213,8 @@ class RoundingSummaryAnalyzer:
     def _collect_operation_sources(
         self,
         function: Function,
-        node_results: Dict,
-        var_sources: Dict[Variable, TagSource],
+        node_results: dict,
+        var_sources: dict[Variable, TagSource],
     ) -> None:
         """First pass: collect tag sources from call and division operations."""
         for node in function.nodes:
@@ -223,12 +236,10 @@ class RoundingSummaryAnalyzer:
         self,
         operation: object,
         domain: RoundingDomain,
-        var_sources: Dict[Variable, TagSource],
+        var_sources: dict[Variable, TagSource],
         node: object,
     ) -> None:
         """Track source for a single operation (call or division)."""
-        from slither.slithir.operations.binary import Binary, BinaryType
-        from slither.slithir.operations.internal_call import InternalCall
 
         if isinstance(operation, InternalCall) and operation.lvalue:
             callee = operation.function
@@ -251,16 +262,18 @@ class RoundingSummaryAnalyzer:
                 if isinstance(lvalue, Variable):
                     tag = domain.state.get_tag(lvalue)
                     if tag != RoundingTag.NEUTRAL:
-                        desc = "ceiling division" if tag == RoundingTag.UP else "floor division"
+                        if tag == RoundingTag.UP:
+                            description = "ceiling division"
+                        else:
+                            description = "floor division"
                         var_sources[lvalue] = TagSource(
                             tag=tag,
                             source_type=TagSourceType.DIRECT,
-                            description=desc,
+                            description=description,
                         )
 
     def _get_guarding_condition(self, node: object) -> Optional[str]:
         """Extract the guarding condition from the node's dominating IF node."""
-        from slither.core.cfg.node import Node, NodeType
 
         if not isinstance(node, Node):
             return None
@@ -275,8 +288,8 @@ class RoundingSummaryAnalyzer:
     def _collect_function_returns(
         self,
         function: Function,
-        node_results: Dict,
-        var_sources: Dict[Variable, TagSource],
+        node_results: dict,
+        var_sources: dict[Variable, TagSource],
         summary: FunctionSummary,
     ) -> None:
         """Second pass: collect return tags and trace back to sources."""
@@ -294,13 +307,15 @@ class RoundingSummaryAnalyzer:
 
             for operation in node.irs_ssa:
                 if isinstance(operation, Return):
-                    self._collect_return_sources(operation, domain, var_sources, summary)
+                    self._collect_return_sources(
+                        operation, domain, var_sources, summary
+                    )
 
     def _collect_return_sources(
         self,
         operation: Return,
         domain: RoundingDomain,
-        var_sources: Dict[Variable, TagSource],
+        var_sources: dict[Variable, TagSource],
         summary: FunctionSummary,
     ) -> None:
         """Collect return tags and their sources."""
@@ -313,7 +328,9 @@ class RoundingSummaryAnalyzer:
                     summary.add_source(var_sources[return_value])
                 else:
                     # Try to find source through producer chain
-                    source = self._trace_variable_source(return_value, domain, var_sources)
+                    source = self._trace_variable_source(
+                        return_value, domain, var_sources
+                    )
                     if source:
                         summary.add_source(source)
                     else:
@@ -335,10 +352,10 @@ class RoundingSummaryAnalyzer:
         self,
         var: Variable,
         domain: RoundingDomain,
-        var_sources: Dict[Variable, TagSource],
+        var_sources: dict[Variable, TagSource],
     ) -> Optional[TagSource]:
         """Trace a variable back to its source through assignments."""
-        visited: Set[Variable] = set()
+        visited: set[Variable] = set()
         current = var
 
         while current and current not in visited:
@@ -353,8 +370,11 @@ class RoundingSummaryAnalyzer:
                 break
 
             # Check for assignment chain
-            from slither.slithir.operations.assignment import Assignment
-            if isinstance(producer, Assignment) and isinstance(producer.rvalue, Variable):
+            is_assignment_chain = (
+                isinstance(producer, Assignment)
+                and isinstance(producer.rvalue, Variable)
+            )
+            if is_assignment_chain:
                 current = producer.rvalue
             else:
                 break
