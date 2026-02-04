@@ -8,7 +8,7 @@ from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
-    get_variable_tag,
+    get_variable_tags,
 )
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
@@ -38,9 +38,9 @@ class AssignmentHandler(BaseOperationHandler):
 
         right_value = operation.rvalue
         if isinstance(right_value, Variable):
-            tag = get_variable_tag(right_value, domain)
-            domain.state.set_tag(operation.lvalue, tag, operation)
+            tags = get_variable_tags(right_value, domain)
+            domain.state.set_tag(operation.lvalue, tags, operation)
+            actual_tag = domain.state.get_tag(operation.lvalue)
             self.analysis._check_annotation_for_variable(
-                operation.lvalue, tag, operation, node, domain
+                operation.lvalue, actual_tag, operation, node, domain
             )
-        # For non-variable rvalues (functions, tuples), leave as UNKNOWN

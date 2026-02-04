@@ -524,7 +524,7 @@ def _create_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("project_path", help="Path to Solidity file or project directory")
     parser.add_argument(
         "-c", "--contract",
-        help="Filter to contracts in this file (e.g., MockLinearMath.sol)"
+        help="Filter by filename or exact contract name (e.g., LinearPool.sol or LinearPool)"
     )
     parser.add_argument("-f", "--function", help="Filter to this specific function name")
     parser.add_argument(
@@ -541,15 +541,27 @@ def _collect_functions(
 ) -> list[FunctionContract]:
     """Collect functions to analyze based on filters."""
     functions: list[FunctionContract] = []
+    exact_name_exists = any(
+        contract.name == contract_filter for contract in slither_instance.contracts
+    )
+
     for contract in slither_instance.contracts:
         if contract_filter:
-            contract_file = (
-                contract.source_mapping.filename.short if contract.source_mapping else ""
-            )
-            if contract_filter not in contract_file:
-                continue
+            if exact_name_exists:
+                if contract.name != contract_filter:
+                    continue
+                function_source = contract.functions_declared
+            else:
+                contract_file = (
+                    contract.source_mapping.filename.short if contract.source_mapping else ""
+                )
+                if contract_filter not in contract_file:
+                    continue
+                function_source = contract.functions
+        else:
+            function_source = contract.functions
 
-        for function in contract.functions:
+        for function in function_source:
             if function_filter and function.name != function_filter:
                 continue
             if isinstance(function, FunctionContract) and function.is_implemented:
