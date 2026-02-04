@@ -14,6 +14,7 @@ TEST_CONTRACTS: list[str] = [
     "Test_Multiplication.sol",
     "Test_Subtraction.sol",
     "Test_Division.sol",
+    "Test_ConditionalRounding.sol",
 ]
 
 
@@ -90,9 +91,13 @@ def analyze_contract():
                 continue
 
             post_state = state.post.state
-            for variable, tag in post_state._tags.items():
+            for variable, tags in post_state._tags.items():
                 if isinstance(variable, Variable):
-                    variables[variable.name] = tag.name
+                    if len(tags) == 1:
+                        variables[variable.name] = next(iter(tags)).name
+                    else:
+                        names = sorted(tag.name for tag in tags)
+                        variables[variable.name] = "{" + ", ".join(names) + "}"
 
         func_data: Dict[str, Any] = {"variables": variables}
 

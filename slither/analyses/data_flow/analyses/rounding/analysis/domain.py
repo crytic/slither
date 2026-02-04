@@ -62,25 +62,18 @@ class RoundingDomain(Domain):
         return False
 
     def _merge_variable_tags(self, other: "RoundingDomain") -> bool:
-        """Merge variable tags from other domain into self, return True if changed."""
+        """Merge variable tags from other domain into self using set union."""
         changed = False
         all_variables = set(self.state._tags.keys()) | set(other.state._tags.keys())
 
         for variable in all_variables:
-            self_tag = self.state.get_tag(variable)
-            other_tag = other.state.get_tag(variable)
-
-            if self_tag == other_tag:
-                continue
-            elif self_tag == RoundingTag.NEUTRAL:
-                if other_tag != RoundingTag.NEUTRAL:
-                    self.state.set_tag(variable, other_tag)
-                    changed = True
-            elif other_tag == RoundingTag.NEUTRAL:
-                continue
-            else:
-                reason = f"Join conflict: {self_tag.name} vs {other_tag.name}"
-                self.state.set_tag(variable, RoundingTag.UNKNOWN, unknown_reason=reason)
+            self_tags = self.state.get_tags(variable)
+            other_tags = other.state.get_tags(variable)
+            merged = self_tags | other_tags
+            if len(merged) > 1 and RoundingTag.NEUTRAL in merged:
+                merged = merged - {RoundingTag.NEUTRAL}
+            if merged != self_tags:
+                self.state.set_tag(variable, merged)
                 changed = True
 
         return changed

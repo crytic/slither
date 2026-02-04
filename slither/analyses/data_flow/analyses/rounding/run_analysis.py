@@ -15,7 +15,7 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
 )
-from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
+from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag, TagSet
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node, NodeType
@@ -38,7 +38,7 @@ class LineAnnotation:
     """Annotation for a single variable on a source line."""
 
     variable_name: str
-    tag: RoundingTag
+    tags: TagSet
     is_return: bool = False
     note: str = ""
 
@@ -63,7 +63,7 @@ class AnnotatedFunction:
     start_line: int
     end_line: int
     lines: dict[int, AnnotatedLine] = field(default_factory=dict)
-    return_tags: dict[str, RoundingTag] = field(default_factory=dict)
+    return_tags: dict[str, TagSet] = field(default_factory=dict)
     inconsistencies: list[str] = field(default_factory=list)
     annotation_mismatches: list[str] = field(default_factory=list)
 
@@ -75,31 +75,40 @@ def get_variable_name(variable: Optional[Union[RVALUE, Variable]]) -> str:
     return str(variable) if variable else "?"
 
 
-def get_tag(domain: RoundingDomain, variable: Optional[Union[RVALUE, Variable]]) -> RoundingTag:
-    """Get rounding tag for a variable."""
+def get_tags(
+    domain: RoundingDomain,
+    variable: Optional[Union[RVALUE, Variable]],
+) -> TagSet:
+    """Get rounding tags for a variable."""
     if isinstance(variable, Variable):
-        return domain.state.get_tag(variable)
-    return RoundingTag.NEUTRAL
+        return domain.state.get_tags(variable)
+    return frozenset({RoundingTag.NEUTRAL})
 
 
 def get_unknown_reason(
-    domain: RoundingDomain, variable: Variable, tag: RoundingTag
+    domain: RoundingDomain,
+    variable: Variable,
+    tags: TagSet,
 ) -> Optional[str]:
-    """Get unknown reason if tag is UNKNOWN."""
-    if tag == RoundingTag.UNKNOWN:
+    """Get unknown reason if tags include UNKNOWN."""
+    if RoundingTag.UNKNOWN in tags:
         return domain.state.get_unknown_reason(variable)
     return None
 
 
-def format_tag_inline(tag: RoundingTag) -> Text:
-    """Format rounding tag with color."""
+def format_tag_inline(tags: TagSet) -> Text:
+    """Format rounding tag set with color."""
     colors = {
         RoundingTag.UP: "green",
         RoundingTag.DOWN: "red",
         RoundingTag.NEUTRAL: "white",
         RoundingTag.UNKNOWN: "yellow",
     }
-    return Text(tag.name, style=colors.get(tag, "white"))
+    if len(tags) == 1:
+        tag = next(iter(tags))
+        return Text(tag.name, style=colors.get(tag, "white"))
+    names = sorted(tag.name for tag in tags)
+    return Text("{" + ", ".join(names) + "}", style="yellow")
 
 
 def read_source_lines(filename: str, start_line: int, end_line: int) -> dict[int, str]:
@@ -124,13 +133,15 @@ def get_node_line(node: Node) -> Optional[int]:
     return None
 
 
-def build_annotation_note(operation: Binary, result_tag: RoundingTag) -> str:
+def build_annotation_note(operation: Binary, result_tags: TagSet) -> str:
     """Build annotation note for division operations."""
     if operation.type != BinaryType.DIVISION:
         return ""
-    if result_tag == RoundingTag.UP:
+    if result_tags == frozenset({RoundingTag.UP}):
         return "ceiling pattern"
-    return "floor division"
+    if result_tags == frozenset({RoundingTag.DOWN}):
+        return "floor division"
+    return ""
 
 
 def analyze_function(
@@ -218,9 +229,9 @@ def _add_parameter_annotations(
 ) -> None:
     """Add annotations for function parameters."""
     for parameter in function.parameters:
-        tag = get_tag(domain, parameter)
+        tags = get_tags(domain, parameter)
         annotated_line.annotations.append(
-            LineAnnotation(variable_name=parameter.name, tag=tag, note="parameter")
+            LineAnnotation(variable_name=parameter.name, tags=tags, note="parameter")
         )
 
 
@@ -248,40 +259,50 @@ def _process_binary_operation(
 ) -> None:
     """Process binary operation."""
     result_name = get_variable_name(operation.lvalue)
-    result_tag = get_tag(domain, operation.lvalue)
+    result_tags = get_tags(domain, operation.lvalue)
 
     if isinstance(operation.lvalue, Variable):
-        unknown_reason = get_unknown_reason(domain, operation.lvalue, result_tag)
+        unknown_reason = get_unknown_reason(domain, operation.lvalue, result_tags)
         if unknown_reason:
             note = unknown_reason
         else:
-            note = _build_binary_reasoning(operation, domain, result_tag)
+            note = _build_binary_reasoning(operation, domain, result_tags)
     else:
-        note = build_annotation_note(operation, result_tag)
+        note = build_annotation_note(operation, result_tags)
 
     annotated_line.annotations.append(
-        LineAnnotation(variable_name=result_name, tag=result_tag, note=note)
+        LineAnnotation(variable_name=result_name, tags=result_tags, note=note)
     )
 
 
 def _build_binary_reasoning(
     operation: Binary,
     domain: RoundingDomain,
-    result_tag: RoundingTag,
+    result_tags: TagSet,
 ) -> str:
     """Build reasoning note showing operand tags for binary operations."""
-    left_tag = get_tag(domain, operation.variable_left)
-    right_tag = get_tag(domain, operation.variable_right)
+    left_tags = get_tags(domain, operation.variable_left)
+    right_tags = get_tags(domain, operation.variable_right)
     left_name = get_variable_name(operation.variable_left)
     right_name = get_variable_name(operation.variable_right)
 
     op_symbol = _get_operation_symbol(operation.type)
-    base_note = build_annotation_note(operation, result_tag)
+    base_note = build_annotation_note(operation, result_tags)
 
-    reasoning = f"{left_name}:{left_tag.name} {op_symbol} {right_name}:{right_tag.name}"
+    left_str = _format_tag_for_reasoning(left_tags)
+    right_str = _format_tag_for_reasoning(right_tags)
+    reasoning = f"{left_name}:{left_str} {op_symbol} {right_name}:{right_str}"
     if base_note:
         return f"{reasoning} ({base_note})"
     return reasoning
+
+
+def _format_tag_for_reasoning(tags: TagSet) -> str:
+    """Format tag set for display in reasoning notes."""
+    if len(tags) == 1:
+        return next(iter(tags)).name
+    names = sorted(tag.name for tag in tags)
+    return "{" + ", ".join(names) + "}"
 
 
 def _get_operation_symbol(binary_type: BinaryType) -> str:
@@ -303,9 +324,9 @@ def _process_assignment_operation(
 ) -> None:
     """Process assignment operation."""
     lvalue_name = get_variable_name(operation.lvalue)
-    lvalue_tag = get_tag(domain, operation.lvalue)
+    lvalue_tags = get_tags(domain, operation.lvalue)
     annotated_line.annotations.append(
-        LineAnnotation(variable_name=lvalue_name, tag=lvalue_tag)
+        LineAnnotation(variable_name=lvalue_name, tags=lvalue_tags)
     )
 
 
@@ -316,11 +337,11 @@ def _process_call_operation(
 ) -> None:
     """Process call operation."""
     result_name = get_variable_name(operation.lvalue)
-    result_tag = get_tag(domain, operation.lvalue)
+    result_tags = get_tags(domain, operation.lvalue)
     func_name = _get_call_function_name(operation)
     note = f"from {func_name}()"
     annotated_line.annotations.append(
-        LineAnnotation(variable_name=result_name, tag=result_tag, note=note)
+        LineAnnotation(variable_name=result_name, tags=result_tags, note=note)
     )
 
 
@@ -335,10 +356,11 @@ def _process_return_operation(
         if not return_value:
             continue
         var_name = get_variable_name(return_value)
-        tag = get_tag(domain, return_value)
-        annotated.return_tags[var_name] = tag
+        tags = get_tags(domain, return_value)
+        existing = annotated.return_tags.get(var_name, frozenset())
+        annotated.return_tags[var_name] = existing | tags
         annotated_line.annotations.append(
-            LineAnnotation(variable_name=var_name, tag=tag, is_return=True)
+            LineAnnotation(variable_name=var_name, tags=tags, is_return=True)
         )
 
 
@@ -420,7 +442,7 @@ def _display_annotations(annotated_line: AnnotatedLine, line_width: int) -> None
             line.append(f"{prefix} ", style="bold")
         line.append(var_display, style="cyan")
         line.append(" → ")
-        line.append(format_tag_inline(annotation.tag))
+        line.append(format_tag_inline(annotation.tags))
         if note_text:
             line.append(note_text, style="dim")
 
@@ -437,11 +459,14 @@ def _display_return_summary(annotated: AnnotatedFunction) -> None:
     returns_line.append("Return Values: ", style="bold")
 
     items = []
-    for var_name, tag in annotated.return_tags.items():
+    for var_name, tags in annotated.return_tags.items():
+        filtered_tags = tags
+        if len(filtered_tags) > 1 and RoundingTag.NEUTRAL in filtered_tags:
+            filtered_tags = filtered_tags - {RoundingTag.NEUTRAL}
         item = Text()
         item.append(var_name, style="cyan")
         item.append(" → ")
-        item.append(format_tag_inline(tag))
+        item.append(format_tag_inline(filtered_tags))
         items.append(item)
 
     for index, item in enumerate(items):
@@ -478,11 +503,14 @@ def display_summary_table(analyses: list[AnnotatedFunction]) -> None:
     for func in analyses:
         func_name = f"{func.contract_name}.{func.function_name}"
         if func.return_tags:
-            for var_name, tag in func.return_tags.items():
+            for var_name, tags in func.return_tags.items():
+                filtered_tags = tags
+                if len(filtered_tags) > 1 and RoundingTag.NEUTRAL in filtered_tags:
+                    filtered_tags = filtered_tags - {RoundingTag.NEUTRAL}
                 line = Text()
                 line.append(f"  {func_name}", style="bold")
                 line.append(f" returns {var_name} → ")
-                line.append(format_tag_inline(tag))
+                line.append(format_tag_inline(filtered_tags))
                 console.print(line)
         else:
             console.print(f"  [bold]{func_name}[/bold] [dim](no return)[/dim]")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
+from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag, TagSet
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import RVALUE
@@ -31,6 +31,21 @@ def get_variable_tag(
     return RoundingTag.NEUTRAL
 
 
+def get_variable_tags(
+    variable: Optional[Union[RVALUE, Function]],
+    domain: "RoundingDomain",
+) -> TagSet:
+    """Get the rounding tag set for a variable or constant.
+
+    Accepts RVALUE/None and returns {NEUTRAL} for constants or unrecognized types.
+    """
+    if isinstance(variable, Constant):
+        return frozenset({RoundingTag.NEUTRAL})
+    if isinstance(variable, Variable):
+        return domain.state.get_tags(variable)
+    return frozenset({RoundingTag.NEUTRAL})
+
+
 def invert_tag(tag: RoundingTag) -> RoundingTag:
     """Invert rounding direction (UP <-> DOWN) and keep neutral tags unchanged."""
     if tag == RoundingTag.UP:
@@ -38,6 +53,11 @@ def invert_tag(tag: RoundingTag) -> RoundingTag:
     if tag == RoundingTag.DOWN:
         return RoundingTag.UP
     return tag
+
+
+def invert_tag_set(tags: TagSet) -> TagSet:
+    """Invert all tags in a set (UP <-> DOWN)."""
+    return frozenset(invert_tag(tag) for tag in tags)
 
 
 def combine_tags(left: RoundingTag, right: RoundingTag) -> tuple[RoundingTag, bool]:
@@ -58,8 +78,23 @@ def combine_tags(left: RoundingTag, right: RoundingTag) -> tuple[RoundingTag, bo
         return left, False
     if left == right:
         return left, False
-    # Conflict: UP vs DOWN
     return RoundingTag.UNKNOWN, True
+
+
+def combine_tag_sets(left: TagSet, right: TagSet) -> tuple[TagSet, bool]:
+    """Combine two tag sets for binary operations.
+
+    Computes cross-product of combining each tag pair. Returns (result_set, has_conflict).
+    """
+    result: set[RoundingTag] = set()
+    has_conflict = False
+    for left_tag in left:
+        for right_tag in right:
+            combined, conflict = combine_tags(left_tag, right_tag)
+            if conflict:
+                has_conflict = True
+            result.add(combined)
+    return frozenset(result), has_conflict
 
 
 def infer_tag_from_name(function_name: Optional[object]) -> RoundingTag:

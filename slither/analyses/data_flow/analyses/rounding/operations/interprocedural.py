@@ -12,6 +12,7 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingState,
     RoundingTag,
+    TagSet,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
@@ -68,28 +69,28 @@ class InterproceduralHandler(BaseOperationHandler):
         if self._is_named_division_function(function_name):
             self._check_named_division_consistency(operation, domain, node)
 
-        tag = self._infer_tag_with_fallback(operation, function_name, domain)
-        self._set_tag(operation.lvalue, tag, operation, node, domain)
+        tags = self._infer_tag_with_fallback(operation, function_name, domain)
+        self._set_tags(operation.lvalue, tags, operation, node, domain)
 
     def _infer_tag_with_fallback(
         self,
         operation: Call,
         function_name: str,
         domain: RoundingDomain,
-    ) -> RoundingTag:
-        """Infer tag from name first, then fall back to body analysis."""
+    ) -> TagSet:
+        """Infer tags from name first, then fall back to body analysis."""
         tag = infer_tag_from_name(function_name)
         if tag != RoundingTag.NEUTRAL:
-            return tag
+            return frozenset({tag})
 
         called_function = self._get_called_function(operation)
         if called_function is None:
-            return tag
+            return frozenset({tag})
 
-        body_tag = self._analyze_function_body(
+        body_tags = self._analyze_function_body(
             called_function, operation.arguments, domain
         )
-        return body_tag if body_tag is not None else tag
+        return body_tags if body_tags else frozenset({tag})
 
     @abstractmethod
     def _get_called_function(self, operation: Call) -> Function | None:
@@ -104,13 +105,13 @@ class InterproceduralHandler(BaseOperationHandler):
         function: Function,
         arguments: list,
         domain: RoundingDomain,
-    ) -> RoundingTag | None:
+    ) -> TagSet | None:
         """Analyze function body with argument tag mapping.
 
-        Returns the tag of the return value, or None if analysis fails.
+        Returns the tag set of all return values, or None if analysis fails.
         """
         if function in self._call_stack:
-            return RoundingTag.UNKNOWN
+            return frozenset({RoundingTag.UNKNOWN})
 
         if not function.nodes:
             return None
@@ -126,12 +127,12 @@ class InterproceduralHandler(BaseOperationHandler):
         function: Function,
         arguments: list,
         domain: RoundingDomain,
-    ) -> RoundingTag | None:
-        """Run analysis on callee function and extract return tag."""
+    ) -> TagSet | None:
+        """Run analysis on callee function and extract return tags."""
         callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
         self._bind_parameter_tags(function, arguments, domain, callee_domain)
         self._analyze_callee_body(function, callee_domain)
-        return self._extract_return_tag(function, callee_domain)
+        return self._extract_return_tags(function, callee_domain)
 
     def _bind_parameter_tags(
         self,
@@ -169,26 +170,31 @@ class InterproceduralHandler(BaseOperationHandler):
             if handler is not None:
                 handler.handle(operation, callee_domain, node)
 
-    def _extract_return_tag(
+    def _extract_return_tags(
         self,
         function: Function,
         callee_domain: RoundingDomain,
-    ) -> RoundingTag | None:
-        """Extract the return value's tag from the analyzed function."""
+    ) -> TagSet | None:
+        """Extract all return value tags from the analyzed function."""
+        all_tags: set[RoundingTag] = set()
         for node in function.nodes:
-            tag = self._get_return_tag_from_node(node, callee_domain)
-            if tag is not None:
-                return tag
-        return None
+            tags = self._get_return_tags_from_node(node, callee_domain)
+            all_tags.update(tags)
+        if not all_tags:
+            return None
+        if len(all_tags) > 1 and RoundingTag.NEUTRAL in all_tags:
+            all_tags.discard(RoundingTag.NEUTRAL)
+        return frozenset(all_tags)
 
-    def _get_return_tag_from_node(
+    def _get_return_tags_from_node(
         self,
         node: Node,
         callee_domain: RoundingDomain,
-    ) -> RoundingTag | None:
-        """Get return tag from a single node if it contains a return operation."""
+    ) -> set[RoundingTag]:
+        """Get return tags from a single node if it contains a return operation."""
+        tags: set[RoundingTag] = set()
         if not node.irs_ssa:
-            return None
+            return tags
         for operation in node.irs_ssa:
             if not isinstance(operation, Return):
                 continue
@@ -196,8 +202,8 @@ class InterproceduralHandler(BaseOperationHandler):
                 continue
             return_value = operation.values[0]
             if isinstance(return_value, Variable):
-                return callee_domain.state.get_tag(return_value)
-        return None
+                tags.update(callee_domain.state.get_tags(return_value))
+        return tags
 
     def _is_named_division_function(self, function_name: str) -> bool:
         """Return True when function name indicates divUp/divDown helpers."""
@@ -271,4 +277,21 @@ class InterproceduralHandler(BaseOperationHandler):
         domain.state.set_tag(variable, tag, operation)
         self.analysis._check_annotation_for_variable(
             variable, tag, operation, node, domain
+        )
+
+    def _set_tags(
+        self,
+        variable: object,
+        tags: TagSet,
+        operation: Call,
+        node: Node,
+        domain: RoundingDomain,
+    ) -> None:
+        """Set tag set and check annotation."""
+        if not isinstance(variable, Variable):
+            return
+        domain.state.set_tag(variable, tags, operation)
+        actual_tag = domain.state.get_tag(variable)
+        self.analysis._check_annotation_for_variable(
+            variable, actual_tag, operation, node, domain
         )

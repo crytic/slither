@@ -1,6 +1,6 @@
 import copy
 from enum import Enum, auto
-from typing import Dict, Optional
+from typing import Dict, FrozenSet, Optional, Union
 
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.operation import Operation
@@ -15,11 +15,14 @@ class RoundingTag(Enum):
     UNKNOWN = auto()  # Direction unclear or mixed
 
 
+TagSet = FrozenSet[RoundingTag]
+
+
 class RoundingState:
     """Track rounding metadata for variables as they flow through the program."""
 
     def __init__(self):
-        self._tags: Dict[Variable, RoundingTag] = {}
+        self._tags: Dict[Variable, TagSet] = {}
         # Track which operation produced each variable (for pattern detection)
         self._producers: Dict[Variable, Optional[Operation]] = {}
         # Track reasons for UNKNOWN tags
@@ -28,26 +31,42 @@ class RoundingState:
     def set_tag(
         self,
         variable: Variable,
-        tag: RoundingTag,
+        tag: Union[RoundingTag, TagSet],
         producer: Optional[Operation] = None,
         unknown_reason: Optional[str] = None,
     ) -> None:
-        """Assign a rounding tag to a variable.
+        """Assign a rounding tag or tag set to a variable.
 
-        Optionally tracks the operation that produced it.
+        Accepts a single RoundingTag or a TagSet. Single tags are normalized
+        to TagSet for internal storage. Optionally tracks the operation that
+        produced it.
         """
-        self._tags[variable] = tag
+        tag_set: TagSet
+        if isinstance(tag, RoundingTag):
+            tag_set = frozenset({tag})
+        else:
+            tag_set = tag
+        self._tags[variable] = tag_set
         if producer is not None:
             self._producers[variable] = producer
-        if tag == RoundingTag.UNKNOWN and unknown_reason:
+        if RoundingTag.UNKNOWN in tag_set and unknown_reason:
             self._unknown_reasons[variable] = unknown_reason
-        elif tag != RoundingTag.UNKNOWN:
-            # Remove reason if tag is no longer UNKNOWN
+        elif RoundingTag.UNKNOWN not in tag_set:
             self._unknown_reasons.pop(variable, None)
 
+    def get_tags(self, variable: Variable) -> TagSet:
+        """Get the tag set for a variable (default {NEUTRAL})."""
+        return self._tags.get(variable, frozenset({RoundingTag.NEUTRAL}))
+
     def get_tag(self, variable: Variable) -> RoundingTag:
-        """Get the tag for a variable (default NEUTRAL)."""
-        return self._tags.get(variable, RoundingTag.NEUTRAL)
+        """Get a single tag for a variable (backward compatibility).
+
+        Returns the single tag if only one exists, otherwise UNKNOWN.
+        """
+        tags = self.get_tags(variable)
+        if len(tags) == 1:
+            return next(iter(tags))
+        return RoundingTag.UNKNOWN
 
     def get_producer(self, variable: Variable) -> Optional[Operation]:
         """Get the operation that produced a variable (if tracked)."""
@@ -75,7 +94,11 @@ class RoundingState:
         return hash(frozenset(self._tags.items()))
 
     def __str__(self) -> str:
-        tag_strings = [
-            f"{variable.name}: {tag.name}" for variable, tag in self._tags.items()
-        ]
+        tag_strings = []
+        for variable, tags in self._tags.items():
+            if len(tags) == 1:
+                tag_strings.append(f"{variable.name}: {next(iter(tags)).name}")
+            else:
+                names = sorted(tag.name for tag in tags)
+                tag_strings.append(f"{variable.name}: {{{', '.join(names)}}}")
         return f"RoundingState({len(self._tags)} variables: {', '.join(tag_strings)})"
