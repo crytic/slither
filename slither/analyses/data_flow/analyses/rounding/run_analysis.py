@@ -133,7 +133,10 @@ def build_annotation_note(operation: Binary, result_tag: RoundingTag) -> str:
     return "floor division"
 
 
-def analyze_function(function: FunctionContract) -> AnnotatedFunction:
+def analyze_function(
+    function: FunctionContract,
+    show_all: bool = False,
+) -> AnnotatedFunction:
     """Analyze a function and build annotated source view."""
     annotated = _create_annotated_function(function)
     _populate_source_lines(annotated)
@@ -146,7 +149,7 @@ def analyze_function(function: FunctionContract) -> AnnotatedFunction:
     annotated.inconsistencies = analysis.inconsistencies
     annotated.annotation_mismatches = analysis.annotation_mismatches
 
-    _process_node_results(function, node_results, annotated)
+    _process_node_results(function, node_results, annotated, show_all)
     return annotated
 
 
@@ -182,6 +185,7 @@ def _process_node_results(
     function: FunctionContract,
     node_results: dict[Node, AnalysisState],
     annotated: AnnotatedFunction,
+    show_all: bool = False,
 ) -> None:
     """Process analysis results and add annotations to lines."""
     for node in function.nodes:
@@ -195,6 +199,8 @@ def _process_node_results(
 
         if node.type == NodeType.ENTRYPOINT and line_num and line_num in annotated.lines:
             annotated.lines[line_num].is_entry = True
+            if show_all:
+                _add_parameter_annotations(function, domain, annotated.lines[line_num])
 
         if line_num is None or line_num not in annotated.lines:
             continue
@@ -203,6 +209,19 @@ def _process_node_results(
         if node.irs_ssa:
             for operation in node.irs_ssa:
                 _process_operation(operation, domain, annotated_line, annotated)
+
+
+def _add_parameter_annotations(
+    function: FunctionContract,
+    domain: RoundingDomain,
+    annotated_line: AnnotatedLine,
+) -> None:
+    """Add annotations for function parameters."""
+    for parameter in function.parameters:
+        tag = get_tag(domain, parameter)
+        annotated_line.annotations.append(
+            LineAnnotation(variable_name=parameter.name, tag=tag, note="parameter")
+        )
 
 
 def _process_operation(
@@ -230,16 +249,51 @@ def _process_binary_operation(
     """Process binary operation."""
     result_name = get_variable_name(operation.lvalue)
     result_tag = get_tag(domain, operation.lvalue)
-    note = build_annotation_note(operation, result_tag)
 
     if isinstance(operation.lvalue, Variable):
         unknown_reason = get_unknown_reason(domain, operation.lvalue, result_tag)
         if unknown_reason:
             note = unknown_reason
+        else:
+            note = _build_binary_reasoning(operation, domain, result_tag)
+    else:
+        note = build_annotation_note(operation, result_tag)
 
     annotated_line.annotations.append(
         LineAnnotation(variable_name=result_name, tag=result_tag, note=note)
     )
+
+
+def _build_binary_reasoning(
+    operation: Binary,
+    domain: RoundingDomain,
+    result_tag: RoundingTag,
+) -> str:
+    """Build reasoning note showing operand tags for binary operations."""
+    left_tag = get_tag(domain, operation.variable_left)
+    right_tag = get_tag(domain, operation.variable_right)
+    left_name = get_variable_name(operation.variable_left)
+    right_name = get_variable_name(operation.variable_right)
+
+    op_symbol = _get_operation_symbol(operation.type)
+    base_note = build_annotation_note(operation, result_tag)
+
+    reasoning = f"{left_name}:{left_tag.name} {op_symbol} {right_name}:{right_tag.name}"
+    if base_note:
+        return f"{reasoning} ({base_note})"
+    return reasoning
+
+
+def _get_operation_symbol(binary_type: BinaryType) -> str:
+    """Get the symbol for a binary operation type."""
+    symbols = {
+        BinaryType.ADDITION: "+",
+        BinaryType.SUBTRACTION: "-",
+        BinaryType.MULTIPLICATION: "*",
+        BinaryType.DIVISION: "/",
+        BinaryType.MODULO: "%",
+    }
+    return symbols.get(binary_type, "?")
 
 
 def _process_assignment_operation(
@@ -445,6 +499,10 @@ def _create_argument_parser() -> argparse.ArgumentParser:
         help="Filter to contracts in this file (e.g., MockLinearMath.sol)"
     )
     parser.add_argument("-f", "--function", help="Filter to this specific function name")
+    parser.add_argument(
+        "--all", action="store_true",
+        help="Show all variables including NEUTRAL parameters"
+    )
     return parser
 
 
@@ -490,7 +548,7 @@ def main() -> None:
     function_analyses: list[AnnotatedFunction] = []
     for function in functions:
         try:
-            function_analyses.append(analyze_function(function))
+            function_analyses.append(analyze_function(function, show_all=args.all))
         except Exception as exception:
             logger.error(f"Error analyzing {function.name}: {exception}")
 

@@ -10,6 +10,7 @@ CONTRACTS_DIR = Path(__file__).parent / "contracts"
 # List of contract files with expected results
 TEST_CONTRACTS: list[str] = [
     "Test_NameInference.sol",
+    "Test_Addition.sol",
 ]
 
 
