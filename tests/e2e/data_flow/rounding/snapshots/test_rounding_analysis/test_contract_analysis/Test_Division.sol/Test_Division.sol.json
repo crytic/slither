@@ -1,0 +1,136 @@
+{
+  "Test_Division": {
+    "divDown": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_0": "DOWN",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "test_down_div_down": {
+      "inconsistencies": [
+        "Division rounding inconsistency in test_down_div_down: numerator and denominator both DOWN in TMP_21(uint256) = down1_1 (c)/ down2_1"
+      ],
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_19": "DOWN",
+        "TMP_20": "DOWN",
+        "TMP_21": "UNKNOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "down1": "DOWN",
+        "down2": "DOWN"
+      }
+    },
+    "test_down_div_neutral": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_5": "DOWN",
+        "TMP_6": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "downValue": "DOWN"
+      }
+    },
+    "test_down_div_up": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_13": "DOWN",
+        "TMP_14": "UP",
+        "TMP_15": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "downValue": "DOWN",
+        "upValue": "UP"
+      }
+    },
+    "test_neutral_div_down": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_10": "UP",
+        "TMP_9": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "downValue": "DOWN"
+      }
+    },
+    "test_neutral_div_neutral": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_4": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL"
+      }
+    },
+    "test_neutral_div_up": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_11": "UP",
+        "TMP_12": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "upValue": "UP"
+      }
+    },
+    "test_up_div_down": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_16": "UP",
+        "TMP_17": "DOWN",
+        "TMP_18": "UP",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "downValue": "DOWN",
+        "upValue": "UP"
+      }
+    },
+    "test_up_div_neutral": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_7": "UP",
+        "TMP_8": "UP",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "upValue": "UP"
+      }
+    },
+    "test_up_div_up": {
+      "inconsistencies": [
+        "Division rounding inconsistency in test_up_div_up: numerator and denominator both UP in TMP_24(uint256) = up1_1 (c)/ up2_1"
+      ],
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_22": "UP",
+        "TMP_23": "UP",
+        "TMP_24": "UNKNOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "up1": "UP",
+        "up2": "UP"
+      }
+    }
+  }
+}
