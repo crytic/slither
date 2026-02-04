@@ -15,7 +15,11 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
 )
-from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag, TagSet
+from slither.analyses.data_flow.analyses.rounding.core.state import (
+    RoundingTag,
+    TagSet,
+    TraceNode,
+)
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node, NodeType
@@ -66,6 +70,7 @@ class AnnotatedFunction:
     return_tags: dict[str, TagSet] = field(default_factory=dict)
     inconsistencies: list[str] = field(default_factory=list)
     annotation_mismatches: list[str] = field(default_factory=list)
+    node_results: dict[Node, "AnalysisState"] = field(default_factory=dict)
 
 
 def get_variable_name(variable: Optional[Union[RVALUE, Variable]]) -> str:
@@ -159,6 +164,7 @@ def analyze_function(
 
     annotated.inconsistencies = analysis.inconsistencies
     annotated.annotation_mismatches = analysis.annotation_mismatches
+    annotated.node_results = node_results
 
     _process_node_results(function, node_results, annotated, show_all)
     return annotated
@@ -492,6 +498,91 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
             console.print(f"  [red]✗[/red] {mismatch}")
 
 
+def display_trace_section(annotated: AnnotatedFunction, trace_tag: RoundingTag) -> None:
+    """Display trace section for variables containing the traced tag."""
+    traced_variables = _collect_traced_variables(annotated, trace_tag)
+
+    if not traced_variables:
+        return
+
+    console.print()
+    console.print("=" * 80)
+    console.print(f"[bold cyan]TRACE: {trace_tag.name} tag provenance[/bold cyan]")
+    console.print("=" * 80)
+
+    for variable_name, line_number, trace in traced_variables:
+        console.print()
+        location = f"(line {line_number})" if line_number else ""
+        console.print(f"[bold]{variable_name}[/bold] {location}:")
+        _display_trace_tree(trace, indent=1, filter_tag=trace_tag)
+
+
+def _collect_traced_variables(
+    annotated: AnnotatedFunction,
+    trace_tag: RoundingTag,
+) -> list[tuple[str, Optional[int], TraceNode]]:
+    """Collect variables with traces containing the specified tag."""
+    results: list[tuple[str, Optional[int], TraceNode]] = []
+
+    for node, analysis_state in annotated.node_results.items():
+        if analysis_state.post.variant != DomainVariant.STATE:
+            continue
+
+        domain = analysis_state.post
+        line_number = get_node_line(node)
+
+        if not node.irs_ssa:
+            continue
+
+        for operation in node.irs_ssa:
+            variable = _get_operation_lvalue(operation)
+            if variable is None:
+                continue
+
+            tags = domain.state.get_tags(variable)
+            if trace_tag not in tags:
+                continue
+
+            trace = domain.state.get_trace(variable)
+            if trace is None:
+                continue
+
+            if not _trace_contains_tag(trace, trace_tag):
+                continue
+
+            results.append((variable.name, line_number, trace))
+
+    return results
+
+
+def _get_operation_lvalue(operation) -> Optional[Variable]:
+    """Get lvalue from operation if it has one."""
+    lvalue = getattr(operation, "lvalue", None)
+    if isinstance(lvalue, Variable):
+        return lvalue
+    return None
+
+
+def _trace_contains_tag(trace: TraceNode, tag: RoundingTag) -> bool:
+    """Check if a trace or any of its children contain the specified tag."""
+    if tag in trace.tags:
+        return True
+    for child in trace.children:
+        if _trace_contains_tag(child, tag):
+            return True
+    return False
+
+
+def _display_trace_tree(trace: TraceNode, indent: int, filter_tag: RoundingTag) -> None:
+    """Display a trace node and its children as a tree, filtered by tag."""
+    prefix = "  " * indent + "└── "
+    console.print(f"{prefix}{trace.source}")
+
+    for child in trace.children:
+        if _trace_contains_tag(child, filter_tag):
+            _display_trace_tree(child, indent + 1, filter_tag)
+
+
 def display_summary_table(analyses: list[AnnotatedFunction]) -> None:
     """Display summary of all analyzed functions."""
     console.print()
@@ -530,6 +621,11 @@ def _create_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--all", action="store_true",
         help="Show all variables including NEUTRAL parameters"
+    )
+    parser.add_argument(
+        "--trace",
+        choices=["UP", "DOWN"],
+        help="Show provenance chain for variables with this rounding tag"
     )
     return parser
 
@@ -596,11 +692,26 @@ def main() -> None:
         logger.warning("No functions analyzed successfully")
         return
 
+    trace_tag = _parse_trace_tag(args.trace)
+
     for analysis in function_analyses:
         display_annotated_source(analysis)
+        if trace_tag is not None:
+            display_trace_section(analysis, trace_tag)
 
     if len(function_analyses) > 1:
         display_summary_table(function_analyses)
+
+
+def _parse_trace_tag(trace_arg: Optional[str]) -> Optional[RoundingTag]:
+    """Parse --trace argument into RoundingTag."""
+    if trace_arg is None:
+        return None
+    if trace_arg == "UP":
+        return RoundingTag.UP
+    if trace_arg == "DOWN":
+        return RoundingTag.DOWN
+    return None
 
 
 if __name__ == "__main__":

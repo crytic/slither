@@ -13,6 +13,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingState,
     RoundingTag,
     TagSet,
+    TraceNode,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
@@ -56,28 +57,50 @@ class InterproceduralHandler(BaseOperationHandler):
         if self._is_named_division_function(function_name):
             self._check_named_division_consistency(operation, domain, node)
 
-        tags = self._infer_tag_with_fallback(operation, function_name, domain)
-        self._set_tags(operation.lvalue, tags, operation, node, domain)
+        tags, trace = self._infer_tag_with_fallback(operation, function_name, domain, node)
+        self._set_tags(operation.lvalue, tags, operation, node, domain, trace)
 
     def _infer_tag_with_fallback(
         self,
         operation: Call,
         function_name: str,
         domain: RoundingDomain,
-    ) -> TagSet:
-        """Infer tags from name first, then fall back to body analysis."""
+        node: Node,
+    ) -> tuple[TagSet, Optional[TraceNode]]:
+        """Infer tags from name first, then fall back to body analysis.
+
+        Returns (tags, trace) where trace captures the call provenance if available.
+        """
         tag = infer_tag_from_name(function_name)
+        line_number = node.source_mapping.lines[0] if node.source_mapping else None
+
         if tag != RoundingTag.NEUTRAL:
-            return frozenset({tag})
+            tags = frozenset({tag})
+            trace = TraceNode(
+                function_name=function_name,
+                line_number=line_number,
+                tags=tags,
+                source=f"{function_name}() → {tag.name}",
+            )
+            return tags, trace
 
         called_function = self._get_called_function(operation)
         if called_function is None:
-            return frozenset({tag})
+            return frozenset({tag}), None
 
-        body_tags = self._analyze_function_body(
+        body_tags, child_traces = self._analyze_function_body(
             called_function, operation.arguments, domain
         )
-        return body_tags if body_tags else frozenset({tag})
+        if body_tags:
+            trace = TraceNode(
+                function_name=function_name,
+                line_number=line_number,
+                tags=body_tags,
+                source=f"{function_name}() returns {_format_tagset(body_tags)}",
+                children=child_traces,
+            )
+            return body_tags, trace
+        return frozenset({tag}), None
 
     @abstractmethod
     def _get_called_function(self, operation: Call) -> Function | None:
@@ -92,16 +115,17 @@ class InterproceduralHandler(BaseOperationHandler):
         function: Function,
         arguments: list,
         domain: RoundingDomain,
-    ) -> TagSet | None:
+    ) -> tuple[TagSet | None, list[TraceNode]]:
         """Analyze function body with argument tag mapping.
 
-        Returns the tag set of all return values, or None if analysis fails.
+        Returns (tags, child_traces) where tags is the set of all return value tags,
+        and child_traces contains provenance from nested calls.
         """
         if function in self._call_stack:
-            return frozenset({RoundingTag.UNKNOWN})
+            return frozenset({RoundingTag.UNKNOWN}), []
 
         if not function.nodes:
-            return None
+            return None, []
 
         self._call_stack.add(function)
         try:
@@ -114,12 +138,14 @@ class InterproceduralHandler(BaseOperationHandler):
         function: Function,
         arguments: list,
         domain: RoundingDomain,
-    ) -> TagSet | None:
-        """Run analysis on callee function and extract return tags."""
+    ) -> tuple[TagSet | None, list[TraceNode]]:
+        """Run analysis on callee function and extract return tags and traces."""
         callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
         self._bind_parameter_tags(function, arguments, domain, callee_domain)
         self._analyze_callee_body(function, callee_domain)
-        return self._extract_return_tags(function, callee_domain)
+        tags = self._extract_return_tags(function, callee_domain)
+        traces = self._extract_return_traces(function, callee_domain)
+        return tags, traces
 
     def _bind_parameter_tags(
         self,
@@ -189,6 +215,38 @@ class InterproceduralHandler(BaseOperationHandler):
             if isinstance(return_value, Variable):
                 tags.update(callee_domain.state.get_tags(return_value))
         return tags
+
+    def _extract_return_traces(
+        self,
+        function: Function,
+        callee_domain: RoundingDomain,
+    ) -> list[TraceNode]:
+        """Extract traces from return values in the analyzed function."""
+        traces: list[TraceNode] = []
+        for node in function.nodes:
+            traces.extend(self._get_return_traces_from_node(node, callee_domain))
+        return traces
+
+    def _get_return_traces_from_node(
+        self,
+        node: Node,
+        callee_domain: RoundingDomain,
+    ) -> list[TraceNode]:
+        """Get traces from return values in a single node."""
+        traces: list[TraceNode] = []
+        if not node.irs_ssa:
+            return traces
+        for operation in node.irs_ssa:
+            if not isinstance(operation, Return):
+                continue
+            if not operation.values:
+                continue
+            return_value = operation.values[0]
+            if isinstance(return_value, Variable):
+                trace = callee_domain.state.get_trace(return_value)
+                if trace is not None:
+                    traces.append(trace)
+        return traces
 
     def _is_named_division_function(self, function_name: str) -> bool:
         """Return True when function name indicates divUp/divDown helpers."""
@@ -271,12 +329,21 @@ class InterproceduralHandler(BaseOperationHandler):
         operation: Call,
         node: Node,
         domain: RoundingDomain,
+        trace: Optional[TraceNode] = None,
     ) -> None:
-        """Set tag set and check annotation."""
+        """Set tag set, trace, and check annotation."""
         if variable is None:
             return
-        domain.state.set_tag(variable, tags, operation)
+        domain.state.set_tag(variable, tags, operation, trace=trace)
         actual_tag = domain.state.get_tag(variable)
         self.analysis._check_annotation_for_variable(
             variable, actual_tag, operation, node, domain
         )
+
+
+def _format_tagset(tags: TagSet) -> str:
+    """Format a tag set for display in trace sources."""
+    if len(tags) == 1:
+        return next(iter(tags)).name
+    names = sorted(tag.name for tag in tags)
+    return "{" + ", ".join(names) + "}"

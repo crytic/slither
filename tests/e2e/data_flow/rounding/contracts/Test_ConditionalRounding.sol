@@ -14,6 +14,10 @@ contract Test_ConditionalRounding {
         return (numerator + denominator - 1) / denominator;
     }
 
+    function foo (uint a, uint b) public pure returns (uint256) {
+        return divDown(a, b);
+    }
+
     /// @dev Returns UP when roundUp=true, DOWN when roundUp=false
     function computeWithRounding(
         uint256 value,
@@ -23,7 +27,7 @@ contract Test_ConditionalRounding {
         if (roundUp) {
             return divUp(value, divisor);
         } else {
-            return divDown(value, divisor);
+            return foo(value, divisor);
         }
     }
 

@@ -1,4 +1,5 @@
 import copy
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Dict, FrozenSet, Optional, Union
 
@@ -18,6 +19,21 @@ class RoundingTag(Enum):
 TagSet = FrozenSet[RoundingTag]
 
 
+@dataclass
+class TraceNode:
+    """Represents a step in the tag provenance chain.
+
+    Each node captures a function call and its contribution to a variable's tag,
+    along with child nodes representing nested calls that contributed to this result.
+    """
+
+    function_name: str
+    line_number: Optional[int]
+    tags: TagSet
+    source: str = ""  # Description like "divDown() → DOWN" or "returns {DOWN, UP}"
+    children: list["TraceNode"] = field(default_factory=list)
+
+
 class RoundingState:
     """Track rounding metadata for variables as they flow through the program."""
 
@@ -27,6 +43,8 @@ class RoundingState:
         self._producers: Dict[Variable, Optional[Operation]] = {}
         # Track reasons for UNKNOWN tags
         self._unknown_reasons: Dict[Variable, str] = {}
+        # Track provenance chains for variables (function call hierarchy that produced the tag)
+        self._traces: Dict[Variable, TraceNode] = {}
 
     def set_tag(
         self,
@@ -34,12 +52,13 @@ class RoundingState:
         tag: Union[RoundingTag, TagSet],
         producer: Optional[Operation] = None,
         unknown_reason: Optional[str] = None,
+        trace: Optional[TraceNode] = None,
     ) -> None:
         """Assign a rounding tag or tag set to a variable.
 
         Accepts a single RoundingTag or a TagSet. Single tags are normalized
         to TagSet for internal storage. Optionally tracks the operation that
-        produced it.
+        produced it and the provenance trace.
         """
         tag_set: TagSet
         if isinstance(tag, RoundingTag):
@@ -53,6 +72,8 @@ class RoundingState:
             self._unknown_reasons[variable] = unknown_reason
         elif RoundingTag.UNKNOWN not in tag_set:
             self._unknown_reasons.pop(variable, None)
+        if trace is not None:
+            self._traces[variable] = trace
 
     def get_tags(self, variable: Variable) -> TagSet:
         """Get the tag set for a variable (default {NEUTRAL})."""
@@ -76,12 +97,17 @@ class RoundingState:
         """Get the reason why a variable has an UNKNOWN tag, if available."""
         return self._unknown_reasons.get(variable, None)
 
+    def get_trace(self, variable: Variable) -> Optional[TraceNode]:
+        """Get the provenance trace for a variable (if tracked)."""
+        return self._traces.get(variable, None)
+
     def deep_copy(self) -> "RoundingState":
         """Create a deep copy of the state."""
         new_state = RoundingState()
         new_state._tags = copy.copy(self._tags)
         new_state._producers = copy.copy(self._producers)
         new_state._unknown_reasons = copy.copy(self._unknown_reasons)
+        new_state._traces = copy.copy(self._traces)
         return new_state
 
     def __eq__(self, other) -> bool:

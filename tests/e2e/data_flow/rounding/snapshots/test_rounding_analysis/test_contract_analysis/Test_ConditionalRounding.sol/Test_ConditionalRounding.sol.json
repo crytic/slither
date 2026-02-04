@@ -3,7 +3,7 @@
     "computeViaCall": {
       "variables": {
         "": "NEUTRAL",
-        "TMP_6": "{DOWN, UP}",
+        "TMP_7": "{DOWN, UP}",
         "divisor": "NEUTRAL",
         "roundUp": "NEUTRAL",
         "value": "NEUTRAL"
@@ -12,8 +12,8 @@
     "computeWithRounding": {
       "variables": {
         "": "NEUTRAL",
-        "TMP_4": "UP",
-        "TMP_5": "DOWN",
+        "TMP_5": "UP",
+        "TMP_6": "DOWN",
         "divisor": "NEUTRAL",
         "roundUp": "NEUTRAL",
         "value": "NEUTRAL"
@@ -35,6 +35,14 @@
         "TMP_3": "UP",
         "denominator": "NEUTRAL",
         "numerator": "NEUTRAL"
+      }
+    },
+    "foo": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_4": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL"
       }
     }
   }
