@@ -9,7 +9,21 @@
 6. Google‑style docstrings on non-trivial public APIs
 7. Follow project's existing test conventions; for new projects, use language defaults (Python: `tests/` directory, Node/TS: colocated `*.test.ts`)
 8. No scheduled CI without code changes - activity without progress is theater
-9. All code must pass type checking—no `type: ignore` without justification (Python: `ty --strict`, TypeScript: `tsc --noEmit`)
+9. All code must pass type checking—no `type: ignore` or `Any` without justification (Python: `ty --strict`, TypeScript: `tsc --noEmit`)
+10. All functions must have type hints for parameters and return values
+11. No `object` type for parameters—use the appropriate specific type or protocol
+12. All code must not use `hasattr` and use the proper types
+13. ≤ 3 levels of indentation (the "Never Nester" rule)
+    - Use **extraction** (pull inner blocks into separate functions)
+    - Use **inversion** (flip conditions, return early for unhappy paths)
+    - Happy path flows down; error handling returns early at the top
+14. Naming hygiene
+    - No single-letter variables; no abbreviations—spell it out
+    - No types in names (no Hungarian notation, no `IFoo` interfaces, no `BaseFoo` classes)
+    - Put units in names (`delay_seconds`) or better, use unit-typed abstractions (`timedelta`, `Duration`)
+    - No `utils` / `helpers` modules—find a descriptive home or create a properly-named class
+15. Use `slither/analyses/data_flow/logger` for all raises, logs, and errors within `slither/analyses/data_flow/`
+16. No imports inside functions; no nested function definitions
 
 ## Philosophy
 - **No speculative features** - Don't add "might be useful" functionality

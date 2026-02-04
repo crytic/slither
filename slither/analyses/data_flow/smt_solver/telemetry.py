@@ -164,102 +164,139 @@ class SolverTelemetry:
             performance=perf_metrics,
         )
 
-    def print_summary(self, console=None) -> None:
-        """Print a formatted summary of telemetry data.
+    def _print_rich_optimization(self, opt_metrics, console) -> None:
+        """Print optimization metrics as a rich table."""
+        from rich.table import Table
 
-        Args:
-            console: Optional rich.console.Console instance for formatted output.
-                    If None, uses standard print().
-        """
+        has_cache = opt_metrics.cache.total_queries > 0
+        has_optimizer = opt_metrics.optimizer_reuse.instances_created > 0
+        if not (has_cache or has_optimizer):
+            return
+
+        table = Table(title="Optimization Metrics", show_header=True)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", justify="right", style="green")
+
+        if opt_metrics.cache.total_queries > 0:
+            table.add_row("Cache Hit Rate", f"{opt_metrics.cache.hit_rate:.2f}%")
+            table.add_row("Cache Hits", str(opt_metrics.cache.hits))
+            table.add_row("Cache Misses", str(opt_metrics.cache.misses))
+
+        reuse = opt_metrics.optimizer_reuse
+        if reuse.instances_created > 0 or reuse.push_pop_operations > 0:
+            table.add_row("Optimizer Instances Created", str(reuse.instances_created))
+            table.add_row("Optimizer Reuses (push/pop)", str(reuse.push_pop_operations))
+
+        perf = opt_metrics.performance
+        if perf.queries_avoided > 0:
+            table.add_row("Queries Avoided (cached)", str(perf.queries_avoided))
+        if perf.assertions_copied > 0:
+            table.add_row("Assertions Copied", str(perf.assertions_copied))
+
+        console.print(table)
+
+    def _print_rich_counts(self, summary, console) -> None:
+        """Print operation counts as a rich table."""
+        from rich.table import Table
+
+        if not summary["counts"]:
+            return
+
+        table = Table(title="SMT Solver Operation Counts", show_header=True)
+        table.add_column("Operation", style="cyan")
+        table.add_column("Count", justify="right", style="green")
+
+        for op, count in sorted(summary["counts"].items(), key=lambda x: -x[1]):
+            table.add_row(op, str(count))
+
+        console.print(table)
+
+    def _print_rich_timings(self, summary, console) -> None:
+        """Print operation timings as a rich table."""
+        from rich.table import Table
+
+        if not summary["timings"]:
+            return
+
+        table = Table(title="SMT Solver Operation Timings", show_header=True)
+        table.add_column("Operation", style="cyan")
+        table.add_column("Total (s)", justify="right", style="yellow")
+        table.add_column("Calls", justify="right", style="green")
+        table.add_column("Avg (ms)", justify="right", style="magenta")
+
+        sorted_timings = sorted(
+            summary["timings"].items(), key=lambda x: -x[1]["total_seconds"]
+        )
+        for op, data in sorted_timings:
+            table.add_row(
+                op,
+                f"{data['total_seconds']:.3f}",
+                str(data["call_count"]),
+                f"{data['avg_ms']:.2f}",
+            )
+
+        console.print(table)
+
+    def _print_text_optimization(self, opt_metrics) -> None:
+        """Print optimization metrics as plain text."""
+        cache = opt_metrics.cache
+        reuse = opt_metrics.optimizer_reuse
+        perf = opt_metrics.performance
+
+        if not (cache.total_queries > 0 or reuse.instances_created > 0):
+            return
+
+        print("\nOptimization Metrics:")
+        if cache.total_queries > 0:
+            print(f"  Cache Hit Rate: {cache.hit_rate:.2f}%")
+            print(f"  Cache Hits: {cache.hits}")
+            print(f"  Cache Misses: {cache.misses}")
+        if reuse.instances_created > 0 or reuse.push_pop_operations > 0:
+            print(f"  Optimizer Instances Created: {reuse.instances_created}")
+            print(f"  Optimizer Reuses (push/pop): {reuse.push_pop_operations}")
+        if perf.queries_avoided > 0 or perf.assertions_copied > 0:
+            print(f"  Queries Avoided (cached): {perf.queries_avoided}")
+            if perf.assertions_copied > 0:
+                print(f"  Assertions Copied: {perf.assertions_copied}")
+
+    def _print_text_counts(self, summary) -> None:
+        """Print operation counts as plain text."""
+        if not summary["counts"]:
+            return
+
+        print("\nOperation Counts:")
+        for op, count in sorted(summary["counts"].items(), key=lambda x: -x[1]):
+            print(f"  {op}: {count}")
+
+    def _print_text_timings(self, summary) -> None:
+        """Print operation timings as plain text."""
+        if not summary["timings"]:
+            return
+
+        print("\nOperation Timings:")
+        sorted_timings = sorted(
+            summary["timings"].items(), key=lambda x: -x[1]["total_seconds"]
+        )
+        for op, data in sorted_timings:
+            total = data['total_seconds']
+            calls = data['call_count']
+            avg = data['avg_ms']
+            print(f"  {op}: {total:.3f}s total, {calls} calls, {avg:.2f}ms avg")
+
+    def print_summary(self, console=None) -> None:
+        """Print a formatted summary of telemetry data."""
         summary = self.get_summary()
         opt_metrics = self.get_optimization_metrics()
 
         if console:
-            from rich.table import Table
-
-            # Optimization metrics table
-            if opt_metrics.cache.total_queries > 0 or opt_metrics.optimizer_reuse.instances_created > 0:
-                table = Table(title="Optimization Metrics", show_header=True)
-                table.add_column("Metric", style="cyan")
-                table.add_column("Value", justify="right", style="green")
-
-                if opt_metrics.cache.total_queries > 0:
-                    table.add_row("Cache Hit Rate", f"{opt_metrics.cache.hit_rate:.2f}%")
-                    table.add_row("Cache Hits", str(opt_metrics.cache.hits))
-                    table.add_row("Cache Misses", str(opt_metrics.cache.misses))
-
-                if opt_metrics.optimizer_reuse.instances_created > 0 or opt_metrics.optimizer_reuse.push_pop_operations > 0:
-                    table.add_row("Optimizer Instances Created", str(opt_metrics.optimizer_reuse.instances_created))
-                    table.add_row("Optimizer Reuses (push/pop)", str(opt_metrics.optimizer_reuse.push_pop_operations))
-
-                if opt_metrics.performance.queries_avoided > 0:
-                    table.add_row("Queries Avoided (cached)", str(opt_metrics.performance.queries_avoided))
-                if opt_metrics.performance.assertions_copied > 0:
-                    table.add_row("Assertions Copied", str(opt_metrics.performance.assertions_copied))
-
-                console.print(table)
-
-            # Counts table
-            if summary["counts"]:
-                table = Table(title="SMT Solver Operation Counts", show_header=True)
-                table.add_column("Operation", style="cyan")
-                table.add_column("Count", justify="right", style="green")
-
-                for op, count in sorted(summary["counts"].items(), key=lambda x: -x[1]):
-                    table.add_row(op, str(count))
-
-                console.print(table)
-
-            # Timings table
-            if summary["timings"]:
-                table = Table(title="SMT Solver Operation Timings", show_header=True)
-                table.add_column("Operation", style="cyan")
-                table.add_column("Total (s)", justify="right", style="yellow")
-                table.add_column("Calls", justify="right", style="green")
-                table.add_column("Avg (ms)", justify="right", style="magenta")
-
-                for op, data in sorted(summary["timings"].items(), key=lambda x: -x[1]["total_seconds"]):
-                    table.add_row(
-                        op,
-                        f"{data['total_seconds']:.3f}",
-                        str(data["call_count"]),
-                        f"{data['avg_ms']:.2f}",
-                    )
-
-                console.print(table)
+            self._print_rich_optimization(opt_metrics, console)
+            self._print_rich_counts(summary, console)
+            self._print_rich_timings(summary, console)
         else:
-            # Plain text output
             print("\n=== SMT Solver Telemetry ===")
-
-            # Optimization metrics
-            if opt_metrics.cache.total_queries > 0 or opt_metrics.optimizer_reuse.instances_created > 0:
-                print("\nOptimization Metrics:")
-                if opt_metrics.cache.total_queries > 0:
-                    print(f"  Cache Hit Rate: {opt_metrics.cache.hit_rate:.2f}%")
-                    print(f"  Cache Hits: {opt_metrics.cache.hits}")
-                    print(f"  Cache Misses: {opt_metrics.cache.misses}")
-                if opt_metrics.optimizer_reuse.instances_created > 0 or opt_metrics.optimizer_reuse.push_pop_operations > 0:
-                    print(f"  Optimizer Instances Created: {opt_metrics.optimizer_reuse.instances_created}")
-                    print(f"  Optimizer Reuses (push/pop): {opt_metrics.optimizer_reuse.push_pop_operations}")
-                if opt_metrics.performance.queries_avoided > 0 or opt_metrics.performance.assertions_copied > 0:
-                    print(f"  Queries Avoided (cached): {opt_metrics.performance.queries_avoided}")
-                    if opt_metrics.performance.assertions_copied > 0:
-                        print(f"  Assertions Copied: {opt_metrics.performance.assertions_copied}")
-
-            if summary["counts"]:
-                print("\nOperation Counts:")
-                for op, count in sorted(summary["counts"].items(), key=lambda x: -x[1]):
-                    print(f"  {op}: {count}")
-
-            if summary["timings"]:
-                print("\nOperation Timings:")
-                for op, data in sorted(summary["timings"].items(), key=lambda x: -x[1]["total_seconds"]):
-                    print(
-                        f"  {op}: {data['total_seconds']:.3f}s total, "
-                        f"{data['call_count']} calls, "
-                        f"{data['avg_ms']:.2f}ms avg"
-                    )
-
+            self._print_text_optimization(opt_metrics)
+            self._print_text_counts(summary)
+            self._print_text_timings(summary)
             print()
 
 

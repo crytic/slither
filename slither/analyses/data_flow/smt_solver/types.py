@@ -31,6 +31,15 @@ class CheckSatResult(Enum):
     UNKNOWN = "unknown"
 
 
+class RangeSolveStatus(Enum):
+    """Status of range solving operation."""
+
+    SUCCESS = "success"  # Range computed successfully
+    UNSAT = "unsat"      # Constraints are unsatisfiable (unreachable path)
+    TIMEOUT = "timeout"  # Solver timed out
+    ERROR = "error"      # Other error occurred
+
+
 @dataclass
 class Sort:
     """SMT-LIB sort (type)"""

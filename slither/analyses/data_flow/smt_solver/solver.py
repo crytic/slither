@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-from .types import SMTVariable, Sort, CheckSatResult, SMTTerm
+from .types import SMTVariable, Sort, CheckSatResult, RangeSolveStatus, SMTTerm
 
 
 class SMTSolver(ABC):
@@ -97,8 +97,37 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def And(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a conjunction (AND) of multiple boolean terms."""
+        pass
+
+    @abstractmethod
     def Not(self, term: SMTTerm) -> SMTTerm:
         """Create a negation (NOT) of a boolean term."""
+        pass
+
+    # ========================================================================
+    # Bitvector Arithmetic Operations
+    # ========================================================================
+
+    @abstractmethod
+    def bv_add(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement addition for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_sub(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement subtraction for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_mul(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement multiplication for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_neg(self, term: SMTTerm) -> SMTTerm:
+        """Two's complement negation for bitvectors."""
         pass
 
     @abstractmethod
@@ -107,13 +136,96 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def bv_sdiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed division for bitvectors."""
+        pass
+
+    @abstractmethod
     def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Unsigned remainder for bitvectors."""
         pass
 
     @abstractmethod
+    def bv_srem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed remainder for bitvectors (sign follows dividend)."""
+        pass
+
+    @abstractmethod
+    def bv_shl(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Left shift for bitvectors."""
+        pass
+
+    @abstractmethod
     def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
         """Logical right shift for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_ashr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Arithmetic right shift for bitvectors (sign-preserving)."""
+        pass
+
+    # ========================================================================
+    # Bitvector Bitwise Operations
+    # ========================================================================
+
+    @abstractmethod
+    def bv_and(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise AND for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_or(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise OR for bitvectors."""
+        pass
+
+    @abstractmethod
+    def bv_xor(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise XOR for bitvectors."""
+        pass
+
+    # ========================================================================
+    # Bitvector Overflow/Underflow Detection
+    # ========================================================================
+
+    @abstractmethod
+    def bv_add_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if addition does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_add_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed addition does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_sub_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed subtraction does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_sub_no_underflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if subtraction does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_mul_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if multiplication does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_mul_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed multiplication does not underflow."""
+        pass
+
+    @abstractmethod
+    def bv_sdiv_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed division does not overflow."""
+        pass
+
+    @abstractmethod
+    def bv_neg_no_overflow(self, term: SMTTerm) -> SMTTerm:
+        """Returns True if negation does not overflow."""
         pass
 
     @abstractmethod
@@ -321,5 +433,48 @@ class SMTSolver(ABC):
         """
         Export current state as SMT-LIB 2.0 format string.
         Useful for debugging or using with other solvers.
+        """
+        pass
+
+    @abstractmethod
+    def is_bool_true(self, term: SMTTerm) -> bool:
+        """Check if a boolean term is the constant True."""
+        pass
+
+    @abstractmethod
+    def solve_range(
+        self,
+        term: SMTTerm,
+        extra_constraints: Optional[List[SMTTerm]] = None,
+        timeout_ms: int = 500,
+        signed: bool = False,
+    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
+        """Find minimum and maximum values of a bitvector term.
+
+        Creates a fresh optimizer context, copies current assertions,
+        adds extra_constraints if provided, and optimizes.
+
+        Args:
+            term: The bitvector term to optimize.
+            extra_constraints: Additional constraints for this query only.
+            timeout_ms: Timeout in milliseconds for each optimization.
+            signed: If True, optimize using signed interpretation.
+
+        Returns:
+            Tuple of (status, min_value, max_value).
+            - SUCCESS: Range computed successfully.
+            - UNSAT: Constraints unsatisfiable (unreachable path).
+            - TIMEOUT/ERROR: Could not compute range.
+        """
+        pass
+
+    @abstractmethod
+    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+        """Evaluate a term in the current model and return its integer value.
+
+        Must be called after a successful check_sat() that returned SAT.
+
+        Returns:
+            The integer value of the term, or None if evaluation fails.
         """
         pass

@@ -1,33 +1,23 @@
 """Z3 solver strategy implementation."""
 
-import time
 import os
+import time
 from typing import Dict, List, Optional
 
-# Constraint dumping for debugging
-DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
-DUMP_FILE = "/tmp/constraints_dump.txt"
-_dump_file_handle = None
-_constraint_history: List[str] = []  # Keep track of constraints for dumping
-
-def _get_dump_file():
-    global _dump_file_handle
-    if _dump_file_handle is None and DUMP_CONSTRAINTS:
-        _dump_file_handle = open(DUMP_FILE, "w")
-    return _dump_file_handle
-
-def _dump(msg: str):
-    if DUMP_CONSTRAINTS:
-        f = _get_dump_file()
-        if f:
-            f.write(msg + "\n")
-            f.flush()
-
 from z3 import (
+    And as Z3And,
     BitVec,
     BitVecVal,
     Bool,
     BV2Int,
+    BVAddNoOverflow,
+    BVAddNoUnderflow,
+    BVMulNoOverflow,
+    BVMulNoUnderflow,
+    BVSDivNoOverflow,
+    BVSNegNoOverflow,
+    BVSubNoOverflow,
+    BVSubNoUnderflow,
     Concat,
     Extract,
     If,
@@ -37,6 +27,7 @@ from z3 import (
     Or,
     SignExt,
     Solver,
+    SRem,
     UDiv,
     UGE,
     UGT,
@@ -50,11 +41,38 @@ from z3 import (
     is_int_value,
     sat,
     unsat,
-    unknown,
 )
 
-from ..types import SMTVariable, Sort, SortKind, CheckSatResult, SMTTerm
-from ..solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.types import (
+    CheckSatResult,
+    RangeSolveStatus,
+    SMTTerm,
+    SMTVariable,
+    Sort,
+    SortKind,
+)
+
+# Constraint dumping for debugging
+DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
+DUMP_FILE = "/tmp/constraints_dump.txt"
+_dump_file_handle = None
+_constraint_history: List[str] = []  # Keep track of constraints for dumping
+
+
+def _get_dump_file():
+    global _dump_file_handle
+    if _dump_file_handle is None and DUMP_CONSTRAINTS:
+        _dump_file_handle = open(DUMP_FILE, "w")
+    return _dump_file_handle
+
+
+def _dump(msg: str):
+    if DUMP_CONSTRAINTS:
+        f = _get_dump_file()
+        if f:
+            f.write(msg + "\n")
+            f.flush()
 
 
 class Z3Solver(SMTSolver):
@@ -125,7 +143,7 @@ class Z3Solver(SMTSolver):
 
     def create_constant(self, value: int, sort: Sort) -> SMTTerm:
         """Create a constant value term in Z3."""
-        from z3 import BitVecVal, BoolVal, IntVal
+        from z3 import BoolVal, IntVal
 
         if sort.kind == SortKind.BOOL:
             return BoolVal(bool(value))
@@ -172,10 +190,10 @@ class Z3Solver(SMTSolver):
                 for i, a in enumerate(assertions):
                     _dump(f"  [{i}] {str(a)[:150]}")
             else:
-                _dump(f"  First 5:")
+                _dump("  First 5:")
                 for i, a in enumerate(assertions[:5]):
                     _dump(f"  [{i}] {str(a)[:150]}")
-                _dump(f"  Last 5:")
+                _dump("  Last 5:")
                 for i, a in enumerate(assertions[-5:]):
                     _dump(f"  [{len(assertions)-5+i}] {str(a)[:150]}")
 
@@ -281,18 +299,117 @@ class Z3Solver(SMTSolver):
             return terms[0]
         return Or(*terms)
 
+    def And(self, *terms: SMTTerm) -> SMTTerm:
+        """Create a conjunction (AND) of multiple boolean terms."""
+        if not terms:
+            raise ValueError("And() requires at least one term")
+        if len(terms) == 1:
+            return terms[0]
+        return Z3And(*terms)
+
     def Not(self, term: SMTTerm) -> SMTTerm:
         """Create a negation (NOT) of a boolean term."""
         return Z3Not(term)
 
+    # ========================================================================
+    # Bitvector Arithmetic Operations
+    # ========================================================================
+
+    def bv_add(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement addition for bitvectors."""
+        return left + right
+
+    def bv_sub(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement subtraction for bitvectors."""
+        return left - right
+
+    def bv_mul(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Two's complement multiplication for bitvectors."""
+        return left * right
+
+    def bv_neg(self, term: SMTTerm) -> SMTTerm:
+        """Two's complement negation for bitvectors."""
+        return -term
+
     def bv_udiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned division for bitvectors."""
         return UDiv(left, right)
 
+    def bv_sdiv(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed division for bitvectors."""
+        return left / right
+
     def bv_urem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Unsigned remainder for bitvectors."""
         return URem(left, right)
 
+    def bv_srem(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Signed remainder for bitvectors (sign follows dividend)."""
+        return SRem(left, right)
+
+    def bv_shl(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Left shift for bitvectors."""
+        return left << right
+
     def bv_lshr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Logical right shift for bitvectors."""
         return LShR(left, right)
+
+    def bv_ashr(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Arithmetic right shift for bitvectors (sign-preserving)."""
+        return left >> right
+
+    # ========================================================================
+    # Bitvector Bitwise Operations
+    # ========================================================================
+
+    def bv_and(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise AND for bitvectors."""
+        return left & right
+
+    def bv_or(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise OR for bitvectors."""
+        return left | right
+
+    def bv_xor(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Bitwise XOR for bitvectors."""
+        return left ^ right
+
+    # ========================================================================
+    # Bitvector Overflow/Underflow Detection
+    # ========================================================================
+
+    def bv_add_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if addition does not overflow."""
+        return BVAddNoOverflow(left, right, signed)
+
+    def bv_add_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed addition does not underflow."""
+        return BVAddNoUnderflow(left, right)
+
+    def bv_sub_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed subtraction does not overflow."""
+        return BVSubNoOverflow(left, right)
+
+    def bv_sub_no_underflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if subtraction does not underflow."""
+        return BVSubNoUnderflow(left, right, signed)
+
+    def bv_mul_no_overflow(self, left: SMTTerm, right: SMTTerm, signed: bool) -> SMTTerm:
+        """Returns True if multiplication does not overflow."""
+        return BVMulNoOverflow(left, right, signed)
+
+    def bv_mul_no_underflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed multiplication does not underflow."""
+        return BVMulNoUnderflow(left, right)
+
+    def bv_sdiv_no_overflow(self, left: SMTTerm, right: SMTTerm) -> SMTTerm:
+        """Returns True if signed division does not overflow."""
+        return BVSDivNoOverflow(left, right)
+
+    def bv_neg_no_overflow(self, term: SMTTerm) -> SMTTerm:
+        """Returns True if negation does not overflow."""
+        return BVSNegNoOverflow(term)
 
     def bv_sign_ext(self, term: SMTTerm, extra_bits: int) -> SMTTerm:
         """Sign-extend a bitvector by extra_bits."""
@@ -410,4 +527,109 @@ class Z3Solver(SMTSolver):
         """Get the integer value of a constant term. Returns None if not a constant."""
         if is_bv_value(term) or is_int_value(term):
             return term.as_long()
+        return None
+
+    def is_bool_true(self, term: SMTTerm) -> bool:
+        """Check if a boolean term is the constant True."""
+        from z3 import is_true
+        return is_true(term)
+
+    def solve_range(
+        self,
+        term: SMTTerm,
+        extra_constraints: Optional[list] = None,
+        timeout_ms: int = 500,
+        signed: bool = False,
+    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
+        """Find minimum and maximum values of a bitvector term.
+
+        Returns:
+            Tuple of (status, min_value, max_value).
+            - SUCCESS: Range computed, min/max are valid integers.
+            - UNSAT: Constraints unsatisfiable (unreachable path), min/max are None.
+            - TIMEOUT/ERROR: Could not compute, min/max are None.
+        """
+        if self._is_unsat_with_constraints(extra_constraints, timeout_ms):
+            return RangeSolveStatus.UNSAT, None, None
+
+        objective_term = self._prepare_objective_term(term, signed)
+
+        min_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, False)
+        max_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, True)
+
+        if min_val is None or max_val is None:
+            return RangeSolveStatus.ERROR, None, None
+
+        return RangeSolveStatus.SUCCESS, min_val, max_val
+
+    def _is_unsat_with_constraints(
+        self,
+        extra_constraints: Optional[list],
+        timeout_ms: int,
+    ) -> bool:
+        """Quick check if constraints are unsatisfiable."""
+        solver = Solver()
+        solver.set("timeout", min(timeout_ms, 100))
+
+        for assertion in self.solver.assertions():
+            solver.add(assertion)
+
+        if extra_constraints:
+            for constraint in extra_constraints:
+                solver.add(constraint)
+
+        return solver.check() == unsat
+
+    def _prepare_objective_term(self, term: SMTTerm, signed: bool) -> SMTTerm:
+        """Prepare term for optimization, flipping sign bit for signed values."""
+        if not signed:
+            return term
+        width = self.bv_size(term)
+        sign_bit_mask = BitVecVal(1 << (width - 1), width)
+        return term ^ sign_bit_mask
+
+    def _optimize_bound(
+        self,
+        term: SMTTerm,
+        objective_term: SMTTerm,
+        extra_constraints: Optional[list],
+        timeout_ms: int,
+        maximize: bool,
+    ) -> Optional[int]:
+        """Optimize for min or max bound of a term."""
+        optimizer = Optimize()
+        optimizer.set("timeout", timeout_ms)
+
+        for assertion in self.solver.assertions():
+            optimizer.add(assertion)
+
+        if extra_constraints:
+            for constraint in extra_constraints:
+                optimizer.add(constraint)
+
+        if maximize:
+            optimizer.maximize(objective_term)
+        else:
+            optimizer.minimize(objective_term)
+
+        if optimizer.check() != sat:
+            return None
+
+        model = optimizer.model()
+        if model is None:
+            return None
+
+        value = model.eval(term, model_completion=True)
+        return value.as_long() if is_bv_value(value) else None
+
+    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+        """Evaluate a term in the current model and return its integer value."""
+        if self.model is None:
+            return None
+        try:
+            value = self.model.eval(term, model_completion=True)
+            if hasattr(value, "as_long"):
+                return value.as_long()
+        except Exception:
+            pass
         return None
