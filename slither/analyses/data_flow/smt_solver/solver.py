@@ -318,6 +318,15 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def check_sat_with_timeout(self, timeout_ms: int) -> CheckSatResult:
+        """
+        (check-sat) with timeout
+
+        Check satisfiability with a timeout. Returns UNKNOWN if exceeded.
+        """
+        pass
+
+    @abstractmethod
     def get_model(self) -> Optional[Dict[str, SMTTerm]]:
         """
         (get-model)

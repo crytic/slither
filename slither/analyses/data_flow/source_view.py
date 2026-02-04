@@ -115,9 +115,30 @@ def _render_single_annotation(annotation: LineAnnotation, indent: str) -> None:
     range_str = _format_range_display(annotation.range_min, annotation.range_max)
     constraint_str = f" {annotation.constraints}" if annotation.constraints else ""
 
+    # Build overflow warning string
+    overflow_str = _format_overflow_warning(annotation.can_overflow, annotation.can_underflow)
+
     color = _get_range_color(annotation.range_min, annotation.range_max)
     line_text = f"{indent}{col_spaces}{BOX_CORNER}{BOX_HORIZONTAL}{BOX_HORIZONTAL} {label} {range_str}{constraint_str}"
-    console.print(f"[{color}]{line_text}[/{color}]")
+
+    if overflow_str:
+        console.print(f"[{color}]{line_text}[/{color}] [{_OVERFLOW_COLOR}]{overflow_str}[/{_OVERFLOW_COLOR}]")
+    else:
+        console.print(f"[{color}]{line_text}[/{color}]")
+
+
+_OVERFLOW_COLOR = "bold red"
+
+
+def _format_overflow_warning(can_overflow: bool, can_underflow: bool) -> str:
+    """Format overflow/underflow warning string."""
+    if can_overflow and can_underflow:
+        return "\\[overflow/underflow possible]"
+    if can_overflow:
+        return "\\[overflow possible]"
+    if can_underflow:
+        return "\\[underflow possible]"
+    return ""
 
 
 def _format_range_display(range_min: str, range_max: str) -> str:
@@ -231,6 +252,8 @@ def build_annotation_from_range(
     is_return: bool = False,
     extra_constraints: str = "",
     exact: bool = False,
+    can_overflow: bool = False,
+    can_underflow: bool = False,
 ) -> LineAnnotation:
     """Build a LineAnnotation from numeric range values."""
     return LineAnnotation(
@@ -240,4 +263,6 @@ def build_annotation_from_range(
         constraints=extra_constraints,
         is_return=is_return,
         column=column,
+        can_overflow=can_overflow,
+        can_underflow=can_underflow,
     )

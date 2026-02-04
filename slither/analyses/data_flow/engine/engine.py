@@ -6,10 +6,11 @@ both forward and backward data flow analyses.
 
 import time
 from collections import defaultdict, deque
-from typing import Deque, Dict, Generic, List
+from typing import Deque, Dict, Generic, List, Set
 
 from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 
@@ -69,7 +70,73 @@ class Engine(Generic[A]):
                 pre=analysis.bottom_value(), post=analysis.bottom_value()
             )
 
+        # Record function metrics for telemetry
+        engine._record_function_metrics(function)
+
         return engine
+
+    def _record_function_metrics(self, function: Function) -> None:
+        """Record function-level metrics for telemetry."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+
+        # Count loops by detecting back edges
+        loop_count = self._count_loops(function)
+
+        # Count external calls
+        external_call_count = 0
+        for node in function.nodes:
+            if hasattr(node, "external_calls_as_expressions"):
+                external_call_count += len(node.external_calls_as_expressions)
+
+        # Count state variables accessed
+        state_vars: Set[str] = set()
+        for node in function.nodes:
+            if hasattr(node, "state_variables_read"):
+                state_vars.update(str(var) for var in node.state_variables_read)
+            if hasattr(node, "state_variables_written"):
+                state_vars.update(str(var) for var in node.state_variables_written)
+
+        telemetry.record_function_info(
+            name=function.name,
+            cfg_nodes=len(function.nodes),
+            basic_blocks=len(function.nodes),  # In Slither, nodes are basic blocks
+            parameters=len(function.parameters),
+            local_variables=len(function.local_variables),
+            state_variables_accessed=len(state_vars),
+            loops=loop_count,
+            external_calls=external_call_count,
+        )
+
+    def _count_loops(self, function: Function) -> int:
+        """Count loops by detecting back edges in the CFG."""
+        if not function.nodes:
+            return 0
+
+        visited: Set[int] = set()
+        in_stack: Set[int] = set()
+        back_edges = 0
+
+        def dfs(node: Node) -> None:
+            nonlocal back_edges
+            visited.add(node.node_id)
+            in_stack.add(node.node_id)
+
+            for successor in node.sons:
+                if successor.node_id not in visited:
+                    dfs(successor)
+                elif successor.node_id in in_stack:
+                    # Back edge found - indicates a loop
+                    back_edges += 1
+
+            in_stack.remove(node.node_id)
+
+        entry = function.entry_point
+        if entry is not None:
+            dfs(entry)
+
+        return back_edges
 
     def run_analysis(self) -> None:
         """Run the worklist algorithm until fixpoint is reached."""
@@ -93,9 +160,16 @@ class Engine(Generic[A]):
         else:
             raise NotImplementedError("Backward analysis is not implemented")
 
+        # Get telemetry instance
+        telemetry = get_telemetry()
+
         while worklist:
             # Track iteration count
             self.iteration_count += 1
+
+            # Record telemetry
+            if telemetry is not None and telemetry.enabled:
+                telemetry.record_worklist_iteration()
 
             # Safety limit check
             if self.iteration_count > MAX_ITERATIONS:
@@ -152,6 +226,10 @@ class Engine(Generic[A]):
             iterations=self.iteration_count,
             time=total_time,
         )
+
+        # Record fixpoint reached
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_fixpoint_reached()
 
     def result(self) -> Dict[Node, AnalysisState[A]]:
         """Return analysis results mapped by CFG node.

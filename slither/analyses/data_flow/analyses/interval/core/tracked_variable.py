@@ -22,11 +22,13 @@ class TrackedSMTVariable:
         base: The underlying SMT variable.
         no_overflow: Predicate that is True when the operation does not overflow.
         no_underflow: Predicate that is True when the operation does not underflow.
+        is_unchecked: True if from unchecked context (assembly/unchecked block).
     """
 
     base: SMTVariable
     no_overflow: Optional[SMTTerm] = field(default=None, compare=False)
     no_underflow: Optional[SMTTerm] = field(default=None, compare=False)
+    is_unchecked: bool = field(default=False, compare=False)
 
     @property
     def name(self) -> str:
@@ -69,10 +71,12 @@ class TrackedSMTVariable:
         self,
         no_overflow: Optional[SMTTerm] = None,
         no_underflow: Optional[SMTTerm] = None,
+        is_unchecked: bool = False,
     ) -> "TrackedSMTVariable":
         """Return a copy with overflow predicates set."""
         return TrackedSMTVariable(
             base=self.base,
             no_overflow=no_overflow,
             no_underflow=no_underflow,
+            is_unchecked=is_unchecked,
         )

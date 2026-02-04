@@ -26,6 +26,7 @@ from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.smt_solver.types import RangeSolveStatus
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
@@ -222,8 +223,71 @@ class IntervalAnalysis(Analysis):
         """Dispatch operation to appropriate handler."""
         if operation is None:
             return
+
+        # Record telemetry for operation category
+        self._record_operation_telemetry(operation)
+
         handler = self._registry.get_handler(type(operation))
         handler.handle(operation, domain, node)
+
+    def _record_operation_telemetry(self, operation: Operation) -> None:
+        """Record operation category in telemetry."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+
+        from slither.slithir.operations.binary import Binary
+        from slither.slithir.operations.unary import Unary
+        from slither.slithir.operations.solidity_call import SolidityCall
+        from slither.slithir.operations.high_level_call import HighLevelCall
+        from slither.slithir.operations.internal_call import InternalCall
+        from slither.slithir.operations.library_call import LibraryCall
+        from slither.slithir.operations import Assignment
+        from slither.slithir.operations.condition import Condition
+
+        op_type = type(operation)
+
+        # Categorize by operation type
+        if op_type == Binary:
+            # Further categorize binary operations
+            binary_op = operation
+            op_type_enum = getattr(binary_op, "type", None)
+            if op_type_enum is not None:
+                op_name_str = str(op_type_enum.name) if hasattr(op_type_enum, "name") else ""
+                if op_name_str in ("ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION",
+                                   "MODULO", "POWER"):
+                    telemetry.record_transfer_op("arithmetic", handled=True)
+                elif op_name_str in ("LESS", "GREATER", "LESS_EQUAL", "GREATER_EQUAL",
+                                     "EQUAL", "NOT_EQUAL"):
+                    telemetry.record_transfer_op("comparison", handled=True)
+                elif op_name_str in ("AND", "OR", "LEFT_SHIFT", "RIGHT_SHIFT",
+                                     "CARET", "OROR", "ANDAND"):
+                    telemetry.record_transfer_op("bitwise", handled=True)
+                else:
+                    telemetry.record_transfer_op("arithmetic", handled=True)
+            else:
+                telemetry.record_transfer_op("arithmetic", handled=True)
+        elif op_type == Unary:
+            telemetry.record_transfer_op("arithmetic", handled=True)
+        elif op_type == SolidityCall:
+            # Check for memory/storage operations
+            func_name = getattr(operation, "function", None)
+            func_str = str(func_name) if func_name else ""
+            if "mstore" in func_str or "mload" in func_str:
+                telemetry.record_transfer_op("memory", handled=True)
+            elif "sstore" in func_str or "sload" in func_str:
+                telemetry.record_transfer_op("storage", handled=True)
+            else:
+                telemetry.record_transfer_op("call", handled=True)
+        elif op_type in (HighLevelCall, InternalCall, LibraryCall):
+            telemetry.record_transfer_op("call", handled=True)
+        elif op_type == Assignment:
+            telemetry.record_transfer_op("assignment", handled=True)
+        elif op_type == Condition:
+            telemetry.record_transfer_op("comparison", handled=True)
+        else:
+            # Phi, TypeConversion, etc.
+            telemetry.record_transfer_op("assignment", handled=True)
 
     def apply_condition(
         self, domain: Domain, condition: Condition, branch_taken: bool

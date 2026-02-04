@@ -123,6 +123,49 @@ def constant_to_term(
     return solver.create_constant(int_value, sort)
 
 
+def constrain_to_value(
+    solver: "SMTSolver",
+    target: TrackedSMTVariable,
+    source: object,
+    domain: "IntervalDomain",
+) -> None:
+    """Constrain target to equal source value (shared assignment logic).
+
+    Handles both constant and variable sources. Used by AssignmentHandler
+    and SstoreHandler.
+
+    Args:
+        solver: The SMT solver instance.
+        target: The target TrackedSMTVariable to constrain.
+        source: The source value (Constant or SlithIR variable).
+        domain: The interval domain for variable lookup.
+    """
+    from slither.slithir.variables.constant import Constant
+    from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
+        match_width,
+    )
+
+    if isinstance(source, Constant):
+        value = source.value
+        if isinstance(value, (int, bool)):
+            bit_width = solver.bv_size(target.term)
+            const_term = constant_to_term(solver, value, bit_width)
+            solver.assert_constraint(target.term == const_term)
+        return
+
+    source_name = get_variable_name(source)
+    tracked_source = domain.state.get_variable(source_name)
+
+    if tracked_source is None:
+        tracked_source = try_create_parameter_variable(solver, source, source_name, domain)
+
+    if tracked_source is None:
+        return
+
+    source_term = match_width(solver, tracked_source.term, target.term)
+    solver.assert_constraint(target.term == source_term)
+
+
 def try_create_parameter_variable(
     solver: "SMTSolver",
     operand: "RVALUE",

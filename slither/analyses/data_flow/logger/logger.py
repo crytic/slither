@@ -152,7 +152,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.debug(formatted_message)
+        self._logger.opt(depth=1).debug(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, **kwargs)
@@ -168,7 +168,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.info(formatted_message)
+        self._logger.opt(depth=1).info(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, **kwargs)
@@ -184,7 +184,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.warning(formatted_message)
+        self._logger.opt(depth=1).warning(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, **kwargs)
@@ -200,7 +200,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.error(formatted_message)
+        self._logger.opt(depth=1).error(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, **kwargs)
@@ -260,7 +260,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.critical(formatted_message)
+        self._logger.opt(depth=1).critical(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, **kwargs)
@@ -276,7 +276,7 @@ class DataFlowLogger:
             **kwargs: Keyword arguments for message formatting
         """
         formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.exception(formatted_message)
+        self._logger.opt(depth=1).exception(formatted_message)
 
         if embed_on_error and self.enable_ipython_embed:
             self._embed_for_debugging(message=formatted_message, exc_info=sys.exc_info(), **kwargs)

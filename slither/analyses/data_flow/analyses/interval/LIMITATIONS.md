@@ -188,6 +188,18 @@ Line 15: sum_2 ∈ [0, MAX]                  # At return - widened (actual: 45)
 3. **No symbolic summarization**: Can't express "sum = 0 + 1 + ... + 9 = 45"
 4. **SMT overhead**: Each widening comparison requires SMT solver queries for bounds
 
+## Storage Operations (sstore/sload) - Convex Hull
+
+Multiple writes to the same storage slot produce an OR constraint for sload, but intervals show the convex hull.
+
+```solidity
+sstore(0, 42)
+sstore(0, 45)
+let x := sload(0)  // Shows [42, 45], actual values {42, 45}
+```
+
+The range `[42, 45]` includes 43, 44 which aren't possible. This is sound (over-approximation) but imprecise. Single-write cases remain precise.
+
 ## Internal Dynamic Calls (Function Pointers)
 
 Internal dynamic calls through function-type variables are always unconstrained.

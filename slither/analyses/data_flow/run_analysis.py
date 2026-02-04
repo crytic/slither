@@ -55,6 +55,7 @@ class AnalysisConfig:
     show_all: bool = False
     show_ssa: bool = False
     json_output: bool = False
+    json_metrics_file: str | None = None
 
 
 def main() -> int:
@@ -74,6 +75,7 @@ def main() -> int:
         show_all=args.all,
         show_ssa=args.ssa,
         json_output=args.json,
+        json_metrics_file=args.json_metrics,
     )
 
     return analyze_contract(args.path, config)
@@ -115,6 +117,12 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--telemetry", action="store_true", help="Show solver statistics"
+    )
+    parser.add_argument(
+        "--json-metrics",
+        type=str,
+        metavar="FILE",
+        help="Export evaluation metrics to JSON file",
     )
     parser.add_argument(
         "--skip-compile",
@@ -198,7 +206,34 @@ def analyze_contract(path: str, config: AnalysisConfig) -> int:
             console.print()
             telemetry.print_summary(console)
 
+    # Export metrics to JSON if requested
+    if config.json_metrics_file:
+        _export_metrics_to_json(config.json_metrics_file)
+
     return 0
+
+
+def _export_metrics_to_json(filepath: str) -> None:
+    """Export evaluation metrics to a JSON file."""
+    import os
+    from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
+
+    telemetry = get_telemetry()
+    if telemetry is None:
+        return
+
+    metrics = telemetry.get_evaluation_metrics()
+    json_data = metrics.to_json(indent=2)
+
+    # Create directory if it doesn't exist
+    dir_path = os.path.dirname(filepath)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
+
+    with open(filepath, "w") as output_file:
+        output_file.write(json_data)
+
+    console.print(f"Metrics exported to: {filepath}")
 
 
 def _get_contracts(slither: Slither) -> list["Contract"]:
@@ -705,6 +740,12 @@ def _create_annotation(
     # All annotations at same indent (column=0)
     column = 0
 
+    # Check overflow possibility for unchecked arithmetic (deferred to annotation time)
+    can_overflow, can_underflow = _check_overflow_possible(solver, smt_var, config.timeout_ms)
+
+    # Record precision metrics
+    _record_precision_telemetry(min_val, max_val, bit_width, can_overflow, can_underflow)
+
     return build_annotation_from_range(
         var_name=display_name,
         min_val=min_val,
@@ -715,6 +756,82 @@ def _create_annotation(
         is_return=is_return,
         extra_constraints=constraints,
         exact=config.exact_values,
+        can_overflow=can_overflow,
+        can_underflow=can_underflow,
+    )
+
+
+def _check_overflow_possible(
+    solver: "SMTSolver",
+    smt_var: "TrackedSMTVariable",
+    timeout_ms: int,
+) -> tuple[bool, bool]:
+    """Check if overflow/underflow is possible for unchecked arithmetic.
+
+    Called at annotation time (after analysis) to avoid slowing down the analysis.
+    Uses a timeout to skip expensive checks (e.g., multiplication overflow).
+
+    Args:
+        solver: The SMT solver instance.
+        smt_var: The tracked variable with overflow predicates.
+        timeout_ms: Timeout in milliseconds for each check.
+
+    Returns:
+        Tuple of (can_overflow, can_underflow) booleans.
+    """
+    from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+
+    if not smt_var.is_unchecked:
+        return False, False
+
+    can_overflow = False
+    can_underflow = False
+
+    if smt_var.no_overflow is not None:
+        solver.push()
+        solver.assert_constraint(solver.Not(smt_var.no_overflow))
+        result = solver.check_sat_with_timeout(timeout_ms)
+        can_overflow = result == CheckSatResult.SAT
+        solver.pop()
+
+    if smt_var.no_underflow is not None:
+        solver.push()
+        solver.assert_constraint(solver.Not(smt_var.no_underflow))
+        result = solver.check_sat_with_timeout(timeout_ms)
+        can_underflow = result == CheckSatResult.SAT
+        solver.pop()
+
+    return can_overflow, can_underflow
+
+
+def _record_precision_telemetry(
+    min_val: int,
+    max_val: int,
+    bit_width: int,
+    can_overflow: bool,
+    can_underflow: bool,
+) -> None:
+    """Record precision metrics for a variable.
+
+    A range is considered "precise" if it's not the full type range.
+    """
+    from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
+
+    telemetry = get_telemetry()
+    if telemetry is None or not telemetry.enabled:
+        return
+
+    # Calculate full range for this bit width
+    type_min = 0
+    type_max = (1 << bit_width) - 1 if bit_width <= 256 else (1 << 256) - 1
+
+    # A range is precise if it's not the full type range
+    is_precise = not (min_val == type_min and max_val == type_max)
+
+    telemetry.record_precision(
+        is_precise=is_precise,
+        has_overflow=can_overflow,
+        has_underflow=can_underflow,
     )
 
 

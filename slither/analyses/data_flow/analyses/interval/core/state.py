@@ -32,11 +32,15 @@ class State:
         comparisons: dict[str, ComparisonInfo] | None = None,
         path_constraints: list["SMTTerm"] | None = None,
         dependencies: dict[str, set[str]] | None = None,
+        storage_slots: dict[str, list[str]] | None = None,
+        memory_slots: dict[str, list[str]] | None = None,
     ):
         self._variables: dict[str, TrackedSMTVariable] = variables or {}
         self._comparisons: dict[str, ComparisonInfo] = comparisons or {}
         self._path_constraints: list["SMTTerm"] = path_constraints or []
         self._dependencies: dict[str, set[str]] = dependencies or {}
+        self._storage_slots: dict[str, list[str]] = storage_slots or {}
+        self._memory_slots: dict[str, list[str]] = memory_slots or {}
 
     def get_variable(self, name: str) -> TrackedSMTVariable | None:
         """Get tracked variable by name, or None if not tracked."""
@@ -108,12 +112,36 @@ class State:
 
         return False
 
+    def add_storage_write(self, slot_key: str, variable_name: str) -> None:
+        """Record a storage write: slot_key was written with variable_name."""
+        if slot_key not in self._storage_slots:
+            self._storage_slots[slot_key] = []
+        self._storage_slots[slot_key].append(variable_name)
+
+    def get_storage_writes(self, slot_key: str) -> list[str]:
+        """Get list of variable names written to this slot."""
+        return self._storage_slots.get(slot_key, [])
+
+    def add_memory_write(self, offset_key: str, variable_name: str) -> None:
+        """Record a memory write: offset_key was written with variable_name."""
+        if offset_key not in self._memory_slots:
+            self._memory_slots[offset_key] = []
+        self._memory_slots[offset_key].append(variable_name)
+
+    def get_memory_writes(self, offset_key: str) -> list[str]:
+        """Get list of variable names written to this memory offset."""
+        return self._memory_slots.get(offset_key, [])
+
     def deep_copy(self) -> "State":
         """Create a deep copy of the state."""
         copied_deps = {k: set(v) for k, v in self._dependencies.items()}
+        copied_storage = {k: list(v) for k, v in self._storage_slots.items()}
+        copied_memory = {k: list(v) for k, v in self._memory_slots.items()}
         return State(
             dict(self._variables),
             dict(self._comparisons),
             list(self._path_constraints),
             copied_deps,
+            copied_storage,
+            copied_memory,
         )

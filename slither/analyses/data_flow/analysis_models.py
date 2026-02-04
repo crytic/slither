@@ -18,6 +18,8 @@ class LineAnnotation:
         constraints: Additional constraints like "&& != 0".
         is_return: Whether this is a return value annotation.
         column: Column position for alignment (0-indexed).
+        can_overflow: Whether this value can overflow (unchecked arithmetic).
+        can_underflow: Whether this value can underflow (unchecked arithmetic).
     """
 
     variable_name: str
@@ -26,6 +28,8 @@ class LineAnnotation:
     constraints: str = ""
     is_return: bool = False
     column: int = 0
+    can_overflow: bool = False
+    can_underflow: bool = False
 
 
 @dataclass

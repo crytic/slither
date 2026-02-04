@@ -107,12 +107,18 @@ class ArithmeticHandler(BaseOperationHandler):
             operation.type, left_term, right_term, signed, both_constants
         )
 
-        should_check = node.scope.is_checked and result_term is not None and not both_constants
+        is_checked = node.scope.is_checked
+        should_check = is_checked and result_term is not None and not both_constants
         if should_check:
             context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
             self._assert_checked_constraints(operation.type, context, domain)
 
-        result_var = result_var.with_overflow_predicates(**overflow_predicates)
+        # Store predicates and is_checked flag for deferred overflow checking
+        # Overflow is only possible in unchecked contexts (assembly, unchecked blocks)
+        result_var = result_var.with_overflow_predicates(
+            **overflow_predicates,
+            is_unchecked=not is_checked and not both_constants,
+        )
         domain.state.set_variable(result_name, result_var)
         self._record_operand_dependencies(operation, result_name, domain)
 

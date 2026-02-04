@@ -44,6 +44,7 @@ from z3 import (
 )
 
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.smt_solver.types import (
     CheckSatResult,
     RangeSolveStatus,
@@ -170,11 +171,60 @@ class Z3Solver(SMTSolver):
             print(f"[Z3] Constraints added: {self.constraint_count}")
             self.last_constraint_log = self.constraint_count
 
+        # Record constraint in telemetry
+        self._record_constraint_telemetry(constraint)
+
         # Constraint dumping (first 100 constraints only)
         if self.dump_enabled and self.constraint_count <= 100:
             constraint_str = str(constraint)[:200]  # Truncate long constraints
             _dump(f"[Constraint #{self.constraint_count}] {constraint_str}")
             _constraint_history.append(constraint_str)
+
+    def _record_constraint_telemetry(self, constraint: SMTTerm) -> None:
+        """Classify and record a constraint in telemetry."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+
+        # Determine bit width
+        bit_width = 256
+        if is_bv(constraint):
+            bit_width = constraint.size()
+        elif hasattr(constraint, "children") and constraint.children():
+            for child in constraint.children():
+                if is_bv(child):
+                    bit_width = child.size()
+                    break
+
+        # Classify constraint type based on Z3 expression structure
+        constraint_type = self._classify_constraint(constraint)
+        telemetry.record_constraint(constraint_type, bit_width)
+
+    def _classify_constraint(self, constraint: SMTTerm) -> str:
+        """Classify a constraint into a category."""
+        constraint_str = str(constraint.decl()) if hasattr(constraint, "decl") else ""
+
+        # Check for equality
+        if is_eq(constraint):
+            return "equality"
+
+        # Check for comparison operators
+        comparison_ops = ["<", ">", "<=", ">=", "ULT", "ULE", "UGT", "UGE", "SLT", "SLE"]
+        if any(op in constraint_str for op in comparison_ops):
+            return "inequality"
+
+        # Check for overflow predicates
+        overflow_keywords = ["Overflow", "Underflow", "NoOverflow", "NoUnderflow"]
+        if any(kw in constraint_str for kw in overflow_keywords):
+            return "overflow"
+
+        # Check for arithmetic operations
+        arithmetic_ops = ["+", "-", "*", "/", "bvadd", "bvsub", "bvmul", "bvsdiv", "bvudiv"]
+        if any(op in constraint_str for op in arithmetic_ops):
+            return "arithmetic"
+
+        # Default to path constraint (boolean combinations, etc.)
+        return "path"
 
     def check_sat(self) -> CheckSatResult:
         """Check satisfiability."""
@@ -220,9 +270,81 @@ class Z3Solver(SMTSolver):
             self.last_result = CheckSatResult.UNKNOWN
             self.model = None
 
+        # Record in telemetry
+        self._record_solver_outcome_telemetry(self.last_result, elapsed * 1000)
+
         # Dump result
         if self.dump_enabled and self.check_call_count <= 20:
             _dump(f"  Result: {self.last_result}")
+
+        return self.last_result
+
+    def _record_solver_outcome_telemetry(
+        self, result: CheckSatResult, elapsed_ms: float
+    ) -> None:
+        """Record solver outcome in telemetry."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+
+        outcome_map = {
+            CheckSatResult.SAT: "sat",
+            CheckSatResult.UNSAT: "unsat",
+            CheckSatResult.UNKNOWN: "unknown",
+        }
+        outcome = outcome_map.get(result, "unknown")
+        telemetry.record_solver_outcome(outcome, elapsed_ms)
+
+    def check_sat_with_timeout(self, timeout_ms: int) -> CheckSatResult:
+        """Check satisfiability with a timeout.
+
+        Args:
+            timeout_ms: Timeout in milliseconds. Returns UNKNOWN if exceeded.
+        """
+        self.solver.set("timeout", timeout_ms)
+        start_time = time.time()
+        result = self._check_sat_internal()  # Use internal to avoid double telemetry
+        elapsed = time.time() - start_time
+        self.solver.set("timeout", 0)  # Reset to no timeout
+
+        # Record telemetry - distinguish timeout from other UNKNOWN
+        elapsed_ms = elapsed * 1000
+        if result == CheckSatResult.UNKNOWN and elapsed_ms >= timeout_ms * 0.9:
+            # Likely a timeout
+            telemetry = get_telemetry()
+            if telemetry is not None and telemetry.enabled:
+                telemetry.record_solver_outcome("timeout", elapsed_ms)
+        else:
+            self._record_solver_outcome_telemetry(result, elapsed_ms)
+
+        return result
+
+    def _check_sat_internal(self) -> CheckSatResult:
+        """Internal check_sat without telemetry (for use by check_sat_with_timeout)."""
+        self.check_call_count += 1
+        start_time = time.time()
+
+        result = self.solver.check()
+
+        elapsed = time.time() - start_time
+        self.total_check_time += elapsed
+
+        if elapsed > 1.0:
+            print(
+                f"[Z3] SLOW check #{self.check_call_count}: {elapsed:.2f}s "
+                f"(total: {self.total_check_time:.2f}s, "
+                f"constraints: {self.constraint_count})"
+            )
+
+        if result == sat:
+            self.last_result = CheckSatResult.SAT
+            self.model = self.solver.model()
+        elif result == unsat:
+            self.last_result = CheckSatResult.UNSAT
+            self.model = None
+        else:
+            self.last_result = CheckSatResult.UNKNOWN
+            self.model = None
 
         return self.last_result
 
