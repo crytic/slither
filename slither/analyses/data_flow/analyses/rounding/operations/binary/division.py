@@ -1,4 +1,9 @@
-"""Division operation handler for rounding analysis."""
+"""Division operation handler for rounding analysis.
+
+Rule from roundme: A / B => rounding(A), !rounding(B), rounding(/)
+Numerator preserves direction, denominator's direction is inverted.
+Floor division is the default when both operands are NEUTRAL.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +14,7 @@ from slither.analyses.data_flow.analyses.rounding.operations.binary.base import 
     BinaryOperationHandler,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
+    combine_tags,
     invert_tag,
 )
 from slither.core.cfg.node import Node
@@ -25,7 +31,12 @@ if TYPE_CHECKING:
 
 
 class DivisionHandler(BinaryOperationHandler):
-    """Handler for division operations with ceiling pattern detection."""
+    """Handler for division: A / B => rounding(A), !rounding(B), rounding(/).
+
+    Numerator preserves direction, denominator's direction is inverted.
+    Floor division (DOWN) is the default when both operands are NEUTRAL.
+    Ceiling division pattern (a + b - 1) / b is detected and tagged as UP.
+    """
 
     def handle(
         self,
@@ -37,10 +48,18 @@ class DivisionHandler(BinaryOperationHandler):
     ) -> None:
         """Handle division with ceiling pattern detection and consistency checks."""
         result_variable = operation.lvalue
+
+        # Check for ceiling division pattern first
         is_ceiling = self._is_ceiling_division_pattern(
             operation.variable_left, operation.variable_right, domain
         )
+        if is_ceiling:
+            self.set_tag_with_annotation(
+                result_variable, RoundingTag.UP, operation, node, domain
+            )
+            return
 
+        # Check for legacy inconsistency (numerator and denominator same non-NEUTRAL)
         inconsistency = self._check_division_consistency(
             left_tag, right_tag, operation, node
         )
@@ -51,19 +70,44 @@ class DivisionHandler(BinaryOperationHandler):
             )
             return
 
-        if is_ceiling:
-            self.set_tag_with_annotation(
-                result_variable, RoundingTag.UP, operation, node, domain
+        # Combine numerator with inverted denominator per roundme rules
+        right_tag_inverted = invert_tag(right_tag)
+        result_tag, has_conflict = combine_tags(left_tag, right_tag_inverted)
+
+        if has_conflict:
+            reason = self._format_conflict_reason(
+                left_tag, right_tag, right_tag_inverted, node
             )
-        elif right_tag == RoundingTag.NEUTRAL:
             self.set_tag_with_annotation(
-                result_variable, RoundingTag.DOWN, operation, node, domain
+                result_variable, RoundingTag.UNKNOWN, operation, node, domain,
+                unknown_reason=reason,
             )
-        else:
-            right_tag_inverted = invert_tag(right_tag)
-            self.set_tag_with_annotation(
-                result_variable, right_tag_inverted, operation, node, domain
-            )
+            return
+
+        # Default to floor division when both operands are NEUTRAL
+        if result_tag == RoundingTag.NEUTRAL:
+            result_tag = RoundingTag.DOWN
+
+        self.set_tag_with_annotation(
+            result_variable, result_tag, operation, node, domain
+        )
+
+    def _format_conflict_reason(
+        self,
+        left_tag: RoundingTag,
+        right_tag: RoundingTag,
+        right_inverted: RoundingTag,
+        node: Node,
+    ) -> str:
+        """Format a human-readable conflict reason."""
+        function_name = node.function.name
+        message = (
+            f"Conflicting rounding in division: {left_tag.name} / {right_tag.name} "
+            f"(inverted: {right_inverted.name}) in {function_name}"
+        )
+        self.analysis.inconsistencies.append(message)
+        self.analysis._logger.error(message)
+        return message
 
     def _is_ceiling_division_pattern(
         self,

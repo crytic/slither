@@ -40,6 +40,28 @@ def invert_tag(tag: RoundingTag) -> RoundingTag:
     return tag
 
 
+def combine_tags(left: RoundingTag, right: RoundingTag) -> tuple[RoundingTag, bool]:
+    """Combine two tags, detecting conflicts.
+
+    Returns (combined_tag, has_conflict).
+    Rules:
+    - NEUTRAL combines with anything → the other tag
+    - Same tags → that tag
+    - UP + DOWN → UNKNOWN (conflict)
+    - UNKNOWN in either → UNKNOWN
+    """
+    if left == RoundingTag.UNKNOWN or right == RoundingTag.UNKNOWN:
+        return RoundingTag.UNKNOWN, True
+    if left == RoundingTag.NEUTRAL:
+        return right, False
+    if right == RoundingTag.NEUTRAL:
+        return left, False
+    if left == right:
+        return left, False
+    # Conflict: UP vs DOWN
+    return RoundingTag.UNKNOWN, True
+
+
 def infer_tag_from_name(function_name: Optional[object]) -> RoundingTag:
     """Infer rounding direction from function name.
 

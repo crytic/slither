@@ -1,4 +1,8 @@
-"""Addition operation handler for rounding analysis."""
+"""Addition operation handler for rounding analysis.
+
+Rule from roundme: A + B => rounding(A), rounding(B)
+Both operands must agree on rounding direction for the result to be well-defined.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +11,9 @@ from typing import TYPE_CHECKING
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.analyses.rounding.operations.binary.base import (
     BinaryOperationHandler,
+)
+from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
+    combine_tags,
 )
 from slither.core.cfg.node import Node
 from slither.slithir.operations.binary import Binary
@@ -18,7 +25,11 @@ if TYPE_CHECKING:
 
 
 class AdditionHandler(BinaryOperationHandler):
-    """Handler for addition: A + B => rounding(A) or rounding(B) if A is NEUTRAL."""
+    """Handler for addition: A + B => rounding(A), rounding(B).
+
+    Both operands propagate their rounding direction. If they conflict (UP + DOWN),
+    the result is UNKNOWN and flagged as inconsistent.
+    """
 
     def handle(
         self,
@@ -28,9 +39,31 @@ class AdditionHandler(BinaryOperationHandler):
         left_tag: RoundingTag,
         right_tag: RoundingTag,
     ) -> None:
-        """Handle addition by preserving the non-neutral operand's tag."""
+        """Handle addition by combining both operands' tags."""
         result_variable = operation.lvalue
-        result_tag = right_tag if left_tag == RoundingTag.NEUTRAL else left_tag
+        result_tag, has_conflict = combine_tags(left_tag, right_tag)
+
+        if has_conflict:
+            reason = self._format_conflict_reason(left_tag, right_tag, node)
+            self.set_tag_with_annotation(
+                result_variable, result_tag, operation, node, domain,
+                unknown_reason=reason,
+            )
+            return
+
         self.set_tag_with_annotation(
             result_variable, result_tag, operation, node, domain
         )
+
+    def _format_conflict_reason(
+        self, left_tag: RoundingTag, right_tag: RoundingTag, node: Node
+    ) -> str:
+        """Format a human-readable conflict reason."""
+        function_name = node.function.name
+        message = (
+            f"Conflicting rounding in addition: {left_tag.name} + {right_tag.name} "
+            f"in {function_name}"
+        )
+        self.analysis.inconsistencies.append(message)
+        self.analysis._logger.error(message)
+        return message

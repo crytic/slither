@@ -36,9 +36,9 @@ class AssignmentHandler(BaseOperationHandler):
         if not operation.lvalue:
             return
 
-        rvalue = operation.rvalue
-        if isinstance(rvalue, Variable):
-            tag = get_variable_tag(rvalue, domain)
+        right_value = operation.rvalue
+        if isinstance(right_value, Variable):
+            tag = get_variable_tag(right_value, domain)
             domain.state.set_tag(operation.lvalue, tag, operation)
             self.analysis._check_annotation_for_variable(
                 operation.lvalue, tag, operation, node, domain

@@ -2,17 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from slither.analyses.data_flow.analyses.rounding.operations.interprocedural import (
     InterproceduralHandler,
 )
 from slither.core.declarations import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.internal_call import InternalCall
-
-if TYPE_CHECKING:
-    pass
 
 
 class InternalCallHandler(InterproceduralHandler):
@@ -26,9 +21,9 @@ class InternalCallHandler(InterproceduralHandler):
         """Extract the called Function from the internal call."""
         if not isinstance(operation, InternalCall):
             return None
-        callee = operation.function
-        if isinstance(callee, Function):
-            return callee
+        called_function = operation.function
+        if isinstance(called_function, Function):
+            return called_function
         return None
 
     def _get_function_name(self, operation: Call) -> str:
