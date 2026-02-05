@@ -48,6 +48,7 @@ class AnalysisConfig:
     function_name: str | None = None
     show_bounds: bool = False
     timeout_ms: int = DEFAULT_TIMEOUT_MS
+    budget_seconds: int | None = None
     skip_solving: bool = False
     show_telemetry: bool = False
     skip_compile: bool = False
@@ -68,6 +69,7 @@ def main() -> int:
         function_name=args.function,
         show_bounds=args.bounds,
         timeout_ms=args.timeout,
+        budget_seconds=args.budget,
         skip_solving=args.skip_solving,
         show_telemetry=args.telemetry,
         skip_compile=args.skip_compile,
@@ -109,6 +111,13 @@ def _create_parser() -> argparse.ArgumentParser:
         default=DEFAULT_TIMEOUT_MS,
         metavar="MS",
         help=f"SMT solver timeout in ms (default: {DEFAULT_TIMEOUT_MS})",
+    )
+    parser.add_argument(
+        "--budget",
+        type=int,
+        default=None,
+        metavar="SECONDS",
+        help="Total SMT solving time budget in seconds (overrides --timeout)",
     )
     parser.add_argument(
         "--skip-solving",
@@ -282,6 +291,44 @@ def _analyze_contracts_json(
     return output
 
 
+def _count_solvable_variables(
+    nodes_to_process: list["Node"],
+    results: dict,
+) -> int:
+    """Count variables that need SMT range solving across exit nodes."""
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import (
+        DomainVariant,
+    )
+
+    seen: set[str] = set()
+    for node in nodes_to_process:
+        if node not in results:
+            continue
+        state = results[node]
+        if state.post.variant != DomainVariant.STATE:
+            continue
+        for var_name in state.post.state.get_range_variables():
+            if not _should_skip_var_json(var_name, {}):
+                seen.add(var_name)
+    return len(seen)
+
+
+def _compute_budget_timeout(
+    budget_seconds: int,
+    variable_count: int,
+) -> int:
+    """Compute per-query timeout from a total time budget.
+
+    Each variable requires 2 SMT optimize queries (min + max).
+    Returns timeout in milliseconds per optimize query, with a
+    minimum floor of 100ms to avoid trivially short timeouts.
+    """
+    query_count = max(variable_count * 2, 1)
+    budget_ms = budget_seconds * 1000
+    per_query_ms = budget_ms // query_count
+    return max(per_query_ms, 100)
+
+
 def _analyze_function_json(
     function: "Function",
     solver: "SMTSolver",
@@ -309,6 +356,12 @@ def _analyze_function_json(
     # Find nodes to collect results from (exit nodes)
     nodes_to_process = _get_exit_nodes(function, results)
 
+    # Compute per-query timeout from budget if specified
+    timeout_ms = config.timeout_ms
+    if config.budget_seconds is not None:
+        variable_count = _count_solvable_variables(nodes_to_process, results)
+        timeout_ms = _compute_budget_timeout(config.budget_seconds, variable_count)
+
     variables: dict = {}
 
     for node in nodes_to_process:
@@ -328,7 +381,7 @@ def _analyze_function_json(
 
             range_config = RangeQueryConfig(
                 path_constraints=path_constraints,
-                timeout_ms=config.timeout_ms,
+                timeout_ms=timeout_ms,
                 skip_optimization=config.skip_solving,
                 cache=cache,
             )
@@ -532,6 +585,33 @@ def _get_function_filename(function: "Function") -> str:
     return "unknown"
 
 
+def _count_annotation_variables(
+    results: dict["Node", "object"],
+    config: AnalysisConfig,
+) -> int:
+    """Count variables that need SMT solving for annotated output."""
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import (
+        DomainVariant,
+    )
+
+    seen: set[tuple[int, str]] = set()
+    for node, state in results.items():
+        if state.post.variant != DomainVariant.STATE:
+            continue
+        post_state = state.post.state
+        range_vars = post_state.get_range_variables()
+        used_vars = post_state.get_used_variables()
+        lines = _get_node_lines(node)
+        if not lines:
+            continue
+        primary_line = lines[0]
+        for var_name in range_vars:
+            if _should_skip_variable(var_name, used_vars, config.show_all):
+                continue
+            seen.add((primary_line, var_name))
+    return len(seen)
+
+
 def _collect_line_annotations(
     results: dict["Node", "object"],
     solver: "SMTSolver",
@@ -542,6 +622,14 @@ def _collect_line_annotations(
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         DomainVariant,
     )
+
+    # Compute per-query timeout from budget if specified
+    timeout_ms = config.timeout_ms
+    if config.budget_seconds is not None:
+        variable_count = _count_annotation_variables(results, config)
+        timeout_ms = _compute_budget_timeout(
+            config.budget_seconds, variable_count
+        )
 
     line_annotations: dict[int, list[LineAnnotation]] = defaultdict(list)
     seen_vars: set[tuple[int, str]] = set()
@@ -581,6 +669,7 @@ def _collect_line_annotations(
                 config,
                 cache,
                 tmp_expressions,
+                timeout_ms,
             )
             if annotation:
                 line_annotations[primary_line].append(annotation)
@@ -684,6 +773,7 @@ def _create_annotation(
     config: AnalysisConfig,
     cache: "RangeQueryCache",
     tmp_expressions: dict[str, str] | None = None,
+    timeout_ms: int | None = None,
 ) -> LineAnnotation | None:
     """Create a LineAnnotation from analysis data."""
     from slither.analyses.data_flow.analysis import (
@@ -691,9 +781,10 @@ def _create_annotation(
         solve_variable_range,
     )
 
+    effective_timeout = timeout_ms if timeout_ms is not None else config.timeout_ms
     range_config = RangeQueryConfig(
         path_constraints=path_constraints,
-        timeout_ms=config.timeout_ms,
+        timeout_ms=effective_timeout,
         skip_optimization=config.skip_solving,
         cache=cache,
     )
@@ -741,7 +832,7 @@ def _create_annotation(
     column = 0
 
     # Check overflow possibility for unchecked arithmetic (deferred to annotation time)
-    can_overflow, can_underflow = _check_overflow_possible(solver, smt_var, config.timeout_ms)
+    can_overflow, can_underflow = _check_overflow_possible(solver, smt_var, effective_timeout)
 
     # Record precision metrics
     _record_precision_telemetry(min_val, max_val, bit_width, can_overflow, can_underflow)
