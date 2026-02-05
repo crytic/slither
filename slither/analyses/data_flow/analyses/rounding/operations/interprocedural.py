@@ -154,10 +154,33 @@ class InterproceduralHandler(BaseOperationHandler):
         caller_domain: RoundingDomain,
         callee_domain: RoundingDomain,
     ) -> None:
-        """Map argument tags from caller to parameter variables in callee."""
+        """Map argument tags from caller to parameter variables in callee.
+
+        Binds tags to SSA variable reads by matching base names, since Slither's
+        SSA uses different variable instances for parameters vs body reads.
+        """
+        param_name_to_tag: dict[str, RoundingTag] = {}
         for parameter, argument in zip(function.parameters, arguments):
             argument_tag = get_variable_tag(argument, caller_domain)
             callee_domain.state.set_tag(parameter, argument_tag)
+            param_name_to_tag[parameter.name] = argument_tag
+
+        # Bind to SSA variable reads in the function body
+        bound_vars: set[Variable] = set()
+        for node in function.nodes:
+            if not node.irs_ssa:
+                continue
+            for operation in node.irs_ssa:
+                if not hasattr(operation, "read"):
+                    continue
+                for var in operation.read:
+                    if not isinstance(var, Variable):
+                        continue
+                    if var in bound_vars:
+                        continue
+                    if var.name in param_name_to_tag:
+                        callee_domain.state.set_tag(var, param_name_to_tag[var.name])
+                        bound_vars.add(var)
 
     def _analyze_callee_body(
         self,

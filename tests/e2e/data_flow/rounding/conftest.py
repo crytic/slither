@@ -15,6 +15,7 @@ TEST_CONTRACTS: list[str] = [
     "Test_Subtraction.sol",
     "Test_Division.sol",
     "Test_ConditionalRounding.sol",
+    "Test_Interprocedural.sol",
 ]
 
 
