@@ -17,6 +17,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.operations.index import Index
+from slither.slithir.operations.init_array import InitArray
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.unary import Unary
@@ -39,6 +40,9 @@ from slither.analyses.data_flow.analyses.interval.operations.high_level_call imp
 )
 from slither.analyses.data_flow.analyses.interval.operations.index import (
     IndexHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.init_array import (
+    InitArrayHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.internal_call import (
     InternalCallHandler,
@@ -109,6 +113,7 @@ class OperationHandlerRegistry:
         self._handlers[Unary] = UnaryHandler(self._solver)
         self._handlers[Unpack] = UnpackHandler(self._solver)
         self._handlers[Index] = IndexHandler(self._solver)
+        self._handlers[InitArray] = InitArrayHandler(self._solver)
         self._handlers[Length] = LengthHandler(self._solver)
         self._handlers[Member] = MemberHandler(self._solver)
 

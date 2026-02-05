@@ -29,6 +29,7 @@ TEST_CONTRACTS = [
     "Test_StateVariable.sol",
     "Test_Unpack.sol",
     "Test_Array.sol",
+    "Test_InitArray.sol",
     "Test_Mapping.sol",
     "Test_Struct.sol",
     "Test_InternalDynamicCall.sol",

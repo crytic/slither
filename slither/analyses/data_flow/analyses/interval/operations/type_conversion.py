@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.variables.constant import Constant
 
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -15,6 +16,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_variable_name,
     is_signed_type,
     get_bit_width,
+    constant_to_term,
     try_create_parameter_variable,
 )
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
@@ -121,17 +123,34 @@ class TypeConversionHandler(BaseOperationHandler):
     ) -> SMTTerm | None:
         """Resolve the source variable to an SMT term."""
         source = operation.variable
+
+        if isinstance(source, Constant):
+            return self._resolve_constant(source)
+
         source_name = get_variable_name(source)
         tracked = domain.state.get_variable(source_name)
 
         if tracked is not None:
             return tracked.term
 
-        tracked = try_create_parameter_variable(self.solver, source, source_name, domain)
+        tracked = try_create_parameter_variable(
+            self.solver, source, source_name, domain
+        )
         if tracked is not None:
             return tracked.term
 
         return None
+
+    def _resolve_constant(self, constant: Constant) -> SMTTerm | None:
+        """Resolve a constant source to an SMT term."""
+        value = constant.value
+        if not isinstance(value, (int, bool)):
+            return None
+        source_type = constant.type
+        if not isinstance(source_type, ElementaryType):
+            return None
+        width = get_bit_width(source_type)
+        return constant_to_term(self.solver, value, width)
 
     def _convert_term(
         self,
