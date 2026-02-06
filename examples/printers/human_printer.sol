@@ -164,9 +164,4 @@ contract SimpleVulnerableToken{
     emit MintFinished();
     return true;
   }
-
-  function backdoor() public{
-    owner = msg.sender;
-    mintingFinished = false;
-  }
 }
