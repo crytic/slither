@@ -25,7 +25,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Function
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -747,25 +747,15 @@ def _collect_functions(
 ) -> list[FunctionContract]:
     """Collect functions to analyze based on filters."""
     functions: list[FunctionContract] = []
-    exact_name_exists = any(
-        contract.name == contract_filter for contract in slither_instance.contracts
-    )
 
     for contract in slither_instance.contracts:
+        if contract.is_test:
+            continue
+
         if contract_filter:
-            if exact_name_exists:
-                if contract.name != contract_filter:
-                    continue
-                function_source = contract.functions_declared
-            else:
-                contract_file = (
-                    contract.source_mapping.filename.short
-                    if contract.source_mapping
-                    else ""
-                )
-                if contract_filter not in contract_file:
-                    continue
-                function_source = contract.functions
+            if not _contract_matches_filter(contract, contract_filter):
+                continue
+            function_source = contract.functions_declared
         else:
             function_source = contract.functions
 
@@ -774,7 +764,21 @@ def _collect_functions(
                 continue
             if isinstance(function, FunctionContract) and function.is_implemented:
                 functions.append(function)
+
     return functions
+
+
+def _contract_matches_filter(
+    contract: Contract,
+    contract_filter: str,
+) -> bool:
+    """Check if a contract matches the filter by name or filename."""
+    if contract.name == contract_filter:
+        return True
+    contract_file = (
+        contract.source_mapping.filename.short if contract.source_mapping else ""
+    )
+    return contract_filter in contract_file
 
 
 def _validate_explain_args(args: argparse.Namespace) -> None:
