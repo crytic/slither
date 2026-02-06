@@ -21,13 +21,14 @@ from slither.analyses.data_flow.analyses.rounding.operations.base import (
 from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
     get_variable_tag,
     infer_tag_from_name,
+    lookup_known_tag,
 )
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.return_operation import Return
-
 
 
 class InterproceduralHandler(BaseOperationHandler):
@@ -57,7 +58,9 @@ class InterproceduralHandler(BaseOperationHandler):
         if self._is_named_division_function(function_name):
             self._check_named_division_consistency(operation, domain, node)
 
-        tags, trace = self._infer_tag_with_fallback(operation, function_name, domain, node)
+        tags, trace = self._infer_tag_with_fallback(
+            operation, function_name, domain, node
+        )
         self._set_tags(operation.lvalue, tags, operation, node, domain, trace)
 
     def _infer_tag_with_fallback(
@@ -87,6 +90,19 @@ class InterproceduralHandler(BaseOperationHandler):
         called_function = self._get_called_function(operation)
         if called_function is None:
             return frozenset({tag}), None
+
+        known = _lookup_known_function_tag(
+            called_function, function_name, self.analysis.known_tags
+        )
+        if known is not None:
+            known_tags = frozenset({known})
+            trace = TraceNode(
+                function_name=function_name,
+                line_number=line_number,
+                tags=known_tags,
+                source=f"{function_name}() → {known.name} (known library)",
+            )
+            return known_tags, trace
 
         body_tags, child_traces = self._analyze_function_body(
             called_function, operation.arguments, domain
@@ -362,6 +378,21 @@ class InterproceduralHandler(BaseOperationHandler):
         self.analysis._check_annotation_for_variable(
             variable, actual_tag, operation, node, domain
         )
+
+
+def _lookup_known_function_tag(
+    called_function: Function,
+    function_name: str,
+    known_tags: Optional[dict[tuple[str, str], RoundingTag]],
+) -> Optional[RoundingTag]:
+    """Check if function matches a known library rounding pattern."""
+    if known_tags is None:
+        return None
+    if not isinstance(called_function, FunctionContract):
+        return None
+    return lookup_known_tag(
+        called_function.contract_declarer.name, function_name, known_tags
+    )
 
 
 def _format_tagset(tags: TagSet) -> str:

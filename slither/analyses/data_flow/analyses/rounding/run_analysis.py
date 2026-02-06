@@ -12,6 +12,10 @@ from slither import Slither
 from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
     RoundingAnalysis,
 )
+from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
+    KnownLibraryTags,
+    load_known_tags,
+)
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -174,12 +178,13 @@ def build_annotation_note(operation: Binary, result_tags: TagSet) -> str:
 def analyze_function(
     function: FunctionContract,
     show_all: bool = False,
+    known_tags: Optional[KnownLibraryTags] = None,
 ) -> AnnotatedFunction:
     """Analyze a function and build annotated source view."""
     annotated = _create_annotated_function(function)
     _populate_source_lines(annotated)
 
-    analysis = RoundingAnalysis()
+    analysis = RoundingAnalysis(known_tags=known_tags)
     engine = Engine.new(analysis, function)
     engine.run_analysis()
     node_results: dict[Node, AnalysisState] = engine.result()
@@ -737,6 +742,17 @@ def _create_argument_parser() -> argparse.ArgumentParser:
         default="anthropic/claude-sonnet-4-5-20250929",
         help="DSPy model identifier for --explain (default: anthropic/claude-sonnet-4-5-20250929)",
     )
+    parser.add_argument(
+        "--safe-libs",
+        nargs="?",
+        const="__builtin__",
+        metavar="FILE",
+        help=(
+            "Trust known library rounding directions. "
+            "Without a file: use built-in defaults (e.g. FullMath.mulDiv → DOWN). "
+            "With a JSON file: merge user entries on top of built-ins."
+        ),
+    )
     return parser
 
 
@@ -836,6 +852,7 @@ def main() -> None:
 
     _validate_explain_args(args)
     explainer, function_lookup = _setup_explain(args)
+    known_tags = _load_safe_libs(args.safe_libs)
 
     slither_instance = Slither(str(project_path))
     functions = _collect_functions(slither_instance, args.contract, args.function)
@@ -850,7 +867,9 @@ def main() -> None:
     function_analyses: list[AnnotatedFunction] = []
     for function in functions:
         try:
-            function_analyses.append(analyze_function(function, show_all=args.all))
+            function_analyses.append(
+                analyze_function(function, show_all=args.all, known_tags=known_tags)
+            )
         except Exception as exception:
             logger.error(f"Error analyzing {function.name}: {exception}")
 
@@ -872,6 +891,26 @@ def main() -> None:
 
     if len(function_analyses) > 1:
         display_summary_table(function_analyses)
+
+
+def _load_safe_libs(
+    safe_libs_arg: Optional[str],
+) -> Optional[KnownLibraryTags]:
+    """Load known library tags from --safe-libs argument.
+
+    None means flag not passed. "__builtin__" means flag without file path.
+    Anything else is a JSON file path merged on top of built-ins.
+    """
+    if safe_libs_arg is None:
+        return None
+    if safe_libs_arg == "__builtin__":
+        return load_known_tags()
+    file_path = Path(safe_libs_arg)
+    if not file_path.exists():
+        logger.error_and_raise(
+            f"safe-libs file not found: {file_path}", FileNotFoundError
+        )
+    return load_known_tags(file_path)
 
 
 def _parse_trace_tag(trace_arg: Optional[str]) -> Optional[RoundingTag]:

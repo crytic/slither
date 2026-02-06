@@ -1,6 +1,8 @@
 """Rounding analysis for Slither data-flow."""
 
-from typing import Optional, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional, cast
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -14,6 +16,11 @@ from slither.analyses.data_flow.analyses.rounding.operations.registry import (
     OperationHandlerRegistry,
 )
 from slither.analyses.data_flow.engine.analysis import Analysis
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
+        KnownLibraryTags,
+    )
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
@@ -25,11 +32,15 @@ from slither.slithir.operations.operation import Operation
 class RoundingAnalysis(Analysis):
     """Analysis that tracks rounding direction metadata through data flow."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        known_tags: Optional[KnownLibraryTags] = None,
+    ) -> None:
         self._direction: Direction = Forward()
         self._logger = get_logger(enable_ipython_embed=False, log_level="ERROR")
         self.inconsistencies: list[str] = []
         self.annotation_mismatches: list[str] = []
+        self.known_tags: Optional[KnownLibraryTags] = known_tags
         self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self)
 
     def domain(self) -> Domain:
