@@ -21,6 +21,8 @@ setup(
         "eth-abi>=5.0.1",
         "eth-typing>=5.0.0",
         "eth-utils>=5.0.0",
+        "loguru",
+        "rich",
     ],
     extras_require={
         "lint": [
@@ -45,7 +47,7 @@ setup(
             "dspy>=3.1,<4",
         ],
         "dev": [
-            "slither-analyzer[lint,test,doc]",
+            "slither-analyzer[lint,test,doc,explain]",
             "openai",
         ],
     },
