@@ -724,7 +724,7 @@ def _create_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--trace",
-        choices=["UP", "DOWN"],
+        choices=["UP", "DOWN", "UNKNOWN"],
         help="Show provenance chain for variables with this rounding tag",
     )
     parser.add_argument(
@@ -882,6 +882,8 @@ def _parse_trace_tag(trace_arg: Optional[str]) -> Optional[RoundingTag]:
         return RoundingTag.UP
     if trace_arg == "DOWN":
         return RoundingTag.DOWN
+    if trace_arg == "UNKNOWN":
+        return RoundingTag.UNKNOWN
     return None
 
 
