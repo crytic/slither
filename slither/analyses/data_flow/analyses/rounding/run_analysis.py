@@ -9,7 +9,9 @@ from rich.console import Console
 from rich.text import Text
 
 from slither import Slither
-from slither.analyses.data_flow.analyses.rounding.analysis.analysis import RoundingAnalysis
+from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
+    RoundingAnalysis,
+)
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -23,6 +25,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.assignment import Assignment
@@ -32,6 +35,25 @@ from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.utils.utils import RVALUE
+
+try:
+    from slither.analyses.data_flow.analyses.rounding.explain.configuration import (
+        configure_dspy,
+    )
+    from slither.analyses.data_flow.analyses.rounding.explain.explainer import (
+        TraceExplainer,
+        build_function_lookup,
+        extract_source_for_path,
+        serialize_trace_path,
+        split_trace_paths,
+    )
+    from slither.analyses.data_flow.analyses.rounding.explain.signature import (
+        TraceAnalysis,
+    )
+
+    EXPLAIN_AVAILABLE = True
+except ImportError:
+    EXPLAIN_AVAILABLE = False
 
 console = Console()
 logger = get_logger()
@@ -174,8 +196,12 @@ def _create_annotated_function(function: FunctionContract) -> AnnotatedFunction:
     """Create initial AnnotatedFunction from function metadata."""
     source_mapping = function.source_mapping
     filename = source_mapping.filename.absolute if source_mapping else ""
-    start_line = source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
-    end_line = source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
+    start_line = (
+        source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
+    )
+    end_line = (
+        source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
+    )
 
     return AnnotatedFunction(
         function_name=function.name,
@@ -214,7 +240,11 @@ def _process_node_results(
         domain = node_results[node].post
         line_num = get_node_line(node)
 
-        if node.type == NodeType.ENTRYPOINT and line_num and line_num in annotated.lines:
+        if (
+            node.type == NodeType.ENTRYPOINT
+            and line_num
+            and line_num in annotated.lines
+        ):
             annotated.lines[line_num].is_entry = True
             if show_all:
                 _add_parameter_annotations(function, domain, annotated.lines[line_num])
@@ -242,7 +272,9 @@ def _add_parameter_annotations(
 
 
 def _process_operation(
-    operation: Union[Binary, Assignment, InternalCall, HighLevelCall, LibraryCall, Return],
+    operation: Union[
+        Binary, Assignment, InternalCall, HighLevelCall, LibraryCall, Return
+    ],
     domain: RoundingDomain,
     annotated_line: AnnotatedLine,
     annotated: AnnotatedFunction,
@@ -252,7 +284,10 @@ def _process_operation(
         _process_binary_operation(operation, domain, annotated_line)
     elif isinstance(operation, Assignment) and operation.lvalue:
         _process_assignment_operation(operation, domain, annotated_line)
-    elif isinstance(operation, (InternalCall, HighLevelCall, LibraryCall)) and operation.lvalue:
+    elif (
+        isinstance(operation, (InternalCall, HighLevelCall, LibraryCall))
+        and operation.lvalue
+    ):
         _process_call_operation(operation, domain, annotated_line)
     elif isinstance(operation, Return):
         _process_return_operation(operation, domain, annotated_line, annotated)
@@ -371,11 +406,15 @@ def _process_return_operation(
 
 
 def _get_call_function_name(
-    operation: Union[InternalCall, HighLevelCall, LibraryCall]
+    operation: Union[InternalCall, HighLevelCall, LibraryCall],
 ) -> str:
     """Extract function name from call operation."""
     if isinstance(operation, InternalCall):
-        return operation.function.name if operation.function else str(operation.function_name)
+        return (
+            operation.function.name
+            if operation.function
+            else str(operation.function_name)
+        )
     return str(operation.function_name.value)
 
 
@@ -498,7 +537,12 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
             console.print(f"  [red]✗[/red] {mismatch}")
 
 
-def display_trace_section(annotated: AnnotatedFunction, trace_tag: RoundingTag) -> None:
+def display_trace_section(
+    annotated: AnnotatedFunction,
+    trace_tag: RoundingTag,
+    explainer: Optional["TraceExplainer"] = None,
+    function_lookup: Optional[dict[str, Function]] = None,
+) -> None:
     """Display trace section for variables containing the traced tag."""
     traced_variables = _collect_traced_variables(annotated, trace_tag)
 
@@ -515,6 +559,14 @@ def display_trace_section(annotated: AnnotatedFunction, trace_tag: RoundingTag) 
         location = f"(line {line_number})" if line_number else ""
         console.print(f"[bold]{variable_name}[/bold] {location}:")
         _display_trace_tree(trace, indent=1, filter_tag=trace_tag)
+        if explainer is not None and function_lookup is not None:
+            _display_trace_conditions(
+                trace,
+                trace_tag,
+                function_lookup,
+                annotated,
+                explainer,
+            )
 
 
 def _collect_traced_variables(
@@ -583,6 +635,48 @@ def _display_trace_tree(trace: TraceNode, indent: int, filter_tag: RoundingTag) 
             _display_trace_tree(child, indent + 1, filter_tag)
 
 
+def _display_trace_conditions(
+    trace: TraceNode,
+    trace_tag: RoundingTag,
+    function_lookup: dict[str, Function],
+    annotated: AnnotatedFunction,
+    explainer: "TraceExplainer",
+) -> None:
+    """Display LM-identified conditions for each path in the trace."""
+    paths = split_trace_paths(trace, trace_tag)
+    contract_context = f"{annotated.contract_name}.{annotated.function_name}"
+    for path_index, path in enumerate(paths):
+        trace_text = serialize_trace_path(path)
+        source_text = extract_source_for_path(path, function_lookup)
+        analysis: TraceAnalysis = explainer(
+            trace_chain=trace_text,
+            traced_tag=trace_tag.name,
+            solidity_source=source_text,
+            contract_context=contract_context,
+        )
+        leaf_name = path[-1].function_name
+        console.print()
+        console.print(
+            f"  [bold green]Path {path_index + 1} (→ {leaf_name}):[/bold green]"
+        )
+        _render_trace_steps(analysis)
+
+
+def _render_trace_steps(analysis: "TraceAnalysis") -> None:
+    """Render the step-by-step trace flow."""
+    if not analysis.steps:
+        return
+    console.print("  [bold green]Flow:[/bold green]")
+    for index, step in enumerate(analysis.steps):
+        step_number = index + 1
+        console.print(f"  [bold]{step_number}. {step.function_name}[/bold]")
+        console.print(f"     [dim]when:[/dim] {step.condition}")
+        console.print(f"     [dim]in:[/dim]   {step.inputs}")
+        console.print(f"     [dim]op:[/dim]   {step.operation}")
+        if step.next_call != "returns":
+            console.print(f"     [dim]→[/dim]     {step.next_call}")
+
+
 def display_summary_table(analyses: list[AnnotatedFunction]) -> None:
     """Display summary of all analyzed functions."""
     console.print()
@@ -612,20 +706,36 @@ def _create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Rounding direction analysis visualization tool"
     )
-    parser.add_argument("project_path", help="Path to Solidity file or project directory")
     parser.add_argument(
-        "-c", "--contract",
-        help="Filter by filename or exact contract name (e.g., LinearPool.sol or LinearPool)"
+        "project_path", help="Path to Solidity file or project directory"
     )
-    parser.add_argument("-f", "--function", help="Filter to this specific function name")
     parser.add_argument(
-        "--all", action="store_true",
-        help="Show all variables including NEUTRAL parameters"
+        "-c",
+        "--contract",
+        help="Filter by filename or exact contract name (e.g., LinearPool.sol or LinearPool)",
+    )
+    parser.add_argument(
+        "-f", "--function", help="Filter to this specific function name"
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Show all variables including NEUTRAL parameters",
     )
     parser.add_argument(
         "--trace",
         choices=["UP", "DOWN"],
-        help="Show provenance chain for variables with this rounding tag"
+        help="Show provenance chain for variables with this rounding tag",
+    )
+    parser.add_argument(
+        "--explain",
+        action="store_true",
+        help="Use an LM to identify conditions in trace chains (requires --trace)",
+    )
+    parser.add_argument(
+        "--explain-model",
+        default="anthropic/claude-sonnet-4-5-20250929",
+        help="DSPy model identifier for --explain (default: anthropic/claude-sonnet-4-5-20250929)",
     )
     return parser
 
@@ -649,7 +759,9 @@ def _collect_functions(
                 function_source = contract.functions_declared
             else:
                 contract_file = (
-                    contract.source_mapping.filename.short if contract.source_mapping else ""
+                    contract.source_mapping.filename.short
+                    if contract.source_mapping
+                    else ""
                 )
                 if contract_filter not in contract_file:
                     continue
@@ -665,6 +777,50 @@ def _collect_functions(
     return functions
 
 
+def _validate_explain_args(args: argparse.Namespace) -> None:
+    """Validate --explain flag requirements."""
+    if not args.explain:
+        return
+    if not args.trace:
+        logger.error_and_raise(
+            "--explain requires --trace to be set",
+            ValueError,
+        )
+    if not EXPLAIN_AVAILABLE:
+        logger.error_and_raise(
+            "DSPy is required for --explain. "
+            "Install with: pip install slither-analyzer[explain]",
+            ImportError,
+        )
+
+
+def _setup_explain(
+    args: argparse.Namespace,
+) -> tuple[Optional["TraceExplainer"], Optional[dict[str, Function]]]:
+    """Configure DSPy and create explainer if --explain is active."""
+    if not args.explain:
+        return None, None
+    configure_dspy(model=args.explain_model)
+    return TraceExplainer(), None
+
+
+def _build_lookup_from_functions(
+    functions: list[FunctionContract],
+) -> dict[str, Function]:
+    """Build function name lookup from analyzed functions and their contracts."""
+    all_functions: list[Function] = []
+    seen_contracts: set[str] = set()
+    for function in functions:
+        if not function.contract:
+            continue
+        contract_name = function.contract.name
+        if contract_name in seen_contracts:
+            continue
+        seen_contracts.add(contract_name)
+        all_functions.extend(function.contract.functions)
+    return build_function_lookup(all_functions)
+
+
 def main() -> None:
     """Main entry point."""
     parser = _create_argument_parser()
@@ -674,12 +830,18 @@ def main() -> None:
     if not project_path.exists():
         logger.error_and_raise(f"Path not found: {project_path}", FileNotFoundError)
 
+    _validate_explain_args(args)
+    explainer, function_lookup = _setup_explain(args)
+
     slither_instance = Slither(str(project_path))
     functions = _collect_functions(slither_instance, args.contract, args.function)
 
     if not functions:
         logger.warning("No functions found to analyze")
         return
+
+    if explainer is not None:
+        function_lookup = _build_lookup_from_functions(functions)
 
     function_analyses: list[AnnotatedFunction] = []
     for function in functions:
@@ -697,7 +859,12 @@ def main() -> None:
     for analysis in function_analyses:
         display_annotated_source(analysis)
         if trace_tag is not None:
-            display_trace_section(analysis, trace_tag)
+            display_trace_section(
+                analysis,
+                trace_tag,
+                explainer,
+                function_lookup,
+            )
 
     if len(function_analyses) > 1:
         display_summary_table(function_analyses)

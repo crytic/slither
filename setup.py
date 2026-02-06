@@ -41,6 +41,9 @@ setup(
         "doc": [
             "pdoc",
         ],
+        "explain": [
+            "dspy>=3.1,<4",
+        ],
         "dev": [
             "slither-analyzer[lint,test,doc]",
             "openai",
