@@ -1,6 +1,7 @@
 """Visualization tool for rounding direction analysis."""
 
 import argparse
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Union
@@ -723,6 +724,15 @@ def _create_argument_parser() -> argparse.ArgumentParser:
         "-f", "--function", help="Filter to this specific function name"
     )
     parser.add_argument(
+        "--targets",
+        metavar="FILE",
+        help=(
+            "JSON file mapping contracts to function lists. "
+            'Format: {"Contract": ["fn1", "fn2"], "Other": "*"}. '
+            'Use "*" to include all functions in a contract.'
+        ),
+    )
+    parser.add_argument(
         "--all",
         action="store_true",
         help="Show all variables including NEUTRAL parameters",
@@ -797,6 +807,15 @@ def _contract_matches_filter(
     return contract_filter in contract_file
 
 
+def _validate_target_args(args: argparse.Namespace) -> None:
+    """Validate --targets is not combined with -c or -f."""
+    if args.targets and (args.contract or args.function):
+        logger.error_and_raise(
+            "--targets cannot be combined with -c/--contract or -f/--function",
+            ValueError,
+        )
+
+
 def _validate_explain_args(args: argparse.Namespace) -> None:
     """Validate --explain flag requirements."""
     if not args.explain:
@@ -851,11 +870,16 @@ def main() -> None:
         logger.error_and_raise(f"Path not found: {project_path}", FileNotFoundError)
 
     _validate_explain_args(args)
+    _validate_target_args(args)
     explainer, function_lookup = _setup_explain(args)
     known_tags = _load_safe_libs(args.safe_libs)
+    target_map = _load_targets(args.targets)
 
     slither_instance = Slither(str(project_path))
-    functions = _collect_functions(slither_instance, args.contract, args.function)
+    if target_map is not None:
+        functions = _collect_functions_from_targets(slither_instance, target_map)
+    else:
+        functions = _collect_functions(slither_instance, args.contract, args.function)
 
     if not functions:
         logger.warning("No functions found to analyze")
@@ -891,6 +915,73 @@ def main() -> None:
 
     if len(function_analyses) > 1:
         display_summary_table(function_analyses)
+
+
+TargetMap = dict[str, list[str]]
+
+
+def _load_targets(targets_arg: Optional[str]) -> Optional[TargetMap]:
+    """Load target contract/function map from a JSON file.
+
+    Format: {"Contract": ["fn1", "fn2"], "Other": "*"}
+    "*" expands to all functions in the contract.
+    """
+    if targets_arg is None:
+        return None
+    file_path = Path(targets_arg)
+    if not file_path.exists():
+        logger.error_and_raise(
+            f"targets file not found: {file_path}", FileNotFoundError
+        )
+    raw = json.loads(file_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        logger.error_and_raise(
+            f"targets file must be a JSON object, got {type(raw).__name__}",
+            ValueError,
+        )
+    return _parse_target_map(raw)
+
+
+def _parse_target_map(raw: dict) -> TargetMap:
+    """Validate and normalize the raw targets JSON into a TargetMap."""
+    targets: TargetMap = {}
+    for contract, functions in raw.items():
+        if functions == "*":
+            targets[contract] = []
+            continue
+        if not isinstance(functions, list):
+            logger.error_and_raise(
+                f"Invalid value for '{contract}': expected list or \"*\", "
+                f"got {type(functions).__name__}",
+                ValueError,
+            )
+        targets[contract] = [str(fn) for fn in functions]
+    return targets
+
+
+def _collect_functions_from_targets(
+    slither_instance: Slither,
+    target_map: TargetMap,
+) -> list[FunctionContract]:
+    """Collect functions matching a targets map."""
+    functions: list[FunctionContract] = []
+    for contract in slither_instance.contracts:
+        if contract.is_test:
+            continue
+        if contract.name not in target_map:
+            continue
+
+        allowed_functions = target_map[contract.name]
+        for function in contract.functions_declared:
+            if not isinstance(function, FunctionContract):
+                continue
+            if not function.is_implemented:
+                continue
+            if allowed_functions and function.name not in allowed_functions:
+                continue
+            functions.append(function)
+
+    return functions
 
 
 def _load_safe_libs(
