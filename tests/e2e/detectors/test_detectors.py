@@ -1773,6 +1773,9 @@ ALL_TESTS = [
         "unindexed_event_address.sol",
         "0.8.22",
     ),
+    Test(all_detectors.SpotPriceDetector, "spot_price_getReserves.sol", "0.6.12"),
+    Test(all_detectors.SpotPriceDetector, "spot_price_balanceOf.sol", "0.8.20"),
+    Test(all_detectors.SpotPriceDetector, "spot_price_getAmountOut.sol", "0.8.20"),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",

@@ -97,6 +97,8 @@ from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
+from .statements.unused_import import UnusedImport
+from .oracles.spot_price import SpotPriceDetector
 from .functions.gelato_unprotected_randomness import GelatoUnprotectedRandomness
 from .statements.chronicle_unchecked_price import ChronicleUncheckedPrice
 from .statements.pyth_unchecked_confidence import PythUncheckedConfidence
@@ -105,5 +107,3 @@ from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
 from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
 from .attributes.unindexed_event_address import UnindexedEventAddress
-
-# from .statements.unused_import import UnusedImport
