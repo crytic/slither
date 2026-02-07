@@ -29,6 +29,8 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.unpack import Unpack
+from slither.slithir.variables.tuple import TupleVariable
 
 
 class InterproceduralHandler(BaseOperationHandler):
@@ -58,10 +60,134 @@ class InterproceduralHandler(BaseOperationHandler):
         if self._is_named_division_function(function_name):
             self._check_named_division_consistency(operation, domain, node)
 
+        if isinstance(operation.lvalue, TupleVariable):
+            self._handle_tuple_call(operation, function_name, domain, node)
+            return
+
         tags, trace = self._infer_tag_with_fallback(
             operation, function_name, domain, node
         )
         self._set_tags(operation.lvalue, tags, operation, node, domain, trace)
+
+    def _handle_tuple_call(
+        self,
+        operation: Call,
+        function_name: str,
+        domain: RoundingDomain,
+        node: Node,
+    ) -> None:
+        """Handle a call whose lvalue is a TupleVariable.
+
+        Resolves the callee, runs interprocedural analysis, then sets
+        tags directly on Unpack lvalues found in the same node.
+        """
+        called_function = self._get_called_function(operation)
+        if called_function is None or not called_function.nodes:
+            return
+
+        if called_function in self._call_stack:
+            return
+
+        self._call_stack.add(called_function)
+        try:
+            callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
+            self._bind_parameter_tags(
+                called_function,
+                operation.arguments,
+                domain,
+                callee_domain,
+            )
+            self._analyze_callee_body(called_function, callee_domain)
+            per_index = self._extract_per_index_return_tags(
+                called_function, callee_domain
+            )
+        finally:
+            self._call_stack.discard(called_function)
+
+        if not per_index:
+            return
+
+        line_number = node.source_mapping.lines[0] if node.source_mapping else None
+        self._apply_tuple_tags_to_unpacks(
+            operation,
+            per_index,
+            function_name,
+            line_number,
+            domain,
+            node,
+        )
+
+    def _apply_tuple_tags_to_unpacks(
+        self,
+        operation: Call,
+        per_index: list[tuple[TagSet, list[TraceNode]]],
+        function_name: str,
+        line_number: int | None,
+        domain: RoundingDomain,
+        node: Node,
+    ) -> None:
+        """Set per-index tags directly on Unpack lvalues in this node."""
+        all_tags: set[RoundingTag] = set()
+        for other_operation in node.irs_ssa:
+            if not isinstance(other_operation, Unpack):
+                continue
+            if other_operation.tuple != operation.lvalue:
+                continue
+            if other_operation.lvalue is None:
+                continue
+            index = other_operation.index
+            if index >= len(per_index):
+                continue
+            tags, traces = per_index[index]
+            trace = TraceNode(
+                function_name=function_name,
+                line_number=line_number,
+                tags=tags,
+                source=(f"{function_name}()[{index}] → {_format_tagset(tags)}"),
+                children=traces,
+            )
+            domain.state.set_tag(
+                other_operation.lvalue,
+                tags,
+                other_operation,
+                trace=trace,
+            )
+            all_tags.update(tags)
+
+        if all_tags:
+            combined = frozenset(all_tags)
+            domain.state.set_tag(
+                operation.lvalue,
+                combined,
+                operation,
+            )
+
+    def _extract_per_index_return_tags(
+        self,
+        function: Function,
+        callee_domain: RoundingDomain,
+    ) -> list[tuple[TagSet, list[TraceNode]]]:
+        """Extract per-index return tags from a tuple-returning function."""
+        for node in function.nodes:
+            if not node.irs_ssa:
+                continue
+            for operation in node.irs_ssa:
+                if not isinstance(operation, Return):
+                    continue
+                if not operation.values:
+                    continue
+                results: list[tuple[TagSet, list[TraceNode]]] = []
+                for return_value in operation.values:
+                    if isinstance(return_value, Variable):
+                        tags = callee_domain.state.get_tags(return_value)
+                        trace = callee_domain.state.get_trace(return_value)
+                        trace_list = [trace] if trace else []
+                        results.append((tags, trace_list))
+                    else:
+                        neutral = frozenset({RoundingTag.NEUTRAL})
+                        results.append((neutral, []))
+                return results
+        return []
 
     def _infer_tag_with_fallback(
         self,
@@ -187,8 +313,6 @@ class InterproceduralHandler(BaseOperationHandler):
             if not node.irs_ssa:
                 continue
             for operation in node.irs_ssa:
-                if not hasattr(operation, "read"):
-                    continue
                 for var in operation.read:
                     if not isinstance(var, Variable):
                         continue

@@ -58,7 +58,9 @@ class OperationHandlerRegistry:
         self._handlers[LibraryCall] = LibraryCallHandler(self._analysis)
         self._handlers[Return] = ReturnHandler(self._analysis)
 
-    def get_handler(self, operation_type: type[Operation]) -> BaseOperationHandler | None:
+    def get_handler(
+        self, operation_type: type[Operation]
+    ) -> BaseOperationHandler | None:
         """Get handler for operation type, or None if not registered."""
         return self._handlers.get(operation_type)
 

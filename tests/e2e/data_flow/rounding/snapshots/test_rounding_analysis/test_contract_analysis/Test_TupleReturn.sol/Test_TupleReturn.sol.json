@@ -1,0 +1,42 @@
+{
+  "Test_TupleReturn": {
+    "divBoth": {
+      "variables": {
+        "TMP_4": "DOWN",
+        "TMP_5": "UP",
+        "denominator": "NEUTRAL",
+        "down": "DOWN",
+        "numerator": "NEUTRAL",
+        "up": "UP"
+      }
+    },
+    "divDown": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_0": "DOWN",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "testBasicDestructure": {
+      "variables": {
+        "": "NEUTRAL",
+        "TUPLE_0": "{DOWN, UP}",
+        "ceilResult": "UP",
+        "floorResult": "DOWN",
+        "x": "NEUTRAL",
+        "y": "NEUTRAL"
+      }
+    }
+  }
+}

@@ -110,7 +110,7 @@ class RoundingState:
         new_state._traces = copy.copy(self._traces)
         return new_state
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, RoundingState):
             return False
         return self._tags == other._tags
