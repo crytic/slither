@@ -1593,7 +1593,8 @@ class Contract(SourceMapping):
             result = func.get_last_ssa_state_variables_instances()
             for variable_name, instances in result.items():
                 # TODO: investigate the next operation
-                last_state_variables_instances[variable_name] += list(instances)
+                if variable_name in last_state_variables_instances:
+                    last_state_variables_instances[variable_name] += list(instances)
 
         for func in self.functions + list(self.modifiers):
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
