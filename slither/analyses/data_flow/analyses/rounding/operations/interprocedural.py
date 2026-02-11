@@ -23,7 +23,7 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     infer_tag_from_name,
     lookup_known_tag,
 )
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
@@ -176,11 +176,14 @@ class InterproceduralHandler(BaseOperationHandler):
                     continue
                 if not operation.values:
                     continue
+                condition = _find_branch_condition(node)
                 results: list[tuple[TagSet, list[TraceNode]]] = []
                 for return_value in operation.values:
                     if isinstance(return_value, Variable):
                         tags = callee_domain.state.get_tags(return_value)
                         trace = callee_domain.state.get_trace(return_value)
+                        if trace is not None:
+                            trace.branch_condition = condition
                         trace_list = [trace] if trace else []
                         results.append((tags, trace_list))
                     else:
@@ -408,6 +411,7 @@ class InterproceduralHandler(BaseOperationHandler):
             if isinstance(return_value, Variable):
                 trace = callee_domain.state.get_trace(return_value)
                 if trace is not None:
+                    trace.branch_condition = _find_branch_condition(node)
                     traces.append(trace)
         return traces
 
@@ -502,6 +506,42 @@ class InterproceduralHandler(BaseOperationHandler):
         self.analysis._check_annotation_for_variable(
             variable, actual_tag, operation, node, domain
         )
+
+
+def _find_branch_condition(node: Node) -> Optional[str]:
+    """Find the IF condition guarding a CFG node, if any.
+
+    Walks up the immediate-dominator chain. When an IF node is found,
+    determines whether the original node is in the true or false branch
+    by checking which son dominates it.
+    """
+    current = node
+    while current.immediate_dominator is not None:
+        idom = current.immediate_dominator
+        if idom.type == NodeType.IF and idom.expression is not None:
+            if _is_in_true_branch(idom, node):
+                return str(idom.expression)
+            if _is_in_false_branch(idom, node):
+                return f"!({idom.expression})"
+            break
+        current = idom
+    return None
+
+
+def _is_in_true_branch(if_node: Node, target: Node) -> bool:
+    """Check if target is dominated by the true branch of if_node."""
+    son_true = if_node.son_true
+    if son_true is None:
+        return False
+    return son_true == target or son_true in target.dominators
+
+
+def _is_in_false_branch(if_node: Node, target: Node) -> bool:
+    """Check if target is dominated by the false branch of if_node."""
+    son_false = if_node.son_false
+    if son_false is None:
+        return False
+    return son_false == target or son_false in target.dominators
 
 
 def _lookup_known_function_tag(

@@ -13,7 +13,9 @@ class TraceStep(BaseModel):
     condition: str = Field(
         description=(
             "Branch condition to reach this step, or 'always' if unconditional. "
-            "Use the actual Solidity expression."
+            "Use the actual Solidity expression. "
+            "If a [branch: ...] annotation is provided in the trace, use that "
+            "exact condition — do not infer a different one."
         ),
     )
     inputs: str = Field(
@@ -56,6 +58,10 @@ class AnalyzeRoundingTrace(dspy.Signature):
     When a function has multiple branches producing different rounding
     directions, only describe the branch that leads to traced_tag.
     Skip steps that produce other directions entirely.
+
+    When a trace node includes a [branch: CONDITION] annotation, that is
+    the statically-verified branch condition from the CFG. Use it directly
+    as the 'when' condition for that step. Do not guess or invert it.
 
     For each function in the chain, describe the condition that selects
     this path, what values flow in, and what arithmetic produces the

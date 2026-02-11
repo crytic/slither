@@ -28,6 +28,8 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.operations.operation import Operation
 
 try:
+    import dspy
+
     from slither.analyses.data_flow.analyses.rounding.explain.explainer import (
         TraceExplainer,
         extract_source_for_path,
@@ -105,6 +107,8 @@ def display_trace_section(
     console.print(f"[bold cyan]TRACE: {trace_tag.name} tag provenance[/bold cyan]")
     console.print("=" * 80)
 
+    history_start = _get_lm_history_length() if explainer is not None else 0
+
     for variable_name, line_number, trace in traced:
         console.print()
         location = f"(line {line_number})" if line_number else ""
@@ -118,6 +122,9 @@ def display_trace_section(
                 annotated,
                 explainer,
             )
+
+    if explainer is not None:
+        _display_token_usage(history_start)
 
 
 def display_summary_table(
@@ -324,6 +331,40 @@ def _display_trace_tree(
     for child in trace.children:
         if _trace_contains_tag(child, filter_tag):
             _display_trace_tree(child, indent + 1, filter_tag)
+
+
+def _get_lm_history_length() -> int:
+    """Return the current length of the DSPy LM call history."""
+    if not EXPLAIN_AVAILABLE:
+        return 0
+    language_model = dspy.settings.lm
+    if language_model is None:
+        return 0
+    return len(language_model.history)
+
+
+def _display_token_usage(history_start: int) -> None:
+    """Display token usage for LM calls made since history_start."""
+    if not EXPLAIN_AVAILABLE:
+        return
+    language_model = dspy.settings.lm
+    if language_model is None:
+        return
+    new_entries = language_model.history[history_start:]
+    if not new_entries:
+        return
+    total_input = 0
+    total_output = 0
+    for entry in new_entries:
+        usage = entry.get("usage", {})
+        total_input += usage.get("prompt_tokens", 0)
+        total_output += usage.get("completion_tokens", 0)
+    cost = sum(entry.get("cost", 0.0) or 0.0 for entry in new_entries)
+    console.print()
+    parts = [f"Tokens: {total_input} in / {total_output} out"]
+    if cost > 0:
+        parts.append(f"${cost:.4f}")
+    console.print(f"[dim]{' | '.join(parts)}[/dim]")
 
 
 def _display_trace_conditions(

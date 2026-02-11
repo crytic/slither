@@ -32,6 +32,7 @@ class TraceNode:
     tags: TagSet
     source: str = ""  # Description like "divDown() → DOWN" or "returns {DOWN, UP}"
     children: list["TraceNode"] = field(default_factory=list)
+    branch_condition: Optional[str] = None  # CFG-extracted guard, e.g. "bptSupply == 0"
 
 
 class RoundingState:

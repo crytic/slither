@@ -92,8 +92,22 @@ def serialize_trace_path(path: list[TraceNode]) -> str:
     lines: list[str] = []
     for index, node in enumerate(path):
         prefix = "  " * index + ("└── " if index > 0 else "")
-        lines.append(f"{prefix}{node.source}")
+        entry = _format_trace_entry(node)
+        lines.append(f"{prefix}{entry}")
     return "\n".join(lines)
+
+
+def _format_trace_entry(node: TraceNode) -> str:
+    """Format a single trace node with optional line number and branch condition."""
+    parts: list[str] = []
+    if node.line_number is not None:
+        parts.append(f"L{node.line_number}")
+    parts.append(node.source)
+    if node.branch_condition is not None:
+        parts.append(f"[branch: {node.branch_condition}]")
+    if len(parts) == 1:
+        return parts[0]
+    return " | ".join(parts)
 
 
 def collect_path_functions(path: list[TraceNode]) -> list[str]:
