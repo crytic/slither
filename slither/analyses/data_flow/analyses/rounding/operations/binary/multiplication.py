@@ -43,16 +43,22 @@ class MultiplicationHandler(BinaryOperationHandler):
         result_variable = operation.lvalue
         result_tag, has_conflict = combine_tags(left_tag, right_tag)
 
+        source = f"{left_tag.name} * {right_tag.name} \u2192 {result_tag.name}"
+        trace = self._build_binary_trace(
+            node, operation, domain, result_tag, source
+        )
+
         if has_conflict:
             reason = self._format_conflict_reason(left_tag, right_tag, node)
             self.set_tag_with_annotation(
                 result_variable, result_tag, operation, node, domain,
-                unknown_reason=reason,
+                unknown_reason=reason, trace=trace,
             )
             return
 
         self.set_tag_with_annotation(
-            result_variable, result_tag, operation, node, domain
+            result_variable, result_tag, operation, node, domain,
+            trace=trace,
         )
 
     def _format_conflict_reason(

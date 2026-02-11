@@ -35,7 +35,7 @@ class DivisionHandler(BinaryOperationHandler):
     """Handler for division: A / B => rounding(A), !rounding(B), rounding(/).
 
     Numerator preserves direction, denominator's direction is inverted.
-    Floor division (DOWN) dominates when either operand is NEUTRAL — Solidity's
+    Floor division (DOWN) dominates when either operand is NEUTRAL \u2014 Solidity's
     truncation bias overwhelms a single operand's rounding signal. When both
     operands have non-NEUTRAL tags that agree (after inversion), the operand
     signal is strong enough to override the floor bias.
@@ -51,44 +51,97 @@ class DivisionHandler(BinaryOperationHandler):
         right_tag: RoundingTag,
     ) -> None:
         """Handle division with ceiling pattern detection and consistency checks."""
-        result_variable = operation.lvalue
-
-        # Check for ceiling division pattern first
-        is_ceiling = self._is_ceiling_division_pattern(
-            operation.variable_left, operation.variable_right, domain
-        )
-        if is_ceiling:
-            self.set_tag_with_annotation(
-                result_variable, RoundingTag.UP, operation, node, domain
-            )
+        if self._handle_ceiling_pattern(operation, domain, node):
             return
 
-        # Check for legacy inconsistency (numerator and denominator same non-NEUTRAL)
+        if self._handle_consistency_error(
+            left_tag, right_tag, operation, node, domain
+        ):
+            return
+
+        self._handle_normal_division(
+            left_tag, right_tag, operation, node, domain
+        )
+
+    def _handle_ceiling_pattern(
+        self,
+        operation: Binary,
+        domain: "RoundingDomain",
+        node: Node,
+    ) -> bool:
+        """Detect and handle ceiling division pattern. Returns True if handled."""
+        if not self._is_ceiling_division_pattern(
+            operation.variable_left, operation.variable_right, domain
+        ):
+            return False
+        trace = self._build_binary_trace(
+            node, operation, domain,
+            RoundingTag.UP, "ceiling division \u2192 UP",
+        )
+        self.set_tag_with_annotation(
+            operation.lvalue, RoundingTag.UP, operation, node, domain,
+            trace=trace,
+        )
+        return True
+
+    def _handle_consistency_error(
+        self,
+        left_tag: RoundingTag,
+        right_tag: RoundingTag,
+        operation: Binary,
+        node: Node,
+        domain: "RoundingDomain",
+    ) -> bool:
+        """Handle numerator/denominator consistency error. Returns True if handled."""
         inconsistency = self._check_division_consistency(
             left_tag, right_tag, operation, node
         )
-        if inconsistency:
-            self.set_tag_with_annotation(
-                result_variable, RoundingTag.UNKNOWN, operation, node, domain,
-                unknown_reason=inconsistency,
-            )
-            return
+        if not inconsistency:
+            return False
+        source = (
+            f"{left_tag.name} / {right_tag.name} "
+            f"(inconsistent) \u2192 UNKNOWN"
+        )
+        trace = self._build_binary_trace(
+            node, operation, domain, RoundingTag.UNKNOWN, source,
+        )
+        self.set_tag_with_annotation(
+            operation.lvalue, RoundingTag.UNKNOWN, operation, node, domain,
+            unknown_reason=inconsistency, trace=trace,
+        )
+        return True
 
-        # Combine numerator with inverted denominator per roundme rules
-        right_tag_inverted = invert_tag(right_tag)
-        result_tag, has_conflict = combine_tags(left_tag, right_tag_inverted)
+    def _handle_normal_division(
+        self,
+        left_tag: RoundingTag,
+        right_tag: RoundingTag,
+        operation: Binary,
+        node: Node,
+        domain: "RoundingDomain",
+    ) -> None:
+        """Handle normal division with inversion and floor bias."""
+        right_inverted = invert_tag(right_tag)
+        result_tag, has_conflict = combine_tags(left_tag, right_inverted)
 
         if has_conflict:
             reason = self._format_conflict_reason(
-                left_tag, right_tag, right_tag_inverted, node
+                left_tag, right_tag, right_inverted, node
+            )
+            source = (
+                f"{left_tag.name} / {right_tag.name} "
+                f"(inverted: {right_inverted.name}) "
+                f"conflict \u2192 UNKNOWN"
+            )
+            trace = self._build_binary_trace(
+                node, operation, domain, RoundingTag.UNKNOWN, source,
             )
             self.set_tag_with_annotation(
-                result_variable, RoundingTag.UNKNOWN, operation, node, domain,
-                unknown_reason=reason,
+                operation.lvalue, RoundingTag.UNKNOWN,
+                operation, node, domain,
+                unknown_reason=reason, trace=trace,
             )
             return
 
-        # Floor division dominates when either operand is NEUTRAL
         either_neutral = (
             left_tag == RoundingTag.NEUTRAL
             or right_tag == RoundingTag.NEUTRAL
@@ -96,9 +149,34 @@ class DivisionHandler(BinaryOperationHandler):
         if either_neutral:
             result_tag = RoundingTag.DOWN
 
-        self.set_tag_with_annotation(
-            result_variable, result_tag, operation, node, domain
+        source = self._format_division_source(
+            left_tag, right_tag, right_inverted,
+            result_tag, either_neutral,
         )
+        trace = self._build_binary_trace(
+            node, operation, domain, result_tag, source,
+        )
+        self.set_tag_with_annotation(
+            operation.lvalue, result_tag, operation, node, domain,
+            trace=trace,
+        )
+
+    def _format_division_source(
+        self,
+        left_tag: RoundingTag,
+        right_tag: RoundingTag,
+        right_inverted: RoundingTag,
+        result_tag: RoundingTag,
+        floor_bias: bool,
+    ) -> str:
+        """Format trace source string for normal division."""
+        base = (
+            f"{left_tag.name} / {right_tag.name} "
+            f"(inverted: {right_inverted.name})"
+        )
+        if floor_bias:
+            return f"{base} floor bias \u2192 {result_tag.name}"
+        return f"{base} \u2192 {result_tag.name}"
 
     def _format_conflict_reason(
         self,
@@ -131,7 +209,9 @@ class DivisionHandler(BinaryOperationHandler):
         if addition_result is None:
             return False
 
-        return self._check_addition_includes_divisor(addition_result, divisor, domain)
+        return self._check_addition_includes_divisor(
+            addition_result, divisor, domain
+        )
 
     def _check_subtraction_minus_one(
         self, variable: Variable, domain: "RoundingDomain"
@@ -172,7 +252,9 @@ class DivisionHandler(BinaryOperationHandler):
         if addition_operation.type != BinaryType.ADDITION:
             return False
 
-        divisor_name = divisor.name if isinstance(divisor, Variable) else str(divisor)
+        divisor_name = (
+            divisor.name if isinstance(divisor, Variable) else str(divisor)
+        )
         left_name = self._get_operand_name(addition_operation.variable_left)
         right_name = self._get_operand_name(addition_operation.variable_right)
 
@@ -195,18 +277,19 @@ class DivisionHandler(BinaryOperationHandler):
         if denominator_tag == RoundingTag.NEUTRAL:
             return None
 
-        if numerator_tag == denominator_tag:
-            function_name = node.function.name
-            reason = (
-                "Inconsistent division: numerator and denominator both "
-                f"{numerator_tag.name} in {function_name}"
-            )
-            message = (
-                "Division rounding inconsistency in "
-                f"{function_name}: numerator and denominator both "
-                f"{numerator_tag.name} in {operation}"
-            )
-            self.analysis.inconsistencies.append(message)
-            self.analysis._logger.error(message)
-            return reason
-        return None
+        if numerator_tag != denominator_tag:
+            return None
+
+        function_name = node.function.name
+        reason = (
+            "Inconsistent division: numerator and denominator both "
+            f"{numerator_tag.name} in {function_name}"
+        )
+        message = (
+            "Division rounding inconsistency in "
+            f"{function_name}: numerator and denominator both "
+            f"{numerator_tag.name} in {operation}"
+        )
+        self.analysis.inconsistencies.append(message)
+        self.analysis._logger.error(message)
+        return reason
