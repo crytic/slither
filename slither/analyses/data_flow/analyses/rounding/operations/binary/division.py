@@ -2,7 +2,8 @@
 
 Rule from roundme: A / B => rounding(A), !rounding(B), rounding(/)
 Numerator preserves direction, denominator's direction is inverted.
-Floor division is the default when both operands are NEUTRAL.
+Floor division (DOWN) dominates when either operand is NEUTRAL — Solidity's
+truncation bias overwhelms a single operand's rounding signal.
 """
 
 from __future__ import annotations
@@ -34,7 +35,10 @@ class DivisionHandler(BinaryOperationHandler):
     """Handler for division: A / B => rounding(A), !rounding(B), rounding(/).
 
     Numerator preserves direction, denominator's direction is inverted.
-    Floor division (DOWN) is the default when both operands are NEUTRAL.
+    Floor division (DOWN) dominates when either operand is NEUTRAL — Solidity's
+    truncation bias overwhelms a single operand's rounding signal. When both
+    operands have non-NEUTRAL tags that agree (after inversion), the operand
+    signal is strong enough to override the floor bias.
     Ceiling division pattern (a + b - 1) / b is detected and tagged as UP.
     """
 
@@ -84,8 +88,12 @@ class DivisionHandler(BinaryOperationHandler):
             )
             return
 
-        # Default to floor division when both operands are NEUTRAL
-        if result_tag == RoundingTag.NEUTRAL:
+        # Floor division dominates when either operand is NEUTRAL
+        either_neutral = (
+            left_tag == RoundingTag.NEUTRAL
+            or right_tag == RoundingTag.NEUTRAL
+        )
+        if either_neutral:
             result_tag = RoundingTag.DOWN
 
         self.set_tag_with_annotation(

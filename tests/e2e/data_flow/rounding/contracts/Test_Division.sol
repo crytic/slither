@@ -26,13 +26,13 @@ contract Test_Division {
         return downValue / c;
     }
 
-    /// @dev UP / NEUTRAL = UP
+    /// @dev UP / NEUTRAL = DOWN (floor dominates)
     function test_up_div_neutral(uint256 a, uint256 b, uint256 c) external pure returns (uint256) {
         uint256 upValue = divUp(a, b);
         return upValue / c;
     }
 
-    /// @dev NEUTRAL / DOWN = UP (DOWN inverted to UP)
+    /// @dev NEUTRAL / DOWN = DOWN (floor dominates inverted UP)
     function test_neutral_div_down(uint256 a, uint256 b, uint256 c) external pure returns (uint256) {
         uint256 downValue = divDown(b, c);
         return a / downValue;

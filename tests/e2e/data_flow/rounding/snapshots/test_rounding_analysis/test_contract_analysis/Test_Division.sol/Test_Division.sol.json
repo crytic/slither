@@ -63,7 +63,7 @@
     "test_neutral_div_down": {
       "variables": {
         "": "NEUTRAL",
-        "TMP_10": "UP",
+        "TMP_10": "DOWN",
         "TMP_9": "DOWN",
         "a": "NEUTRAL",
         "b": "NEUTRAL",
@@ -108,7 +108,7 @@
       "variables": {
         "": "NEUTRAL",
         "TMP_7": "UP",
-        "TMP_8": "UP",
+        "TMP_8": "DOWN",
         "a": "NEUTRAL",
         "b": "NEUTRAL",
         "c": "NEUTRAL",
