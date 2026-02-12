@@ -21,6 +21,7 @@ from slither.analyses.data_flow.analyses.rounding.operations.base import (
 from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
     get_variable_tag,
     infer_tag_from_name,
+    lookup_inline_round_tag,
     lookup_known_tag,
 )
 from slither.core.cfg.node import Node, NodeType
@@ -192,6 +193,36 @@ class InterproceduralHandler(BaseOperationHandler):
                 return results
         return []
 
+    def _lookup_inline_annotation(
+        self,
+        node: Node,
+        function_name: str,
+    ) -> Optional[RoundingTag]:
+        """Check for an inline //@round annotation matching a function call.
+
+        Scans all source lines of the node for //@round annotations
+        and returns the tag for the given function name if found.
+
+        Args:
+            node: The CFG node containing the call.
+            function_name: The function name to look up.
+
+        Returns:
+            RoundingTag if annotated, None otherwise.
+        """
+        if node.source_mapping is None:
+            return None
+        filename = node.source_mapping.filename.absolute
+        crytic = node.compilation_unit.core.crytic_compile
+        for line_number in node.source_mapping.lines:
+            raw_bytes = crytic.get_code_from_line(filename, line_number)
+            if raw_bytes is None:
+                continue
+            tag = lookup_inline_round_tag(raw_bytes.decode("utf8"), function_name)
+            if tag is not None:
+                return tag
+        return None
+
     def _infer_tag_with_fallback(
         self,
         operation: Call,
@@ -199,13 +230,24 @@ class InterproceduralHandler(BaseOperationHandler):
         domain: RoundingDomain,
         node: Node,
     ) -> tuple[TagSet, Optional[TraceNode]]:
-        """Infer tags from name first, then fall back to body analysis.
+        """Infer tags: inline annotation > name > known library > body analysis.
 
         Returns (tags, trace) where trace captures the call provenance if available.
         """
-        tag = infer_tag_from_name(function_name)
         line_number = node.source_mapping.lines[0] if node.source_mapping else None
 
+        inline_tag = self._lookup_inline_annotation(node, function_name)
+        if inline_tag is not None:
+            inline_tags = frozenset({inline_tag})
+            trace = TraceNode(
+                function_name=function_name,
+                line_number=line_number,
+                tags=inline_tags,
+                source=f"{function_name}() → {inline_tag.name} (inline annotation)",
+            )
+            return inline_tags, trace
+
+        tag = infer_tag_from_name(function_name)
         if tag != RoundingTag.NEUTRAL:
             tags = frozenset({tag})
             trace = TraceNode(

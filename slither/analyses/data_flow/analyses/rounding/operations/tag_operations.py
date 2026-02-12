@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -188,3 +189,65 @@ def infer_tag_from_name(function_name: Optional[object]) -> RoundingTag:
         return RoundingTag.UP
 
     return RoundingTag.NEUTRAL
+
+
+_ROUND_COMMENT_RE = re.compile(r"//\s*@round\s+(.+)")
+_VALID_INLINE_TAGS: dict[str, RoundingTag] = {
+    "UP": RoundingTag.UP,
+    "DOWN": RoundingTag.DOWN,
+    "NEUTRAL": RoundingTag.NEUTRAL,
+    "UNKNOWN": RoundingTag.UNKNOWN,
+}
+
+
+def parse_inline_round_annotations(source_line: str) -> dict[str, RoundingTag]:
+    """Parse //@round annotations from a Solidity source line.
+
+    Supports ``//@round funcName=TAG`` or ``//@round f1=TAG, f2=TAG``.
+    TAG must be UP, DOWN, NEUTRAL, or UNKNOWN (case-insensitive).
+    Function names are case-sensitive.
+    Logs a warning for unrecognized tag values.
+
+    Args:
+        source_line: A single line of Solidity source code.
+
+    Returns:
+        Mapping of function name to RoundingTag. Empty if no annotation found.
+    """
+    match = _ROUND_COMMENT_RE.search(source_line)
+    if match is None:
+        return {}
+
+    annotations: dict[str, RoundingTag] = {}
+    for entry in re.split(r"[,\s]+", match.group(1).strip()):
+        if not entry:
+            continue
+        parts = entry.split("=", maxsplit=1)
+        if len(parts) != 2:
+            continue
+        func_name, tag_str = parts
+        tag = _VALID_INLINE_TAGS.get(tag_str.upper())
+        if tag is None:
+            _logger.warning(
+                f"Invalid //@round tag '{tag_str}' for '{func_name}': "
+                "must be UP, DOWN, NEUTRAL, or UNKNOWN — defaulting to UNKNOWN"
+            )
+            tag = RoundingTag.UNKNOWN
+        annotations[func_name] = tag
+    return annotations
+
+
+def lookup_inline_round_tag(
+    source_line: str,
+    function_name: str,
+) -> Optional[RoundingTag]:
+    """Look up a function's rounding tag from an inline //@round annotation.
+
+    Args:
+        source_line: Raw Solidity source line containing the call.
+        function_name: Name of the called function to look up.
+
+    Returns:
+        RoundingTag if the function is annotated, None otherwise.
+    """
+    return parse_inline_round_annotations(source_line).get(function_name)

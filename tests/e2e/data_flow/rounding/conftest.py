@@ -18,6 +18,7 @@ TEST_CONTRACTS: list[str] = [
     "Test_Interprocedural.sol",
     "Test_TupleReturn.sol",
     "Test_LibraryCall.sol",
+    "Test_InlineAnnotation.sol",
 ]
 
 
