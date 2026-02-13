@@ -8,6 +8,16 @@ from typing import Optional
 from slither.analyses.data_flow.analyses.rounding.core.state import TagSet
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.core.cfg.node import Node
+from slither.core.variables.variable import Variable
+
+
+@dataclass
+class RoundingFinding:
+    """A structured finding with node reference for detector output."""
+
+    message: str
+    node: Node
+    variable: Optional[Variable] = None
 
 
 @dataclass
@@ -41,8 +51,8 @@ class AnnotatedFunction:
     end_line: int
     lines: dict[int, AnnotatedLine] = field(default_factory=dict)
     return_tags: dict[str, TagSet] = field(default_factory=dict)
-    inconsistencies: list[str] = field(default_factory=list)
-    annotation_mismatches: list[str] = field(default_factory=list)
+    inconsistencies: list[RoundingFinding] = field(default_factory=list)
+    annotation_mismatches: list[RoundingFinding] = field(default_factory=list)
     node_results: dict[Node, AnalysisState] = field(default_factory=dict)
 
 

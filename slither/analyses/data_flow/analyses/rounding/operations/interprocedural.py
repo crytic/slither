@@ -15,6 +15,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     TagSet,
     TraceNode,
 )
+from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
 )
@@ -511,8 +512,10 @@ class InterproceduralHandler(BaseOperationHandler):
             f"{function_name}: numerator and denominator both "
             f"{numerator_tag.name} in {operation}"
         )
-        self.analysis.inconsistencies.append(message)
-        self.analysis._logger.error(message)
+        self.analysis.inconsistencies.append(
+            RoundingFinding(message=message, node=node)
+        )
+        self.analysis._logger.warning(message)
         return reason
 
     def _set_tag(

@@ -250,13 +250,13 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
         console.print()
         console.print("[bold red]Rounding Inconsistencies:[/bold red]")
         for inconsistency in annotated.inconsistencies:
-            console.print(f"  [red]\u2717[/red] {inconsistency}")
+            console.print(f"  [red]\u2717[/red] {inconsistency.message}")
 
     if annotated.annotation_mismatches:
         console.print()
         console.print("[bold red]Annotation Mismatches:[/bold red]")
         for mismatch in annotated.annotation_mismatches:
-            console.print(f"  [red]\u2717[/red] {mismatch}")
+            console.print(f"  [red]\u2717[/red] {mismatch.message}")
 
 
 def _collect_traced_variables(

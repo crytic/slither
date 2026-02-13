@@ -12,6 +12,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingState,
     RoundingTag,
 )
+from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.registry import (
     OperationHandlerRegistry,
 )
@@ -37,9 +38,9 @@ class RoundingAnalysis(Analysis):
         known_tags: Optional[KnownLibraryTags] = None,
     ) -> None:
         self._direction: Direction = Forward()
-        self._logger = get_logger(enable_ipython_embed=False, log_level="ERROR")
-        self.inconsistencies: list[str] = []
-        self.annotation_mismatches: list[str] = []
+        self._logger = get_logger(enable_ipython_embed=False, log_level="INFO")
+        self.inconsistencies: list[RoundingFinding] = []
+        self.annotation_mismatches: list[RoundingFinding] = []
         self.known_tags: Optional[KnownLibraryTags] = known_tags
         self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self)
 
@@ -122,8 +123,12 @@ class RoundingAnalysis(Analysis):
                 f"{expected_tag.name} but inferred {actual_tag.name}"
                 f"{reason_suffix} in {operation}"
             )
-            self.annotation_mismatches.append(message)
-            self._logger.error(message)
+            self.annotation_mismatches.append(
+                RoundingFinding(
+                    message=message, node=node, variable=variable,
+                )
+            )
+            self._logger.warning(message)
 
     def _parse_expected_tag_from_name(self, name: str) -> Optional[RoundingTag]:
         """Parse annotation suffixes like _UP/_DOWN/_NEUTRAL from variable names."""

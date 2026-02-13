@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
+from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.binary.base import (
     BinaryOperationHandler,
 )
@@ -82,6 +83,8 @@ class SubtractionHandler(BinaryOperationHandler):
             f"Conflicting rounding in subtraction: {left_tag.name} - {right_tag.name} "
             f"(inverted: {right_inverted.name}) in {function_name}"
         )
-        self.analysis.inconsistencies.append(message)
-        self.analysis._logger.error(message)
+        self.analysis.inconsistencies.append(
+            RoundingFinding(message=message, node=node)
+        )
+        self.analysis._logger.warning(message)
         return message
