@@ -263,8 +263,13 @@ def _collect_traced_variables(
     annotated: AnnotatedFunction,
     trace_tag: RoundingTag,
 ) -> list[tuple[str, Optional[int], TraceNode]]:
-    """Collect variables with traces containing the specified tag."""
-    results: list[tuple[str, Optional[int], TraceNode]] = []
+    """Collect variables with traces containing the specified tag.
+
+    Deduplicates by trace identity: when a TMP variable and a named
+    variable share the same TraceNode (via assignment), only the named
+    variable is kept.
+    """
+    seen_traces: dict[int, tuple[str, Optional[int], TraceNode]] = {}
 
     for node, analysis_state in annotated.node_results.items():
         if analysis_state.post.variant != DomainVariant.STATE:
@@ -292,9 +297,12 @@ def _collect_traced_variables(
             if not _trace_contains_tag(trace, trace_tag):
                 continue
 
-            results.append((variable.name, line_number, trace))
+            trace_id = id(trace)
+            existing = seen_traces.get(trace_id)
+            if existing is None or existing[0].startswith("TMP"):
+                seen_traces[trace_id] = (variable.name, line_number, trace)
 
-    return results
+    return list(seen_traces.values())
 
 
 def _get_operation_lvalue(

@@ -30,6 +30,7 @@ Edit the class-level flags in
 | `EXPLAIN_MODEL` | `"anthropic/claude-sonnet-4-5-20250929"` | LM model identifier |
 | `SAFE_LIBS` | `None` | `"__builtin__"` or path to a JSON file of known library tags |
 | `SHOW_ALL` | `False` | Show NEUTRAL parameter annotations at entry points |
+| `TARGET_FUNCTIONS` | `None` | List of function names to analyze, e.g. `["onSwap", "withdraw"]` |
 
 ## Tags
 
