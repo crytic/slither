@@ -8,7 +8,7 @@ EXPRESSION:
 self.b(x,True)
 
 IRs:
-INTERNAL_CALL, default_args.b()(x,True)"];
+INTERNAL_CALL, default_args.b(uint256,bool)(x,True)"];
 1->2;
 2[label="Node Type: EXPRESSION 2
 
@@ -16,7 +16,7 @@ EXPRESSION:
 self.b(1,self.config)
 
 IRs:
-INTERNAL_CALL, default_args.b()(1,config)"];
+INTERNAL_CALL, default_args.b(uint256,bool)(1,config)"];
 2->3;
 3[label="Node Type: EXPRESSION 3
 
@@ -24,5 +24,5 @@ EXPRESSION:
 self.b(1,z)
 
 IRs:
-INTERNAL_CALL, default_args.b()(1,z)"];
+INTERNAL_CALL, default_args.b(uint256,bool)(1,z)"];
 }
