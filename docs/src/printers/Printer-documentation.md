@@ -51,7 +51,7 @@ $ slither examples/printers/call_graph.sol --print call-graph
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png">
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
 ```
 $ xdot examples/printers/call_graph.sol.dot
@@ -72,7 +72,7 @@ Export the control flow graph of each function
 ### Example
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
 ```
 $ xdot function.sol.dot
@@ -355,7 +355,7 @@ INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
 ```
 
 The output format is [dot](https://www.graphviz.org/).
-To vizualize the graph:
+To visualize the graph:
 
 ```
 $ xdot examples/printers/inheritances.sol.dot

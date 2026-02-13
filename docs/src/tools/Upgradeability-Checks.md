@@ -271,7 +271,7 @@ contract DerivedDerived is Derived{
 
 ```
 
-`Base.initialize(uint)` is called two times in `DerivedDerived.initiliaze` execution, leading to a potential corruption.
+`Base.initialize(uint)` is called two times in `DerivedDerived.initialize` execution, leading to a potential corruption.
 
 ### Recommendation
 

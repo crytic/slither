@@ -109,7 +109,7 @@ Here's an example to plot all the functions named `add` from contracts named `Sa
 ```
 $ slither-simil plot etherscan_verified_contracts.bin --fname SafeMath.add --input cache.npz --nsamples 500
 INFO:Slither-simil:Loading data..
-INFO:Slither-simil:Procesing data..
+INFO:Slither-simil:Processing data..
 INFO:Slither-simil:Plotting data..
 INFO:Slither-simil:Saving figure to plot.png..
 ```
