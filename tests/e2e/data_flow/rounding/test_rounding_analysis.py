@@ -39,6 +39,5 @@ class TestRoundingAnalysis:
             pytest.skip(f"Contract not found: {contract_path}")
 
         results = analyze_contract(contract_path)
-        # Convert to JSON string for snapshot comparison
         results_json = json.dumps(results, indent=2, sort_keys=True)
-        snapshot.assert_match(results_json, f"{contract_file}.json")
+        assert snapshot(f"{contract_file}.json") == results_json

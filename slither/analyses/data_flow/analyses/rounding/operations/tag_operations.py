@@ -224,6 +224,11 @@ def parse_inline_round_annotations(source_line: str) -> dict[str, RoundingTag]:
             continue
         parts = entry.split("=", maxsplit=1)
         if len(parts) != 2:
+            _logger.warning(
+                f"Malformed //@round entry '{entry}': "
+                "expected funcName=TAG — defaulting to UNKNOWN"
+            )
+            annotations[entry] = RoundingTag.UNKNOWN
             continue
         func_name, tag_str = parts
         tag = _VALID_INLINE_TAGS.get(tag_str.upper())
