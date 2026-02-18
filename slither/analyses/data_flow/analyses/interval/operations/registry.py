@@ -21,6 +21,7 @@ from slither.slithir.operations.init_array import InitArray
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.unary import Unary
+from slither.slithir.operations.event_call import EventCall
 from slither.slithir.operations.unpack import Unpack
 
 from slither.analyses.data_flow.analyses.interval.operations.assignment import (
@@ -31,6 +32,9 @@ from slither.analyses.data_flow.analyses.interval.operations.base import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.binary import (
     BinaryHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.event_call import (
+    EventCallHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.condition import (
     ConditionHandler,
@@ -116,6 +120,7 @@ class OperationHandlerRegistry:
         self._handlers[InitArray] = InitArrayHandler(self._solver)
         self._handlers[Length] = LengthHandler(self._solver)
         self._handlers[Member] = MemberHandler(self._solver)
+        self._handlers[EventCall] = EventCallHandler(self._solver)
 
     def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
         """Get handler for operation type."""
