@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.core.declarations.solidity_variables import SolidityCustomRevert
 
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
@@ -28,6 +29,10 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.mstor
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.mload import (
     MloadHandler,
     MLOAD_FUNCTIONS,
+)
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.revert import (
+    RevertHandler,
+    REVERT_FUNCTIONS,
 )
 from slither.analyses.data_flow.logger import get_logger
 
@@ -54,6 +59,7 @@ class SolidityCallHandler(BaseOperationHandler):
         self._sload = SloadHandler(solver)
         self._mstore = MstoreHandler(solver)
         self._mload = MloadHandler(solver)
+        self._revert = RevertHandler(solver)
 
     def handle(
         self,
@@ -84,6 +90,14 @@ class SolidityCallHandler(BaseOperationHandler):
             self._mload.handle(operation, domain, node)
             return
 
+        is_revert = (
+            function_name in REVERT_FUNCTIONS
+            or isinstance(operation.function, SolidityCustomRevert)
+        )
+        if is_revert:
+            self._revert.handle(operation, domain, node)
+            return
+
         logger.error_and_raise(
             f"Solidity function '{function_name}' is not implemented",
             NotImplementedError,
@@ -93,6 +107,7 @@ class SolidityCallHandler(BaseOperationHandler):
 __all__ = [
     "SolidityCallHandler",
     "RequireAssertHandler",
+    "RevertHandler",
     "SstoreHandler",
     "SloadHandler",
     "MstoreHandler",

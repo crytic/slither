@@ -33,6 +33,7 @@ TEST_CONTRACTS = [
     "Test_Mapping.sol",
     "Test_Struct.sol",
     "Test_InternalDynamicCall.sol",
+    "Test_Revert.sol",
 ]
 
 

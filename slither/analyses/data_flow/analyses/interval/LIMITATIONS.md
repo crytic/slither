@@ -43,6 +43,17 @@ return result;  // result_3 shows [0, max] instead of hull [10, max-10]
 2. **Store bounds at definition time**: Compute and cache intervals when operations produce them, before merge
 3. **Track pre-merge states**: Query operand bounds from branch-specific states before merging
 
+## Revert and Unreachable Paths
+
+Revert calls (`revert()`, `revert(string)`, custom error reverts) must set the domain to **BOTTOM**, not TOP. Both prevent the transfer function from processing further operations on the node, but they behave differently at join points:
+
+- `BOTTOM ⊔ STATE = STATE` — the non-reverting branch's constraints are preserved
+- `TOP ⊔ STATE = TOP` — all information is destroyed
+
+Using TOP for revert would cause any code after a conditional revert (e.g., `if (x == 0) revert()`) to lose all variable constraints, since TOP dominates every join.
+
+BOTTOM is the correct lattice element: the path after a revert is unreachable (no values flow through), and BOTTOM is the identity element of join (it contributes nothing at merge points).
+
 ## Loop Analysis (Widening)
 
 Loops require special handling to guarantee analysis termination. Without intervention, loop iterations could produce ever-increasing bounds that never stabilize.
