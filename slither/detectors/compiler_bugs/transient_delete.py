@@ -50,10 +50,7 @@ class TransientDelete(AbstractDetector):
     """
 
     ARGUMENT = "transient-delete"
-    HELP = (
-        "Detects `delete` on transient state variables "
-        "(compiler opcode collision bug)"
-    )
+    HELP = "Detects `delete` on transient state variables (compiler opcode collision bug)"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
