@@ -1,2 +1,2 @@
-delete _lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#10) uses `delete` on transient variable `TransientDeleteBad._lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#4)`, which may emit the wrong storage opcode
+delete _lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#10) uses `delete` on transient variable `TransientDeleteBad._lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#4)`, which may emit the wrong storage opcode if using --via-ir
 

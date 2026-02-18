@@ -85,7 +85,8 @@ contract OverwriteStorage {
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
-        "Upgrade to solc >=0.8.34, or replace `delete <transient_var>` "
+        "Ensure you are not using --via-ir with solc 0.8.28 through 0.8.33, "
+        "if so, use compiler version >= 0.8.34 or replace `delete <transient_var>` "
         "with an explicit zero assignment."
     )
 
@@ -100,7 +101,7 @@ contract OverwriteStorage {
                     node,
                     " uses `delete` on transient variable `",
                     var,
-                    "`, which may emit the wrong storage opcode\n",
+                    "`, which may emit the wrong storage opcode if using --via-ir\n",
                 ]
                 results.append(self.generate_result(info))
 
