@@ -6,7 +6,10 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List
 
-from slither.analyses.data_flow.analyses.interval.core.state import State
+from slither.analyses.data_flow.analyses.interval.core.state import (
+    ComparisonInfo,
+    State,
+)
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
@@ -87,6 +90,14 @@ class PrefixedStateWrapper:
         return self._state.has_transitive_dependency(
             self._prefix + source, self._prefix + target
         )
+
+    def set_comparison(self, name: str, info: ComparisonInfo) -> None:
+        """Store comparison info with prefixed name."""
+        self._state.set_comparison(self._prefix + name, info)
+
+    def get_comparison(self, name: str) -> ComparisonInfo | None:
+        """Get comparison info for prefixed name."""
+        return self._state.get_comparison(self._prefix + name)
 
 
 class PrefixedDomainWrapper:
