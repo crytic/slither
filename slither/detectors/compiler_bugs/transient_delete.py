@@ -14,22 +14,17 @@ from slither.detectors.abstract_detector import (
     DETECTOR_INFO,
 )
 from slither.slithir.operations import Delete
-from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.state_variable import StateIRVariable
 from slither.utils.output import Output
 
 
 def _resolve_state_variable(
-    var: StateIRVariable | StateVariable | ReferenceVariable,
-) -> StateVariable | None:
+    var: StateIRVariable | StateVariable,
+) -> StateVariable:
     """Follow IR indirections back to the declared StateVariable."""
-    if isinstance(var, ReferenceVariable):
-        var = var.points_to_origin
     if isinstance(var, StateIRVariable):
         return var.non_ssa_version
-    if isinstance(var, StateVariable):
-        return var
-    return None
+    return var
 
 
 def detect_transient_delete_operation(
@@ -43,8 +38,9 @@ def detect_transient_delete_operation(
                 if not isinstance(ir, Delete):
                     continue
                 state_var = _resolve_state_variable(ir.lvalue)
-                if state_var is not None and state_var.is_transient:
+                if state_var.is_transient:
                     results.append((node, state_var))
+
     return results
 
 
