@@ -49,6 +49,13 @@ from slither.utils.command_line import (
     DEFAULT_JSON_OUTPUT_TYPES,
     check_and_sanitize_markdown_root,
 )
+from slither.analyses.data_flow.registry.abstract_analysis import (
+    AbstractAnalysis,
+)
+from slither.analyses.data_flow.registry.catalog import (
+    choose_analyses,
+    get_analysis_classes,
+)
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
@@ -291,7 +298,9 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]
 
 # pylint: disable=too-many-statements
 def parse_args(
-    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
+    detector_classes: List[Type[AbstractDetector]],
+    printer_classes: List[Type[AbstractPrinter]],
+    analysis_classes: List[Type[AbstractAnalysis]],
 ) -> argparse.Namespace:
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
@@ -365,6 +374,29 @@ def parse_args(
         nargs=0,
         default=False,
     )
+
+    # Analyses (data-flow)
+    group_analysis = parser.add_argument_group("Analyses")
+    group_analysis.add_argument(
+        "--analyze",
+        nargs="+",
+        default=None,
+        help="Data-flow analyses to run: "
+        + ", ".join(cls.ARGUMENT for cls in analysis_classes),
+        dest="analyses_to_run",
+    )
+    group_analysis.add_argument(
+        "--list-analyses",
+        help="List available data-flow analyses",
+        action=ListAnalyses,
+        nargs=0,
+        default=False,
+    )
+    for analysis_cls in analysis_classes:
+        analysis_group = parser.add_argument_group(
+            f"{analysis_cls.ARGUMENT} analysis"
+        )
+        analysis_cls.register_arguments(analysis_group)
 
     group_detector.add_argument(
         "--exclude",
@@ -711,6 +743,19 @@ class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
         parser.exit()
 
 
+class ListAnalyses(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
+        analysis_classes = get_analysis_classes()
+        if not analysis_classes:
+            print("No analyses available.")
+        else:
+            for cls in analysis_classes:
+                print(f"  {cls.ARGUMENT:20s} {cls.HELP}")
+        parser.exit()
+
+
 class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
         self,
@@ -787,7 +832,8 @@ def main_impl(
     """
     # Set logger of Slither to info, to catch warnings related to the arg parsing
     logger.setLevel(logging.INFO)
-    args = parse_args(all_detector_classes, all_printer_classes)
+    analysis_classes = get_analysis_classes()
+    args = parse_args(all_detector_classes, all_printer_classes, analysis_classes)
 
     cp: Optional[cProfile.Profile] = None
     if args.perf:
@@ -881,6 +927,19 @@ def main_impl(
                 number_contracts,
             ) = process_all(filename, args, detector_classes, printer_classes)
 
+        # Run data-flow analyses if requested
+        results_analyses: List[Dict] = []
+        if args.analyses_to_run:
+            selected = choose_analyses(args.analyses_to_run, analysis_classes)
+            for analysis_cls in selected:
+                instance = analysis_cls.from_args(args)
+                for slither_instance in slither_instances:
+                    instance.run(slither_instance)
+                if outputting_json or outputting_zip:
+                    results_analyses.extend(instance.serialize())
+                else:
+                    instance.display()
+
         # Determine if we are outputting JSON
         if outputting_json or outputting_zip or output_to_sarif:
             # Add our compilation information to JSON
@@ -900,6 +959,10 @@ def main_impl(
             # Add our printer results to JSON if desired.
             if results_printers and "printers" in args.json_types:
                 json_results["printers"] = results_printers
+
+            # Add data-flow analysis results to JSON.
+            if results_analyses:
+                json_results["analyses"] = results_analyses
 
             # Add our detector types to JSON
             if "list-detectors" in args.json_types:
