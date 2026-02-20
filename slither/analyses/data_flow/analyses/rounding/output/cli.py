@@ -26,7 +26,9 @@ from slither.analyses.data_flow.analyses.rounding.output.display import (
 )
 from slither.analyses.data_flow.analyses.rounding.output.serialize import (
     RoundingResult,
+    RoundingSummary,
     serialize_annotated_function,
+    summarize_annotated_function,
 )
 from slither.analyses.data_flow.registry.abstract_analysis import (
     AbstractAnalysis,
@@ -40,7 +42,7 @@ _TAG_MAP: dict[str, RoundingTag] = {
 }
 
 
-class RoundingCLI(AbstractAnalysis[RoundingResult]):
+class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
     """Rounding direction analysis with trace provenance.
 
     Detects rounding inconsistencies and annotates every variable
@@ -124,9 +126,16 @@ class RoundingCLI(AbstractAnalysis[RoundingResult]):
             display_summary_table(self.results)
 
     def serialize(self) -> List[RoundingResult]:
-        """Serialize results as RoundingResult dicts."""
+        """Full results for CLI ``--json`` output."""
         return [
             serialize_annotated_function(result)
+            for result in self.results
+        ]
+
+    def summarize(self) -> List[RoundingSummary]:
+        """Lightweight summaries for MCP ProjectFacts."""
+        return [
+            summarize_annotated_function(result)
             for result in self.results
         ]
 
