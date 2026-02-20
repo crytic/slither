@@ -8,24 +8,17 @@ from typing import Optional
 from rich.console import Console
 from rich.text import Text
 
-from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
-    DomainVariant,
-)
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingTag,
     TagSet,
     TraceNode,
 )
-from slither.analyses.data_flow.analyses.rounding.models import (
+from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
     AnnotatedLine,
     LineAnnotation,
-    get_node_line,
 )
 from slither.core.declarations import Function
-from slither.core.variables.variable import Variable
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.operation import Operation
 
 try:
     import dspy
@@ -109,9 +102,9 @@ def display_trace_section(
 
     history_start = _get_lm_history_length() if explainer is not None else 0
 
-    for variable_name, line_number, trace in traced:
+    for variable_name, trace in traced:
         console.print()
-        location = f"(line {line_number})" if line_number else ""
+        location = f"(line {trace.line_number})" if trace.line_number else ""
         console.print(f"[bold]{variable_name}[/bold] {location}:")
         _display_trace_tree(trace, indent=1, filter_tag=trace_tag)
         if explainer is not None and function_lookup is not None:
@@ -262,59 +255,24 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
 def _collect_traced_variables(
     annotated: AnnotatedFunction,
     trace_tag: RoundingTag,
-) -> list[tuple[str, Optional[int], TraceNode]]:
-    """Collect variables with traces containing the specified tag.
+) -> list[tuple[str, TraceNode]]:
+    """Filter pre-computed traces to those containing the specified tag.
 
-    Deduplicates by trace identity: when a TMP variable and a named
-    variable share the same TraceNode (via assignment), only the named
-    variable is kept.
+    Uses annotated.traces (populated by extract_variable_traces during
+    analysis) rather than walking node_results directly.
+
+    Args:
+        annotated: An AnnotatedFunction with populated traces dict.
+        trace_tag: The RoundingTag to filter traces by.
+
+    Returns:
+        List of (variable_name, trace) tuples for matching traces.
     """
-    seen_traces: dict[int, tuple[str, Optional[int], TraceNode]] = {}
-
-    for node, analysis_state in annotated.node_results.items():
-        if analysis_state.post.variant != DomainVariant.STATE:
-            continue
-
-        domain = analysis_state.post
-        line_number = get_node_line(node)
-
-        if not node.irs_ssa:
-            continue
-
-        for operation in node.irs_ssa:
-            variable = _get_operation_lvalue(operation)
-            if variable is None:
-                continue
-
-            tags = domain.state.get_tags(variable)
-            if trace_tag not in tags:
-                continue
-
-            trace = domain.state.get_trace(variable)
-            if trace is None:
-                continue
-
-            if not _trace_contains_tag(trace, trace_tag):
-                continue
-
-            trace_id = id(trace)
-            existing = seen_traces.get(trace_id)
-            if existing is None or existing[0].startswith("TMP"):
-                seen_traces[trace_id] = (variable.name, line_number, trace)
-
-    return list(seen_traces.values())
-
-
-def _get_operation_lvalue(
-    operation: Operation,
-) -> Variable | None:
-    """Get lvalue from operation if it has one."""
-    if not isinstance(operation, OperationWithLValue):
-        return None
-    lvalue = operation.lvalue
-    if isinstance(lvalue, Variable):
-        return lvalue
-    return None
+    result: list[tuple[str, TraceNode]] = []
+    for variable_name, trace in annotated.traces.items():
+        if _trace_contains_tag(trace, trace_tag):
+            result.append((variable_name, trace))
+    return result
 
 
 def _trace_contains_tag(

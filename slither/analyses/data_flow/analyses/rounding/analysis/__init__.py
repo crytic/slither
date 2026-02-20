@@ -1,6 +1,5 @@
-from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
-    RoundingAnalysis,
-)
+"""Rounding analysis engine: domain and analysis implementation."""
+
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
@@ -8,6 +7,5 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 
 __all__ = [
     "DomainVariant",
-    "RoundingAnalysis",
     "RoundingDomain",
 ]

@@ -12,7 +12,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingState,
     RoundingTag,
 )
-from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
+from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.registry import (
     OperationHandlerRegistry,
 )

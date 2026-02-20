@@ -14,8 +14,9 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingTag,
     TagSet,
+    TraceNode,
 )
-from slither.analyses.data_flow.analyses.rounding.models import (
+from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
     AnnotatedLine,
     LineAnnotation,
@@ -29,6 +30,8 @@ from slither.analyses.data_flow.engine.engine import Engine
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -58,7 +61,64 @@ def analyze_function(
     annotated.node_results = node_results
 
     _process_node_results(function, node_results, annotated, show_all=show_all)
+    annotated.traces = extract_variable_traces(annotated)
     return annotated
+
+
+# ── Trace extraction ─────────────────────────────────────────────
+
+
+def extract_variable_traces(
+    annotated: AnnotatedFunction,
+) -> dict[str, TraceNode]:
+    """Extract all variable traces from analysis results.
+
+    Walks node_results, collects traces via the public
+    domain.state.get_trace() method, and deduplicates by trace
+    identity — preferring named variables over TMPs when they share
+    the same TraceNode (via assignment).
+
+    Args:
+        annotated: An AnnotatedFunction with populated node_results.
+
+    Returns:
+        Dict mapping variable name to its provenance TraceNode.
+    """
+    seen_traces: dict[int, tuple[str, TraceNode]] = {}
+
+    for node, analysis_state in annotated.node_results.items():
+        if analysis_state.post.variant != DomainVariant.STATE:
+            continue
+
+        domain = analysis_state.post
+        if not node.irs_ssa:
+            continue
+
+        for operation in node.irs_ssa:
+            variable = _get_lvalue(operation)
+            if variable is None:
+                continue
+
+            trace = domain.state.get_trace(variable)
+            if trace is None:
+                continue
+
+            trace_id = id(trace)
+            existing = seen_traces.get(trace_id)
+            if existing is None or existing[0].startswith("TMP"):
+                seen_traces[trace_id] = (variable.name, trace)
+
+    return {name: trace for name, trace in seen_traces.values()}
+
+
+def _get_lvalue(operation: Operation) -> Optional[Variable]:
+    """Get lvalue from an operation if it produces a Variable."""
+    if not isinstance(operation, OperationWithLValue):
+        return None
+    lvalue = operation.lvalue
+    if isinstance(lvalue, Variable):
+        return lvalue
+    return None
 
 
 # ── Helpers ──────────────────────────────────────────────────────

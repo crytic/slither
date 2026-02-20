@@ -15,7 +15,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     TagSet,
     TraceNode,
 )
-from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
+from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
 )

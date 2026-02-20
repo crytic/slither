@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Union
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
-from slither.analyses.data_flow.analyses.rounding.models import RoundingFinding
+from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.binary.base import (
     BinaryOperationHandler,
 )

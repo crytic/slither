@@ -5,7 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from slither.analyses.data_flow.analyses.rounding.core.state import TagSet
+from slither.analyses.data_flow.analyses.rounding.core.state import (
+    TagSet,
+    TraceNode,
+)
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
@@ -53,6 +56,7 @@ class AnnotatedFunction:
     return_tags: dict[str, TagSet] = field(default_factory=dict)
     inconsistencies: list[RoundingFinding] = field(default_factory=list)
     annotation_mismatches: list[RoundingFinding] = field(default_factory=list)
+    traces: dict[str, TraceNode] = field(default_factory=dict)
     node_results: dict[Node, AnalysisState] = field(default_factory=dict)
 
 
