@@ -1,4 +1,4 @@
-"""Pytest configuration and fixtures for rounding detector tests."""
+"""Pytest configuration and fixtures for rounding analysis tests."""
 
 from __future__ import annotations
 
@@ -11,14 +11,14 @@ from slither import Slither
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
 )
-from slither.analyses.data_flow.analyses.rounding.models import (
+from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
+)
+from slither.analyses.data_flow.analyses.rounding.output.cli import (
+    RoundingCLI,
 )
 from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.core.variables.variable import Variable
-from slither.detectors.rounding_df.rounding_inconsistency import (
-    RoundingInconsistency,
-)
 
 CONTRACTS_DIR = Path(__file__).parent / "contracts"
 
@@ -56,26 +56,19 @@ def contracts_dir() -> Path:
 
 @pytest.fixture
 def analyze_contract() -> AnalyzeCallable:
-    """Run the RoundingInconsistency detector end-to-end.
-
-    Registers and runs the detector, then extracts
-    snapshot-comparable data from its analyses.
-    """
-    return _run_detector
+    """Run the RoundingCLI analysis end-to-end."""
+    return _run_analysis
 
 
-def _run_detector(contract_path: Path) -> ContractResults:
-    """Run the detector and extract results from its analyses."""
+def _run_analysis(contract_path: Path) -> ContractResults:
+    """Run the analysis and extract results."""
     slither_instance = Slither(str(contract_path))
-    slither_instance.register_detector(RoundingInconsistency)
-    slither_instance.run_detectors()
+    analysis = RoundingCLI()
+    analysis.run(slither_instance)
 
     output: ContractResults = {}
-    for detector in slither_instance.detectors:
-        if not isinstance(detector, RoundingInconsistency):
-            continue
-        for annotated in detector.analyses:
-            _collect_function_result(annotated, output)
+    for annotated in analysis.results:
+        _collect_function_result(annotated, output)
 
     return output
 

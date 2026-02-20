@@ -1,0 +1,128 @@
+{
+  "Test_Subtraction": {
+    "divDown": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_0": "DOWN",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP",
+        "denominator": "NEUTRAL",
+        "numerator": "NEUTRAL"
+      }
+    },
+    "test_down_minus_down": {
+      "inconsistencies": [
+        "Conflicting rounding in subtraction: DOWN - DOWN (inverted: UP) in test_down_minus_down"
+      ],
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_12": "DOWN",
+        "TMP_13": "DOWN",
+        "TMP_14": "UNKNOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "down1": "DOWN",
+        "down2": "DOWN"
+      }
+    },
+    "test_down_minus_neutral": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_4": "DOWN",
+        "TMP_5": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "downValue": "DOWN"
+      }
+    },
+    "test_down_minus_up": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_18": "DOWN",
+        "TMP_19": "UP",
+        "TMP_20": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "downValue": "DOWN",
+        "upValue": "UP"
+      }
+    },
+    "test_neutral_minus_down": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_6": "DOWN",
+        "TMP_7": "UP",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "downValue": "DOWN"
+      }
+    },
+    "test_neutral_minus_up": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_10": "UP",
+        "TMP_11": "DOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "upValue": "UP"
+      }
+    },
+    "test_up_minus_down": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_21": "UP",
+        "TMP_22": "DOWN",
+        "TMP_23": "UP",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "downValue": "DOWN",
+        "upValue": "UP"
+      }
+    },
+    "test_up_minus_neutral": {
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_8": "UP",
+        "TMP_9": "UP",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "upValue": "UP"
+      }
+    },
+    "test_up_minus_up": {
+      "inconsistencies": [
+        "Conflicting rounding in subtraction: UP - UP (inverted: DOWN) in test_up_minus_up"
+      ],
+      "variables": {
+        "": "NEUTRAL",
+        "TMP_15": "UP",
+        "TMP_16": "UP",
+        "TMP_17": "UNKNOWN",
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "up1": "UP",
+        "up2": "UP"
+      }
+    }
+  }
+}

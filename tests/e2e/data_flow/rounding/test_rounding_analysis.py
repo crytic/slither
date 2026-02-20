@@ -40,4 +40,4 @@ class TestRoundingAnalysis:
 
         results = analyze_contract(contract_path)
         results_json = json.dumps(results, indent=2, sort_keys=True)
-        assert snapshot(f"{contract_file}.json") == results_json
+        snapshot.assert_match(results_json, f"{contract_file}.json")
