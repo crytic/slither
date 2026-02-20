@@ -27,7 +27,9 @@ from slither.analyses.data_flow.analyses.rounding.output.display import (
 from slither.analyses.data_flow.analyses.rounding.output.serialize import (
     RoundingResult,
     RoundingSummary,
+    TraceNodeDict,
     serialize_annotated_function,
+    serialize_trace_node,
     summarize_annotated_function,
 )
 from slither.analyses.data_flow.registry.abstract_analysis import (
@@ -138,6 +140,22 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
             summarize_annotated_function(result)
             for result in self.results
         ]
+
+    def get_traces(
+        self,
+        function_name: str,
+        variable_name: str,
+        max_depth: int = 10,
+    ) -> TraceNodeDict | None:
+        """Get a serialized trace for a specific variable."""
+        for result in self.results:
+            if result.function_name != function_name:
+                continue
+            trace = result.traces.get(variable_name)
+            if trace is None:
+                return None
+            return serialize_trace_node(trace, max_depth)
+        return None
 
 
 def _load_safe_libs_from_arg(
