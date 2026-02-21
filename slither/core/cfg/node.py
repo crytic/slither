@@ -658,7 +658,7 @@ class Node(SourceMapping):
 
     @property
     def son_false(self) -> Optional["Node"]:
-        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 1:
+        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 2:
             return self._sons[1]
         return None
 
