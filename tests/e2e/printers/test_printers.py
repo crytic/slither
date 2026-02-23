@@ -13,6 +13,7 @@ from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.inheritance.c3_linearization import PrinterC3Linearization
 from slither.printers.summary.cheatcodes import CheatcodePrinter
+from slither.printers.summary.erc import ERCPrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
 
@@ -203,3 +204,55 @@ def test_c3_linearization_printer(solc_binary_path) -> None:
     # Check constructor order is reverse of linearization
     d_constructors = linearizations["D"]["constructor_order"]
     assert d_constructors == ["A", "B", "C", "D"]
+
+
+def test_erc_printer(solc_binary_path) -> None:
+    """Test the ERC token detection printer."""
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_erc_printer", "tokens.sol").as_posix())
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    printer = ERCPrinter(slither=slither, logger=None)
+    output = printer.output("")
+
+    # Check that the output contains expected content
+    assert "ERC Token Detection Results" in output.data["description"]
+
+    # Check JSON structure
+    token_data = output.data["additional_fields"]["token_detection"]
+
+    # Verify statistics - 5 contracts: MyERC20, MyERC721, PartialERC20, NotAToken, IERC20 (interface)
+    # But IERC20 interface is excluded, so 4 analyzed
+    assert "statistics" in token_data
+    # total_contracts counts non-interface, non-library contracts
+    assert token_data["statistics"]["total_contracts"] >= 4
+
+    # MyERC20 should be detected as ERC-20
+    assert "tokens" in token_data
+    assert "ERC-20" in token_data["tokens"], "ERC-20 should be detected"
+    erc20_tokens = token_data["tokens"]["ERC-20"]
+    erc20_names = [t["contract"] for t in erc20_tokens]
+    assert "MyERC20" in erc20_names
+
+    # MyERC721 should be detected as ERC-721
+    assert "ERC-721" in token_data["tokens"], "ERC-721 should be detected"
+    erc721_tokens = token_data["tokens"]["ERC-721"]
+    erc721_names = [t["contract"] for t in erc721_tokens]
+    assert "MyERC721" in erc721_names
+
+    # PartialERC20 should be detected as partial implementation
+    partial = token_data["partial"]
+    partial_names = [p["contract"] for p in partial]
+    assert "PartialERC20" in partial_names
+
+    # NotAToken should not be in any token category
+    all_token_names = []
+    for standard_tokens in token_data["tokens"].values():
+        all_token_names.extend([t["contract"] for t in standard_tokens])
+    all_token_names.extend(partial_names)
+    assert "NotAToken" not in all_token_names
+
+    # IERC20 interface should be excluded from detection
+    assert "IERC20" not in all_token_names
