@@ -17,6 +17,7 @@ from slither.slithir.operations import (
 )
 
 from slither.core.solidity_types import MappingType, ElementaryType
+from slither.core.solidity_types.elementary_type import MaxValues
 
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import (
@@ -88,6 +89,24 @@ contract Crowdsale{
         return True
 
     @staticmethod
+    def is_comparing_against_safe_constant(ir: Binary) -> bool:
+        """
+        Returns True if the comparison is against a safe boundary constant
+        that cannot be manipulated by an attacker (0, type(T).max, etc.)
+        These comparisons are common patterns and should not be flagged.
+        Fixes: https://github.com/crytic/slither/issues/2759
+        """
+        for var in [ir.variable_left, ir.variable_right]:
+            if isinstance(var, Constant):
+                # Check for zero - comparing against 0 is safe
+                if var.value == 0:
+                    return True
+                # Check for type(T).max values (e.g., type(uint256).max)
+                if var.value in MaxValues.values():
+                    return True
+        return False
+
+    @staticmethod
     def is_any_tainted(
         variables: list[
             Constant
@@ -155,6 +174,8 @@ contract Crowdsale{
                         self.is_direct_comparison(ir)
                         # Filter out address comparisons which may occur due to lack of field sensitivity in data dependency
                         and self.is_not_comparing_addresses(ir)
+                        # Filter out comparisons against safe boundary constants (0, type(T).max)
+                        and not self.is_comparing_against_safe_constant(ir)
                         and self.is_any_tainted(ir.used, taints, func)
                     ):
                         if func not in results:
