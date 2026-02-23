@@ -55,9 +55,7 @@ contract Example {
                         if isinstance(ir, EventCall):
                             events_emitted.add(str(ir.name))
 
-        for contract in sorted(
-            self.compilation_unit.contracts, key=lambda x: x.name
-        ):
+        for contract in sorted(self.compilation_unit.contracts, key=lambda x: x.name):
             if contract.is_interface or contract.is_from_dependency():
                 continue
 

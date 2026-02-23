@@ -70,9 +70,7 @@ contract Example {
                     if inherited_mod.name == declared_mod.name:
                         overridden_modifiers.add(inherited_mod.canonical_name)
 
-        for modifier in sorted(
-            self.compilation_unit.modifiers, key=lambda x: x.canonical_name
-        ):
+        for modifier in sorted(self.compilation_unit.modifiers, key=lambda x: x.canonical_name):
             if not isinstance(modifier, Modifier):
                 continue
 
@@ -93,8 +91,7 @@ contract Example {
             # Skip virtual modifiers that are overridden in child contracts
             # (part of inheritance design pattern)
             if modifier.is_virtual and (
-                modifier.overridden_by
-                or modifier.canonical_name in overridden_modifiers
+                modifier.overridden_by or modifier.canonical_name in overridden_modifiers
             ):
                 continue
 
