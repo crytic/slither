@@ -21,6 +21,7 @@ from .reentrancy.reentrancy_balance import ReentrancyBalance
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.could_be_constant import CouldBeConstant
 from .variables.could_be_immutable import CouldBeImmutable
+from .variables.complex_struct_getter import ComplexStructGetter
 from .statements.tx_origin import TxOrigin
 from .statements.assembly import Assembly
 from .operations.low_level_calls import LowLevelCalls
