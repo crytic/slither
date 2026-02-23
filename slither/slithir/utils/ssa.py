@@ -339,22 +339,27 @@ def last_name(
     n: Node,
     var: StateIRVariable | LocalIRVariable,
     init_vars: dict[str, LocalIRVariable],
-) -> StateIRVariable | LocalIRVariable:
-    candidates = []
+) -> StateIRVariable | LocalIRVariable | None:
+    candidates: list[StateIRVariable | LocalIRVariable] = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:
         if isinstance(ir_ssa, OperationWithLValue):
             lvalue = ir_ssa.lvalue
             while isinstance(lvalue, ReferenceVariable):
                 lvalue = lvalue.points_to
-            if lvalue and lvalue.name == var.name:
+            if (
+                lvalue
+                and isinstance(lvalue, (StateIRVariable, LocalIRVariable))
+                and lvalue.name == var.name
+            ):
                 candidates.append(lvalue)
     if n.variable_declaration and n.variable_declaration.name == var.name:
         candidates.append(LocalIRVariable(n.variable_declaration))
     if n.type == NodeType.ENTRYPOINT:
         if var.name in init_vars:
             candidates.append(init_vars[var.name])
-    assert candidates
+    if not candidates:
+        return None
     return max(candidates, key=lambda v: v.index)
 
 
@@ -429,11 +434,13 @@ def update_lvalue(
                 new_var.index = all_local_variables_instances[lvalue.name].index + 1
                 all_local_variables_instances[lvalue.name] = new_var
                 local_variables_instances[lvalue.name] = new_var
-            else:
+            elif lvalue.canonical_name in all_state_variables_instances:
                 new_var = StateIRVariable(lvalue)
                 new_var.index = all_state_variables_instances[lvalue.canonical_name].index + 1
                 all_state_variables_instances[lvalue.canonical_name] = new_var
                 state_variables_instances[lvalue.canonical_name] = new_var
+            else:
+                return
             if update_through_ref:
                 phi_operation = Phi(new_var, {node})
                 phi_operation.rvalues = [lvalue]
@@ -490,7 +497,7 @@ def fix_phi_rvalues_and_storage_ref(
             variables = [
                 last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes
             ]
-            ir.rvalues = variables
+            ir.rvalues = [v for v in variables if v is not None]
         if isinstance(ir, (Phi, PhiCallback)):
             if isinstance(ir.lvalue, LocalIRVariable):
                 if ir.lvalue.is_storage:
@@ -599,8 +606,10 @@ def get(
         local_variables_instances[variable.name] = new_var
         all_local_variables_instances[variable.name] = new_var
         return new_var
-    if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
-        return state_variables_instances[variable.canonical_name]
+    if isinstance(variable, StateVariable):
+        if variable.canonical_name in state_variables_instances:
+            return state_variables_instances[variable.canonical_name]
+        return variable
     if isinstance(variable, ReferenceVariable):
         if variable.index not in reference_variables_instances:
             new_variable = ReferenceVariableSSA(variable)

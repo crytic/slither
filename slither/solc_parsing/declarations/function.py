@@ -17,7 +17,7 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
-from slither.solc_parsing.exceptions import ParsingError
+from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
@@ -330,7 +330,10 @@ class FunctionSolc(CallerContextExpression):
             local_var_parser.analyze(self)
 
         for node_parser in self._node_to_nodesolc.values():
-            node_parser.analyze_expressions(self)
+            try:
+                node_parser.analyze_expressions(self)
+            except (KeyError, VariableNotFound):
+                pass
 
         for yul_parser in self._node_to_yulobject.values():
             yul_parser.analyze_expressions()
@@ -1617,6 +1620,8 @@ class FunctionSolc(CallerContextExpression):
         while ternary_found:
             ternary_found = False
             for node in self._node_to_nodesolc:
+                if node.expression is None:
+                    continue
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     st = SplitTernaryExpression(node.expression)

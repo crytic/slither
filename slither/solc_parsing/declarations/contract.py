@@ -452,18 +452,18 @@ class ContractSolc(CallerContextExpression):
                 )
 
     def analyze_content_modifiers(self) -> None:
-        try:
-            for modifier_parser in self._modifiers_parser:
+        for modifier_parser in self._modifiers_parser:
+            try:
                 modifier_parser.analyze_content()
-        except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f"Missing modifier {e}")
+            except (VariableNotFound, KeyError) as e:
+                self.log_incorrect_parsing(f"Missing modifier {e}")
 
     def analyze_content_functions(self) -> None:
-        try:
-            for function_parser in self._functions_parser:
+        for function_parser in self._functions_parser:
+            try:
                 function_parser.analyze_content()
-        except (VariableNotFound, KeyError, ParsingError) as e:
-            self.log_incorrect_parsing(f"Missing function {e}")
+            except (VariableNotFound, KeyError, ParsingError) as e:
+                self.log_incorrect_parsing(f"Missing function {e}")
 
     def analyze_params_modifiers(self) -> None:
         try:

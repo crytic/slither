@@ -90,9 +90,6 @@ def _find_from_type_name(
         if name_struct.startswith("struct "):
             name_struct = name_struct[len("struct ") :]
             name_struct = name_struct.split(" ")[0]  # remove stuff like storage pointer at the end
-        # all_structures = [c.structures for c in contracts]
-        # all_structures = [item for sublist in all_structures for item in sublist]
-        # all_structures += contract.slither.structures_top_level
         var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
         if not var_type:
             var_type = next((st for st in all_structures if st.name == name_struct), None)
@@ -292,12 +289,12 @@ def parse_type(
         sl = caller_context.compilation_unit
         next_context = caller_context
         structures_direct_access = list(scope.structures.values())
-        all_structuress = [c.structures for c in scope.contracts.values()]
+        all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
 
         enums_direct_access = []
-        all_enumss = [c.enums for c in scope.contracts.values()]
+        all_enumss = [c.enums for c in sl.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += scope.enums.values()
 
@@ -323,12 +320,12 @@ def parse_type(
 
         structures_direct_access = contract.structures
         structures_direct_access += scope.structures.values()
-        all_structuress = [c.structures for c in scope.contracts.values()]
+        all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += scope.structures.values()
         enums_direct_access += contract.enums
         enums_direct_access += scope.enums.values()
-        all_enumss = [c.enums for c in scope.contracts.values()]
+        all_enumss = [c.enums for c in sl.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += scope.enums.values()
         contracts = scope.contracts.values()
