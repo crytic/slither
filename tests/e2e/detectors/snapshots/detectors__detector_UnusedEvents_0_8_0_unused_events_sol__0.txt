@@ -1,0 +1,6 @@
+UnusedEventContract.NeverEmitted(address) (unused_events.sol#7) is never emitted in UnusedEventContract (unused_events.sol#6-15)
+
+UnusedEventContract.AlsoNeverEmitted(uint256,string) (unused_events.sol#8) is never emitted in UnusedEventContract (unused_events.sol#6-15)
+
+BaseUnused.OrphanEvent(address) (unused_events.sol#46) is never emitted in BaseUnused (unused_events.sol#45-47)
+
