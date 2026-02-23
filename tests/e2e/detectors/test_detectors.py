@@ -1367,6 +1367,16 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.UnusedEvents,
+        "unused_events.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.UnusedModifiers,
+        "unused_modifiers.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.WriteAfterWrite,
         "write-after-write.sol",
         "0.8.0",
