@@ -1714,6 +1714,11 @@ ALL_TESTS = [
         "0.8.10",
     ),
     Test(
+        all_detectors.InvalidMemorySafeAnnotation,
+        "incorrect_memory_safe_assembly.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.IncorrectOperatorExponentiation,
         "incorrect_exp.sol",
         "0.7.6",

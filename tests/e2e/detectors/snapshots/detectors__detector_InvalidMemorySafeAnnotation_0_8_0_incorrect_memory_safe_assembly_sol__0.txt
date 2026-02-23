@@ -1,0 +1,6 @@
+RegularMultiLineComment.f() (tests/e2e/detectors/test_data/incorrect-memory-safe-assembly/0.8.0/incorrect_memory_safe_assembly.sol#16-21) uses a regular comment for memory-safe-assembly annotation (line 17). Use `/** */` (NatSpec) instead of `/* */`.
+
+TypoInNatSpec.f() (tests/e2e/detectors/test_data/incorrect-memory-safe-assembly/0.8.0/incorrect_memory_safe_assembly.sol#25-30) has a misspelled memory-safe-assembly annotation (line 26). Use `/// @solidity memory-safe-assembly` with exact spelling.
+
+RegularSingleLineComment.f() (tests/e2e/detectors/test_data/incorrect-memory-safe-assembly/0.8.0/incorrect_memory_safe_assembly.sol#7-12) uses a regular comment for memory-safe-assembly annotation (line 8). Use `///` (NatSpec) instead of `//`.
+
