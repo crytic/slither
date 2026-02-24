@@ -1,0 +1,110 @@
+"""Low-level call operation handler for interval analysis."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List
+
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
+from slither.analyses.data_flow.analyses.interval.operations.base import (
+    BaseOperationHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_bit_width,
+    get_variable_name,
+    is_signed_type,
+    type_to_sort,
+)
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.low_level_call import LowLevelCall
+from slither.slithir.variables.tuple import TupleVariable
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.analysis.domain import (
+        IntervalDomain,
+    )
+    from slither.core.cfg.node import Node
+
+
+class LowLevelCallHandler(BaseOperationHandler):
+    """Handler for low-level call operations.
+
+    Low-level calls (call, delegatecall, staticcall, callcode) interact
+    with contracts at the EVM level. Since the target is unknown at static
+    analysis time, each returns unconstrained results. The return type is
+    typically (bool success, bytes data).
+    """
+
+    def handle(
+        self,
+        operation: LowLevelCall,
+        domain: "IntervalDomain",
+        node: "Node",
+    ) -> None:
+        """Process low-level call operation."""
+        if operation.lvalue is None:
+            return
+
+        lvalue = operation.lvalue
+        lvalue_type = lvalue.type
+
+        if isinstance(lvalue, TupleVariable):
+            self._handle_tuple_return(operation, domain)
+            return
+
+        if not isinstance(lvalue_type, ElementaryType):
+            return
+
+        result_name = get_variable_name(lvalue)
+        self._create_unconstrained_result(result_name, lvalue_type, domain)
+
+    def _handle_tuple_return(
+        self,
+        operation: LowLevelCall,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Handle low-level calls that return tuples."""
+        lvalue = operation.lvalue
+        tuple_name = get_variable_name(lvalue)
+        tuple_types = lvalue.type
+
+        if not isinstance(tuple_types, list):
+            return
+
+        self._create_unconstrained_tuple(tuple_name, tuple_types, domain)
+
+    def _create_unconstrained_tuple(
+        self,
+        tuple_name: str,
+        tuple_types: List,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Create unconstrained variables for each tuple element."""
+        for index, element_type in enumerate(tuple_types):
+            if not isinstance(element_type, ElementaryType):
+                continue
+            element_name = f"{tuple_name}[{index}]"
+            self._create_unconstrained_result(
+                element_name, element_type, domain
+            )
+
+    def _create_unconstrained_result(
+        self,
+        name: str,
+        element_type: ElementaryType,
+        domain: "IntervalDomain",
+    ) -> None:
+        """Create an unconstrained variable for the result."""
+        sort = type_to_sort(element_type)
+        is_signed = is_signed_type(element_type)
+        bit_width = get_bit_width(element_type)
+
+        result_variable = TrackedSMTVariable.create(
+            self.solver,
+            name,
+            sort,
+            is_signed=is_signed,
+            bit_width=bit_width,
+        )
+        domain.state.set_variable(name, result_variable)

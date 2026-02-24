@@ -22,6 +22,7 @@ from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.unary import Unary
 from slither.slithir.operations.event_call import EventCall
+from slither.slithir.operations.low_level_call import LowLevelCall
 from slither.slithir.operations.unpack import Unpack
 
 from slither.analyses.data_flow.analyses.interval.operations.assignment import (
@@ -56,6 +57,9 @@ from slither.analyses.data_flow.analyses.interval.operations.internal_dynamic_ca
 )
 from slither.analyses.data_flow.analyses.interval.operations.length import (
     LengthHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.low_level_call import (
+    LowLevelCallHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.library_call import (
     LibraryCallHandler,
@@ -109,6 +113,7 @@ class OperationHandlerRegistry:
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[InternalDynamicCall] = InternalDynamicCallHandler(self._solver)
         self._handlers[LibraryCall] = LibraryCallHandler(self._solver)
+        self._handlers[LowLevelCall] = LowLevelCallHandler(self._solver)
         self._handlers[Phi] = PhiHandler(self._solver)
         self._handlers[PhiCallback] = PhiCallbackHandler(self._solver)
         self._handlers[Return] = ReturnHandler(self._solver)
