@@ -38,6 +38,10 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.abi i
     AbiHandler,
     ABI_FUNCTIONS,
 )
+from slither.analyses.data_flow.analyses.interval.operations.solidity_call.gasleft import (
+    GasleftHandler,
+    GASLEFT_FUNCTIONS,
+)
 from slither.analyses.data_flow.logger import get_logger
 
 if TYPE_CHECKING:
@@ -65,6 +69,7 @@ class SolidityCallHandler(BaseOperationHandler):
         self._mload = MloadHandler(solver)
         self._revert = RevertHandler(solver)
         self._abi = AbiHandler(solver)
+        self._gasleft = GasleftHandler(solver)
 
     def handle(
         self,
@@ -107,6 +112,10 @@ class SolidityCallHandler(BaseOperationHandler):
             self._abi.handle(operation, domain, node)
             return
 
+        if function_name in GASLEFT_FUNCTIONS:
+            self._gasleft.handle(operation, domain, node)
+            return
+
         logger.error_and_raise(
             f"Solidity function '{function_name}' is not implemented",
             NotImplementedError,
@@ -122,4 +131,5 @@ __all__ = [
     "MstoreHandler",
     "MloadHandler",
     "AbiHandler",
+    "GasleftHandler",
 ]
