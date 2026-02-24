@@ -1489,9 +1489,7 @@ class Contract(SourceMapping):
                             next_node.add_father(prev_node)
                             prev_node = next_node
                             counter += 1
-                    self._rewrite_ternary_in_constructor_variables(
-                        constructor_variable, counter
-                    )
+                    self._rewrite_ternary_in_constructor_variables(constructor_variable, counter)
                     break
 
             for idx, variable_candidate in enumerate(self.state_variables):
@@ -1585,38 +1583,28 @@ class Contract(SourceMapping):
                 false_expr = st.false_expression
 
                 # Create IF node
-                condition_node = Node(
-                    NodeType.IF, counter, node.scope, func.file_scope
-                )
+                condition_node = Node(NodeType.IF, counter, node.scope, func.file_scope)
                 counter += 1
-                condition_node.set_offset(
-                    node.source_mapping, func.compilation_unit
-                )
+                condition_node.set_offset(node.source_mapping, func.compilation_unit)
                 condition_node.set_function(func)
                 condition_node.add_expression(condition)
 
                 # Create true branch
-                true_node = Node(
-                    NodeType.EXPRESSION, counter, node.scope, func.file_scope
-                )
+                true_node = Node(NodeType.EXPRESSION, counter, node.scope, func.file_scope)
                 counter += 1
                 true_node.set_offset(node.source_mapping, func.compilation_unit)
                 true_node.set_function(func)
                 true_node.add_expression(true_expr)
 
                 # Create false branch
-                false_node = Node(
-                    NodeType.EXPRESSION, counter, node.scope, func.file_scope
-                )
+                false_node = Node(NodeType.EXPRESSION, counter, node.scope, func.file_scope)
                 counter += 1
                 false_node.set_offset(node.source_mapping, func.compilation_unit)
                 false_node.set_function(func)
                 false_node.add_expression(false_expr)
 
                 # Create ENDIF
-                endif_node = Node(
-                    NodeType.ENDIF, counter, node.scope, func.file_scope
-                )
+                endif_node = Node(NodeType.ENDIF, counter, node.scope, func.file_scope)
                 counter += 1
                 endif_node.set_offset(node.source_mapping, func.compilation_unit)
                 endif_node.set_function(func)
@@ -1648,9 +1636,7 @@ class Contract(SourceMapping):
 
                 # Replace old node with new nodes
                 new_nodes = [n for n in func.nodes if n.node_id != node.node_id]
-                new_nodes.extend(
-                    [condition_node, true_node, false_node, endif_node]
-                )
+                new_nodes.extend([condition_node, true_node, false_node, endif_node])
                 func.nodes = new_nodes
 
                 ternary_found = True
