@@ -113,5 +113,8 @@ test_artifacts/
 # crytic export 
 crytic-export/
 
-# slither.db.json 
+# slither.db.json
 slither.db.json
+
+# Claude Code MCP config (local paths)
+.mcp.json
