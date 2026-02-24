@@ -30,16 +30,17 @@ def test_saor_generates_patches(solc_binary_path):
             target_modifiers=None,
         )
 
-        patches = mutator._mutate()
+        result = mutator._mutate()
 
         # Should generate patches (at least for add(1,2) and transfer(addr,addr,uint))
-        assert len(patches) > 0, "SAOR should generate at least one patch"
+        assert "patches" in result, "SAOR should generate at least one patch"
+        file_patches = result["patches"]
 
         # Verify patches contain the test file
-        assert file_path in patches, f"Expected patches for {file_path}"
+        assert file_path in file_patches, f"Expected patches for {file_path}"
 
         # Each patch should have the required fields
-        for patch in patches[file_path]:
+        for patch in file_patches[file_path]:
             assert "start" in patch
             assert "end" in patch
             assert "old_string" in patch
