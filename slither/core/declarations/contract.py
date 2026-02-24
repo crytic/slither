@@ -1489,6 +1489,9 @@ class Contract(SourceMapping):
                             next_node.add_father(prev_node)
                             prev_node = next_node
                             counter += 1
+                    self._rewrite_ternary_in_constructor_variables(
+                        constructor_variable, counter
+                    )
                     break
 
             for idx, variable_candidate in enumerate(self.state_variables):
@@ -1549,6 +1552,109 @@ class Contract(SourceMapping):
         expression.set_offset(variable.source_mapping, self.compilation_unit)
         node.add_expression(expression)
         return node
+
+    @staticmethod
+    def _rewrite_ternary_in_constructor_variables(func: Function, counter: int) -> None:
+        """Rewrite ternary expressions in constructor variable initialization nodes.
+
+        State variable initializers are processed outside the normal function parsing
+        pipeline, so ternary expressions are not rewritten by _rewrite_ternary_as_if_else.
+        This method performs the equivalent transformation for constructor variable nodes.
+        """
+        from slither.core.cfg.node import Node, NodeType
+        from slither.visitors.expression.has_conditional import HasConditional
+        from slither.utils.expression_manipulations import SplitTernaryExpression
+
+        ternary_found = True
+        while ternary_found:
+            ternary_found = False
+            for node in list(func.nodes):
+                if not node.expression:
+                    continue
+
+                has_cond = HasConditional(node.expression)
+                if not has_cond.result():
+                    continue
+
+                st = SplitTernaryExpression(node.expression)
+                condition = st.condition
+                if not condition:
+                    continue
+
+                true_expr = st.true_expression
+                false_expr = st.false_expression
+
+                # Create IF node
+                condition_node = Node(
+                    NodeType.IF, counter, node.scope, func.file_scope
+                )
+                counter += 1
+                condition_node.set_offset(
+                    node.source_mapping, func.compilation_unit
+                )
+                condition_node.set_function(func)
+                condition_node.add_expression(condition)
+
+                # Create true branch
+                true_node = Node(
+                    NodeType.EXPRESSION, counter, node.scope, func.file_scope
+                )
+                counter += 1
+                true_node.set_offset(node.source_mapping, func.compilation_unit)
+                true_node.set_function(func)
+                true_node.add_expression(true_expr)
+
+                # Create false branch
+                false_node = Node(
+                    NodeType.EXPRESSION, counter, node.scope, func.file_scope
+                )
+                counter += 1
+                false_node.set_offset(node.source_mapping, func.compilation_unit)
+                false_node.set_function(func)
+                false_node.add_expression(false_expr)
+
+                # Create ENDIF
+                endif_node = Node(
+                    NodeType.ENDIF, counter, node.scope, func.file_scope
+                )
+                counter += 1
+                endif_node.set_offset(node.source_mapping, func.compilation_unit)
+                endif_node.set_function(func)
+
+                # Rewire CFG: connect fathers to condition node
+                for father in node.fathers:
+                    father.replace_son(node, condition_node)
+                    condition_node.add_father(father)
+
+                # Rewire CFG: connect sons to endif node
+                for son in node.sons:
+                    son.remove_father(node)
+                    son.add_father(endif_node)
+                    endif_node.add_son(son)
+
+                # Wire IF -> true/false branches -> ENDIF
+                condition_node.add_son(true_node)
+                true_node.add_father(condition_node)
+                condition_node.add_son(false_node)
+                false_node.add_father(condition_node)
+                true_node.add_son(endif_node)
+                endif_node.add_father(true_node)
+                false_node.add_son(endif_node)
+                endif_node.add_father(false_node)
+
+                # Update entry point if the rewritten node was the entry
+                if func.entry_point == node:
+                    func.entry_point = condition_node
+
+                # Replace old node with new nodes
+                new_nodes = [n for n in func.nodes if n.node_id != node.node_id]
+                new_nodes.extend(
+                    [condition_node, true_node, false_node, endif_node]
+                )
+                func.nodes = new_nodes
+
+                ternary_found = True
+                break
 
     # endregion
     ###################################################################################
