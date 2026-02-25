@@ -448,7 +448,8 @@ class InterproceduralHandler(BaseOperationHandler):
         param_var = TrackedSMTVariable.create(
             self.solver, prefixed_name, sort, is_signed=is_signed, bit_width=bit_width
         )
-        self.solver.assert_constraint(param_var.term == arg_term)
+        matched_arg = match_width(self.solver, arg_term, param_var.term)
+        self.solver.assert_constraint(param_var.term == matched_arg)
         domain.state.set_variable(prefixed_name, param_var)
         bound_names.add(prefixed_name)
 
@@ -493,7 +494,10 @@ class InterproceduralHandler(BaseOperationHandler):
         )
 
         if return_var is not None:
-            self.solver.assert_constraint(result_var.term == return_var.term)
+            matched_return = match_width(
+                self.solver, return_var.term, result_var.term
+            )
+            self.solver.assert_constraint(result_var.term == matched_return)
 
         domain.state.set_variable(context.result_name, result_var)
 

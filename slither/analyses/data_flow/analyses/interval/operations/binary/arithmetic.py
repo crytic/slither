@@ -15,16 +15,10 @@ from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
-from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
-    match_width_to_int,
-)
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_variable_name,
     is_signed_type,
     get_bit_width,
-    constant_to_term,
-    try_create_parameter_variable,
-    try_create_solidity_variable,
 )
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -328,49 +322,21 @@ class ArithmeticHandler(BaseOperationHandler):
         domain: "IntervalDomain",
         target_width: int,
     ) -> SMTTerm | None:
-        """Resolve an operand to an SMT term.
-
-        Args:
-            operand: The operand to resolve (constant or variable reference)
-            domain: The interval domain containing tracked variables
-            target_width: The bit width to use for the term
-
-        Returns:
-            SMT term for the operand, or None if unsupported
+        """Resolve an operand, raising ValueError if not found.
 
         Raises:
-            ValueError: If operand is a variable not found in state and not a parameter
+            ValueError: If operand is not a constant and cannot be
+                resolved from state, parameters, or built-ins.
         """
-        if isinstance(operand, Constant):
-            return self._constant_to_term(operand, target_width)
-
+        result = super()._resolve_operand(operand, domain, target_width)
+        if result is not None:
+            return result
         operand_name = get_variable_name(operand)
-        tracked = domain.state.get_variable(operand_name)
-
-        if tracked is not None:
-            return match_width_to_int(self.solver, tracked.term, target_width)
-
-        # Variable not in state - check if it's a function parameter
-        tracked = try_create_parameter_variable(self.solver, operand, operand_name, domain)
-        if tracked is not None:
-            return match_width_to_int(self.solver, tracked.term, target_width)
-
-        # Check if it's a Solidity built-in (block.timestamp, msg.value, etc.)
-        tracked = try_create_solidity_variable(self.solver, operand, operand_name, domain)
-        if tracked is not None:
-            return match_width_to_int(self.solver, tracked.term, target_width)
-
         logger.error_and_raise(
-            f"Variable '{operand_name}' not found in state", ValueError
+            f"Variable '{operand_name}' not found in state",
+            ValueError,
         )
         return None
-
-    def _constant_to_term(self, constant: Constant, bit_width: int) -> SMTTerm | None:
-        """Convert a constant to an SMT term."""
-        value = constant.value
-        if not isinstance(value, (int, bool)):
-            return None
-        return constant_to_term(self.solver, value, bit_width)
 
     def _is_same_operand(self, operation: Binary) -> bool:
         """Check if both operands refer to the same variable."""
