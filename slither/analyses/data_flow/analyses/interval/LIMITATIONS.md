@@ -259,6 +259,20 @@ Tracking precise values through variable-to-variable reassignments would create 
 - State array reads without prior write in same function: `[0, max]`
 - Initialized array values (state variable initializers not tracked)
 
+## Missing Test Cases
+
+The following recently added features lack dedicated test cases:
+
+- Solidity built-in variable handling (`block.timestamp`, `msg.value`, `msg.sender`, etc.)
+- LowLevelCall handler
+- `gasleft()` handler
+- ABI encode/decode handler
+- EventCall handler (no-op)
+- Revert handler
+- InitArray handler
+
+These features were verified manually against real contracts but need proper unit/integration tests.
+
 ## Supported Operations
 
 - ~~assignment~~
