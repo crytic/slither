@@ -21,6 +21,7 @@ from slither.slithir.operations.init_array import InitArray
 from slither.slithir.operations.length import Length
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.unary import Unary
+from slither.slithir.operations.delete import Delete
 from slither.slithir.operations.event_call import EventCall
 from slither.slithir.operations.low_level_call import LowLevelCall
 from slither.slithir.operations.unpack import Unpack
@@ -39,6 +40,9 @@ from slither.analyses.data_flow.analyses.interval.operations.event_call import (
 )
 from slither.analyses.data_flow.analyses.interval.operations.condition import (
     ConditionHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.delete import (
+    DeleteHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.high_level_call import (
     HighLevelCallHandler,
@@ -109,6 +113,7 @@ class OperationHandlerRegistry:
         self._handlers[Assignment] = AssignmentHandler(self._solver)
         self._handlers[Binary] = BinaryHandler(self._solver)
         self._handlers[Condition] = ConditionHandler(self._solver)
+        self._handlers[Delete] = DeleteHandler(self._solver)
         self._handlers[HighLevelCall] = HighLevelCallHandler(self._solver)
         self._handlers[InternalCall] = InternalCallHandler(self._solver)
         self._handlers[InternalDynamicCall] = InternalDynamicCallHandler(self._solver)

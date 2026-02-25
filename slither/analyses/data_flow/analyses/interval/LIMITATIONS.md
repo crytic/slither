@@ -267,6 +267,7 @@ The following recently added features lack dedicated test cases:
 - LowLevelCall handler
 - `gasleft()` handler
 - ABI encode/decode handler
+- Delete handler
 - EventCall handler (no-op)
 - Revert handler
 - InitArray handler
@@ -280,7 +281,7 @@ These features were verified manually against real contracts but need proper uni
 - call
 - codesize
 - condition
-- delete
+- ~~delete~~
 - event_call
 - ~~high_level_call~~
 - ~~index~~
