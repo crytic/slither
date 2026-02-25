@@ -259,6 +259,20 @@ Tracking precise values through variable-to-variable reassignments would create 
 - State array reads without prior write in same function: `[0, max]`
 - Initialized array values (state variable initializers not tracked)
 
+## Internal Function Caller Discovery
+
+When the analysis targets an internal function declared in a base contract, `--all` returns empty results because the runner cannot find any callers within that contract.
+
+**Symptom:** `--all` on an internal base-contract function returns `{}`.
+
+**Cause:** `_get_functions` in `run_analysis.py` uses `contract.functions_and_modifiers_declared`, which only includes functions declared directly on the target contract. It never consults `contract.derived_contracts` to find derived contracts that call the internal function. Since internal functions can only be called from within the inheritance tree, and the runner iterates contract-first without expanding to derived contracts, it finds zero entry points and produces no results.
+
+**Concrete example:** `Twav._updateTWAV()` is an internal function in the `Twav` base contract. It is called only by `NibblVault.buy()`, where `NibblVault is Twav`. When analyzing `Twav._updateTWAV()`, the runner looks at `Twav.functions_and_modifiers_declared` for callers, finds none, and returns `{}`.
+
+**Affected protocols:** c4-2022-nibbl, c4-2022-nibbl-twav.
+
+**Fix direction:** When the target function is internal and has no in-contract callers, traverse `contract.derived_contracts` to find public/external entry points that eventually call the target function.
+
 ## Missing Test Cases
 
 The following recently added features lack dedicated test cases:
