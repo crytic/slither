@@ -18,6 +18,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_bit_width,
     constant_to_term,
     try_create_parameter_variable,
+    try_create_solidity_variable,
 )
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -121,6 +122,10 @@ class ComparisonHandler(BaseOperationHandler):
             return tracked.term
 
         tracked = try_create_parameter_variable(self.solver, operand, operand_name, domain)
+        if tracked is not None:
+            return tracked.term
+
+        tracked = try_create_solidity_variable(self.solver, operand, operand_name, domain)
         if tracked is not None:
             return tracked.term
 
