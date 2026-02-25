@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint, Byte
 from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.variables.state_variable import StateVariable
 
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
@@ -164,6 +165,9 @@ def constrain_to_value(
         tracked_source = try_create_solidity_variable(solver, source, source_name, domain)
 
     if tracked_source is None:
+        tracked_source = try_create_state_variable(solver, source, source_name, domain)
+
+    if tracked_source is None:
         return
 
     source_term = match_width(solver, tracked_source.term, target.term)
@@ -234,6 +238,46 @@ def try_create_solidity_variable(
         The created TrackedSMTVariable, or None if not a Solidity built-in.
     """
     if not isinstance(operand, SolidityVariable):
+        return None
+
+    operand_type = operand.type
+    if not isinstance(operand_type, ElementaryType):
+        return None
+
+    bit_width = get_bit_width(operand_type)
+    signed = is_signed_type(operand_type)
+    sort = Sort(kind=SortKind.BITVEC, parameters=[bit_width])
+
+    tracked = TrackedSMTVariable.create(
+        solver, operand_name, sort, is_signed=signed, bit_width=bit_width
+    )
+    domain.state.set_variable(operand_name, tracked)
+    return tracked
+
+
+def try_create_state_variable(
+    solver: "SMTSolver",
+    operand: "RVALUE",
+    operand_name: str,
+    domain: "IntervalDomain",
+) -> TrackedSMTVariable | None:
+    """Create a tracked variable for a state variable if applicable.
+
+    Handles storage variables whose SSA version was created by writes
+    in other functions. Creates an unconstrained variable (full range
+    for its type), matching the semantics of unknown parameters.
+
+    Args:
+        solver: The SMT solver instance.
+        operand: The operand to check.
+        operand_name: The SSA name of the operand.
+        domain: The interval domain to add the variable to.
+
+    Returns:
+        The created TrackedSMTVariable, or None if not a state variable.
+    """
+    non_ssa = getattr(operand, "non_ssa_version", None)
+    if not isinstance(non_ssa, StateVariable):
         return None
 
     operand_type = operand.type
