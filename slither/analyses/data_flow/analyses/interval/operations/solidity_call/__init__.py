@@ -22,14 +22,6 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.sload
     SloadHandler,
     SLOAD_FUNCTIONS,
 )
-from slither.analyses.data_flow.analyses.interval.operations.solidity_call.mstore import (
-    MstoreHandler,
-    MSTORE_FUNCTIONS,
-)
-from slither.analyses.data_flow.analyses.interval.operations.solidity_call.mload import (
-    MloadHandler,
-    MLOAD_FUNCTIONS,
-)
 from slither.analyses.data_flow.analyses.interval.operations.solidity_call.revert import (
     RevertHandler,
     REVERT_FUNCTIONS,
@@ -43,6 +35,9 @@ from slither.analyses.data_flow.analyses.interval.operations.solidity_call.gasle
     GASLEFT_FUNCTIONS,
 )
 from slither.analyses.data_flow.logger import get_logger
+
+_MSTORE_FUNCTIONS = frozenset({"mstore(uint256,uint256)"})
+_MLOAD_FUNCTIONS = frozenset({"mload(uint256)"})
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -65,8 +60,6 @@ class SolidityCallHandler(BaseOperationHandler):
         self._require_assert = RequireAssertHandler(solver)
         self._sstore = SstoreHandler(solver)
         self._sload = SloadHandler(solver)
-        self._mstore = MstoreHandler(solver)
-        self._mload = MloadHandler(solver)
         self._revert = RevertHandler(solver)
         self._abi = AbiHandler(solver)
         self._gasleft = GasleftHandler(solver)
@@ -92,13 +85,11 @@ class SolidityCallHandler(BaseOperationHandler):
             self._sload.handle(operation, domain, node)
             return
 
-        if function_name in MSTORE_FUNCTIONS:
-            self._mstore.handle(operation, domain, node)
-            return
-
-        if function_name in MLOAD_FUNCTIONS:
-            self._mload.handle(operation, domain, node)
-            return
+        if function_name in _MSTORE_FUNCTIONS or function_name in _MLOAD_FUNCTIONS:
+            logger.error_and_raise(
+                "Assembly/Yul is not supported by interval analysis",
+                NotImplementedError,
+            )
 
         is_revert = (
             function_name in REVERT_FUNCTIONS
@@ -128,8 +119,6 @@ __all__ = [
     "RevertHandler",
     "SstoreHandler",
     "SloadHandler",
-    "MstoreHandler",
-    "MloadHandler",
     "AbiHandler",
     "GasleftHandler",
 ]
