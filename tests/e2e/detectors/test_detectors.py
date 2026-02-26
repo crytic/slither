@@ -1773,6 +1773,11 @@ ALL_TESTS = [
         "unindexed_event_address.sol",
         "0.8.22",
     ),
+    Test(
+        all_detectors.TransientDelete,
+        "transient_delete.sol",
+        "0.8.28",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
