@@ -470,11 +470,8 @@ class InterproceduralHandler(BaseOperationHandler):
 
         for node in function.nodes:
             for operation in node.irs_ssa:
-                try:
-                    handler = registry.get_handler(type(operation))
-                    handler.handle(operation, prefixed_domain, node)
-                except NotImplementedError:
-                    continue
+                handler = registry.get_handler(type(operation))
+                handler.handle(operation, prefixed_domain, node)
 
     def _extract_return_value(
         self,
