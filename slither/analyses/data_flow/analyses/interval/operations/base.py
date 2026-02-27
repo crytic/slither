@@ -19,6 +19,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     try_create_parameter_variable,
     try_create_solidity_variable,
     try_create_state_variable,
+    try_create_top_level_variable,
 )
 
 if TYPE_CHECKING:
@@ -97,6 +98,14 @@ class BaseOperationHandler(ABC):
             )
 
         tracked = try_create_state_variable(
+            self.solver, operand, operand_name, domain
+        )
+        if tracked is not None:
+            return match_width_to_int(
+                self.solver, tracked.term, target_width
+            )
+
+        tracked = try_create_top_level_variable(
             self.solver, operand, operand_name, domain
         )
         if tracked is not None:
