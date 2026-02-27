@@ -163,7 +163,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 def analyze_contract(path: str, config: AnalysisConfig) -> int:
     """Load and analyze a contract, displaying annotated source or JSON."""
-    from slither.analyses.data_flow.smt_solver import Z3Solver
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
     from slither.analyses.data_flow.smt_solver.telemetry import (
         enable_telemetry,
@@ -194,20 +193,17 @@ def analyze_contract(path: str, config: AnalysisConfig) -> int:
     if config.json_output:
         json_output = _analyze_contracts_json(contracts, config, cache)
         print(json.dumps(json_output, indent=2, sort_keys=True))
+        if config.function_name and not json_output:
+            return _report_empty_function(contracts, config)
         return 0
 
     # Annotated source output mode
-    for contract in contracts:
-        functions = _get_functions(contract, config.function_name)
-        if not functions:
-            continue
+    function_found, output_produced = _run_annotated_analysis(
+        contracts, config, cache
+    )
 
-        for function in functions:
-            solver = Z3Solver(use_optimizer=True)
-            annotated = analyze_function(function, solver, config, cache)
-            if annotated:
-                render_annotated_function(annotated)
-                console.print()
+    if config.function_name and not (function_found and output_produced):
+        return _report_empty_function(contracts, config)
 
     if config.show_telemetry:
         telemetry = get_telemetry()
@@ -220,6 +216,64 @@ def analyze_contract(path: str, config: AnalysisConfig) -> int:
         _export_metrics_to_json(config.json_metrics_file)
 
     return 0
+
+
+def _report_empty_function(
+    contracts: list["Contract"],
+    config: AnalysisConfig,
+) -> int:
+    """Report when -f targets a function with no analysis output."""
+    function_exists = any(
+        _get_functions(contract, config.function_name)
+        for contract in contracts
+    )
+
+    target = f"'{config.function_name}'"
+    if config.contract_name:
+        target += f" in contract '{config.contract_name}'"
+
+    if not function_exists:
+        console.print(f"[red]Function {target} not found[/red]")
+    else:
+        console.print(
+            f"[yellow]Function {target} produced no "
+            f"analysis output[/yellow]"
+        )
+    return 1
+
+
+def _run_annotated_analysis(
+    contracts: list["Contract"],
+    config: AnalysisConfig,
+    cache: "RangeQueryCache",
+) -> tuple[bool, bool]:
+    """Run annotated source analysis across contracts.
+
+    Returns:
+        Tuple of (function_found, output_produced).
+    """
+    from slither.analyses.data_flow.smt_solver import Z3Solver
+
+    function_found = False
+    output_produced = False
+
+    for contract in contracts:
+        functions = _get_functions(contract, config.function_name)
+        if not functions:
+            continue
+        function_found = True
+
+        for function in functions:
+            solver = Z3Solver(use_optimizer=True)
+            annotated = analyze_function(
+                function, solver, config, cache
+            )
+            if annotated:
+                output_produced = True
+                render_annotated_function(annotated)
+                console.print()
+
+    return function_found, output_produced
 
 
 def _export_metrics_to_json(filepath: str) -> None:
