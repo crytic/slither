@@ -277,7 +277,11 @@ def try_create_state_variable(
         The created TrackedSMTVariable, or None if not a state variable.
     """
     non_ssa = getattr(operand, "non_ssa_version", None)
-    if not isinstance(non_ssa, StateVariable):
+    if isinstance(non_ssa, StateVariable):
+        pass  # SSA-wrapped state variable
+    elif isinstance(operand, StateVariable):
+        pass  # Raw state variable (e.g., cross-library constant)
+    else:
         return None
 
     operand_type = operand.type
