@@ -11,7 +11,7 @@ in each analysis's own serialize module, not here.
 
 from __future__ import annotations
 
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
@@ -21,7 +21,7 @@ class SourceLocation(TypedDict):
     """JSON-serializable source location extracted from a Slither Node."""
 
     filename: str
-    line_number: Optional[int]
+    line_number: int | None
     starting_column: int
     ending_column: int
 
@@ -45,7 +45,7 @@ def serialize_source_location(node: Node) -> SourceLocation:
             ending_column=0,
         )
 
-    line_number: Optional[int] = None
+    line_number: int | None = None
     if mapping.lines:
         line_number = mapping.lines[0]
 
@@ -61,7 +61,7 @@ def serialize_source_location(node: Node) -> SourceLocation:
     )
 
 
-def serialize_variable_ref(variable: Optional[Variable]) -> Optional[str]:
+def serialize_variable_ref(variable: Variable | None) -> str | None:
     """Extract the name from a Variable, or None if absent.
 
     Args:

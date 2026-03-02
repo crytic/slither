@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Type
-
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.registry.abstract_analysis import (
     AbstractAnalysis,
@@ -11,30 +9,27 @@ from slither.analyses.data_flow.registry.abstract_analysis import (
 
 logger = get_logger()
 
+try:
+    from slither.analyses.data_flow.analyses.rounding.output.cli import (
+        RoundingCLI,
+    )
+    _ROUNDING_AVAILABLE = True
+except ImportError:
+    _ROUNDING_AVAILABLE = False
 
-def get_analysis_classes() -> List[Type[AbstractAnalysis]]:
-    """Return all registered analysis classes.
 
-    Import is deferred to avoid circular imports and to allow graceful
-    degradation when optional analysis modules are not installed.
-    """
-    classes: List[Type[AbstractAnalysis]] = []
-
-    try:
-        from slither.analyses.data_flow.analyses.rounding.output.cli import (
-            RoundingCLI,
-        )
+def get_analysis_classes() -> list[type[AbstractAnalysis]]:
+    """Return all registered analysis classes."""
+    classes: list[type[AbstractAnalysis]] = []
+    if _ROUNDING_AVAILABLE:
         classes.append(RoundingCLI)
-    except ImportError:
-        pass
-
     return classes
 
 
 def choose_analyses(
-    requested: List[str],
-    available: List[Type[AbstractAnalysis]],
-) -> List[Type[AbstractAnalysis]]:
+    requested: list[str],
+    available: list[type[AbstractAnalysis]],
+) -> list[type[AbstractAnalysis]]:
     """Select analyses by ARGUMENT name from the available list.
 
     Args:
@@ -48,15 +43,16 @@ def choose_analyses(
         SystemExit: If a requested analysis name is not found.
     """
     lookup = {cls.ARGUMENT: cls for cls in available}
-    selected: List[Type[AbstractAnalysis]] = []
+    selected: list[type[AbstractAnalysis]] = []
 
     for name in requested:
         analysis_class = lookup.get(name)
         if analysis_class is None:
             known = ", ".join(sorted(lookup.keys())) or "(none)"
             logger.error(
-                f"Unknown analysis: '{name}'. "
-                f"Available: {known}"
+                "Unknown analysis: '{name}'. Available: {known}",
+                name=name,
+                known=known,
             )
             raise SystemExit(1)
         selected.append(analysis_class)

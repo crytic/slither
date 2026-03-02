@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import abc
 import argparse
-from typing import ClassVar, Generic, List, TypeVar
+from typing import ClassVar, Generic, TypeVar
 
 from slither.core.slither_core import SlitherCore
 
-T = TypeVar("T")
-S = TypeVar("S")
+ResultType = TypeVar("ResultType")
+SummaryType = TypeVar("SummaryType")
 
 
-class AbstractAnalysis(abc.ABC, Generic[T, S]):
+class AbstractAnalysis(abc.ABC, Generic[ResultType, SummaryType]):
     """Data-flow analysis with CLI flags, display, and serialization.
 
     Type parameters:
-        T: Full serialized result type (CLI ``--json``).
-        S: Lightweight summary type (MCP ProjectFacts).
+        ResultType: Full serialized result type (CLI ``--json``).
+        SummaryType: Lightweight summary type (MCP ProjectFacts).
     """
 
     ARGUMENT: ClassVar[str]
@@ -35,7 +35,7 @@ class AbstractAnalysis(abc.ABC, Generic[T, S]):
     def from_args(
         cls,
         args: argparse.Namespace,
-    ) -> AbstractAnalysis[T, S]:
+    ) -> AbstractAnalysis[ResultType, SummaryType]:
         """Create instance from parsed CLI arguments."""
         ...
 
@@ -50,11 +50,11 @@ class AbstractAnalysis(abc.ABC, Generic[T, S]):
         ...
 
     @abc.abstractmethod
-    def serialize(self) -> List[T]:
+    def serialize(self) -> list[ResultType]:
         """Full results for CLI ``--json`` output."""
         ...
 
     @abc.abstractmethod
-    def summarize(self) -> List[S]:
+    def summarize(self) -> list[SummaryType]:
         """Lightweight summaries for MCP ProjectFacts."""
         ...
