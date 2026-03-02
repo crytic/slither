@@ -34,7 +34,12 @@ class Analysis(ABC):
         """Return the analysis direction (Forward or Backward)."""
 
     @abstractmethod
-    def transfer_function(self, node: Node, domain: Domain, operation: Operation) -> None:
+    def transfer_function(
+        self,
+        node: Node,
+        domain: Domain,
+        operation: Operation,
+    ) -> None:
         """Apply the transfer function for an IR operation.
 
         Args:
@@ -48,7 +53,10 @@ class Analysis(ABC):
         """Return the bottom value of the domain for initialization."""
 
     def apply_condition(
-        self, domain: Domain, condition: Condition, branch_taken: bool
+        self,
+        domain: Domain,
+        condition: Condition,
+        branch_taken: bool,
     ) -> Domain:
         """Apply branch-specific filtering based on a condition.
 
@@ -66,7 +74,10 @@ class Analysis(ABC):
         return domain
 
     def apply_widening(
-        self, current_state: Domain, previous_state: Domain, widening_thresholds: set[int]
+        self,
+        current_state: Domain,
+        previous_state: Domain,
+        widening_thresholds: set[int],
     ) -> Domain:
         """Apply widening to accelerate fixpoint convergence.
 
@@ -94,10 +105,10 @@ class Analysis(ABC):
         """
 
 
-A = TypeVar("A", bound=Analysis)
+AnalysisType = TypeVar("AnalysisType", bound=Analysis)
 
 
-class AnalysisState(Generic[A]):
+class AnalysisState(Generic[AnalysisType]):
     """Container for pre and post states at a CFG node.
 
     Attributes:

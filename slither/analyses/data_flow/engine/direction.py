@@ -4,14 +4,25 @@ The direction determines how the analysis traverses the CFG and
 propagates abstract states between nodes.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Deque, Dict, Optional
+from collections import deque
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
+    from slither.analyses.data_flow.engine.analysis import (
+        AnalysisType,
+        Analysis,
+        AnalysisState,
+    )
 
+from slither.analyses.data_flow.engine.domain import Domain
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations.condition import Condition
+
+logger = get_logger()
 
 
 class Direction(ABC):
@@ -29,13 +40,13 @@ class Direction(ABC):
     @abstractmethod
     def apply_transfer_function(
         self,
-        analysis: "Analysis",
-        current_state: "AnalysisState",
+        analysis: Analysis,
+        current_state: AnalysisState,
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, AnalysisState[AnalysisType]],
     ) -> None:
-        """Apply transfer function and propagate state to successors/predecessors.
+        """Apply transfer function and propagate state to successors.
 
         Args:
             analysis: The analysis providing the transfer function.
@@ -63,61 +74,36 @@ class Forward(Direction):
 
     def apply_transfer_function(
         self,
-        analysis: "Analysis",
-        current_state: "AnalysisState",
+        analysis: Analysis,
+        current_state: AnalysisState,
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, AnalysisState[AnalysisType]],
     ) -> None:
-        # Apply transfer function to current node
-        condition_op: Optional[Condition] = None
-        for operation in node.irs_ssa or [None]:
-            analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
-            # Track the Condition operation if present
-            if isinstance(operation, Condition):
-                condition_op = operation
-
-        # Set post state
+        condition_op = _apply_node_operations(analysis, current_state, node)
         global_state[node.node_id].post = current_state.pre
 
-        # Check if this is a conditional node with exactly 2 successors
         is_conditional = (
             node.type in (NodeType.IF, NodeType.IFLOOP)
             and condition_op is not None
             and len(node.sons) == 2
         )
 
-        # Propagate to successors with condition filtering if applicable
-        for i, successor in enumerate(node.sons):
+        for branch_index, successor in enumerate(node.sons):
             if not successor or successor.node_id not in global_state:
                 continue
 
+            propagated = _resolve_propagated_domain(
+                analysis, current_state.pre,
+                is_conditional, condition_op, branch_index,
+            )
             son_state = global_state[successor.node_id]
-
-            # Detect back edge: propagating to a loop header (IFLOOP)
-            is_back_edge = successor.type == NodeType.IFLOOP
-
-            if is_conditional:
-                # sons[0] is then branch, sons[1] is else branch
-                branch_taken = i == 0
-                filtered_domain = analysis.apply_condition(
-                    current_state.pre, condition_op, branch_taken
+            if successor.type == NodeType.IFLOOP:
+                propagated = analysis.apply_widening(
+                    propagated, son_state.pre, set()
                 )
-                # Widen on back edges before joining
-                if is_back_edge:
-                    filtered_domain = analysis.apply_widening(
-                        filtered_domain, son_state.pre, set()
-                    )
-                changed = son_state.pre.join(filtered_domain)
-            else:
-                state_to_propagate = current_state.pre
-                # Widen on back edges before joining
-                if is_back_edge:
-                    state_to_propagate = analysis.apply_widening(
-                        state_to_propagate, son_state.pre, set()
-                    )
-                changed = son_state.pre.join(state_to_propagate)
 
+            changed = son_state.pre.join(propagated)
             if changed and successor not in worklist:
                 worklist.append(successor)
 
@@ -125,8 +111,8 @@ class Forward(Direction):
 class Backward(Direction):
     """Backward data flow analysis direction.
 
-    Propagates information from exit to entry, following reverse CFG edges.
-    Used for analyses like liveness and very busy expressions.
+    Propagates information from exit to entry, following reverse CFG
+    edges. Used for analyses like liveness and very busy expressions.
     """
 
     @property
@@ -136,11 +122,44 @@ class Backward(Direction):
 
     def apply_transfer_function(
         self,
-        analysis: "Analysis",
-        current_state: "AnalysisState",
+        analysis: Analysis,
+        current_state: AnalysisState,
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, AnalysisState[AnalysisType]],
     ) -> None:
-        """Apply transfer function for backward analysis (not yet implemented)."""
-        raise NotImplementedError("Backward transfer function hasn't been developed yet")
+        """Apply transfer function for backward analysis."""
+        logger.error_and_raise(
+            "Backward transfer function hasn't been developed yet",
+            NotImplementedError,
+        )
+
+
+def _apply_node_operations(
+    analysis: Analysis,
+    current_state: AnalysisState,
+    node: Node,
+) -> Condition | None:
+    """Run transfer function on each IR op; return Condition if present."""
+    condition_op: Condition | None = None
+    for operation in node.irs_ssa or [None]:
+        analysis.transfer_function(
+            node=node, domain=current_state.pre, operation=operation,
+        )
+        if isinstance(operation, Condition):
+            condition_op = operation
+    return condition_op
+
+
+def _resolve_propagated_domain(
+    analysis: Analysis,
+    pre_domain: Domain,
+    is_conditional: bool,
+    condition_op: Condition | None,
+    branch_index: int,
+) -> Domain:
+    """Compute the domain to propagate to a successor node."""
+    if not is_conditional:
+        return pre_domain
+    branch_taken = branch_index == 0
+    return analysis.apply_condition(pre_domain, condition_op, branch_taken)

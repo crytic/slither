@@ -15,10 +15,12 @@ class Domain(ABC):
     intervals, signs, or pointer analysis.
     """
 
+    @classmethod
     @abstractmethod
     def top(cls) -> "Domain":
         """Return the top element of the domain (least informative)."""
 
+    @classmethod
     @abstractmethod
     def bottom(cls) -> "Domain":
         """Return the bottom element of the domain (most informative)."""
