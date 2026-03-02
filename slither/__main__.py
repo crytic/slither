@@ -861,7 +861,11 @@ def main_impl(
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
+    # Skip detectors when --analyze is the only mode requested
+    if args.analyses_to_run and args.detectors_to_run == "all":
+        detector_classes = []
+    else:
+        detector_classes = choose_detectors(args, all_detector_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
