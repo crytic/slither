@@ -203,6 +203,30 @@ provenance chain.
 
 ## Tests
 
+Tests live in `tests/e2e/data_flow/rounding/` and use snapshot testing
+(`pytest-insta`). Each test contract in `contracts/` is analyzed end-to-end
+via `RoundingCLI`, and the results are compared against JSON snapshots in
+`snapshots/`.
+
 ```bash
+# Run all rounding tests
 pytest tests/e2e/data_flow/rounding/ -v
+
+# Run a single contract
+pytest tests/e2e/data_flow/rounding/ -k "Division" -v
+
+# Update snapshots after intentional changes
+pytest tests/e2e/data_flow/rounding/ --snapshot-update
 ```
+
+To run the analysis directly on a test contract (useful for seeing Rich
+output or debugging):
+
+```bash
+uv run slither tests/e2e/data_flow/rounding/contracts/Test_Multiplication.sol \
+  --analyze rounding
+```
+
+Test contracts cover: addition, subtraction, multiplication, division,
+conditional branching, interprocedural analysis, tuple returns, library
+calls, inline annotations, and name inference.
