@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from rich.console import Console
 from rich.text import Text
@@ -18,24 +17,6 @@ from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedLine,
     LineAnnotation,
 )
-from slither.core.declarations import Function
-
-try:
-    import dspy
-
-    from slither.analyses.data_flow.analyses.rounding.explain.explainer import (
-        TraceExplainer,
-        extract_source_for_path,
-        serialize_trace_path,
-        split_trace_paths,
-    )
-    from slither.analyses.data_flow.analyses.rounding.explain.signature import (
-        TraceAnalysis,
-    )
-
-    EXPLAIN_AVAILABLE = True
-except ImportError:
-    EXPLAIN_AVAILABLE = False
 
 console = Console()
 
@@ -87,8 +68,6 @@ def display_annotated_source(
 def display_trace_section(
     annotated: AnnotatedFunction,
     trace_tag: RoundingTag,
-    explainer: Optional[TraceExplainer] = None,
-    function_lookup: Optional[dict[str, Function]] = None,
 ) -> None:
     """Display trace section for variables with the traced tag."""
     traced = _collect_traced_variables(annotated, trace_tag)
@@ -100,24 +79,11 @@ def display_trace_section(
     console.print(f"[bold cyan]TRACE: {trace_tag.name} tag provenance[/bold cyan]")
     console.print("=" * 80)
 
-    history_start = _get_lm_history_length() if explainer is not None else 0
-
     for variable_name, trace in traced:
         console.print()
         location = f"(line {trace.line_number})" if trace.line_number else ""
         console.print(f"[bold]{variable_name}[/bold] {location}:")
         _display_trace_tree(trace, indent=1, filter_tag=trace_tag)
-        if explainer is not None and function_lookup is not None:
-            _display_trace_conditions(
-                trace,
-                trace_tag,
-                function_lookup,
-                annotated,
-                explainer,
-            )
-
-    if explainer is not None:
-        _display_token_usage(history_start)
 
 
 def display_summary_table(
@@ -163,10 +129,10 @@ def _display_source_line(
     """Display a single source line with line number."""
     line_num_str = str(annotated_line.line_number).rjust(line_width)
     if annotated_line.is_entry:
-        entry_marker = "[bold magenta]\u2192[/bold magenta]"
+        entry_marker = "[bold magenta]→[/bold magenta]"
     else:
         entry_marker = " "
-    console.print(f"{line_num_str} {entry_marker} \u2502 {annotated_line.source_text}")
+    console.print(f"{line_num_str} {entry_marker} │ {annotated_line.source_text}")
 
 
 def _display_annotations(
@@ -197,11 +163,11 @@ def _render_single_annotation(
     note_text = f" ({annotation.note})" if annotation.note else ""
 
     line = Text()
-    line.append(f"{padding}   \u2502     \u2514\u2500\u2500 ", style="dim")
+    line.append(f"{padding}   │     └── ", style="dim")
     if prefix:
         line.append(f"{prefix} ", style="bold")
     line.append(var_display, style="cyan")
-    line.append(" \u2192 ")
+    line.append(" → ")
     line.append(format_tag_inline(annotation.tags))
     if note_text:
         line.append(note_text, style="dim")
@@ -225,7 +191,7 @@ def _display_return_summary(
         filtered_tags = _filter_neutral(tags)
         item = Text()
         item.append(var_name, style="cyan")
-        item.append(" \u2192 ")
+        item.append(" → ")
         item.append(format_tag_inline(filtered_tags))
         items.append(item)
 
@@ -243,13 +209,13 @@ def _display_issues(annotated: AnnotatedFunction) -> None:
         console.print()
         console.print("[bold red]Rounding Inconsistencies:[/bold red]")
         for inconsistency in annotated.inconsistencies:
-            console.print(f"  [red]\u2717[/red] {inconsistency.message}")
+            console.print(f"  [red]✗[/red] {inconsistency.message}")
 
     if annotated.annotation_mismatches:
         console.print()
         console.print("[bold red]Annotation Mismatches:[/bold red]")
         for mismatch in annotated.annotation_mismatches:
-            console.print(f"  [red]\u2717[/red] {mismatch.message}")
+            console.print(f"  [red]✗[/red] {mismatch.message}")
 
 
 def _collect_traced_variables(
@@ -291,88 +257,12 @@ def _display_trace_tree(
     filter_tag: RoundingTag,
 ) -> None:
     """Display a trace node and its children as a tree."""
-    prefix = "  " * indent + "\u2514\u2500\u2500 "
+    prefix = "  " * indent + "└── "
     console.print(f"{prefix}{trace.source}")
 
     for child in trace.children:
         if _trace_contains_tag(child, filter_tag):
             _display_trace_tree(child, indent + 1, filter_tag)
-
-
-def _get_lm_history_length() -> int:
-    """Return the current length of the DSPy LM call history."""
-    if not EXPLAIN_AVAILABLE:
-        return 0
-    language_model = dspy.settings.lm
-    if language_model is None:
-        return 0
-    return len(language_model.history)
-
-
-def _display_token_usage(history_start: int) -> None:
-    """Display token usage for LM calls made since history_start."""
-    if not EXPLAIN_AVAILABLE:
-        return
-    language_model = dspy.settings.lm
-    if language_model is None:
-        return
-    new_entries = language_model.history[history_start:]
-    if not new_entries:
-        return
-    total_input = 0
-    total_output = 0
-    for entry in new_entries:
-        usage = entry.get("usage", {})
-        total_input += usage.get("prompt_tokens", 0)
-        total_output += usage.get("completion_tokens", 0)
-    cost = sum(entry.get("cost", 0.0) or 0.0 for entry in new_entries)
-    console.print()
-    parts = [f"Tokens: {total_input} in / {total_output} out"]
-    if cost > 0:
-        parts.append(f"${cost:.4f}")
-    console.print(f"[dim]{' | '.join(parts)}[/dim]")
-
-
-def _display_trace_conditions(
-    trace: TraceNode,
-    trace_tag: RoundingTag,
-    function_lookup: dict[str, Function],
-    annotated: AnnotatedFunction,
-    explainer: TraceExplainer,
-) -> None:
-    """Display LM-identified conditions for each trace path."""
-    paths = split_trace_paths(trace, trace_tag)
-    contract_context = f"{annotated.contract_name}.{annotated.function_name}"
-    for path_index, path in enumerate(paths):
-        trace_text = serialize_trace_path(path)
-        source_text = extract_source_for_path(path, function_lookup)
-        analysis: TraceAnalysis = explainer(
-            trace_chain=trace_text,
-            traced_tag=trace_tag.name,
-            solidity_source=source_text,
-            contract_context=contract_context,
-        )
-        leaf_name = path[-1].function_name
-        console.print()
-        console.print(
-            f"  [bold green]Path {path_index + 1} (\u2192 {leaf_name}):[/bold green]"
-        )
-        _render_trace_steps(analysis)
-
-
-def _render_trace_steps(analysis: TraceAnalysis) -> None:
-    """Render the step-by-step trace flow."""
-    if not analysis.steps:
-        return
-    console.print("  [bold green]Flow:[/bold green]")
-    for index, step in enumerate(analysis.steps):
-        step_number = index + 1
-        console.print(f"  [bold]{step_number}. {step.function_name}[/bold]")
-        console.print(f"     [dim]when:[/dim] {step.condition}")
-        console.print(f"     [dim]in:[/dim]   {step.inputs}")
-        console.print(f"     [dim]op:[/dim]   {step.operation}")
-        if step.next_call != "returns":
-            console.print(f"     [dim]\u2192[/dim]     {step.next_call}")
 
 
 def _filter_neutral(tags: TagSet) -> TagSet:

@@ -10,27 +10,21 @@ Based on the rules from [roundme](https://github.com/crytic/roundme).
 ## Quick Start
 
 ```bash
-# Run as a Slither detector
-slither project/ --detect rounding-inconsistency
+# Run as a data-flow analysis
+slither project/ --analyze rounding
 ```
 
-The detector analyzes every implemented function in every contract, prints
-annotated source with per-variable tags, and reports inconsistencies as
-findings.
+The analysis runs on every implemented function in every contract, prints
+annotated source with per-variable tags (via Rich), and reports
+inconsistencies. Use `--json -` to get structured output instead.
 
-### Configuration
-
-Edit the class-level flags in
-`slither/detectors/rounding_df/rounding_inconsistency.py`:
+### CLI Flags
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `TRACE_TAG` | `None` | Set to `"UP"`, `"DOWN"`, or `"UNKNOWN"` to show provenance chains |
-| `EXPLAIN` | `False` | Use an LM (via DSPy) to explain trace chains |
-| `EXPLAIN_MODEL` | `"anthropic/claude-sonnet-4-5-20250929"` | LM model identifier |
-| `SAFE_LIBS` | `None` | `"__builtin__"` or path to a JSON file of known library tags |
-| `SHOW_ALL` | `False` | Show NEUTRAL parameter annotations at entry points |
-| `TARGET_FUNCTIONS` | `None` | List of function names to analyze, e.g. `["onSwap", "withdraw"]` |
+| `--rounding-trace UP\|DOWN\|UNKNOWN` | off | Show tag provenance traces for this direction |
+| `--rounding-safe-libs [path]` | off | Use known library tags (`__builtin__` or a JSON file) |
+| `--rounding-show-all` | off | Show annotations for all variables including params |
 
 ## Tags
 
@@ -87,7 +81,7 @@ callee's return tag using these sources, highest priority first:
 ## How It Runs
 
 ```
-RoundingInconsistency._detect()
+RoundingCLI.run(slither)
   for each contract, for each function:
     annotate.analyze_function(function)
       1. Create RoundingAnalysis (with handler registry)
@@ -104,8 +98,11 @@ RoundingInconsistency._detect()
             add changed successors to worklist
       4. engine.result() → Dict[Node, AnalysisState]
       5. Build AnnotatedFunction from node results
-    Display annotated source (Rich console)
-    Collect RoundingFindings → Slither Output objects
+      6. Extract variable traces from node results
+    RoundingCLI.display() / .serialize() / .summarize()
+      display()   → Rich console output + trace section
+      serialize() → full JSON for --json output
+      summarize() → lightweight summaries for MCP caching
 ```
 
 ## Interprocedural Analysis
@@ -173,34 +170,36 @@ Extend with a JSON file:
 }
 ```
 
-Pass via `SAFE_LIBS = "__builtin__"` (built-ins only) or
-`SAFE_LIBS = "path/to/tags.json"` (user file merged over built-ins).
+Pass via `--rounding-safe-libs` (built-ins only) or
+`--rounding-safe-libs path/to/tags.json` (user file merged over built-ins).
 
-## LM Trace Explanation
+## Output Formats
 
-When `EXPLAIN = True` and `TRACE_TAG` is set, the analysis uses DSPy to have
-an LM explain each provenance chain.
+`RoundingCLI` exposes three output methods, each serving a different consumer:
 
-```
-configure_dspy(model)              # reads .env for API key
-TraceExplainer()                   # creates dspy.Predict(AnalyzeRoundingTrace)
-for each traced variable:
-    split_trace_paths(trace, tag)  # tree → list of linear root-to-leaf paths
-    for each path:
-        serialize_trace_path(path)       # path → text for LM
-        extract_source_for_path(path)    # Solidity source per function
-        explainer(...)                   # DSPy call → TraceAnalysis (Pydantic)
-        render trace steps               # Rich console output
-```
+### `display()` — Rich console (default)
 
-Each `TraceStep` in the output contains:
-- `condition` -- branch condition to reach this step
-- `inputs` -- what values flow in
-- `operation` -- the arithmetic producing the direction
-- `next_call` -- which function is called next
+Prints annotated source with inline tags, return summaries, inconsistencies,
+and optional provenance traces (`--rounding-trace`). For human consumption.
 
-Requires `pip install slither-analyzer[explain]` and an
-`ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) in `.env` or the environment.
+### `serialize()` → `List[RoundingResult]` — CLI `--json`
+
+Full serialization including annotated source lines, per-line annotations,
+complete trace trees (`TraceNodeDict`, recursive up to depth 10), and findings
+with line/variable references. Used by `--json -` for downstream tooling.
+
+### `summarize()` → `List[RoundingSummary]` — MCP
+
+Lightweight summaries for slither-mcp's `ProjectFacts` cache. Drops source
+text, line annotations, and trace trees. Keeps only:
+
+- `variable_tags` — exit-state tags per variable (NEUTRAL-only vars omitted)
+- `return_tags` — function return directions
+- `inconsistencies` / `annotation_mismatches` — message strings only
+
+MCP caches these summaries cheaply, then calls `get_traces(function_name,
+variable_name)` on demand when a user drills into a specific variable's
+provenance chain.
 
 ## Tests
 
