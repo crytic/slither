@@ -24,6 +24,7 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     lookup_inline_round_tag,
     lookup_known_tag,
 )
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
@@ -32,6 +33,8 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.variables.tuple import TupleVariable
+
+_logger = get_logger()
 
 
 class InterproceduralHandler(BaseOperationHandler):
@@ -54,6 +57,7 @@ class InterproceduralHandler(BaseOperationHandler):
     ) -> None:
         """Process call with name-based inference, falling back to body analysis."""
         if not operation.lvalue:
+            _logger.debug("Call has no lvalue, skipping: {op}", op=operation)
             return
 
         function_name = self._get_function_name(operation)
@@ -84,9 +88,17 @@ class InterproceduralHandler(BaseOperationHandler):
         """
         called_function = self._get_called_function(operation)
         if called_function is None or not called_function.nodes:
+            _logger.debug(
+                "Tuple call {name}: callee unresolvable or has no body",
+                name=function_name,
+            )
             return
 
         if called_function in self._call_stack:
+            _logger.debug(
+                "Tuple call {name}: recursion guard, skipping",
+                name=function_name,
+            )
             return
 
         self._call_stack.add(called_function)
@@ -106,7 +118,11 @@ class InterproceduralHandler(BaseOperationHandler):
             self._call_stack.discard(called_function)
 
         if not per_index:
-            return
+            _logger.error_and_raise(
+                "Tuple call {name}: analyzed body but found no return tags",
+                RuntimeError,
+                name=function_name,
+            )
 
         line_number = node.source_mapping.lines[0] if node.source_mapping else None
         self._apply_tuple_tags_to_unpacks(
@@ -138,7 +154,14 @@ class InterproceduralHandler(BaseOperationHandler):
                 continue
             index = other_operation.index
             if index >= len(per_index):
-                continue
+                _logger.error_and_raise(
+                    "Tuple call {name}: unpack index {idx} exceeds "
+                    "return count {count}",
+                    RuntimeError,
+                    name=function_name,
+                    idx=index,
+                    count=len(per_index),
+                )
             tags, traces = per_index[index]
             trace = TraceNode(
                 function_name=function_name,
@@ -238,6 +261,11 @@ class InterproceduralHandler(BaseOperationHandler):
 
         inline_tag = self._lookup_inline_annotation(node, function_name)
         if inline_tag is not None:
+            _logger.debug(
+                "{name}: resolved via inline annotation → {tag}",
+                name=function_name,
+                tag=inline_tag.name,
+            )
             inline_tags = frozenset({inline_tag})
             trace = TraceNode(
                 function_name=function_name,
@@ -249,6 +277,11 @@ class InterproceduralHandler(BaseOperationHandler):
 
         tag = infer_tag_from_name(function_name)
         if tag != RoundingTag.NEUTRAL:
+            _logger.debug(
+                "{name}: resolved via name inference → {tag}",
+                name=function_name,
+                tag=tag.name,
+            )
             tags = frozenset({tag})
             trace = TraceNode(
                 function_name=function_name,
@@ -260,12 +293,21 @@ class InterproceduralHandler(BaseOperationHandler):
 
         called_function = self._get_called_function(operation)
         if called_function is None:
+            _logger.debug(
+                "{name}: callee unresolvable, defaulting to NEUTRAL",
+                name=function_name,
+            )
             return frozenset({tag}), None
 
         known = _lookup_known_function_tag(
             called_function, function_name, self.analysis.known_tags
         )
         if known is not None:
+            _logger.debug(
+                "{name}: resolved via known library → {tag}",
+                name=function_name,
+                tag=known.name,
+            )
             known_tags = frozenset({known})
             trace = TraceNode(
                 function_name=function_name,
@@ -279,6 +321,11 @@ class InterproceduralHandler(BaseOperationHandler):
             called_function, operation.arguments, domain
         )
         if body_tags:
+            _logger.debug(
+                "{name}: resolved via body analysis → {tags}",
+                name=function_name,
+                tags=_format_tagset(body_tags),
+            )
             trace = TraceNode(
                 function_name=function_name,
                 line_number=line_number,
@@ -287,6 +334,10 @@ class InterproceduralHandler(BaseOperationHandler):
                 children=child_traces,
             )
             return body_tags, trace
+        _logger.debug(
+            "{name}: all inference steps exhausted, defaulting to NEUTRAL",
+            name=function_name,
+        )
         return frozenset({tag}), None
 
     @abstractmethod
@@ -309,9 +360,17 @@ class InterproceduralHandler(BaseOperationHandler):
         and child_traces contains provenance from nested calls.
         """
         if function in self._call_stack:
+            _logger.debug(
+                "Recursion guard: {name} already in call stack",
+                name=function.name,
+            )
             return frozenset({RoundingTag.UNKNOWN}), []
 
         if not function.nodes:
+            _logger.debug(
+                "Function {name} has no body nodes, skipping analysis",
+                name=function.name,
+            )
             return None, []
 
         self._call_stack.add(function)

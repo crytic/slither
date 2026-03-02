@@ -89,8 +89,17 @@ class RoundingAnalysis(Analysis):
             return
         function = node.function
         if function is None:
+            self._logger.debug(
+                "Entry node {nid} has no function, skipping init",
+                nid=node.node_id,
+            )
             return
         contract = function.contract
+        if contract is None:
+            self._logger.debug(
+                "Function {name} has no contract, skipping state var init",
+                name=function.name,
+            )
         if contract is not None:
             for state_variable in contract.state_variables:
                 domain.state.set_tag(state_variable, RoundingTag.NEUTRAL)

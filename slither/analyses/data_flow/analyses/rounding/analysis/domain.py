@@ -7,6 +7,9 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingTag,
 )
 from slither.analyses.data_flow.engine.domain import Domain
+from slither.analyses.data_flow.logger import get_logger
+
+_logger = get_logger()
 
 
 class DomainVariant(Enum):
@@ -74,6 +77,12 @@ class RoundingDomain(Domain):
             if len(merged) > 1 and RoundingTag.NEUTRAL in merged:
                 merged = merged - {RoundingTag.NEUTRAL}
             if merged != self_tags:
+                _logger.debug(
+                    "Merge changed {var}: {old} → {new}",
+                    var=variable.name,
+                    old=sorted(tag.name for tag in self_tags),
+                    new=sorted(tag.name for tag in merged),
+                )
                 self.state.set_tag(variable, merged)
                 changed = True
 

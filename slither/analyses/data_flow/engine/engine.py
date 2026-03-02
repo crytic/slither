@@ -132,6 +132,11 @@ class Engine(Generic[AnalysisType]):
             logger.info(
                 "Starting analysis of {name}", name=self.function.name,
             )
+        else:
+            logger.warning(
+                "No entry point for {name}, skipping analysis",
+                name=self.function.name,
+            )
         return worklist
 
     def _exceeded_iteration_limit(self, worklist_size: int) -> bool:

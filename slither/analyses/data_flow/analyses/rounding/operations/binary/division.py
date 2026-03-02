@@ -8,7 +8,7 @@ truncation bias overwhelms a single operand's rounding signal.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
 from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
@@ -19,12 +19,15 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     combine_tags,
     invert_tag,
 )
+from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
+
+_logger = get_logger()
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
@@ -200,25 +203,31 @@ class DivisionHandler(BinaryOperationHandler):
 
     def _is_ceiling_division_pattern(
         self,
-        dividend: Union[RVALUE, Function],
-        divisor: Union[RVALUE, Function],
+        dividend: RVALUE | Function,
+        divisor: RVALUE | Function,
         domain: "RoundingDomain",
     ) -> bool:
         """Detect the ceiling division pattern: (a + b - 1) / b."""
         if not isinstance(dividend, Variable):
+            _logger.debug("Ceiling check: dividend is not a Variable")
             return False
 
         addition_result = self._check_subtraction_minus_one(dividend, domain)
         if addition_result is None:
+            _logger.debug("Ceiling check: dividend is not (X - 1)")
             return False
 
-        return self._check_addition_includes_divisor(
+        if not self._check_addition_includes_divisor(
             addition_result, divisor, domain
-        )
+        ):
+            _logger.debug("Ceiling check: addition does not include divisor")
+            return False
+
+        return True
 
     def _check_subtraction_minus_one(
         self, variable: Variable, domain: "RoundingDomain"
-    ) -> Optional[Variable]:
+    ) -> Variable | None:
         """Check if variable = X - 1 and return X, or None."""
         subtraction_operation = domain.state.get_producer(variable)
         if not isinstance(subtraction_operation, Binary):
@@ -240,12 +249,16 @@ class DivisionHandler(BinaryOperationHandler):
         try:
             return int(constant.value) == 1
         except (ValueError, TypeError, AttributeError):
+            _logger.debug(
+                "Could not parse constant as int: {val}",
+                val=constant.value,
+            )
             return False
 
     def _check_addition_includes_divisor(
         self,
         addition_result: Variable,
-        divisor: Union[RVALUE, Function],
+        divisor: RVALUE | Function,
         domain: "RoundingDomain",
     ) -> bool:
         """Check if addition_result was produced by addition including divisor."""
@@ -263,7 +276,7 @@ class DivisionHandler(BinaryOperationHandler):
 
         return divisor_name == left_name or divisor_name == right_name
 
-    def _get_operand_name(self, operand: Union[RVALUE, Function]) -> str:
+    def _get_operand_name(self, operand: RVALUE | Function) -> str:
         """Get the name of an operand."""
         if isinstance(operand, Variable):
             return operand.name
@@ -275,7 +288,7 @@ class DivisionHandler(BinaryOperationHandler):
         denominator_tag: RoundingTag,
         operation: Binary,
         node: Node,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Check numerator/denominator consistency for division operations."""
         if denominator_tag == RoundingTag.NEUTRAL:
             return None

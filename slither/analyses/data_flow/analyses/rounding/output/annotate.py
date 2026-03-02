@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
 
 from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
     RoundingAnalysis,
 )
+from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
@@ -41,11 +41,13 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.utils.utils import RVALUE
 
+_logger = get_logger()
+
 
 def analyze_function(
     function: FunctionContract,
     show_all: bool = False,
-    known_tags: Optional[KnownLibraryTags] = None,
+    known_tags: KnownLibraryTags | None = None,
 ) -> AnnotatedFunction:
     """Analyze a function and build annotated source view."""
     annotated = _create_annotated_function(function)
@@ -111,7 +113,7 @@ def extract_variable_traces(
     return {name: trace for name, trace in seen_traces.values()}
 
 
-def _get_lvalue(operation: Operation) -> Optional[Variable]:
+def _get_lvalue(operation: Operation) -> Variable | None:
     """Get lvalue from an operation if it produces a Variable."""
     if not isinstance(operation, OperationWithLValue):
         return None
@@ -125,7 +127,7 @@ def _get_lvalue(operation: Operation) -> Optional[Variable]:
 
 
 def _get_variable_name(
-    variable: Optional[Union[RVALUE, Variable]],
+    variable: RVALUE | Variable | None,
 ) -> str:
     """Get variable name, or string representation."""
     if isinstance(variable, Variable):
@@ -135,7 +137,7 @@ def _get_variable_name(
 
 def _get_tags(
     domain: RoundingDomain,
-    variable: Optional[Union[RVALUE, Variable]],
+    variable: RVALUE | Variable | None,
 ) -> TagSet:
     """Get rounding tags for a variable."""
     if isinstance(variable, Variable):
@@ -147,7 +149,7 @@ def _get_unknown_reason(
     domain: RoundingDomain,
     variable: Variable,
     tags: TagSet,
-) -> Optional[str]:
+) -> str | None:
     """Get unknown reason if tags include UNKNOWN."""
     if RoundingTag.UNKNOWN in tags:
         return domain.state.get_unknown_reason(variable)
@@ -168,8 +170,12 @@ def _read_source_lines(
                     lines[line_index] = line.rstrip("\n\r")
                 if line_index > end_line:
                     break
-    except (OSError, UnicodeDecodeError):
-        pass
+    except (OSError, UnicodeDecodeError) as exc:
+        _logger.warning(
+            "Could not read source file {filename}: {exc}",
+            filename=filename,
+            exc=exc,
+        )
     return lines
 
 
@@ -271,7 +277,7 @@ def _process_node_results(
 
 def _maybe_mark_entry(
     node: Node,
-    line_num: Optional[int],
+    line_num: int | None,
     domain: RoundingDomain,
     function: FunctionContract,
     annotated: AnnotatedFunction,
@@ -298,15 +304,15 @@ def _maybe_mark_entry(
 
 
 def _process_operation(
-    operation: Union[
-        Binary,
-        Assignment,
-        InternalCall,
-        HighLevelCall,
-        LibraryCall,
-        Return,
-        Unpack,
-    ],
+    operation: (
+        Binary
+        | Assignment
+        | InternalCall
+        | HighLevelCall
+        | LibraryCall
+        | Return
+        | Unpack
+    ),
     domain: RoundingDomain,
     annotated_line: AnnotatedLine,
     annotated: AnnotatedFunction,
@@ -442,7 +448,7 @@ def _process_unpack(
 
 
 def _process_call(
-    operation: Union[InternalCall, HighLevelCall, LibraryCall],
+    operation: InternalCall | HighLevelCall | LibraryCall,
     domain: RoundingDomain,
     annotated_line: AnnotatedLine,
 ) -> None:
@@ -484,7 +490,7 @@ def _process_return(
 
 
 def _get_call_function_name(
-    operation: Union[InternalCall, HighLevelCall, LibraryCall],
+    operation: InternalCall | HighLevelCall | LibraryCall,
 ) -> str:
     """Extract function name from call operation."""
     if isinstance(operation, InternalCall):

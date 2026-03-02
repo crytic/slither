@@ -33,6 +33,22 @@ if TYPE_CHECKING:
         RoundingDomain,
     )
 
+_ROUNDING_IRRELEVANT_OPS: frozenset[BinaryType] = frozenset({
+    BinaryType.LEFT_SHIFT,
+    BinaryType.RIGHT_SHIFT,
+    BinaryType.AND,
+    BinaryType.CARET,
+    BinaryType.OR,
+    BinaryType.LESS,
+    BinaryType.GREATER,
+    BinaryType.LESS_EQUAL,
+    BinaryType.GREATER_EQUAL,
+    BinaryType.EQUAL,
+    BinaryType.NOT_EQUAL,
+    BinaryType.ANDAND,
+    BinaryType.OROR,
+})
+
 
 class BinaryHandler(BaseOperationHandler):
     """Handler for binary operations - dispatches to type-specific handlers."""
@@ -67,8 +83,15 @@ class BinaryHandler(BaseOperationHandler):
         handler = self._handlers.get(operation_type)
         if handler is not None:
             handler.handle(operation, domain, node, left_tag, right_tag)
-        elif operation_type == BinaryType.POWER:
-            self.analysis._logger.warning("Rounding for POWER is not implemented yet")
+            return
+
+        if operation_type in _ROUNDING_IRRELEVANT_OPS:
+            return
+
+        self.analysis._logger.warning(
+            "No rounding handler for binary op {op}",
+            op=operation_type.name,
+        )
 
 
 # Import here to avoid circular import at module level
