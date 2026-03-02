@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 
@@ -44,6 +45,45 @@ _TAG_MAP: dict[str, RoundingTag] = {
 }
 
 
+@dataclass(frozen=True, slots=True)
+class Target:
+    """A filter target: contract name with optional function name."""
+
+    contract: str
+    function: str | None
+
+
+def _parse_targets(raw: str | None) -> list[Target] | None:
+    """Parse comma-separated 'Contract' or 'Contract.func' targets."""
+    if raw is None:
+        return None
+    targets: list[Target] = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "." in part:
+            contract, function = part.split(".", 1)
+            targets.append(Target(contract, function))
+        else:
+            targets.append(Target(part, None))
+    return targets or None
+
+
+def _matches_target(
+    contract_name: str,
+    function_name: str,
+    targets: list[Target],
+) -> bool:
+    """Check if a contract/function pair matches any target filter."""
+    for target in targets:
+        if target.contract != contract_name:
+            continue
+        if target.function is None or target.function == function_name:
+            return True
+    return False
+
+
 class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
     """Rounding direction analysis with trace provenance.
 
@@ -61,10 +101,12 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
         trace_tag: RoundingTag | None = None,
         known_tags: KnownLibraryTags | None = None,
         show_all: bool = False,
+        targets: list[Target] | None = None,
     ) -> None:
         self.trace_tag = trace_tag
         self.known_tags = known_tags
         self.show_all = show_all
+        self.targets = targets
         self.results: list[AnnotatedFunction] = []
 
     @classmethod
@@ -92,6 +134,14 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
             default=False,
             help="Show annotations for all variables (including params)",
         )
+        group.add_argument(
+            "--rounding-target",
+            nargs="?",
+            default=None,
+            help=(
+                "Comma-separated Contract or Contract.function targets"
+            ),
+        )
 
     @classmethod
     def from_args(
@@ -101,17 +151,23 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
         """Create instance from parsed CLI arguments."""
         trace_tag = _TAG_MAP.get(args.rounding_trace or "")
         known_tags = _load_safe_libs_from_arg(args.rounding_safe_libs)
+        targets = _parse_targets(args.rounding_target)
         return cls(
             trace_tag=trace_tag,
             known_tags=known_tags,
             show_all=args.rounding_show_all,
+            targets=targets,
         )
 
     def run(self, slither: SlitherCore) -> None:
-        """Run rounding analysis on all implemented functions."""
+        """Run rounding analysis on implemented functions."""
         for contract in slither.contracts:
             for func in contract.functions_and_modifiers_declared:
                 if not func.is_implemented:
+                    continue
+                if self.targets is not None and not _matches_target(
+                    contract.name, func.name, self.targets
+                ):
                     continue
                 annotated = analyze_function(
                     func, self.show_all, self.known_tags
