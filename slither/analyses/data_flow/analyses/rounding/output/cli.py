@@ -186,14 +186,14 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
     def serialize(self) -> list[RoundingResult]:
         """Full results for CLI ``--json`` output."""
         return [
-            serialize_annotated_function(result)
+            serialize_annotated_function(result, self.ARGUMENT)
             for result in self.results
         ]
 
     def summarize(self) -> list[RoundingSummary]:
         """Lightweight summaries for MCP ProjectFacts."""
         return [
-            summarize_annotated_function(result)
+            summarize_annotated_function(result, self.ARGUMENT)
             for result in self.results
         ]
 

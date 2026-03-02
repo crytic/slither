@@ -18,6 +18,7 @@ from slither.analyses.data_flow.analyses.rounding.core.state import (
     TraceNode,
 )
 from slither.analyses.data_flow.registry.serialization import (
+    AnalysisResult,
     serialize_variable_ref,
 )
 from slither.core.variables.variable import Variable
@@ -55,14 +56,9 @@ class AnnotatedLineDict(TypedDict):
     is_entry: bool
 
 
-class RoundingResult(TypedDict):
+class RoundingResult(AnalysisResult):
     """Full serialized function for CLI ``--json`` output."""
 
-    function_name: str
-    contract_name: str
-    filename: str
-    start_line: int
-    end_line: int
     lines: list[AnnotatedLineDict]
     return_tags: dict[str, list[str]]
     inconsistencies: list[FindingDict]
@@ -73,14 +69,9 @@ class RoundingResult(TypedDict):
 # ── TypedDicts: summary (MCP ProjectFacts) ───────────────────────
 
 
-class RoundingSummary(TypedDict):
+class RoundingSummary(AnalysisResult):
     """Lightweight function summary for MCP caching."""
 
-    function_name: str
-    contract_name: str
-    filename: str
-    start_line: int
-    end_line: int
     variable_tags: dict[str, list[str]]
     return_tags: dict[str, list[str]]
     inconsistencies: list[str]
@@ -150,12 +141,14 @@ def serialize_line(line: AnnotatedLine) -> AnnotatedLineDict:
 
 def serialize_annotated_function(
     annotated: AnnotatedFunction,
+    analysis: str,
 ) -> RoundingResult:
     """Full serialization for CLI ``--json`` output."""
     sorted_lines = sorted(
         annotated.lines.values(), key=lambda line: line.line_number
     )
     return RoundingResult(
+        analysis=analysis,
         function_name=annotated.function_name,
         contract_name=annotated.contract_name,
         filename=annotated.filename,
@@ -184,10 +177,12 @@ def serialize_annotated_function(
 
 def summarize_annotated_function(
     annotated: AnnotatedFunction,
+    analysis: str,
 ) -> RoundingSummary:
     """Lightweight summary: variable tags + findings, no source/traces."""
     variable_tags = _extract_exit_variable_tags(annotated)
     return RoundingSummary(
+        analysis=analysis,
         function_name=annotated.function_name,
         contract_name=annotated.contract_name,
         filename=annotated.filename,

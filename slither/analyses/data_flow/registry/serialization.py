@@ -17,6 +17,21 @@ from slither.core.cfg.node import Node
 from slither.core.variables.variable import Variable
 
 
+class AnalysisResult(TypedDict):
+    """Common envelope for all data-flow analysis results.
+
+    Every analysis result — both full (CLI --json) and summary (MCP) —
+    carries these fields for identification and source navigation.
+    """
+
+    analysis: str
+    function_name: str
+    contract_name: str
+    filename: str
+    start_line: int
+    end_line: int
+
+
 class SourceLocation(TypedDict):
     """JSON-serializable source location extracted from a Slither Node."""
 

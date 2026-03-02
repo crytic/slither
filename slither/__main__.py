@@ -932,7 +932,7 @@ def main_impl(
             ) = process_all(filename, args, detector_classes, printer_classes)
 
         # Run data-flow analyses if requested
-        results_analyses: List[Dict] = []
+        results_analyses: dict[str, list[dict]] = {}
         if args.analyses_to_run:
             selected = choose_analyses(args.analyses_to_run, analysis_classes)
             for analysis_cls in selected:
@@ -940,7 +940,9 @@ def main_impl(
                 for slither_instance in slither_instances:
                     instance.run(slither_instance)
                 if outputting_json or outputting_zip:
-                    results_analyses.extend(instance.serialize())
+                    results_analyses[analysis_cls.ARGUMENT] = (
+                        instance.serialize()
+                    )
                 else:
                     instance.display()
 
