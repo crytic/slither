@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import copy
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, FrozenSet, Optional, Union
 
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.operation import Operation
@@ -16,7 +17,7 @@ class RoundingTag(Enum):
     UNKNOWN = auto()  # Direction unclear or mixed
 
 
-TagSet = FrozenSet[RoundingTag]
+TagSet = frozenset[RoundingTag]
 
 
 @dataclass
@@ -28,32 +29,32 @@ class TraceNode:
     """
 
     function_name: str
-    line_number: Optional[int]
+    line_number: int | None
     tags: TagSet
     source: str = ""  # Description like "divDown() → DOWN" or "returns {DOWN, UP}"
     children: list["TraceNode"] = field(default_factory=list)
-    branch_condition: Optional[str] = None  # CFG-extracted guard, e.g. "bptSupply == 0"
+    branch_condition: str | None = None  # CFG-extracted guard, e.g. "bptSupply == 0"
 
 
 class RoundingState:
     """Track rounding metadata for variables as they flow through the program."""
 
     def __init__(self):
-        self._tags: Dict[Variable, TagSet] = {}
+        self._tags: dict[Variable, TagSet] = {}
         # Track which operation produced each variable (for pattern detection)
-        self._producers: Dict[Variable, Optional[Operation]] = {}
+        self._producers: dict[Variable, Operation | None] = {}
         # Track reasons for UNKNOWN tags
-        self._unknown_reasons: Dict[Variable, str] = {}
+        self._unknown_reasons: dict[Variable, str] = {}
         # Track provenance chains for variables (function call hierarchy that produced the tag)
-        self._traces: Dict[Variable, TraceNode] = {}
+        self._traces: dict[Variable, TraceNode] = {}
 
     def set_tag(
         self,
         variable: Variable,
-        tag: Union[RoundingTag, TagSet],
-        producer: Optional[Operation] = None,
-        unknown_reason: Optional[str] = None,
-        trace: Optional[TraceNode] = None,
+        tag: RoundingTag | TagSet,
+        producer: Operation | None = None,
+        unknown_reason: str | None = None,
+        trace: TraceNode | None = None,
     ) -> None:
         """Assign a rounding tag or tag set to a variable.
 
@@ -90,15 +91,15 @@ class RoundingState:
             return next(iter(tags))
         return RoundingTag.UNKNOWN
 
-    def get_producer(self, variable: Variable) -> Optional[Operation]:
+    def get_producer(self, variable: Variable) -> Operation | None:
         """Get the operation that produced a variable (if tracked)."""
         return self._producers.get(variable, None)
 
-    def get_unknown_reason(self, variable: Variable) -> Optional[str]:
+    def get_unknown_reason(self, variable: Variable) -> str | None:
         """Get the reason why a variable has an UNKNOWN tag, if available."""
         return self._unknown_reasons.get(variable, None)
 
-    def get_trace(self, variable: Variable) -> Optional[TraceNode]:
+    def get_trace(self, variable: Variable) -> TraceNode | None:
         """Get the provenance trace for a variable (if tracked)."""
         return self._traces.get(variable, None)
 

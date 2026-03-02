@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -35,13 +35,13 @@ class RoundingAnalysis(Analysis):
 
     def __init__(
         self,
-        known_tags: Optional[KnownLibraryTags] = None,
+        known_tags: KnownLibraryTags | None = None,
     ) -> None:
         self._direction: Direction = Forward()
         self._logger = get_logger(enable_ipython_embed=False, log_level="INFO")
         self.inconsistencies: list[RoundingFinding] = []
         self.annotation_mismatches: list[RoundingFinding] = []
-        self.known_tags: Optional[KnownLibraryTags] = known_tags
+        self.known_tags: KnownLibraryTags | None = known_tags
         self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self)
 
     def domain(self) -> Domain:
@@ -60,7 +60,7 @@ class RoundingAnalysis(Analysis):
         self,
         node: Node,
         domain: Domain,
-        operation: Optional[Operation],
+        operation: Operation | None,
     ) -> None:
         """Core analysis logic - tag operations and propagate rounding metadata."""
         domain = cast(RoundingDomain, domain)
@@ -73,7 +73,7 @@ class RoundingAnalysis(Analysis):
         self._dispatch_operation(operation, domain, node)
 
     def _dispatch_operation(
-        self, operation: Optional[Operation], domain: RoundingDomain, node: Node
+        self, operation: Operation | None, domain: RoundingDomain, node: Node
     ) -> None:
         """Dispatch operation to appropriate handler."""
         if operation is None:
@@ -130,7 +130,7 @@ class RoundingAnalysis(Analysis):
             )
             self._logger.warning(message)
 
-    def _parse_expected_tag_from_name(self, name: str) -> Optional[RoundingTag]:
+    def _parse_expected_tag_from_name(self, name: str) -> RoundingTag | None:
         """Parse annotation suffixes like _UP/_DOWN/_NEUTRAL from variable names."""
         name_upper = name.upper()
         suffix_to_tag = (

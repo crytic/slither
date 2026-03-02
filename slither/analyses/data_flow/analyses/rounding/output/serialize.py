@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, TypedDict
+from typing import TypedDict
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -17,7 +17,6 @@ from slither.analyses.data_flow.analyses.rounding.core.models import (
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     TraceNode,
 )
-from slither.analyses.data_flow.engine.analysis import AnalysisState
 from slither.analyses.data_flow.registry.serialization import (
     serialize_variable_ref,
 )
@@ -29,22 +28,22 @@ from slither.core.variables.variable import Variable
 
 class FindingDict(TypedDict):
     message: str
-    line_number: Optional[int]
-    variable_name: Optional[str]
+    line_number: int | None
+    variable_name: str | None
 
 
 class TraceNodeDict(TypedDict):
     function_name: str
-    line_number: Optional[int]
-    tags: List[str]
+    line_number: int | None
+    tags: list[str]
     source: str
-    children: List[TraceNodeDict]
-    branch_condition: Optional[str]
+    children: list[TraceNodeDict]
+    branch_condition: str | None
 
 
 class AnnotationDict(TypedDict):
     variable_name: str
-    tags: List[str]
+    tags: list[str]
     is_return: bool
     note: str
 
@@ -52,7 +51,7 @@ class AnnotationDict(TypedDict):
 class AnnotatedLineDict(TypedDict):
     line_number: int
     source_text: str
-    annotations: List[AnnotationDict]
+    annotations: list[AnnotationDict]
     is_entry: bool
 
 
@@ -64,10 +63,10 @@ class RoundingResult(TypedDict):
     filename: str
     start_line: int
     end_line: int
-    lines: List[AnnotatedLineDict]
-    return_tags: dict[str, List[str]]
-    inconsistencies: List[FindingDict]
-    annotation_mismatches: List[FindingDict]
+    lines: list[AnnotatedLineDict]
+    return_tags: dict[str, list[str]]
+    inconsistencies: list[FindingDict]
+    annotation_mismatches: list[FindingDict]
     traces: dict[str, TraceNodeDict]
 
 
@@ -82,16 +81,16 @@ class RoundingSummary(TypedDict):
     filename: str
     start_line: int
     end_line: int
-    variable_tags: dict[str, List[str]]
-    return_tags: dict[str, List[str]]
-    inconsistencies: List[str]
-    annotation_mismatches: List[str]
+    variable_tags: dict[str, list[str]]
+    return_tags: dict[str, list[str]]
+    inconsistencies: list[str]
+    annotation_mismatches: list[str]
 
 
 # ── Shared helpers ───────────────────────────────────────────────
 
 
-def serialize_tag_set(tags: frozenset) -> List[str]:
+def serialize_tag_set(tags: frozenset) -> list[str]:
     """Convert a TagSet to sorted name strings."""
     return sorted(tag.name for tag in tags)
 
@@ -104,7 +103,7 @@ def serialize_trace_node(
     max_depth: int = 10,
 ) -> TraceNodeDict:
     """Recursively serialize a TraceNode provenance chain."""
-    children: List[TraceNodeDict] = []
+    children: list[TraceNodeDict] = []
     if max_depth > 0:
         children = [
             serialize_trace_node(child, max_depth - 1)
@@ -210,9 +209,9 @@ def summarize_annotated_function(
 
 def _extract_exit_variable_tags(
     annotated: AnnotatedFunction,
-) -> dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """Extract variable→tags from exit nodes, skipping NEUTRAL-only."""
-    variable_tags: dict[str, List[str]] = {}
+    variable_tags: dict[str, list[str]] = {}
     for node, state in annotated.node_results.items():
         if node.sons:
             continue

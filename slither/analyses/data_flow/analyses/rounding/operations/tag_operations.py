@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag, TagSet
 from slither.analyses.data_flow.logger import get_logger
@@ -25,7 +25,7 @@ KnownLibraryTags = dict[tuple[str, str], RoundingTag]
 
 
 def get_variable_tag(
-    variable: Optional[Union[RVALUE, Function]],
+    variable: RVALUE | Function | None,
     domain: "RoundingDomain",
 ) -> RoundingTag:
     """Get the rounding tag for a variable or constant.
@@ -40,7 +40,7 @@ def get_variable_tag(
 
 
 def get_variable_tags(
-    variable: Optional[Union[RVALUE, Function]],
+    variable: RVALUE | Function | None,
     domain: "RoundingDomain",
 ) -> TagSet:
     """Get the rounding tag set for a variable or constant.
@@ -111,7 +111,7 @@ BUILTIN_LIBRARY_TAGS: KnownLibraryTags = {
 }
 
 
-def load_known_tags(file_path: Optional[Path] = None) -> KnownLibraryTags:
+def load_known_tags(file_path: Path | None = None) -> KnownLibraryTags:
     """Load known library rounding tags, merging user JSON over built-in defaults.
 
     Built-in defaults cover common libraries (e.g. FullMath). If file_path is
@@ -163,12 +163,12 @@ def lookup_known_tag(
     contract_name: str,
     function_name: str,
     known_tags: KnownLibraryTags,
-) -> Optional[RoundingTag]:
+) -> RoundingTag | None:
     """Look up rounding tag for a known library function."""
     return known_tags.get((contract_name, function_name))
 
 
-def infer_tag_from_name(function_name: Optional[object]) -> RoundingTag:
+def infer_tag_from_name(function_name: object | None) -> RoundingTag:
     """Infer rounding direction from function name.
 
     If name contains both up/ceil and down/floor indicators, returns NEUTRAL
@@ -245,7 +245,7 @@ def parse_inline_round_annotations(source_line: str) -> dict[str, RoundingTag]:
 def lookup_inline_round_tag(
     source_line: str,
     function_name: str,
-) -> Optional[RoundingTag]:
+) -> RoundingTag | None:
     """Look up a function's rounding tag from an inline //@round annotation.
 
     Args:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import ClassVar, List, Optional
+from typing import ClassVar
 
 from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
@@ -58,14 +58,14 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
 
     def __init__(
         self,
-        trace_tag: Optional[RoundingTag] = None,
-        known_tags: Optional[KnownLibraryTags] = None,
+        trace_tag: RoundingTag | None = None,
+        known_tags: KnownLibraryTags | None = None,
         show_all: bool = False,
     ) -> None:
         self.trace_tag = trace_tag
         self.known_tags = known_tags
         self.show_all = show_all
-        self.results: List[AnnotatedFunction] = []
+        self.results: list[AnnotatedFunction] = []
 
     @classmethod
     def register_arguments(
@@ -127,14 +127,14 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
         if len(self.results) > 1:
             display_summary_table(self.results)
 
-    def serialize(self) -> List[RoundingResult]:
+    def serialize(self) -> list[RoundingResult]:
         """Full results for CLI ``--json`` output."""
         return [
             serialize_annotated_function(result)
             for result in self.results
         ]
 
-    def summarize(self) -> List[RoundingSummary]:
+    def summarize(self) -> list[RoundingSummary]:
         """Lightweight summaries for MCP ProjectFacts."""
         return [
             summarize_annotated_function(result)
@@ -159,8 +159,8 @@ class RoundingCLI(AbstractAnalysis[RoundingResult, RoundingSummary]):
 
 
 def _load_safe_libs_from_arg(
-    safe_libs_arg: Optional[str],
-) -> Optional[KnownLibraryTags]:
+    safe_libs_arg: str | None,
+) -> KnownLibraryTags | None:
     """Convert --rounding-safe-libs argument to KnownLibraryTags."""
     if safe_libs_arg is None:
         return None

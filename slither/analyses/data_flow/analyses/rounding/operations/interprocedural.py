@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Optional
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
@@ -198,7 +197,7 @@ class InterproceduralHandler(BaseOperationHandler):
         self,
         node: Node,
         function_name: str,
-    ) -> Optional[RoundingTag]:
+    ) -> RoundingTag | None:
         """Check for an inline //@round annotation matching a function call.
 
         Scans all source lines of the node for //@round annotations
@@ -230,7 +229,7 @@ class InterproceduralHandler(BaseOperationHandler):
         function_name: str,
         domain: RoundingDomain,
         node: Node,
-    ) -> tuple[TagSet, Optional[TraceNode]]:
+    ) -> tuple[TagSet, TraceNode | None]:
         """Infer tags: inline annotation > name > known library > body analysis.
 
         Returns (tags, trace) where trace captures the call provenance if available.
@@ -494,7 +493,7 @@ class InterproceduralHandler(BaseOperationHandler):
         denominator_tag: RoundingTag,
         operation: Call,
         node: Node,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Check numerator/denominator consistency for division operations."""
         if denominator_tag == RoundingTag.NEUTRAL:
             return None
@@ -520,7 +519,7 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def _set_tag(
         self,
-        variable: Optional[Variable],
+        variable: Variable | None,
         tag: RoundingTag,
         operation: Call,
         node: Node,
@@ -536,12 +535,12 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def _set_tags(
         self,
-        variable: Optional[Variable],
+        variable: Variable | None,
         tags: TagSet,
         operation: Call,
         node: Node,
         domain: RoundingDomain,
-        trace: Optional[TraceNode] = None,
+        trace: TraceNode | None = None,
     ) -> None:
         """Set tag set, trace, and check annotation."""
         if variable is None:
@@ -553,7 +552,7 @@ class InterproceduralHandler(BaseOperationHandler):
         )
 
 
-def _find_branch_condition(node: Node) -> Optional[str]:
+def _find_branch_condition(node: Node) -> str | None:
     """Find the IF condition guarding a CFG node, if any.
 
     Walks up the immediate-dominator chain. When an IF node is found,
@@ -592,8 +591,8 @@ def _is_in_false_branch(if_node: Node, target: Node) -> bool:
 def _lookup_known_function_tag(
     called_function: Function,
     function_name: str,
-    known_tags: Optional[dict[tuple[str, str], RoundingTag]],
-) -> Optional[RoundingTag]:
+    known_tags: dict[tuple[str, str], RoundingTag] | None,
+) -> RoundingTag | None:
     """Check if function matches a known library rounding pattern."""
     if known_tags is None:
         return None

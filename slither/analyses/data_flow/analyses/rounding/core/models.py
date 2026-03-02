@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
-
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     TagSet,
     TraceNode,
@@ -20,7 +18,7 @@ class RoundingFinding:
 
     message: str
     node: Node
-    variable: Optional[Variable] = None
+    variable: Variable | None = None
 
 
 @dataclass
@@ -60,7 +58,7 @@ class AnnotatedFunction:
     node_results: dict[Node, AnalysisState] = field(default_factory=dict)
 
 
-def get_node_line(node: Node) -> Optional[int]:
+def get_node_line(node: Node) -> int | None:
     """Get the primary source line for a node."""
     if node.source_mapping and node.source_mapping.lines:
         return node.source_mapping.lines[0]

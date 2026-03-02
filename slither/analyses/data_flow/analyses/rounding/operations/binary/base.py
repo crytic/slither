@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingTag,
@@ -51,8 +51,8 @@ class BinaryOperationHandler(ABC):
         operation: Binary,
         node: Node,
         domain: "RoundingDomain",
-        unknown_reason: Optional[str] = None,
-        trace: Optional[TraceNode] = None,
+        unknown_reason: str | None = None,
+        trace: TraceNode | None = None,
     ) -> None:
         """Set a tag and enforce any annotation-based expectations."""
         domain.state.set_tag(

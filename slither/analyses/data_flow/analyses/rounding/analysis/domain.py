@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from enum import Enum, auto
-from typing import Optional
 
 from slither.analyses.data_flow.analyses.rounding.core.state import (
     RoundingState,
@@ -18,7 +19,7 @@ class DomainVariant(Enum):
 class RoundingDomain(Domain):
     """Domain for rounding direction analysis."""
 
-    def __init__(self, variant: DomainVariant, state: Optional[RoundingState] = None):
+    def __init__(self, variant: DomainVariant, state: RoundingState | None = None):
         self.variant = variant
         self.state = state or RoundingState()
 
