@@ -10,18 +10,33 @@ Based on the rules from [roundme](https://github.com/crytic/roundme).
 ## Quick Start
 
 ```bash
-# Run as a data-flow analysis
+# Analyze all contracts
 slither project/ --analyze rounding
+
+# Focus on a single contract
+slither project/ --analyze rounding --rounding-target LinearPool
+
+# Focus on a single function
+slither project/ --analyze rounding --rounding-target LinearPool.onSwap
+
+# Multiple targets (comma-separated)
+slither project/ --analyze rounding --rounding-target LinearPool.onSwap,BasePool._doSwap
+
+# Show provenance traces for DOWN-tagged variables
+slither project/ --analyze rounding --rounding-safe-libs --rounding-trace DOWN
 ```
 
-The analysis runs on every implemented function in every contract, prints
-annotated source with per-variable tags (via Rich), and reports
-inconsistencies. Use `--json -` to get structured output instead.
+When `--analyze` is passed without an explicit `--detect` flag, detectors are
+skipped entirely — only the requested analysis runs.
+
+The analysis prints annotated source with per-variable tags (via Rich) and
+reports inconsistencies. Use `--json -` to get structured output instead.
 
 ### CLI Flags
 
 | Flag | Default | Purpose |
 |------|---------|---------|
+| `--rounding-target [targets]` | all | Comma-separated `Contract` or `Contract.function` targets |
 | `--rounding-trace UP\|DOWN\|UNKNOWN` | off | Show tag provenance traces for this direction |
 | `--rounding-safe-libs [path]` | off | Use known library tags (`__builtin__` or a JSON file) |
 | `--rounding-show-all` | off | Show annotations for all variables including params |
@@ -83,6 +98,7 @@ callee's return tag using these sources, highest priority first:
 ```
 RoundingCLI.run(slither)
   for each contract, for each function:
+    skip if targets set and (contract, function) doesn't match
     annotate.analyze_function(function)
       1. Create RoundingAnalysis (with handler registry)
       2. Create Engine.new(analysis, function)
@@ -223,8 +239,13 @@ To run the analysis directly on a test contract (useful for seeing Rich
 output or debugging):
 
 ```bash
+# All functions
 uv run slither tests/e2e/data_flow/rounding/contracts/Test_Multiplication.sol \
   --analyze rounding
+
+# Single function with traces
+uv run slither tests/e2e/data_flow/rounding/contracts/Test_Division.sol \
+  --analyze rounding --rounding-target Test_Division.divDown --rounding-trace DOWN
 ```
 
 Test contracts cover: addition, subtraction, multiplication, division,
