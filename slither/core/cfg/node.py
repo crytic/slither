@@ -913,14 +913,32 @@ class Node(SourceMapping):
                 self._library_calls.append(ir)
 
         self._vars_read = list(set(self._vars_read))
-        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
-        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+        self._state_vars_read = [
+            v
+            for v in self._vars_read
+            if isinstance(v, StateVariable)
+            or isinstance(v, LocalVariable)
+            and v.location == "storage"
+        ]
+        self._local_vars_read = [
+            v for v in self._vars_read if isinstance(v, LocalVariable) and v.location != "storage"
+        ]
         self._solidity_vars_read = [
             v_ for v_ in self._vars_read if isinstance(v_, SolidityVariable)
         ]
         self._vars_written = list(set(self._vars_written))
-        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
-        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
+        self._state_vars_written = [
+            v
+            for v in self._vars_written
+            if isinstance(v, StateVariable)
+            or isinstance(v, LocalVariable)
+            and v.location == "storage"
+        ]
+        self._local_vars_written = [
+            v
+            for v in self._vars_written
+            if isinstance(v, LocalVariable) and v.location != "storage"
+        ]
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
@@ -1031,26 +1049,61 @@ class Node(SourceMapping):
             self._update_write_using_ssa(ir)
 
         self._ssa_vars_read = list(set(self._ssa_vars_read))
-        self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
-        self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
+        self._ssa_state_vars_read = [
+            v
+            for v in self._ssa_vars_read
+            if isinstance(v, StateVariable)
+            or isinstance(v, LocalVariable)
+            and v.location == "storage"
+        ]
+        self._ssa_local_vars_read = [
+            v
+            for v in self._ssa_vars_read
+            if isinstance(v, LocalVariable) and v.location != "storage"
+        ]
         self._ssa_vars_written = list(set(self._ssa_vars_written))
         self._ssa_state_vars_written = [
-            v for v in self._ssa_vars_written if v and isinstance(v, StateIRVariable)
+            v
+            for v in self._ssa_vars_written
+            if v
+            and isinstance(v, StateIRVariable)
+            or isinstance(v, LocalIRVariable)
+            and v.location == "storage"
         ]
         self._ssa_local_vars_written = [
-            v for v in self._ssa_vars_written if v and isinstance(v, LocalIRVariable)
+            v
+            for v in self._ssa_vars_written
+            if v and isinstance(v, LocalIRVariable) and v.location != "storage"
         ]
 
         vars_read = [self._convert_ssa(x) for x in self._ssa_vars_read]
         vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
 
         self._vars_read += [v_ for v_ in vars_read if v_ and v_ not in self._vars_read]
-        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
-        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+        self._state_vars_read = [
+            v
+            for v in self._vars_read
+            if isinstance(v, StateVariable)
+            or isinstance(v, LocalVariable)
+            and v.location == "storage"
+        ]
+        self._local_vars_read = [
+            v for v in self._vars_read if isinstance(v, LocalVariable) and v.location != "storage"
+        ]
 
         self._vars_written += [v_ for v_ in vars_written if v_ and v_ not in self._vars_written]
-        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
-        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
+        self._state_vars_written = [
+            v
+            for v in self._vars_written
+            if isinstance(v, StateVariable)
+            or isinstance(v, LocalVariable)
+            and v.location == "storage"
+        ]
+        self._local_vars_written = [
+            v
+            for v in self._vars_written
+            if isinstance(v, LocalVariable) and v.location != "storage"
+        ]
 
     # endregion
     ###################################################################################
