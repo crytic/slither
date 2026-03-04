@@ -139,9 +139,9 @@ def _process(
     results_printers = []
 
     if not printer_classes:
-        detector_resultss = slither.run_detectors()
-        detector_resultss = [x for x in detector_resultss if x]  # remove empty results
-        detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
+        detector_results = slither.run_detectors()
+        detector_results = [x for x in detector_results if x]  # remove empty results
+        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
         # Report unused ignore comments if enabled
