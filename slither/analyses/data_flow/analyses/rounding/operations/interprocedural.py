@@ -154,14 +154,14 @@ class InterproceduralHandler(BaseOperationHandler):
                 continue
             index = other_operation.index
             if index >= len(per_index):
-                _logger.error_and_raise(
+                _logger.warning(
                     "Tuple call {name}: unpack index {idx} exceeds "
-                    "return count {count}",
-                    RuntimeError,
+                    "return count {count}, skipping",
                     name=function_name,
                     idx=index,
                     count=len(per_index),
                 )
+                continue
             tags, traces = per_index[index]
             trace = TraceNode(
                 function_name=function_name,
@@ -203,7 +203,21 @@ class InterproceduralHandler(BaseOperationHandler):
                 condition = _find_branch_condition(node)
                 results: list[tuple[TagSet, list[TraceNode]]] = []
                 for return_value in operation.values:
-                    if isinstance(return_value, Variable):
+                    if isinstance(return_value, TupleVariable):
+                        tuple_tags = callee_domain.state.get_tags(
+                            return_value,
+                        )
+                        if not tuple_tags:
+                            tuple_tags = frozenset({RoundingTag.NEUTRAL})
+                        tuple_trace = callee_domain.state.get_trace(
+                            return_value,
+                        )
+                        trace_list = [tuple_trace] if tuple_trace else []
+                        return_types = function.return_type or []
+                        count = max(len(return_types), 1)
+                        for _ in range(count):
+                            results.append((tuple_tags, list(trace_list)))
+                    elif isinstance(return_value, Variable):
                         tags = callee_domain.state.get_tags(return_value)
                         trace = callee_domain.state.get_trace(return_value)
                         if trace is not None:
