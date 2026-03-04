@@ -570,7 +570,7 @@ class SlitherReadStorage:
         """
         for contract in self.contracts:
             for var in contract.state_variables_ordered:
-                if func(var):
+                if func((contract, var)):
                     if var.is_stored:
                         self._target_variables.append((contract, var))
                     elif var.is_immutable and self.include_immutable:
