@@ -107,3 +107,6 @@ from .functions.optimism_deprecation import OptimismDeprecation
 from .attributes.unindexed_event_address import UnindexedEventAddress
 
 # from .statements.unused_import import UnusedImport
+from .oracles.oracle_data_validation import OracleDataCheck
+from .oracles.oracle_sequencer import SequencerCheck
+from .oracles.deprecated_chainlink_calls import DeprecatedChainlinkCall
