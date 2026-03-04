@@ -1704,6 +1704,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.Ecrecover,
+        "ecrecover.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.IncorrectReturn,
         "incorrect_return.sol",
         "0.8.10",
