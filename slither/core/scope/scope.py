@@ -29,7 +29,11 @@ class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: list[FileScope] = []
-        self.exported_symbols: set[int] = set()
+        # Exported symbols in order of import precedence. When multiple files export
+        # symbols with the same name, the first occurrence in this list takes precedence.
+        # Using a list (not set) preserves insertion order for correct name resolution.
+        # See: https://github.com/crytic/slither/issues/2477
+        self.exported_symbols: list[int] = []
 
         self.contracts: dict[str, Contract] = {}
         # Custom error are a list instead of a dict
@@ -82,8 +86,16 @@ class FileScope:
             # To get around this bug for aliases https://github.com/ethereum/solidity/pull/11881,
             # we propagate the exported_symbols from the imported file to the importing file
             # See tests/e2e/solc_parsing/test_data/top-level-nested-import-0.7.1.sol
-            if not new_scope.exported_symbols.issubset(self.exported_symbols):
-                self.exported_symbols |= new_scope.exported_symbols
+            if any(s not in self.exported_symbols for s in new_scope.exported_symbols):
+                # We are using lists and specifically extending them to keep the order in which
+                # elements are added. This will come handy when we have name collisions.
+                # See issue : https://github.com/crytic/slither/issues/2477
+                new_symbols = [
+                    symbol
+                    for symbol in new_scope.exported_symbols
+                    if symbol not in self.exported_symbols
+                ]
+                self.exported_symbols.extend(new_symbols)
                 learn_something = True
 
             # This is need to support aliasing when we do a late lookup using SolidityImportPlaceholder
