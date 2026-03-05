@@ -29,6 +29,7 @@ def test_inheritance_graph_printer(solc_binary_path) -> None:
     standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "B.sol").as_posix())
     standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "B2.sol").as_posix())
     standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "C.sol").as_posix())
+    standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "D.sol").as_posix())
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
     printer = PrinterInheritanceGraph(slither=slither, logger=None)
@@ -44,6 +45,7 @@ def test_inheritance_graph_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
+    assert counter["D -> A"] == 1
     # Let also test the include/exclude interface behavior
     # Check that the interface is not included
     assert "MyInterfaceX" not in content
