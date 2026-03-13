@@ -445,8 +445,14 @@ def reorder_arguments(
     Reordered arguments to constructor call, now in declaration order
     """
     assert len(args) == len(call_names)
-    for names in decl_names:
-        assert len(call_names) == len(names)
+    # Filter out declaration name lists whose length doesn't match the call
+    # argument count. This can happen with overloaded functions that have
+    # different parameter counts, or when a struct is misresolved to a
+    # same-named struct with a different number of fields.
+    # See https://github.com/crytic/slither/issues/2217
+    decl_names = [names for names in decl_names if len(call_names) == len(names)]
+    if not decl_names:
+        return args
 
     args_ret = []
     index_seen = []  # Will have the correct index order
@@ -1990,6 +1996,8 @@ def convert_constant_types(irs: list[Operation]) -> None:
             if isinstance(ir, NewStructure):
                 st = ir.structure
                 for idx, arg in enumerate(ir.arguments):
+                    if idx >= len(st.elems_ordered):
+                        break
                     e = st.elems_ordered[idx]
                     if isinstance(e.type, ElementaryType):
                         if e.type.type in ElementaryTypeInt:
