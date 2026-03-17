@@ -1818,6 +1818,9 @@ def convert_type_of_high_and_internal_level_call(
         to_log = f"Function not found {ir.function_name}"
         logger.error(to_log)
     ir.function = func
+    if func is None:
+        ir.lvalue = None
+        return None
     if isinstance(func, Function):
         return_type = func.return_type
         # if its not a tuple; return a singleton
