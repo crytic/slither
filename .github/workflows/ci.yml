@@ -74,7 +74,7 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15  # v31
+        uses: cachix/install-nix-action@1ca7d21a94afc7c957383a2d217460d980de4934  # v31
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
