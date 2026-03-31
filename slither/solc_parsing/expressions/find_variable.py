@@ -55,6 +55,7 @@ def _find_variable_from_ref_declaration(
     all_functions: list["Function"],
     function_parser: Optional["FunctionSolc"],
     contract_declarer: Optional["Contract"],
+    is_identifier_path: bool = False,
 ) -> Contract | Function | None:
     """
     Reference declarations take the highest priority, but they are not available for legacy AST.
@@ -77,7 +78,9 @@ def _find_variable_from_ref_declaration(
         if contract_candidate and contract_candidate.id == referenced_declaration:
             return contract_candidate
     for function_candidate in all_functions:
-        if function_candidate.id == referenced_declaration and not function_candidate.is_shadowed:
+        if function_candidate.id == referenced_declaration and (
+            is_identifier_path or not function_candidate.is_shadowed
+        ):
             return function_candidate
     return None
 
@@ -445,6 +448,7 @@ def find_variable(
         direct_functions,
         function_parser,
         contract_declarer,
+        is_identifier_path,
     )
     if ret0:
         return ret0, False
