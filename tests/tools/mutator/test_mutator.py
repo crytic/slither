@@ -13,6 +13,7 @@ from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_sel
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
 from slither.utils.function import get_function_id
+from slither.tools.mutator.mutators.RCN import RCN
 from slither.tools.mutator.mutators.RR import RR
 
 
@@ -35,6 +36,10 @@ def change_directory(new_dir):
 def test_get_mutators():
     mutators = _get_mutators(None)
     assert mutators
+
+    mutators = _get_mutators(["RCN"])
+    assert len(mutators) == 1
+    assert mutators[0].NAME == "RCN"
 
     mutators = _get_mutators(["ASOR"])
     assert len(mutators) == 1
@@ -283,3 +288,35 @@ def test_should_mutate_function_includes_modifier(solc_binary_path):
         for mod in contract.modifiers:
             if mod.name == "onlyOwner":
                 assert mutator.should_mutate_function(mod) is True
+
+
+def test_rcn_mutates_require_condition(solc_binary_path):
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+    contract = next(c for c in sl.contracts if c.name == "Counter")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = RCN(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors=None,
+            target_modifiers=None,
+        )
+
+        patches = mutator._mutate()
+        assert "patches" in patches
+        assert file_path in patches["patches"]
+
+        assert any(
+            patch["old_string"] == "msg.sender == owner"
+            and patch["new_string"] == "!(msg.sender == owner)"
+            for patch in patches["patches"][file_path]
+        )
