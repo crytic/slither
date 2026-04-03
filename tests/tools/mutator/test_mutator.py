@@ -17,7 +17,6 @@ from slither.tools.mutator.mutators.RR import RR
 from slither.tools.mutator.mutators.ACN import ACN
 
 
-
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 foundry_available = shutil.which("forge") is not None
@@ -313,7 +312,6 @@ def test_acn_mutates_assert_condition(solc_binary_path):
         assert file_path in patches["patches"]
 
         assert any(
-            patch["old_string"] == "newNumber != 7"
-            and patch["new_string"] == "!(newNumber != 7)"
+            patch["old_string"] == "newNumber != 7" and patch["new_string"] == "!(newNumber != 7)"
             for patch in patches["patches"][file_path]
         )
