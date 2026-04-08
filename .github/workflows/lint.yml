@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57  # v7
         with:
           enable-cache: true
 
@@ -89,7 +89,7 @@ jobs:
           persist-credentials: false
 
       - name: Run markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@07035fd053f7be764496c0f8d8f9f41f98305101  # v22
+        uses: DavidAnson/markdownlint-cli2-action@ce4853d43830c74c1753b39f3cf40f71c2031eb9  # v23.0.0
         with:
           globs: "docs/**/*.md"
           config: .github/linters/.markdownlint.json
