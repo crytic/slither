@@ -130,6 +130,8 @@ class PrinterEVM(AbstractPrinter):
                 continue
 
             for function in contract.functions:
+                if function.is_constructor_variables:
+                    continue
                 txt += blue(f"\tFunction {function.canonical_name}\n")
 
                 txt += self.build_element_node_str(

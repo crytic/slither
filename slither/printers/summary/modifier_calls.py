@@ -27,6 +27,8 @@ class Modifiers(AbstractPrinter):
             txt = f"\nContract {contract.name}"
             table = MyPrettyTable(["Function", "Modifiers"])
             for function in contract.functions:
+                if function.is_constructor_variables:
+                    continue
                 modifiers = function.modifiers
                 for ir in function.all_internal_calls():
                     if isinstance(ir.function, Function):
