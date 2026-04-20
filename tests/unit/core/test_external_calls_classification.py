@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
@@ -7,6 +7,8 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.member_access import MemberAccess
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.visitors.expression.call_classification import classify_calls
@@ -17,12 +19,13 @@ from slither.visitors.expression.call_classification import classify_calls
 # ---------------------------------------------------------------------------
 
 
-def _make_member_call(base_value):
+def _make_member_call(base_value, member_name="foo"):
     """Build a minimal CallExpression whose callee is a MemberAccess on base_value."""
     base_expr = MagicMock(spec=Identifier)
     base_expr.value = base_value
     called = MagicMock(spec=MemberAccess)
     called.expression = base_expr
+    called.member_name = member_name
     call = MagicMock(spec=CallExpression)
     call.called = called
     return call
@@ -137,6 +140,122 @@ class TestClassifyCalls:
         assert ext_call in external
         assert len(internal) == 2
         assert len(external) == 1
+
+
+# ---------------------------------------------------------------------------
+# using-for library call classification
+# ---------------------------------------------------------------------------
+
+
+def _make_using_for(var_type, library_contract):
+    """Build a USING_FOR dict: {var_type: [UserDefinedType(library)]}."""
+    udt = MagicMock(spec=UserDefinedType)
+    udt.type = library_contract
+    return {var_type: [udt]}
+
+
+def _make_library(name, function_names):
+    """Create a mock library Contract with the given function names."""
+    lib = MagicMock(spec=Contract)
+    lib.is_library = True
+    lib.name = name
+    funcs = []
+    for fn in function_names:
+        f = MagicMock()
+        f.name = fn
+        funcs.append(f)
+    lib.functions = funcs
+    return lib
+
+
+class TestUsingForClassification:
+    """Tests for using-for library call classification (issue #2073)."""
+
+    def test_using_for_library_call_is_internal(self):
+        """addr.sendValue() via 'using Address for address' must be internal."""
+        addr_type = ElementaryType("address")
+        lib = _make_library("Address", ["sendValue", "functionCall"])
+        using_for = _make_using_for(addr_type, lib)
+
+        local_var = MagicMock(spec=LocalVariable)
+        type(local_var).type = PropertyMock(return_value=addr_type)
+        call = _make_member_call(local_var, member_name="sendValue")
+
+        internal, external = classify_calls([call], using_for=using_for)
+        assert call in internal
+        assert call not in external
+
+    def test_using_for_non_matching_member_is_external(self):
+        """addr.nonExistent() must stay external even with using-for."""
+        addr_type = ElementaryType("address")
+        lib = _make_library("Address", ["sendValue"])
+        using_for = _make_using_for(addr_type, lib)
+
+        local_var = MagicMock(spec=LocalVariable)
+        type(local_var).type = PropertyMock(return_value=addr_type)
+        call = _make_member_call(local_var, member_name="nonExistent")
+
+        internal, external = classify_calls([call], using_for=using_for)
+        assert call in external
+        assert call not in internal
+
+    def test_using_for_wrong_type_is_external(self):
+        """uint256.sendValue() must be external when using-for is on address."""
+        addr_type = ElementaryType("address")
+        uint_type = ElementaryType("uint256")
+        lib = _make_library("Address", ["sendValue"])
+        using_for = _make_using_for(addr_type, lib)
+
+        local_var = MagicMock(spec=LocalVariable)
+        type(local_var).type = PropertyMock(return_value=uint_type)
+        call = _make_member_call(local_var, member_name="sendValue")
+
+        internal, external = classify_calls([call], using_for=using_for)
+        assert call in external
+        assert call not in internal
+
+    def test_using_for_wildcard(self):
+        """'using Lib for *' must match any variable type."""
+        lib = _make_library("SafeMath", ["add", "sub"])
+        udt = MagicMock(spec=UserDefinedType)
+        udt.type = lib
+        using_for = {"*": [udt]}
+
+        local_var = MagicMock(spec=LocalVariable)
+        type(local_var).type = PropertyMock(
+            return_value=ElementaryType("uint256")
+        )
+        call = _make_member_call(local_var, member_name="add")
+
+        internal, external = classify_calls([call], using_for=using_for)
+        assert call in internal
+        assert call not in external
+
+    def test_using_for_without_using_for_dict(self):
+        """Without using_for, variable member calls must remain external."""
+        local_var = MagicMock(spec=LocalVariable)
+        type(local_var).type = PropertyMock(
+            return_value=ElementaryType("address")
+        )
+        call = _make_member_call(local_var, member_name="sendValue")
+
+        internal, external = classify_calls([call])
+        assert call in external
+        assert call not in internal
+
+    def test_using_for_state_variable(self):
+        """State variable member calls via using-for must also be internal."""
+        addr_type = ElementaryType("address")
+        lib = _make_library("Address", ["sendValue"])
+        using_for = _make_using_for(addr_type, lib)
+
+        state_var = MagicMock(spec=StateVariable)
+        type(state_var).type = PropertyMock(return_value=addr_type)
+        call = _make_member_call(state_var, member_name="sendValue")
+
+        internal, external = classify_calls([call], using_for=using_for)
+        assert call in internal
+        assert call not in external
 
 
 def test_vyper_external_calls_classification(slither_from_vyper_source):
