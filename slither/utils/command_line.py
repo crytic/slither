@@ -262,6 +262,23 @@ def output_wiki(detector_classes: list[type[AbstractDetector]], filter_wiki: str
         print(recommendation)
 
 
+def _config_default_to_markdown(value: object) -> str:
+    if isinstance(value, enum.Enum):
+        value = value.value
+
+    try:
+        return json.dumps(value)
+    except TypeError:
+        return json.dumps(str(value))
+
+
+def output_config_file_options() -> None:
+    print("| Key | Default |")
+    print("| --- | --- |")
+    for key, value in sorted(defaults_flag_in_config.items()):
+        print(f"| `{key}` | `{_config_default_to_markdown(value)}` |")
+
+
 def output_detectors(detector_classes: list[type[AbstractDetector]]) -> None:
     detectors_list = []
     for detector in detector_classes:
