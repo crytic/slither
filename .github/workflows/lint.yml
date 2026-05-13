@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Ruff linter
-        uses: astral-sh/ruff-action@4919ec5cf1f49eff0871dbcea0da843445b837e6  # v3
+        uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
         with:
           args: "check slither/ tests/ scripts/"
 
@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v7
         with:
           enable-cache: true
 
@@ -89,7 +89,7 @@ jobs:
           persist-credentials: false
 
       - name: Run markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@07035fd053f7be764496c0f8d8f9f41f98305101  # v22
+        uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd  # v23.2.0
         with:
           globs: "docs/**/*.md"
           config: .github/linters/.markdownlint.json
