@@ -195,7 +195,7 @@ class DivisionHandler(BinaryOperationHandler):
             f"Conflicting rounding in division: {left_tag.name} / {right_tag.name} "
             f"(inverted: {right_inverted.name}) in {function_name}"
         )
-        self.analysis.inconsistencies.append(
+        self.analysis.record_inconsistency(
             RoundingFinding(message=message, node=node)
         )
         self.analysis._logger.warning(message)
@@ -306,7 +306,7 @@ class DivisionHandler(BinaryOperationHandler):
             f"{function_name}: numerator and denominator both "
             f"{numerator_tag.name} in {operation}"
         )
-        self.analysis.inconsistencies.append(
+        self.analysis.record_inconsistency(
             RoundingFinding(message=message, node=node)
         )
         self.analysis._logger.warning(message)

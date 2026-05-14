@@ -20,6 +20,7 @@ from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
     AnnotatedLine,
     LineAnnotation,
+    RoundingFinding,
     get_node_line,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
@@ -63,8 +64,40 @@ def analyze_function(
     annotated.node_results = node_results
 
     _process_node_results(function, node_results, annotated, show_all=show_all)
+    _check_split_direction_return(annotated)
     annotated.traces = extract_variable_traces(annotated)
     return annotated
+
+
+def _check_split_direction_return(annotated: AnnotatedFunction) -> None:
+    """Flag functions whose return paths produce opposite rounding directions.
+
+    A function with separate return-value names where one carries DOWN and
+    another carries UP is the signature of a split-rounding bug — the
+    Balancer ``_calcWrappedInPerBptOut`` pattern. Branch-merged single
+    returns produce ``{UP, DOWN}`` on a single key and are correctly
+    excluded by the multi-key check.
+    """
+    has_up = False
+    has_down = False
+    for tags in annotated.return_tags.values():
+        if RoundingTag.UP in tags:
+            has_up = True
+        if RoundingTag.DOWN in tags:
+            has_down = True
+    if not (has_up and has_down):
+        return
+    if len(annotated.return_tags) < 2:
+        return
+    return_names = ", ".join(annotated.return_tags.keys())
+    message = (
+        f"Split-direction return in {annotated.function_name}: "
+        f"function returns DOWN on some paths and UP on others — "
+        f"verify rounding direction is intentional ({return_names})"
+    )
+    annotated.inconsistencies.append(
+        RoundingFinding(message=message, node=None, variable=None)
+    )
 
 
 # ── Trace extraction ─────────────────────────────────────────────

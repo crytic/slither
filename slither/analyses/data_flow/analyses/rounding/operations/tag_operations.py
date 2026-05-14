@@ -73,17 +73,17 @@ def combine_tags(left: RoundingTag, right: RoundingTag) -> tuple[RoundingTag, bo
 
     Returns (combined_tag, has_conflict).
     Rules:
-    - NEUTRAL combines with anything → the other tag
-    - Same tags → that tag
-    - UP + DOWN → UNKNOWN (conflict)
-    - UNKNOWN in either → UNKNOWN
+    - NEUTRAL combines with anything (including UNKNOWN) → the other tag, no conflict
+    - Same tags → that tag, no conflict
+    - UP + DOWN → UNKNOWN, conflict
+    - UNKNOWN with a non-NEUTRAL tag → UNKNOWN, conflict
     """
-    if left == RoundingTag.UNKNOWN or right == RoundingTag.UNKNOWN:
-        return RoundingTag.UNKNOWN, True
     if left == RoundingTag.NEUTRAL:
         return right, False
     if right == RoundingTag.NEUTRAL:
         return left, False
+    if left == RoundingTag.UNKNOWN or right == RoundingTag.UNKNOWN:
+        return RoundingTag.UNKNOWN, True
     if left == right:
         return left, False
     return RoundingTag.UNKNOWN, True
@@ -168,26 +168,50 @@ def lookup_known_tag(
     return known_tags.get((contract_name, function_name))
 
 
+_KNOWN_DOWN_NAMES: frozenset[str] = frozenset({
+    "divdown",
+    "muldown",
+    "divwaddown",
+    "mulwaddown",
+    "divfloor",
+    "mulfloor",
+    "floordiv",
+    "rounddown",
+    "roundfloor",
+    "divroundingdown",
+})
+
+_KNOWN_UP_NAMES: frozenset[str] = frozenset({
+    "divup",
+    "mulup",
+    "divwadup",
+    "mulwadup",
+    "divceil",
+    "mulceil",
+    "ceildiv",
+    "roundup",
+    "roundceil",
+    "divroundingup",
+    "muldivroundingup",
+})
+
+
 def infer_tag_from_name(function_name: object | None) -> RoundingTag:
-    """Infer rounding direction from function name.
+    """Infer rounding direction from a recognised DeFi function name.
 
-    If name contains both up/ceil and down/floor indicators, returns NEUTRAL
-    to fall back to interprocedural analysis (e.g., _downscaleUp).
+    Uses an explicit allowlist (case-insensitive exact match) instead of
+    substring matching, so unrelated identifiers like ``setupVault``,
+    ``lookup``, or ``shutdown`` no longer collide with the rounding
+    vocabulary. Anything not on the list returns NEUTRAL and falls
+    through to the known-library lookup or body analysis.
     """
-    name_lower = str(function_name).lower() if function_name is not None else ""
-
-    has_down = "down" in name_lower or "floor" in name_lower
-    has_up = "up" in name_lower or "ceil" in name_lower
-
-    # Ambiguous - fall back to interprocedural analysis
-    if has_down and has_up:
+    if function_name is None:
         return RoundingTag.NEUTRAL
-
-    if has_down:
+    name_lower = str(function_name).lower()
+    if name_lower in _KNOWN_DOWN_NAMES:
         return RoundingTag.DOWN
-    if has_up:
+    if name_lower in _KNOWN_UP_NAMES:
         return RoundingTag.UP
-
     return RoundingTag.NEUTRAL
 
 

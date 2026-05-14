@@ -10,6 +10,9 @@
       }
     },
     "computeWithRounding": {
+      "inconsistencies": [
+        "Split-direction return in computeWithRounding: function returns DOWN on some paths and UP on others \u2014 verify rounding direction is intentional (TMP_5, TMP_6)"
+      ],
       "variables": {
         "": "NEUTRAL",
         "TMP_5": "UP",

@@ -102,6 +102,7 @@ class InterproceduralHandler(BaseOperationHandler):
             return
 
         self._call_stack.add(called_function)
+        self.analysis.push_caller_node(node)
         try:
             callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
             self._bind_parameter_tags(
@@ -115,6 +116,7 @@ class InterproceduralHandler(BaseOperationHandler):
                 called_function, callee_domain
             )
         finally:
+            self.analysis.pop_caller_node()
             self._call_stack.discard(called_function)
 
         if not per_index:
@@ -306,12 +308,6 @@ class InterproceduralHandler(BaseOperationHandler):
             return tags, trace
 
         called_function = self._get_called_function(operation)
-        if called_function is None:
-            _logger.debug(
-                "{name}: callee unresolvable, defaulting to NEUTRAL",
-                name=function_name,
-            )
-            return frozenset({tag}), None
 
         known = _lookup_known_function_tag(
             called_function, function_name, self.analysis.known_tags
@@ -331,8 +327,15 @@ class InterproceduralHandler(BaseOperationHandler):
             )
             return known_tags, trace
 
+        if called_function is None:
+            _logger.debug(
+                "{name}: callee unresolvable, defaulting to NEUTRAL",
+                name=function_name,
+            )
+            return frozenset({RoundingTag.NEUTRAL}), None
+
         body_tags, child_traces = self._analyze_function_body(
-            called_function, operation.arguments, domain
+            called_function, operation.arguments, domain, caller_node=node
         )
         if body_tags:
             _logger.debug(
@@ -367,11 +370,14 @@ class InterproceduralHandler(BaseOperationHandler):
         function: Function,
         arguments: list,
         domain: RoundingDomain,
+        caller_node: Node | None = None,
     ) -> tuple[TagSet | None, list[TraceNode]]:
         """Analyze function body with argument tag mapping.
 
         Returns (tags, child_traces) where tags is the set of all return value tags,
-        and child_traces contains provenance from nested calls.
+        and child_traces contains provenance from nested calls. The caller_node,
+        when supplied, is recorded so any inconsistencies emitted inside the
+        callee body are attributed to the user-visible call site.
         """
         if function in self._call_stack:
             _logger.debug(
@@ -388,9 +394,13 @@ class InterproceduralHandler(BaseOperationHandler):
             return None, []
 
         self._call_stack.add(function)
+        if caller_node is not None:
+            self.analysis.push_caller_node(caller_node)
         try:
             return self._run_interprocedural_analysis(function, arguments, domain)
         finally:
+            if caller_node is not None:
+                self.analysis.pop_caller_node()
             self._call_stack.discard(function)
 
     def _run_interprocedural_analysis(
@@ -584,7 +594,7 @@ class InterproceduralHandler(BaseOperationHandler):
             f"{function_name}: numerator and denominator both "
             f"{numerator_tag.name} in {operation}"
         )
-        self.analysis.inconsistencies.append(
+        self.analysis.record_inconsistency(
             RoundingFinding(message=message, node=node)
         )
         self.analysis._logger.warning(message)
@@ -662,17 +672,26 @@ def _is_in_false_branch(if_node: Node, target: Node) -> bool:
 
 
 def _lookup_known_function_tag(
-    called_function: Function,
+    called_function: Function | None,
     function_name: str,
     known_tags: dict[tuple[str, str], RoundingTag] | None,
 ) -> RoundingTag | None:
-    """Check if function matches a known library rounding pattern."""
+    """Check if function matches a known library rounding pattern.
+
+    First tries exact (contract_name, function_name) match. Falls back to
+    function-name-only match so interface calls (where the callee body is
+    unavailable) can still resolve via the safe-libs DB.
+    """
     if known_tags is None:
         return None
-    if not isinstance(called_function, FunctionContract):
-        return None
-    return lookup_known_tag(
-        called_function.contract_declarer.name, function_name, known_tags
+    if isinstance(called_function, FunctionContract):
+        contract_name = called_function.contract_declarer.name
+        tag = lookup_known_tag(contract_name, function_name, known_tags)
+        if tag is not None:
+            return tag
+    return next(
+        (tag for (_contract, fn), tag in known_tags.items() if fn == function_name),
+        None,
     )
 
 

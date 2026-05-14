@@ -33,6 +33,8 @@ TEST_CONTRACTS: list[str] = [
     "Test_TupleReturn.sol",
     "Test_LibraryCall.sol",
     "Test_InlineAnnotation.sol",
+    "Test_SplitReturn.sol",
+    "Test_MultipleDownPaths.sol",
 ]
 
 
