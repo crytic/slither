@@ -79,6 +79,20 @@ defaults_flag_in_config = {
 }
 
 
+def config_defaults_as_json() -> dict[str, object]:
+    """Return JSON-compatible configuration defaults."""
+    return {
+        key: value.value if isinstance(value, enum.Enum) else value
+        for key, value in defaults_flag_in_config.items()
+    }
+
+
+def output_config_to_markdown() -> None:
+    print("```json")
+    print(json.dumps(config_defaults_as_json(), indent=4))
+    print("```")
+
+
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
     if args.config_file is None:
