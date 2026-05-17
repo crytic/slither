@@ -640,6 +640,16 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants_with_override.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants_with_override.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.ControlledDelegateCall,
         "controlled_delegatecall.sol",
         "0.4.25",
