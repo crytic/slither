@@ -126,36 +126,104 @@ Some options can be set through a json configuration file. By default, `slither.
 
 Options passed via the CLI have priority over options set in the configuration file.
 
-The following flags are supported:
+The following Slither flags are supported:
 
-```sh
+<!-- slither-config-options:start -->
+```json
 {
+    "codex": false,
+    "codex_contracts": "all",
+    "codex_model": "text-davinci-003",
+    "codex_temperature": 0,
+    "codex_max_tokens": 300,
+    "codex_log": false,
     "detectors_to_run": "all",
-    "printers_to_run": None,
-    "detectors_to_exclude": None,
-    "detectors_to_include": None,
-    "exclude_dependencies": False,
-    "exclude_informational": False,
-    "exclude_optimization": False,
-    "exclude_low": False,
-    "exclude_medium": False,
-    "exclude_high": False,
-    "fail_on": FailOnLevel.PEDANTIC,
-    "json": None,
-    "sarif": None,
-    "disable_color": False,
-    "filter_paths": None,
-    "include_paths": None,
-    "generate_patches": False,
-    "skip_assembly": False,
-    "legacy_ast": False,
-    "zip": None,
+    "printers_to_run": null,
+    "detectors_to_exclude": null,
+    "detectors_to_include": null,
+    "exclude_dependencies": false,
+    "exclude_informational": false,
+    "exclude_optimization": false,
+    "exclude_low": false,
+    "exclude_medium": false,
+    "exclude_high": false,
+    "exclude_location": false,
+    "fail_on": "pedantic",
+    "json": null,
+    "sarif": null,
+    "json-types": "detectors,printers",
+    "disable_color": false,
+    "filter_paths": null,
+    "include_paths": null,
+    "generate_patches": false,
+    "skip_assembly": false,
+    "legacy_ast": false,
+    "zip": null,
     "zip_type": "lzma",
-    "show_ignored_findings": False,
+    "show_ignored_findings": false,
+    "warn_unused_ignores": false,
+    "no_fail": false,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
-    "triage_database": "slither.db.json",
+    "triage_database": "slither.db.json"
 }
 ```
+<!-- slither-config-options:end -->
 
-For flags related to the compilation, see the [`crytic-compile` configuration](https://github.com/crytic/crytic-compile/blob/master/crytic_compile/cryticparser/defaults.py)
+For flags related to compilation, the following `crytic-compile` flags are also supported:
+
+<!-- crytic-compile-config-options:start -->
+```json
+{
+    "compile_force_framework": null,
+    "compile_remove_metadata": false,
+    "compile_custom_build": null,
+    "solc": "solc",
+    "solc_remaps": null,
+    "solc_args": null,
+    "solc_disable_warnings": false,
+    "solc_working_dir": null,
+    "solc_solcs_select": null,
+    "solc_solcs_bin": null,
+    "solc_standard_json": false,
+    "solc_force_legacy_json": false,
+    "truffle_version": null,
+    "truffle_ignore_compile": false,
+    "truffle_build_directory": "build/contracts",
+    "truffle_overwrite_config": false,
+    "truffle_overwrite_version": null,
+    "embark_ignore_compile": false,
+    "embark_overwrite_config": false,
+    "brownie_ignore_compile": false,
+    "dapp_ignore_compile": false,
+    "etherlime_ignore_compile": false,
+    "etherlime_compile_arguments": null,
+    "etherscan_only_source_code": false,
+    "etherscan_only_bytecode": false,
+    "etherscan_api_key": null,
+    "etherscan_export_directory": "etherscan-contracts",
+    "waffle_ignore_compile": false,
+    "waffle_config_file": null,
+    "npx_disable": false,
+    "ignore_compile": false,
+    "skip_clean": false,
+    "buidler_ignore_compile": false,
+    "buidler_cache_directory": "cache",
+    "buidler_skip_directory_name_fix": false,
+    "hardhat_ignore_compile": false,
+    "hardhat_cache_directory": null,
+    "hardhat_artifacts_directory": null,
+    "foundry_ignore_compile": false,
+    "foundry_out_directory": null,
+    "foundry_compile_all": false,
+    "export_dir": "crytic-export",
+    "compile_libraries": null
+}
+```
+<!-- crytic-compile-config-options:end -->
+
+To refresh this section after changing configuration defaults, run:
+
+```sh
+python scripts/generate_config_docs.py
+```
