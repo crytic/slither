@@ -54,6 +54,8 @@ from slither.utils.output_capture import StandardOutputCapture
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+DEFAULT_EXCLUDE_TEST_PATHS = r"(?i)(^|/)(tests?|mocks?)(/|$)|(^|/)(test|mock)[^/]*\.sol$"
+
 
 ###################################################################################
 ###################################################################################
@@ -315,6 +317,16 @@ def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> list[str]
     return []
 
 
+def apply_exclude_test_filter(args: argparse.Namespace) -> None:
+    if not args.exclude_test:
+        return
+
+    if args.include_paths:
+        raise ValueError("Error: --exclude-test cannot be used with --include-paths")
+
+    args.filter_paths.append(DEFAULT_EXCLUDE_TEST_PATHS)
+
+
 def parse_args(
     detector_classes: list[type[AbstractDetector]],
     printer_classes: list[type[AbstractPrinter]],
@@ -440,6 +452,13 @@ def parse_args(
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--exclude-test",
+        help="Exclude detector results matching test or mock file paths",
+        action="store_true",
+        default=defaults_flag_in_config["exclude_test"],
     )
 
     group_detector.add_argument(
@@ -718,6 +737,7 @@ def parse_args(
 
     args.filter_paths = parse_filter_paths(args, True)
     args.include_paths = parse_filter_paths(args, False)
+    apply_exclude_test_filter(args)
 
     # Verify our json-type output is valid
     args.json_types = set(args.json_types.split(","))  # type:ignore
