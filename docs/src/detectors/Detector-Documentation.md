@@ -1493,7 +1493,7 @@ contract Constant{
     uint counter;
     function get() public view returns(uint){
        counter = counter +1;
-       return counter
+       return counter;
     }
 }
 ```
@@ -1529,7 +1529,7 @@ contract Constant{
     uint counter;
     function get() public view returns(uint){
        counter = counter +1;
-       return counter
+       return counter;
     }
 }
 ```
@@ -1857,7 +1857,7 @@ Uninitialized local variables.
 contract Uninitialized is Owner{
     function withdraw() payable public onlyOwner{
         address to;
-        to.transfer(this.balance)
+        to.transfer(this.balance);
     }
 }
 ```
@@ -1950,7 +1950,7 @@ If a modifier does not execute `_` or revert, the execution of the function will
 ### Exploit Scenario
 
 ```solidity
-    modidfier myModif(){
+    modifier myModif(){
         if(..){
            _;
         }
@@ -2212,7 +2212,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
 
 ### Recommendation
 
-Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls.
+Favor [pull over push](https://docs.soliditylang.org/en/latest/common-patterns.html#withdrawal-from-contracts) strategy for external calls.
 
 ## Missing events access control
 
@@ -2371,7 +2371,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
         if( ! (msg.sender.call()() ) ){
             throw;
         }
-        counter += 1
+        counter += 1;
     }
 ```
 
@@ -3035,11 +3035,11 @@ Functions that are not used.
 
 ```solidity
 contract Contract{
-    function dead_code() internal() {}
+    function dead_code() internal {}
 }
 ```
 
-`dead_code` is not used in the contract, and make the code's review more difficult.
+`dead_code` is not used in the contract, and makes the code's review more difficult.
 
 ### Recommendation
 
@@ -3062,7 +3062,7 @@ Only report reentrancy that is based on `transfer` or `send`.
 
 ```solidity
     function callme(){
-        msg.sender.transfer(balances[msg.sender]):
+        msg.sender.transfer(balances[msg.sender]);
         balances[msg.sender] = 0;
     }
 ```
