@@ -1327,6 +1327,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ModifierDefaultDetection,
+        "modifier_revert_variants.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.IncorrectUnaryExpressionDetection,
         "invalid_unary_expression.sol",
         "0.4.25",
