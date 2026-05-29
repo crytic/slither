@@ -5,6 +5,7 @@ import os
 import re
 import logging
 from collections import defaultdict
+from typing import Any
 
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
@@ -79,6 +80,19 @@ defaults_flag_in_config = {
 }
 
 
+def _convert_config_default(value: Any) -> Any:
+    if isinstance(value, enum.Enum):
+        return value.value
+    return value
+
+
+def output_config_json() -> dict[str, Any]:
+    return {
+        key: _convert_config_default(value)
+        for key, value in sorted(defaults_flag_in_config.items())
+    }
+
+
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
     if args.config_file is None:
@@ -99,8 +113,10 @@ def read_config_file(args: argparse.Namespace) -> None:
                             yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
                         )
                         continue
-                    if getattr(args, key) == defaults_flag_in_config[key]:
-                        setattr(args, key, elem)
+                    arg_key = key.replace("-", "_")
+                    current_value = getattr(args, arg_key, defaults_flag_in_config[key])
+                    if current_value == defaults_flag_in_config[key]:
+                        setattr(args, arg_key, elem)
         except json.decoder.JSONDecodeError as e:
             logger.error(red(f"Impossible to read {args.config_file}, please check the file {e}"))
     else:

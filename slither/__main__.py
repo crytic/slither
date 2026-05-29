@@ -33,6 +33,7 @@ from slither.utils.command_line import (
     defaults_flag_in_config,
     output_detectors,
     output_detectors_json,
+    output_config_json,
     output_printers,
     output_printers_json,
     output_results_to_markdown,
@@ -615,6 +616,14 @@ def parse_args(
     )
 
     group_misc.add_argument(
+        "--list-config",
+        help="List supported configuration file options with their default values",
+        action=ListConfig,
+        nargs=0,
+        default=False,
+    )
+
+    group_misc.add_argument(
         "--change-line-prefix",
         help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
         action="store",
@@ -740,6 +749,12 @@ class ListDetectorsJson(argparse.Action):
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
+        parser.exit()
+
+
+class ListConfig(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
+        print(json.dumps(output_config_json(), indent=4))
         parser.exit()
 
 
