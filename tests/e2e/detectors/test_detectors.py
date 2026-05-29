@@ -640,6 +640,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.NamingConvention,
+        "naming_convention_yul_local.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.ControlledDelegateCall,
         "controlled_delegatecall.sol",
         "0.4.25",
