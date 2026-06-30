@@ -106,6 +106,8 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
     output = printer.output("test_inheritance.txt")
 
     # Data is nested under additional_fields
+    assert "\r" not in output.data["description"]
+
     data = output.data["additional_fields"]
 
     # Verify JSON structure has expected keys
