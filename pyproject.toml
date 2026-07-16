@@ -37,6 +37,8 @@ dependencies = [
     "eth-abi>=5.0.1",
     "eth-typing>=5.0.0",
     "eth-utils>=5.0.0",
+    "loguru>=0.7.3",
+    "z3-solver>=4.16.0.0",
 ]
 
 [project.optional-dependencies]
