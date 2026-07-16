@@ -1,13 +1,10 @@
-from typing import List
-
-
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Operation
 
 
 class Nop(Operation):
     @property
-    def read(self) -> List[Variable]:
+    def read(self) -> list[Variable]:
         return []
 
     @property

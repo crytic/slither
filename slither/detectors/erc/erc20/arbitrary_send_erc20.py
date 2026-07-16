@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -13,19 +11,19 @@ class ArbitrarySendErc20:
 
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         self._compilation_unit = compilation_unit
-        self._no_permit_results: List[Node] = []
-        self._permit_results: List[Node] = []
+        self._no_permit_results: list[Node] = []
+        self._permit_results: list[Node] = []
 
     @property
     def compilation_unit(self) -> SlitherCompilationUnit:
         return self._compilation_unit
 
     @property
-    def no_permit_results(self) -> List[Node]:
+    def no_permit_results(self) -> list[Node]:
         return self._no_permit_results
 
     @property
-    def permit_results(self) -> List[Node]:
+    def permit_results(self) -> list[Node]:
         return self._permit_results
 
     def _detect_arbitrary_from(self, contract: Contract) -> None:
@@ -49,7 +47,7 @@ class ArbitrarySendErc20:
                     ArbitrarySendErc20._arbitrary_from(f, self._no_permit_results)
 
     @staticmethod
-    def _arbitrary_from(function: FunctionContract, results: List[Node]) -> None:
+    def _arbitrary_from(function: FunctionContract, results: list[Node]) -> None:
         """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
         for _, ir in function.high_level_calls:
             if (

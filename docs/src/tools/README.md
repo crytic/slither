@@ -1,3 +1,5 @@
+# Slither Inbuilt Tools
+
 Slither comes with inbuilt tools
 
 | Name                                                | Command-Line                   | What it Does                                                                                                                                                            |

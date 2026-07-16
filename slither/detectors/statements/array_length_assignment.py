@@ -1,7 +1,6 @@
 """
 Module detecting assignment of array length
 """
-from typing import List, Set, Union
 
 from slither.core.variables import Variable
 from slither.detectors.abstract_detector import (
@@ -19,7 +18,7 @@ from slither.core.declarations.contract import Contract
 from slither.utils.output import Output, SupportedOutput
 
 
-def detect_array_length_assignment(contract: Contract) -> Set[Node]:
+def detect_array_length_assignment(contract: Contract) -> set[Node]:
     """
     Detects and returns all nodes which assign array length.
     :param contract: Contract to detect assignment within.
@@ -30,7 +29,7 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
     results = set()
 
     # Loop for each function and modifier.
-    # pylint: disable=too-many-nested-blocks
+
     for function in contract.functions_and_modifiers_declared:
         # Define a set of reference variables which refer to array length.
         array_length_refs = set()
@@ -40,7 +39,6 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
         for node in function.nodes:
             if node.type == NodeType.EXPRESSION:
                 for ir in node.irs:
-
                     # First we look for the member access for 'length', for which a reference is created.
                     # We add the reference to our list of array length references.
                     if isinstance(ir, Length):  # a
@@ -102,8 +100,8 @@ contract A {
 }
 ```
 Contract storage/state-variables are indexed by a 256-bit integer.
-The user can set the array length to `2**256-1` in order to index all storage slots. 
-In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired. 
+The user can set the array length to `2**256-1` in order to index all storage slots.
+In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired.
 Note that storage slots here are indexed via a hash of the indexers; nonetheless, all storage will still be accessible and could be controlled by the attacker."""
     # endregion wiki_exploit_scenario
 
@@ -114,7 +112,7 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04 + ALL_SOLC_VERSIONS_05
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect array length assignments
         """
@@ -122,12 +120,12 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
         for contract in self.contracts:
             array_length_assignments = detect_array_length_assignment(contract)
             if array_length_assignments:
-                contract_info: List[Union[str, SupportedOutput]] = [
+                contract_info: list[str | SupportedOutput] = [
                     contract,
                     " contract sets array length with a user-controlled value:\n",
                 ]
                 for node in array_length_assignments:
-                    node_info: List[Union[str, SupportedOutput]] = contract_info + [
+                    node_info: list[str | SupportedOutput] = contract_info + [
                         "\t- ",
                         node,
                         "\n",

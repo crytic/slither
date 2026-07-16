@@ -1,8 +1,8 @@
 """
 Module detecting possible loss of precision due to divide before multiple
 """
+
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
@@ -61,12 +61,11 @@ def is_assert(node: Node) -> bool:
     return False
 
 
-# pylint: disable=too-many-branches
 def _explore(
-    to_explore: List[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
+    to_explore: list[Node], f_results: list[list[Node]], divisions: defaultdict[LVALUE, list[Node]]
 ) -> None:
     explored = set()
-    while to_explore:  # pylint: disable=too-many-nested-blocks
+    while to_explore:
         node = to_explore.pop()
 
         if node in explored:
@@ -75,7 +74,7 @@ def _explore(
 
         equality_found = False
         # List of nodes related to one bug instance
-        node_results: List[Node] = []
+        node_results: list[Node] = []
 
         for ir in node.irs:
             if isinstance(ir, Assignment):
@@ -119,7 +118,7 @@ def _explore(
 
 def detect_divide_before_multiply(
     contract: Contract,
-) -> List[Tuple[FunctionContract, List[Node]]]:
+) -> list[tuple[FunctionContract, list[Node]]]:
     """
     Detects and returns all nodes with multiplications of division results.
     :param contract: Contract to detect assignment within.
@@ -130,7 +129,7 @@ def detect_divide_before_multiply(
     # List of tuple (function -> list(list(nodes)))
     # Each list(nodes) of the list is one bug instances
     # Each node in the list(nodes) is involved in the bug
-    results: List[Tuple[FunctionContract, List[Node]]] = []
+    results: list[tuple[FunctionContract, list[Node]]] = []
 
     # Loop for each function and modifier.
     for function in contract.functions_declared + contract.modifiers_declared:
@@ -139,11 +138,11 @@ def detect_divide_before_multiply(
 
         # List of list(nodes)
         # Each list(nodes) is one bug instances
-        f_results: List[List[Node]] = []
+        f_results: list[list[Node]] = []
 
         # lvalue -> node
         # track all the division results (and the assignment of the division results)
-        divisions: DefaultDict[LVALUE, List[Node]] = defaultdict(list)
+        divisions: defaultdict[LVALUE, list[Node]] = defaultdict(list)
 
         _explore([function.entry_point], f_results, divisions)
 
@@ -178,14 +177,14 @@ contract A {
     }
 }
 ```
-If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
-If `(oldSupply * interest / n)` was used, `coins` would have been `1`.   
+If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.
+If `(oldSupply * interest / n)` was used, `coins` would have been `1`.
 In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous."""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect divisions before multiplications
         """
@@ -193,8 +192,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
         for contract in self.contracts:
             divisions_before_multiplications = detect_divide_before_multiply(contract)
             if divisions_before_multiplications:
-                for (func, nodes) in divisions_before_multiplications:
-
+                for func, nodes in divisions_before_multiplications:
                     info: DETECTOR_INFO = [
                         func,
                         " performs a multiplication on the result of a division:\n",

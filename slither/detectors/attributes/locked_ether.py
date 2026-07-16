@@ -1,7 +1,6 @@
 """
-    Check if ethers are locked in the contract
+Check if ethers are locked in the contract
 """
-from typing import List
 
 from slither.core.declarations import Contract, SolidityFunction
 from slither.detectors.abstract_detector import (
@@ -23,8 +22,7 @@ from slither.slithir.variables import Constant
 from slither.utils.output import Output
 
 
-class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
-
+class LockedEther(AbstractDetector):
     ARGUMENT = "locked-ether"
     HELP = "Contracts that lock ether"
     IMPACT = DetectorClassification.MEDIUM
@@ -54,7 +52,7 @@ Every Ether sent to `Locked` will be lost."""
         functions = contract.all_functions_called
         to_explore = functions
         explored = []
-        while to_explore:  # pylint: disable=too-many-nested-blocks
+        while to_explore:
             functions = to_explore
             explored += to_explore
             to_explore = []
@@ -97,12 +95,12 @@ Every Ether sent to `Locked` will be lost."""
                         # Add it to the list to explore
                         # InternalCall if to follow internal call in libraries
                         if isinstance(ir, (InternalCall, LibraryCall)):
-                            if not ir.function in explored:
+                            if ir.function not in explored:
                                 to_explore.append(ir.function)
 
         return True
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

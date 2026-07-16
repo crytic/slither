@@ -5,7 +5,7 @@ Testing utilities for the read-storage tool
 import shutil
 import subprocess
 from time import sleep
-from typing import Generator
+from collections.abc import Generator
 from dataclasses import dataclass
 from web3 import Web3
 import pytest
@@ -23,7 +23,6 @@ class GanacheInstance:
 def fixture_ganache() -> Generator[GanacheInstance, None, None]:
     """Fixture that runs ganache"""
     if not shutil.which("ganache"):
-        # pylint: disable=broad-exception-raised
         raise Exception(
             "ganache was not found in PATH, you can install it with `npm install -g ganache`"
         )
@@ -41,12 +40,9 @@ def fixture_ganache() -> Generator[GanacheInstance, None, None]:
         --chain.networkId 1
         --chain.chainId 1
         --account {eth_privkey},{eth}
-        """.replace(
-            "\n", " "
-        ),
+        """.replace("\n", " "),
         shell=True,
     ) as p:
-
         sleep(3)
         yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
         p.kill()

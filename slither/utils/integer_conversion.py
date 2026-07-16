@@ -1,10 +1,9 @@
 from fractions import Fraction
-from typing import Union
 
 from slither.exceptions import SlitherError
 
 
-def convert_string_to_fraction(val: Union[str, bytes, int]) -> Fraction:
+def convert_string_to_fraction(val: str | bytes | int) -> Fraction:
     if isinstance(val, bytes):
         return int.from_bytes(val, byteorder="big")
     if isinstance(val, int):
@@ -33,5 +32,5 @@ def convert_string_to_fraction(val: Union[str, bytes, int]) -> Fraction:
     return Fraction(val)
 
 
-def convert_string_to_int(val: Union[str, int]) -> int:
+def convert_string_to_int(val: str | int) -> int:
     return int(convert_string_to_fraction(val))

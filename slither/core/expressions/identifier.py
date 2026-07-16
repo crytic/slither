@@ -26,7 +26,7 @@ class Identifier(Expression):
         ],
     ) -> None:
         super().__init__()
-        # pylint: disable=import-outside-toplevel
+
         from slither.core.declarations import Contract, SolidityVariable, SolidityFunction
         from slither.solc_parsing.yul.evm_functions import YulBuiltin
 
@@ -43,16 +43,16 @@ class Identifier(Expression):
             ),
         )
 
-        self._value: Union[
-            Variable,
-            "TopLevel",
-            "ContractLevel",
-            "Contract",
-            "SolidityVariable",
-            "SolidityFunction",
-            "YulBuiltin",
-        ] = value
-        self._type: Optional["Type"] = None
+        self._value: (
+            Variable
+            | TopLevel
+            | ContractLevel
+            | Contract
+            | SolidityVariable
+            | SolidityFunction
+            | YulBuiltin
+        ) = value
+        self._type: Type | None = None
 
     @property
     def type(self) -> Optional["Type"]:
@@ -79,5 +79,6 @@ class Identifier(Expression):
     def __str__(self) -> str:
         return str(self._value)
 
+    @property
     def expression(self):
         return self

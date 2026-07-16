@@ -1,15 +1,15 @@
 """
-    Robert "Uncle Bob" Martin - Agile software metrics
-    https://en.wikipedia.org/wiki/Software_package_metrics
+Robert "Uncle Bob" Martin - Agile software metrics
+https://en.wikipedia.org/wiki/Software_package_metrics
 
-    Efferent Coupling (Ce): Number of contracts that the contract depends on
-    Afferent Coupling (Ca): Number of contracts that depend on a contract
-    Instability (I): Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))
-    Abstractness (A): Number of abstract contracts / total number of contracts
-    Distance from the Main Sequence (D):  abs(A + I - 1)
+Efferent Coupling (Ce): Number of contracts that the contract depends on
+Afferent Coupling (Ca): Number of contracts that depend on a contract
+Instability (I): Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))
+Abstractness (A): Number of abstract contracts / total number of contracts
+Distance from the Main Sequence (D):  abs(A + I - 1)
 
 """
-from typing import Tuple, List, Dict
+
 from dataclasses import dataclass, field
 from collections import OrderedDict
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -17,7 +17,7 @@ from slither.core.declarations import Contract
 from slither.utils.myprettytable import make_pretty_table, MyPrettyTable
 
 
-@dataclass
+@dataclass(slots=True)
 class MartinContractMetrics:
     contract: Contract
     ca: int
@@ -31,7 +31,7 @@ class MartinContractMetrics:
             self.i = float(self.ce / (self.ce + self.ca))
             self.d = float(abs(self.i - self.abstractness))
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "Dependents": self.ca,
             "Dependencies": self.ce,
@@ -40,7 +40,7 @@ class MartinContractMetrics:
         }
 
 
-@dataclass
+@dataclass(slots=True)
 class SectionInfo:
     """Class to hold the information for a section of the report."""
 
@@ -49,9 +49,9 @@ class SectionInfo:
     txt: str
 
 
-@dataclass
+@dataclass(slots=True)
 class MartinMetrics:
-    contracts: List[Contract] = field(default_factory=list)
+    contracts: list[Contract] = field(default_factory=list)
     abstractness: float = 0.0
     contract_metrics: OrderedDict = field(default_factory=OrderedDict)
     title: str = "Martin complexity metrics"
@@ -63,7 +63,7 @@ class MartinMetrics:
         "Instability",
         "Distance from main sequence",
     )
-    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (("Core", "core", CORE_KEYS),)
+    SECTIONS: tuple[tuple[str, str, tuple[str]]] = (("Core", "core", CORE_KEYS),)
 
     def __post_init__(self) -> None:
         self.update_abstractness()
@@ -76,7 +76,7 @@ class MartinMetrics:
             contract.name: self.contract_metrics[contract.name].to_dict()
             for contract in self.contracts
         }
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n"
@@ -105,7 +105,6 @@ class MartinMetrics:
                 abstract_contract_count += 1
         self.abstractness = float(abstract_contract_count / len(self.contracts))
 
-    # pylint: disable=too-many-branches
     def update_coupling(self) -> None:
         dependencies = {}
         for contract in self.contracts:

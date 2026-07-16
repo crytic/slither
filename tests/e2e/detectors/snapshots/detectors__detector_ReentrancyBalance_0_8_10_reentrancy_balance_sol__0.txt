@@ -1,0 +1,55 @@
+Reentrancy in ReentrancyBalanceTest.bad3(IERC20) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#47-55):
+	External call allowing reentrancy:
+	- (success,None) = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#50)
+	Balance read before the call:
+	- balance_before = tk.balanceOf(address(this)) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#49)
+	Possible stale balance used after the call in a condition:
+	- tk.balanceOf(address(this)) - balance_before > amount_to_pay (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#52)
+		- stale variable `balance_before`
+
+Reentrancy in ReentrancyBalanceTest.bad4(IERC20,bool) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#58-67):
+	External call allowing reentrancy:
+	- IExternalCall(msg.sender).pay(amount_to_pay) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#62)
+	Balance read before the call:
+	- balance_before = tk.balanceOf(address(this)) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#60)
+	Possible stale balance used after the call in a condition:
+	- tk.balanceOf(address(this)) - balance_before > amount_to_pay (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#64)
+		- stale variable `balance_before`
+
+Reentrancy in ReentrancyBalanceTest.bad6(IERC20) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#76-85):
+	External call allowing reentrancy:
+	- IExternalCall(msg.sender).pay(amount_to_pay) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#79)
+	Balance read before the call:
+	- balance_before = tk.balanceOf(address(this)) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#78)
+	Possible stale balance used after the call in a condition:
+	- require(bool,string)(balance_after - balance_before >= amount_to_pay,Insufficient balance) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#81-84)
+		- stale variable `balance_before`
+
+Reentrancy in ReentrancyBalanceTest.bad5() (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#69-74):
+	External call allowing reentrancy:
+	- IExternalCall(msg.sender).pay(amount_to_pay) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#72)
+	Balance read before the call:
+	- balance_before = getBalance() (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#71)
+	Possible stale balance used after the call in a condition:
+	- require(bool)(getBalance() - balance_before >= amount_to_pay) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#73)
+		- stale variable `balance_before`
+
+Reentrancy in ReentrancyBalanceTest.bad1(IERC20) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#22-30):
+	External call allowing reentrancy:
+	- IExternalCall(msg.sender).pay(amount_to_pay) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#25)
+	Balance read before the call:
+	- balance_before = tk.balanceOf(address(this)) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#24)
+	Possible stale balance used after the call in a condition:
+	- require(bool,string)(tk.balanceOf(address(this)) - balance_before >= amount_to_pay,Insufficient balance) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#26-29)
+		- stale variable `balance_before`
+
+Reentrancy in ReentrancyBalanceTest.bad2(IERC20) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#33-40):
+	External call allowing reentrancy:
+	- internalCall() (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#36)
+		- IExternalCall(msg.sender).pay(8) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#43)
+	Balance read before the call:
+	- balance_before = tk.balanceOf(address(this)) (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#35)
+	Possible stale balance used after the call in a condition:
+	- tk.balanceOf(address(this)) - balance_before > amount_to_pay (tests/e2e/detectors/test_data/reentrancy-balance/0.8.10/reentrancy_balance.sol#37)
+		- stale variable `balance_before`
+

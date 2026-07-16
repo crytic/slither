@@ -54,7 +54,7 @@ If you want to check also the proxy, use:
 
 If you use zos, you will have the proxy and the contract in different directories.
 
-Likely, you will use one of the proxy from https://github.com/zeppelinos/zos. Clone the `zos`, and install the dependencies:
+Likely, you will use one of the proxy from <https://github.com/zeppelinos/zos>. Clone the `zos`, and install the dependencies:
 
 ```
 git clone https://github.com/zeppelinos/zos
@@ -86,7 +86,7 @@ According to your setup, you might choose another proxy name than `Upgradeabilit
 
 Detect state variables that should not be `constant̀`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -120,7 +120,7 @@ Do not make an existing state variable `constant`.
 
 Detect function ID collision between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -154,7 +154,7 @@ Rename the function. Avoid public functions in the proxy.
 
 Detect function shadowing between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -187,7 +187,7 @@ Rename the function. Avoid public functions in the proxy.
 
 Detect missing calls to initialize functions.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Base{
@@ -220,7 +220,7 @@ Ensure all the initialize functions are reached by the most derived initialize f
 
 Detect if `Initializable.initializer()` is called.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -248,7 +248,7 @@ Use `Initializable.initializer()`.
 
 Detect multiple calls to a initialize function.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Base{
@@ -271,7 +271,7 @@ contract DerivedDerived is Derived{
 
 ```
 
-`Base.initialize(uint)` is called two times in `DerivedDerived.initiliaze` execution, leading to a potential corruption.
+`Base.initialize(uint)` is called two times in `DerivedDerived.initialize` execution, leading to a potential corruption.
 
 ### Recommendation
 
@@ -288,7 +288,7 @@ Call only one time every initialize function.
 
 Detect variables that are different between the original contract and the updated one.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -317,7 +317,7 @@ Respect the variable order of the original contract in the updated contract.
 
 Detect variables that are different between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -346,7 +346,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
 Detect state variables that are initialized.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -371,7 +371,7 @@ Using initialize functions to write initial values in state variables.
 
 Detect state variables that should be `constant̀`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -405,7 +405,7 @@ Do not remove `constant` from a state variables during an update.
 
 Detect variables that are in the proxy and not in the contract.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -435,7 +435,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
 Detect variables that were present in the original contracts but are not in the updated one.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract V1{
@@ -469,7 +469,7 @@ Show new variables in the updated contract.
 
 This finding does not have an immediate security impact and is informative.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{

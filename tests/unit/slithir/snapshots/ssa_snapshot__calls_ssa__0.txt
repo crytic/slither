@@ -1,0 +1,70 @@
+============================================================
+SSA Snapshot: Calls Contract
+============================================================
+
+Function: _helper
+Parameters: ['val']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+  SSA: val_1(uint256) := ϕ(['TMP_1', 'x_2'])
+       lvalue: val_1 (type=LocalIRVariable)
+       rvalues: ['TMP_1', 'x_2']
+
+Node 1 (RETURN):
+  Expression: val * 3
+  SSA: TMP_2(uint256) = val_1 (c)* 3
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_2
+
+----------------------------------------
+
+Function: externalCallTest
+Parameters: ['target', 'x']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (RETURN):
+  Expression: ITarget(target).externalFunc(x)
+  SSA: TMP_1 = CONVERT target_1 to ITarget
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: TMP_2(uint256) = HIGH_LEVEL_CALL, dest:TMP_1(ITarget), function:externalFunc, arguments:['x_2']  
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_2
+
+----------------------------------------
+
+Function: internalCallTest
+Parameters: ['x']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (RETURN):
+  Expression: _helper(x) + _helper(x * 2)
+  SSA: TMP_1(uint256) = INTERNAL_CALL, Calls._helper(uint256)(x_1)
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: TMP_2(uint256) = x_1 (c)* 2
+       lvalue: TMP_2 (type=TemporaryVariableSSA)
+  SSA: TMP_3(uint256) = INTERNAL_CALL, Calls._helper(uint256)(TMP_2)
+       lvalue: TMP_3 (type=TemporaryVariableSSA)
+  SSA: TMP_4(uint256) = TMP_1 (c)+ TMP_3
+       lvalue: TMP_4 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_4
+
+----------------------------------------
+
+Function: solidityCallTest
+Parameters: ['data']
+Returns: ['']
+
+Node 0 (ENTRYPOINT):
+
+Node 1 (RETURN):
+  Expression: keccak256(bytes)(data)
+  SSA: TMP_1(bytes32) = SOLIDITY_CALL keccak256(bytes)(data_1)
+       lvalue: TMP_1 (type=TemporaryVariableSSA)
+  SSA: RETURN TMP_1
+
+----------------------------------------

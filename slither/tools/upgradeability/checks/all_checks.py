@@ -1,4 +1,3 @@
-# pylint: disable=unused-import
 from slither.tools.upgradeability.checks.initialization import (
     InitializablePresent,
     InitializableInherited,

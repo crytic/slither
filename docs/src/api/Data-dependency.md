@@ -37,7 +37,7 @@ If we consider the contract entirely (with all the functions), we have:
 
 As a result, in our previous example, `is_dependent(b, a, funcA)` will return `False`, while `is_dependent(b, a, myContract)` will return `True`:
 
-```
+```python
 from slither import Slither
 from slither.analyses import is_dependent
 

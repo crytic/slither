@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple
 
 from slither import Slither
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.tests_pattern import is_test_file
 
 
-@dataclass
+@dataclass(slots=True)
 class LoCInfo:
     loc: int = 0
     sloc: int = 0
@@ -17,7 +16,7 @@ class LoCInfo:
         return self.loc + self.sloc + self.cloc
 
 
-@dataclass
+@dataclass(slots=True)
 class LoC:
     src: LoCInfo = field(default_factory=LoCInfo)
     dep: LoCInfo = field(default_factory=LoCInfo)
@@ -35,7 +34,7 @@ class LoC:
         return table
 
 
-def count_lines(contract_lines: List[str]) -> Tuple[int, int, int]:
+def count_lines(contract_lines: list[str]) -> tuple[int, int, int]:
     """Function to count and classify the lines of code in a contract.
     Args:
         contract_lines: list(str) representing the lines of a contract.

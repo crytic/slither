@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional, Tuple, List
 
 from slither import Slither
 from slither.core.declarations import (
@@ -61,7 +60,7 @@ slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)
 
 
-def parse_target(target: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+def parse_target(target: str | None) -> tuple[str | None, str | None]:
     if target is None:
         return None, None
 
@@ -89,9 +88,7 @@ def load_and_encode(infile: str, vmodel, ext=None, nsamples=None, **kwargs):
     return r
 
 
-def load_contracts(
-    dirname: str, ext: Optional[str] = None, nsamples: Optional[int] = None
-) -> List[str]:
+def load_contracts(dirname: str, ext: str | None = None, nsamples: int | None = None) -> list[str]:
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:
@@ -106,7 +103,7 @@ def load_contracts(
     return r[:nsamples]
 
 
-def ntype(_type):  # pylint: disable=too-many-branches
+def ntype(_type):
     if isinstance(_type, ElementaryType):
         _type = str(_type)
     elif isinstance(_type, ArrayType):
@@ -141,7 +138,7 @@ def ntype(_type):  # pylint: disable=too-many-branches
     return _type.replace(" ", "_")
 
 
-def encode_ir(ir):  # pylint: disable=too-many-branches
+def encode_ir(ir):
     # operations
     if isinstance(ir, Assignment):
         return f"({encode_ir(ir.lvalue)}):=({encode_ir(ir.rvalue)})"
@@ -152,9 +149,9 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
     if isinstance(ir, Length):
         return "length"
     if isinstance(ir, Binary):
-        return f"binary({str(ir.type)})"
+        return f"binary({ir.type!s})"
     if isinstance(ir, Unary):
-        return f"unary({str(ir.type)})"
+        return f"unary({ir.type!s})"
     if isinstance(ir, Condition):
         return f"condition({encode_ir(ir.value)})"
     if isinstance(ir, NewStructure):
@@ -227,16 +224,14 @@ def encode_contract(cfilename, **kwargs):
     # Init slither
     try:
         slither = Slither(cfilename, **kwargs)
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
         return r
 
     # Iterate over all the contracts
     for contract in slither.contracts:
-
         # Iterate over all the functions
         for function in contract.functions_declared:
-
             if function.nodes == [] or function.is_constructor_variables:
                 continue
 

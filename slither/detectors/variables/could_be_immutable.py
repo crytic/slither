@@ -1,4 +1,3 @@
-from typing import List, Dict
 from slither.utils.output import Output
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.variables.unchanged_state_variables import custom_format
@@ -25,7 +24,7 @@ class CouldBeImmutable(AbstractDetector):
     WIKI_DESCRIPTION = "State variables that are not updated following deployment should be declared immutable to save gas."
     WIKI_RECOMMENDATION = "Add the `immutable` attribute to state variables that never change or are set only in the constructor."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect state variables that could be immutable"""
         results = {}
         unchanged_state_variables = UnchangedStateVariables(self.compilation_unit)
@@ -40,5 +39,5 @@ class CouldBeImmutable(AbstractDetector):
         return [results[k] for k in sorted(results)]
 
     @staticmethod
-    def _format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
+    def _format(compilation_unit: SlitherCompilationUnit, result: dict) -> None:
         custom_format(compilation_unit, result, "immutable")

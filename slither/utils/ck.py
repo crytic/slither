@@ -1,37 +1,37 @@
 """
-    CK Metrics are a suite of six software metrics proposed by Chidamber and Kemerer in 1994.
-    These metrics are used to measure the complexity of a class.
-    https://en.wikipedia.org/wiki/Programming_complexity
+CK Metrics are a suite of six software metrics proposed by Chidamber and Kemerer in 1994.
+These metrics are used to measure the complexity of a class.
+https://en.wikipedia.org/wiki/Programming_complexity
 
-    - Response For a Class (RFC) is a metric that measures the number of unique method calls within a class.
-    - Number of Children (NOC) is a metric that measures the number of children a class has.
-    - Depth of Inheritance Tree (DIT) is a metric that measures the number of parent classes a class has.
-    - Coupling Between Object Classes (CBO) is a metric that measures the number of classes a class is coupled to.
+- Response For a Class (RFC) is a metric that measures the number of unique method calls within a class.
+- Number of Children (NOC) is a metric that measures the number of children a class has.
+- Depth of Inheritance Tree (DIT) is a metric that measures the number of parent classes a class has.
+- Coupling Between Object Classes (CBO) is a metric that measures the number of classes a class is coupled to.
 
-    Not implemented:
-    - Lack of Cohesion of Methods (LCOM) is a metric that measures the lack of cohesion in methods.
-    - Weighted Methods per Class (WMC) is a metric that measures the complexity of a class.
+Not implemented:
+- Lack of Cohesion of Methods (LCOM) is a metric that measures the lack of cohesion in methods.
+- Weighted Methods per Class (WMC) is a metric that measures the complexity of a class.
 
-    During the calculation of the metrics above, there are a number of other intermediate metrics that are calculated.
-    These are also included in the output:
-     - State variables: total number of state variables
-     - Constants: total number of constants
-     - Immutables: total number of immutables
-     - Public: total number of public functions
-     - External: total number of external functions
-     - Internal: total number of internal functions
-     - Private: total number of private functions
-     - Mutating: total number of state mutating functions
-     - View: total number of view functions
-     - Pure: total number of pure functions
-     - External mutating: total number of external mutating functions
-     - No auth or onlyOwner: total number of functions without auth or onlyOwner modifiers
-     - No modifiers: total number of functions without modifiers
-     - Ext calls: total number of external calls
+During the calculation of the metrics above, there are a number of other intermediate metrics that are calculated.
+These are also included in the output:
+ - State variables: total number of state variables
+ - Constants: total number of constants
+ - Immutables: total number of immutables
+ - Public: total number of public functions
+ - External: total number of external functions
+ - Internal: total number of internal functions
+ - Private: total number of private functions
+ - Mutating: total number of state mutating functions
+ - View: total number of view functions
+ - Pure: total number of pure functions
+ - External mutating: total number of external mutating functions
+ - No auth or onlyOwner: total number of functions without auth or onlyOwner modifiers
+ - No modifiers: total number of functions without modifiers
+ - Ext calls: total number of external calls
 
 """
+
 from collections import OrderedDict
-from typing import Tuple, List, Dict
 from dataclasses import dataclass, field
 from slither.utils.colors import bold
 from slither.core.declarations import Contract
@@ -78,18 +78,17 @@ def has_auth(func) -> bool:
 # Utility classes for calculating CK metrics
 
 
-@dataclass
-# pylint: disable=too-many-instance-attributes
+@dataclass(slots=True)
 class CKContractMetrics:
     """Class to hold the CK metrics for a single contract."""
 
     contract: Contract
 
     # Used to calculate CBO - should be passed in as a constructor arg
-    martin_metrics: Dict
+    martin_metrics: dict
 
     # Used to calculate NOC
-    dependents: Dict
+    dependents: dict
 
     state_variables: int = 0
     constants: int = 0
@@ -121,8 +120,6 @@ class CKContractMetrics:
         )
         self.calculate_metrics()
 
-    # pylint: disable=too-many-locals
-    # pylint: disable=too-many-branches
     def calculate_metrics(self) -> None:
         """Calculate the metrics for a contract"""
         rfc = self.public  # initialize with public getter count
@@ -136,7 +133,7 @@ class CKContractMetrics:
             public = func.visibility == "public"
             internal = func.visibility == "internal"
             private = func.visibility == "private"
-            external_public_mutating = external or public and mutating
+            external_public_mutating = external or (public and mutating)
             external_no_auth = external_public_mutating and not has_auth(func)
             external_no_modifiers = external_public_mutating and len(func.modifiers) == 0
             if external or public:
@@ -209,7 +206,7 @@ class CKContractMetrics:
         # self.public is used count public functions not public variables
         self.rfc = public_getter_count
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Return the metrics as a dictionary."""
         return OrderedDict(
             {
@@ -235,7 +232,7 @@ class CKContractMetrics:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class SectionInfo:
     """Class to hold the information for a section of the report."""
 
@@ -244,8 +241,7 @@ class SectionInfo:
     txt: str
 
 
-@dataclass
-# pylint: disable=too-many-instance-attributes
+@dataclass(slots=True)
 class CKMetrics:
     """Class to hold the CK metrics for all contracts. Contains methods useful for reporting.
 
@@ -257,7 +253,7 @@ class CKMetrics:
     5. CK metrics (RFC, NOC, DIT, CBO)
     """
 
-    contracts: List[Contract] = field(default_factory=list)
+    contracts: list[Contract] = field(default_factory=list)
     contract_metrics: OrderedDict = field(default_factory=OrderedDict)
     title: str = "CK complexity metrics"
     full_text: str = ""
@@ -294,7 +290,7 @@ class CKMetrics:
         "DIT",
         "CBO",
     )
-    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (
+    SECTIONS: tuple[tuple[str, str, tuple[str]]] = (
         ("Variables", "auxiliary1", AUXILIARY1_KEYS),
         ("Function visibility", "auxiliary2", AUXILIARY2_KEYS),
         ("State mutability", "auxiliary3", AUXILIARY3_KEYS),
@@ -325,7 +321,7 @@ class CKMetrics:
 
         subtitle = ""
         # Update each section
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             if attr == "core":
                 # Special handling for core section
                 totals_enabled = False

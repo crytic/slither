@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract
 from slither.core.declarations.function import Function
@@ -15,7 +13,6 @@ from slither.utils.output import Output
 
 
 class ReturnBomb(AbstractDetector):
-
     ARGUMENT = "return-bomb"
     HELP = "A low level callee may consume all callers gas unexpectedly."
     IMPACT = DetectorClassification.LOW
@@ -55,8 +52,8 @@ contract Mark {
 }
 
 ```
-After Mark calls BadGuy bytes are copied from returndata to memory, the memory expansion cost is paid. This means that when using a standard solidity call, the callee can "returnbomb" the caller, imposing an arbitrary gas cost. 
-Callee unexpectedly makes the caller OOG. 
+After Mark calls BadGuy bytes are copied from returndata to memory, the memory expansion cost is paid. This means that when using a standard solidity call, the callee can "returnbomb" the caller, imposing an arbitrary gas cost.
+Callee unexpectedly makes the caller OOG.
 """
 
     WIKI_RECOMMENDATION = "Avoid unlimited implicit decoding of returndata."
@@ -69,7 +66,7 @@ Callee unexpectedly makes the caller OOG.
             return True
         return False
 
-    def get_nodes_for_function(self, function: Function, contract: Contract) -> List[Node]:
+    def get_nodes_for_function(self, function: Function, contract: Contract) -> list[Node]:
         nodes = []
 
         for ir in [ir for _, ir in function.high_level_calls] + function.low_level_calls:
@@ -99,7 +96,7 @@ Callee unexpectedly makes the caller OOG.
 
         return nodes
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts:

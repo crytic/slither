@@ -1,7 +1,6 @@
 """
 Module detecting storage signed integer array bug
 """
-from typing import List, Tuple, Set
 
 from slither.core.declarations import Function, Contract
 from slither.detectors.abstract_detector import (
@@ -53,7 +52,7 @@ contract A {
 	}
 }
 ```
-`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.  
+`bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.
 `-1` is supposed to indicate uninitialized values but the Solidity bug makes these as `1`, which could be exploited by the accounts.
 """
     # endregion wiki_exploit_scenario
@@ -85,14 +84,14 @@ contract A {
 
     def detect_storage_signed_integer_arrays(
         self, contract: Contract
-    ) -> Set[Tuple[Function, Node]]:
+    ) -> set[tuple[Function, Node]]:
         """
         Detects and returns all nodes with storage-allocated signed integer array init/assignment
         :param contract: Contract to detect within
         :return: A list of tuples with (function, node) where function node has storage-allocated signed integer array init/assignment
         """
         # Create our result set.
-        results: Set[Tuple[Function, Node]] = set()
+        results: set[tuple[Function, Node]] = set()
 
         # Loop for each function and modifier.
         for function in contract.functions_and_modifiers_declared:
@@ -118,7 +117,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect storage signed integer array init/assignment
         """

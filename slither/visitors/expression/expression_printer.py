@@ -1,5 +1,3 @@
-from typing import Optional
-
 from slither.core import expressions
 from slither.core.expressions.expression import Expression
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -18,7 +16,7 @@ def set_val(expression: Expression, val: str) -> None:
 
 class ExpressionPrinter(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
-        self._result: Optional[str] = None
+        self._result: str | None = None
         super().__init__(expression)
 
     def result(self) -> str:

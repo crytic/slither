@@ -1,4 +1,3 @@
-from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -37,9 +36,9 @@ If an ERC20 token does not implement permit and has a fallback function e.g. WET
 Ensure that the underlying ERC20 token correctly implements a permit function.
 """
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
-        results: List[Output] = []
+        results: list[Output] = []
 
         arbitrary_sends = ArbitrarySendErc20(self.compilation_unit)
         arbitrary_sends.detect()

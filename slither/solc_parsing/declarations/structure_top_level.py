@@ -1,7 +1,8 @@
 """
-    Structure module
+Structure module
 """
-from typing import TYPE_CHECKING, Dict
+
+from typing import TYPE_CHECKING
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -13,20 +14,19 @@ if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 
-class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class StructureTopLevelSolc(CallerContextExpression):
     """
     Structure class
     """
 
     # elems = [(type, name)]
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         st: StructureTopLevel,
-        struct: Dict,
+        struct: dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
-
         if slither_parser.is_compact_ast:
             name = struct["name"]
             attributes = struct

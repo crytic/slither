@@ -1,4 +1,4 @@
-from typing import Set, List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType
 
@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-def intersection_predecessor(node: "Node") -> Set["Node"]:
+def intersection_predecessor(node: "Node") -> set["Node"]:
     if not node.fathers:
         return set()
 
@@ -26,7 +26,7 @@ def intersection_predecessor(node: "Node") -> Set["Node"]:
     return ret
 
 
-def _compute_dominators(nodes: List["Node"]) -> None:
+def _compute_dominators(nodes: list["Node"]) -> None:
     changed = True
 
     while changed:
@@ -39,7 +39,7 @@ def _compute_dominators(nodes: List["Node"]) -> None:
                 changed = True
 
 
-def _compute_immediate_dominators(nodes: List["Node"]) -> None:
+def _compute_immediate_dominators(nodes: list["Node"]) -> None:
     for node in nodes:
         idom_candidates = set(node.dominators)
         idom_candidates.remove(node)
@@ -69,7 +69,7 @@ def _compute_immediate_dominators(nodes: List["Node"]) -> None:
             idom.dominator_successors.add(node)
 
 
-def compute_dominators(nodes: List["Node"]) -> None:
+def compute_dominators(nodes: list["Node"]) -> None:
     """
     Naive implementation of Cooper, Harvey, Kennedy algo
     See 'A Simple,Fast Dominance Algorithm'
@@ -85,7 +85,7 @@ def compute_dominators(nodes: List["Node"]) -> None:
     _compute_immediate_dominators(nodes)
 
 
-def compute_dominance_frontier(nodes: List["Node"]) -> None:
+def compute_dominance_frontier(nodes: list["Node"]) -> None:
     """
     Naive implementation of Cooper, Harvey, Kennedy algo
     See 'A Simple,Fast Dominance Algorithm'

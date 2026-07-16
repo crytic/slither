@@ -6,13 +6,15 @@ See the [detector documentation](https://github.com/trailofbits/slither/wiki/Add
 
 ## Architecture
 
-- `setup.py`: Contain the plugin information
-- `slither_my_plugin/__init__.py`: Contain `make_plugin()`. The function must return the list of new detectors and printers
+- `pyproject.toml`: Contains the plugin information and dependencies
+- `slither_my_plugin/__init__.py`: Contains `make_plugin()`. The function must return the list of new detectors and printers
 - `slither_my_plugin/detectors/example.py`: Detector plugin skeleton.
 
-Once these files are updated with your plugin, you can install it:
-```bash
-python setup.py develop
-```
+## Installation
 
-We recommend to use a Python virtual environment (for example: [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)).
+Once these files are updated with your plugin, install it:
+
+```bash
+uv sync
+uv run slither --help  # Verify plugin is loaded
+```

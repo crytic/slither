@@ -1,5 +1,4 @@
 import sys
-from typing import Dict, Optional
 
 try:
     import numpy as np
@@ -9,7 +8,7 @@ except ImportError:
     sys.exit(-1)
 
 
-def load_cache(infile: str, nsamples: Optional[int] = None) -> Dict:
+def load_cache(infile: str, nsamples: int | None = None) -> dict:
     cache = {}
     with np.load(infile, allow_pickle=True) as data:
         array = data["arr_0"][0]
@@ -21,5 +20,5 @@ def load_cache(infile: str, nsamples: Optional[int] = None) -> Dict:
     return cache
 
 
-def save_cache(cache: Dict, outfile: str) -> None:
+def save_cache(cache: dict, outfile: str) -> None:
     np.savez(outfile, [np.array(cache)])

@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -33,18 +31,18 @@ import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 contract C {
 
     IPyth pyth;
-    
+
     constructor(IPyth _pyth) {
         pyth = _pyth;
     }
-    
+
     function A(bytes32 priceId) public {
         PythStructs.Price memory price = pyth.getPrice(priceId);
         ...
     }
-}    
+}
 ```
-The function `A` uses the deprecated `getPrice` Pyth function. 
+The function `A` uses the deprecated `getPrice` Pyth function.
 """
 
     def _detect(self):
@@ -53,7 +51,7 @@ The function `A` uses the deprecated `getPrice` Pyth function.
             "getEmaPrice",
             "getPrice",
         ]
-        results: List[Output] = []
+        results: list[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:

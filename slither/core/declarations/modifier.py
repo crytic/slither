@@ -1,6 +1,7 @@
 """
-    Modifier module
+Modifier module
 """
+
 from .function_contract import FunctionContract
 
 

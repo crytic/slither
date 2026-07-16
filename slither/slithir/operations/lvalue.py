@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any
 
 from slither.core.variables import Variable
 from slither.slithir.operations.operation import Operation
@@ -12,10 +12,10 @@ class OperationWithLValue(Operation):
     def __init__(self) -> None:
         super().__init__()
 
-        self._lvalue: Optional[Variable] = None
+        self._lvalue: Variable | None = None
 
     @property
-    def lvalue(self) -> Optional[Variable]:
+    def lvalue(self) -> Variable | None:
         return self._lvalue
 
     @lvalue.setter
@@ -23,5 +23,5 @@ class OperationWithLValue(Operation):
         self._lvalue = lvalue
 
     @property
-    def used(self) -> List[Optional[Any]]:
+    def used(self) -> list[Any | None]:
         return self.read + [self.lvalue]

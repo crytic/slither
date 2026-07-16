@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DETECTOR_INFO,
@@ -13,13 +11,12 @@ class PythUnchecked(AbstractDetector):
     Documentation: This detector finds deprecated Pyth function calls
     """
 
-    # To be overriden in the derived class
+    # To be overridden in the derived class
     PYTH_FUNCTIONS = []
     PYTH_FIELD = ""
 
-    # pylint: disable=too-many-nested-blocks
-    def _detect(self) -> List[Output]:
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:

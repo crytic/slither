@@ -1,7 +1,6 @@
 """
 Module detecting any path leading to usage of a local variable before it is declared.
 """
-from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
@@ -53,7 +52,7 @@ contract C {
     }
 }
 ```
-In the case above, the variable `x` is used before its declaration, which may result in unintended consequences. 
+In the case above, the variable `x` is used before its declaration, which may result in unintended consequences.
 Additionally, the for-loop uses the variable `max`, which is declared in a previous scope that may not always be reached. This could lead to unintended consequences if the user mistakenly uses a variable prior to any intended declaration assignment. It also may indicate that the user intended to reference a different variable."""
     # endregion wiki_exploit_scenario
 
@@ -64,9 +63,9 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
     def detect_predeclared_local_usage(
         self,
         node: Node,
-        results: List[Tuple[Node, LocalVariable]],
-        already_declared: Set[LocalVariable],
-        visited: Set[Node],
+        results: list[tuple[Node, LocalVariable]],
+        already_declared: set[LocalVariable],
+        visited: set[Node],
     ) -> None:
         """
         Detects if a given node uses a variable prior to declaration in any code path.
@@ -85,7 +84,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         if node.variable_declaration:
             already_declared = already_declared | {node.variable_declaration}
 
-        if not node in self.fix_point_information:
+        if node not in self.fix_point_information:
             self.fix_point_information[node] = []
 
         # If we already explored this node with the same information
@@ -108,7 +107,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
 
     def detect_predeclared_in_contract(
         self, contract: Contract
-    ) -> List[Tuple[Function, List[Tuple[Node, LocalVariable]]]]:
+    ) -> list[tuple[Function, list[tuple[Node, LocalVariable]]]]:
         """
         Detects and returns all nodes in a contract which use a variable before it is declared.
         :param contract: Contract to detect pre-declaration usage of locals within.
@@ -116,11 +115,11 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         """
 
         # Create our result set.
-        results: List[Tuple[Function, List[Tuple[Node, LocalVariable]]]] = []
+        results: list[tuple[Function, list[tuple[Node, LocalVariable]]]] = []
 
         # Loop for each function and modifier's nodes and analyze for predeclared local variable usage.
         for function in contract.functions_and_modifiers_declared:
-            predeclared_usage: List[Tuple[Node, LocalVariable]] = []
+            predeclared_usage: list[tuple[Node, LocalVariable]] = []
             if function.nodes:
                 self.detect_predeclared_local_usage(
                     function.nodes[0],
@@ -134,7 +133,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Return the resulting set of nodes which set array length.
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect usage of a local variable before it is declared.
         """
@@ -144,13 +143,13 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Each set contains the already declared variables saw in one path
         # If a path has the same set as a path already explored
         # We don't need to continue
-        # pylint: disable=attribute-defined-outside-init
+
         self.fix_point_information = {}
 
         for contract in self.contracts:
             predeclared_usages = self.detect_predeclared_in_contract(contract)
             if predeclared_usages:
-                for (predeclared_usage_function, predeclared_usage_nodes) in predeclared_usages:
+                for predeclared_usage_function, predeclared_usage_nodes in predeclared_usages:
                     for (
                         predeclared_usage_node,
                         predeclared_usage_local_variable,

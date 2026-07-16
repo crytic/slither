@@ -1,53 +1,70 @@
-# syntax=docker/dockerfile:1.3
-FROM ubuntu:jammy AS python-wheels
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    gcc \
-    git \
-    make \
-    python3-dev \
-    python3-pip \
+# syntax=docker/dockerfile:1.12
+
+# --- Stage 1: Build ---
+FROM ubuntu:noble AS builder
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+       python3 python3-venv curl \
+  && curl -LsSf https://astral.sh/uv/install.sh \
+       | UV_INSTALL_DIR=/usr/local/bin sh \
   && rm -rf /var/lib/apt/lists/*
 
-COPY . /slither
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON=python3.12 \
+    UV_PROJECT_ENVIRONMENT=/app
 
-RUN cd /slither && \
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 wheel -w /wheels . solc-select pip setuptools wheel
+WORKDIR /build
+
+# Layer 1: deps only (cached until pyproject.toml or uv.lock change)
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=README.md,target=README.md \
+    uv sync --locked --no-dev --no-install-project
+
+# Layer 2: install project (rebuilds on source changes)
+COPY slither/ slither/
+COPY pyproject.toml uv.lock README.md ./
+RUN --mount=type=cache,target=/root/.cache \
+    uv sync --locked --no-dev --no-editable
 
 
-FROM ubuntu:jammy AS final
+# --- Stage 2: Runtime ---
+FROM ubuntu:noble AS final
 
-LABEL name=slither
-LABEL src="https://github.com/trailofbits/slither"
-LABEL creator=trailofbits
-LABEL dockerfile_maintenance=trailofbits
-LABEL desc="Static Analyzer for Solidity"
+LABEL org.opencontainers.image.title="slither" \
+      org.opencontainers.image.description="Static Analyzer for Solidity" \
+      org.opencontainers.image.url="https://github.com/crytic/slither" \
+      org.opencontainers.image.source="https://github.com/crytic/slither" \
+      org.opencontainers.image.vendor="Trail of Bits" \
+      org.opencontainers.image.licenses="AGPL-3.0"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
-  && apt-get install -y --no-install-recommends python3-pip \
+  && apt-get install -y --no-install-recommends python3 ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# improve compatibility with amd64 solc in non-amd64 environments (e.g. Docker Desktop on M1 Mac)
+# Cross-arch solc compat (e.g. Docker Desktop on Apple Silicon)
 ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
-RUN if [ ! "$(uname -m)" = "x86_64" ]; then \
-  export DEBIAN_FRONTEND=noninteractive \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends libc6-amd64-cross \
-  && rm -rf /var/lib/apt/lists/*; fi
+RUN if [ "$(dpkg --print-architecture)" != "amd64" ]; then \
+      export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends libc6-amd64-cross \
+      && rm -rf /var/lib/apt/lists/*; \
+    fi
 
-RUN useradd -m slither
+RUN useradd --create-home slither
 USER slither
+WORKDIR /home/slither
 
-COPY --chown=slither:slither . /home/slither/slither
-WORKDIR /home/slither/slither
+# Copy the pre-built venv from builder
+COPY --from=builder --chown=slither:slither /app /app
+ENV PATH="/app/bin:${PATH}"
 
-ENV PATH="/home/slither/.local/bin:${PATH}"
-
-# no-index ensures we install the freshly-built wheels
-RUN --mount=type=bind,target=/mnt,source=/wheels,from=python-wheels \
-    pip3 install --user --no-cache-dir --upgrade --no-index --find-links /mnt --no-deps /mnt/*.whl
-
+# Pre-download latest solc so the image is ready to use
 RUN solc-select use latest --always-install
 
-CMD /bin/bash
+CMD ["/bin/bash"]

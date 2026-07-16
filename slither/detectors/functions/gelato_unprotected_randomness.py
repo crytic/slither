@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.slithir.operations.internal_call import InternalCall
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -48,7 +46,7 @@ The function `bad` is uprotected and requests randomness."""
         "Function that request randomness should be allowed only to authorized users."
     )
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

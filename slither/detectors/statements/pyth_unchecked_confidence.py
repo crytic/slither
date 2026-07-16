@@ -33,9 +33,9 @@ contract C {
         PythStructs.Price memory price = pyth.getEmaPriceNoOlderThan(id, age);
         // Use price
     }
-}    
+}
 ```
-The function `A` uses the price without checking its confidence level. 
+The function `A` uses the price without checking its confidence level.
 """
 
     PYTH_FUNCTIONS = [

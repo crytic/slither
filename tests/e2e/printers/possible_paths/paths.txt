@@ -1,3 +1,4 @@
+WARNING:CryticCompile:Multiple frameworks detected: solc, Solc-json. Using solc (highest priority). Use --compile-force-framework to override.
 Target functions:
 - A.destination()
 

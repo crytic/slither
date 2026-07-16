@@ -1,4 +1,4 @@
-from typing import Optional, Any, List, Union
+from typing import Any
 
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -10,12 +10,12 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
-class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class NewContract(Call, OperationWithLValue):
     def __init__(
         self,
         contract_name: UserDefinedType,
-        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
-        names: Optional[List[str]] = None,
+        lvalue: TemporaryVariableSSA | TemporaryVariable,
+        names: list[str] | None = None,
     ) -> None:
         """
         #### Parameters
@@ -23,9 +23,9 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
             For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
             Otherwise, None.
         """
-        assert isinstance(
-            contract_name.type, Contract
-        ), f"contract_name is {contract_name} of type {type(contract_name)}"
+        assert isinstance(contract_name.type, Contract), (
+            f"contract_name is {contract_name} of type {type(contract_name)}"
+        )
         assert is_valid_lvalue(lvalue)
         super().__init__(names=names)
         self._contract_name = contract_name
@@ -64,7 +64,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         return self._contract_name
 
     @property
-    def read(self) -> List[Any]:
+    def read(self) -> list[Any]:
         all_read = [self.call_salt, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x]
@@ -79,7 +79,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
+    def can_reenter(self, callstack: list[Function | Variable] | None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

@@ -13,7 +13,6 @@ SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "upgradeability_util"
 
 
-# pylint: disable=too-many-locals
 def test_upgrades_compare(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.2")
 

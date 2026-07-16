@@ -1,4 +1,3 @@
-from typing import List, Union
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
@@ -11,8 +10,8 @@ from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 class CodeSize(OperationWithLValue):
     def __init__(
         self,
-        value: Union[LocalVariable, LocalIRVariable],
-        lvalue: Union[ReferenceVariableSSA, ReferenceVariable],
+        value: LocalVariable | LocalIRVariable,
+        lvalue: ReferenceVariableSSA | ReferenceVariable,
     ) -> None:
         super().__init__()
         assert is_valid_rvalue(value)
@@ -22,7 +21,7 @@ class CodeSize(OperationWithLValue):
         lvalue.set_type(ElementaryType("uint256"))
 
     @property
-    def read(self) -> List[Union[LocalIRVariable, LocalVariable]]:
+    def read(self) -> list[LocalIRVariable | LocalVariable]:
         return [self._value]
 
     @property

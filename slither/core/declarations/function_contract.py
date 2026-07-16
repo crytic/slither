@@ -1,14 +1,13 @@
 """
-    Function module
+Function module
 """
-from typing import Dict, TYPE_CHECKING, List, Tuple, Optional
+
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.contract_level import ContractLevel
 from slither.core.declarations import Function
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
-
-# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
 class FunctionContract(Function, ContractLevel):
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__(compilation_unit)
-        self._contract_declarer: Optional["Contract"] = None
+        self._contract_declarer: Contract | None = None
 
     def set_contract_declarer(self, contract: "Contract") -> None:
         self._contract_declarer = contract
@@ -78,7 +77,7 @@ class FunctionContract(Function, ContractLevel):
     ###################################################################################
 
     @property
-    def functions_shadowed(self) -> List["Function"]:
+    def functions_shadowed(self) -> list["Function"]:
         """
             Return the list of functions shadowed
         Returns:
@@ -98,7 +97,7 @@ class FunctionContract(Function, ContractLevel):
 
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str], int]:
+    ) -> tuple[str, str, str, list[str], list[str], list[str], list[str], list[str], int]:
         """
             Return the function summary
         Returns:
@@ -125,7 +124,7 @@ class FunctionContract(Function, ContractLevel):
     ###################################################################################
 
     def generate_slithir_ssa(
-        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
+        self, all_ssa_state_variables_instances: dict[str, "StateIRVariable"]
     ) -> None:
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (

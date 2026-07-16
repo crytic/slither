@@ -1,4 +1,3 @@
-from typing import Dict
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.expressions.assignment_operation import (
@@ -21,16 +20,16 @@ assignment_operators = [
 ]
 
 
-class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
+class ASOR(AbstractMutator):
     NAME = "ASOR"
     HELP = "Assignment Operator Replacement"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
 
-        for (  # pylint: disable=too-many-nested-blocks
-            function
-        ) in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue
@@ -44,7 +43,7 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         alternative_ops = assignment_operators[:]
                         try:
                             alternative_ops.remove(ir.expression.type)
-                        except:  # pylint: disable=bare-except
+                        except ValueError:
                             continue
                         for op in alternative_ops:
                             if op != ir.expression:

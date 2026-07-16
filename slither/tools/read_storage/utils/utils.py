@@ -1,5 +1,3 @@
-from typing import Union
-
 from eth_typing.evm import ChecksumAddress
 from eth_utils import to_int, to_text, to_checksum_address
 from web3 import Web3
@@ -25,9 +23,7 @@ def get_offset_value(hex_bytes: bytes, offset: int, size: int) -> bytes:
     return value
 
 
-def coerce_type(
-    solidity_type: str, value: Union[int, str, bytes]
-) -> Union[int, bool, str, ChecksumAddress]:
+def coerce_type(solidity_type: str, value: int | str | bytes) -> int | bool | str | ChecksumAddress:
     """
     Converts input to the indicated type.
     Args:
@@ -59,7 +55,7 @@ def coerce_type(
 
 
 def get_storage_data(
-    web3: Web3, checksum_address: ChecksumAddress, slot: bytes, block: Union[int, str]
+    web3: Web3, checksum_address: ChecksumAddress, slot: bytes, block: int | str
 ) -> bytes:
     """
     Retrieves the storage data from the blockchain at target address and slot.

@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import Any
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.call import Call
@@ -11,7 +11,7 @@ class SolidityCall(Call, OperationWithLValue):
         function: SolidityFunction,
         nbr_arguments: int,
         result,
-        type_call: Union[str, List[ElementaryType]],
+        type_call: str | list[ElementaryType],
     ) -> None:
         assert isinstance(function, SolidityFunction)
         super().__init__()
@@ -21,7 +21,7 @@ class SolidityCall(Call, OperationWithLValue):
         self._lvalue = result
 
     @property
-    def read(self) -> List[Any]:
+    def read(self) -> list[Any]:
         return self._unroll(self.arguments)
 
     @property
@@ -33,7 +33,7 @@ class SolidityCall(Call, OperationWithLValue):
         return self._nbr_arguments
 
     @property
-    def type_call(self) -> Union[str, List[ElementaryType]]:
+    def type_call(self) -> str | list[ElementaryType]:
         return self._type_call
 
     def __str__(self):

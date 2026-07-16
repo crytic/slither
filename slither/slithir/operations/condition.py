@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.slithir.operations.operation import Operation
 from slither.slithir.utils.utils import is_valid_rvalue, RVALUE
 
@@ -21,7 +19,7 @@ class Condition(Operation):
     @property
     def read(
         self,
-    ) -> List[RVALUE]:
+    ) -> list[RVALUE]:
         return [self.value]
 
     @property

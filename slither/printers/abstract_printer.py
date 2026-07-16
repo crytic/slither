@@ -1,7 +1,7 @@
 import abc
 from logging import Logger
 
-from typing import TYPE_CHECKING, Union, List, Optional, Dict
+from typing import TYPE_CHECKING
 
 from slither.utils import output
 from slither.utils.output import SupportedOutput
@@ -20,7 +20,7 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     WIKI = ""
 
-    def __init__(self, slither: "Slither", logger: Optional[Logger]) -> None:
+    def __init__(self, slither: "Slither", logger: Logger | None) -> None:
         self.slither = slither
         self.contracts = slither.contracts
         self.filename = slither.filename
@@ -47,8 +47,8 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     def generate_output(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
-        additional_fields: Optional[Dict] = None,
+        info: str | list[str | SupportedOutput],
+        additional_fields: dict | None = None,
     ) -> output.Output:
         if additional_fields is None:
             additional_fields = {}

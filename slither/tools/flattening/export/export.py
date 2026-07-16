@@ -4,7 +4,6 @@ import logging
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
 import zipfile
 from collections import namedtuple
-from typing import List
 
 ZIP_TYPES_ACCEPTED = {
     "lzma": zipfile.ZIP_LZMA,
@@ -18,7 +17,7 @@ Export = namedtuple("Export", ["filename", "content"])
 logger = logging.getLogger("Slither-flat")
 
 
-def save_to_zip(files: List[Export], zip_filename: str, zip_type: str = "lzma"):
+def save_to_zip(files: list[Export], zip_filename: str, zip_type: str = "lzma"):
     """
     Save projects to a zip
     """
@@ -32,7 +31,7 @@ def save_to_zip(files: List[Export], zip_filename: str, zip_type: str = "lzma"):
             file_desc.writestr(str(f.filename), f.content)
 
 
-def save_to_disk(files: List[Export]):
+def save_to_disk(files: list[Export]):
     """
     Save projects to a zip
     """
@@ -42,7 +41,7 @@ def save_to_disk(files: List[Export]):
             f.write(file.content)
 
 
-def export_as_json(files: List[Export], filename: str):
+def export_as_json(files: list[Export], filename: str):
     """
     Save projects to a zip
     """

@@ -1,8 +1,7 @@
 """
-    Module detecting dangerous use of block.timestamp
+Module detecting dangerous use of block.timestamp
 
 """
-from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -21,7 +20,7 @@ from slither.slithir.operations import Binary, BinaryType
 from slither.utils.output import Output
 
 
-def _timestamp(func: Function) -> List[Node]:
+def _timestamp(func: Function) -> list[Node]:
     ret = set()
     for node in func.nodes:
         if node.contains_require_or_assert():
@@ -39,12 +38,12 @@ def _timestamp(func: Function) -> List[Node]:
                         ret.add(node)
                     if is_dependent(var_read, SolidityVariable("now"), node):
                         ret.add(node)
-    return sorted(list(ret), key=lambda x: x.node_id)
+    return sorted(ret, key=lambda x: x.node_id)
 
 
 def _detect_dangerous_timestamp(
     contract: Contract,
-) -> List[Tuple[FunctionContract, List[Node]]]:
+) -> list[tuple[FunctionContract, list[Node]]]:
     """
     Args:
         contract (Contract)
@@ -53,14 +52,13 @@ def _detect_dangerous_timestamp(
     """
     ret = []
     for f in [f for f in contract.functions if f.contract_declarer == contract]:
-        nodes: List[Node] = _timestamp(f)
+        nodes: list[Node] = _timestamp(f)
         if nodes:
             ret.append((f, nodes))
     return ret
 
 
 class Timestamp(AbstractDetector):
-
     ARGUMENT = "timestamp"
     HELP = "Dangerous usage of `block.timestamp`"
     IMPACT = DetectorClassification.LOW
@@ -75,14 +73,13 @@ class Timestamp(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract."""
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         results = []
 
         for c in self.contracts:
             dangerous_timestamp = _detect_dangerous_timestamp(c)
-            for (func, nodes) in dangerous_timestamp:
-
+            for func, nodes in dangerous_timestamp:
                 info: DETECTOR_INFO = [func, " uses timestamp for comparisons\n"]
 
                 info += ["\tDangerous comparisons:\n"]

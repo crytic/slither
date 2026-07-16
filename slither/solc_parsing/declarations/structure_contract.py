@@ -1,7 +1,8 @@
 """
-    Structure module
+Structure module
 """
-from typing import TYPE_CHECKING, Dict
+
+from typing import TYPE_CHECKING
 
 from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable
@@ -11,20 +12,19 @@ if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
 
 
-class StructureContractSolc:  # pylint: disable=too-few-public-methods
+class StructureContractSolc:
     """
     Structure class
     """
 
     # elems = [(type, name)]
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         st: Structure,
-        struct: Dict,
+        struct: dict,
         contract_parser: "ContractSolc",
     ) -> None:
-
         if contract_parser.is_compact_ast:
             name = struct["name"]
             attributes = struct

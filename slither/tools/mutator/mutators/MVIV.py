@@ -1,16 +1,15 @@
-from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
 
-class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MVIV(AbstractMutator):
     NAME = "MVIV"
     HELP = "variable initialization using a value"
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
         variable: Variable
 
         # Create fault for state variables declaration
@@ -27,7 +26,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         create_patch_with_line(
                             result,
                             self.in_file,
@@ -39,6 +38,8 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                         )
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for variable in function.local_variables:
                 if variable.initialized and isinstance(variable.expression, Literal):
                     start = variable.source_mapping.start
@@ -46,7 +47,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = variable.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
+                    if line_no[0] not in self.dont_mutate_line:
                         create_patch_with_line(
                             result,
                             self.in_file,

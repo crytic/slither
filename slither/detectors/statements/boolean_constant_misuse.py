@@ -1,7 +1,6 @@
 """
 Module detecting misuse of Boolean constants
 """
-from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
@@ -61,7 +60,7 @@ contract A {
 	}
 }
 ```
-Boolean constants in code have only a few legitimate uses. 
+Boolean constants in code have only a few legitimate uses.
 Other uses (in complex expressions, as conditionals) indicate either an error or, most likely, the persistence of faulty code."""
     # endregion wiki_exploit_scenario
 
@@ -70,7 +69,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
     @staticmethod
     def _detect_boolean_constant_misuses(
         contract: Contract,
-    ) -> List[Tuple[Function, Set[Node]]]:  # pylint: disable=too-many-branches
+    ) -> list[tuple[Function, set[Node]]]:
         """
         Detects and returns all nodes which misuse a Boolean constant.
         :param contract: Contract to detect assignment within.
@@ -78,7 +77,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         """
 
         # Create our result set.
-        results: List[Tuple[Function, Set[Node]]] = []
+        results: list[tuple[Function, set[Node]]] = []
 
         # Loop for each function and modifier.
         for function in contract.functions_declared:
@@ -86,7 +85,6 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
 
             # Loop for every node in this function, looking for boolean constants
             for node in function.nodes:
-
                 # Do not report "while(true)"
                 if node.type == NodeType.IFLOOP and node.irs and len(node.irs) == 1:
                     ir = node.irs[0]
@@ -115,14 +113,14 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect Boolean constant misuses
         """
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_constant_misuses(contract)
-            for (func, nodes) in boolean_constant_misuses:
+            for func, nodes in boolean_constant_misuses:
                 for node in nodes:
                     info: DETECTOR_INFO = [
                         func,

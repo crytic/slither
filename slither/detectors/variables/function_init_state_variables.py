@@ -1,7 +1,6 @@
 """
 Module detecting state variables initializing from an immediate function call (prior to constructor run).
 """
-from typing import List
 
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
@@ -15,7 +14,7 @@ from slither.utils.output import Output
 from slither.visitors.expression.export_values import ExportValues
 
 
-def detect_function_init_state_vars(contract: Contract) -> List[StateVariable]:
+def detect_function_init_state_vars(contract: Contract) -> list[StateVariable]:
     """
     Detect any state variables that are initialized from an immediate function call (prior to constructor run).
     :param contract: The contract to detect state variable definitions for.
@@ -25,7 +24,6 @@ def detect_function_init_state_vars(contract: Contract) -> List[StateVariable]:
 
     # Loop for each state variable explicitly defined in this contract.
     for state_variable in contract.variables:
-
         # Skip this variable if it is inherited and not explicitly defined in this contract definition.
         if state_variable.contract != contract:
             continue
@@ -86,15 +84,15 @@ contract StateVarInitFromFunction {
     }
 }
 ```
-In this case, users might intend a function to return a value a state variable can initialize with, without realizing the context for the contract is not fully initialized. 
-In the example above, the same function sets two different values for state variables because it checks a state variable that is not yet initialized in one case, and is initialized in the other. 
+In this case, users might intend a function to return a value a state variable can initialize with, without realizing the context for the contract is not fully initialized.
+In the example above, the same function sets two different values for state variables because it checks a state variable that is not yet initialized in one case, and is initialized in the other.
 Special care must be taken when initializing state variables from an immediate function call so as not to incorrectly assume the state is initialized.
 """
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove any initialization of state variables via non-constant state variables or function calls. If variables must be set upon contract deployment, locate initialization in the constructor instead."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect state variables defined from an immediate function call (pre-contract deployment).
 

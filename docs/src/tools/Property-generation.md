@@ -38,11 +38,11 @@ Write test/crytic/TestERC20BuggyTransferable.js
 Update the constructor in contracts/crytic/TestERC20BuggyTransferable.sol
 
 To run the unit tests:
-	truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
-	truffle test test/crytic/TestERC20BuggyTransferable.js
+ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
+ truffle test test/crytic/TestERC20BuggyTransferable.js
 
 To run Echidna:
-	 echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
+  echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
 ```
 
 ### Step 2. Customize the constructor
@@ -52,22 +52,22 @@ Next, update the constructor in `contracts/crytic/TestX.sol`:
 On [examples/slither-prop/contracts](https://github.com/crytic/slither/tree/9623a2781faa4e7759f06d2e8c4adcd45078af69/examples/slither-prop), update the constructor as follow:
 
 ```solidity
-	constructor() public{
+ constructor() public{
 
-		_balanceOf[crytic_user] = 1 ether;
-		_balanceOf[crytic_owner] = 1 ether;
-		_balanceOf[crytic_attacker] = 1 ether;
-		_totalSupply = 3 ether;
+  _balanceOf[crytic_user] = 1 ether;
+  _balanceOf[crytic_owner] = 1 ether;
+  _balanceOf[crytic_attacker] = 1 ether;
+  _totalSupply = 3 ether;
 
-		//
-		//
-		// Update the following if totalSupply and balanceOf are external functions or state variables:
+  //
+  //
+  // Update the following if totalSupply and balanceOf are external functions or state variables:
 
-		initialTotalSupply = totalSupply();
-		initialBalance_owner = balanceOf(crytic_owner);
-		initialBalance_user = balanceOf(crytic_user);
-		initialBalance_attacker = balanceOf(crytic_attacker);
-	}
+  initialTotalSupply = totalSupply();
+  initialBalance_owner = balanceOf(crytic_owner);
+  initialBalance_user = balanceOf(crytic_user);
+  initialBalance_attacker = balanceOf(crytic_attacker);
+ }
 ```
 
 ### Step 3. Run the unit tests with Truffle
@@ -114,7 +114,7 @@ As you can see, the unit tests detect some of the bugs.
 ### Step 4. Run the property tests with Echidna
 
 ```
-$ echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
+echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.yaml
 ```
 
 ## Scenarios

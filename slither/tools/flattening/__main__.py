@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--strategy",
         help=f"Flatenning strategy: {STRATEGIES_NAMES} (default: MostDerived).",
-        default=Strategy.MostDerived.name,  # pylint: disable=no-member
+        default=Strategy.MostDerived.name,
     )
 
     group_export = parser.add_argument_group("Export options")
@@ -112,7 +112,6 @@ def main() -> None:
     slither = Slither(args.filename, **vars(args))
 
     for compilation_unit in slither.compilation_units:
-
         flat = Flattening(
             compilation_unit,
             external_to_public=args.convert_external,

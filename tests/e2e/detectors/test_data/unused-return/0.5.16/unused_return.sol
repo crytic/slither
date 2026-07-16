@@ -17,7 +17,7 @@ contract User{
 
     function test(Target t) public{
         t.f();
-    
+
         // example with library usage
         uint a;
         a.add(0);
@@ -25,7 +25,7 @@ contract User{
         // The value is not used
         // But the detector should not detect it
         // As the value returned by the call is stored
-        // (unused local variable should be another issue) 
+        // (unused local variable should be another issue)
         uint b = a.add(1);
 
         t.g();
@@ -34,5 +34,16 @@ contract User{
 
         // Detected as unused return
         (uint e,) = t.g();
+    }
+
+    // Test case for return A() pattern - should NOT be flagged
+    // The return values ARE being used as the return values of wrapG
+    function wrapG(Target t) public returns(uint, uint) {
+        return t.g();
+    }
+
+    // Test case for single return value - should NOT be flagged
+    function wrapF(Target t) public returns(uint) {
+        return t.f();
     }
 }

@@ -1,5 +1,3 @@
-from typing import List, Set, Tuple, Dict
-
 from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
 from slither.core.variables.state_variable import StateVariable
@@ -22,7 +20,7 @@ from slither.slithir.variables.variable import SlithIRVariable
 from slither.utils.output import Output
 
 
-def _remove_states(written: Dict[Variable, Node]) -> None:
+def _remove_states(written: dict[Variable, Node]) -> None:
     for key in list(written.keys()):
         if isinstance(key, StateVariable):
             del written[key]
@@ -30,8 +28,8 @@ def _remove_states(written: Dict[Variable, Node]) -> None:
 
 def _handle_ir(
     ir: Operation,
-    written: Dict[Variable, Node],
-    ret: List[Tuple[Variable, Node, Node]],
+    written: dict[Variable, Node],
+    ret: list[tuple[Variable, Node, Node]],
 ) -> None:
     if isinstance(ir, (HighLevelCall, InternalDynamicCall, LowLevelCall)):
         _remove_states(written)
@@ -77,16 +75,16 @@ def _handle_ir(
 
 def _detect_write_after_write(
     node: Node,
-    explored: Set[Node],
-    written: Dict[Variable, Node],
-    ret: List[Tuple[Variable, Node, Node]],
+    explored: set[Node],
+    written: dict[Variable, Node],
+    ret: list[tuple[Variable, Node, Node]],
 ) -> None:
     if node in explored:
         return
 
     explored.add(node)
 
-    # We could report write after write for, but this lead to a lot of FP due to the initilization to zero pattern:
+    # We could report write after write for, but this lead to a lot of FP due to the initialization to zero pattern:
     # uint a = 0;
     # a = 10;
     # To do better, we could filter out if the variable is init to zero
@@ -123,18 +121,18 @@ class WriteAfterWrite(AbstractDetector):
         }
     }
     ```
-    `a` is first asigned to `b`, and then to `c`. As a result the first write does nothing."""
+    `a` is first assigned to `b`, and then to `c`. As a result the first write does nothing."""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
             for function in contract.functions:
                 if function.entry_point:
-                    ret: List[Tuple[Variable, Node, Node]] = []
+                    ret: list[tuple[Variable, Node, Node]] = []
                     _detect_write_after_write(function.entry_point, set(), {}, ret)
                     for var, node1, node2 in ret:
                         info: DETECTOR_INFO = [

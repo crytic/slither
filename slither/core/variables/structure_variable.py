@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from slither.core.variables.variable import Variable
 
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class StructureVariable(Variable):
     def __init__(self) -> None:
         super().__init__()
-        self._structure: Optional["Structure"] = None
+        self._structure: Structure | None = None
 
     def set_structure(self, structure: "Structure") -> None:
         self._structure = structure

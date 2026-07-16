@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -10,7 +8,6 @@ from slither.utils.output import Output
 
 
 class VoidConstructor(AbstractDetector):
-
     ARGUMENT = "void-cst"
     HELP = "Constructor called not implemented"
     IMPACT = DetectorClassification.LOW
@@ -33,13 +30,12 @@ contract B is A{
 When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed."""
     # endregion wiki_exploit_scenario
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """"""
         results = []
         for c in self.contracts:
             cst = c.constructor
             if cst:
-
                 for constructor_call in cst.explicit_base_constructor_calls_statements:
                     for node in constructor_call.nodes:
                         if any(isinstance(ir, Nop) for ir in node.irs):

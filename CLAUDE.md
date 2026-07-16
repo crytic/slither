@@ -1,192 +1,159 @@
-# Coding Standards
+# Slither
 
-## Code Quality
-1. ≤ 50 code lines / function
-2. Cyclomatic complexity ≤ 8
-3. ≤ 5 positional params, ≤ 12 branches, ≤ 6 returns
-4. 100‑char line length
-5. Ban relative (`..`) imports
-6. Google‑style docstrings on non-trivial public APIs
-7. Follow project's existing test conventions; for new projects, use language defaults (Python: `tests/` directory, Node/TS: colocated `*.test.ts`)
-8. No scheduled CI without code changes - activity without progress is theater
-9. All code must pass type checking—no `type: ignore` or `Any` without justification (Python: `ty --strict`, TypeScript: `tsc --noEmit`)
-10. All functions must have type hints for parameters and return values
-11. No `object` type for parameters—use the appropriate specific type or protocol
-12. All code must not use `hasattr` and use the proper types
-13. ≤ 3 levels of indentation (the "Never Nester" rule)
-    - Use **extraction** (pull inner blocks into separate functions)
-    - Use **inversion** (flip conditions, return early for unhappy paths)
-    - Happy path flows down; error handling returns early at the top
-14. Naming hygiene
-    - No single-letter variables; no abbreviations—spell it out
-    - No types in names (no Hungarian notation, no `IFoo` interfaces, no `BaseFoo` classes)
-    - Put units in names (`delay_seconds`) or better, use unit-typed abstractions (`timedelta`, `Duration`)
-    - No `utils` / `helpers` modules—find a descriptive home or create a properly-named class
-15. Use `slither/analyses/data_flow/logger` for all raises, logs, and errors within `slither/analyses/data_flow/`
-16. No imports inside functions; no nested function definitions
+Static analyzer for Solidity smart contracts. Detects vulnerabilities, prints contract information, and provides an intermediate representation (SlithIR) for analysis.
 
-## Philosophy
+## Architecture
+
+```
+slither/
+├── analyses/      # Data dependency, dominators, control flow
+├── core/          # Core classes: SlitherCore, Contract, Function
+├── detectors/     # Security checks (subclass AbstractDetector)
+├── printers/      # Output formatters (subclass AbstractPrinter)
+├── slithir/       # Intermediate representation for analysis
+├── solc_parsing/  # Solidity AST parsing
+└── tools/         # CLI tools (slither-read-storage, slither-mutate, etc.)
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed architecture and how to add detectors.
+
+## Development
+
+| tool    | purpose       |
+|---------|---------------|
+| `uv`    | deps & venv   |
+| `ruff`  | lint & format |
+| `prek`  | pre-commit hooks |
+| `pytest`| tests         |
+
+```bash
+make dev                    # Setup dev environment + pre-commit hooks
+make lint                   # Run ruff check
+make reformat               # Run ruff format
+make test                   # Run all tests
+pytest tests/unit/ -q       # Fast unit tests only
+```
+
+### Navigating the codebase
+
+Use `rg` for text search and `ast-grep` for structural patterns:
+
+```bash
+# Find class definition
+ast-grep --pattern 'class Contract($_): $$$' --lang py slither
+
+# Find all detector implementations
+ast-grep --pattern 'class $NAME(AbstractDetector): $$$' --lang py slither/detectors
+
+# Find method usages
+rg "\.is_interface" slither
+
+# Find function signatures
+ast-grep --pattern 'def _detect($$$)' --lang py slither/detectors
+
+# Trace imports
+rg "^from slither\.core" slither
+```
+
+## Code Standards
+
+### Philosophy
 - **No speculative features** - Don't add "might be useful" functionality
 - **No premature abstraction** - Don't create utilities until you've written the same code three times
-- **Justify new dependencies** - Each dependency is attack surface and maintenance burden
-- **No unnecessary configuration** - Don't add flags unless users actively need them
-- **No phantom features** - Don't document or validate features that aren't implemented
-- **No hardcoded paths** - Use environment variables or config files, not `/Users/yourname/...`
+- **Clarity over cleverness** - Prefer explicit, readable code over dense one-liners
+- **Justify new dependencies** - Each dependency is maintenance burden and complexity
+- **Structured output first** - New commands must support `--json`. Human-readable is secondary.
+- **Atomic operations** - Don't bundle decision logic; separate analyze → suggest → apply for composability.
 
-## CLI Tools
-| tool | replaces | usage |
-|------|----------|--------|
-| `rg` (ripgrep) | grep | `rg "pattern"` - 10x faster regex search |
-| `fd` | find | `fd "*.py"` - fast file finder (`fdfind` on Debian/Ubuntu) |
-| `ast-grep` | - | `ast-grep --pattern '$FUNC($$$)' --lang py` - AST-based code search |
-| `shellcheck` | - | `shellcheck script.sh` - shell script linter |
-| `shfmt` | - | `shfmt -i 2 -w script.sh` - shell formatter |
-| `actionlint` | - | `actionlint .github/workflows/` - GitHub Actions linter |
-| `zizmor` | - | `zizmor .github/workflows/` - Actions security audit |
+### Code quality
+- **Comments** - Code should be self-documenting. No commented-out code (delete it). No comments that repeat what code does.
+- **Errors** - Fail fast with clear, actionable messages. Include context: what failed, which file/contract, suggested fix. Never swallow exceptions.
+- **When uncertain** - State your assumption and proceed for small decisions. Ask before changes with significant consequences.
 
-```bash
-# ast-grep structural search (prefer over grep for code patterns)
-ast-grep --pattern 'print($$$)' --lang py              # Find function calls
-ast-grep --pattern 'class $NAME: $$$' --lang py        # Find classes
-ast-grep --pattern 'async def $F($$$): $$$' --lang py  # Find async functions
-# $NAME = identifier, $$$ = any code. Languages: py, js, ts, rust, go
-```
+### Hard limits
+1. ≤80 lines/function, cyclomatic complexity ≤8
+2. ≤5 positional params, ≤12 branches, ≤6 returns
+3. 100-char line length
+4. No relative (`..`) imports
+5. Tests in `/tests/` mirroring package structure
 
-## Workflow
-
-When making changes:
-1. Always run linters and type checker before committing
-2. Run relevant tests (not full suite) after changes
-3. Use `git diff` to verify changes before committing
-
-General rules:
-- Never commit changes that break any rule above—refactor instead
-- Never push changes to GitHub until asked explicitly to do so
-- If asked to write PRs or Issues, don't be hyperbolic in your writeups
-
-### GitHub Actions
-Pin actions to SHA hashes with version comments:
-```yaml
-- uses: actions/checkout@<full-sha>  # vX.Y.Z
-  with:
-    persist-credentials: false
-```
-
-### Dependabot Cooldowns
-Configure Dependabot with 7-day cooldowns to protect against supply chain attacks:
-```yaml
-# .github/dependabot.yml - repeat for: pip, npm, github-actions
-- package-ecosystem: <ecosystem>
-  directory: /
-  schedule:
-      interval: weekly
-  cooldown:
-      default-days: 7
-  groups:
-      all:
-          patterns: ["*"]
-```
-
-## Version Verification
-When adding or updating dependencies, CI actions, or tool versions:
-1. **Always web search** for the current stable version before specifying any version number
-2. Training data versions are stale—never assume a version from memory is current
-3. Check the official source (PyPI, npm, GitHub releases) for latest stable
-4. Exception: Only skip web search if user explicitly provides the version to use
-
-## Python
-
-**Runtime:** 3.13 with `uv venv`
-
-| purpose          | tool                           |
-|------------------|--------------------------------|
-| deps & venv      | `uv`                           |
-| lint & format    | `ruff check` · `ruff format`   |
-| static types     | `ty --strict`                  |
-| tests            | `pytest -q`                    |
-
-Always use `uv` instead of pip - it's faster and handles venvs automatically.
-Build with `hatchling` - simpler than setuptools, just `[build-system]` in pyproject.toml.
-Lint with `ruff` only - replaces black/pylint/flake8, use `extend-exclude` not `exclude`.
-Use official actions - `astral-sh/ruff-action@<sha>  # vX.Y.Z`
-Linting versions - Keep flexible (`ruff>=0.12.0,<1.0`) - newer versions find more bugs, can't break working code.
-Remove pip fallbacks - no `pip || uv` patterns, pick one tool and commit.
-Test modernizations - always verify: `uv build`, `uv tool install dist/*.whl`, `uv tool install -e .`
-Update all references - every README, Makefile, CI config must be updated.
-Let tools auto-detect - Don't specify versions in CI that tools can read from pyproject.toml
-
-Type checking with `ty`:
-- **New projects**: `ty --strict` is mandatory—no untyped code accepted
-- **Existing projects**: Add type checking incrementally when modifying code
-- Run `uv run ty check` before committing Python changes
-- Add `py.typed` marker file to indicate typed packages
-
-### Commands
-```bash
-uv run ruff check --fix
-uv run ty check
-pytest -q
-
-# Find outdated Python tooling
-rg "pip|setup.py|black|pylint" -g "*.md" -g "*.yml"
-```
-
-### Security
-- Use `uv` lockfiles (`uv.lock`) - ensures reproducible, verified installs
-- Run `pip-audit` or `safety check` before deploying
-- Pin exact versions in production (`==` not `>=`)
-- Verify package hashes: `uv pip install --require-hashes`
-
-## Node/TypeScript
-
-**Runtime:** Node 22 LTS
-
-| purpose      | tool                           |
-|--------------|--------------------------------|
-| lint         | `oxlint`                       |
-| format       | `oxfmt`                        |
-| test         | `vitest`                       |
-| types        | `tsc --noEmit`                 |
-
-Use the [Oxc toolchain](https://oxc.rs/) (Rust-powered, 50-100x faster than ESLint/Prettier).
-Use [Vitest](https://vitest.dev/) for testing - native ESM/TypeScript, drop-in Jest replacement.
-
-### Commands
-```bash
-oxlint .
-oxfmt --write .
-vitest run
-tsc --noEmit
-```
-
-### Security
-```bash
-# MANDATORY before any install
-pnpm config set minimumReleaseAge 1440  # 24-hour delay
-pnpm config set ignore-scripts true     # Block postinstall attacks
-# For packages that need scripts (review first!)
-pnpm install --ignore-scripts && pnpm rebuild <package-name>
-```
-
-- Never install packages < 24 hours old
-- Never enable postinstall scripts without review
-- Audit first: `pnpm audit --audit-level=moderate`
-- Pin exact versions (no `^` or `~`) in production
-- Review package.json changes in PRs for suspicious scripts
-
-## Bash
-All bash scripts must start with strict mode:
+Bash scripts must use strict mode:
 ```bash
 #!/bin/bash
 set -euo pipefail
 ```
-This makes many subtle bugs impossible by:
-- Exiting on any command failure (`-e`)
-- Exiting on undefined variables (`-u`)
-- Failing pipelines if any command fails (`-o pipefail`)
 
-Lint shell scripts before committing:
-```bash
-shellcheck script.sh
-shfmt -d script.sh  # Check formatting (-w to fix)
-```
+## Working on Code
+
+### Incremental improvement
+When modifying a file, improve what you touch. Don't refactor unrelated code—keep PRs focused.
+
+Modernization targets:
+- Type hints on function signatures (aspiration: `ty --strict`)
+- `pathlib.Path` over `os.path` string manipulation
+- f-strings over `.format()` or `%` formatting
+- Context managers (`with`) for file/resource handling
+- Early returns to reduce nesting
+- Fix lint issues you encounter
+
+### Git conventions
+- Commit messages: imperative mood, ≤72 char subject (e.g., "Fix reentrancy false positive")
+- One logical change per commit
+- Prefix: `fix:`, `feat:`, `refactor:`, `test:`, `docs:` as appropriate
+
+## Testing
+
+- **Mock boundaries, not logic** - Only mock slow things (network, filesystem), non-deterministic things (time), or external services. Don't mock the code you're testing.
+- **Verify tests catch failures** - Temporarily break code to verify the test fails, then fix it.
+
+### Slither-specific
+- Test detectors across Solidity 0.4.x–0.8.x
+- Update snapshots: `tests/e2e/detectors/snapshots/`
+- Use `compile_force_framework="solc"` when crytic-compile behavior changes
+- **Run e2e tests early** when changing core classes (`Literal`, `Expression`, etc.)—snapshots capture exact `__str__` output, so behavioral changes break many tests
+
+## Slither Internals
+
+### APIs
+- Use `contract.is_interface` not `contract.name.startswith("I")`
+- Use `source_mapping.content` for source code access (handles byte/char offsets)
+- Use `is` / `is not` for enum comparisons (`NodeType.X`, not `== NodeType.X`)
+- CLI features should have Python API equivalents in the `Slither` class
+
+### Traversal patterns
+- **Per-definition analysis** (naming, arithmetic, structure): Use `contracts_derived` + `functions_declared`
+- **Reachability analysis** (call graphs, taint): Use `contracts_derived` + `functions` (inherited functions needed)
+- **Global deduplication**: Use `compilation_unit.functions` directly to process each function exactly once
+- Filter by `function.contract_declarer == contract` when iterating `contract.functions`
+- `high_level_calls` returns `List[Tuple[Contract, Call]]` - don't forget tuple unpacking
+
+### Type handling
+- Expand `isinstance()` checks rather than removing assertions
+- Add type guards before accessing type-specific attributes in AST visitors
+- Check local scope before broader scope when resolving identifiers
+- **`ElementaryType` comparison pitfall**: `ElementaryType.__eq__` only matches other `ElementaryType` instances. `ElementaryType("uint256") in ["uint256"]` is **always False**. Convert to string first: `str(t) in ["uint256"]`
+
+### SlithIR and SSA
+- **Use `node.irs`** for most detectors—simpler, sufficient for most analyses
+- **Use `node.irs_ssa`** only when you need precise data flow (tracking reassignments, taint analysis)
+- SSA variables have `.index` (e.g., `x_0`, `x_1`) and `.non_ssa_version` to get the original
+- `Phi` operations merge SSA versions at control flow joins (if/else, loops)
+- **Data dependency**: Use `is_dependent(var, source, context)` from `slither.analyses.data_dependency`
+
+### Detector quality
+Minimize false positives over catching edge cases. Noisy detectors get disabled. Output must be actionable.
+
+### Docstrings
+Detectors use class attributes, not Google-style docstrings:
+- `WIKI_TITLE`, `WIKI_DESCRIPTION`, `WIKI_EXPLOIT_SCENARIO`, `WIKI_RECOMMENDATION`
+- Must be thorough—agents use these to decide which detectors apply
+- `VULNERABLE_SOLC_VERSIONS` restricts detector to specific compiler versions
+- Use `make_solc_versions(minor, patch_min, patch_max)` helper for version lists
+
+## Notes
+
+**Version verification**: When adding dependencies or CI actions, web search for current stable versions. Training data is stale—never assume a version from memory is current.
+
+---
+
+> Don't push until asked. Don't be hyperbolic in PR writeups.

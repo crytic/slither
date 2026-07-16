@@ -19,7 +19,7 @@ label = "ContractB"
 }
 subgraph cluster_solidity {
 label = "[Solidity]"
-"keccak256()" 
+"keccak256()"
 "22_my_func_a" -> "keccak256()"
 }
 "22_my_func_a" -> "5_library_func"

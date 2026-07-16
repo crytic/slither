@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -18,7 +18,7 @@ class ContractLevel(SourceMapping):
         # TODO remove all the setters for the child objects
         # And make it a constructor argument
         # This will remove the optional
-        self._contract: Optional["Contract"] = None
+        self._contract: Contract | None = None
 
     def set_contract(self, contract: "Contract") -> None:
         self._contract = contract

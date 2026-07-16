@@ -26,6 +26,7 @@ evm_opcodes = [
     "SHL",
     "SHR",
     "SAR",
+    "CLZ",
     "ADDMOD",
     "MULMOD",
     "SIGNEXTEND",
@@ -178,6 +179,7 @@ builtins = [
 # "identifier": [input_count, output_count]
 function_args = {
     "byte": [2, 1],
+    "clz": [1, 1],
     "addmod": [3, 1],
     "mulmod": [3, 1],
     "signextend": [2, 1],
@@ -278,7 +280,7 @@ binary_ops = {
 }
 
 
-class YulBuiltin:  # pylint: disable=too-few-public-methods
+class YulBuiltin:
     def __init__(self, name: str) -> None:
         self._name = name
 

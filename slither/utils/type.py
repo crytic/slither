@@ -1,5 +1,4 @@
 import math
-from typing import List, Union, Set
 
 from slither.core.solidity_types import (
     ArrayType,
@@ -13,7 +12,7 @@ from slither.core.variables.variable import Variable
 
 
 def _convert_type_for_solidity_signature_to_string(
-    types: Union[Type, List[Type]], seen: Set[Type]
+    types: Type | list[Type], seen: set[Type]
 ) -> str:
     if isinstance(types, Type):
         # Array might be struct, so we need to go again through the conversion here
@@ -27,7 +26,10 @@ def _convert_type_for_solidity_signature_to_string(
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
                 underlying_type, seen
             )
-            return underlying_type_str + "[]"
+
+            if types.length is None:
+                return underlying_type_str + "[]"
+            return underlying_type_str + f"[{types.length_value}]"
 
         return str(types)
 
@@ -46,13 +48,12 @@ def _convert_type_for_solidity_signature_to_string(
 
 
 def convert_type_for_solidity_signature_to_string(t: Type) -> str:
-    seen: Set[Type] = set()
+    seen: set[Type] = set()
     types = convert_type_for_solidity_signature(t, seen)
     return _convert_type_for_solidity_signature_to_string(types, seen)
 
 
-def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type, List[Type]]:
-    # pylint: disable=import-outside-toplevel
+def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list[Type]:
     from slither.core.declarations import Contract, Enum, Structure
 
     # Solidity allows recursive type for structure definition if its not used in public /external
@@ -102,7 +103,7 @@ def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type,
 
 
 def _export_nested_types_from_variable(
-    current_type: Type, ret: List[Type], seen: Set[Type]
+    current_type: Type, ret: list[Type], seen: set[Type]
 ) -> None:
     """
     Export the list of nested types (mapping/array)
@@ -125,20 +126,19 @@ def _export_nested_types_from_variable(
     _export_nested_types_from_variable(next_type, ret, seen)
 
 
-def export_nested_types_from_variable(variable: Variable) -> List[Type]:
+def export_nested_types_from_variable(variable: Variable) -> list[Type]:
     """
     Export the list of nested types (mapping/array)
     :param variable:
     :return: list(Type)
     """
-    l: List[Type] = []
-    seen: Set[Type] = set()
+    l: list[Type] = []
+    seen: set[Type] = set()
     _export_nested_types_from_variable(variable.type, l, seen)
     return l
 
 
-def _export_return_type_from_variable(underlying_type: Type, all_types: bool) -> List[Type]:
-    # pylint: disable=import-outside-toplevel
+def _export_return_type_from_variable(underlying_type: Type, all_types: bool) -> list[Type]:
     from slither.core.declarations import Structure
 
     if isinstance(underlying_type, MappingType):
@@ -162,8 +162,8 @@ def _export_return_type_from_variable(underlying_type: Type, all_types: bool) ->
 
 
 def export_return_type_from_variable(
-    variable_or_type: Union[Type, Variable], all_types: bool = True
-) -> List[Type]:
+    variable_or_type: Type | Variable, all_types: bool = True
+) -> list[Type]:
     """
     Return the type returned by a variable.
     If all_types set to false, filter array/mapping. This is useful as the mapping/array in a structure are not
@@ -172,7 +172,7 @@ def export_return_type_from_variable(
     :param all_types
     :return: Type
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations import Structure
 
     if isinstance(variable_or_type, Type):
@@ -204,7 +204,7 @@ def is_underlying_type_address(t: "Type") -> bool:
     Return true if the underlying type is an address
     i.e. if the type is an address or a contract
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations.contract import Contract
 
     if t == ElementaryType("address"):

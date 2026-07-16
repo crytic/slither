@@ -1,11 +1,11 @@
-""""
-    Re-entrancy detection
+""" "
+Re-entrancy detection
 
-    Based on heuristics, it may lead to FP and FN
-    Iterate over all the nodes of the graph until reaching a fixpoint
+Based on heuristics, it may lead to FP and FN
+Iterate over all the nodes of the graph until reaching a fixpoint
 """
+
 from collections import namedtuple, defaultdict
-from typing import DefaultDict, Set, List
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
@@ -22,7 +22,7 @@ class ReentrancyBenign(Reentrancy):
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2"
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3"
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
@@ -41,7 +41,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             throw;
         }
         counter += 1
-    }   
+    }
 ```
 
 `callme` contains a reentrancy. The reentrancy is benign because it's exploitation would have the same effect as two consecutive calls."""
@@ -51,7 +51,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
+    def find_reentrancies(self) -> defaultdict[FindingKey, set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -88,7 +88,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
+    def _detect(self) -> list[Output]:
         """"""
 
         super()._detect()
@@ -96,24 +96,24 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
-        varsWritten: List[FindingValue]
+        result_sorted = sorted(reentrancies.items(), key=lambda x: x[0].function.name)
+        varsWritten: list[FindingValue]
         for (func, calls, send_eth), varsWritten in result_sorted:
-            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
+            calls = sorted(set(calls), key=lambda x: x[0].node_id)
+            send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         info += ["\t\t- ", call_list_info, "\n"]
             if calls != send_eth and send_eth:
                 info += ["\tExternal calls sending eth:\n"]
-                for (call_info, calls_list) in send_eth:
+                for call_info, calls_list in send_eth:
                     info += ["\t- ", call_info, "\n"]
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
@@ -132,7 +132,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
@@ -145,7 +145,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
-                for (call_info, calls_list) in calls:
+                for call_info, calls_list in calls:
                     res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
                     for call_list_info in calls_list:
                         if call_list_info != call_info:

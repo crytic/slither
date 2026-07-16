@@ -6,6 +6,7 @@ from slither import Slither
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "inheritance_resolution"
 
+
 # https://github.com/crytic/slither/issues/2304
 def test_inheritance_with_renaming(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.0")

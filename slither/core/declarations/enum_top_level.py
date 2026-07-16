@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.core.declarations import Enum
 from slither.core.declarations.top_level import TopLevel
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class EnumTopLevel(Enum, TopLevel):
     def __init__(
-        self, name: str, canonical_name: str, values: List[str], scope: "FileScope"
+        self, name: str, canonical_name: str, values: list[str], scope: "FileScope"
     ) -> None:
         super().__init__(name, canonical_name, values)
-        self.file_scope: "FileScope" = scope
+        self.file_scope: FileScope = scope

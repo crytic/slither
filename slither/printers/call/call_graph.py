@@ -1,15 +1,17 @@
 """
-    Module printing the call graph
+Module printing the call graph
 
-    The call graph shows for each function,
-    what are the contracts/functions called.
-    The output is a dot file named filename.dot
+The call graph shows for each function,
+what are the contracts/functions called.
+The output is a dot file named filename.dot
 """
+
 from collections import defaultdict
-from typing import Optional, Union, Dict, Set, Tuple, Sequence
+from collections.abc import Sequence
 
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.slithir.operations import HighLevelCall, InternalCall
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
@@ -22,13 +24,22 @@ def _contract_subgraph(contract: Contract) -> str:
 
 
 # return unique id for contract function to use as node name
-def _function_node(contract: Contract, function: Union[Function, Variable]) -> str:
-    return f"{contract.id}_{function.name}"
+def _function_node(contract: Contract, function: Function | Variable) -> str:
+    # Use full_name for Functions to distinguish overloaded functions
+    if isinstance(function, Function):
+        return f"{contract.id}_{function.full_name}"
+    # Variables use solidity_signature which includes parameter types
+    return f"{contract.id}_{function.solidity_signature}"
 
 
 # return unique id for solidity function to use as node name
 def _solidity_function_node(solidity_function: SolidityFunction) -> str:
     return f"{solidity_function.name}"
+
+
+# return unique id for top level function to use as node name
+def _toplevel_function_node(function: FunctionTopLevel) -> str:
+    return f"toplevel_{function.full_name}"
 
 
 # return dot language string to add graph edge
@@ -37,7 +48,7 @@ def _edge(from_node: str, to_node: str) -> str:
 
 
 # return dot language string to add graph node (with optional label)
-def _node(node: str, label: Optional[str] = None) -> str:
+def _node(node: str, label: str | None = None) -> str:
     return " ".join(
         (
             f'"{node}"',
@@ -46,42 +57,59 @@ def _node(node: str, label: Optional[str] = None) -> str:
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_internal_call(
-    contract: Contract,
+    contract: Contract | None,
     function: Function,
     internal_call: InternalCall,
-    contract_calls: Dict[Contract, Set[str]],
-    solidity_functions: Set[str],
-    solidity_calls: Set[str],
+    contract_calls: dict[Contract, set[str]],
+    solidity_functions: set[str],
+    solidity_calls: set[str],
+    toplevel_functions: set[str],
+    toplevel_calls: set[str],
 ) -> None:
-    if isinstance(internal_call.function, (Function)):
+    # Determine the caller's node
+    if isinstance(function, FunctionTopLevel):
+        caller_node = _toplevel_function_node(function)
+    else:
+        caller_node = _function_node(contract, function)
+
+    if isinstance(internal_call.function, FunctionTopLevel):
+        # Call to a top-level function
+        toplevel_functions.add(
+            _node(
+                _toplevel_function_node(internal_call.function),
+                internal_call.function.full_name,
+            ),
+        )
+        toplevel_calls.add(_edge(caller_node, _toplevel_function_node(internal_call.function)))
+    elif isinstance(internal_call.function, FunctionContract):
+        # Call to a contract function
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function),
+                caller_node,
                 _function_node(contract, internal_call.function),
             )
         )
-    elif isinstance(internal_call.function, (SolidityFunction)):
+    elif isinstance(internal_call.function, SolidityFunction):
         solidity_functions.add(
             _node(_solidity_function_node(internal_call.function)),
         )
         solidity_calls.add(
             _edge(
-                _function_node(contract, function),
+                caller_node,
                 _solidity_function_node(internal_call.function),
             )
         )
 
 
-def _render_external_calls(external_calls: Set[str]) -> str:
+def _render_external_calls(external_calls: set[str]) -> str:
     return "\n".join(external_calls)
 
 
 def _render_internal_calls(
     contract: Contract,
-    contract_functions: Dict[Contract, Set[str]],
-    contract_calls: Dict[Contract, Set[str]],
+    contract_functions: dict[Contract, set[str]],
+    contract_calls: dict[Contract, set[str]],
 ) -> str:
     lines = []
 
@@ -96,7 +124,7 @@ def _render_internal_calls(
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str]) -> str:
+def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str]) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -110,17 +138,31 @@ def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str
     return "\n".join(lines)
 
 
+def _render_toplevel_calls(toplevel_functions: set[str], toplevel_calls: set[str]) -> str:
+    lines = []
+
+    lines.append("subgraph cluster_toplevel {")
+    lines.append('label = "[Top Level]"')
+
+    lines.extend(toplevel_functions)
+    lines.extend(toplevel_calls)
+
+    lines.append("}")
+
+    return "\n".join(lines)
+
+
 def _process_external_call(
     contract: Contract,
     function: Function,
-    external_call: Tuple[Contract, HighLevelCall],
-    contract_functions: Dict[Contract, Set[str]],
-    external_calls: Set[str],
-    all_contracts: Set[Contract],
+    external_call: tuple[Contract, HighLevelCall],
+    contract_functions: dict[Contract, set[str]],
+    external_calls: set[str],
+    all_contracts: set[Contract],
 ) -> None:
     external_contract, ir = external_call
 
-    if not external_contract in all_contracts:
+    if external_contract not in all_contracts:
         return
 
     # add variable as node to respective contract
@@ -128,7 +170,7 @@ def _process_external_call(
         contract_functions[external_contract].add(
             _node(
                 _function_node(external_contract, ir.function),
-                ir.function.name,
+                ir.function.solidity_signature,  # Use signature for consistency with node ID
             )
         )
 
@@ -140,20 +182,28 @@ def _process_external_call(
     )
 
 
-# pylint: disable=too-many-arguments
 def _process_function(
-    contract: Contract,
+    contract: Contract | None,
     function: Function,
-    contract_functions: Dict[Contract, Set[str]],
-    contract_calls: Dict[Contract, Set[str]],
-    solidity_functions: Set[str],
-    solidity_calls: Set[str],
-    external_calls: Set[str],
-    all_contracts: Set[Contract],
+    contract_functions: dict[Contract, set[str]],
+    contract_calls: dict[Contract, set[str]],
+    solidity_functions: set[str],
+    solidity_calls: set[str],
+    external_calls: set[str],
+    all_contracts: set[Contract],
+    toplevel_functions: set[str],
+    toplevel_calls: set[str],
 ) -> None:
-    contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
-    )
+    if isinstance(function, FunctionTopLevel):
+        toplevel_functions.add(
+            _node(_toplevel_function_node(function), function.full_name),
+        )
+    else:
+        # Use full_name as label to distinguish overloaded functions
+        label = function.full_name if isinstance(function, Function) else function.name
+        contract_functions[contract].add(
+            _node(_function_node(contract, function), label),
+        )
 
     for internal_call in function.internal_calls:
         _process_internal_call(
@@ -163,35 +213,42 @@ def _process_function(
             contract_calls,
             solidity_functions,
             solidity_calls,
+            toplevel_functions,
+            toplevel_calls,
         )
-    for external_call in function.high_level_calls:
-        _process_external_call(
-            contract,
-            function,
-            external_call,
-            contract_functions,
-            external_calls,
-            all_contracts,
-        )
+    # Skip external call processing for top-level functions as they cannot make
+    # high-level calls to contracts (only low-level calls), and contract=None
+    # would crash _process_external_call
+    if contract is not None:
+        for external_call in function.high_level_calls:
+            _process_external_call(
+                contract,
+                function,
+                external_call,
+                contract_functions,
+                external_calls,
+                all_contracts,
+            )
 
 
 def _process_functions(functions: Sequence[Function]) -> str:
-    # TODO  add support for top level function
-
-    contract_functions: Dict[Contract, Set[str]] = defaultdict(
+    contract_functions: dict[Contract, set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: Dict[Contract, Set[str]] = defaultdict(set)  # contract -> contract calls edges
+    contract_calls: dict[Contract, set[str]] = defaultdict(set)  # contract -> contract calls edges
 
-    solidity_functions: Set[str] = set()  # solidity function nodes
-    solidity_calls: Set[str] = set()  # solidity calls edges
-    external_calls: Set[str] = set()  # external calls edges
+    solidity_functions: set[str] = set()  # solidity function nodes
+    solidity_calls: set[str] = set()  # solidity calls edges
+    external_calls: set[str] = set()  # external calls edges
+    toplevel_functions: set[str] = set()  # top level function nodes
+    toplevel_calls: set[str] = set()  # top level calls edges
 
-    all_contracts = set()
+    all_contracts: set[Contract] = set()
 
     for function in functions:
         if isinstance(function, FunctionContract):
             all_contracts.add(function.contract_declarer)
+
     for function in functions:
         if isinstance(function, FunctionContract):
             _process_function(
@@ -203,6 +260,21 @@ def _process_functions(functions: Sequence[Function]) -> str:
                 solidity_calls,
                 external_calls,
                 all_contracts,
+                toplevel_functions,
+                toplevel_calls,
+            )
+        elif isinstance(function, FunctionTopLevel):
+            _process_function(
+                None,
+                function,
+                contract_functions,
+                contract_calls,
+                solidity_functions,
+                solidity_calls,
+                external_calls,
+                all_contracts,
+                toplevel_functions,
+                toplevel_calls,
             )
 
     render_internal_calls = ""
@@ -215,7 +287,14 @@ def _process_functions(functions: Sequence[Function]) -> str:
 
     render_external_calls = _render_external_calls(external_calls)
 
-    return render_internal_calls + render_solidity_calls + render_external_calls
+    render_toplevel_calls = _render_toplevel_calls(toplevel_functions, toplevel_calls)
+
+    return (
+        render_internal_calls
+        + render_solidity_calls
+        + render_external_calls
+        + render_toplevel_calls
+    )
 
 
 class PrinterCallGraph(AbstractPrinter):
