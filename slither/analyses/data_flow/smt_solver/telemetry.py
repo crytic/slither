@@ -186,6 +186,23 @@ class QuerySessionMetrics:
 
 
 @dataclass
+class RangeRefinementMetrics:
+    """Aggregate abstract-first and total-budget range decisions."""
+
+    requests: int = 0
+    abstract_only: int = 0
+    refinements_attempted: int = 0
+    sessions_avoided: int = 0
+    budget_exhausted: int = 0
+    partial_results: int = 0
+    configured_total_budget_ms: int = 0
+    wall_elapsed_ms: float = 0.0
+    feasibility_statuses: dict[str, int] = field(default_factory=dict)
+    lower_statuses: dict[str, int] = field(default_factory=dict)
+    upper_statuses: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
 class StateJoinMetrics:
     """Opt-in observations of Stage 3 join and convergence behavior."""
 
@@ -193,6 +210,21 @@ class StateJoinMetrics:
     changed: int = 0
     semantic_noops: int = 0
     transfer_reruns_prevented: int = 0
+
+
+@dataclass
+class LoopFixpointMetrics:
+    """Opt-in observations of Stage 4 natural-loop generations."""
+
+    headers_classified: int = 0
+    entry_edge_propagations: int = 0
+    back_edge_propagations: int = 0
+    generation_advances: int = 0
+    pending_generation_updates: int = 0
+    semantic_noops: int = 0
+    generation_fact_replacements: int = 0
+    live_generation_facts: int = 0
+    max_live_generation_facts: int = 0
 
 
 @dataclass
@@ -233,7 +265,9 @@ class EvaluationMetrics:
     solver_lifetime: SolverLifetimeMetrics = field(default_factory=SolverLifetimeMetrics)
     facts: FactOwnershipMetrics = field(default_factory=FactOwnershipMetrics)
     query_sessions: QuerySessionMetrics = field(default_factory=QuerySessionMetrics)
+    range_refinements: RangeRefinementMetrics = field(default_factory=RangeRefinementMetrics)
     state_joins: StateJoinMetrics = field(default_factory=StateJoinMetrics)
+    loop_fixpoints: LoopFixpointMetrics = field(default_factory=LoopFixpointMetrics)
     transfer_functions: TransferFunctionMetrics = field(default_factory=TransferFunctionMetrics)
     precision: PrecisionMetrics = field(default_factory=PrecisionMetrics)
 
@@ -294,6 +328,8 @@ class SolverTelemetry:
 
     # Exact fingerprints are retained only while telemetry is enabled.
     _assertion_fingerprints: set[str] = field(default_factory=set)
+
+    _loop_generation_fact_counts: dict[str, int] = field(default_factory=dict)
 
     def count(self, operation: str, amount: int = 1) -> None:
         """Increment counter for an operation."""
@@ -396,6 +432,43 @@ class SolverTelemetry:
             return
         self.evaluation.state_joins.transfer_reruns_prevented += 1
 
+    def record_loop_headers(self, count: int) -> None:
+        """Record the number of dominator-classified loop headers."""
+        if not self.enabled:
+            return
+        self.evaluation.loop_fixpoints.headers_classified = count
+
+    def record_loop_update(
+        self,
+        *,
+        header_key: str,
+        is_back_edge: bool,
+        changed: bool,
+        generation_advanced: bool,
+        facts_replaced: bool,
+        live_generation_facts: int,
+    ) -> None:
+        """Record one incoming natural-loop edge and its lifecycle result."""
+        if not self.enabled:
+            return
+        metrics = self.evaluation.loop_fixpoints
+        if is_back_edge:
+            metrics.back_edge_propagations += 1
+        else:
+            metrics.entry_edge_propagations += 1
+        metrics.generation_advances += int(generation_advanced)
+        metrics.pending_generation_updates += int(
+            is_back_edge and changed and not generation_advanced
+        )
+        metrics.semantic_noops += int(not changed)
+        metrics.generation_fact_replacements += int(facts_replaced)
+        self._loop_generation_fact_counts[header_key] = live_generation_facts
+        metrics.live_generation_facts = sum(self._loop_generation_fact_counts.values())
+        metrics.max_live_generation_facts = max(
+            metrics.max_live_generation_facts,
+            metrics.live_generation_facts,
+        )
+
     def record_assertion(
         self,
         fingerprint: str,
@@ -484,6 +557,27 @@ class SolverTelemetry:
         if bound is not None:
             self._increment_group(metrics.bound_statuses, bound.value)
             metrics.timeout_results += int(bound.value == "timeout")
+
+    def record_range_refinement(self, result: Any, *, abstract_only: bool) -> None:
+        """Record one completed range decision, including zero-session results."""
+        if not self.enabled:
+            return
+        metrics = self.evaluation.range_refinements
+        diagnostics = result.diagnostics
+        metrics.requests += 1
+        metrics.abstract_only += int(abstract_only)
+        metrics.refinements_attempted += int(not abstract_only)
+        metrics.sessions_avoided += int(abstract_only)
+        metrics.budget_exhausted += int(diagnostics.budget_exhausted)
+        metrics.configured_total_budget_ms += diagnostics.total_budget_ms or 0
+        metrics.wall_elapsed_ms += diagnostics.wall_elapsed_ms
+        proven = sum(
+            status.value == "proven" for status in (result.lower_status, result.upper_status)
+        )
+        metrics.partial_results += int(proven == 1)
+        self._increment_group(metrics.feasibility_statuses, result.feasibility.value)
+        self._increment_group(metrics.lower_statuses, result.lower_status.value)
+        self._increment_group(metrics.upper_statuses, result.upper_status.value)
 
     @staticmethod
     def _increment_group(groups: dict[str, int], key: str) -> None:
@@ -714,6 +808,7 @@ class SolverTelemetry:
         self.evaluation = EvaluationMetrics()
         self._query_times_ms.clear()
         self._assertion_fingerprints.clear()
+        self._loop_generation_fact_counts.clear()
 
     def get_summary(self) -> dict[str, dict]:
         """Get summary of all telemetry data."""

@@ -95,6 +95,9 @@ from slither.analyses.data_flow.analyses.interval.operations.unpack import (
 from slither.analyses.data_flow.logger import get_logger
 
 if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.analysis.loop import (
+        IntervalLoopMetadata,
+    )
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 
 logger = get_logger()
@@ -103,7 +106,7 @@ logger = get_logger()
 class OperationHandlerRegistry:
     """Maps operation types to handlers."""
 
-    def __init__(self, solver: "SMTSolver"):
+    def __init__(self, solver: SMTSolver):
         self._solver = solver
         self._handlers: dict[type[Operation], BaseOperationHandler] = {}
         self._register_handlers()
@@ -135,10 +138,16 @@ class OperationHandlerRegistry:
     def get_handler(self, op_type: type[Operation]) -> BaseOperationHandler:
         """Get handler for operation type."""
         if op_type not in self._handlers:
-            implemented = [handler.__name__ for handler in self._handlers.keys()]
+            implemented = [handler.__name__ for handler in self._handlers]
             logger.error_and_raise(
-                f"Operation '{op_type.__name__}' is not implemented. "
-                f"Implemented: {implemented}",
+                f"Operation '{op_type.__name__}' is not implemented. Implemented: {implemented}",
                 NotImplementedError,
             )
         return self._handlers[op_type]
+
+    def configure_loop_metadata(self, metadata: IntervalLoopMetadata) -> None:
+        """Provide stable loop-carried bindings to the phi handler."""
+        handler = self._handlers[Phi]
+        if not isinstance(handler, PhiHandler):
+            raise TypeError("Phi registry entry is not a PhiHandler")
+        handler.configure_loop_metadata(metadata)

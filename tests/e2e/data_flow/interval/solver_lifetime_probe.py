@@ -29,6 +29,7 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.engine import Engine
 from slither.analyses.data_flow.smt_solver import Z3Solver
+from slither.analyses.data_flow.smt_solver.query import RangeInterval
 from slither.analyses.data_flow.smt_solver.telemetry import (
     enable_telemetry,
     reset_telemetry,
@@ -49,6 +50,16 @@ def parse_args() -> argparse.Namespace:
         help="Use current state-local constraints or omit them for a diagnostic control",
     )
     parser.add_argument("--timeout-ms", type=int, default=3000)
+    parser.add_argument(
+        "--force-refinement",
+        action="store_true",
+        help="Refine tracked abstract intervals instead of returning them directly",
+    )
+    parser.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="Print lifecycle totals and selected query results without per-node state dumps",
+    )
     return parser.parse_args()
 
 
@@ -93,12 +104,23 @@ def query_matching_variables(
                 continue
             seen.add(key)
             started = time.perf_counter()
+            tracked_interval = RangeInterval(variable.interval.lower, variable.interval.upper)
+            abstract_sufficient = variable.is_total and (
+                variable.interval != variable.type_interval
+                or variable.overflow_operation_id is not None
+            )
             result = solver.solve_range_result(
                 variable.term,
                 state_id=state_id,
                 state_facts=state_facts,
                 timeout_ms=args.timeout_ms,
                 signed=bool(variable.base.metadata.get("is_signed", False)),
+                fallback_range=tracked_interval,
+                abstract_range=(
+                    tracked_interval
+                    if abstract_sufficient and not args.force_refinement
+                    else None
+                ),
             )
             queries.append(
                 {
@@ -111,6 +133,16 @@ def query_matching_variables(
                     "lower": result.lower,
                     "upper": result.upper,
                     "elapsed_ms": round((time.perf_counter() - started) * 1000, 3),
+                    "total_budget_ms": result.diagnostics.total_budget_ms,
+                    "budget_elapsed_ms": round(result.diagnostics.wall_elapsed_ms, 3),
+                    "budget_exhausted": result.diagnostics.budget_exhausted,
+                    "sessions": len(result.diagnostics.sessions),
+                    "backend_elapsed_ms": round(result.diagnostics.elapsed_ms, 3),
+                    "fallback_range": (
+                        result.fallback_range.to_dict()
+                        if result.fallback_range is not None
+                        else None
+                    ),
                 }
             )
     return queries
@@ -178,6 +210,7 @@ def run_probe(args: argparse.Namespace) -> dict:
     started = time.perf_counter()
     engine.run_analysis()
     analysis_elapsed_ms = (time.perf_counter() - started) * 1000
+    analysis_query_sessions = telemetry.get_evaluation_metrics().to_dict()["query_sessions"].copy()
     queries = []
     if args.query_variable:
         pattern = re.compile(args.query_variable)
@@ -208,15 +241,61 @@ def run_probe(args: argparse.Namespace) -> dict:
         "lifetime": lifetime,
         "fact_ownership": evaluation["facts"],
         "query_sessions": evaluation["query_sessions"],
+        "range_refinements": evaluation["range_refinements"],
+        "analysis_query_sessions": analysis_query_sessions,
         "state_joins": evaluation["state_joins"],
+        "loop_fixpoints": evaluation["loop_fixpoints"],
         "active_query_sessions": solver.active_query_sessions,
         "query_summary": query_summary,
     }
 
 
+def summarize_probe(result: dict) -> dict:
+    """Return the concise evidence used by direct lifecycle checks."""
+    lifetime = result["lifetime"]
+    facts = result["fact_ownership"]
+    return {
+        "contract": result["contract"],
+        "function": result["function"],
+        "cfg_nodes": result["cfg_nodes"],
+        "iterations": result["iterations"],
+        "analysis_elapsed_ms": result["analysis_elapsed_ms"],
+        "visited_nodes": len(lifetime["node_visits"]),
+        "final_live_assertions": result["final_live_assertions"],
+        "final_duplicate_assertions": result["final_duplicate_assertions"],
+        "internal_unclassified_additions": facts["unclassified_additions"],
+        "analysis_query_sessions": _summarize_sessions(result["analysis_query_sessions"]),
+        "query_sessions": _summarize_sessions(result["query_sessions"]),
+        "range_refinements": result["range_refinements"],
+        "loop_fixpoints": result["loop_fixpoints"],
+        "queries": result["queries"],
+        "active_query_sessions": result["active_query_sessions"],
+    }
+
+
+def _summarize_sessions(metrics: dict) -> dict:
+    """Drop high-cardinality identities from session lifecycle output."""
+    keys = (
+        "created",
+        "closed",
+        "active",
+        "cleanup_imbalances",
+        "timeout_results",
+        "compatibility_query_facts",
+        "by_purpose",
+        "feasibility_statuses",
+        "bound_statuses",
+    )
+    return {key: metrics[key] for key in keys}
+
+
 def main() -> None:
     """Run the command-line probe."""
-    print(json.dumps(run_probe(parse_args()), indent=2, sort_keys=True))
+    args = parse_args()
+    result = run_probe(args)
+    if args.summary_only:
+        result = summarize_probe(result)
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

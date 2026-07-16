@@ -13,6 +13,11 @@ from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
+from slither.analyses.data_flow.analyses.interval.operations.binary.abstract_transfer import (
+    AbstractTransferKind,
+    AbstractTransferResult,
+    transfer_binary_interval,
+)
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_bit_width,
     get_variable_name,
@@ -45,6 +50,19 @@ class ConstraintContext:
     result: SMTTerm
     is_signed: bool
     bit_width: int
+
+
+@dataclass(frozen=True)
+class ArithmeticEvaluation:
+    """Terms and type metadata produced for one binary operation."""
+
+    result: TrackedSMTVariable
+    left: SMTTerm
+    right: SMTTerm
+    result_term: SMTTerm | None
+    bit_width: int
+    is_signed: bool
+    both_constants: bool
 
 
 ARITHMETIC_OPERATIONS = frozenset(
@@ -99,8 +117,9 @@ class ArithmeticHandler(BaseOperationHandler):
             left_term,
             right_term,
             result_type,
-            is_self_operation,
-            bit_width,
+            is_self_operation=is_self_operation,
+            bit_width=bit_width,
+            constant_right=self._constant_integer(operation.variable_right),
         )
         if result_term is not None:
             self._register_equation(
@@ -110,44 +129,101 @@ class ArithmeticHandler(BaseOperationHandler):
                 result_var.term == result_term,
                 "arithmetic_result",
             )
+        evaluation = ArithmeticEvaluation(
+            result_var,
+            left_term,
+            right_term,
+            result_term,
+            bit_width,
+            signed,
+            both_constants,
+        )
+        self._add_continuation_constraints(operation, node, domain, evaluation)
+        result_var = self._apply_abstract_result(operation, node, domain, evaluation)
+        domain.state.set_variable(result_name, result_var)
+        self._record_operand_dependencies(operation, result_name, domain)
 
+    def _add_continuation_constraints(
+        self,
+        operation: Binary,
+        node: Node,
+        domain: IntervalDomain,
+        evaluation: ArithmeticEvaluation,
+    ) -> None:
+        """Record operation-local success conditions in the current state."""
         if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
             self._add_divisor_nonzero_constraint(
                 operation,
                 node,
-                right_term,
-                bit_width,
-                domain,
+                evaluation.right,
+                evaluation.bit_width,
+                domain=domain,
             )
-
-        overflow_predicates = self._compute_overflow_predicates(
-            operation.type, left_term, right_term, signed, both_constants
-        )
-
-        is_checked = node.scope.is_checked
-        should_check = is_checked and result_term is not None and not both_constants
-        if should_check:
-            context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
+        if (
+            operation.type is BinaryType.DIVISION
+            and evaluation.is_signed
+            and not evaluation.both_constants
+        ):
+            self._add_state_fact(
+                operation,
+                node,
+                domain,
+                self.solver.bv_sdiv_no_overflow(evaluation.left, evaluation.right),
+                "signed_division_no_overflow",
+                kind=FactKind.CHECKED_ARITHMETIC,
+            )
+        if node.scope.is_checked and evaluation.result_term is not None:
+            if evaluation.both_constants:
+                return
+            context = ConstraintContext(
+                evaluation.left,
+                evaluation.right,
+                evaluation.result_term,
+                evaluation.is_signed,
+                evaluation.bit_width,
+            )
             self._assert_checked_constraints(operation, node, context, domain)
 
-        result_interval = self._compute_abstract_result_interval(
+    def _apply_abstract_result(
+        self,
+        operation: Binary,
+        node: Node,
+        domain: IntervalDomain,
+        evaluation: ArithmeticEvaluation,
+    ) -> TrackedSMTVariable:
+        """Attach the abstract interval and deferred unchecked predicates."""
+        is_checked = node.scope.is_checked
+        abstract_result = self._compute_abstract_result_interval(
             operation,
             domain,
-            bit_width,
-            signed,
-            is_checked,
+            evaluation.bit_width,
+            evaluation.is_signed,
+            is_checked=is_checked,
         )
-        result_var = result_var.with_interval(result_interval)
+        result = evaluation.result.with_interval(abstract_result.interval)
 
-        # Store predicates and is_checked flag for deferred overflow checking
-        # Overflow is only possible in unchecked contexts (assembly, unchecked blocks)
-        result_var = result_var.with_overflow_predicates(
+        overflow_predicates = self._compute_overflow_predicates(
+            operation.type,
+            evaluation.left,
+            evaluation.right,
+            is_signed=evaluation.is_signed,
+            both_constants=evaluation.both_constants,
+        )
+        if not is_checked and not abstract_result.may_wrap:
+            overflow_predicates = {"no_overflow": None, "no_underflow": None}
+        has_deferred_overflow_check = any(
+            predicate is not None for predicate in overflow_predicates.values()
+        )
+
+        return result.with_overflow_predicates(
             **overflow_predicates,
             operation_id=StaticOperationId.from_operation(operation, node),
-            is_unchecked=not is_checked and not both_constants,
+            is_unchecked=(
+                not is_checked
+                and not evaluation.both_constants
+                and has_deferred_overflow_check
+            ),
         )
-        domain.state.set_variable(result_name, result_var)
-        self._record_operand_dependencies(operation, result_name, domain)
 
     def _prepare_terms(
         self,
@@ -171,37 +247,40 @@ class ArithmeticHandler(BaseOperationHandler):
         domain: IntervalDomain,
         bit_width: int,
         is_signed: bool,
+        *,
         is_checked: bool,
-    ) -> NumericInterval:
-        """Compute the existing interval transformer for linear add/sub operations."""
+    ) -> AbstractTransferResult:
+        """Compute a sound non-relational transfer before optional SMT refinement."""
         type_interval = NumericInterval.type_range(bit_width, is_signed)
-        if self._is_same_operand(operation) and operation.type is BinaryType.SUBTRACTION:
-            return NumericInterval(0, 0)
         left = self._operand_interval(operation.variable_left, domain, type_interval)
-        right = self._operand_interval(operation.variable_right, domain, type_interval)
+        right = self._operand_interval(
+            operation.variable_right,
+            domain,
+            type_interval,
+            allow_wide=operation.type
+            in (BinaryType.POWER, BinaryType.LEFT_SHIFT, BinaryType.RIGHT_SHIFT),
+        )
         if left is None or right is None:
-            return type_interval
-        if operation.type is BinaryType.ADDITION:
-            raw = NumericInterval(left.lower + right.lower, left.upper + right.upper)
-        elif operation.type is BinaryType.SUBTRACTION:
-            raw = NumericInterval(left.lower - right.upper, left.upper - right.lower)
-        else:
-            return type_interval
-        if type_interval.lower <= raw.lower and raw.upper <= type_interval.upper:
-            return raw
-        if not is_checked:
-            return type_interval
-        lower = max(type_interval.lower, raw.lower)
-        upper = min(type_interval.upper, raw.upper)
-        if lower > upper:
-            return type_interval
-        return NumericInterval(lower, upper)
+            return AbstractTransferResult(type_interval, kind=AbstractTransferKind.TOP)
+        result = transfer_binary_interval(
+            operation.type,
+            left,
+            right,
+            bit_width=bit_width,
+            is_signed=is_signed,
+            is_checked=is_checked,
+            same_operand=self._is_same_operand(operation),
+        )
+        self._record_abstract_transfer(operation.type, result, is_checked)
+        return result
 
     @staticmethod
     def _operand_interval(
         operand: RVALUE,
         domain: IntervalDomain,
         type_interval: NumericInterval,
+        *,
+        allow_wide: bool = False,
     ) -> NumericInterval | None:
         if isinstance(operand, Constant):
             value = operand.value
@@ -209,13 +288,37 @@ class ArithmeticHandler(BaseOperationHandler):
                 value = int(value)
             if not isinstance(value, int):
                 return None
-            if not type_interval.lower <= value <= type_interval.upper:
+            if not allow_wide and not type_interval.lower <= value <= type_interval.upper:
                 return None
             return NumericInterval(value, value)
         tracked = domain.state.get_variable(get_variable_name(operand))
         if tracked is None or not tracked.is_total:
             return None
         return tracked.interval
+
+    @staticmethod
+    def _record_abstract_transfer(
+        operation_type: BinaryType,
+        result: AbstractTransferResult,
+        is_checked: bool,
+    ) -> None:
+        from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
+
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+        telemetry.count(f"abstract_transfer_{operation_type.name.lower()}")
+        telemetry.count(f"abstract_transfer_{result.kind.value}")
+        telemetry.count("abstract_transfer_checked" if is_checked else "abstract_transfer_unchecked")
+
+    @staticmethod
+    def _constant_integer(operand: RVALUE) -> int | None:
+        if not isinstance(operand, Constant):
+            return None
+        value = operand.value
+        if isinstance(value, bool):
+            return int(value)
+        return value if isinstance(value, int) else None
 
     def _record_operand_dependencies(
         self,
@@ -263,6 +366,7 @@ class ArithmeticHandler(BaseOperationHandler):
         operation_type: BinaryType,
         left_term: SMTTerm,
         right_term: SMTTerm,
+        *,
         is_signed: bool,
         both_constants: bool,
     ) -> dict[str, SMTTerm | None]:
@@ -482,6 +586,7 @@ class ArithmeticHandler(BaseOperationHandler):
         node: Node,
         divisor: SMTTerm,
         bit_width: int,
+        *,
         domain: IntervalDomain,
     ) -> None:
         """Add divisor nonzero constraint as path constraint (division by zero reverts)."""
@@ -536,8 +641,10 @@ class ArithmeticHandler(BaseOperationHandler):
         left: SMTTerm,
         right: SMTTerm,
         result_type: ElementaryType,
+        *,
         is_self_operation: bool = False,
         bit_width: int = 256,
+        constant_right: int | None = None,
     ) -> SMTTerm | None:
         """Compute the result term for the operation."""
         signed = is_signed_type(result_type)
@@ -556,13 +663,26 @@ class ArithmeticHandler(BaseOperationHandler):
             BinaryType.MULTIPLICATION: lambda: self.solver.bv_mul(left, right),
             BinaryType.DIVISION: lambda: self._division(left, right, signed),
             BinaryType.MODULO: lambda: self._modulo(left, right, signed),
-            BinaryType.LEFT_SHIFT: lambda: self.solver.bv_shl(left, right),
-            BinaryType.RIGHT_SHIFT: lambda: self._right_shift(left, right, signed),
             BinaryType.AND: lambda: self.solver.bv_and(left, right),
             BinaryType.OR: lambda: self.solver.bv_or(left, right),
             BinaryType.CARET: lambda: self.solver.bv_xor(left, right),
-            BinaryType.POWER: lambda: self._power(left, right),
         }
+
+        if operation_type in (BinaryType.LEFT_SHIFT, BinaryType.RIGHT_SHIFT):
+            if constant_right is None or constant_right < 0:
+                return None
+            shift = self.solver.create_constant(
+                min(constant_right, bit_width),
+                Sort(SortKind.BITVEC, [bit_width]),
+            )
+            if operation_type is BinaryType.LEFT_SHIFT:
+                return self.solver.bv_shl(left, shift)
+            return self._right_shift(left, shift, signed)
+        if operation_type is BinaryType.POWER:
+            # There is no backend-neutral bit-vector exponent operator. The
+            # abstract transfer remains authoritative instead of registering
+            # a wrapped equation that lacks checked-overflow semantics.
+            return None
 
         handler = dispatch.get(operation_type)
         if handler is None:
@@ -621,11 +741,3 @@ class ArithmeticHandler(BaseOperationHandler):
         if is_signed:
             return self.solver.bv_ashr(left, right)
         return self.solver.bv_lshr(left, right)
-
-    def _power(self, base: SMTTerm, exponent: SMTTerm) -> SMTTerm:
-        """Power operation (simplified - returns base * exponent for now).
-
-        Full power implementation requires iterative multiplication.
-        """
-        # TODO: Implement proper power operation with iterative multiplication
-        return self.solver.bv_mul(base, exponent)

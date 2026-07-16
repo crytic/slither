@@ -14,6 +14,7 @@ from slither.analyses.data_flow.smt_solver.query import (
     FeasibilityResult,
     FunctionEncoding,
     QueryMaterialization,
+    QueryBudget,
     QueryPurpose,
     QuerySession,
     RangeInterval,
@@ -358,10 +359,12 @@ class SMTSolver(ABC):
         self.function_encoding.bind(encoding_id)
 
     def register_loop_generation_fact(self, fact: Fact[SMTTerm]) -> None:
-        """Reject loop facts until Stage 2 provides generation-scoped sessions."""
+        """Reject loop facts because loop-header fixpoints own their lifecycle."""
         if fact.fact_id.owner is not FactOwnerKind.LOOP_GENERATION:
             raise ValueError("Loop facts must use the LOOP_GENERATION owner")
-        raise NotImplementedError("Loop-generation facts require generation-scoped query sessions")
+        raise NotImplementedError(
+            "Loop-generation facts are owned by LoopHeaderFixpoint, not the solver"
+        )
 
     def add_query_local_assumption(self, fact: Fact[SMTTerm]) -> None:
         """Add a classified assumption to the current push/pop query frame."""
@@ -708,6 +711,7 @@ class SMTSolver(ABC):
         signed: bool = False,
         fallback_range: RangeInterval | None = None,
         abstract_range: RangeInterval | None = None,
+        budget: QueryBudget | None = None,
     ) -> RangeResult:
         """Return independently typed feasibility, lower, and upper outcomes."""
         pass
@@ -728,7 +732,7 @@ class SMTSolver(ABC):
         Args:
             term: The bitvector term to optimize.
             extra_constraints: Additional constraints for this query only.
-            timeout_ms: Timeout in milliseconds for each optimization.
+            timeout_ms: Total wall-clock budget for all range-query sessions.
             signed: If True, optimize using signed interpretation.
 
         Returns:

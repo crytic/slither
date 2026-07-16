@@ -1,5 +1,31 @@
 # Interval Analysis Limitations
 
+## Abstract nonlinear transfer
+
+Binary integer operations are evaluated abstract-first. Multiplication uses the four endpoint
+products (or the square relation for the same operand), checked arithmetic intersects the
+mathematical result with the destination type, and unchecked wrapping returns an exact wrapped
+singleton or type top when a single interval cannot represent the modular image. Division,
+remainder, bounded exponentiation, shifts, and bitwise operations have conservative interval
+rules. Unsupported signed bitwise and symbolic-power cases return tagged type top.
+
+Symbolic exponentiation is deliberately not registered as an SMT equation because the backend has
+no native bit-vector exponent operator. Similarly, a shift with a symbolic right operand is kept
+abstract when width matching would truncate the shift count. This loses relational refinement but
+avoids asserting an equation with different semantics from Solidity.
+
+The abstract transformer consumes operand intervals, not arbitrary relational facts. A `require`
+condition remains a state-owned solver fact but does not necessarily rewrite the operand's interval;
+in such a state the abstract result may remain top. Optional refinement can use the complete state,
+plus typed query-local copies of the current abstract bounds, subject to the expression-wide query
+budget.
+
+Optional range refinement admits a Z3 session only when at least 50 ms remains. Each backend check
+receives a conservative fraction of the remaining wall budget and a watchdog interrupt; no later
+objective starts after the budget is exhausted. Z3 interrupts are serialized because the installed
+backend uses a shared default context. This policy intentionally favors a tagged abstract fallback
+over repeated nonlinear timeouts.
+
 ## Computed Constants in Non-Linear Operations
 
 When using a computed constant (e.g., `x * (-2)` where `-2` is `TMP = 0 - 2`) in multiplication or division, the variable's range is not narrowed optimally. The result range is correct, but the input variable retains its full type range.
@@ -56,11 +82,13 @@ BOTTOM is the correct lattice element: the path after a revert is unreachable (n
 
 ## Loop Analysis (Widening)
 
-Loops require special handling to guarantee analysis termination. Without intervention, loop iterations could produce ever-increasing bounds that never stabilize.
+Loops use dominator-defined natural back edges and generation-scoped header fixpoints. A preheader
+edge initializes the header; only an edge whose destination dominates its source can trigger
+widening.
 
 ### Threshold Widening
 
-We use **threshold widening** to ensure termination while preserving precision. Thresholds are collected from the function's numeric literals, bounded by type extremes:
+Thresholds are collected from numeric literals and type extremes:
 
 ```
 thresholds = [type_min, ...constants_from_function..., type_max]
@@ -68,89 +96,27 @@ thresholds = [type_min, ...constants_from_function..., type_max]
 
 For uint256: `[0, ...constants..., 2^256 - 1]`
 
-When a bound grows past a threshold, it jumps to the next threshold. If values don't stabilize, widening eventually reaches the type extremes (guaranteed fixpoint).
+When a loop-carried bound grows, it jumps to the next threshold. Stable SSA values and non-loop
+state components are retained. Widening compares the abstract interval in the previous transferred
+header state with the back-edge interval in the current complete input; it does not issue solver
+queries.
 
 ### Architecture
 
-The engine and analysis layers are separated:
+Each header tracker owns per-edge entry and back-edge contributions, the previous and current
+complete inputs, the previous transferred output, and one live generation-fact set. Multiple
+back-edge contributions are joined in stable edge order. A changed contribution to a header that is
+already queued updates the pending generation rather than starting a generation against stale
+output.
 
-1. **Engine layer** (`direction.py`): Detects back edges (propagation to `NodeType.IFLOOP`) and calls `analysis.apply_widening()`
-2. **Analysis layer** (`IntervalAnalysis`):
-   - `prepare_for_function()`: Collects thresholds from function literals
-   - `apply_widening()`: Applies domain-specific widening logic
-3. **Phi handler** (`phi.py`): At loop headers, creates unconstrained variables
+Loop-header phi intervals are derived from currently active SSA alternatives. They are not asserted
+as cyclic immutable equations. If an active alternative is unavailable, the phi becomes full range.
 
-```python
-# Engine detects back edge, delegates to analysis
-is_back_edge = successor.type == NodeType.IFLOOP
-if is_back_edge:
-    state_to_propagate = analysis.apply_widening(state_to_propagate, son_state.pre, set())
-```
+### Fixed finite progressions
 
-This maintains abstraction: the engine knows *when* to widen (back edges) but delegates *how* to widen to each concrete analysis.
-
-### Selective Widening (Attempted)
-
-The implementation attempts **selective widening**: only widen variables whose bounds actually grew, preserve stable ones. However, this doesn't achieve the desired effect due to SMT architecture limitations.
-
-**Algorithm (in `apply_widening`):**
-```
-for each variable v:
-    current_bounds = query_smt(current_state, v)
-    previous_bounds = query_smt(previous_state, v)  # matched by base name
-
-    if current_bounds ⊆ previous_bounds:
-        # Stable - keep current variable
-        result[v] = current[v]
-    else:
-        # Grew - widen to unconstrained
-        result[v] = create_unconstrained_variable()
-```
-
-**Why It Doesn't Work:**
-
-The issue is that phi nodes at loop headers must create **unconstrained** variables:
-
-1. If we constrain phi variables to incoming values (e.g., `i_2 == i_1`), the SMT constraints are permanent
-2. When the loop counter increments (`i_3 = i_2 + 1`), the back-edge value can't feed back because `i_2` is stuck at 0
-3. This makes loop exits unreachable (the solver finds the path unsatisfiable)
-
-Since phi creates unconstrained variables:
-- All loop variables start at `[0, MAX]`
-- Selective widening compares `[0, MAX]` to `[0, MAX]` → always stable
-- No precision is gained
-
-**Example - stable variable that should stay `[0, 0]`:**
-```solidity
-function test_constant_increment() public pure returns (uint256) {
-    uint256 result = 0;
-    for (uint256 i = 0; i < 5; i++) {
-        result = result;  // never changes!
-    }
-    return result;
-}
-```
-
-**Actual analysis output:**
-```
-Line 21: result_1 ∈ [0, 0]         # Before loop - precise ✓
-Line 22: result_2 ∈ [0, MAX]       # Loop header phi - widened ✗
-         i_2 ∈ [5, MAX]            # At exit - narrowed ✓
-Line 23: result_2 ∈ [0, MAX]       # In body - still widened ✗
-         result_3 ∈ [0, MAX]       # After assignment - widened ✗
-Line 25: result_2 ∈ [0, MAX]       # At return - widened ✗ (should be [0, 0])
-```
-
-Even though `result = result` never changes the value, the analysis reports `[0, MAX]` because the phi at the loop header creates an unconstrained variable.
-
-**Potential Fixes (require architectural changes):**
-1. Track bounds as metadata instead of SMT constraints
-2. Use solver push/pop to scope constraints per iteration
-3. Use unique SMT variable names per iteration (e.g., `i_2_iter1`, `i_2_iter2`)
-
-### Results
-
-Loop analysis produces **sound but conservative** results:
+A loop with a statically certified checked induction-variable step and a constant monotone guard is
+unrolled abstractly for at most 64 generations. Once its conservative trip bound is exhausted, the
+engine rejects the extra recurrence introduced by the non-relational interval join. For example:
 
 ```solidity
 function test_fixed_bound_loop() public pure returns (uint256) {
@@ -162,42 +128,17 @@ function test_fixed_bound_loop() public pure returns (uint256) {
 }
 ```
 
-**Actual analysis output:**
 ```
-Line 10: sum_1 ∈ [0, 0]                    # Before loop - precise
-Line 11: i_1 ∈ [0, 0]                      # Loop init - precise
-         sum_2 ∈ [0, MAX]                  # Loop header phi - widened
-         i_2 ∈ [10, MAX]                   # At exit check - narrowed by i >= 10
-Line 12: i_2 ∈ [0, 9]                      # In body - narrowed by i < 10
-         sum_3 ∈ [0, MAX]                  # After sum += i - widened
-         i_3 ∈ [1, 10]                     # After i++ - narrowed
-Line 15: sum_2 ∈ [0, MAX]                  # At return - widened (actual: 45)
-         i_2 ∈ [10, MAX]                   # At return - narrowed (actual: 10)
+sum_2 at the reachable exit: [0, 45]
+i_2 at the reachable exit: [10, 10]
 ```
-
-**What works:**
-- `i_2` in loop body: `[0, 9]` ✓ (correctly narrowed by `i < 10`)
-- `i_2` at return: `[10, MAX]` ✓ (correctly narrowed by exit `i >= 10`)
-
-**What doesn't work:**
-- `sum_2` everywhere: `[0, MAX]` ✗ (should be `[0, 45]` or at return exactly `45`)
-
-### Trade-offs
-
-| Aspect | Behavior |
-|--------|----------|
-| **Termination** | Guaranteed - widening forces fixpoint |
-| **Soundness** | Maintained - intervals are over-approximations |
-| **Precision** | Conservative - loop-modified variables lose bounds |
-| **Loop counters** | Narrowed by exit conditions (correct final range) |
-| **Accumulators** | Full type range (no symbolic loop summarization) |
 
 ### Limitations
 
-1. **No narrowing phase**: Don't recover precision after widening by propagating exit conditions backward
-2. **No loop unrolling**: Fixed-bound loops aren't unrolled for precise analysis
-3. **No symbolic summarization**: Can't express "sum = 0 + 1 + ... + 9 = 45"
-4. **SMT overhead**: Each widening comparison requires SMT solver queries for bounds
+1. There is no narrowing phase after threshold widening.
+2. Unchecked, symbolic-bound, non-monotone, or more-than-64-generation loops use threshold widening.
+3. Different back-edge steps are joined conservatively and may quickly reach full range.
+4. There is no relational or disjunctive loop invariant and no general symbolic summation.
 
 ## Storage Operations (sstore/sload) - Convex Hull
 

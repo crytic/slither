@@ -13,6 +13,12 @@ from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.operation import Operation
 
 if TYPE_CHECKING:
+    from slither.analyses.data_flow.engine.loop import (
+        LoopVariableId,
+        LoopWideningContext,
+        LoopWideningResult,
+    )
+    from slither.analyses.data_flow.smt_solver.facts import LoopHeaderId
     from slither.core.declarations.function import Function
 
 
@@ -52,9 +58,7 @@ class Analysis(ABC):
     def bottom_value(self) -> Domain:
         """Return the bottom value of the domain for initialization."""
 
-    def apply_condition(
-        self, domain: Domain, condition: Condition, branch_taken: bool
-    ) -> Domain:
+    def apply_condition(self, domain: Domain, condition: Condition, branch_taken: bool) -> Domain:
         """Apply branch-specific filtering based on a condition.
 
         Override to implement path-sensitive analysis that constrains
@@ -87,6 +91,17 @@ class Analysis(ABC):
             The widened state.
         """
         return current_state
+
+    def apply_loop_widening(self, context: "LoopWideningContext") -> "LoopWideningResult":
+        """Widen one dominator-classified loop-header generation."""
+        from slither.analyses.data_flow.engine.loop import LoopWideningResult
+
+        state = self.apply_widening(context.current_input, context.previous_input, set())
+        return LoopWideningResult(state)
+
+    def loop_variables(self, header_id: "LoopHeaderId") -> tuple["LoopVariableId", ...]:
+        """Return static loop-carried bindings for one natural-loop header."""
+        return ()
 
     def prepare_for_function(self, function: "Function") -> None:
         """Prepare analysis for a specific function.

@@ -8,6 +8,10 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
+from slither.analyses.data_flow.analyses.interval.analysis.loop import (
+    PRECISE_LOOP_GENERATION_LIMIT,
+    IntervalLoopMetadata,
+)
 from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo, State
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     NumericInterval,
@@ -25,6 +29,11 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
+from slither.analyses.data_flow.engine.loop import (
+    LoopVariableId,
+    LoopWideningContext,
+    LoopWideningResult,
+)
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.facts import (
     AnalysisContextId,
@@ -34,11 +43,11 @@ from slither.analyses.data_flow.smt_solver.facts import (
     FactOriginKind,
     FactOwnerKind,
     FactProvenance,
+    LoopHeaderId,
     StaticOperationId,
 )
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
-from slither.analyses.data_flow.smt_solver.query import BoundStatus
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -64,6 +73,7 @@ class IntervalAnalysis(Analysis):
         self._thresholds: list[int] = []
         self._timeout_ms: int = timeout_ms
         self._root_context = AnalysisContextId.unbound()
+        self._loop_metadata = IntervalLoopMetadata()
 
     @property
     def solver(self) -> SMTSolver:
@@ -83,6 +93,8 @@ class IntervalAnalysis(Analysis):
         self._root_context = AnalysisContextId.root(function)
         self._solver.bind_function_encoding(self._root_context.encoding_id)
         self._thresholds = self._collect_thresholds(function)
+        self._loop_metadata = IntervalLoopMetadata.from_function(function)
+        self._registry.configure_loop_metadata(self._loop_metadata)
         logger.debug(
             "Collected {count} thresholds for {name}: {thresholds}",
             count=len(self._thresholds),
@@ -128,6 +140,10 @@ class IntervalAnalysis(Analysis):
     def thresholds(self) -> list[int]:
         """Return the sorted list of widening thresholds."""
         return self._thresholds
+
+    def loop_variables(self, header_id: LoopHeaderId) -> tuple[LoopVariableId, ...]:
+        """Return the loop-carried SSA bindings for one stable header."""
+        return self._loop_metadata.variables_for(header_id)
 
     def transfer_function(
         self,
@@ -265,77 +281,68 @@ class IntervalAnalysis(Analysis):
         if telemetry is None or not telemetry.enabled:
             return
 
+        telemetry.record_transfer_op(self._operation_category(operation), handled=True)
+
+    @staticmethod
+    def _operation_category(operation: Operation) -> str:
+        """Classify one transfer operation for opt-in telemetry."""
         from slither.slithir.operations import Assignment
         from slither.slithir.operations.binary import Binary
-        from slither.slithir.operations.condition import Condition
         from slither.slithir.operations.high_level_call import HighLevelCall
         from slither.slithir.operations.internal_call import InternalCall
         from slither.slithir.operations.library_call import LibraryCall
         from slither.slithir.operations.solidity_call import SolidityCall
         from slither.slithir.operations.unary import Unary
 
-        op_type = type(operation)
+        operation_type = type(operation)
+        if operation_type is Binary:
+            return IntervalAnalysis._binary_operation_category(operation)
+        if operation_type is Unary:
+            return "arithmetic"
+        if operation_type is SolidityCall:
+            return IntervalAnalysis._solidity_call_category(operation)
+        if operation_type in (HighLevelCall, InternalCall, LibraryCall):
+            return "call"
+        if operation_type is Condition:
+            return "comparison"
+        if operation_type is Assignment:
+            return "assignment"
+        return "assignment"
 
-        # Categorize by operation type
-        if op_type == Binary:
-            # Further categorize binary operations
-            binary_op = operation
-            op_type_enum = getattr(binary_op, "type", None)
-            if op_type_enum is not None:
-                op_name_str = str(op_type_enum.name) if hasattr(op_type_enum, "name") else ""
-                if op_name_str in (
-                    "ADDITION",
-                    "SUBTRACTION",
-                    "MULTIPLICATION",
-                    "DIVISION",
-                    "MODULO",
-                    "POWER",
-                ):
-                    telemetry.record_transfer_op("arithmetic", handled=True)
-                elif op_name_str in (
-                    "LESS",
-                    "GREATER",
-                    "LESS_EQUAL",
-                    "GREATER_EQUAL",
-                    "EQUAL",
-                    "NOT_EQUAL",
-                ):
-                    telemetry.record_transfer_op("comparison", handled=True)
-                elif op_name_str in (
-                    "AND",
-                    "OR",
-                    "LEFT_SHIFT",
-                    "RIGHT_SHIFT",
-                    "CARET",
-                    "OROR",
-                    "ANDAND",
-                ):
-                    telemetry.record_transfer_op("bitwise", handled=True)
-                else:
-                    telemetry.record_transfer_op("arithmetic", handled=True)
-            else:
-                telemetry.record_transfer_op("arithmetic", handled=True)
-        elif op_type == Unary:
-            telemetry.record_transfer_op("arithmetic", handled=True)
-        elif op_type == SolidityCall:
-            # Check for memory/storage operations
-            func_name = getattr(operation, "function", None)
-            func_str = str(func_name) if func_name else ""
-            if "mstore" in func_str or "mload" in func_str:
-                telemetry.record_transfer_op("memory", handled=True)
-            elif "sstore" in func_str or "sload" in func_str:
-                telemetry.record_transfer_op("storage", handled=True)
-            else:
-                telemetry.record_transfer_op("call", handled=True)
-        elif op_type in (HighLevelCall, InternalCall, LibraryCall):
-            telemetry.record_transfer_op("call", handled=True)
-        elif op_type == Assignment:
-            telemetry.record_transfer_op("assignment", handled=True)
-        elif op_type == Condition:
-            telemetry.record_transfer_op("comparison", handled=True)
-        else:
-            # Phi, TypeConversion, etc.
-            telemetry.record_transfer_op("assignment", handled=True)
+    @staticmethod
+    def _binary_operation_category(operation: Operation) -> str:
+        operation_kind = getattr(operation, "type", None)
+        operation_name = str(getattr(operation_kind, "name", ""))
+        if operation_name in {
+            "LESS",
+            "GREATER",
+            "LESS_EQUAL",
+            "GREATER_EQUAL",
+            "EQUAL",
+            "NOT_EQUAL",
+        }:
+            return "comparison"
+        if operation_name in {
+            "AND",
+            "OR",
+            "LEFT_SHIFT",
+            "RIGHT_SHIFT",
+            "CARET",
+            "OROR",
+            "ANDAND",
+        }:
+            return "bitwise"
+        return "arithmetic"
+
+    @staticmethod
+    def _solidity_call_category(operation: Operation) -> str:
+        function = getattr(operation, "function", None)
+        function_name = str(function) if function else ""
+        if "mstore" in function_name or "mload" in function_name:
+            return "memory"
+        if "sstore" in function_name or "sload" in function_name:
+            return "storage"
+        return "call"
 
     def apply_condition(self, domain: Domain, condition: Condition, branch_taken: bool) -> Domain:
         """Apply branch-specific narrowing based on a condition.
@@ -404,9 +411,7 @@ class IntervalAnalysis(Analysis):
     ) -> bool:
         """Apply every non-relational restriction for the selected branch."""
         for refinement in comparison_info.refinements:
-            reachable = (
-                refinement.true_reachable if branch_taken else refinement.false_reachable
-            )
+            reachable = refinement.true_reachable if branch_taken else refinement.false_reachable
             if not reachable:
                 return False
             interval = refinement.true_interval if branch_taken else refinement.false_interval
@@ -420,267 +425,129 @@ class IntervalAnalysis(Analysis):
             return condition_term
         return self._solver.Not(condition_term)
 
-    def apply_widening(
-        self, current_state: Domain, previous_state: Domain, widening_thresholds: set
-    ) -> Domain:
-        """Selective threshold widening for loop back edges.
+    def apply_loop_widening(self, context: LoopWideningContext) -> LoopWideningResult:
+        """Widen only loop-carried SSA values using their abstract intervals."""
+        current = self._concrete_interval_domain(context.current_input)
+        if current is None:
+            return LoopWideningResult(context.current_input)
+        precise = self._precise_loop_result(context, current)
+        if precise is not None:
+            return precise
+        previous = self._concrete_interval_domain(context.previous_output)
+        if previous is None:
+            return self._loop_result(context, current)
+        widened = self._widen_loop_variables(context, current, previous)
+        return self._loop_result(context, widened)
 
-        Only widens variables whose bounds actually grew between iterations.
-        Stable variables (bounds unchanged) are preserved with original bounds.
+    @staticmethod
+    def _concrete_interval_domain(domain: Domain | None) -> IntervalDomain | None:
+        """Return a reachable interval state suitable for abstract widening."""
+        if not isinstance(domain, IntervalDomain):
+            return None
+        if domain.variant is not DomainVariant.STATE or domain.state is None:
+            return None
+        return domain
 
-        SSA names differ across iterations (result_2 vs result_3), so we match
-        variables by base name (stripping the SSA suffix).
+    def _precise_loop_result(
+        self,
+        context: LoopWideningContext,
+        current: IntervalDomain,
+    ) -> LoopWideningResult | None:
+        """Use bounded unrolling only for a statically certified progression."""
+        progression = self._loop_metadata.progression_for(context.header_id)
+        if progression is None or current.state is None:
+            return None
+        maximum = progression.maximum_iterations(current.state)
+        if maximum is None or maximum > PRECISE_LOOP_GENERATION_LIMIT:
+            return None
+        if progression.exhaustively_unrolled(context):
+            return LoopWideningResult(context.previous_input.deep_copy())
+        return self._loop_result(context, current)
 
-        Args:
-            current_state: The state being propagated (from loop body).
-            previous_state: The existing state at the loop header.
-            widening_thresholds: Unused (thresholds stored on analysis).
-
-        Returns:
-            Widened state with selectively widened variables.
-        """
-        if not isinstance(current_state, IntervalDomain):
-            return current_state
-
-        if current_state.variant != DomainVariant.STATE or current_state.state is None:
-            return current_state
-
-        if not isinstance(previous_state, IntervalDomain):
-            return current_state
-
-        # First iteration (BOTTOM) - no widening needed
-        if previous_state.variant == DomainVariant.BOTTOM:
-            return current_state
-
-        if previous_state.state is None:
-            return current_state
-
-        # Build base name -> variable mappings for both states
-        previous_by_base = self._build_base_name_map(previous_state.state)
-
-        widened_state = current_state.state.deep_copy()
-
-        for variable_name in current_state.state.variable_names():
-            current_variable = current_state.state.get_variable(variable_name)
-            if current_variable is None:
+    def _widen_loop_variables(
+        self,
+        context: LoopWideningContext,
+        current: IntervalDomain,
+        previous: IntervalDomain,
+    ) -> IntervalDomain:
+        """Apply threshold widening to only statically bound back-edge values."""
+        if current.state is None or previous.state is None:
+            raise ValueError("Loop widening requires concrete current and previous states")
+        widened = current.state.deep_copy()
+        for binding in context.variables:
+            previous_value = previous.state.get_variable(binding.header_name)
+            if previous_value is None:
                 continue
+            for name in binding.back_names:
+                candidate = current.state.get_variable(name)
+                if candidate is None:
+                    continue
+                interval = self._widened_interval(candidate, previous_value)
+                widened.set_variable(name, candidate.with_interval(interval))
+        return IntervalDomain.with_state(widened)
 
-            # Match by base name (strip SSA suffix)
-            base_name = self._extract_base_name(variable_name)
-            previous_variable = previous_by_base.get(base_name)
-
-            if previous_variable is None:
-                # New variable - keep as-is
-                widened_state.set_variable(variable_name, current_variable)
-                continue
-
-            # Compare bounds to check if value grew
-            if self._bounds_are_stable(current_variable, previous_variable, current_state):
-                # Stable - keep current variable (preserves its constraints)
-                widened_state.set_variable(variable_name, current_variable)
-            else:
-                # Grew - widen to unconstrained (full type range)
-                # NOTE: We cannot add explicit bounds constraints because SMT
-                # constraints are permanent. Asserting bounds makes exit branches
-                # unreachable. Full widening to type range is sound but imprecise.
-                widened_variable = self._create_unconstrained_variable(current_variable)
-                widened_state.set_variable(variable_name, widened_variable)
-
-        return IntervalDomain.with_state(widened_state)
-
-    def _extract_base_name(self, ssa_name: str) -> str:
-        """Extract base variable name from SSA name (strip _N suffix)."""
-        # SSA names are like "result_3", "i_2", "TMP_5"
-        # We want to extract "result", "i", "TMP"
-        parts = ssa_name.rsplit("_", 1)
-        if len(parts) == 2 and parts[1].isdigit():
-            return parts[0]
-        return ssa_name
-
-    def _build_base_name_map(self, state: State) -> dict[str, TrackedSMTVariable]:
-        """Build mapping from base name to variable (latest SSA version)."""
-        base_map: dict[str, TrackedSMTVariable] = {}
-        for variable_name in state.variable_names():
-            base_name = self._extract_base_name(variable_name)
-            variable = state.get_variable(variable_name)
-            if variable is not None:
-                # If multiple SSA versions, keep any (they should have same bounds)
-                base_map[base_name] = variable
-        return base_map
-
-    def _bounds_are_stable(
+    def _widened_interval(
         self,
-        current_variable: TrackedSMTVariable,
-        previous_variable: TrackedSMTVariable,
-        current_state: IntervalDomain,
-    ) -> bool:
-        """Check if current bounds are contained within previous bounds.
-
-        Returns True if current ⊆ previous (no growth).
-        """
-        current_bounds = self._query_variable_bounds(current_variable, current_state)
-        previous_bounds = self._query_variable_bounds(previous_variable, current_state)
-
-        if current_bounds is None or previous_bounds is None:
-            return False  # Unknown - assume unstable
-
-        current_min, current_max = current_bounds
-        previous_min, previous_max = previous_bounds
-
-        # Stable if current is contained within previous
-        return current_min >= previous_min and current_max <= previous_max
-
-    def _query_variable_bounds(
-        self,
-        variable: TrackedSMTVariable,
-        domain: IntervalDomain,
-    ) -> tuple[int, int] | None:
-        """Query min/max bounds for a variable using SMT solver."""
-        if domain.state is None:
-            return None
-
-        result = self._solver.solve_range_result(
-            variable.term,
-            state_id=domain.state.semantic_id(),
-            state_facts=domain.state.get_facts(),
-            timeout_ms=self._timeout_ms,
-            signed=bool(variable.base.metadata.get("is_signed", False)),
-        )
-
-        if result.lower_status is not BoundStatus.PROVEN or (
-            result.upper_status is not BoundStatus.PROVEN
-        ):
-            return None
-
-        if result.lower is None or result.upper is None:
-            return None
-        return (result.lower, result.upper)
-
-    def _widen_variable_to_threshold(
-        self,
-        current_variable: TrackedSMTVariable,
-        previous_variable: TrackedSMTVariable,
-        current_state: IntervalDomain,
-    ) -> TrackedSMTVariable:
-        """Create new variable with bounds widened to next threshold."""
-        current_bounds = self._query_variable_bounds(current_variable, current_state)
-        previous_bounds = self._query_variable_bounds(previous_variable, current_state)
-
-        if current_bounds is None or previous_bounds is None:
-            return self._create_unconstrained_variable(current_variable)
-
-        widened_min, widened_max = self._compute_widened_bounds(current_bounds, previous_bounds)
-
-        return self._create_variable_with_bounds(
-            current_variable,
-            widened_min,
-            widened_max,
-            current_state,
-        )
-
-    def _compute_widened_bounds(
-        self,
-        current_bounds: tuple[int, int],
-        previous_bounds: tuple[int, int],
-    ) -> tuple[int, int]:
-        """Compute widened bounds using threshold list."""
-        current_min, current_max = current_bounds
-        previous_min, previous_max = previous_bounds
-
-        widened_min = current_min
-        widened_max = current_max
-
-        # If lower bound decreased, widen to next threshold below
-        if current_min < previous_min:
-            widened_min = self._next_threshold_below(current_min)
-
-        # If upper bound increased, widen to next threshold above
-        if current_max > previous_max:
-            widened_max = self._next_threshold_above(current_max)
-
-        return (widened_min, widened_max)
-
-    def _next_threshold_below(self, value: int) -> int:
-        """Find largest threshold ≤ value."""
-        for threshold in reversed(self._thresholds):
-            if threshold <= value:
-                return threshold
-        return self._thresholds[0] if self._thresholds else 0
-
-    def _next_threshold_above(self, value: int) -> int:
-        """Find smallest threshold ≥ value."""
-        for threshold in self._thresholds:
-            if threshold >= value:
-                return threshold
-        return self._thresholds[-1] if self._thresholds else (1 << 256) - 1
-
-    def _create_unconstrained_variable(self, template: TrackedSMTVariable) -> TrackedSMTVariable:
-        """Create an unconstrained variable with same type as template."""
-        is_signed = bool(template.base.metadata.get("is_signed", False))
-        width_metadata = template.base.metadata.get("bit_width", 256)
-        bit_width = width_metadata if isinstance(width_metadata, int) else 256
-
-        variable = TrackedSMTVariable.create(
-            self._solver,
-            template.name,
-            template.sort,
-            is_signed=is_signed,
-            bit_width=bit_width,
-        )
-        return variable.with_overflow_predicates(
-            no_overflow=template.no_overflow,
-            no_underflow=template.no_underflow,
-            operation_id=template.overflow_operation_id,
-            is_unchecked=template.is_unchecked,
-        )
-
-    def _create_variable_with_bounds(
-        self,
-        template: TrackedSMTVariable,
-        lower_bound: int,
-        upper_bound: int,
-        current_state: IntervalDomain,
-    ) -> TrackedSMTVariable:
-        """Create a variable constrained to [lower_bound, upper_bound]."""
-        is_signed = bool(template.base.metadata.get("is_signed", False))
-        width_metadata = template.base.metadata.get("bit_width", 256)
-        bit_width = width_metadata if isinstance(width_metadata, int) else 256
-
-        new_variable = TrackedSMTVariable.create(
-            self._solver,
-            template.name,
-            template.sort,
-            is_signed=is_signed,
-            bit_width=bit_width,
-        )
-
-        # Add bounds constraints
-        lower_term = self._solver.create_constant(lower_bound, template.sort)
-        upper_term = self._solver.create_constant(upper_bound, template.sort)
-
-        if is_signed:
-            lower_constraint = self._solver.bv_sge(new_variable.term, lower_term)
-            upper_constraint = self._solver.bv_sle(new_variable.term, upper_term)
-        else:
-            lower_constraint = self._solver.bv_uge(new_variable.term, lower_term)
-            upper_constraint = self._solver.bv_ule(new_variable.term, upper_term)
-
-        for role, constraint in (
-            ("widened_lower_bound", lower_constraint),
-            ("widened_upper_bound", upper_constraint),
-        ):
-            fact = Fact(
-                fact_id=FactId(
-                    owner=FactOwnerKind.LOOP_GENERATION,
-                    kind=FactKind.RANGE_BOUND,
-                    provenance=FactProvenance(
-                        context_id=current_state.context_id,
-                        origin_kind=FactOriginKind.LOOP,
-                    ),
-                    semantic_key=(role, template.name),
+        current: TrackedSMTVariable,
+        previous: TrackedSMTVariable,
+    ) -> NumericInterval:
+        """Widen growing bounds to the nearest literal or type threshold."""
+        current_interval = current.interval
+        previous_interval = previous.interval
+        type_interval = current.type_interval
+        thresholds = sorted(
+            {
+                type_interval.lower,
+                type_interval.upper,
+                *(
+                    value
+                    for value in self._thresholds
+                    if type_interval.lower <= value <= type_interval.upper
                 ),
-                formula=constraint,
-            )
-            self._solver.register_loop_generation_fact(fact)
+            }
+        )
+        lower = current_interval.lower
+        upper = current_interval.upper
+        if lower < previous_interval.lower:
+            lower = max(value for value in thresholds if value <= lower)
+        if upper > previous_interval.upper:
+            upper = min(value for value in thresholds if value >= upper)
+        return NumericInterval(lower, upper)
 
-        return new_variable
+    def _loop_result(
+        self,
+        context: LoopWideningContext,
+        domain: IntervalDomain,
+    ) -> LoopWideningResult:
+        """Attach replaceable generation facts to one widened abstract state."""
+        if domain.state is None:
+            return LoopWideningResult(domain)
+        facts: list[Fact[object]] = []
+        for binding in context.variables:
+            for name in binding.back_names:
+                variable = domain.state.get_variable(name)
+                if variable is None or variable.interval == variable.type_interval:
+                    continue
+                interval = variable.interval
+                facts.append(
+                    Fact(
+                        fact_id=FactId(
+                            owner=FactOwnerKind.LOOP_GENERATION,
+                            kind=FactKind.RANGE_BOUND,
+                            provenance=FactProvenance(
+                                context_id=domain.context_id,
+                                origin_kind=FactOriginKind.LOOP,
+                                loop_header_id=context.header_id,
+                                loop_generation=context.generation,
+                            ),
+                            semantic_key=(
+                                "abstract_loop_range",
+                                name,
+                                str(interval.lower),
+                                str(interval.upper),
+                            ),
+                        ),
+                        formula=interval,
+                    )
+                )
+        return LoopWideningResult(domain, tuple(facts))

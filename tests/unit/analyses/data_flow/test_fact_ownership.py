@@ -266,7 +266,7 @@ def test_nonpersistent_ownership_boundaries_do_not_fall_back_to_assertions() -> 
     assert solver.register_property_obligation(property_fact)
     assert solver.get_assertions() == []
 
-    with pytest.raises(NotImplementedError, match="generation-scoped query sessions"):
+    with pytest.raises(NotImplementedError, match="owned by LoopHeaderFixpoint"):
         solver.register_loop_generation_fact(loop_fact)
     assert solver.get_assertions() == []
 

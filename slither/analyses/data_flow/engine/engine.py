@@ -4,18 +4,26 @@ Implements the generic fixpoint computation framework for
 both forward and backward data flow analyses.
 """
 
+from __future__ import annotations
+
 import time
 from collections import defaultdict, deque
-from typing import Generic
+from typing import TYPE_CHECKING, Generic
 
 from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
+from slither.analyses.data_flow.engine.loop import LoopStructure
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.telemetry import SolverTelemetry
+
 
 logger = get_logger()
+MAX_ANALYSIS_ITERATIONS = 10_000
+PROGRESS_INTERVAL_SECONDS = 5.0
 
 
 class Engine(Generic[A]):
@@ -47,7 +55,7 @@ class Engine(Generic[A]):
         self.last_progress_time: float = 0.0
 
     @classmethod
-    def new(cls, analysis: Analysis, function: Function) -> "Engine[A]":
+    def new(cls, analysis: Analysis, function: Function) -> Engine[A]:
         """Create a new engine for analyzing a function.
 
         Args:
@@ -63,6 +71,7 @@ class Engine(Generic[A]):
 
         # Allow analysis to prepare for this function (e.g., collect thresholds)
         analysis.prepare_for_function(function)
+        analysis.direction().prepare_for_function(function)
 
         # Create state mapping for nodes in this single function only
         for node in function.nodes:
@@ -111,125 +120,21 @@ class Engine(Generic[A]):
         )
 
     def _count_loops(self, function: Function) -> int:
-        """Count loops by detecting back edges in the CFG."""
-        if not function.nodes:
-            return 0
-
-        visited: set[int] = set()
-        in_stack: set[int] = set()
-        back_edges = 0
-
-        def dfs(node: Node) -> None:
-            nonlocal back_edges
-            visited.add(node.node_id)
-            in_stack.add(node.node_id)
-
-            for successor in node.sons:
-                if successor.node_id not in visited:
-                    dfs(successor)
-                elif successor.node_id in in_stack:
-                    # Back edge found - indicates a loop
-                    back_edges += 1
-
-            in_stack.remove(node.node_id)
-
-        entry = function.entry_point
-        if entry is not None:
-            dfs(entry)
-
-        return back_edges
+        """Count stable dominator-classified natural-loop headers."""
+        return len(LoopStructure.from_function(function).loops)
 
     def run_analysis(self) -> None:
         """Run the worklist algorithm until fixpoint is reached."""
-        worklist: deque[Node] = deque()
-
-        # Instrumentation constants
-        MAX_ITERATIONS = 10000
-        PROGRESS_INTERVAL = 5.0  # seconds
-
-        # Initialize timing
         self.start_time = time.time()
         self.last_progress_time = self.start_time
         self.iteration_count = 0
         self.node_visit_count.clear()
-
-        if self.analysis.direction().IS_FORWARD:
-            entry_point = self.function.entry_point
-            if entry_point is not None:
-                worklist.append(entry_point)
-                telemetry = get_telemetry()
-                if telemetry is not None and telemetry.enabled:
-                    telemetry.record_worklist_enqueue(len(worklist))
-                logger.info("Starting analysis of {name}", name=self.function.name)
-        else:
-            raise NotImplementedError("Backward analysis is not implemented")
-
-        # Get telemetry instance
         telemetry = get_telemetry()
+        worklist = self._initialize_worklist(telemetry)
 
-        while worklist:
-            # Track iteration count
-            self.iteration_count += 1
+        while worklist and self._run_iteration(worklist, telemetry):
+            pass
 
-            # Record telemetry
-            if telemetry is not None and telemetry.enabled:
-                telemetry.record_worklist_iteration()
-
-            # Safety limit check
-            if self.iteration_count > MAX_ITERATIONS:
-                logger.error(
-                    "Exceeded {max} iterations! Worklist size: {size}",
-                    max=MAX_ITERATIONS,
-                    size=len(worklist),
-                )
-                top_nodes = sorted(self.node_visit_count.items(), key=lambda x: x[1], reverse=True)[
-                    :10
-                ]
-                for node_id, count in top_nodes:
-                    logger.error("Node {node_id}: {count} visits", node_id=node_id, count=count)
-                break
-
-            # Progress logging every PROGRESS_INTERVAL seconds
-            current_time = time.time()
-            if current_time - self.last_progress_time > PROGRESS_INTERVAL:
-                elapsed = current_time - self.start_time
-                logger.info(
-                    "Progress: {iterations} iterations, worklist={size}, {elapsed:.1f}s elapsed",
-                    iterations=self.iteration_count,
-                    size=len(worklist),
-                    elapsed=elapsed,
-                )
-                self.last_progress_time = current_time
-
-            node = worklist.popleft()
-
-            # Track node visits
-            self.node_visit_count[node.node_id] += 1
-            if telemetry is not None and telemetry.enabled:
-                telemetry.record_worklist_pop(
-                    node.node_id,
-                    self.node_visit_count[node.node_id],
-                    len(worklist) + 1,
-                    self._state_local_constraint_count(self.state[node.node_id].pre),
-                )
-            if self.node_visit_count[node.node_id] == 50:
-                logger.warning("Node {node_id} visited 50 times!", node_id=node.node_id)
-            if self.node_visit_count[node.node_id] == 100:
-                logger.error("Node {node_id} visited 100 times!", node_id=node.node_id)
-
-            current_state = AnalysisState(
-                pre=self.state[node.node_id].pre, post=self.state[node.node_id].post
-            )
-
-            self.analysis.direction().apply_transfer_function(
-                analysis=self.analysis,
-                current_state=current_state,
-                node=node,
-                worklist=worklist,
-                global_state=self.state,
-            )
-
-        # Final statistics
         total_time = time.time() - self.start_time
         logger.info(
             "Analysis of {name} complete: {iterations} iterations in {time:.2f}s",
@@ -237,10 +142,94 @@ class Engine(Generic[A]):
             iterations=self.iteration_count,
             time=total_time,
         )
-
-        # Record fixpoint reached
         if telemetry is not None and telemetry.enabled:
             telemetry.record_fixpoint_reached()
+
+    def _initialize_worklist(self, telemetry: SolverTelemetry | None) -> deque[Node]:
+        """Create the initial FIFO queue without changing traversal semantics."""
+        if not self.analysis.direction().IS_FORWARD:
+            raise NotImplementedError("Backward analysis is not implemented")
+        worklist: deque[Node] = deque()
+        entry_point = self.function.entry_point
+        if entry_point is None:
+            return worklist
+        worklist.append(entry_point)
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_worklist_enqueue(len(worklist))
+        logger.info("Starting analysis of {name}", name=self.function.name)
+        return worklist
+
+    def _run_iteration(
+        self,
+        worklist: deque[Node],
+        telemetry: SolverTelemetry | None,
+    ) -> bool:
+        """Run one FIFO worklist iteration and report whether to continue."""
+        self.iteration_count += 1
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_worklist_iteration()
+        if self.iteration_count > MAX_ANALYSIS_ITERATIONS:
+            self._log_iteration_limit(worklist)
+            return False
+        self._log_progress_if_due(worklist)
+        node = worklist.popleft()
+        self._record_node_visit(node, worklist, telemetry)
+        current_state = AnalysisState(
+            pre=self.state[node.node_id].pre,
+            post=self.state[node.node_id].post,
+        )
+        self.analysis.direction().apply_transfer_function(
+            analysis=self.analysis,
+            current_state=current_state,
+            node=node,
+            worklist=worklist,
+            global_state=self.state,
+        )
+        return True
+
+    def _log_iteration_limit(self, worklist: deque[Node]) -> None:
+        logger.error(
+            "Exceeded {max} iterations! Worklist size: {size}",
+            max=MAX_ANALYSIS_ITERATIONS,
+            size=len(worklist),
+        )
+        top_nodes = sorted(self.node_visit_count.items(), key=lambda item: item[1], reverse=True)[
+            :10
+        ]
+        for node_id, count in top_nodes:
+            logger.error("Node {node_id}: {count} visits", node_id=node_id, count=count)
+
+    def _log_progress_if_due(self, worklist: deque[Node]) -> None:
+        current_time = time.time()
+        if current_time - self.last_progress_time <= PROGRESS_INTERVAL_SECONDS:
+            return
+        logger.info(
+            "Progress: {iterations} iterations, worklist={size}, {elapsed:.1f}s elapsed",
+            iterations=self.iteration_count,
+            size=len(worklist),
+            elapsed=current_time - self.start_time,
+        )
+        self.last_progress_time = current_time
+
+    def _record_node_visit(
+        self,
+        node: Node,
+        worklist: deque[Node],
+        telemetry: SolverTelemetry | None,
+    ) -> None:
+        self.node_visit_count[node.node_id] += 1
+        visit_count = self.node_visit_count[node.node_id]
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_worklist_pop(
+                node.node_id,
+                visit_count,
+                len(worklist) + 1,
+                self._state_local_constraint_count(self.state[node.node_id].pre),
+            )
+        if visit_count == 50:
+            logger.warning("Node {node_id} visited 50 times!", node_id=node.node_id)
+        if visit_count == 100:
+            logger.error("Node {node_id} visited 100 times!", node_id=node.node_id)
 
     @staticmethod
     def _state_local_constraint_count(domain: object) -> int:

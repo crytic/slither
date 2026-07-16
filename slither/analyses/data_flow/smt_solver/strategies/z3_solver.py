@@ -1,6 +1,7 @@
 """Z3 solver strategy implementation."""
 
 import os
+import threading
 import time
 
 from z3 import (
@@ -51,15 +52,18 @@ from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.analyses.data_flow.smt_solver.facts import Fact, SemanticStateId
 from slither.analyses.data_flow.smt_solver.query import (
+    BoundOutcome,
     BoundStatus,
     FeasibilityResult,
     FeasibilityStatus,
     QueryDiagnostics,
+    QueryBudget,
     QueryPurpose,
     QuerySession,
     QuerySessionDiagnostics,
     RangeInterval,
     RangeResult,
+    empty_state_id,
 )
 from slither.analyses.data_flow.smt_solver.types import (
     CheckSatResult,
@@ -76,6 +80,7 @@ DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
 DUMP_FILE = "/tmp/constraints_dump.txt"
 _dump_file_handle = None
 _constraint_history: list[str] = []  # Keep track of constraints for dumping
+_QUERY_CHECK_LOCK = threading.Lock()
 
 
 def _get_dump_file():
@@ -97,6 +102,9 @@ def _dump(msg: str):
 
 class Z3Solver(SMTSolver):
     """Z3 implementation of SMT solver interface."""
+
+    minimum_session_budget_ms = 50
+    backend_timeout_fraction = 0.25
 
     def __init__(self, use_optimizer: bool = False) -> None:
         """
@@ -768,45 +776,72 @@ class Z3Solver(SMTSolver):
         signed: bool = False,
         fallback_range: RangeInterval | None = None,
         abstract_range: RangeInterval | None = None,
+        budget: QueryBudget | None = None,
     ) -> RangeResult:
-        """Solve lower and upper bounds in independent disposable sessions."""
+        """Solve bounds in isolated sessions sharing one hard wall-clock budget."""
+        budget = budget or QueryBudget(timeout_ms)
         fallback_range = fallback_range or self._full_type_range(term, signed)
-        feasibility = self._range_feasibility(
-            state_id=state_id,
-            state_facts=state_facts,
-            query_facts=query_facts,
-            compatibility_constraints=compatibility_constraints,
-            timeout_ms=timeout_ms,
-        )
-        if feasibility.status is FeasibilityStatus.UNSAT:
-            return self._unsat_range_result(feasibility)
         if abstract_range is not None:
-            return self._abstract_range_result(feasibility, abstract_range)
+            result = self._abstract_range_result(
+                state_id,
+                state_facts,
+                abstract_range,
+                budget,
+            )
+            self._record_range_refinement(result, abstract_only=True)
+            return result
+        feasibility_timeout = budget.remaining_ms(cap_ms=100)
+        if 0 < feasibility_timeout < self.minimum_session_budget_ms:
+            budget.exhaust()
+            feasibility_timeout = 0
+        if feasibility_timeout == 0:
+            feasibility = self._budget_exhausted_feasibility(state_id, budget)
+        else:
+            feasibility = self._range_feasibility(
+                state_id=state_id,
+                state_facts=state_facts,
+                query_facts=query_facts,
+                compatibility_constraints=compatibility_constraints,
+                timeout_ms=feasibility_timeout,
+                budget=budget,
+            )
+        if feasibility.status is FeasibilityStatus.UNSAT:
+            result = self._unsat_range_result(feasibility, budget)
+            self._record_range_refinement(result, abstract_only=False)
+            return result
 
         objective = self._prepare_objective_term(term, signed)
-        lower = self._execute_bound_query(
-            term,
-            objective,
+        lower = self._execute_budgeted_bound_query(
+            budget,
+            term=term,
+            objective_term=objective,
             maximize=False,
             purpose=QueryPurpose.LOWER_BOUND,
-            timeout_ms=timeout_ms,
             state_id=feasibility.state_id,
             state_facts=state_facts,
             query_facts=query_facts,
             compatibility_constraints=compatibility_constraints,
         )
-        upper = self._execute_bound_query(
-            term,
-            objective,
+        upper = self._execute_budgeted_bound_query(
+            budget,
+            term=term,
+            objective_term=objective,
             maximize=True,
             purpose=QueryPurpose.UPPER_BOUND,
-            timeout_ms=timeout_ms,
             state_id=feasibility.state_id,
             state_facts=state_facts,
             query_facts=query_facts,
             compatibility_constraints=compatibility_constraints,
         )
-        return self._combine_range_outcomes(feasibility, lower, upper, fallback_range)
+        result = self._combine_range_outcomes(
+            feasibility,
+            lower,
+            upper,
+            fallback_range,
+            budget,
+        )
+        self._record_range_refinement(result, abstract_only=False)
+        return result
 
     def _range_feasibility(
         self,
@@ -816,6 +851,7 @@ class Z3Solver(SMTSolver):
         query_facts: tuple[Fact[SMTTerm], ...],
         compatibility_constraints: tuple[SMTTerm, ...],
         timeout_ms: int,
+        budget: QueryBudget | None = None,
     ) -> FeasibilityResult:
         """Establish feasibility once for both objective sessions."""
         session = self.create_query_session(
@@ -826,7 +862,7 @@ class Z3Solver(SMTSolver):
             query_facts=query_facts,
             compatibility_constraints=compatibility_constraints,
         )
-        status, reason = self._execute_feasibility_session(session)
+        status, reason = self._execute_feasibility_session(session, budget)
         del reason
         return FeasibilityResult(
             status=status,
@@ -838,6 +874,7 @@ class Z3Solver(SMTSolver):
     def _execute_feasibility_session(
         self,
         session: QuerySession[SMTTerm],
+        budget: QueryBudget | None = None,
     ) -> tuple[FeasibilityStatus, str | None]:
         """Materialize, execute, classify, and always close one Solver session."""
         status = FeasibilityStatus.ERROR
@@ -846,16 +883,38 @@ class Z3Solver(SMTSolver):
             with session:
                 solver = self._create_feasibility_backend(session.timeout_ms)
                 session.attach_backend(solver)
-                solver.add(*(fact.formula for fact in session.materialization.facts))
-                started = time.perf_counter()
-                result = solver.check()
-                elapsed_ms = (time.perf_counter() - started) * 1000
-                status, reason = self._classify_feasibility(
-                    solver,
-                    result,
-                    elapsed_ms,
-                    session.timeout_ms,
+                solver.add(
+                    *(
+                        self._translate_for_backend(fact.formula, solver)
+                        for fact in session.materialization.facts
+                    )
                 )
+                effective_timeout = (
+                    min(session.timeout_ms, budget.remaining_ms())
+                    if budget is not None
+                    else session.timeout_ms
+                )
+                if budget is not None and 0 < effective_timeout < self.minimum_session_budget_ms:
+                    budget.exhaust()
+                    effective_timeout = 0
+                elif budget is not None:
+                    effective_timeout = max(
+                        1,
+                        int(effective_timeout * self.backend_timeout_fraction),
+                    )
+                session.timeout_ms = effective_timeout
+                started = time.perf_counter()
+                if effective_timeout == 0:
+                    status, reason = FeasibilityStatus.TIMEOUT, "total budget exhausted"
+                else:
+                    result = self._check_with_deadline(solver, effective_timeout)
+                    elapsed_ms = (time.perf_counter() - started) * 1000
+                    status, reason = self._classify_feasibility(
+                        solver,
+                        result,
+                        elapsed_ms,
+                        effective_timeout,
+                    )
                 session.close(feasibility_status=status, reason=reason)
         except Exception as error:  # Z3 exceptions become typed query errors.
             status = FeasibilityStatus.ERROR
@@ -884,7 +943,8 @@ class Z3Solver(SMTSolver):
         state_facts: tuple[Fact[SMTTerm], ...],
         query_facts: tuple[Fact[SMTTerm], ...],
         compatibility_constraints: tuple[SMTTerm, ...],
-    ) -> tuple[int | None, BoundStatus, QuerySessionDiagnostics]:
+        budget: QueryBudget | None = None,
+    ) -> BoundOutcome:
         """Execute one minimum or maximum objective in a fresh Optimize instance."""
         session = self.create_query_session(
             purpose=purpose,
@@ -901,20 +961,44 @@ class Z3Solver(SMTSolver):
             with session:
                 optimizer = self._create_optimizer_backend(timeout_ms)
                 session.attach_backend(optimizer)
-                optimizer.add(*(fact.formula for fact in session.materialization.facts))
-                objective = optimizer.maximize if maximize else optimizer.minimize
-                objective(objective_term)
-                started = time.perf_counter()
-                result = optimizer.check()
-                elapsed_ms = (time.perf_counter() - started) * 1000
-                status, reason = self._classify_bound(
-                    optimizer,
-                    result,
-                    elapsed_ms,
-                    timeout_ms,
+                optimizer.add(
+                    *(
+                        self._translate_for_backend(fact.formula, optimizer)
+                        for fact in session.materialization.facts
+                    )
                 )
+                backend_term = self._translate_for_backend(term, optimizer)
+                backend_objective = self._translate_for_backend(objective_term, optimizer)
+                objective = optimizer.maximize if maximize else optimizer.minimize
+                objective(backend_objective)
+                effective_timeout = (
+                    min(timeout_ms, budget.remaining_ms())
+                    if budget is not None
+                    else timeout_ms
+                )
+                if budget is not None and 0 < effective_timeout < self.minimum_session_budget_ms:
+                    budget.exhaust()
+                    effective_timeout = 0
+                elif budget is not None:
+                    effective_timeout = max(
+                        1,
+                        int(effective_timeout * self.backend_timeout_fraction),
+                    )
+                session.timeout_ms = effective_timeout
+                started = time.perf_counter()
+                if effective_timeout == 0:
+                    status, reason = BoundStatus.TIMEOUT, "total budget exhausted"
+                else:
+                    result = self._check_with_deadline(optimizer, effective_timeout)
+                    elapsed_ms = (time.perf_counter() - started) * 1000
+                    status, reason = self._classify_bound(
+                        optimizer,
+                        result,
+                        elapsed_ms,
+                        effective_timeout,
+                    )
                 if status is BoundStatus.PROVEN:
-                    value = self._bound_model_value(optimizer, term)
+                    value = self._bound_model_value(optimizer, backend_term)
                     if value is None:
                         status = BoundStatus.ERROR
                         reason = "optimizer model did not contain a bitvector value"
@@ -924,7 +1008,40 @@ class Z3Solver(SMTSolver):
             reason = f"{type(error).__name__}: {error}"
             if session.diagnostics.bound_status is not BoundStatus.ERROR:
                 raise RuntimeError("QuerySession recorded the wrong backend error kind") from error
-        return value, status, session.diagnostics
+        return BoundOutcome(value, status, session.diagnostics)
+
+    def _execute_budgeted_bound_query(
+        self,
+        budget: QueryBudget,
+        term: SMTTerm,
+        objective_term: SMTTerm,
+        *,
+        maximize: bool,
+        purpose: QueryPurpose,
+        state_id: SemanticStateId,
+        state_facts: tuple[Fact[SMTTerm], ...],
+        query_facts: tuple[Fact[SMTTerm], ...],
+        compatibility_constraints: tuple[SMTTerm, ...],
+    ) -> BoundOutcome:
+        """Run one objective only when the expression deadline has time left."""
+        timeout_ms = budget.remaining_ms()
+        if 0 < timeout_ms < self.minimum_session_budget_ms:
+            budget.exhaust()
+            timeout_ms = 0
+        if timeout_ms == 0:
+            return BoundOutcome(None, BoundStatus.TIMEOUT)
+        return self._execute_bound_query(
+            term,
+            objective_term,
+            maximize=maximize,
+            purpose=purpose,
+            timeout_ms=timeout_ms,
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+            budget=budget,
+        )
 
     @staticmethod
     def _create_feasibility_backend(timeout_ms: int) -> Solver:
@@ -939,6 +1056,40 @@ class Z3Solver(SMTSolver):
         optimizer = Optimize()
         optimizer.set("timeout", timeout_ms)
         return optimizer
+
+    @staticmethod
+    def _translate_for_backend(term: SMTTerm, backend: object) -> SMTTerm:
+        """Translate a term only when a backend uses a distinct Z3 context."""
+        context = getattr(backend, "ctx", None)
+        translate = getattr(term, "translate", None)
+        term_context = getattr(term, "ctx", None)
+        same_context = term_context is context
+        if term_context is not None and context is not None:
+            same_context = term_context.ref() == context.ref()
+        if context is None or translate is None or same_context:
+            return term
+        return translate(context)
+
+    @staticmethod
+    def _check_with_deadline(backend: object, timeout_ms: int) -> object:
+        """Interrupt the active Z3 check when its soft timeout overruns."""
+        check = getattr(backend, "check", None)
+        if not callable(check):
+            raise TypeError("Z3 query backend does not provide check()")
+        context = getattr(backend, "ctx", None)
+        interrupt = getattr(backend, "interrupt", None)
+        if interrupt is None and context is not None:
+            interrupt = getattr(context, "interrupt", None)
+        if interrupt is None or timeout_ms <= 0:
+            return check()
+        with _QUERY_CHECK_LOCK:
+            watchdog = threading.Timer(timeout_ms / 1000, interrupt)
+            watchdog.daemon = True
+            watchdog.start()
+            try:
+                return check()
+            finally:
+                watchdog.cancel()
 
     @staticmethod
     def _classify_feasibility(
@@ -1005,7 +1156,10 @@ class Z3Solver(SMTSolver):
         return value.as_long() if is_bv_value(value) else None
 
     @staticmethod
-    def _unsat_range_result(feasibility: FeasibilityResult) -> RangeResult:
+    def _unsat_range_result(
+        feasibility: FeasibilityResult,
+        budget: QueryBudget,
+    ) -> RangeResult:
         """Return the existing bottom convention after proven UNSAT feasibility."""
         return RangeResult(
             lower=None,
@@ -1016,37 +1170,43 @@ class Z3Solver(SMTSolver):
             fallback_range=None,
             encoding_id=feasibility.encoding_id,
             state_id=feasibility.state_id,
-            diagnostics=feasibility.diagnostics,
+            diagnostics=budget.diagnostics(feasibility.diagnostics.sessions),
         )
 
-    @staticmethod
     def _abstract_range_result(
-        feasibility: FeasibilityResult,
+        self,
+        state_id: SemanticStateId | None,
+        state_facts: tuple[Fact[SMTTerm], ...],
         interval: RangeInterval,
+        budget: QueryBudget,
     ) -> RangeResult:
-        """Return an explicitly abstract range without creating objectives."""
+        """Return an explicitly abstract range without opening any session."""
+        state_id = state_id or empty_state_id(self.function_encoding.encoding_id)
+        if frozenset(fact.fact_id for fact in state_facts) != state_id.active_fact_ids:
+            raise ValueError("Abstract range state facts do not match SemanticStateId")
         return RangeResult(
             lower=interval.lower,
             upper=interval.upper,
-            feasibility=feasibility.status,
+            feasibility=FeasibilityStatus.NOT_ATTEMPTED,
             lower_status=BoundStatus.ABSTRACT,
             upper_status=BoundStatus.ABSTRACT,
             fallback_range=interval,
-            encoding_id=feasibility.encoding_id,
-            state_id=feasibility.state_id,
-            diagnostics=feasibility.diagnostics,
+            encoding_id=self.function_encoding.encoding_id,
+            state_id=state_id,
+            diagnostics=budget.diagnostics(),
         )
 
     @staticmethod
     def _combine_range_outcomes(
         feasibility: FeasibilityResult,
-        lower: tuple[int | None, BoundStatus, QuerySessionDiagnostics],
-        upper: tuple[int | None, BoundStatus, QuerySessionDiagnostics],
+        lower: BoundOutcome,
+        upper: BoundOutcome,
         fallback: RangeInterval,
+        budget: QueryBudget,
     ) -> RangeResult:
         """Preserve one proven side and fall back only for a failed objective."""
-        lower_value, lower_status, lower_diagnostics = lower
-        upper_value, upper_status, upper_diagnostics = upper
+        lower_value, lower_status = lower.value, lower.status
+        upper_value, upper_status = upper.value, upper.status
         used_fallback = lower_status is not BoundStatus.PROVEN or (
             upper_status is not BoundStatus.PROVEN
         )
@@ -1054,10 +1214,10 @@ class Z3Solver(SMTSolver):
             lower_value = fallback.lower
         if upper_status is not BoundStatus.PROVEN:
             upper_value = fallback.upper
-        sessions = (
-            *feasibility.diagnostics.sessions,
-            lower_diagnostics,
-            upper_diagnostics,
+        objective_sessions = tuple(
+            diagnostics
+            for diagnostics in (lower.diagnostics, upper.diagnostics)
+            if diagnostics is not None
         )
         return RangeResult(
             lower=lower_value,
@@ -1068,8 +1228,31 @@ class Z3Solver(SMTSolver):
             fallback_range=fallback if used_fallback else None,
             encoding_id=feasibility.encoding_id,
             state_id=feasibility.state_id,
-            diagnostics=QueryDiagnostics(sessions),
+            diagnostics=budget.diagnostics(
+                (*feasibility.diagnostics.sessions, *objective_sessions)
+            ),
         )
+
+    def _budget_exhausted_feasibility(
+        self,
+        state_id: SemanticStateId | None,
+        budget: QueryBudget,
+    ) -> FeasibilityResult:
+        """Represent a feasibility check skipped because no budget remained."""
+        resolved_state = state_id or empty_state_id(self.function_encoding.encoding_id)
+        return FeasibilityResult(
+            status=FeasibilityStatus.TIMEOUT,
+            encoding_id=self.function_encoding.encoding_id,
+            state_id=resolved_state,
+            diagnostics=budget.diagnostics(),
+        )
+
+    @staticmethod
+    def _record_range_refinement(result: RangeResult, *, abstract_only: bool) -> None:
+        """Record one aggregate refinement decision without driving semantics."""
+        telemetry = get_telemetry()
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_range_refinement(result, abstract_only=abstract_only)
 
     def _full_type_range(self, term: SMTTerm, signed: bool) -> RangeInterval:
         """Return the sound type interval used when an objective is inconclusive."""

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 from enum import Enum
-from typing import Generic, TypeVar
+from typing import Generic, Protocol, TypeVar, cast
+
+
+class _NodeWithId(Protocol):
+    node_id: int
 
 
 class FactOwnerKind(Enum):
@@ -92,7 +96,7 @@ class StaticOperationId:
             raise ValueError("CFG node has no function for deterministic operation identity")
         return cls(
             encoding_id=EncodingId.from_function(function),
-            node_id=int(node.node_id),
+            node_id=int(cast("_NodeWithId", node).node_id),
             ir_position=position,
         )
 
@@ -104,8 +108,27 @@ class StaticOperationId:
             raise ValueError("CFG node has no function for deterministic operation identity")
         return cls(
             encoding_id=EncodingId.from_function(function),
-            node_id=int(node.node_id),
+            node_id=int(cast("_NodeWithId", node).node_id),
             ir_position=ir_position,
+        )
+
+
+@dataclass(frozen=True, order=True)
+class LoopHeaderId:
+    """Stable identity of one natural-loop header in a function encoding."""
+
+    encoding_id: EncodingId
+    node_id: int
+
+    @classmethod
+    def from_node(cls, node: object) -> LoopHeaderId:
+        """Build an identity from the header's function and CFG node ID."""
+        function = getattr(node, "function", None)
+        if function is None:
+            raise ValueError("Loop header has no function for deterministic identity")
+        return cls(
+            EncodingId.from_function(function),
+            int(cast("_NodeWithId", node).node_id),
         )
 
 
@@ -176,6 +199,7 @@ class FactProvenance:
     origin_kind: FactOriginKind
     operation_id: StaticOperationId | None = None
     cfg_edge: tuple[int, int] | None = None
+    loop_header_id: LoopHeaderId | None = None
     loop_generation: int | None = None
     property_id: str | None = None
 

@@ -101,8 +101,7 @@ class State:
         if any(fact.fact_id.owner is not FactOwnerKind.STATE_LOCAL for fact in facts):
             raise ValueError("State construction accepts only STATE_LOCAL facts")
         if any(
-            fact.fact_id.provenance.origin_kind is FactOriginKind.ABSTRACT_STATE
-            for fact in facts
+            fact.fact_id.provenance.origin_kind is FactOriginKind.ABSTRACT_STATE for fact in facts
         ):
             raise ValueError("Abstract range facts are derived from tracked values")
 
@@ -208,9 +207,7 @@ class State:
     def get_branch_facts(self) -> tuple[Fact[SMTTerm], ...]:
         """Derive the branch view from the final active explicit fact set."""
         return tuple(
-            fact
-            for fact in self.get_explicit_facts()
-            if fact.fact_id.kind is FactKind.BRANCH_GUARD
+            fact for fact in self.get_explicit_facts() if fact.fact_id.kind is FactKind.BRANCH_GUARD
         )
 
     def get_branch_fact_ids(self) -> frozenset[FactId]:
@@ -514,6 +511,7 @@ class State:
             provenance.origin_kind.value,
             repr(provenance.operation_id),
             repr(provenance.cfg_edge),
+            repr(provenance.loop_header_id),
             repr(provenance.loop_generation),
             repr(provenance.property_id),
             *fact_id.semantic_key,

@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     )
     from slither.analyses.data_flow.analyses.interval.core.state import State
     from slither.analyses.data_flow.smt_solver.facts import Fact, SemanticStateId
+    from slither.analyses.data_flow.smt_solver.query import QueryBudget
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.core.cfg.node import Node
@@ -668,31 +669,24 @@ def _create_annotation(
     timeout_ms: int | None = None,
 ) -> LineAnnotation | None:
     """Create a LineAnnotation from analysis data."""
-    from slither.analyses.data_flow.analysis import (
-        RangeQueryConfig,
-        solve_variable_range,
-    )
-
-    effective_timeout = timeout_ms if timeout_ms is not None else config.timeout_ms
-    range_config = RangeQueryConfig(
-        state_id=state.semantic_id(),
-        state_facts=state.get_facts(),
-        timeout_ms=effective_timeout,
-        skip_optimization=config.skip_solving,
+    min_result, max_result, budget, effective_timeout = _solve_annotation_bounds(
+        smt_var,
+        state,
+        solver,
+        config,
         cache=cache,
+        timeout_ms=timeout_ms,
     )
-    min_result, max_result = solve_variable_range(solver, smt_var, range_config)
-
     if not min_result or not max_result:
         return None
 
     # Check for unreachable path
     if min_result.get("unreachable"):
-        display_name = _simplify_var_name(var_name, keep_ssa=config.show_ssa)
-        if var_name.startswith("TMP_") and tmp_expressions:
-            expr = tmp_expressions.get(var_name)
-            if expr:
-                display_name = f"{display_name} = {expr}"
+        display_name = _annotation_display_name(
+            var_name,
+            config.show_ssa,
+            tmp_expressions,
+        )
         return LineAnnotation(
             variable_name=display_name,
             range_min="⊥",
@@ -712,27 +706,17 @@ def _create_annotation(
     # Only mark actual return statements as returns (not TMP variables)
     is_return = "return" in var_name.lower() and not var_name.startswith("TMP_")
 
-    # Simplify variable name for display (keep SSA suffix if requested)
-    display_name = _simplify_var_name(var_name, keep_ssa=config.show_ssa)
-
-    # For TMP variables, add the expression they represent
-    if var_name.startswith("TMP_") and tmp_expressions:
-        expr = tmp_expressions.get(var_name)
-        if expr:
-            display_name = f"{display_name} = {expr}"
+    display_name = _annotation_display_name(var_name, config.show_ssa, tmp_expressions)
 
     # All annotations at same indent (column=0)
     column = 0
 
-    # Check overflow possibility for unchecked arithmetic (deferred to annotation time)
-    branch_facts = state.get_branch_facts()
-    branch_state_id = state.semantic_id_for_facts(branch_facts, "overflow_precondition")
-    can_overflow, can_underflow = _check_overflow_possible(
+    can_overflow, can_underflow = _annotation_overflow_status(
         solver,
         smt_var,
+        state,
         effective_timeout,
-        branch_state_id,
-        branch_facts,
+        budget=budget,
     )
 
     # Record precision metrics
@@ -753,42 +737,85 @@ def _create_annotation(
     )
 
 
+def _solve_annotation_bounds(
+    smt_var: "TrackedSMTVariable",
+    state: "State",
+    solver: "SMTSolver",
+    config: AnalysisConfig,
+    *,
+    cache: "RangeQueryCache",
+    timeout_ms: int | None,
+) -> tuple[dict | None, dict | None, "QueryBudget", int]:
+    """Solve one annotation with a budget shared by deferred predicate checks."""
+    from slither.analyses.data_flow.analysis import RangeQueryConfig, solve_variable_range
+    from slither.analyses.data_flow.smt_solver.query import QueryBudget
+
+    effective_timeout = timeout_ms if timeout_ms is not None else config.timeout_ms
+    budget = QueryBudget(effective_timeout)
+    range_config = RangeQueryConfig(
+        state_id=state.semantic_id(),
+        state_facts=state.get_facts(),
+        timeout_ms=effective_timeout,
+        skip_optimization=config.skip_solving,
+        cache=cache,
+        budget=budget,
+    )
+    minimum, maximum = solve_variable_range(solver, smt_var, range_config)
+    return minimum, maximum, budget, effective_timeout
+
+
+def _annotation_display_name(
+    var_name: str,
+    keep_ssa: bool,
+    tmp_expressions: dict[str, str] | None,
+) -> str:
+    """Build the source-facing name for one annotation."""
+    display_name = _simplify_var_name(var_name, keep_ssa=keep_ssa)
+    if not var_name.startswith("TMP_") or not tmp_expressions:
+        return display_name
+    expression = tmp_expressions.get(var_name)
+    return f"{display_name} = {expression}" if expression else display_name
+
+
+def _annotation_overflow_status(
+    solver: "SMTSolver",
+    smt_var: "TrackedSMTVariable",
+    state: "State",
+    timeout_ms: int,
+    *,
+    budget: "QueryBudget",
+) -> tuple[bool, bool]:
+    """Check deferred arithmetic predicates against branch-owned facts."""
+    branch_facts = state.get_branch_facts()
+    state_id = state.semantic_id_for_facts(branch_facts, "overflow_precondition")
+    return _check_overflow_possible(
+        solver,
+        smt_var,
+        timeout_ms,
+        state_id,
+        branch_facts,
+        budget=budget,
+    )
+
+
 def _check_overflow_possible(
     solver: "SMTSolver",
     smt_var: "TrackedSMTVariable",
     timeout_ms: int,
     state_id: "SemanticStateId",
     state_facts: tuple["Fact", ...],
+    *,
+    budget: "QueryBudget | None" = None,
 ) -> tuple[bool, bool]:
-    """Check if overflow/underflow is possible for unchecked arithmetic.
-
-    Called at annotation time (after analysis) to avoid slowing down the
-    analysis. Uses a timeout to skip expensive checks. When the solver
-    returns UNKNOWN (timeout), we conservatively report overflow as
-    possible — only an explicit UNSAT proves the operation is safe.
-
-    Branch guards (e.g. from ``if (a > b)``) are included so relational
-    guards like ``if`` suppress false positives the same way ``require``
-    does.  Checked-arithmetic path constraints (``result <= left``) are
-    deliberately excluded — they would trivially prove no overflow for
-    the very operation being checked.
-
-    Args:
-        solver: The SMT solver instance.
-        smt_var: The tracked variable with overflow predicates.
-        timeout_ms: Timeout in milliseconds for each check.
-        state_id: Semantic identity of the branch-guard precondition view.
-        state_facts: Typed branch-guard facts from the state
-            containing this arithmetic operation.
-
-    Returns:
-        Tuple of (can_overflow, can_underflow) booleans.
-    """
+    """Check deferred predicates, treating every non-UNSAT outcome as possible."""
     from slither.analyses.data_flow.smt_solver.facts import make_query_fact
     from slither.analyses.data_flow.smt_solver.query import (
         FeasibilityStatus,
         QueryPurpose,
     )
+
+    if not smt_var.is_unchecked:
+        return False, False
 
     can_overflow = False
     can_underflow = False
@@ -800,14 +827,18 @@ def _check_overflow_possible(
             0,
             state_id.context_id,
         )
-        result = solver.check_feasibility(
-            state_id=state_id,
-            state_facts=state_facts,
-            query_facts=(query_fact,),
-            purpose=QueryPurpose.OVERFLOW,
-            timeout_ms=timeout_ms,
-        )
-        can_overflow = result.status is not FeasibilityStatus.UNSAT
+        remaining_ms = budget.remaining_ms() if budget is not None else timeout_ms
+        if remaining_ms == 0:
+            can_overflow = True
+        else:
+            result = solver.check_feasibility(
+                state_id=state_id,
+                state_facts=state_facts,
+                query_facts=(query_fact,),
+                purpose=QueryPurpose.OVERFLOW,
+                timeout_ms=remaining_ms,
+            )
+            can_overflow = result.status is not FeasibilityStatus.UNSAT
 
     if smt_var.no_underflow is not None:
         query_fact = make_query_fact(
@@ -816,14 +847,18 @@ def _check_overflow_possible(
             0,
             state_id.context_id,
         )
-        result = solver.check_feasibility(
-            state_id=state_id,
-            state_facts=state_facts,
-            query_facts=(query_fact,),
-            purpose=QueryPurpose.UNDERFLOW,
-            timeout_ms=timeout_ms,
-        )
-        can_underflow = result.status is not FeasibilityStatus.UNSAT
+        remaining_ms = budget.remaining_ms() if budget is not None else timeout_ms
+        if remaining_ms == 0:
+            can_underflow = True
+        else:
+            result = solver.check_feasibility(
+                state_id=state_id,
+                state_facts=state_facts,
+                query_facts=(query_fact,),
+                purpose=QueryPurpose.UNDERFLOW,
+                timeout_ms=remaining_ms,
+            )
+            can_underflow = result.status is not FeasibilityStatus.UNSAT
 
     return can_overflow, can_underflow
 

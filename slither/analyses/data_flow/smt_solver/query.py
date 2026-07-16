@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -44,6 +45,7 @@ class FeasibilityStatus(Enum):
     UNKNOWN = "unknown"
     TIMEOUT = "timeout"
     ERROR = "error"
+    NOT_ATTEMPTED = "not_attempted"
 
 
 class BoundStatus(Enum):
@@ -209,6 +211,9 @@ class QueryDiagnostics:
     """Aggregate diagnostics for a public feasibility or range result."""
 
     sessions: tuple[QuerySessionDiagnostics, ...] = ()
+    total_budget_ms: int | None = None
+    wall_elapsed_ms: float = 0.0
+    budget_exhausted: bool = False
 
     @property
     def elapsed_ms(self) -> float:
@@ -224,9 +229,75 @@ class QueryDiagnostics:
         """Serialize all independent sessions for diagnostics and future caches."""
         return {
             "elapsed_ms": self.elapsed_ms,
+            "total_budget_ms": self.total_budget_ms,
+            "wall_elapsed_ms": self.wall_elapsed_ms,
+            "budget_exhausted": self.budget_exhausted,
             "cleanup_balanced": self.cleanup_balanced,
             "sessions": [session.to_dict() for session in self.sessions],
         }
+
+
+class QueryBudget:
+    """One monotonic wall-clock budget shared by an expression's query sessions."""
+
+    def __init__(
+        self,
+        total_ms: int,
+        *,
+        clock: Callable[[], float] = time.perf_counter,
+    ) -> None:
+        if total_ms < 0:
+            raise ValueError("Query budget cannot be negative")
+        self.total_ms = total_ms
+        self._clock = clock
+        self._started = clock()
+        self._deadline = self._started + total_ms / 1000
+        self._forced_exhausted = False
+
+    @property
+    def elapsed_ms(self) -> float:
+        """Return total orchestration wall time since this budget was created."""
+        return max(0.0, (self._clock() - self._started) * 1000)
+
+    @property
+    def exhausted(self) -> bool:
+        """Return whether no solver time remains."""
+        return self._forced_exhausted or self.total_ms == 0 or self._clock() >= self._deadline
+
+    def remaining_ms(self, cap_ms: int | None = None) -> int:
+        """Return a positive backend timeout, or zero when the deadline passed."""
+        if self._forced_exhausted:
+            return 0
+        remaining = max(0.0, (self._deadline - self._clock()) * 1000)
+        allocated = math.ceil(remaining)
+        if cap_ms is not None:
+            allocated = min(allocated, max(0, cap_ms))
+        return allocated
+
+    def exhaust(self) -> None:
+        """Close a budget when the remainder cannot safely admit another session."""
+        self._forced_exhausted = True
+
+    def diagnostics(
+        self,
+        sessions: tuple[QuerySessionDiagnostics, ...] = (),
+    ) -> QueryDiagnostics:
+        """Snapshot aggregate budget and owned-session diagnostics."""
+        return QueryDiagnostics(
+            sessions=sessions,
+            total_budget_ms=self.total_ms,
+            wall_elapsed_ms=self.elapsed_ms,
+            budget_exhausted=self.exhausted,
+        )
+
+
+@dataclass(frozen=True)
+class BoundOutcome:
+    """One independent bound result, optionally backed by an opened session."""
+
+    value: int | None
+    status: BoundStatus
+    diagnostics: QuerySessionDiagnostics | None = None
 
 
 @dataclass(frozen=True)

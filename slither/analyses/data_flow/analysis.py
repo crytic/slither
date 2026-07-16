@@ -16,7 +16,9 @@ from slither.analyses.data_flow.smt_solver.facts import (
 )
 from slither.analyses.data_flow.smt_solver.query import (
     FeasibilityStatus,
+    QueryBudget,
     QueryPurpose,
+    RangeInterval,
 )
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.telemetry import SolverTelemetry, get_telemetry
@@ -44,6 +46,8 @@ class RangeQueryConfig:
     skip_optimization: bool = False
     debug: bool = False
     cache: RangeQueryCache | None = None
+    refine_abstract: bool = False
+    budget: QueryBudget | None = None
 
 
 @dataclass
@@ -77,6 +81,7 @@ def _check_overflow_possible(
     state_facts: tuple[Fact[SMTTerm], ...] = (),
     query_facts: tuple[Fact[SMTTerm], ...] = (),
     timeout_ms: int = 500,
+    budget: QueryBudget | None = None,
 ) -> bool:
     """Check if overflow or underflow is possible for a variable.
 
@@ -104,14 +109,17 @@ def _check_overflow_possible(
         0,
         state_id.context_id if state_id is not None else None,
     )
+    effective_timeout = budget.remaining_ms() if budget is not None else timeout_ms
+    if effective_timeout == 0:
+        return True
     result = solver.check_feasibility(
         state_id=state_id,
         state_facts=state_facts,
         query_facts=(*query_facts, predicate_fact),
         purpose=QueryPurpose.OVERFLOW,
-        timeout_ms=timeout_ms,
+        timeout_ms=effective_timeout,
     )
-    return result.status is FeasibilityStatus.SAT
+    return result.status is not FeasibilityStatus.UNSAT
 
 
 # =============================================================================
@@ -233,7 +241,13 @@ def _solve_range_with_solver(
     config: RangeQueryConfig,
 ) -> tuple[dict | None, dict | None]:
     """Use solver's range solving to find min/max values."""
-    if ctx.telemetry:
+    budget = config.budget or QueryBudget(config.timeout_ms)
+    abstract_range = _preferred_abstract_range(ctx.smt_var, config)
+    query_facts = (
+        *ctx.query_facts,
+        *_abstract_refinement_facts(ctx, meta, config.refine_abstract),
+    )
+    if ctx.telemetry and abstract_range is None:
         ctx.telemetry.count("optimize_min")
         ctx.telemetry.count("optimize_max")
 
@@ -242,9 +256,12 @@ def _solve_range_with_solver(
             term=ctx.smt_var.term,
             state_id=ctx.state_id,
             state_facts=ctx.state_facts,
-            query_facts=ctx.query_facts,
+            query_facts=query_facts,
             timeout_ms=config.timeout_ms,
             signed=meta.is_signed,
+            fallback_range=_tracked_fallback_range(ctx.smt_var),
+            abstract_range=abstract_range,
+            budget=budget,
         )
 
         if result.feasibility is FeasibilityStatus.UNSAT:
@@ -261,15 +278,10 @@ def _solve_range_with_solver(
         decoded_max = _decode_model_value(result.upper, meta)
 
         # Check if overflow is possible given constraints
-        has_overflow = _check_overflow_possible(
-            ctx.solver,
-            ctx.smt_var,
-            state_id=ctx.state_id,
-            state_facts=ctx.state_facts,
-            query_facts=ctx.query_facts,
-            timeout_ms=config.timeout_ms,
+        has_overflow = (
+            ctx.smt_var.is_unchecked
+            and (ctx.smt_var.no_overflow is not None or ctx.smt_var.no_underflow is not None)
         )
-
         min_result = {
             "value": decoded_min,
             "overflow": has_overflow,
@@ -286,6 +298,53 @@ def _solve_range_with_solver(
         return min_result, max_result
     except (ValueError, TypeError, RuntimeError):
         return None, None
+
+
+def _abstract_refinement_facts(
+    ctx: RangeSolveContext,
+    meta: VariableMetadata,
+    enabled: bool,
+) -> tuple[Fact[SMTTerm], ...]:
+    """Materialize state-owned interval limits for an optional refinement."""
+    if not enabled or not ctx.smt_var.is_total:
+        return ()
+    interval = ctx.smt_var.interval
+    lower = ctx.solver.create_constant(interval.lower, ctx.smt_var.sort)
+    upper = ctx.solver.create_constant(interval.upper, ctx.smt_var.sort)
+    if meta.is_signed:
+        predicates = (
+            ctx.solver.bv_sge(ctx.smt_var.term, lower),
+            ctx.solver.bv_sle(ctx.smt_var.term, upper),
+        )
+    else:
+        predicates = (
+            ctx.solver.bv_uge(ctx.smt_var.term, lower),
+            ctx.solver.bv_ule(ctx.smt_var.term, upper),
+        )
+    context_id = ctx.state_id.context_id if ctx.state_id is not None else None
+    return tuple(
+        make_query_fact(predicate, "abstract_refinement_bound", index, context_id)
+        for index, predicate in enumerate(predicates)
+    )
+
+
+def _preferred_abstract_range(
+    smt_var: TrackedSMTVariable,
+    config: RangeQueryConfig,
+) -> RangeInterval | None:
+    """Select terminal abstract transfer when refinement is unnecessary."""
+    if config.refine_abstract or not smt_var.is_total:
+        return None
+    interval = smt_var.interval
+    if interval != smt_var.type_interval or smt_var.overflow_operation_id is not None:
+        return RangeInterval(interval.lower, interval.upper)
+    return None
+
+
+def _tracked_fallback_range(smt_var: TrackedSMTVariable) -> RangeInterval:
+    """Return the strongest state-owned interval valid for failed objectives."""
+    interval = smt_var.interval if smt_var.is_total else smt_var.type_interval
+    return RangeInterval(interval.lower, interval.upper)
 
 
 # =============================================================================

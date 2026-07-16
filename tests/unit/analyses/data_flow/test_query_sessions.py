@@ -381,6 +381,9 @@ def test_proven_timeout_and_abstract_full_ranges_are_tagged_differently() -> Non
         BoundStatus.ABSTRACT,
         BoundStatus.ABSTRACT,
     )
+    assert abstract.feasibility is FeasibilityStatus.NOT_ATTEMPTED
+    assert abstract.diagnostics.sessions == ()
+    assert abstract_solver.active_query_sessions == 0
     assert proven.fallback_range is None
     assert timed_out.fallback_range == abstract.fallback_range == RangeInterval(0, 255)
     assert proven.to_dict()["lower_status"] == "proven"

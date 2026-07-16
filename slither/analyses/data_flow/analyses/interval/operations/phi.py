@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     NumericInterval,
@@ -23,11 +23,19 @@ from slither.slithir.operations.phi import Phi
 
 
 if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.interval.analysis.loop import (
+        IntervalLoopMetadata,
+    )
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.analyses.data_flow.analyses.interval.core.state import State
     from slither.core.cfg.node import Node
-    from slither.slithir.utils.utils import RVALUE
+    from slither.slithir.operations.operation import Operation
+    from slither.slithir.utils.utils import LVALUE, RVALUE
+    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+
+from slither.analyses.data_flow.smt_solver.facts import LoopHeaderId
 
 
 class PhiHandler(BaseOperationHandler):
@@ -37,20 +45,26 @@ class PhiHandler(BaseOperationHandler):
     interprocedural SSA, function entry Phi nodes merge values from ALL
     call sites.
 
-    Strategy:
-    1. If lvalue already tracked from parameter binding -> preserve it
-    2. At loop headers: selective widening based on comparing incoming to existing
-    3. If rvalues are tracked -> create variable equal to one of them (disjunction)
-    4. If no rvalues tracked -> create unconstrained variable
+    Loop-header values are recomputed from the currently reachable incoming SSA
+    alternatives. The loop fixpoint owns widening and generation state.
     """
+
+    def __init__(self, solver: SMTSolver) -> None:
+        super().__init__(solver)
+        self._loop_metadata: IntervalLoopMetadata | None = None
+
+    def configure_loop_metadata(self, metadata: IntervalLoopMetadata) -> None:
+        """Bind traversal-independent loop SSA classifications."""
+        self._loop_metadata = metadata
 
     def handle(
         self,
-        operation: Phi,
+        operation: Operation,
         domain: IntervalDomain,
         node: Node,
     ) -> None:
         """Process Phi operation by merging incoming values."""
+        operation, state = self._require_phi_state(operation, domain)
         if operation.lvalue is None:
             return
 
@@ -58,16 +72,15 @@ class PhiHandler(BaseOperationHandler):
         if not isinstance(lvalue_type, ElementaryType):
             return
 
-        result_name = get_variable_name(operation.lvalue)
-        is_loop_header = node.type == NodeType.IFLOOP
+        result_name = get_variable_name(cast("LVALUE", operation.lvalue))
+        is_loop_header = self._is_loop_header(node)
 
-        # At loop headers: create unconstrained (widening handled by apply_widening)
         if is_loop_header:
-            self._handle_loop_header_phi(domain, result_name, lvalue_type)
+            self._handle_loop_header_phi(operation, domain, node, result_name, lvalue_type)
             return
 
         # If already tracked (from parameter binding), preserve those constraints
-        existing = domain.state.get_variable(result_name)
+        existing = state.get_variable(result_name)
         if existing is not None:
             return
 
@@ -98,7 +111,26 @@ class PhiHandler(BaseOperationHandler):
                 equation_variables,
             )
 
-        domain.state.set_variable(result_name, result_variable)
+        state.set_variable(result_name, result_variable)
+
+    def _is_loop_header(self, node: Node) -> bool:
+        """Use natural-loop metadata when the engine has prepared the handler."""
+        if self._loop_metadata is None:
+            return node.type is NodeType.IFLOOP
+        return self._loop_metadata.is_loop_header(LoopHeaderId.from_node(node))
+
+    @staticmethod
+    def _require_phi_state(
+        operation: Operation,
+        domain: IntervalDomain,
+    ) -> tuple[Phi, State]:
+        """Validate the registry dispatch and concrete transfer state."""
+        if not isinstance(operation, Phi):
+            raise TypeError("PhiHandler requires a Phi operation")
+        state = domain.state
+        if state is None:
+            raise ValueError("Phi transfer requires a concrete interval state")
+        return operation, state
 
     @staticmethod
     def _incoming_interval(incoming: list[TrackedSMTVariable]) -> NumericInterval:
@@ -110,35 +142,55 @@ class PhiHandler(BaseOperationHandler):
 
     def _handle_loop_header_phi(
         self,
+        operation: Phi,
         domain: IntervalDomain,
+        node: Node,
         result_name: str,
         lvalue_type: ElementaryType,
     ) -> None:
-        """Handle phi at loop header.
-
-        Creates unconstrained variable. Selective widening is handled by
-        apply_widening() on back edges.
-
-        NOTE: We cannot add constraints here because SMT constraints are permanent.
-        get_or_declare_const returns the same SMT variable, so constraints from
-        earlier iterations accumulate. This makes loop exits unreachable if we
-        constrain phi variables to incoming values.
-        """
+        """Recompute a loop phi without creating a cyclic immutable equation."""
+        state = domain.state
+        if state is None:
+            raise ValueError("Loop phi transfer requires a concrete interval state")
         sort = type_to_sort(lvalue_type)
         is_signed = is_signed_type(lvalue_type)
         bit_width = get_bit_width(lvalue_type)
-
-        existing = domain.state.get_variable(result_name)
-
-        # First iteration: create unconstrained variable
-        if existing is None:
-            result_variable = TrackedSMTVariable.create(
-                self.solver, result_name, sort, is_signed=is_signed, bit_width=bit_width
+        result_variable = TrackedSMTVariable.create(
+            self.solver, result_name, sort, is_signed=is_signed, bit_width=bit_width
+        )
+        incoming = self._active_loop_incoming(operation, domain, node, result_name)
+        if incoming:
+            result_variable = result_variable.with_interval(
+                self._incoming_interval(incoming),
+                is_total=True,
             )
-            domain.state.set_variable(result_name, result_variable)
-            return
+        state.set_variable(result_name, result_variable)
 
-        # Later iterations: keep existing (widening handled by apply_widening)
+    def _active_loop_incoming(
+        self,
+        operation: Phi,
+        domain: IntervalDomain,
+        node: Node,
+        result_name: str,
+    ) -> list[TrackedSMTVariable]:
+        """Resolve every currently active phi alternative or return no precision."""
+        state = domain.state
+        if state is None:
+            raise ValueError("Loop phi lookup requires a concrete interval state")
+        if self._loop_metadata is None:
+            incoming = self._get_incoming_variables(operation.rvalues, domain)
+            return incoming if len(incoming) == len(operation.rvalues) else []
+        bindings = self._loop_metadata.variables_for(LoopHeaderId.from_node(node))
+        binding = next((item for item in bindings if item.header_name == result_name), None)
+        if binding is None:
+            return []
+        active_names = binding.entry_names
+        if state.get_variable(result_name) is not None:
+            active_names = (*active_names, *binding.back_names)
+        incoming = [state.get_variable(name) for name in active_names]
+        if any(variable is None for variable in incoming):
+            return []
+        return [variable for variable in incoming if variable is not None]
 
     def _get_incoming_variables(
         self,
@@ -146,10 +198,13 @@ class PhiHandler(BaseOperationHandler):
         domain: IntervalDomain,
     ) -> list[TrackedSMTVariable]:
         """Get tracked variables for Phi incoming values."""
+        state = domain.state
+        if state is None:
+            raise ValueError("Phi input lookup requires a concrete interval state")
         tracked_variables = []
         for rvalue in rvalues:
             rvalue_name = get_variable_name(rvalue)
-            tracked = domain.state.get_variable(rvalue_name)
+            tracked = state.get_variable(rvalue_name)
             if tracked is not None:
                 tracked_variables.append(tracked)
         return tracked_variables
@@ -160,10 +215,13 @@ class PhiHandler(BaseOperationHandler):
         domain: IntervalDomain,
     ) -> list[TrackedSMTVariable]:
         """Return all static phi alternatives, declaring absent symbols locally."""
+        state = domain.state
+        if state is None:
+            raise ValueError("Phi equation lookup requires a concrete interval state")
         variables = []
         for rvalue in rvalues:
             name = get_variable_name(rvalue)
-            tracked = domain.state.get_variable(name)
+            tracked = state.get_variable(name)
             value_type = getattr(rvalue, "type", None)
             if tracked is None and isinstance(value_type, ElementaryType):
                 tracked = TrackedSMTVariable.create(
