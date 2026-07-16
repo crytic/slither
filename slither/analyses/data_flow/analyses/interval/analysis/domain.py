@@ -7,6 +7,7 @@ from enum import Enum
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.smt_solver.facts import AnalysisContextId, SemanticStateId
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 
 
 class DomainVariant(Enum):
@@ -77,42 +78,65 @@ class IntervalDomain(Domain):
         """Create domain with concrete state."""
         return cls(DomainVariant.STATE, state)
 
-    def join(self, other: IntervalDomain) -> bool:
-        """Lattice join: self := self ⊔ other. Returns True if self changed."""
+    def join(self, other: Domain) -> bool:
+        """Apply the complete lattice join without mutating ``other``."""
+        if not isinstance(other, IntervalDomain):
+            raise TypeError("IntervalDomain can only join another IntervalDomain")
+        before = self.semantic_id()
+
         if other.variant == DomainVariant.BOTTOM:
-            return False
+            self._context_id = self._compatible_context(other)
+            return self._record_join(before)
 
         if self.variant == DomainVariant.BOTTOM:
+            context_id = self._compatible_context(other)
             self._variant = other.variant
             self._state = other.state.deep_copy() if other.state else None
-            self._context_id = other.context_id
-            return True
+            self._context_id = context_id
+            return self._record_join(before)
+
+        context_id = self._compatible_context(other)
 
         if other.variant == DomainVariant.TOP:
-            if self.variant != DomainVariant.TOP:
-                self._variant = DomainVariant.TOP
-                self._state = None
-                self._context_id = other.context_id
-                return True
-            return False
+            self._variant = DomainVariant.TOP
+            self._state = None
+            self._context_id = context_id
+            return self._record_join(before)
 
         if self.variant == DomainVariant.TOP:
-            return False
+            self._context_id = context_id
+            return self._record_join(before)
 
-        # Both are STATE - merge variable dictionaries
-        return self._merge_states(other)
+        self._merge_states(other)
+        return self._record_join(before)
 
-    def _merge_states(self, other: IntervalDomain) -> bool:
-        """Merge two STATE domains."""
-        changed = False
-        other_names = other.state.variable_names()
-
-        for name in other_names:
-            if self.state.get_variable(name) is None:
-                self.state.set_variable(name, other.state.get_variable(name))
-                changed = True
-
+    def _record_join(self, before: SemanticStateId) -> bool:
+        """Compare the complete state identity and emit opt-in telemetry."""
+        changed = self.semantic_id() != before
+        telemetry = get_telemetry()
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_state_join(changed)
         return changed
+
+    def _merge_states(self, other: IntervalDomain) -> None:
+        """Replace two reachable states with their complete conservative join."""
+        if self._state is None or other.state is None:
+            raise ValueError("STATE domains must carry a State")
+        joined = self._state.joined(other.state)
+        if joined.semantic_id() != self._state.semantic_id():
+            self._state = joined
+            self._context_id = joined.context_id
+
+    def _compatible_context(self, other: IntervalDomain) -> AnalysisContextId:
+        """Return the shared context, treating an unbound bottom/top as neutral."""
+        if self._context_id == other.context_id:
+            return self._context_id
+        unbound = AnalysisContextId.unbound()
+        if self._context_id == unbound:
+            return other.context_id
+        if other.context_id == unbound:
+            return self._context_id
+        raise ValueError("Cannot join domains from incompatible analysis contexts")
 
     def deep_copy(self) -> IntervalDomain:
         """Create a deep copy of this domain."""
@@ -122,6 +146,8 @@ class IntervalDomain(Domain):
 
     def semantic_id(self) -> SemanticStateId:
         """Return complete identity including reachability."""
-        if self._state is not None:
+        if self._variant is DomainVariant.STATE:
+            if self._state is None:
+                raise ValueError("STATE domain has no semantic State")
             return self._state.semantic_id(self._variant.value)
         return State(context_id=self._context_id).semantic_id(self._variant.value)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -79,9 +80,32 @@ class SstoreHandler(BaseOperationHandler):
                 origin_kind=FactOriginKind.STORAGE,
             ),
         )
+        tracked_lvalue = tracked_lvalue.with_interval(
+            self._value_interval(value_arg, tracked_lvalue, domain)
+        )
         domain.state.set_variable(lvalue_name, tracked_lvalue)
 
         domain.state.add_storage_write(slot_key, lvalue_name)
+
+    @staticmethod
+    def _value_interval(
+        value: object,
+        target: TrackedSMTVariable,
+        domain: IntervalDomain,
+    ) -> NumericInterval:
+        if isinstance(value, Constant):
+            constant = value.value
+            if isinstance(constant, bool):
+                constant = int(constant)
+            if isinstance(constant, int) and target.type_interval.lower <= constant <= (
+                target.type_interval.upper
+            ):
+                return NumericInterval(constant, constant)
+            return target.type_interval
+        tracked = domain.state.get_variable(get_variable_name(value))
+        if tracked is None or not tracked.is_total:
+            return target.type_interval
+        return tracked.interval.intersection(target.type_interval) or target.type_interval
 
     def _get_slot_key(self, slot_arg: object) -> str:
         """Convert slot argument to a string key."""

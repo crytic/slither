@@ -3,6 +3,8 @@
 Defines the lattice structure required for fixpoint computation.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 
@@ -16,15 +18,15 @@ class Domain(ABC):
     """
 
     @abstractmethod
-    def top(cls) -> "Domain":
+    def top(cls) -> Domain:
         """Return the top element of the domain (least informative)."""
 
     @abstractmethod
-    def bottom(cls) -> "Domain":
+    def bottom(cls) -> Domain:
         """Return the bottom element of the domain (most informative)."""
 
     @abstractmethod
-    def join(self, other: "Domain") -> bool:
+    def join(self, other: Domain) -> bool:
         """Compute the least upper bound of this element and another.
 
         Updates self in-place with the join result.
@@ -35,3 +37,7 @@ class Domain(ABC):
         Returns:
             True if self changed as a result of the join.
         """
+
+    @abstractmethod
+    def deep_copy(self) -> Domain:
+        """Return an independent transfer copy of this domain."""

@@ -8,8 +8,9 @@ from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
     IntervalDomain,
 )
-from slither.analyses.data_flow.analyses.interval.core.state import State
+from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo, State
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.registry import (
@@ -131,9 +132,11 @@ class IntervalAnalysis(Analysis):
     def transfer_function(
         self,
         node: Node,
-        domain: IntervalDomain,
+        domain: Domain,
         operation: Operation | None,
     ) -> None:
+        if not isinstance(domain, IntervalDomain):
+            raise TypeError("IntervalAnalysis requires an IntervalDomain")
         self._transfer_function_helper(node, domain, operation)
 
     def _transfer_function_helper(
@@ -217,7 +220,7 @@ class IntervalAnalysis(Analysis):
 
         tracked = TrackedSMTVariable.create(
             self._solver, variable_name, sort, is_signed=signed, bit_width=bit_width
-        )
+        ).with_interval(NumericInterval(0, 0))
 
         zero_term = self._solver.create_constant(0, sort)
         operation_id = StaticOperationId.synthetic(node)
@@ -236,6 +239,8 @@ class IntervalAnalysis(Analysis):
         )
         self._solver.register_immutable_fact(fact)
 
+        if domain.state is None:
+            raise ValueError("Initialized interval domain has no State")
         domain.state.set_variable(variable_name, tracked)
 
     def _dispatch_operation(
@@ -365,6 +370,13 @@ class IntervalAnalysis(Analysis):
             )
             return filtered_domain
 
+        if not self._apply_interval_refinements(
+            filtered_domain.state,
+            comparison_info,
+            branch_taken,
+        ):
+            return IntervalDomain.bottom(filtered_domain.context_id)
+
         branch_constraint = self._create_branch_constraint(comparison_info.condition, branch_taken)
         operation_id = StaticOperationId.from_operation(condition, condition.node)
         provenance = FactProvenance(
@@ -383,6 +395,24 @@ class IntervalAnalysis(Analysis):
         )
         filtered_domain.state.add_branch_constraint(branch_fact)
         return filtered_domain
+
+    @staticmethod
+    def _apply_interval_refinements(
+        state: State,
+        comparison_info: ComparisonInfo,
+        branch_taken: bool,
+    ) -> bool:
+        """Apply every non-relational restriction for the selected branch."""
+        for refinement in comparison_info.refinements:
+            reachable = (
+                refinement.true_reachable if branch_taken else refinement.false_reachable
+            )
+            if not reachable:
+                return False
+            interval = refinement.true_interval if branch_taken else refinement.false_interval
+            if not state.refine_variable(refinement.variable_name, interval):
+                return False
+        return True
 
     def _create_branch_constraint(self, condition_term: SMTTerm, branch_taken: bool) -> SMTTerm:
         """Create the path constraint for a branch."""
@@ -428,11 +458,7 @@ class IntervalAnalysis(Analysis):
         # Build base name -> variable mappings for both states
         previous_by_base = self._build_base_name_map(previous_state.state)
 
-        widened_state = State(
-            facts=current_state.state.get_facts(),
-            branch_fact_ids=set(current_state.state.get_branch_fact_ids()),
-            context_id=current_state.context_id,
-        )
+        widened_state = current_state.state.deep_copy()
 
         for variable_name in current_state.state.variable_names():
             current_variable = current_state.state.get_variable(variable_name)
@@ -594,12 +620,18 @@ class IntervalAnalysis(Analysis):
         width_metadata = template.base.metadata.get("bit_width", 256)
         bit_width = width_metadata if isinstance(width_metadata, int) else 256
 
-        return TrackedSMTVariable.create(
+        variable = TrackedSMTVariable.create(
             self._solver,
             template.name,
             template.sort,
             is_signed=is_signed,
             bit_width=bit_width,
+        )
+        return variable.with_overflow_predicates(
+            no_overflow=template.no_overflow,
+            no_underflow=template.no_underflow,
+            operation_id=template.overflow_operation_id,
+            is_unchecked=template.is_unchecked,
         )
 
     def _create_variable_with_bounds(

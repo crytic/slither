@@ -34,7 +34,12 @@ class Analysis(ABC):
         """Return the analysis direction (Forward or Backward)."""
 
     @abstractmethod
-    def transfer_function(self, node: Node, domain: Domain, operation: Operation) -> None:
+    def transfer_function(
+        self,
+        node: Node,
+        domain: Domain,
+        operation: Operation | None,
+    ) -> None:
         """Apply the transfer function for an IR operation.
 
         Args:
@@ -92,6 +97,7 @@ class Analysis(ABC):
         Args:
             function: The function about to be analyzed.
         """
+        return None
 
 
 A = TypeVar("A", bound=Analysis)

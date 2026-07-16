@@ -72,16 +72,19 @@ class Forward(Direction):
         worklist: deque[Node],
         global_state: dict[int, "AnalysisState[A]"],
     ) -> None:
-        # Apply transfer function to current node
+        input_domain = current_state.pre
+        output_domain = input_domain.deep_copy()
+
+        # Apply transfer function to an exclusive output builder.
         condition_op: Condition | None = None
         for operation in node.irs_ssa or [None]:
-            analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
+            analysis.transfer_function(node=node, domain=output_domain, operation=operation)
             # Track the Condition operation if present
             if isinstance(operation, Condition):
                 condition_op = operation
 
         # Set post state
-        global_state[node.node_id].post = current_state.pre
+        global_state[node.node_id].post = output_domain
 
         # Check if this is a conditional node with exactly 2 successors
         is_conditional = (
@@ -104,14 +107,14 @@ class Forward(Direction):
                 # sons[0] is then branch, sons[1] is else branch
                 branch_taken = i == 0
                 filtered_domain = analysis.apply_condition(
-                    current_state.pre, condition_op, branch_taken
+                    output_domain, condition_op, branch_taken
                 )
                 # Widen on back edges before joining
                 if is_back_edge:
                     filtered_domain = analysis.apply_widening(filtered_domain, son_state.pre, set())
                 changed = son_state.pre.join(filtered_domain)
             else:
-                state_to_propagate = current_state.pre
+                state_to_propagate = output_domain
                 # Widen on back edges before joining
                 if is_back_edge:
                     state_to_propagate = analysis.apply_widening(
@@ -124,6 +127,10 @@ class Forward(Direction):
                 telemetry = get_telemetry()
                 if telemetry is not None and telemetry.enabled:
                     telemetry.record_worklist_enqueue(len(worklist))
+            elif not changed:
+                telemetry = get_telemetry()
+                if telemetry is not None and telemetry.enabled:
+                    telemetry.record_transfer_rerun_prevented()
 
 
 class Backward(Direction):

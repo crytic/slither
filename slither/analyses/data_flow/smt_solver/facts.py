@@ -43,6 +43,7 @@ class FactOriginKind(Enum):
     CALL_BINDING = "call_binding"
     STORAGE = "storage"
     LOOP = "loop"
+    ABSTRACT_STATE = "abstract_state"
     QUERY = "query"
     PROPERTY = "property"
     COMPATIBILITY = "compatibility"
@@ -322,6 +323,11 @@ class AbstractValueId:
     bit_width: int | None
     minimum: int | None
     maximum: int | None
+    is_total: bool
+    has_no_overflow: bool
+    has_no_underflow: bool
+    overflow_operation_id: StaticOperationId | None
+    is_unchecked: bool
 
 
 @dataclass(frozen=True)
@@ -332,6 +338,13 @@ class SemanticStateId:
     context_id: AnalysisContextId
     abstract_values: tuple[AbstractValueId, ...]
     active_fact_ids: frozenset[FactId]
-    storage_summary: tuple[tuple[str, tuple[str, ...]], ...]
-    comparisons: tuple[tuple[str, StaticOperationId | None], ...]
+    storage_summary: tuple[tuple[str, tuple[str, ...], bool], ...]
+    comparisons: tuple[
+        tuple[
+            str,
+            StaticOperationId | None,
+            tuple[tuple[str, int, int, int, int, bool, bool], ...],
+        ],
+        ...,
+    ]
     dependencies: tuple[tuple[str, tuple[str, ...]], ...]

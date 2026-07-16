@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -82,17 +83,30 @@ class PhiHandler(BaseOperationHandler):
             self.solver, result_name, sort, is_signed=is_signed, bit_width=bit_width
         )
 
-        # If we have incoming values, constrain result to be one of them
+        equation_variables = self._get_equation_variables(operation.rvalues, domain)
         if incoming_variables:
+            result_variable = result_variable.with_interval(
+                self._incoming_interval(incoming_variables),
+                is_total=len(incoming_variables) == len(operation.rvalues),
+            )
+        if equation_variables:
             self._add_phi_constraints(
                 operation,
                 node,
                 domain,
                 result_variable,
-                incoming_variables,
+                equation_variables,
             )
 
         domain.state.set_variable(result_name, result_variable)
+
+    @staticmethod
+    def _incoming_interval(incoming: list[TrackedSMTVariable]) -> NumericInterval:
+        """Return the interval hull of all tracked phi alternatives."""
+        interval = incoming[0].interval
+        for variable in incoming[1:]:
+            interval = interval.hull(variable.interval)
+        return interval
 
     def _handle_loop_header_phi(
         self,
@@ -139,6 +153,29 @@ class PhiHandler(BaseOperationHandler):
             if tracked is not None:
                 tracked_variables.append(tracked)
         return tracked_variables
+
+    def _get_equation_variables(
+        self,
+        rvalues: list[RVALUE],
+        domain: IntervalDomain,
+    ) -> list[TrackedSMTVariable]:
+        """Return all static phi alternatives, declaring absent symbols locally."""
+        variables = []
+        for rvalue in rvalues:
+            name = get_variable_name(rvalue)
+            tracked = domain.state.get_variable(name)
+            value_type = getattr(rvalue, "type", None)
+            if tracked is None and isinstance(value_type, ElementaryType):
+                tracked = TrackedSMTVariable.create(
+                    self.solver,
+                    name,
+                    type_to_sort(value_type),
+                    is_signed=is_signed_type(value_type),
+                    bit_width=get_bit_width(value_type),
+                )
+            if tracked is not None:
+                variables.append(tracked)
+        return variables
 
     def _add_phi_constraints(
         self,

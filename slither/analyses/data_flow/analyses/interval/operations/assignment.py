@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -68,8 +69,34 @@ class AssignmentHandler(BaseOperationHandler):
                 domain,
             )
             self._record_dependency(operation.rvalue, lvalue_name, domain)
+            interval, is_total = self._abstract_rvalue(operation.rvalue, tracked_lvalue, domain)
+            tracked_lvalue = tracked_lvalue.with_interval(interval, is_total=is_total)
 
         domain.state.set_variable(lvalue_name, tracked_lvalue)
+
+    def _abstract_rvalue(
+        self,
+        rvalue: RVALUE | Function | TupleVariable,
+        target: TrackedSMTVariable,
+        domain: IntervalDomain,
+    ) -> tuple[NumericInterval, bool]:
+        """Return a sound interval and path-totality for an assignment source."""
+        if isinstance(rvalue, Constant):
+            value = rvalue.value
+            if isinstance(value, bool):
+                value = int(value)
+            if isinstance(value, int) and (
+                target.type_interval.lower <= value <= target.type_interval.upper
+            ):
+                return NumericInterval(value, value), True
+            return target.type_interval, True
+        tracked = domain.state.get_variable(get_variable_name(rvalue))
+        if tracked is None:
+            return target.type_interval, True
+        interval = tracked.interval.intersection(target.type_interval)
+        if interval is None:
+            return target.type_interval, tracked.is_total
+        return interval, tracked.is_total
 
     def _record_dependency(
         self,

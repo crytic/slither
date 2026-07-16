@@ -208,6 +208,7 @@ def run_probe(args: argparse.Namespace) -> dict:
         "lifetime": lifetime,
         "fact_ownership": evaluation["facts"],
         "query_sessions": evaluation["query_sessions"],
+        "state_joins": evaluation["state_joins"],
         "active_query_sessions": solver.active_query_sessions,
         "query_summary": query_summary,
     }

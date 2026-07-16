@@ -1,6 +1,4 @@
 from enum import Enum, auto
-from typing import Optional
-
 from slither.analyses.data_flow.analyses.reentrancy.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
 
@@ -12,7 +10,7 @@ class DomainVariant(Enum):
 
 
 class ReentrancyDomain(Domain):
-    def __init__(self, variant: DomainVariant, state: Optional[State] = None):
+    def __init__(self, variant: DomainVariant, state: State | None = None):
         self.variant = variant
         self.state = state or State()
 
@@ -28,7 +26,9 @@ class ReentrancyDomain(Domain):
     def with_state(cls, info: State) -> "ReentrancyDomain":
         return cls(DomainVariant.STATE, info)
 
-    def join(self, other: "ReentrancyDomain") -> bool:
+    def join(self, other: Domain) -> bool:
+        if not isinstance(other, ReentrancyDomain):
+            raise TypeError("ReentrancyDomain can only join another ReentrancyDomain")
         if self.variant == DomainVariant.TOP or other.variant == DomainVariant.BOTTOM:
             return False
 
@@ -58,3 +58,7 @@ class ReentrancyDomain(Domain):
             self.variant = DomainVariant.TOP
 
         return True
+
+    def deep_copy(self) -> "ReentrancyDomain":
+        """Return an independent copy for one transfer execution."""
+        return ReentrancyDomain(self.variant, self.state.deep_copy())

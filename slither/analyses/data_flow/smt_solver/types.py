@@ -2,15 +2,13 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Union
-
 # Import solver-specific types
 from z3 import ArithRef, BitVecRef, BoolRef
 
 
 # Type alias for solver terms - extend this as we add more solvers
-SMTTerm = Union[BitVecRef, BoolRef, ArithRef]
-# Future: Union[BitVecRef, BoolRef, CVC5Term, YicesTerm, ...]
+SMTTerm = BitVecRef | BoolRef | ArithRef
+# Future: BitVecRef | BoolRef | CVC5Term | YicesTerm | ...
 
 
 class SortKind(Enum):
@@ -45,7 +43,7 @@ class Sort:
     """SMT-LIB sort (type)"""
 
     kind: SortKind
-    parameters: List[int] = field(default_factory=list)  # e.g., [8] for (_ BitVec 8)
+    parameters: list[int] = field(default_factory=list)  # e.g., [8] for (_ BitVec 8)
 
     def __str__(self) -> str:
         if self.parameters:
@@ -68,7 +66,7 @@ class SMTVariable:
     name: str
     sort: Sort
     term: SMTTerm
-    metadata: Dict[str, Optional[SMTTerm]] = field(default_factory=dict)
+    metadata: dict[str, object] = field(default_factory=dict)
 
     def __repr__(self) -> str:
         return f"SMTVariable(name='{self.name}', sort={self.sort})"

@@ -5,8 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from collections.abc import Callable
 
-from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo
+from slither.analyses.data_flow.analyses.interval.core.state import (
+    ComparisonInfo,
+    IntervalRefinement,
+)
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -21,6 +25,7 @@ from slither.analyses.data_flow.smt_solver.facts import StaticOperationId
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.variables.constant import Constant
 
 
 if TYPE_CHECKING:
@@ -83,7 +88,11 @@ class ComparisonHandler(BaseOperationHandler):
             operation_id = StaticOperationId.from_operation(operation, node)
             domain.state.set_comparison(
                 result_name,
-                ComparisonInfo(condition, operation_id),
+                ComparisonInfo(
+                    condition,
+                    operation_id,
+                    self._build_interval_refinements(operation, is_signed, operand_width),
+                ),
             )
 
         domain.state.set_variable(result_name, result_var)
@@ -92,6 +101,118 @@ class ComparisonHandler(BaseOperationHandler):
         """Create a 1-bit result variable for boolean result."""
         sort = Sort(kind=SortKind.BITVEC, parameters=[1])
         return TrackedSMTVariable.create(self.solver, name, sort, is_signed=False, bit_width=1)
+
+    def _build_interval_refinements(
+        self,
+        operation: Binary,
+        is_signed: bool,
+        bit_width: int,
+    ) -> tuple[IntervalRefinement, ...]:
+        """Derive non-relational interval restrictions for variable/constant comparisons."""
+        left = operation.variable_left
+        right = operation.variable_right
+        operation_type = operation.type
+        if isinstance(left, Constant) and not isinstance(right, Constant):
+            constant = left
+            variable = right
+            operation_type = self._reverse_comparison(operation_type)
+        elif isinstance(right, Constant) and not isinstance(left, Constant):
+            constant = right
+            variable = left
+        else:
+            return ()
+        value = constant.value
+        if not isinstance(value, (int, bool)):
+            return ()
+        type_interval = NumericInterval.type_range(bit_width, is_signed)
+        intervals = self._comparison_intervals(operation_type, int(value), type_interval)
+        if intervals is None:
+            return ()
+        true_interval, false_interval, true_reachable, false_reachable = intervals
+        return (
+            IntervalRefinement(
+                get_variable_name(variable),
+                true_interval,
+                false_interval,
+                true_reachable,
+                false_reachable,
+            ),
+        )
+
+    @staticmethod
+    def _reverse_comparison(operation_type: BinaryType) -> BinaryType:
+        return {
+            BinaryType.LESS: BinaryType.GREATER,
+            BinaryType.GREATER: BinaryType.LESS,
+            BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
+            BinaryType.GREATER_EQUAL: BinaryType.LESS_EQUAL,
+        }.get(operation_type, operation_type)
+
+    def _comparison_intervals(
+        self,
+        operation_type: BinaryType,
+        value: int,
+        type_interval: NumericInterval,
+    ) -> tuple[NumericInterval, NumericInterval, bool, bool] | None:
+        if operation_type is BinaryType.LESS:
+            return self._split_at(type_interval, value, include_left=False)
+        if operation_type is BinaryType.LESS_EQUAL:
+            return self._split_at(type_interval, value, include_left=True)
+        if operation_type is BinaryType.GREATER:
+            false_interval, true_interval, false_reachable, true_reachable = self._split_at(
+                type_interval, value, include_left=True
+            )
+            return true_interval, false_interval, true_reachable, false_reachable
+        if operation_type is BinaryType.GREATER_EQUAL:
+            false_interval, true_interval, false_reachable, true_reachable = self._split_at(
+                type_interval, value, include_left=False
+            )
+            return true_interval, false_interval, true_reachable, false_reachable
+        if operation_type in (BinaryType.EQUAL, BinaryType.NOT_EQUAL):
+            return self._equality_intervals(operation_type, value, type_interval)
+        return None
+
+    @staticmethod
+    def _split_at(
+        interval: NumericInterval,
+        value: int,
+        *,
+        include_left: bool,
+    ) -> tuple[NumericInterval, NumericInterval, bool, bool]:
+        left_upper = value if include_left else value - 1
+        right_lower = value + 1 if include_left else value
+        left_reachable = interval.lower <= min(interval.upper, left_upper)
+        right_reachable = max(interval.lower, right_lower) <= interval.upper
+        left = (
+            NumericInterval(interval.lower, min(interval.upper, left_upper))
+            if left_reachable
+            else interval
+        )
+        right = (
+            NumericInterval(max(interval.lower, right_lower), interval.upper)
+            if right_reachable
+            else interval
+        )
+        return left, right, left_reachable, right_reachable
+
+    @staticmethod
+    def _equality_intervals(
+        operation_type: BinaryType,
+        value: int,
+        interval: NumericInterval,
+    ) -> tuple[NumericInterval, NumericInterval, bool, bool]:
+        equal_reachable = interval.lower <= value <= interval.upper
+        equal = NumericInterval(value, value) if equal_reachable else interval
+        not_equal = interval
+        if value == interval.lower and value < interval.upper:
+            not_equal = NumericInterval(value + 1, interval.upper)
+        elif value == interval.upper and value > interval.lower:
+            not_equal = NumericInterval(interval.lower, value - 1)
+        not_equal_reachable = not (interval.lower == interval.upper == value)
+        result = (equal, not_equal, equal_reachable, not_equal_reachable)
+        if operation_type is BinaryType.NOT_EQUAL:
+            return result[1], result[0], result[3], result[2]
+        return result
 
     def _get_operand_width(self, operation: Binary) -> int:
         """Get the bit width of operands for comparison."""

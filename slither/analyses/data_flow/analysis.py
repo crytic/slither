@@ -131,15 +131,14 @@ def _extract_variable_metadata(smt_var: TrackedSMTVariable) -> VariableMetadata 
     if not isinstance(bit_width, int):
         return None
 
-    # Extract bounds (these may be ints or None)
-    min_bound = metadata.get("min_value")
-    max_bound = metadata.get("max_value")
+    min_bound = smt_var.interval.lower if smt_var.is_total else None
+    max_bound = smt_var.interval.upper if smt_var.is_total else None
 
     return VariableMetadata(
         is_signed=is_signed,
         bit_width=bit_width,
-        min_bound=min_bound if isinstance(min_bound, int) else None,
-        max_bound=max_bound if isinstance(max_bound, int) else None,
+        min_bound=min_bound,
+        max_bound=max_bound,
     )
 
 

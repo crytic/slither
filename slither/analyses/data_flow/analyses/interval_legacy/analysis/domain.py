@@ -1,13 +1,8 @@
 from enum import Enum, auto
-from typing import Optional, TYPE_CHECKING
 
 
 from slither.analyses.data_flow.analyses.interval.core.state import State
 from slither.analyses.data_flow.engine.domain import Domain
-
-if TYPE_CHECKING:
-    pass
-
 
 class DomainVariant(Enum):
     BOTTOM = auto()
@@ -16,7 +11,7 @@ class DomainVariant(Enum):
 
 
 class IntervalDomain(Domain):
-    def __init__(self, variant: DomainVariant, state: Optional[State]):
+    def __init__(self, variant: DomainVariant, state: State | None):
         self.variant = variant
 
         if state is None:
@@ -36,8 +31,10 @@ class IntervalDomain(Domain):
     def with_state(cls, state: State) -> "IntervalDomain":
         return cls(DomainVariant.STATE, state)
 
-    def join(self, other: "IntervalDomain") -> bool:
+    def join(self, other: Domain) -> bool:
         """Join this domain with another domain, returns True if this domain changed."""
+        if not isinstance(other, IntervalDomain):
+            raise TypeError("IntervalDomain can only join another IntervalDomain")
         if self.variant == DomainVariant.TOP:
             return False
 

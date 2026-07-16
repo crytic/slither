@@ -186,6 +186,16 @@ class QuerySessionMetrics:
 
 
 @dataclass
+class StateJoinMetrics:
+    """Opt-in observations of Stage 3 join and convergence behavior."""
+
+    attempted: int = 0
+    changed: int = 0
+    semantic_noops: int = 0
+    transfer_reruns_prevented: int = 0
+
+
+@dataclass
 class TransferFunctionMetrics:
     """Transfer function operation statistics."""
 
@@ -223,6 +233,7 @@ class EvaluationMetrics:
     solver_lifetime: SolverLifetimeMetrics = field(default_factory=SolverLifetimeMetrics)
     facts: FactOwnershipMetrics = field(default_factory=FactOwnershipMetrics)
     query_sessions: QuerySessionMetrics = field(default_factory=QuerySessionMetrics)
+    state_joins: StateJoinMetrics = field(default_factory=StateJoinMetrics)
     transfer_functions: TransferFunctionMetrics = field(default_factory=TransferFunctionMetrics)
     precision: PrecisionMetrics = field(default_factory=PrecisionMetrics)
 
@@ -367,6 +378,23 @@ class SolverTelemetry:
         lifetime = self.evaluation.solver_lifetime
         lifetime.worklist_enqueues += 1
         lifetime.max_worklist_size = max(lifetime.max_worklist_size, worklist_size)
+
+    def record_state_join(self, changed: bool) -> None:
+        """Record whether one complete semantic-state join changed its destination."""
+        if not self.enabled:
+            return
+        metrics = self.evaluation.state_joins
+        metrics.attempted += 1
+        if changed:
+            metrics.changed += 1
+        else:
+            metrics.semantic_noops += 1
+
+    def record_transfer_rerun_prevented(self) -> None:
+        """Record one successor transfer skipped after a semantic join no-op."""
+        if not self.enabled:
+            return
+        self.evaluation.state_joins.transfer_reruns_prevented += 1
 
     def record_assertion(
         self,
@@ -867,23 +895,7 @@ class SolverTelemetry:
 
         self.finalize_metrics()
         evaluation = self.evaluation
-
-        # Function metrics
-        func = evaluation.function
-        if func.name or func.cfg_nodes > 0:
-            table = Table(title="Function Metrics", show_header=True)
-            table.add_column("Metric", style="cyan")
-            table.add_column("Value", justify="right", style="green")
-            if func.name:
-                table.add_row("Function Name", func.name)
-            table.add_row("CFG Nodes", str(func.cfg_nodes))
-            table.add_row("Basic Blocks", str(func.basic_blocks))
-            table.add_row("Parameters", str(func.parameters))
-            table.add_row("Local Variables", str(func.local_variables))
-            table.add_row("State Variables", str(func.state_variables_accessed))
-            table.add_row("Loops", str(func.loops))
-            table.add_row("External Calls", str(func.external_calls))
-            console.print(table)
+        self._print_rich_function_metrics(console, evaluation.function)
 
         # Analysis convergence metrics
         analysis = evaluation.analysis
@@ -951,38 +963,52 @@ class SolverTelemetry:
             table.add_row("Skipped", str(transfer.operations_skipped))
             console.print(table)
 
-        # Precision metrics
-        precision = evaluation.precision
-        if precision.variables_total > 0:
-            table = Table(title="Precision Metrics", show_header=True)
-            table.add_column("Metric", style="cyan")
-            table.add_column("Value", justify="right", style="green")
-            table.add_row("Total Variables", str(precision.variables_total))
-            table.add_row("Precise Bounds", str(precision.variables_with_precise_bounds))
-            table.add_row("Full Range", str(precision.variables_with_full_range))
-            table.add_row("Precision Ratio", f"{precision.precision_ratio:.2%}")
-            table.add_row("Overflow Warnings", str(precision.overflow_warnings))
-            table.add_row("Underflow Warnings", str(precision.underflow_warnings))
-            console.print(table)
+        self._print_rich_precision_metrics(console, evaluation.precision)
+
+    @staticmethod
+    def _print_rich_function_metrics(console, function) -> None:
+        """Print function metrics as a rich table when any are available."""
+        if not function.name and function.cfg_nodes == 0:
+            return
+        from rich.table import Table
+
+        table = Table(title="Function Metrics", show_header=True)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", justify="right", style="green")
+        if function.name:
+            table.add_row("Function Name", function.name)
+        table.add_row("CFG Nodes", str(function.cfg_nodes))
+        table.add_row("Basic Blocks", str(function.basic_blocks))
+        table.add_row("Parameters", str(function.parameters))
+        table.add_row("Local Variables", str(function.local_variables))
+        table.add_row("State Variables", str(function.state_variables_accessed))
+        table.add_row("Loops", str(function.loops))
+        table.add_row("External Calls", str(function.external_calls))
+        console.print(table)
+
+    @staticmethod
+    def _print_rich_precision_metrics(console, precision) -> None:
+        """Print interval precision metrics as a rich table when available."""
+        if precision.variables_total == 0:
+            return
+        from rich.table import Table
+
+        table = Table(title="Precision Metrics", show_header=True)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", justify="right", style="green")
+        table.add_row("Total Variables", str(precision.variables_total))
+        table.add_row("Precise Bounds", str(precision.variables_with_precise_bounds))
+        table.add_row("Full Range", str(precision.variables_with_full_range))
+        table.add_row("Precision Ratio", f"{precision.precision_ratio:.2%}")
+        table.add_row("Overflow Warnings", str(precision.overflow_warnings))
+        table.add_row("Underflow Warnings", str(precision.underflow_warnings))
+        console.print(table)
 
     def _print_text_evaluation(self) -> None:
         """Print evaluation metrics as plain text."""
         self.finalize_metrics()
         evaluation = self.evaluation
-
-        # Function metrics
-        func = evaluation.function
-        if func.name or func.cfg_nodes > 0:
-            print("\nFunction Metrics:")
-            if func.name:
-                print(f"  Function Name: {func.name}")
-            print(f"  CFG Nodes: {func.cfg_nodes}")
-            print(f"  Basic Blocks: {func.basic_blocks}")
-            print(f"  Parameters: {func.parameters}")
-            print(f"  Local Variables: {func.local_variables}")
-            print(f"  State Variables: {func.state_variables_accessed}")
-            print(f"  Loops: {func.loops}")
-            print(f"  External Calls: {func.external_calls}")
+        self._print_text_function_metrics(evaluation.function)
 
         # Analysis convergence
         analysis = evaluation.analysis
@@ -1048,6 +1074,22 @@ class SolverTelemetry:
             print(f"  Precision Ratio: {precision.precision_ratio:.2%}")
             print(f"  Overflow Warnings: {precision.overflow_warnings}")
             print(f"  Underflow Warnings: {precision.underflow_warnings}")
+
+    @staticmethod
+    def _print_text_function_metrics(function) -> None:
+        """Print plain-text function metrics when any are available."""
+        if not function.name and function.cfg_nodes == 0:
+            return
+        print("\nFunction Metrics:")
+        if function.name:
+            print(f"  Function Name: {function.name}")
+        print(f"  CFG Nodes: {function.cfg_nodes}")
+        print(f"  Basic Blocks: {function.basic_blocks}")
+        print(f"  Parameters: {function.parameters}")
+        print(f"  Local Variables: {function.local_variables}")
+        print(f"  State Variables: {function.state_variables_accessed}")
+        print(f"  Loops: {function.loops}")
+        print(f"  External Calls: {function.external_calls}")
 
     def print_summary(self, console=None, include_evaluation: bool = True) -> None:
         """Print a formatted summary of telemetry data.

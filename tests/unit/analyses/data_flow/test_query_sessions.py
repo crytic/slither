@@ -25,6 +25,7 @@ from slither.analyses.data_flow.smt_solver.facts import (
     FactOriginKind,
     FactOwnerKind,
     FactProvenance,
+    StaticOperationId,
     make_query_fact,
 )
 from slither.analyses.data_flow.smt_solver.query import (
@@ -423,7 +424,8 @@ def test_overflow_probe_materializes_typed_state_and_query_facts() -> None:
     right = solver.get_or_declare_const("right", sort).term
     tracked = TrackedSMTVariable.create(solver, "result", sort, bit_width=8)
     tracked = tracked.with_overflow_predicates(
-        no_overflow=solver.bv_add_no_overflow(left, right, signed=False)
+        no_overflow=solver.bv_add_no_overflow(left, right, signed=False),
+        operation_id=StaticOperationId(ENCODING_ID, 12, 0),
     )
     definition = _fact(
         tracked.term == solver.bv_add(left, right),

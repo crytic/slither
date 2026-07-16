@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -13,7 +14,6 @@ from slither.analyses.data_flow.analyses.interval.operations.base import (
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_variable_name,
 )
-from slither.analyses.data_flow.smt_solver.facts import FactOriginKind
 from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.constant import Constant
@@ -37,8 +37,8 @@ STORAGE_BIT_WIDTH = 256
 class SloadHandler(BaseOperationHandler):
     """Handler for sload(slot) operations.
 
-    Looks up prior sstore writes to the same slot and constrains
-    the result to be one of those values (OR).
+    Looks up all modeled prior writes to the same slot and transfers their
+    conservative interval hull to the loaded value.
     """
 
     def handle(
@@ -62,20 +62,12 @@ class SloadHandler(BaseOperationHandler):
         tracked_lvalue = TrackedSMTVariable.create(
             self.solver, lvalue_name, sort, is_signed=False, bit_width=STORAGE_BIT_WIDTH
         )
-        domain.state.set_variable(lvalue_name, tracked_lvalue)
-
         write_vars = domain.state.get_storage_writes(slot_key)
-        if not write_vars:
-            return
-
-        self._constrain_to_writes(
-            operation,
-            node,
-            slot_key,
-            tracked_lvalue,
-            write_vars,
-            domain,
-        )
+        if write_vars and not domain.state.storage_may_be_unwritten(slot_key):
+            interval = self._written_interval(write_vars, domain)
+            if interval is not None:
+                tracked_lvalue = tracked_lvalue.with_interval(interval)
+        domain.state.set_variable(lvalue_name, tracked_lvalue)
 
     def _get_slot_key(self, slot_arg: object) -> str:
         """Convert slot argument to a string key."""
@@ -83,36 +75,16 @@ class SloadHandler(BaseOperationHandler):
             return str(slot_arg.value)
         return get_variable_name(slot_arg)
 
-    def _constrain_to_writes(
-        self,
-        operation: SolidityCall,
-        node: Node,
-        slot_key: str,
-        tracked_lvalue: TrackedSMTVariable,
+    @staticmethod
+    def _written_interval(
         write_vars: list[str],
         domain: IntervalDomain,
-    ) -> None:
-        """Constrain lvalue to equal one of the written values (OR)."""
-        terms = []
-        for var_name in write_vars:
-            tracked = domain.state.get_variable(var_name)
-            if tracked is not None:
-                terms.append(tracked_lvalue.term == tracked.term)
-
-        if not terms:
-            return
-
-        formula = terms[0]
-        if len(terms) == 1:
-            formula = terms[0]
-        elif len(terms) > 1:
-            formula = self.solver.Or(*terms)
-        self._register_equation(
-            operation,
-            node,
-            domain,
-            formula,
-            "storage_read_value",
-            origin_kind=FactOriginKind.STORAGE,
-            context_id=domain.context_id.for_storage(slot_key),
-        )
+    ) -> NumericInterval | None:
+        """Return the hull of every modeled value that may occupy a slot."""
+        interval = None
+        for variable_name in write_vars:
+            tracked = domain.state.get_variable(variable_name)
+            if tracked is None or not tracked.is_total:
+                return None
+            interval = tracked.interval if interval is None else interval.hull(tracked.interval)
+        return interval

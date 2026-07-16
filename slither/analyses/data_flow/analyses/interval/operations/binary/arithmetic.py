@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from collections.abc import Callable
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    NumericInterval,
     TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.base import (
@@ -18,7 +19,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     is_signed_type,
 )
 from slither.analyses.data_flow.logger import get_logger
-from slither.analyses.data_flow.smt_solver.facts import FactKind
+from slither.analyses.data_flow.smt_solver.facts import FactKind, StaticOperationId
 from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.binary import Binary, BinaryType
@@ -84,20 +85,9 @@ class ArithmeticHandler(BaseOperationHandler):
         bit_width = get_bit_width(result_type)
         signed, both_constants = self._determine_signedness(operation, result_type)
 
-        left_name = get_variable_name(operation.variable_left)
-        is_compound = result_name == left_name
-
-        # For compound assignments (REF = REF + x), resolve the left
-        # operand BEFORE creating the result variable so we capture
-        # the pre-write term.  Then create a fresh Z3 variable for
-        # the post-write result to avoid a circular constraint.
-        if is_compound:
-            left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
-            result_var = self._create_result_variable(result_name + "__post", bit_width, signed)
-        else:
-            result_var = self._create_result_variable(result_name, bit_width, signed)
-            left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
-        right_term = self._resolve_operand(operation.variable_right, domain, bit_width)
+        result_var, left_term, right_term = self._prepare_terms(
+            operation, domain, bit_width, signed
+        )
 
         if left_term is None or right_term is None:
             domain.state.set_variable(result_name, result_var)
@@ -140,14 +130,92 @@ class ArithmeticHandler(BaseOperationHandler):
             context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
             self._assert_checked_constraints(operation, node, context, domain)
 
+        result_interval = self._compute_abstract_result_interval(
+            operation,
+            domain,
+            bit_width,
+            signed,
+            is_checked,
+        )
+        result_var = result_var.with_interval(result_interval)
+
         # Store predicates and is_checked flag for deferred overflow checking
         # Overflow is only possible in unchecked contexts (assembly, unchecked blocks)
         result_var = result_var.with_overflow_predicates(
             **overflow_predicates,
+            operation_id=StaticOperationId.from_operation(operation, node),
             is_unchecked=not is_checked and not both_constants,
         )
         domain.state.set_variable(result_name, result_var)
         self._record_operand_dependencies(operation, result_name, domain)
+
+    def _prepare_terms(
+        self,
+        operation: Binary,
+        domain: IntervalDomain,
+        bit_width: int,
+        signed: bool,
+    ) -> tuple[TrackedSMTVariable, SMTTerm | None, SMTTerm | None]:
+        """Resolve pre-write operands and construct the arithmetic result value."""
+        result_name = get_variable_name(operation.lvalue)
+        left_name = get_variable_name(operation.variable_left)
+        left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
+        variable_name = result_name + "__post" if result_name == left_name else result_name
+        result_var = self._create_result_variable(variable_name, bit_width, signed)
+        right_term = self._resolve_operand(operation.variable_right, domain, bit_width)
+        return result_var, left_term, right_term
+
+    def _compute_abstract_result_interval(
+        self,
+        operation: Binary,
+        domain: IntervalDomain,
+        bit_width: int,
+        is_signed: bool,
+        is_checked: bool,
+    ) -> NumericInterval:
+        """Compute the existing interval transformer for linear add/sub operations."""
+        type_interval = NumericInterval.type_range(bit_width, is_signed)
+        if self._is_same_operand(operation) and operation.type is BinaryType.SUBTRACTION:
+            return NumericInterval(0, 0)
+        left = self._operand_interval(operation.variable_left, domain, type_interval)
+        right = self._operand_interval(operation.variable_right, domain, type_interval)
+        if left is None or right is None:
+            return type_interval
+        if operation.type is BinaryType.ADDITION:
+            raw = NumericInterval(left.lower + right.lower, left.upper + right.upper)
+        elif operation.type is BinaryType.SUBTRACTION:
+            raw = NumericInterval(left.lower - right.upper, left.upper - right.lower)
+        else:
+            return type_interval
+        if type_interval.lower <= raw.lower and raw.upper <= type_interval.upper:
+            return raw
+        if not is_checked:
+            return type_interval
+        lower = max(type_interval.lower, raw.lower)
+        upper = min(type_interval.upper, raw.upper)
+        if lower > upper:
+            return type_interval
+        return NumericInterval(lower, upper)
+
+    @staticmethod
+    def _operand_interval(
+        operand: RVALUE,
+        domain: IntervalDomain,
+        type_interval: NumericInterval,
+    ) -> NumericInterval | None:
+        if isinstance(operand, Constant):
+            value = operand.value
+            if isinstance(value, bool):
+                value = int(value)
+            if not isinstance(value, int):
+                return None
+            if not type_interval.lower <= value <= type_interval.upper:
+                return None
+            return NumericInterval(value, value)
+        tracked = domain.state.get_variable(get_variable_name(operand))
+        if tracked is None or not tracked.is_total:
+            return None
+        return tracked.interval
 
     def _record_operand_dependencies(
         self,
