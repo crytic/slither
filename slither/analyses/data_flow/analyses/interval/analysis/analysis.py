@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
@@ -25,15 +25,26 @@ from slither.analyses.data_flow.engine.analysis import Analysis
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.smt_solver.facts import (
+    AnalysisContextId,
+    Fact,
+    FactId,
+    FactKind,
+    FactOriginKind,
+    FactOwnerKind,
+    FactProvenance,
+    StaticOperationId,
+)
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
-from slither.analyses.data_flow.smt_solver.types import RangeSolveStatus
+from slither.analyses.data_flow.smt_solver.query import BoundStatus
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.condition import Condition
 from slither.slithir.operations.operation import Operation
 from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.types import SMTTerm
@@ -48,27 +59,28 @@ class IntervalAnalysis(Analysis):
     def __init__(self, solver: SMTSolver, timeout_ms: int) -> None:
         self._direction: Direction = Forward()
         self._solver: SMTSolver = solver
-        self._registry: OperationHandlerRegistry = OperationHandlerRegistry(
-            self._solver
-        )
-        self._thresholds: List[int] = []
+        self._registry: OperationHandlerRegistry = OperationHandlerRegistry(self._solver)
+        self._thresholds: list[int] = []
         self._timeout_ms: int = timeout_ms
+        self._root_context = AnalysisContextId.unbound()
 
     @property
     def solver(self) -> SMTSolver:
         return self._solver
 
     def domain(self) -> Domain:
-        return IntervalDomain.with_state(State({}))
+        return IntervalDomain.with_state(State({}, context_id=self._root_context))
 
     def direction(self) -> Direction:
         return self._direction
 
     def bottom_value(self) -> Domain:
-        return IntervalDomain.bottom()
+        return IntervalDomain.bottom(self._root_context)
 
     def prepare_for_function(self, function: Function) -> None:
         """Collect numeric literals from function for threshold widening."""
+        self._root_context = AnalysisContextId.root(function)
+        self._solver.bind_function_encoding(self._root_context.encoding_id)
         self._thresholds = self._collect_thresholds(function)
         logger.debug(
             "Collected {count} thresholds for {name}: {thresholds}",
@@ -77,7 +89,7 @@ class IntervalAnalysis(Analysis):
             thresholds=self._thresholds[:20],
         )
 
-    def _collect_thresholds(self, function: Function) -> List[int]:
+    def _collect_thresholds(self, function: Function) -> list[int]:
         """Extract all numeric constants from function's IR.
 
         Returns a sorted list in increasing order, bounded by type extremes.
@@ -112,7 +124,7 @@ class IntervalAnalysis(Analysis):
         threshold_set.add(value)
 
     @property
-    def thresholds(self) -> List[int]:
+    def thresholds(self) -> list[int]:
         """Return the sorted list of widening thresholds."""
         return self._thresholds
 
@@ -144,7 +156,7 @@ class IntervalAnalysis(Analysis):
     def _initialize_domain_from_bottom(self, domain: IntervalDomain) -> None:
         """Initialize domain state from bottom."""
         domain.variant = DomainVariant.STATE
-        domain.state = State({})
+        domain.state = State({}, context_id=self._root_context)
 
     def _handle_variable_declaration(
         self,
@@ -167,12 +179,12 @@ class IntervalAnalysis(Analysis):
         if not self._is_uninitialized_declaration(node, variable_declaration):
             return
 
-        self._initialize_variable_to_zero(variable_declaration, domain)
+        self._initialize_variable_to_zero(node, variable_declaration, domain)
 
     def _is_uninitialized_declaration(
         self,
         node: Node,
-        variable: "LocalVariable",
+        variable: LocalVariable,
     ) -> bool:
         """Check if a variable declaration has no initializer.
 
@@ -189,7 +201,8 @@ class IntervalAnalysis(Analysis):
 
     def _initialize_variable_to_zero(
         self,
-        variable: "LocalVariable",
+        node: Node,
+        variable: LocalVariable,
         domain: IntervalDomain,
     ) -> None:
         """Create a tracked variable initialized to zero."""
@@ -207,7 +220,21 @@ class IntervalAnalysis(Analysis):
         )
 
         zero_term = self._solver.create_constant(0, sort)
-        self._solver.assert_constraint(tracked.term == zero_term)
+        operation_id = StaticOperationId.synthetic(node)
+        fact = Fact(
+            fact_id=FactId(
+                owner=FactOwnerKind.IMMUTABLE_EQUATION,
+                kind=FactKind.VALUE_BINDING,
+                provenance=FactProvenance(
+                    context_id=domain.context_id,
+                    origin_kind=FactOriginKind.FUNCTION_ENTRY,
+                    operation_id=operation_id,
+                ),
+                semantic_key=("uninitialized_default", variable_name),
+            ),
+            formula=tracked.term == zero_term,
+        )
+        self._solver.register_immutable_fact(fact)
 
         domain.state.set_variable(variable_name, tracked)
 
@@ -233,14 +260,14 @@ class IntervalAnalysis(Analysis):
         if telemetry is None or not telemetry.enabled:
             return
 
+        from slither.slithir.operations import Assignment
         from slither.slithir.operations.binary import Binary
-        from slither.slithir.operations.unary import Unary
-        from slither.slithir.operations.solidity_call import SolidityCall
+        from slither.slithir.operations.condition import Condition
         from slither.slithir.operations.high_level_call import HighLevelCall
         from slither.slithir.operations.internal_call import InternalCall
         from slither.slithir.operations.library_call import LibraryCall
-        from slither.slithir.operations import Assignment
-        from slither.slithir.operations.condition import Condition
+        from slither.slithir.operations.solidity_call import SolidityCall
+        from slither.slithir.operations.unary import Unary
 
         op_type = type(operation)
 
@@ -250,9 +277,7 @@ class IntervalAnalysis(Analysis):
             binary_op = operation
             op_type_enum = getattr(binary_op, "type", None)
             if op_type_enum is not None:
-                op_name_str = (
-                    str(op_type_enum.name) if hasattr(op_type_enum, "name") else ""
-                )
+                op_name_str = str(op_type_enum.name) if hasattr(op_type_enum, "name") else ""
                 if op_name_str in (
                     "ADDITION",
                     "SUBTRACTION",
@@ -307,9 +332,7 @@ class IntervalAnalysis(Analysis):
             # Phi, TypeConversion, etc.
             telemetry.record_transfer_op("assignment", handled=True)
 
-    def apply_condition(
-        self, domain: Domain, condition: Condition, branch_taken: bool
-    ) -> Domain:
+    def apply_condition(self, domain: Domain, condition: Condition, branch_taken: bool) -> Domain:
         """Apply branch-specific narrowing based on a condition.
 
         Looks up the comparison info stored by ComparisonHandler and
@@ -342,15 +365,26 @@ class IntervalAnalysis(Analysis):
             )
             return filtered_domain
 
-        branch_constraint = self._create_branch_constraint(
-            comparison_info.condition, branch_taken
+        branch_constraint = self._create_branch_constraint(comparison_info.condition, branch_taken)
+        operation_id = StaticOperationId.from_operation(condition, condition.node)
+        provenance = FactProvenance(
+            context_id=filtered_domain.context_id,
+            origin_kind=FactOriginKind.CFG_EDGE,
+            operation_id=operation_id,
         )
-        filtered_domain.state.add_branch_constraint(branch_constraint)
+        branch_fact = Fact(
+            fact_id=FactId(
+                owner=FactOwnerKind.STATE_LOCAL,
+                kind=FactKind.BRANCH_GUARD,
+                provenance=provenance,
+                semantic_key=("branch", "true" if branch_taken else "false"),
+            ),
+            formula=branch_constraint,
+        )
+        filtered_domain.state.add_branch_constraint(branch_fact)
         return filtered_domain
 
-    def _create_branch_constraint(
-        self, condition_term: "SMTTerm", branch_taken: bool
-    ) -> "SMTTerm":
+    def _create_branch_constraint(self, condition_term: SMTTerm, branch_taken: bool) -> SMTTerm:
         """Create the path constraint for a branch."""
         if branch_taken:
             return condition_term
@@ -394,7 +428,11 @@ class IntervalAnalysis(Analysis):
         # Build base name -> variable mappings for both states
         previous_by_base = self._build_base_name_map(previous_state.state)
 
-        widened_state = State()
+        widened_state = State(
+            facts=current_state.state.get_facts(),
+            branch_fact_ids=set(current_state.state.get_branch_fact_ids()),
+            context_id=current_state.context_id,
+        )
 
         for variable_name in current_state.state.variable_names():
             current_variable = current_state.state.get_variable(variable_name)
@@ -411,9 +449,7 @@ class IntervalAnalysis(Analysis):
                 continue
 
             # Compare bounds to check if value grew
-            if self._bounds_are_stable(
-                current_variable, previous_variable, current_state
-            ):
+            if self._bounds_are_stable(current_variable, previous_variable, current_state):
                 # Stable - keep current variable (preserves its constraints)
                 widened_state.set_variable(variable_name, current_variable)
             else:
@@ -423,10 +459,6 @@ class IntervalAnalysis(Analysis):
                 # unreachable. Full widening to type range is sound but imprecise.
                 widened_variable = self._create_unconstrained_variable(current_variable)
                 widened_state.set_variable(variable_name, widened_variable)
-
-        # Copy path constraints
-        for constraint in current_state.state.get_path_constraints():
-            widened_state.add_path_constraint(constraint)
 
         return IntervalDomain.with_state(widened_state)
 
@@ -481,19 +513,22 @@ class IntervalAnalysis(Analysis):
         if domain.state is None:
             return None
 
-        extra_constraints = list(domain.state.get_path_constraints())
-
-        status, min_value, max_value = self._solver.solve_range(
+        result = self._solver.solve_range_result(
             variable.term,
-            extra_constraints=extra_constraints,
+            state_id=domain.state.semantic_id(),
+            state_facts=domain.state.get_facts(),
             timeout_ms=self._timeout_ms,
-            signed=variable.base.metadata.get("is_signed", False),
+            signed=bool(variable.base.metadata.get("is_signed", False)),
         )
 
-        if status != RangeSolveStatus.SUCCESS:
+        if result.lower_status is not BoundStatus.PROVEN or (
+            result.upper_status is not BoundStatus.PROVEN
+        ):
             return None
 
-        return (min_value, max_value)
+        if result.lower is None or result.upper is None:
+            return None
+        return (result.lower, result.upper)
 
     def _widen_variable_to_threshold(
         self,
@@ -508,12 +543,13 @@ class IntervalAnalysis(Analysis):
         if current_bounds is None or previous_bounds is None:
             return self._create_unconstrained_variable(current_variable)
 
-        widened_min, widened_max = self._compute_widened_bounds(
-            current_bounds, previous_bounds
-        )
+        widened_min, widened_max = self._compute_widened_bounds(current_bounds, previous_bounds)
 
         return self._create_variable_with_bounds(
-            current_variable, widened_min, widened_max
+            current_variable,
+            widened_min,
+            widened_max,
+            current_state,
         )
 
     def _compute_widened_bounds(
@@ -552,12 +588,11 @@ class IntervalAnalysis(Analysis):
                 return threshold
         return self._thresholds[-1] if self._thresholds else (1 << 256) - 1
 
-    def _create_unconstrained_variable(
-        self, template: TrackedSMTVariable
-    ) -> TrackedSMTVariable:
+    def _create_unconstrained_variable(self, template: TrackedSMTVariable) -> TrackedSMTVariable:
         """Create an unconstrained variable with same type as template."""
-        is_signed = template.base.metadata.get("is_signed", False)
-        bit_width = template.base.metadata.get("bit_width", 256)
+        is_signed = bool(template.base.metadata.get("is_signed", False))
+        width_metadata = template.base.metadata.get("bit_width", 256)
+        bit_width = width_metadata if isinstance(width_metadata, int) else 256
 
         return TrackedSMTVariable.create(
             self._solver,
@@ -572,10 +607,12 @@ class IntervalAnalysis(Analysis):
         template: TrackedSMTVariable,
         lower_bound: int,
         upper_bound: int,
+        current_state: IntervalDomain,
     ) -> TrackedSMTVariable:
         """Create a variable constrained to [lower_bound, upper_bound]."""
-        is_signed = template.base.metadata.get("is_signed", False)
-        bit_width = template.base.metadata.get("bit_width", 256)
+        is_signed = bool(template.base.metadata.get("is_signed", False))
+        width_metadata = template.base.metadata.get("bit_width", 256)
+        bit_width = width_metadata if isinstance(width_metadata, int) else 256
 
         new_variable = TrackedSMTVariable.create(
             self._solver,
@@ -596,7 +633,22 @@ class IntervalAnalysis(Analysis):
             lower_constraint = self._solver.bv_uge(new_variable.term, lower_term)
             upper_constraint = self._solver.bv_ule(new_variable.term, upper_term)
 
-        self._solver.assert_constraint(lower_constraint)
-        self._solver.assert_constraint(upper_constraint)
+        for role, constraint in (
+            ("widened_lower_bound", lower_constraint),
+            ("widened_upper_bound", upper_constraint),
+        ):
+            fact = Fact(
+                fact_id=FactId(
+                    owner=FactOwnerKind.LOOP_GENERATION,
+                    kind=FactKind.RANGE_BOUND,
+                    provenance=FactProvenance(
+                        context_id=current_state.context_id,
+                        origin_kind=FactOriginKind.LOOP,
+                    ),
+                    semantic_key=(role, template.name),
+                ),
+                formula=constraint,
+            )
+            self._solver.register_loop_generation_fact(fact)
 
         return new_variable

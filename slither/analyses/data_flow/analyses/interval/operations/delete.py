@@ -4,28 +4,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.delete import Delete
-
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    constant_to_term,
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
     type_to_sort,
-    constant_to_term,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.delete import Delete
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 
 class DeleteHandler(BaseOperationHandler):
@@ -39,8 +39,8 @@ class DeleteHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Delete,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process delete by constraining lvalue to zero."""
         lvalue_type = operation.lvalue.type
@@ -57,5 +57,11 @@ class DeleteHandler(BaseOperationHandler):
         )
 
         zero_term = constant_to_term(self.solver, 0, bit_width)
-        self.solver.assert_constraint(tracked.term == zero_term)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            tracked.term == zero_term,
+            "deleted_value",
+        )
         domain.state.set_variable(lvalue_name, tracked)

@@ -2,10 +2,12 @@
 
 import os
 import time
-from typing import Dict, List, Optional
 
 from z3 import (
-    And as Z3And,
+    UGE,
+    UGT,
+    ULE,
+    ULT,
     BitVec,
     BitVecVal,
     Bool,
@@ -22,17 +24,13 @@ from z3 import (
     Extract,
     If,
     LShR,
-    Not as Z3Not,
+    ModelRef,
     Optimize,
     Or,
     SignExt,
     Solver,
     SRem,
     UDiv,
-    UGE,
-    UGT,
-    ULE,
-    ULT,
     URem,
     ZeroExt,
     is_bv,
@@ -42,9 +40,27 @@ from z3 import (
     sat,
     unsat,
 )
+from z3 import (
+    And as Z3And,
+)
+from z3 import (
+    Not as Z3Not,
+)
 
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
+from slither.analyses.data_flow.smt_solver.facts import Fact, SemanticStateId
+from slither.analyses.data_flow.smt_solver.query import (
+    BoundStatus,
+    FeasibilityResult,
+    FeasibilityStatus,
+    QueryDiagnostics,
+    QueryPurpose,
+    QuerySession,
+    QuerySessionDiagnostics,
+    RangeInterval,
+    RangeResult,
+)
 from slither.analyses.data_flow.smt_solver.types import (
     CheckSatResult,
     RangeSolveStatus,
@@ -54,17 +70,20 @@ from slither.analyses.data_flow.smt_solver.types import (
     SortKind,
 )
 
+
 # Constraint dumping for debugging
 DUMP_CONSTRAINTS = os.environ.get("DUMP_CONSTRAINTS", "0") == "1"
 DUMP_FILE = "/tmp/constraints_dump.txt"
 _dump_file_handle = None
-_constraint_history: List[str] = []  # Keep track of constraints for dumping
+_constraint_history: list[str] = []  # Keep track of constraints for dumping
 
 
 def _get_dump_file():
     global _dump_file_handle
     if _dump_file_handle is None and DUMP_CONSTRAINTS:
-        _dump_file_handle = open(DUMP_FILE, "w")
+        _dump_file_handle = open(  # noqa: SIM115 -- debug handle persists for the process
+            DUMP_FILE, "w"
+        )
     return _dump_file_handle
 
 
@@ -95,8 +114,9 @@ class Z3Solver(SMTSolver):
             self.solver = Solver()
             # Add timeout to prevent hanging (5 seconds)
             self.solver.set("timeout", 5000)
-        self.last_result: Optional[CheckSatResult] = None
-        self.model: Optional[object] = None
+        self.last_result: CheckSatResult | None = None
+        self.model: object | None = None
+        self.last_range_result: RangeResult | None = None
 
         # Performance instrumentation
         self.constraint_count = 0
@@ -107,7 +127,7 @@ class Z3Solver(SMTSolver):
         # Constraint dumping
         self.dump_enabled = DUMP_CONSTRAINTS
         if self.dump_enabled:
-            _dump(f"\n{'='*60}\n[NEW SOLVER] use_optimizer={use_optimizer}\n{'='*60}")
+            _dump(f"\n{'=' * 60}\n[NEW SOLVER] use_optimizer={use_optimizer}\n{'=' * 60}")
 
     def declare_const(self, name: str, sort: Sort) -> SMTVariable:
         """Declare a constant in Z3."""
@@ -159,8 +179,8 @@ class Z3Solver(SMTSolver):
         else:
             raise NotImplementedError(f"Sort {sort.kind} not yet implemented for Z3")
 
-    def assert_constraint(self, constraint: SMTTerm) -> None:
-        """Add constraint to Z3 solver."""
+    def _add_constraint(self, constraint: SMTTerm) -> None:
+        """Add an ownership-classified constraint to Z3."""
         self.solver.add(constraint)
         # Note: Removed self.assertions.append() - was redundant memory leak
         # Use self.solver.assertions() to get Z3's native assertion list
@@ -173,12 +193,25 @@ class Z3Solver(SMTSolver):
 
         # Record constraint in telemetry
         self._record_constraint_telemetry(constraint)
+        self._record_assertion_lifetime(constraint)
 
         # Constraint dumping (first 100 constraints only)
         if self.dump_enabled and self.constraint_count <= 100:
             constraint_str = str(constraint)[:200]  # Truncate long constraints
             _dump(f"[Constraint #{self.constraint_count}] {constraint_str}")
             _constraint_history.append(constraint_str)
+
+    def _record_assertion_lifetime(self, constraint: SMTTerm) -> None:
+        """Record exact assertion lifetime data when telemetry is enabled."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+        fingerprint = constraint.sexpr() if hasattr(constraint, "sexpr") else str(constraint)
+        telemetry.record_assertion(
+            fingerprint,
+            len(self.solver.assertions()),
+            len(self.variables),
+        )
 
     def _record_constraint_telemetry(self, constraint: SMTTerm) -> None:
         """Classify and record a constraint in telemetry."""
@@ -245,7 +278,7 @@ class Z3Solver(SMTSolver):
                     _dump(f"  [{i}] {str(a)[:150]}")
                 _dump("  Last 5:")
                 for i, a in enumerate(assertions[-5:]):
-                    _dump(f"  [{len(assertions)-5+i}] {str(a)[:150]}")
+                    _dump(f"  [{len(assertions) - 5 + i}] {str(a)[:150]}")
 
         result = self.solver.check()
 
@@ -279,9 +312,7 @@ class Z3Solver(SMTSolver):
 
         return self.last_result
 
-    def _record_solver_outcome_telemetry(
-        self, result: CheckSatResult, elapsed_ms: float
-    ) -> None:
+    def _record_solver_outcome_telemetry(self, result: CheckSatResult, elapsed_ms: float) -> None:
         """Record solver outcome in telemetry."""
         telemetry = get_telemetry()
         if telemetry is None or not telemetry.enabled:
@@ -348,18 +379,18 @@ class Z3Solver(SMTSolver):
 
         return self.last_result
 
-    def get_model(self) -> Optional[Dict[str, SMTTerm]]:
+    def get_model(self) -> dict[str, SMTTerm] | None:
         """Get model from last check-sat."""
         if self.model is None:
             return None
 
-        result: Dict[str, SMTTerm] = {}
+        result: dict[str, SMTTerm] = {}
         for name, var in self.variables.items():
             result[name] = self.model.eval(var.term, model_completion=True)
 
         return result
 
-    def get_value(self, terms: List[SMTTerm]) -> Optional[Dict[SMTTerm, SMTTerm]]:
+    def get_value(self, terms: list[SMTTerm]) -> dict[SMTTerm, SMTTerm] | None:
         """Get values of specific terms."""
         if self.model is None:
             return None
@@ -368,13 +399,16 @@ class Z3Solver(SMTSolver):
 
     def push(self, levels: int = 1) -> None:
         """Push assertion stack."""
+        self._enter_scope(levels)
         for _ in range(levels):
             self.solver.push()
 
     def pop(self, levels: int = 1) -> None:
         """Pop assertion stack."""
+        self._exit_scope(levels)
         for _ in range(levels):
             self.solver.pop()
+        self._record_solver_snapshot()
 
     def reset(self) -> None:
         """Reset solver to initial state."""
@@ -384,6 +418,7 @@ class Z3Solver(SMTSolver):
             self.solver = Solver()
             self.solver.set("timeout", 5000)  # Re-apply timeout after reset
         self.variables.clear()
+        self._clear_ownership_state()
         # Note: self.assertions.clear() removed - list no longer exists
         self.last_result = None
         self.model = None
@@ -393,6 +428,14 @@ class Z3Solver(SMTSolver):
         self.check_call_count = 0
         self.total_check_time = 0.0
         self.last_constraint_log = 0
+        self._record_solver_snapshot()
+
+    def _record_solver_snapshot(self) -> None:
+        """Record live solver size when telemetry is enabled."""
+        telemetry = get_telemetry()
+        if telemetry is None or not telemetry.enabled:
+            return
+        telemetry.record_solver_snapshot(len(self.solver.assertions()), len(self.variables))
 
     def is_bitvector(self, term: SMTTerm) -> bool:
         return is_bv(term)
@@ -614,7 +657,10 @@ class Z3Solver(SMTSolver):
         for var in self.variables.values():
             lines.append(f"(declare-const {var.name} {var.sort})")
 
-        # Assertions (use Z3's native assertions() method)
+        for fact in self.function_encoding.facts():
+            lines.append(f"(assert {fact.formula})")
+
+        # Guarded reusable-backend compatibility assertions.
         for assertion in self.solver.assertions():
             lines.append(f"(assert {assertion})")
 
@@ -632,7 +678,7 @@ class Z3Solver(SMTSolver):
         """Check if a term is an equality constraint (a == b)."""
         return is_eq(term)
 
-    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+    def get_eq_operands(self, term: SMTTerm) -> tuple | None:
         """Get the two operands of an equality constraint. Returns None if not an equality."""
         if not is_eq(term):
             return None
@@ -645,7 +691,7 @@ class Z3Solver(SMTSolver):
         """Check if a term is a constant value (not a variable or expression)."""
         return is_bv_value(term) or is_int_value(term)
 
-    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+    def get_constant_as_long(self, term: SMTTerm) -> int | None:
         """Get the integer value of a constant term. Returns None if not a constant."""
         if is_bv_value(term) or is_int_value(term):
             return term.as_long()
@@ -654,53 +700,169 @@ class Z3Solver(SMTSolver):
     def is_bool_true(self, term: SMTTerm) -> bool:
         """Check if a boolean term is the constant True."""
         from z3 import is_true
+
         return is_true(term)
 
     def solve_range(
         self,
         term: SMTTerm,
-        extra_constraints: Optional[list] = None,
+        extra_constraints: list | None = None,
         timeout_ms: int = 500,
         signed: bool = False,
-    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
-        """Find minimum and maximum values of a bitvector term.
-
-        Returns:
-            Tuple of (status, min_value, max_value).
-            - SUCCESS: Range computed, min/max are valid integers.
-            - UNSAT: Constraints unsatisfiable (unreachable path), min/max are None.
-            - TIMEOUT/ERROR: Could not compute, min/max are None.
-        """
-        if self._is_unsat_with_constraints(extra_constraints, timeout_ms):
+    ) -> tuple[RangeSolveStatus, int | None, int | None]:
+        """Source-compatible wrapper around the typed range-result API."""
+        result = self.solve_range_result(
+            term,
+            compatibility_constraints=tuple(extra_constraints or ()),
+            timeout_ms=timeout_ms,
+            signed=signed,
+        )
+        self.last_range_result = result
+        if result.feasibility is FeasibilityStatus.UNSAT:
             return RangeSolveStatus.UNSAT, None, None
+        if result.lower_status in {BoundStatus.PROVEN, BoundStatus.ABSTRACT} and (
+            result.upper_status in {BoundStatus.PROVEN, BoundStatus.ABSTRACT}
+        ):
+            return RangeSolveStatus.SUCCESS, result.lower, result.upper
+        if self._range_timed_out(result):
+            return RangeSolveStatus.TIMEOUT, result.lower, result.upper
+        return RangeSolveStatus.ERROR, result.lower, result.upper
 
-        objective_term = self._prepare_objective_term(term, signed)
-
-        min_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, False)
-        max_val = self._optimize_bound(term, objective_term, extra_constraints, timeout_ms, True)
-
-        if min_val is None or max_val is None:
-            return RangeSolveStatus.ERROR, None, None
-
-        return RangeSolveStatus.SUCCESS, min_val, max_val
-
-    def _is_unsat_with_constraints(
+    def check_feasibility(
         self,
-        extra_constraints: Optional[list],
+        *,
+        state_id: SemanticStateId | None = None,
+        state_facts: tuple[Fact[SMTTerm], ...] = (),
+        query_facts: tuple[Fact[SMTTerm], ...] = (),
+        purpose: QueryPurpose = QueryPurpose.FEASIBILITY,
+        timeout_ms: int = 500,
+        property_fact: Fact[SMTTerm] | None = None,
+    ) -> FeasibilityResult:
+        """Check one state and its ephemeral assumptions in an isolated Solver."""
+        session = self.create_query_session(
+            purpose=purpose,
+            timeout_ms=timeout_ms,
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            property_fact=property_fact,
+        )
+        status, _reason = self._execute_feasibility_session(session)
+        diagnostics = session.diagnostics
+        return FeasibilityResult(
+            status=status,
+            encoding_id=session.materialization.encoding_id,
+            state_id=session.materialization.state_id,
+            diagnostics=QueryDiagnostics((diagnostics,)),
+        )
+
+    def solve_range_result(
+        self,
+        term: SMTTerm,
+        *,
+        state_id: SemanticStateId | None = None,
+        state_facts: tuple[Fact[SMTTerm], ...] = (),
+        query_facts: tuple[Fact[SMTTerm], ...] = (),
+        compatibility_constraints: tuple[SMTTerm, ...] = (),
+        timeout_ms: int = 500,
+        signed: bool = False,
+        fallback_range: RangeInterval | None = None,
+        abstract_range: RangeInterval | None = None,
+    ) -> RangeResult:
+        """Solve lower and upper bounds in independent disposable sessions."""
+        fallback_range = fallback_range or self._full_type_range(term, signed)
+        feasibility = self._range_feasibility(
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+            timeout_ms=timeout_ms,
+        )
+        if feasibility.status is FeasibilityStatus.UNSAT:
+            return self._unsat_range_result(feasibility)
+        if abstract_range is not None:
+            return self._abstract_range_result(feasibility, abstract_range)
+
+        objective = self._prepare_objective_term(term, signed)
+        lower = self._execute_bound_query(
+            term,
+            objective,
+            maximize=False,
+            purpose=QueryPurpose.LOWER_BOUND,
+            timeout_ms=timeout_ms,
+            state_id=feasibility.state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+        )
+        upper = self._execute_bound_query(
+            term,
+            objective,
+            maximize=True,
+            purpose=QueryPurpose.UPPER_BOUND,
+            timeout_ms=timeout_ms,
+            state_id=feasibility.state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+        )
+        return self._combine_range_outcomes(feasibility, lower, upper, fallback_range)
+
+    def _range_feasibility(
+        self,
+        *,
+        state_id: SemanticStateId | None,
+        state_facts: tuple[Fact[SMTTerm], ...],
+        query_facts: tuple[Fact[SMTTerm], ...],
+        compatibility_constraints: tuple[SMTTerm, ...],
         timeout_ms: int,
-    ) -> bool:
-        """Quick check if constraints are unsatisfiable."""
-        solver = Solver()
-        solver.set("timeout", min(timeout_ms, 100))
+    ) -> FeasibilityResult:
+        """Establish feasibility once for both objective sessions."""
+        session = self.create_query_session(
+            purpose=QueryPurpose.FEASIBILITY,
+            timeout_ms=min(timeout_ms, 100),
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+        )
+        status, reason = self._execute_feasibility_session(session)
+        del reason
+        return FeasibilityResult(
+            status=status,
+            encoding_id=session.materialization.encoding_id,
+            state_id=session.materialization.state_id,
+            diagnostics=QueryDiagnostics((session.diagnostics,)),
+        )
 
-        for assertion in self.solver.assertions():
-            solver.add(assertion)
-
-        if extra_constraints:
-            for constraint in extra_constraints:
-                solver.add(constraint)
-
-        return solver.check() == unsat
+    def _execute_feasibility_session(
+        self,
+        session: QuerySession[SMTTerm],
+    ) -> tuple[FeasibilityStatus, str | None]:
+        """Materialize, execute, classify, and always close one Solver session."""
+        status = FeasibilityStatus.ERROR
+        reason: str | None = None
+        try:
+            with session:
+                solver = self._create_feasibility_backend(session.timeout_ms)
+                session.attach_backend(solver)
+                solver.add(*(fact.formula for fact in session.materialization.facts))
+                started = time.perf_counter()
+                result = solver.check()
+                elapsed_ms = (time.perf_counter() - started) * 1000
+                status, reason = self._classify_feasibility(
+                    solver,
+                    result,
+                    elapsed_ms,
+                    session.timeout_ms,
+                )
+                session.close(feasibility_status=status, reason=reason)
+        except Exception as error:  # Z3 exceptions become typed query errors.
+            status = FeasibilityStatus.ERROR
+            reason = f"{type(error).__name__}: {error}"
+            if session.diagnostics.feasibility_status is not FeasibilityStatus.ERROR:
+                raise RuntimeError("QuerySession failed to record backend error") from error
+        return status, reason
 
     def _prepare_objective_term(self, term: SMTTerm, signed: bool) -> SMTTerm:
         """Prepare term for optimization, flipping sign bit for signed values."""
@@ -710,41 +872,223 @@ class Z3Solver(SMTSolver):
         sign_bit_mask = BitVecVal(1 << (width - 1), width)
         return term ^ sign_bit_mask
 
-    def _optimize_bound(
+    def _execute_bound_query(
         self,
         term: SMTTerm,
         objective_term: SMTTerm,
-        extra_constraints: Optional[list],
-        timeout_ms: int,
+        *,
         maximize: bool,
-    ) -> Optional[int]:
-        """Optimize for min or max bound of a term."""
+        purpose: QueryPurpose,
+        timeout_ms: int,
+        state_id: SemanticStateId,
+        state_facts: tuple[Fact[SMTTerm], ...],
+        query_facts: tuple[Fact[SMTTerm], ...],
+        compatibility_constraints: tuple[SMTTerm, ...],
+    ) -> tuple[int | None, BoundStatus, QuerySessionDiagnostics]:
+        """Execute one minimum or maximum objective in a fresh Optimize instance."""
+        session = self.create_query_session(
+            purpose=purpose,
+            timeout_ms=timeout_ms,
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            compatibility_constraints=compatibility_constraints,
+        )
+        value: int | None = None
+        status = BoundStatus.ERROR
+        reason: str | None = None
+        try:
+            with session:
+                optimizer = self._create_optimizer_backend(timeout_ms)
+                session.attach_backend(optimizer)
+                optimizer.add(*(fact.formula for fact in session.materialization.facts))
+                objective = optimizer.maximize if maximize else optimizer.minimize
+                objective(objective_term)
+                started = time.perf_counter()
+                result = optimizer.check()
+                elapsed_ms = (time.perf_counter() - started) * 1000
+                status, reason = self._classify_bound(
+                    optimizer,
+                    result,
+                    elapsed_ms,
+                    timeout_ms,
+                )
+                if status is BoundStatus.PROVEN:
+                    value = self._bound_model_value(optimizer, term)
+                    if value is None:
+                        status = BoundStatus.ERROR
+                        reason = "optimizer model did not contain a bitvector value"
+                session.close(bound_status=status, reason=reason)
+        except Exception as error:  # Z3 exceptions become typed query errors.
+            status = BoundStatus.ERROR
+            reason = f"{type(error).__name__}: {error}"
+            if session.diagnostics.bound_status is not BoundStatus.ERROR:
+                raise RuntimeError("QuerySession recorded the wrong backend error kind") from error
+        return value, status, session.diagnostics
+
+    @staticmethod
+    def _create_feasibility_backend(timeout_ms: int) -> Solver:
+        """Create one fresh Solver owned only by a feasibility session."""
+        solver = Solver()
+        solver.set("timeout", timeout_ms)
+        return solver
+
+    @staticmethod
+    def _create_optimizer_backend(timeout_ms: int) -> Optimize:
+        """Create one fresh Optimize instance owned only by one objective session."""
         optimizer = Optimize()
         optimizer.set("timeout", timeout_ms)
+        return optimizer
 
-        for assertion in self.solver.assertions():
-            optimizer.add(assertion)
+    @staticmethod
+    def _classify_feasibility(
+        query_solver: object,
+        result: object,
+        elapsed_ms: float = 0.0,
+        timeout_ms: int = 0,
+    ) -> tuple[FeasibilityStatus, str | None]:
+        """Map a backend check result without collapsing timeout or unknown."""
+        if result == sat:
+            return FeasibilityStatus.SAT, None
+        if result == unsat:
+            return FeasibilityStatus.UNSAT, None
+        reason = Z3Solver._unknown_reason(query_solver)
+        timed_out = Z3Solver._is_timeout_reason(reason) or Z3Solver._used_timeout_budget(
+            elapsed_ms,
+            timeout_ms,
+        )
+        status = FeasibilityStatus.TIMEOUT if timed_out else FeasibilityStatus.UNKNOWN
+        return status, reason
 
-        if extra_constraints:
-            for constraint in extra_constraints:
-                optimizer.add(constraint)
+    @staticmethod
+    def _classify_bound(
+        query_solver: object,
+        result: object,
+        elapsed_ms: float = 0.0,
+        timeout_ms: int = 0,
+    ) -> tuple[BoundStatus, str | None]:
+        """Map one optimization result without affecting the other objective."""
+        if result == sat:
+            return BoundStatus.PROVEN, None
+        if result == unsat:
+            return BoundStatus.ERROR, "objective became unsatisfiable after SAT feasibility"
+        reason = Z3Solver._unknown_reason(query_solver)
+        timed_out = Z3Solver._is_timeout_reason(reason) or Z3Solver._used_timeout_budget(
+            elapsed_ms,
+            timeout_ms,
+        )
+        status = BoundStatus.TIMEOUT if timed_out else BoundStatus.UNKNOWN
+        return status, reason
 
-        if maximize:
-            optimizer.maximize(objective_term)
-        else:
-            optimizer.minimize(objective_term)
+    @staticmethod
+    def _unknown_reason(query_solver: object) -> str:
+        """Read an optional backend explanation for an unknown result."""
+        reason_unknown = getattr(query_solver, "reason_unknown", None)
+        return str(reason_unknown()) if reason_unknown is not None else "unspecified"
 
-        if optimizer.check() != sat:
-            return None
+    @staticmethod
+    def _is_timeout_reason(reason: str) -> bool:
+        """Recognize Z3 timeout/cancellation explanations."""
+        normalized = reason.lower()
+        return "timeout" in normalized or "canceled" in normalized
 
-        model = optimizer.model()
-        if model is None:
-            return None
+    @staticmethod
+    def _used_timeout_budget(elapsed_ms: float, timeout_ms: int) -> bool:
+        """Classify opaque Z3 unknown results that consumed the configured budget."""
+        return timeout_ms > 0 and elapsed_ms >= timeout_ms * 0.9
 
+    @staticmethod
+    def _bound_model_value(optimizer: Optimize, term: SMTTerm) -> int | None:
+        """Read one optimized concrete bitvector value."""
+        model: ModelRef = optimizer.model()
         value = model.eval(term, model_completion=True)
         return value.as_long() if is_bv_value(value) else None
 
-    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+    @staticmethod
+    def _unsat_range_result(feasibility: FeasibilityResult) -> RangeResult:
+        """Return the existing bottom convention after proven UNSAT feasibility."""
+        return RangeResult(
+            lower=None,
+            upper=None,
+            feasibility=feasibility.status,
+            lower_status=BoundStatus.NOT_ATTEMPTED,
+            upper_status=BoundStatus.NOT_ATTEMPTED,
+            fallback_range=None,
+            encoding_id=feasibility.encoding_id,
+            state_id=feasibility.state_id,
+            diagnostics=feasibility.diagnostics,
+        )
+
+    @staticmethod
+    def _abstract_range_result(
+        feasibility: FeasibilityResult,
+        interval: RangeInterval,
+    ) -> RangeResult:
+        """Return an explicitly abstract range without creating objectives."""
+        return RangeResult(
+            lower=interval.lower,
+            upper=interval.upper,
+            feasibility=feasibility.status,
+            lower_status=BoundStatus.ABSTRACT,
+            upper_status=BoundStatus.ABSTRACT,
+            fallback_range=interval,
+            encoding_id=feasibility.encoding_id,
+            state_id=feasibility.state_id,
+            diagnostics=feasibility.diagnostics,
+        )
+
+    @staticmethod
+    def _combine_range_outcomes(
+        feasibility: FeasibilityResult,
+        lower: tuple[int | None, BoundStatus, QuerySessionDiagnostics],
+        upper: tuple[int | None, BoundStatus, QuerySessionDiagnostics],
+        fallback: RangeInterval,
+    ) -> RangeResult:
+        """Preserve one proven side and fall back only for a failed objective."""
+        lower_value, lower_status, lower_diagnostics = lower
+        upper_value, upper_status, upper_diagnostics = upper
+        used_fallback = lower_status is not BoundStatus.PROVEN or (
+            upper_status is not BoundStatus.PROVEN
+        )
+        if lower_status is not BoundStatus.PROVEN:
+            lower_value = fallback.lower
+        if upper_status is not BoundStatus.PROVEN:
+            upper_value = fallback.upper
+        sessions = (
+            *feasibility.diagnostics.sessions,
+            lower_diagnostics,
+            upper_diagnostics,
+        )
+        return RangeResult(
+            lower=lower_value,
+            upper=upper_value,
+            feasibility=feasibility.status,
+            lower_status=lower_status,
+            upper_status=upper_status,
+            fallback_range=fallback if used_fallback else None,
+            encoding_id=feasibility.encoding_id,
+            state_id=feasibility.state_id,
+            diagnostics=QueryDiagnostics(sessions),
+        )
+
+    def _full_type_range(self, term: SMTTerm, signed: bool) -> RangeInterval:
+        """Return the sound type interval used when an objective is inconclusive."""
+        if not self.is_bitvector(term):
+            raise TypeError("Range solving requires a bitvector term")
+        width = self.bv_size(term)
+        if signed:
+            return RangeInterval(-(1 << (width - 1)), (1 << (width - 1)) - 1)
+        return RangeInterval(0, (1 << width) - 1)
+
+    @staticmethod
+    def _range_timed_out(result: RangeResult) -> bool:
+        """Return whether feasibility or either objective timed out."""
+        return result.feasibility is FeasibilityStatus.TIMEOUT or BoundStatus.TIMEOUT in {
+            result.lower_status,
+            result.upper_status,
+        }
+
+    def eval_in_model(self, term: SMTTerm) -> int | None:
         """Evaluate a term in the current model and return its integer value."""
         if self.model is None:
             return None

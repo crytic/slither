@@ -1,14 +1,27 @@
 """Core range solving functions for Slither data flow interval analysis."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
-from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry, SolverTelemetry
+from slither.analyses.data_flow.smt_solver.facts import (
+    AnalysisContextId,
+    Fact,
+    SemanticStateId,
+    make_query_fact,
+)
+from slither.analyses.data_flow.smt_solver.query import (
+    FeasibilityStatus,
+    QueryPurpose,
+)
 from slither.analyses.data_flow.smt_solver.solver import SMTSolver
-from slither.analyses.data_flow.smt_solver.types import CheckSatResult, SMTTerm
+from slither.analyses.data_flow.smt_solver.telemetry import SolverTelemetry, get_telemetry
+from slither.analyses.data_flow.smt_solver.types import SMTTerm
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
@@ -24,11 +37,13 @@ DEFAULT_OPTIMIZE_TIMEOUT_MS = 3000
 class RangeQueryConfig:
     """Configuration for range solving queries."""
 
-    path_constraints: Optional[List[SMTTerm]] = None
+    path_constraints: list[SMTTerm] | None = None
+    state_id: SemanticStateId | None = None
+    state_facts: tuple[Fact[SMTTerm], ...] = ()
     timeout_ms: int = DEFAULT_OPTIMIZE_TIMEOUT_MS
     skip_optimization: bool = False
     debug: bool = False
-    cache: Optional["RangeQueryCache"] = None
+    cache: RangeQueryCache | None = None
 
 
 @dataclass
@@ -37,8 +52,8 @@ class VariableMetadata:
 
     is_signed: bool
     bit_width: int
-    min_bound: Optional[int]
-    max_bound: Optional[int]
+    min_bound: int | None
+    max_bound: int | None
 
 
 @dataclass
@@ -47,15 +62,21 @@ class RangeSolveContext:
 
     solver: SMTSolver
     smt_var: TrackedSMTVariable
-    path_constraints: Optional[List[SMTTerm]]
-    telemetry: Optional[SolverTelemetry]
-    cache: Optional["RangeQueryCache"]
+    state_id: SemanticStateId | None
+    state_facts: tuple[Fact[SMTTerm], ...]
+    query_facts: tuple[Fact[SMTTerm], ...]
+    telemetry: SolverTelemetry | None
+    cache: RangeQueryCache | None
 
 
 def _check_overflow_possible(
     solver: SMTSolver,
     smt_var: TrackedSMTVariable,
-    path_constraints: Optional[List[SMTTerm]] = None,
+    *,
+    state_id: SemanticStateId | None = None,
+    state_facts: tuple[Fact[SMTTerm], ...] = (),
+    query_facts: tuple[Fact[SMTTerm], ...] = (),
+    timeout_ms: int = 500,
 ) -> bool:
     """Check if overflow or underflow is possible for a variable.
 
@@ -68,28 +89,29 @@ def _check_overflow_possible(
     if smt_var.no_overflow is None and smt_var.no_underflow is None:
         return False
 
-    solver.push()
-    try:
-        if path_constraints:
-            for constraint in path_constraints:
-                solver.assert_constraint(constraint)
+    predicates_to_check: list[SMTTerm] = []
+    if smt_var.no_overflow is not None:
+        predicates_to_check.append(solver.Not(smt_var.no_overflow))
+    if smt_var.no_underflow is not None:
+        predicates_to_check.append(solver.Not(smt_var.no_underflow))
+    if not predicates_to_check:
+        return False
 
-        predicates_to_check: list[SMTTerm] = []
-        if smt_var.no_overflow is not None:
-            predicates_to_check.append(solver.Not(smt_var.no_overflow))
-        if smt_var.no_underflow is not None:
-            predicates_to_check.append(solver.Not(smt_var.no_underflow))
-
-        if not predicates_to_check:
-            return False
-
-        overflow_possible = solver.Or(*predicates_to_check)
-        solver.assert_constraint(overflow_possible)
-
-        result = solver.check_sat()
-        return result == CheckSatResult.SAT
-    finally:
-        solver.pop()
+    overflow_possible = solver.Or(*predicates_to_check)
+    predicate_fact = make_query_fact(
+        overflow_possible,
+        "overflow_predicate",
+        0,
+        state_id.context_id if state_id is not None else None,
+    )
+    result = solver.check_feasibility(
+        state_id=state_id,
+        state_facts=state_facts,
+        query_facts=(*query_facts, predicate_fact),
+        purpose=QueryPurpose.OVERFLOW,
+        timeout_ms=timeout_ms,
+    )
+    return result.status is FeasibilityStatus.SAT
 
 
 # =============================================================================
@@ -97,16 +119,16 @@ def _check_overflow_possible(
 # =============================================================================
 
 
-def _extract_variable_metadata(smt_var: TrackedSMTVariable) -> Optional[VariableMetadata]:
+def _extract_variable_metadata(smt_var: TrackedSMTVariable) -> VariableMetadata | None:
     """Extract metadata from a tracked SMT variable."""
     metadata = smt_var.base.metadata
     is_signed = bool(metadata.get("is_signed", False))
     bit_width = metadata.get("bit_width")
 
     # Fall back to sort parameters if bit_width not in metadata
-    if bit_width is None and smt_var.sort.parameters:
+    if not isinstance(bit_width, int) and smt_var.sort.parameters:
         bit_width = smt_var.sort.parameters[0]
-    if bit_width is None:
+    if not isinstance(bit_width, int):
         return None
 
     # Extract bounds (these may be ints or None)
@@ -115,9 +137,9 @@ def _extract_variable_metadata(smt_var: TrackedSMTVariable) -> Optional[Variable
 
     return VariableMetadata(
         is_signed=is_signed,
-        bit_width=int(bit_width),
-        min_bound=int(min_bound) if min_bound is not None else None,
-        max_bound=int(max_bound) if max_bound is not None else None,
+        bit_width=bit_width,
+        min_bound=min_bound if isinstance(min_bound, int) else None,
+        max_bound=max_bound if isinstance(max_bound, int) else None,
     )
 
 
@@ -137,7 +159,7 @@ def _decode_model_value(raw_value: int, meta: VariableMetadata) -> int:
     return value
 
 
-def _get_fallback_range(meta: VariableMetadata) -> tuple[Dict, Dict]:
+def _get_fallback_range(meta: VariableMetadata) -> tuple[dict, dict]:
     """Return conservative type bounds when optimization fails."""
     unsigned_max = (1 << meta.bit_width) - 1
     signed_min = -(1 << (meta.bit_width - 1))
@@ -149,38 +171,55 @@ def _get_fallback_range(meta: VariableMetadata) -> tuple[Dict, Dict]:
     if meta.max_bound is not None:
         fallback_max = meta.max_bound
     return (
-        {"value": fallback_min, "overflow": False},
-        {"value": fallback_max, "overflow": False},
+        {
+            "value": fallback_min,
+            "overflow": False,
+            "bound_status": "abstract",
+            "feasibility": None,
+        },
+        {
+            "value": fallback_max,
+            "overflow": False,
+            "bound_status": "abstract",
+            "feasibility": None,
+        },
     )
 
 
 def _build_cache_key(
     smt_var: TrackedSMTVariable,
-    solver: "SMTSolver",
-    path_constraints: Optional[List],
+    solver: SMTSolver,
+    state_id: SemanticStateId | None,
 ) -> tuple[str, tuple]:
-    """Build cache key from variable and constraints."""
+    """Build a typed cache key without formula-derived semantic identity."""
     var_id = str(smt_var.term)
-    constraint_strs: List[str] = []
-    if path_constraints:
-        constraint_strs.extend(str(c) for c in path_constraints)
-    constraint_strs.extend(str(a) for a in solver.get_assertions())
-    return var_id, tuple(constraint_strs)
+    identity = state_id or SemanticStateId(
+        reachability="query",
+        context_id=AnalysisContextId(solver.function_encoding.encoding_id),
+        abstract_values=(),
+        active_fact_ids=frozenset(),
+        storage_summary=(),
+        comparisons=(),
+        dependencies=(),
+    )
+    return var_id, (repr(solver.function_encoding.encoding_id), repr(identity))
 
 
-def _cached_value_to_dict(val: Any) -> Dict:
+def _cached_value_to_dict(val: Any) -> dict:
     """Convert a cached value to a result dictionary."""
     if isinstance(val, dict):
         return {
             "value": val.get("value"),
             "overflow": val.get("overflow", False),
+            "bound_status": val.get("bound_status"),
+            "feasibility": val.get("feasibility"),
         }
     return {"value": val, "overflow": False}
 
 
 def _unpack_cached_result(
     cached_result: tuple,
-) -> tuple[Optional[Dict], Optional[Dict]]:
+) -> tuple[dict | None, dict | None]:
     """Unpack a cached result into min/max dictionaries."""
     min_val, max_val = cached_result
     if min_val is None or max_val is None:
@@ -193,42 +232,57 @@ def _solve_range_with_solver(
     ctx: RangeSolveContext,
     meta: VariableMetadata,
     config: RangeQueryConfig,
-) -> tuple[Optional[Dict], Optional[Dict]]:
+) -> tuple[dict | None, dict | None]:
     """Use solver's range solving to find min/max values."""
-    from slither.analyses.data_flow.smt_solver.types import RangeSolveStatus
-
     if ctx.telemetry:
         ctx.telemetry.count("optimize_min")
         ctx.telemetry.count("optimize_max")
 
     try:
-        status, min_val, max_val = ctx.solver.solve_range(
+        result = ctx.solver.solve_range_result(
             term=ctx.smt_var.term,
-            extra_constraints=ctx.path_constraints,
+            state_id=ctx.state_id,
+            state_facts=ctx.state_facts,
+            query_facts=ctx.query_facts,
             timeout_ms=config.timeout_ms,
             signed=meta.is_signed,
         )
 
-        if status == RangeSolveStatus.UNSAT:
+        if result.feasibility is FeasibilityStatus.UNSAT:
             # Return special marker for unreachable paths
             return {"unreachable": True}, {"unreachable": True}
 
-        if status != RangeSolveStatus.SUCCESS or min_val is None or max_val is None:
+        if result.lower is None or result.upper is None:
             return None, None
 
         # Decode values according to signedness
         # Note: solve_range now uses signed optimization, so the raw values
         # are correctly ordered. _decode_model_value still converts to signed.
-        decoded_min = _decode_model_value(min_val, meta)
-        decoded_max = _decode_model_value(max_val, meta)
+        decoded_min = _decode_model_value(result.lower, meta)
+        decoded_max = _decode_model_value(result.upper, meta)
 
         # Check if overflow is possible given constraints
         has_overflow = _check_overflow_possible(
-            ctx.solver, ctx.smt_var, ctx.path_constraints
+            ctx.solver,
+            ctx.smt_var,
+            state_id=ctx.state_id,
+            state_facts=ctx.state_facts,
+            query_facts=ctx.query_facts,
+            timeout_ms=config.timeout_ms,
         )
 
-        min_result = {"value": decoded_min, "overflow": has_overflow}
-        max_result = {"value": decoded_max, "overflow": has_overflow}
+        min_result = {
+            "value": decoded_min,
+            "overflow": has_overflow,
+            "bound_status": result.lower_status.value,
+            "feasibility": result.feasibility.value,
+        }
+        max_result = {
+            "value": decoded_max,
+            "overflow": has_overflow,
+            "bound_status": result.upper_status.value,
+            "feasibility": result.feasibility.value,
+        }
 
         return min_result, max_result
     except (ValueError, TypeError, RuntimeError):
@@ -243,8 +297,8 @@ def _solve_range_with_solver(
 def solve_variable_range(
     solver: SMTSolver,
     smt_var: TrackedSMTVariable,
-    config: Optional[RangeQueryConfig] = None,
-) -> tuple[Optional[Dict], Optional[Dict]]:
+    config: RangeQueryConfig | None = None,
+) -> tuple[dict | None, dict | None]:
     """Solve for min/max values of a variable using SMT optimization.
 
     Args:
@@ -261,8 +315,20 @@ def solve_variable_range(
         config = RangeQueryConfig()
 
     telemetry = get_telemetry()
+    context_id = config.state_id.context_id if config.state_id is not None else None
+    query_facts = tuple(
+        make_query_fact(constraint, "legacy_range_path", index, context_id)
+        for index, constraint in enumerate(config.path_constraints or ())
+    )
+    cache = None if query_facts else config.cache
     ctx = RangeSolveContext(
-        solver, smt_var, config.path_constraints, telemetry, config.cache
+        solver,
+        smt_var,
+        config.state_id,
+        config.state_facts,
+        query_facts,
+        telemetry,
+        cache,
     )
 
     cached = _check_cache(ctx, config.skip_optimization)
@@ -286,12 +352,12 @@ def solve_variable_range(
 def _check_cache(
     ctx: RangeSolveContext,
     skip_optimization: bool,
-) -> Optional[tuple[Optional[Dict], Optional[Dict]]]:
+) -> tuple[dict | None, dict | None] | None:
     """Check cache for existing result."""
     if ctx.cache is None or skip_optimization:
         return None
 
-    var_id, constraints_tuple = _build_cache_key(ctx.smt_var, ctx.solver, ctx.path_constraints)
+    var_id, constraints_tuple = _build_cache_key(ctx.smt_var, ctx.solver, ctx.state_id)
     cached_result = ctx.cache.get(var_id, constraints_tuple)
     if cached_result is not None:
         _count_telemetry(ctx.telemetry, "cache_hit")
@@ -305,7 +371,7 @@ def _solve_and_cache(
     ctx: RangeSolveContext,
     meta: VariableMetadata,
     config: RangeQueryConfig,
-) -> tuple[Optional[Dict], Optional[Dict]]:
+) -> tuple[dict | None, dict | None]:
     """Solve range and cache result."""
     min_result, max_result = _solve_range_with_solver(ctx, meta, config)
 
@@ -318,18 +384,24 @@ def _solve_and_cache(
         _count_telemetry(ctx.telemetry, "range_solve_fallback")
         return _get_fallback_range(meta)
 
+    bound_statuses = {
+        min_result.get("bound_status"),
+        max_result.get("bound_status"),
+    }
+    if bound_statuses != {"proven"}:
+        _count_telemetry(ctx.telemetry, "range_solve_fallback")
+        return min_result, max_result
+
     _count_telemetry(ctx.telemetry, "range_solve_success")
 
     if ctx.cache is not None:
-        var_id, constraints_tuple = _build_cache_key(
-            ctx.smt_var, ctx.solver, ctx.path_constraints
-        )
+        var_id, constraints_tuple = _build_cache_key(ctx.smt_var, ctx.solver, ctx.state_id)
         ctx.cache.put(var_id, constraints_tuple, min_result, max_result)
 
     return min_result, max_result
 
 
-def _count_telemetry(telemetry: Optional[SolverTelemetry], name: str) -> None:
+def _count_telemetry(telemetry: SolverTelemetry | None, name: str) -> None:
     """Count telemetry if enabled."""
     if telemetry:
         telemetry.count(name)

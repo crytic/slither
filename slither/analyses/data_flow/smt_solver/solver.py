@@ -1,9 +1,32 @@
 """Abstract SMT solver interface following SMT-LIB 2.0 standard."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 
-from .types import SMTVariable, Sort, CheckSatResult, RangeSolveStatus, SMTTerm
+from slither.analyses.data_flow.smt_solver.facts import (
+    EncodingId,
+    Fact,
+    FactOwnerKind,
+    FactRegistry,
+    SemanticStateId,
+    make_compatibility_query_fact,
+)
+from slither.analyses.data_flow.smt_solver.query import (
+    FeasibilityResult,
+    FunctionEncoding,
+    QueryMaterialization,
+    QueryPurpose,
+    QuerySession,
+    RangeInterval,
+    RangeResult,
+    empty_state_id,
+)
+from slither.analyses.data_flow.smt_solver.types import (
+    CheckSatResult,
+    RangeSolveStatus,
+    SMTTerm,
+    SMTVariable,
+    Sort,
+)
 
 
 class SMTSolver(ABC):
@@ -28,7 +51,12 @@ class SMTSolver(ABC):
     """
 
     def __init__(self) -> None:
-        self.variables: Dict[str, SMTVariable] = {}
+        self.function_encoding: FunctionEncoding[SMTTerm, SMTVariable] = FunctionEncoding()
+        self.variables = self.function_encoding.symbols
+        self._property_obligations: FactRegistry[SMTTerm] = FactRegistry()
+        self._unclassified_additions = 0
+        self._scope_depth = 0
+        self._active_query_sessions = 0
         # Note: self.assertions removed - was redundant memory leak
         # Use solver.solver.assertions() to get Z3's native assertion list instead
 
@@ -298,14 +326,217 @@ class SMTSolver(ABC):
         """Bitwise NOT for bitvectors."""
         pass
 
-    @abstractmethod
     def assert_constraint(self, constraint: SMTTerm) -> None:
-        """
-        (assert constraint)
+        """Add an unclassified assertion through the guarded compatibility API."""
+        self._unclassified_additions += 1
+        from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 
-        Assert a constraint (boolean formula) to the solver.
-        """
+        telemetry = get_telemetry()
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_unclassified_addition()
+        self._add_constraint(constraint)
+
+    @abstractmethod
+    def _add_constraint(self, constraint: SMTTerm) -> None:
+        """Add a formula after its ownership boundary has been checked."""
         pass
+
+    def register_immutable_fact(self, fact: Fact[SMTTerm]) -> bool:
+        """Register an immutable or context equation idempotently."""
+        allowed = {
+            FactOwnerKind.IMMUTABLE_EQUATION,
+            FactOwnerKind.CONTEXT_EQUATION,
+        }
+        if fact.fact_id.owner not in allowed:
+            raise ValueError("Persistent facts must be immutable or context equations")
+        added = self.function_encoding.register_fact(fact)
+        self._record_fact_registration(fact, duplicate=not added)
+        return added
+
+    def bind_function_encoding(self, encoding_id: EncodingId) -> None:
+        """Bind the reusable encoding before transfer creates symbols or facts."""
+        self.function_encoding.bind(encoding_id)
+
+    def register_loop_generation_fact(self, fact: Fact[SMTTerm]) -> None:
+        """Reject loop facts until Stage 2 provides generation-scoped sessions."""
+        if fact.fact_id.owner is not FactOwnerKind.LOOP_GENERATION:
+            raise ValueError("Loop facts must use the LOOP_GENERATION owner")
+        raise NotImplementedError("Loop-generation facts require generation-scoped query sessions")
+
+    def add_query_local_assumption(self, fact: Fact[SMTTerm]) -> None:
+        """Add a classified assumption to the current push/pop query frame."""
+        if fact.fact_id.owner is not FactOwnerKind.QUERY_LOCAL:
+            raise ValueError("Query assumptions must use the QUERY_LOCAL owner")
+        if self._scope_depth == 0:
+            raise RuntimeError("Query-local assumptions require an active solver scope")
+        self._record_fact_registration(fact, duplicate=False)
+        self._add_constraint(fact.formula)
+
+    def register_property_obligation(self, fact: Fact[SMTTerm]) -> bool:
+        """Record a property obligation without asserting it globally."""
+        if fact.fact_id.owner is not FactOwnerKind.PROPERTY_OBLIGATION:
+            raise ValueError("Property facts must use the PROPERTY_OBLIGATION owner")
+        added = self._property_obligations.register(fact)
+        self._record_fact_registration(fact, duplicate=not added)
+        return added
+
+    def get_registered_facts(self) -> tuple[Fact[SMTTerm], ...]:
+        """Return persistent immutable/context equations."""
+        return self.function_encoding.facts()
+
+    def get_property_obligations(self) -> tuple[Fact[SMTTerm], ...]:
+        """Return registered property obligations."""
+        return self._property_obligations.values()
+
+    @property
+    def unclassified_additions(self) -> int:
+        """Return guarded compatibility additions observed by this solver."""
+        return self._unclassified_additions
+
+    def _clear_ownership_state(self) -> None:
+        """Clear ownership registries when the backend is reset."""
+        if self._active_query_sessions:
+            raise RuntimeError("Cannot reset a solver with active QuerySession instances")
+        self.function_encoding.clear()
+        self._property_obligations.clear()
+        self._unclassified_additions = 0
+        self._scope_depth = 0
+
+    @property
+    def active_query_sessions(self) -> int:
+        """Return the number of live isolated query sessions."""
+        return self._active_query_sessions
+
+    def create_query_session(
+        self,
+        *,
+        purpose: QueryPurpose,
+        timeout_ms: int,
+        state_id: SemanticStateId | None = None,
+        state_facts: tuple[Fact[SMTTerm], ...] = (),
+        query_facts: tuple[Fact[SMTTerm], ...] = (),
+        property_fact: Fact[SMTTerm] | None = None,
+        compatibility_constraints: tuple[SMTTerm, ...] = (),
+    ) -> QuerySession[SMTTerm]:
+        """Create a disposable session from one complete semantic state."""
+        materialization, compatibility_count = self._materialize_query(
+            purpose=purpose,
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=query_facts,
+            property_fact=property_fact,
+            compatibility_constraints=compatibility_constraints,
+        )
+        snapshot = self._persistent_query_snapshot()
+        self._active_query_sessions += 1
+
+        def cleanup() -> bool:
+            self._active_query_sessions -= 1
+            counter_balanced = self._active_query_sessions >= 0
+            return counter_balanced and self._persistent_query_snapshot() == snapshot
+
+        try:
+            return QuerySession(materialization, timeout_ms, compatibility_count, cleanup)
+        except Exception:
+            self._active_query_sessions -= 1
+            raise
+
+    def _materialize_query(
+        self,
+        *,
+        purpose: QueryPurpose,
+        state_id: SemanticStateId | None,
+        state_facts: tuple[Fact[SMTTerm], ...],
+        query_facts: tuple[Fact[SMTTerm], ...],
+        property_fact: Fact[SMTTerm] | None,
+        compatibility_constraints: tuple[SMTTerm, ...],
+    ) -> tuple[QueryMaterialization[SMTTerm], int]:
+        """Snapshot encoding, state, and ephemeral inputs without backend mutation."""
+        encoding_id = self.function_encoding.encoding_id
+        state_id = state_id or empty_state_id(encoding_id)
+        property_is_unregistered = property_fact is not None and (
+            self._property_obligations.get(property_fact.fact_id) is None
+        )
+        if property_is_unregistered:
+            raise ValueError("Property obligation must be registered before selection")
+        compatibility_facts = self._compatibility_query_facts(
+            state_id,
+            compatibility_constraints,
+        )
+        materialization = QueryMaterialization(
+            encoding_id=encoding_id,
+            state_id=state_id,
+            purpose=purpose,
+            immutable_facts=self.function_encoding.facts(),
+            state_facts=state_facts,
+            query_facts=(*query_facts, *compatibility_facts),
+            property_fact=property_fact,
+        )
+        return materialization, len(compatibility_facts)
+
+    def _compatibility_query_facts(
+        self,
+        state_id: SemanticStateId,
+        compatibility_constraints: tuple[SMTTerm, ...],
+    ) -> tuple[Fact[SMTTerm], ...]:
+        """Wrap reusable-backend and raw-call formulas as ephemeral compatibility facts."""
+        backend_assertions = tuple(self.get_assertions())
+        facts = tuple(
+            make_compatibility_query_fact(
+                formula,
+                "reusable_backend_assertion",
+                index,
+                state_id.context_id,
+            )
+            for index, formula in enumerate(backend_assertions)
+        )
+        offset = len(facts)
+        raw_facts = tuple(
+            make_compatibility_query_fact(
+                formula,
+                "solve_range_extra_constraint",
+                offset + index,
+                state_id.context_id,
+            )
+            for index, formula in enumerate(compatibility_constraints)
+        )
+        return (*facts, *raw_facts)
+
+    def _persistent_query_snapshot(self) -> tuple:
+        """Capture all persistent ownership surfaces guarded by query cleanup."""
+        backend_assertions = tuple(
+            assertion.hash() if hasattr(assertion, "hash") else id(assertion)
+            for assertion in self.get_assertions()
+        )
+        return (
+            self.function_encoding.fact_ids(),
+            self._property_obligations.ids(),
+            backend_assertions,
+            self._scope_depth,
+        )
+
+    def _enter_scope(self, levels: int) -> None:
+        """Record backend scope creation for ownership validation."""
+        if levels < 0:
+            raise ValueError("Solver scope levels cannot be negative")
+        self._scope_depth += levels
+
+    def _exit_scope(self, levels: int) -> None:
+        """Record backend scope removal for ownership validation."""
+        if levels < 0:
+            raise ValueError("Solver scope levels cannot be negative")
+        if levels > self._scope_depth:
+            raise ValueError("Cannot pop more solver scopes than are active")
+        self._scope_depth -= levels
+
+    @staticmethod
+    def _record_fact_registration(fact: Fact[SMTTerm], duplicate: bool) -> None:
+        """Forward one registration attempt to optional telemetry."""
+        from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
+
+        telemetry = get_telemetry()
+        if telemetry is not None and telemetry.enabled:
+            telemetry.record_fact_registration(fact.fact_id, duplicate)
 
     @abstractmethod
     def check_sat(self) -> CheckSatResult:
@@ -327,7 +558,7 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
-    def get_model(self) -> Optional[Dict[str, SMTTerm]]:
+    def get_model(self) -> dict[str, SMTTerm] | None:
         """
         (get-model)
 
@@ -337,7 +568,7 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
-    def get_value(self, terms: List[SMTTerm]) -> Optional[Dict[SMTTerm, SMTTerm]]:
+    def get_value(self, terms: list[SMTTerm]) -> dict[SMTTerm, SMTTerm] | None:
         """
         (get-value (term1 term2 ...))
 
@@ -404,16 +635,16 @@ class SMTSolver(ABC):
     # Helper Methods (not SMT-LIB commands)
     # ========================================================================
 
-    def get_variable(self, name: str) -> Optional[SMTVariable]:
+    def get_variable(self, name: str) -> SMTVariable | None:
         """Get a declared variable by name"""
         return self.variables.get(name)
 
-    def list_variables(self) -> List[str]:
+    def list_variables(self) -> list[str]:
         """List all declared variable names"""
         return list(self.variables.keys())
 
     @abstractmethod
-    def get_assertions(self) -> List[SMTTerm]:
+    def get_assertions(self) -> list[SMTTerm]:
         """Get the list of current assertions in the solver."""
         pass
 
@@ -423,7 +654,7 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
-    def get_eq_operands(self, term: SMTTerm) -> Optional[tuple]:
+    def get_eq_operands(self, term: SMTTerm) -> tuple | None:
         """Get the two operands of an equality constraint. Returns None if not an equality."""
         pass
 
@@ -433,7 +664,7 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
-    def get_constant_as_long(self, term: SMTTerm) -> Optional[int]:
+    def get_constant_as_long(self, term: SMTTerm) -> int | None:
         """Get the integer value of a constant term. Returns None if not a constant."""
         pass
 
@@ -451,17 +682,48 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
+    def check_feasibility(
+        self,
+        *,
+        state_id: SemanticStateId | None = None,
+        state_facts: tuple[Fact[SMTTerm], ...] = (),
+        query_facts: tuple[Fact[SMTTerm], ...] = (),
+        purpose: QueryPurpose = QueryPurpose.FEASIBILITY,
+        timeout_ms: int = 500,
+        property_fact: Fact[SMTTerm] | None = None,
+    ) -> FeasibilityResult:
+        """Check one isolated immutable/state/query/property materialization."""
+        pass
+
+    @abstractmethod
+    def solve_range_result(
+        self,
+        term: SMTTerm,
+        *,
+        state_id: SemanticStateId | None = None,
+        state_facts: tuple[Fact[SMTTerm], ...] = (),
+        query_facts: tuple[Fact[SMTTerm], ...] = (),
+        compatibility_constraints: tuple[SMTTerm, ...] = (),
+        timeout_ms: int = 500,
+        signed: bool = False,
+        fallback_range: RangeInterval | None = None,
+        abstract_range: RangeInterval | None = None,
+    ) -> RangeResult:
+        """Return independently typed feasibility, lower, and upper outcomes."""
+        pass
+
+    @abstractmethod
     def solve_range(
         self,
         term: SMTTerm,
-        extra_constraints: Optional[List[SMTTerm]] = None,
+        extra_constraints: list[SMTTerm] | None = None,
         timeout_ms: int = 500,
         signed: bool = False,
-    ) -> tuple[RangeSolveStatus, Optional[int], Optional[int]]:
+    ) -> tuple[RangeSolveStatus, int | None, int | None]:
         """Find minimum and maximum values of a bitvector term.
 
-        Creates a fresh optimizer context, copies current assertions,
-        adds extra_constraints if provided, and optimizes.
+        Wraps raw extra_constraints as ephemeral compatibility facts and delegates
+        to isolated typed feasibility and objective sessions.
 
         Args:
             term: The bitvector term to optimize.
@@ -478,7 +740,7 @@ class SMTSolver(ABC):
         pass
 
     @abstractmethod
-    def eval_in_model(self, term: SMTTerm) -> Optional[int]:
+    def eval_in_model(self, term: SMTTerm) -> int | None:
         """Evaluate a term in the current model and return its integer value.
 
         Must be called after a successful check_sat() that returned SAT.

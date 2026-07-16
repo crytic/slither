@@ -26,10 +26,13 @@ from slither.analyses.data_flow.source_view import (
     render_annotated_function,
 )
 
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
         TrackedSMTVariable,
     )
+    from slither.analyses.data_flow.analyses.interval.core.state import State
+    from slither.analyses.data_flow.smt_solver.facts import Fact, SemanticStateId
     from slither.analyses.data_flow.smt_solver.cache import RangeQueryCache
     from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.core.cfg.node import Node
@@ -98,9 +101,7 @@ def _create_parser() -> argparse.ArgumentParser:
         description="Slither Data Flow Analysis - Annotated Source View",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
-        "path", type=str, help="Path to contract file or project directory"
-    )
+    parser.add_argument("path", type=str, help="Path to contract file or project directory")
     parser.add_argument(
         "-c",
         "--contract-name",
@@ -111,9 +112,7 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-f", "--function", type=str, metavar="NAME", help="Filter to specific function"
     )
-    parser.add_argument(
-        "--bounds", action="store_true", help="Show bounds/constraints header"
-    )
+    parser.add_argument("--bounds", action="store_true", help="Show bounds/constraints header")
     parser.add_argument(
         "--timeout",
         type=int,
@@ -126,9 +125,7 @@ def _create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip SMT optimization and use conservative type bounds",
     )
-    parser.add_argument(
-        "--telemetry", action="store_true", help="Show solver statistics"
-    )
+    parser.add_argument("--telemetry", action="store_true", help="Show solver statistics")
     parser.add_argument(
         "--json-metrics",
         type=str,
@@ -231,9 +228,7 @@ def _report_empty_function(
     config: AnalysisConfig,
 ) -> int:
     """Report when -f targets a function with no analysis output."""
-    function_exists = any(
-        _get_functions(contract, config.function_name) for contract in contracts
-    )
+    function_exists = any(_get_functions(contract, config.function_name) for contract in contracts)
 
     target = f"'{config.function_name}'"
     if config.contract_name:
@@ -281,6 +276,7 @@ def _run_annotated_analysis(
 def _export_metrics_to_json(filepath: str) -> None:
     """Export evaluation metrics to a JSON file."""
     import os
+
     from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 
     telemetry = get_telemetry()
@@ -540,9 +536,6 @@ def _collect_line_annotations(
         post_state = state.post.state
         range_vars = post_state.get_range_variables()
         used_vars = post_state.get_used_variables()
-        path_constraints = post_state.get_path_constraints()
-        branch_constraints = post_state.get_branch_constraints()
-
         lines = _get_node_lines(node)
         if not lines:
             continue
@@ -564,13 +557,12 @@ def _collect_line_annotations(
             annotation = _create_annotation(
                 var_name,
                 smt_var,
-                path_constraints,
+                post_state,
                 solver,
                 config,
-                cache,
-                tmp_expressions,
-                timeout_ms,
-                branch_constraints,
+                cache=cache,
+                tmp_expressions=tmp_expressions,
+                timeout_ms=timeout_ms,
             )
             if annotation:
                 line_annotations[primary_line].append(annotation)
@@ -586,9 +578,7 @@ def _get_node_lines(node: "Node") -> list[int]:
     return []
 
 
-def _should_skip_variable(
-    var_name: str, used_vars: set[str], show_all: bool = False
-) -> bool:
+def _should_skip_variable(var_name: str, used_vars: set[str], show_all: bool = False) -> bool:
     """Check if variable should be skipped from annotations."""
     # Always skip internal call variables (library and internal functions)
     if var_name.startswith("_lib") or var_name.startswith("_int"):
@@ -669,13 +659,13 @@ def _build_tmp_expressions(node: "Node") -> dict[str, str]:
 def _create_annotation(
     var_name: str,
     smt_var: "TrackedSMTVariable",
-    path_constraints: list,
+    state: "State",
     solver: "SMTSolver",
     config: AnalysisConfig,
+    *,
     cache: "RangeQueryCache",
     tmp_expressions: dict[str, str] | None = None,
     timeout_ms: int | None = None,
-    branch_constraints: list | None = None,
 ) -> LineAnnotation | None:
     """Create a LineAnnotation from analysis data."""
     from slither.analyses.data_flow.analysis import (
@@ -685,7 +675,8 @@ def _create_annotation(
 
     effective_timeout = timeout_ms if timeout_ms is not None else config.timeout_ms
     range_config = RangeQueryConfig(
-        path_constraints=path_constraints,
+        state_id=state.semantic_id(),
+        state_facts=state.get_facts(),
         timeout_ms=effective_timeout,
         skip_optimization=config.skip_solving,
         cache=cache,
@@ -734,14 +725,18 @@ def _create_annotation(
     column = 0
 
     # Check overflow possibility for unchecked arithmetic (deferred to annotation time)
+    branch_facts = state.get_branch_facts()
+    branch_state_id = state.semantic_id_for_facts(branch_facts, "overflow_precondition")
     can_overflow, can_underflow = _check_overflow_possible(
-        solver, smt_var, effective_timeout, branch_constraints
+        solver,
+        smt_var,
+        effective_timeout,
+        branch_state_id,
+        branch_facts,
     )
 
     # Record precision metrics
-    _record_precision_telemetry(
-        min_val, max_val, bit_width, can_overflow, can_underflow
-    )
+    _record_precision_telemetry(min_val, max_val, bit_width, can_overflow, can_underflow)
 
     return build_annotation_from_range(
         var_name=display_name,
@@ -762,7 +757,8 @@ def _check_overflow_possible(
     solver: "SMTSolver",
     smt_var: "TrackedSMTVariable",
     timeout_ms: int,
-    path_constraints: list | None = None,
+    state_id: "SemanticStateId",
+    state_facts: tuple["Fact", ...],
 ) -> tuple[bool, bool]:
     """Check if overflow/underflow is possible for unchecked arithmetic.
 
@@ -781,35 +777,53 @@ def _check_overflow_possible(
         solver: The SMT solver instance.
         smt_var: The tracked variable with overflow predicates.
         timeout_ms: Timeout in milliseconds for each check.
-        path_constraints: Branch-guard SMT constraints from the state
+        state_id: Semantic identity of the branch-guard precondition view.
+        state_facts: Typed branch-guard facts from the state
             containing this arithmetic operation.
 
     Returns:
         Tuple of (can_overflow, can_underflow) booleans.
     """
-    from slither.analyses.data_flow.smt_solver.types import CheckSatResult
+    from slither.analyses.data_flow.smt_solver.facts import make_query_fact
+    from slither.analyses.data_flow.smt_solver.query import (
+        FeasibilityStatus,
+        QueryPurpose,
+    )
 
     can_overflow = False
     can_underflow = False
-    extra_constraints = path_constraints or []
 
     if smt_var.no_overflow is not None:
-        solver.push()
-        for constraint in extra_constraints:
-            solver.assert_constraint(constraint)
-        solver.assert_constraint(solver.Not(smt_var.no_overflow))
-        result = solver.check_sat_with_timeout(timeout_ms)
-        can_overflow = result != CheckSatResult.UNSAT
-        solver.pop()
+        query_fact = make_query_fact(
+            solver.Not(smt_var.no_overflow),
+            "overflow_property",
+            0,
+            state_id.context_id,
+        )
+        result = solver.check_feasibility(
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=(query_fact,),
+            purpose=QueryPurpose.OVERFLOW,
+            timeout_ms=timeout_ms,
+        )
+        can_overflow = result.status is not FeasibilityStatus.UNSAT
 
     if smt_var.no_underflow is not None:
-        solver.push()
-        for constraint in extra_constraints:
-            solver.assert_constraint(constraint)
-        solver.assert_constraint(solver.Not(smt_var.no_underflow))
-        result = solver.check_sat_with_timeout(timeout_ms)
-        can_underflow = result != CheckSatResult.UNSAT
-        solver.pop()
+        query_fact = make_query_fact(
+            solver.Not(smt_var.no_underflow),
+            "underflow_property",
+            0,
+            state_id.context_id,
+        )
+        result = solver.check_feasibility(
+            state_id=state_id,
+            state_facts=state_facts,
+            query_facts=(query_fact,),
+            purpose=QueryPurpose.UNDERFLOW,
+            timeout_ms=timeout_ms,
+        )
+        can_underflow = result.status is not FeasibilityStatus.UNSAT
 
     return can_overflow, can_underflow
 
@@ -886,9 +900,7 @@ def _simplify_var_name(var_name: str, keep_ssa: bool = False) -> str:
         if len(parts) >= 2:
             # Check if first part looks like an SSA variable (ends with _N)
             first_part = parts[0]
-            is_struct_field = (
-                "_" in first_part and first_part.rsplit("_", 1)[-1].isdigit()
-            )
+            is_struct_field = "_" in first_part and first_part.rsplit("_", 1)[-1].isdigit()
             if not is_struct_field:
                 base_name = parts[-1]
 

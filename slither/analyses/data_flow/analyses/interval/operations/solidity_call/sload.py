@@ -4,29 +4,32 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.variables.constant import Constant
-
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     get_variable_name,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.analyses.data_flow.smt_solver.facts import FactOriginKind
 from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
-SLOAD_FUNCTIONS = frozenset({
-    "sload(uint256)",
-})
+SLOAD_FUNCTIONS = frozenset(
+    {
+        "sload(uint256)",
+    }
+)
 
 STORAGE_BIT_WIDTH = 256
 
@@ -41,8 +44,8 @@ class SloadHandler(BaseOperationHandler):
     def handle(
         self,
         operation: SolidityCall,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process sload by correlating with prior sstore writes."""
         if not operation.arguments:
@@ -65,7 +68,14 @@ class SloadHandler(BaseOperationHandler):
         if not write_vars:
             return
 
-        self._constrain_to_writes(tracked_lvalue, write_vars, domain)
+        self._constrain_to_writes(
+            operation,
+            node,
+            slot_key,
+            tracked_lvalue,
+            write_vars,
+            domain,
+        )
 
     def _get_slot_key(self, slot_arg: object) -> str:
         """Convert slot argument to a string key."""
@@ -75,9 +85,12 @@ class SloadHandler(BaseOperationHandler):
 
     def _constrain_to_writes(
         self,
+        operation: SolidityCall,
+        node: Node,
+        slot_key: str,
         tracked_lvalue: TrackedSMTVariable,
         write_vars: list[str],
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Constrain lvalue to equal one of the written values (OR)."""
         terms = []
@@ -89,7 +102,17 @@ class SloadHandler(BaseOperationHandler):
         if not terms:
             return
 
+        formula = terms[0]
         if len(terms) == 1:
-            self.solver.assert_constraint(terms[0])
-        else:
-            self.solver.assert_constraint(self.solver.Or(*terms))
+            formula = terms[0]
+        elif len(terms) > 1:
+            formula = self.solver.Or(*terms)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            formula,
+            "storage_read_value",
+            origin_kind=FactOriginKind.STORAGE,
+            context_id=domain.context_id.for_storage(slot_key),
+        )

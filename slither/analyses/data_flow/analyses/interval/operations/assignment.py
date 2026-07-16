@@ -4,13 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.core.declarations.function import Function
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.tuple import TupleVariable
-from slither.slithir.utils.utils import LVALUE, RVALUE
-
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
@@ -18,21 +14,25 @@ from slither.analyses.data_flow.analyses.interval.operations.type_conversion imp
     match_width,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    constant_to_term,
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
     type_to_sort,
-    constant_to_term,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.core.declarations.function import Function
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.assignment import Assignment
+from slither.slithir.utils.utils import LVALUE, RVALUE
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.tuple import TupleVariable
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 
 class AssignmentHandler(BaseOperationHandler):
@@ -41,8 +41,8 @@ class AssignmentHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Assignment,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process assignment operation."""
         lvalue: LVALUE = operation.lvalue
@@ -58,11 +58,15 @@ class AssignmentHandler(BaseOperationHandler):
             self.solver, lvalue_name, sort, is_signed=signed, bit_width=bit_width
         )
 
-        should_add_constraint = self._should_add_constraint(
-            operation.rvalue, lvalue_name, domain
-        )
+        should_add_constraint = self._should_add_constraint(operation.rvalue, lvalue_name, domain)
         if should_add_constraint:
-            self._process_rvalue(operation.rvalue, tracked_lvalue, lvalue_type, domain)
+            self._process_rvalue(
+                operation,
+                node,
+                tracked_lvalue,
+                lvalue_type,
+                domain,
+            )
             self._record_dependency(operation.rvalue, lvalue_name, domain)
 
         domain.state.set_variable(lvalue_name, tracked_lvalue)
@@ -71,7 +75,7 @@ class AssignmentHandler(BaseOperationHandler):
         self,
         rvalue: RVALUE | Function | TupleVariable,
         lvalue_name: str,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Record that lvalue depends on rvalue."""
         if isinstance(rvalue, Constant):
@@ -86,7 +90,7 @@ class AssignmentHandler(BaseOperationHandler):
         self,
         rvalue: RVALUE | Function | TupleVariable,
         lvalue_name: str,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> bool:
         """Determine if we should add the equality constraint.
 
@@ -112,23 +116,36 @@ class AssignmentHandler(BaseOperationHandler):
 
     def _process_rvalue(
         self,
-        rvalue: RVALUE | Function | TupleVariable,
+        operation: Assignment,
+        node: Node,
         tracked_lvalue: TrackedSMTVariable,
         lvalue_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Process rvalue and assert equality constraint."""
+        rvalue = operation.rvalue
         if isinstance(rvalue, Constant):
-            self._handle_constant(rvalue, tracked_lvalue)
+            self._handle_constant(operation, node, rvalue, tracked_lvalue, domain)
             return
 
         rvalue_name = get_variable_name(rvalue)
-        self._handle_variable(rvalue_name, rvalue, tracked_lvalue, lvalue_type, domain)
+        self._handle_variable(
+            operation,
+            node,
+            rvalue_name,
+            rvalue,
+            tracked_lvalue,
+            lvalue_type,
+            domain,
+        )
 
     def _handle_constant(
         self,
+        operation: Assignment,
+        node: Node,
         constant: Constant,
         tracked_lvalue: TrackedSMTVariable,
+        domain: IntervalDomain,
     ) -> None:
         """Handle constant rvalue."""
         value = constant.value
@@ -137,15 +154,23 @@ class AssignmentHandler(BaseOperationHandler):
 
         width = self.solver.bv_size(tracked_lvalue.term)
         const_term = constant_to_term(self.solver, value, width)
-        self.solver.assert_constraint(tracked_lvalue.term == const_term)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            tracked_lvalue.term == const_term,
+            "assignment_result",
+        )
 
     def _handle_variable(
         self,
+        operation: Assignment,
+        node: Node,
         rvalue_name: str,
         rvalue: RVALUE,
         tracked_lvalue: TrackedSMTVariable,
         lvalue_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Handle variable rvalue."""
         tracked_rvalue = domain.state.get_variable(rvalue_name)
@@ -161,4 +186,10 @@ class AssignmentHandler(BaseOperationHandler):
             domain.state.set_variable(rvalue_name, tracked_rvalue)
 
         rvalue_term = match_width(self.solver, tracked_rvalue.term, tracked_lvalue.term)
-        self.solver.assert_constraint(tracked_lvalue.term == rvalue_term)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            tracked_lvalue.term == rvalue_term,
+            "assignment_result",
+        )

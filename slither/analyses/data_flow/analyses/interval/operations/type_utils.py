@@ -2,28 +2,49 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint, Byte
-from slither.core.declarations.solidity_variables import SolidityVariable
-from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.top_level_variable import TopLevelVariable
-
-from slither.analyses.data_flow.logger import get_logger
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
+from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.smt_solver.facts import (
+    AnalysisContextId,
+    FactKind,
+    FactOriginKind,
+    FactOwnerKind,
+    make_operation_fact,
+)
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.solidity_types.elementary_type import Byte, ElementaryType, Int, Uint
+from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
+
 
 if TYPE_CHECKING:
-    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
     from slither.analyses.data_flow.analyses.interval.analysis.domain import IntervalDomain
+    from slither.analyses.data_flow.smt_solver.solver import SMTSolver
+    from slither.core.cfg.node import Node
+    from slither.slithir.operations.operation import Operation
     from slither.slithir.utils.utils import LVALUE, RVALUE
 
 logger = get_logger()
 
 
-def get_variable_name(variable: "LVALUE | RVALUE") -> str:
+@dataclass(frozen=True)
+class ValueConstraintOrigin:
+    """Static origin of a shared value-binding equation."""
+
+    operation: Operation
+    node: Node
+    semantic_role: str
+    context_id: AnalysisContextId | None = None
+    origin_kind: FactOriginKind = FactOriginKind.OPERATION
+
+
+def get_variable_name(variable: LVALUE | RVALUE) -> str:
     """Get the SSA name for a variable, falling back to regular name."""
     ssa_name = getattr(variable, "ssa_name", None)
     if ssa_name is not None:
@@ -107,7 +128,7 @@ def type_to_sort(element_type: ElementaryType) -> Sort:
 
 
 def constant_to_term(
-    solver: "SMTSolver",
+    solver: SMTSolver,
     value: int | bool,
     bit_width: int,
 ) -> SMTTerm:
@@ -127,15 +148,15 @@ def constant_to_term(
 
 
 def constrain_to_value(
-    solver: "SMTSolver",
+    solver: SMTSolver,
     target: TrackedSMTVariable,
     source: object,
-    domain: "IntervalDomain",
+    domain: IntervalDomain,
+    origin: ValueConstraintOrigin,
 ) -> None:
     """Constrain target to equal source value (shared assignment logic).
 
-    Handles both constant and variable sources. Used by AssignmentHandler
-    and SstoreHandler.
+    Handles both constant and variable sources for shared value-producing handlers.
 
     Args:
         solver: The SMT solver instance.
@@ -143,17 +164,24 @@ def constrain_to_value(
         source: The source value (Constant or SlithIR variable).
         domain: The interval domain for variable lookup.
     """
-    from slither.slithir.variables.constant import Constant
     from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
         match_width,
     )
+    from slither.slithir.variables.constant import Constant
+
+    context_id = origin.context_id or domain.context_id
 
     if isinstance(source, Constant):
         value = source.value
         if isinstance(value, (int, bool)):
             bit_width = solver.bv_size(target.term)
             const_term = constant_to_term(solver, value, bit_width)
-            solver.assert_constraint(target.term == const_term)
+            _register_value_equation(
+                solver,
+                origin,
+                context_id,
+                target.term == const_term,
+            )
         return
 
     source_name = get_variable_name(source)
@@ -169,22 +197,48 @@ def constrain_to_value(
         tracked_source = try_create_state_variable(solver, source, source_name, domain)
 
     if tracked_source is None:
-        tracked_source = try_create_top_level_variable(
-            solver, source, source_name, domain
-        )
+        tracked_source = try_create_top_level_variable(solver, source, source_name, domain)
 
     if tracked_source is None:
         return
 
     source_term = match_width(solver, tracked_source.term, target.term)
-    solver.assert_constraint(target.term == source_term)
+    _register_value_equation(
+        solver,
+        origin,
+        context_id,
+        target.term == source_term,
+    )
+
+
+def _register_value_equation(
+    solver: SMTSolver,
+    origin: ValueConstraintOrigin,
+    context_id: AnalysisContextId,
+    formula: SMTTerm,
+) -> None:
+    """Register shared assignment logic with explicit ownership."""
+    owner = FactOwnerKind.IMMUTABLE_EQUATION
+    if context_id.call_path or context_id.storage_path or context_id.summary_path:
+        owner = FactOwnerKind.CONTEXT_EQUATION
+    fact = make_operation_fact(
+        origin.operation,
+        origin.node,
+        context_id,
+        formula,
+        owner=owner,
+        kind=FactKind.VALUE_BINDING,
+        origin_kind=origin.origin_kind,
+        semantic_role=origin.semantic_role,
+    )
+    solver.register_immutable_fact(fact)
 
 
 def try_create_parameter_variable(
-    solver: "SMTSolver",
-    operand: "RVALUE",
+    solver: SMTSolver,
+    operand: RVALUE,
     operand_name: str,
-    domain: "IntervalDomain",
+    domain: IntervalDomain,
 ) -> TrackedSMTVariable | None:
     """Create a tracked variable for a function parameter if applicable.
 
@@ -224,10 +278,10 @@ def try_create_parameter_variable(
 
 
 def try_create_solidity_variable(
-    solver: "SMTSolver",
-    operand: "RVALUE",
+    solver: SMTSolver,
+    operand: RVALUE,
     operand_name: str,
-    domain: "IntervalDomain",
+    domain: IntervalDomain,
 ) -> TrackedSMTVariable | None:
     """Create a tracked variable for a Solidity built-in if applicable.
 
@@ -262,10 +316,10 @@ def try_create_solidity_variable(
 
 
 def try_create_state_variable(
-    solver: "SMTSolver",
-    operand: "RVALUE",
+    solver: SMTSolver,
+    operand: RVALUE,
     operand_name: str,
-    domain: "IntervalDomain",
+    domain: IntervalDomain,
 ) -> TrackedSMTVariable | None:
     """Create a tracked variable for a state variable if applicable.
 
@@ -306,10 +360,10 @@ def try_create_state_variable(
 
 
 def try_create_top_level_variable(
-    solver: "SMTSolver",
-    operand: "RVALUE",
+    solver: SMTSolver,
+    operand: RVALUE,
     operand_name: str,
-    domain: "IntervalDomain",
+    domain: IntervalDomain,
 ) -> TrackedSMTVariable | None:
     """Create a tracked variable for a top-level variable if applicable.
 

@@ -13,9 +13,15 @@ Designed for evaluation with comprehensive metrics covering:
 
 import json
 import time
-from dataclasses import dataclass, field, asdict
-from typing import Dict, List, Optional, Any
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
+from slither.analyses.data_flow.smt_solver.facts import (
+    FactId,
+    FactOriginKind,
+    FactOwnerKind,
+)
 
 
 @dataclass
@@ -108,6 +114,78 @@ class SolverOutcomeMetrics:
 
 
 @dataclass
+class SolverQuerySample:
+    """One telemetry-gated solver query observation."""
+
+    kind: str
+    outcome: str
+    elapsed_ms: float
+    live_assertions: int
+    copied_assertions: int
+    state_local_constraints: int
+    symbolic_variables: int
+
+
+@dataclass
+class SolverLifetimeMetrics:
+    """Measurements of assertion, state, worklist, and query lifetimes."""
+
+    assertion_additions: int = 0
+    live_assertions: int = 0
+    max_live_assertions: int = 0
+    unique_assertions: int = 0
+    duplicate_assertions: int = 0
+    symbolic_variables: int = 0
+    max_symbolic_variables: int = 0
+    max_state_local_constraints: int = 0
+    worklist_pops: int = 0
+    worklist_enqueues: int = 0
+    max_worklist_size: int = 0
+    node_revisits: int = 0
+    max_node_visits: int = 0
+    copied_assertions: int = 0
+    node_visits: dict[int, int] = field(default_factory=dict)
+    query_samples: list[SolverQuerySample] = field(default_factory=list)
+
+
+@dataclass
+class FactOwnershipMetrics:
+    """Registrations grouped by semantic ownership and provenance."""
+
+    registrations: int = 0
+    duplicate_registration_attempts: int = 0
+    unclassified_additions: int = 0
+    by_owner: dict[str, int] = field(default_factory=dict)
+    by_origin: dict[str, int] = field(default_factory=dict)
+    by_context: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
+class QuerySessionMetrics:
+    """Lifecycle and materialization metrics for isolated query sessions."""
+
+    created: int = 0
+    closed: int = 0
+    active: int = 0
+    max_active: int = 0
+    cleanup_imbalances: int = 0
+    immutable_facts_materialized: int = 0
+    state_facts_materialized: int = 0
+    query_facts_materialized: int = 0
+    compatibility_query_facts: int = 0
+    property_facts_materialized: int = 0
+    assertion_copies: int = 0
+    configured_timeout_sessions: int = 0
+    timeout_results: int = 0
+    elapsed_ms: float = 0.0
+    by_purpose: dict[str, int] = field(default_factory=dict)
+    by_encoding: dict[str, int] = field(default_factory=dict)
+    by_state: dict[str, int] = field(default_factory=dict)
+    feasibility_statuses: dict[str, int] = field(default_factory=dict)
+    bound_statuses: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
 class TransferFunctionMetrics:
     """Transfer function operation statistics."""
 
@@ -142,10 +220,13 @@ class EvaluationMetrics:
     analysis: AnalysisMetrics = field(default_factory=AnalysisMetrics)
     constraints: ConstraintMetrics = field(default_factory=ConstraintMetrics)
     solver: SolverOutcomeMetrics = field(default_factory=SolverOutcomeMetrics)
+    solver_lifetime: SolverLifetimeMetrics = field(default_factory=SolverLifetimeMetrics)
+    facts: FactOwnershipMetrics = field(default_factory=FactOwnershipMetrics)
+    query_sessions: QuerySessionMetrics = field(default_factory=QuerySessionMetrics)
     transfer_functions: TransferFunctionMetrics = field(default_factory=TransferFunctionMetrics)
     precision: PrecisionMetrics = field(default_factory=PrecisionMetrics)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
 
@@ -183,13 +264,13 @@ class SolverTelemetry:
     """
 
     # Operation counters
-    counts: Dict[str, int] = field(default_factory=dict)
+    counts: dict[str, int] = field(default_factory=dict)
 
     # Timing accumulators (total time in seconds)
-    timings: Dict[str, float] = field(default_factory=dict)
+    timings: dict[str, float] = field(default_factory=dict)
 
     # Timing call counts (for computing averages)
-    timing_counts: Dict[str, int] = field(default_factory=dict)
+    timing_counts: dict[str, int] = field(default_factory=dict)
 
     # Whether telemetry is enabled
     enabled: bool = True
@@ -198,7 +279,10 @@ class SolverTelemetry:
     evaluation: EvaluationMetrics = field(default_factory=EvaluationMetrics)
 
     # Per-query timing for statistics
-    _query_times_ms: List[float] = field(default_factory=list)
+    _query_times_ms: list[float] = field(default_factory=list)
+
+    # Exact fingerprints are retained only while telemetry is enabled.
+    _assertion_fingerprints: set[str] = field(default_factory=set)
 
     def count(self, operation: str, amount: int = 1) -> None:
         """Increment counter for an operation."""
@@ -254,6 +338,168 @@ class SolverTelemetry:
         if not self.enabled:
             return
         self.evaluation.analysis.worklist_iterations += 1
+
+    def record_worklist_pop(
+        self,
+        node_id: int,
+        node_visits: int,
+        worklist_size: int,
+        state_local_constraints: int,
+    ) -> None:
+        """Record one worklist pop and the live state size at that point."""
+        if not self.enabled:
+            return
+        lifetime = self.evaluation.solver_lifetime
+        lifetime.worklist_pops += 1
+        lifetime.max_worklist_size = max(lifetime.max_worklist_size, worklist_size)
+        lifetime.max_state_local_constraints = max(
+            lifetime.max_state_local_constraints, state_local_constraints
+        )
+        lifetime.node_visits[node_id] = node_visits
+        lifetime.max_node_visits = max(lifetime.max_node_visits, node_visits)
+        if node_visits > 1:
+            lifetime.node_revisits += 1
+
+    def record_worklist_enqueue(self, worklist_size: int) -> None:
+        """Record a worklist enqueue and the resulting queue size."""
+        if not self.enabled:
+            return
+        lifetime = self.evaluation.solver_lifetime
+        lifetime.worklist_enqueues += 1
+        lifetime.max_worklist_size = max(lifetime.max_worklist_size, worklist_size)
+
+    def record_assertion(
+        self,
+        fingerprint: str,
+        live_assertions: int,
+        symbolic_variables: int,
+    ) -> None:
+        """Record an assertion addition and whether its formula is a duplicate."""
+        if not self.enabled:
+            return
+        lifetime = self.evaluation.solver_lifetime
+        lifetime.assertion_additions += 1
+        if fingerprint in self._assertion_fingerprints:
+            lifetime.duplicate_assertions += 1
+        else:
+            self._assertion_fingerprints.add(fingerprint)
+            lifetime.unique_assertions += 1
+        self.record_solver_snapshot(live_assertions, symbolic_variables)
+
+    def record_fact_registration(self, fact_id: FactId, duplicate: bool) -> None:
+        """Record a classified fact registration attempt."""
+        if not self.enabled:
+            return
+        facts = self.evaluation.facts
+        facts.registrations += 1
+        if duplicate:
+            facts.duplicate_registration_attempts += 1
+        self._increment_group(facts.by_owner, fact_id.owner.value)
+        self._increment_group(facts.by_origin, fact_id.provenance.origin_kind.value)
+        self._increment_group(
+            facts.by_context,
+            fact_id.provenance.context_id.telemetry_key(),
+        )
+
+    def record_unclassified_addition(self) -> None:
+        """Record use of the guarded compatibility assertion API."""
+        if not self.enabled:
+            return
+        facts = self.evaluation.facts
+        facts.unclassified_additions += 1
+        self._increment_group(
+            facts.by_owner,
+            FactOwnerKind.UNCLASSIFIED_COMPATIBILITY.value,
+        )
+        self._increment_group(facts.by_origin, FactOriginKind.COMPATIBILITY.value)
+        self._increment_group(facts.by_context, "<unclassified>")
+
+    def record_query_session_created(
+        self,
+        materialization: Any,
+        timeout_ms: int,
+        compatibility_query_facts: int,
+    ) -> None:
+        """Record creation and typed inputs for one isolated query session."""
+        if not self.enabled:
+            return
+        metrics = self.evaluation.query_sessions
+        metrics.created += 1
+        metrics.active += 1
+        metrics.max_active = max(metrics.max_active, metrics.active)
+        metrics.immutable_facts_materialized += len(materialization.immutable_facts)
+        metrics.state_facts_materialized += len(materialization.state_facts)
+        metrics.query_facts_materialized += len(materialization.query_facts)
+        metrics.compatibility_query_facts += compatibility_query_facts
+        metrics.property_facts_materialized += int(materialization.property_fact is not None)
+        metrics.configured_timeout_sessions += int(timeout_ms > 0)
+        self._increment_group(metrics.by_purpose, materialization.purpose.value)
+        self._increment_group(metrics.by_encoding, repr(materialization.encoding_id))
+        self._increment_group(metrics.by_state, repr(materialization.state_id))
+
+    def record_query_session_closed(self, diagnostics: Any) -> None:
+        """Record outcome and cleanup data when one isolated session closes."""
+        if not self.enabled:
+            return
+        metrics = self.evaluation.query_sessions
+        metrics.closed += 1
+        metrics.active -= 1
+        metrics.elapsed_ms += diagnostics.elapsed_ms
+        metrics.assertion_copies += diagnostics.assertion_copies
+        if not diagnostics.cleanup_balanced or metrics.active < 0:
+            metrics.cleanup_imbalances += 1
+        feasibility = diagnostics.feasibility_status
+        if feasibility is not None:
+            self._increment_group(metrics.feasibility_statuses, feasibility.value)
+            metrics.timeout_results += int(feasibility.value == "timeout")
+        bound = diagnostics.bound_status
+        if bound is not None:
+            self._increment_group(metrics.bound_statuses, bound.value)
+            metrics.timeout_results += int(bound.value == "timeout")
+
+    @staticmethod
+    def _increment_group(groups: dict[str, int], key: str) -> None:
+        """Increment one telemetry grouping."""
+        groups[key] = groups.get(key, 0) + 1
+
+    def record_solver_snapshot(self, live_assertions: int, symbolic_variables: int) -> None:
+        """Record current live assertion and symbolic-variable counts."""
+        if not self.enabled:
+            return
+        lifetime = self.evaluation.solver_lifetime
+        lifetime.live_assertions = live_assertions
+        lifetime.max_live_assertions = max(lifetime.max_live_assertions, live_assertions)
+        lifetime.symbolic_variables = symbolic_variables
+        lifetime.max_symbolic_variables = max(lifetime.max_symbolic_variables, symbolic_variables)
+
+    def record_range_query(
+        self,
+        *,
+        kind: str,
+        outcome: str,
+        elapsed_ms: float,
+        live_assertions: int,
+        state_local_constraints: int,
+        symbolic_variables: int,
+    ) -> None:
+        """Record a query that copied the current function and state facts."""
+        if not self.enabled:
+            return
+        sample = SolverQuerySample(
+            kind=kind,
+            outcome=outcome,
+            elapsed_ms=elapsed_ms,
+            live_assertions=live_assertions,
+            copied_assertions=live_assertions + state_local_constraints,
+            state_local_constraints=state_local_constraints,
+            symbolic_variables=symbolic_variables,
+        )
+        lifetime = self.evaluation.solver_lifetime
+        lifetime.query_samples.append(sample)
+        lifetime.copied_assertions += sample.copied_assertions
+        lifetime.max_state_local_constraints = max(
+            lifetime.max_state_local_constraints, state_local_constraints
+        )
 
     def record_widening(self) -> None:
         """Record a widening application."""
@@ -439,8 +685,9 @@ class SolverTelemetry:
         self.timing_counts.clear()
         self.evaluation = EvaluationMetrics()
         self._query_times_ms.clear()
+        self._assertion_fingerprints.clear()
 
-    def get_summary(self) -> Dict[str, Dict]:
+    def get_summary(self) -> dict[str, dict]:
         """Get summary of all telemetry data."""
         summary = {
             "counts": dict(self.counts),
@@ -829,10 +1076,10 @@ class SolverTelemetry:
 
 
 # Global telemetry instance (disabled by default)
-_global_telemetry: Optional[SolverTelemetry] = None
+_global_telemetry: SolverTelemetry | None = None
 
 
-def get_telemetry(create_if_missing: bool = True) -> Optional[SolverTelemetry]:
+def get_telemetry(create_if_missing: bool = True) -> SolverTelemetry | None:
     """Get the global telemetry instance.
 
     Args:

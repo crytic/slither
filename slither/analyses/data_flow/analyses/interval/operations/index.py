@@ -4,26 +4,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
+from slither.analyses.data_flow.analyses.interval.operations.base import (
+    BaseOperationHandler,
+)
+from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
+    match_width,
+)
+from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_bit_width,
+    get_variable_name,
+    is_signed_type,
+    type_to_sort,
+)
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.index import Index
 from slither.slithir.variables.constant import Constant
 
-from slither.analyses.data_flow.analyses.interval.operations.base import (
-    BaseOperationHandler,
-)
-from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
-    get_variable_name,
-    get_bit_width,
-    is_signed_type,
-    type_to_sort,
-)
-from slither.analyses.data_flow.analyses.interval.operations.type_conversion import (
-    match_width,
-)
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -38,8 +38,8 @@ class IndexHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Index,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         element_type = self._get_element_type(operation)
         if element_type is None:
@@ -48,11 +48,14 @@ class IndexHandler(BaseOperationHandler):
         reference_name = get_variable_name(operation.lvalue)
         element_name = self._build_element_name(operation)
 
-        tracked_reference = self._create_reference_variable(
-            reference_name, element_type, domain
-        )
+        tracked_reference = self._create_reference_variable(reference_name, element_type, domain)
         self._link_reference_to_element(
-            tracked_reference, element_name, element_type, domain
+            operation,
+            node,
+            tracked_reference,
+            element_name,
+            element_type,
+            domain,
         )
 
     def _get_element_type(self, operation: Index) -> ElementaryType | None:
@@ -82,7 +85,7 @@ class IndexHandler(BaseOperationHandler):
         self,
         reference_name: str,
         element_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> TrackedSMTVariable:
         sort = type_to_sort(element_type)
         signed = is_signed_type(element_type)
@@ -96,28 +99,32 @@ class IndexHandler(BaseOperationHandler):
 
     def _link_reference_to_element(
         self,
+        operation: Index,
+        node: Node,
         tracked_reference: TrackedSMTVariable,
         element_name: str,
         element_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         tracked_element = domain.state.get_variable(element_name)
 
         if tracked_element is None:
-            tracked_element = self._create_element_variable(
-                element_name, element_type, domain
-            )
+            tracked_element = self._create_element_variable(element_name, element_type, domain)
 
-        element_term = match_width(
-            self.solver, tracked_element.term, tracked_reference.term
+        element_term = match_width(self.solver, tracked_element.term, tracked_reference.term)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            tracked_reference.term == element_term,
+            "indexed_element",
         )
-        self.solver.assert_constraint(tracked_reference.term == element_term)
 
     def _create_element_variable(
         self,
         element_name: str,
         element_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> TrackedSMTVariable:
         sort = type_to_sort(element_type)
         signed = is_signed_type(element_type)

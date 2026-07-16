@@ -6,11 +6,13 @@ from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.operations.interprocedural import (
     InterproceduralHandler,
+    build_call_symbol_prefix,
 )
 from slither.core.declarations.function import Function
 from slither.slithir.operations.high_level_call import HighLevelCall
 
 if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.facts import AnalysisContextId
     from slither.slithir.operations.call import Call
 
 
@@ -23,9 +25,7 @@ class HighLevelCallHandler(InterproceduralHandler):
     unconstrained as a sound over-approximation.
     """
 
-    _call_counter: int = 0
-
-    def _get_called_function(self, operation: "Call") -> Function | None:
+    def _get_called_function(self, operation: Call) -> Function | None:
         """Extract the called Function from the high-level call.
 
         Returns the Function if resolvable and implemented, None otherwise.
@@ -41,13 +41,16 @@ class HighLevelCallHandler(InterproceduralHandler):
             return None
         return func
 
-    def _build_call_prefix(self, operation: "Call") -> str:
-        """Build unique prefix for high-level call."""
-        HighLevelCallHandler._call_counter += 1
+    def _build_call_prefix(
+        self,
+        operation: Call,
+        context_id: AnalysisContextId,
+    ) -> str:
+        """Build a deterministic prefix for a high-level call context."""
         func_name = "unknown"
         if isinstance(operation, HighLevelCall) and operation.function:
             if isinstance(operation.function, Function):
                 func_name = operation.function.name
             elif hasattr(operation, "function_name"):
                 func_name = str(operation.function_name)
-        return f"_ext{HighLevelCallHandler._call_counter}_{func_name}_"
+        return build_call_symbol_prefix("ext", func_name, context_id)

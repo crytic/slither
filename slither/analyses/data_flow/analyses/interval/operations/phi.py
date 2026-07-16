@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -16,9 +16,10 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     is_signed_type,
     type_to_sort,
 )
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.cfg.node import NodeType
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.phi import Phi
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -45,8 +46,8 @@ class PhiHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Phi,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process Phi operation by merging incoming values."""
         if operation.lvalue is None:
@@ -83,13 +84,19 @@ class PhiHandler(BaseOperationHandler):
 
         # If we have incoming values, constrain result to be one of them
         if incoming_variables:
-            self._add_phi_constraints(result_variable, incoming_variables)
+            self._add_phi_constraints(
+                operation,
+                node,
+                domain,
+                result_variable,
+                incoming_variables,
+            )
 
         domain.state.set_variable(result_name, result_variable)
 
     def _handle_loop_header_phi(
         self,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
         result_name: str,
         lvalue_type: ElementaryType,
     ) -> None:
@@ -121,9 +128,9 @@ class PhiHandler(BaseOperationHandler):
 
     def _get_incoming_variables(
         self,
-        rvalues: List["RVALUE"],
-        domain: "IntervalDomain",
-    ) -> List[TrackedSMTVariable]:
+        rvalues: list[RVALUE],
+        domain: IntervalDomain,
+    ) -> list[TrackedSMTVariable]:
         """Get tracked variables for Phi incoming values."""
         tracked_variables = []
         for rvalue in rvalues:
@@ -135,8 +142,11 @@ class PhiHandler(BaseOperationHandler):
 
     def _add_phi_constraints(
         self,
+        operation: Phi,
+        node: Node,
+        domain: IntervalDomain,
         result_variable: TrackedSMTVariable,
-        incoming_variables: List[TrackedSMTVariable],
+        incoming_variables: list[TrackedSMTVariable],
     ) -> None:
         """Add constraint that result equals one of the incoming values.
 
@@ -144,15 +154,23 @@ class PhiHandler(BaseOperationHandler):
         For multiple: result == v1 OR result == v2 OR ...
         """
         if len(incoming_variables) == 1:
-            self.solver.assert_constraint(
-                result_variable.term == incoming_variables[0].term
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_variable.term == incoming_variables[0].term,
+                "phi_result",
             )
             return
 
         # Multiple incoming values - create disjunction
-        equalities = [
-            result_variable.term == variable.term for variable in incoming_variables
-        ]
+        equalities = [result_variable.term == variable.term for variable in incoming_variables]
         disjunction = self.solver.Or(*equalities)
 
-        self.solver.assert_constraint(disjunction)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            disjunction,
+            "phi_result",
+        )

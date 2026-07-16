@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.slithir.operations.return_operation import Return
-from slither.slithir.variables.constant import Constant
-
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
@@ -21,12 +18,15 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     type_to_sort,
 )
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 
 class ReturnHandler(BaseOperationHandler):
@@ -40,20 +40,23 @@ class ReturnHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Return,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process return operation by tracking constant return values."""
         if not operation.values:
             return
 
-        for return_value in operation.values:
-            self._track_return_value(return_value, domain)
+        for index, return_value in enumerate(operation.values):
+            self._track_return_value(operation, node, index, return_value, domain)
 
     def _track_return_value(
         self,
+        operation: Return,
+        node: Node,
+        index: int,
         return_value,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Track a single return value if it's a constant."""
         if not isinstance(return_value, Constant):
@@ -77,6 +80,12 @@ class ReturnHandler(BaseOperationHandler):
         )
 
         constant_term = constant_to_term(self.solver, constant_value, bit_width)
-        self.solver.assert_constraint(return_var.term == constant_term)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            return_var.term == constant_term,
+            f"constant_return_{index}",
+        )
 
         domain.state.set_variable(return_name, return_var)

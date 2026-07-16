@@ -19,6 +19,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.unpack import Unpack
 
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
@@ -37,8 +38,8 @@ class UnpackHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Unpack,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process Unpack operation by extracting element from tracked tuple."""
         if operation.lvalue is None:
@@ -66,6 +67,12 @@ class UnpackHandler(BaseOperationHandler):
 
         # Constrain result to equal the tuple element if found
         if tuple_element is not None:
-            self.solver.assert_constraint(result_var.term == tuple_element.term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == tuple_element.term,
+                "unpack_result",
+            )
 
         domain.state.set_variable(result_name, result_var)

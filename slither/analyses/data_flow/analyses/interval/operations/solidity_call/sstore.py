@@ -4,30 +4,34 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.variables.constant import Constant
-
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
-    get_variable_name,
+    ValueConstraintOrigin,
     constrain_to_value,
+    get_variable_name,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.analyses.data_flow.smt_solver.facts import FactOriginKind
 from slither.analyses.data_flow.smt_solver.types import Sort, SortKind
+from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
-SSTORE_FUNCTIONS = frozenset({
-    "sstore(uint256,uint256)",
-})
+SSTORE_FUNCTIONS = frozenset(
+    {
+        "sstore(uint256,uint256)",
+    }
+)
 
 STORAGE_BIT_WIDTH = 256
 
@@ -42,8 +46,8 @@ class SstoreHandler(BaseOperationHandler):
     def handle(
         self,
         operation: SolidityCall,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process sstore as assignment to storage slot."""
         if len(operation.arguments) < 2:
@@ -61,10 +65,22 @@ class SstoreHandler(BaseOperationHandler):
             self.solver, lvalue_name, sort, is_signed=False, bit_width=STORAGE_BIT_WIDTH
         )
 
-        constrain_to_value(self.solver, tracked_lvalue, value_arg, domain)
+        slot_key = self._get_slot_key(slot_arg)
+        constrain_to_value(
+            self.solver,
+            tracked_lvalue,
+            value_arg,
+            domain,
+            ValueConstraintOrigin(
+                operation,
+                node,
+                "storage_write_value",
+                context_id=domain.context_id.for_storage(slot_key),
+                origin_kind=FactOriginKind.STORAGE,
+            ),
+        )
         domain.state.set_variable(lvalue_name, tracked_lvalue)
 
-        slot_key = self._get_slot_key(slot_arg)
         domain.state.add_storage_write(slot_key, lvalue_name)
 
     def _get_slot_key(self, slot_arg: object) -> str:

@@ -4,23 +4,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.array_type import ArrayType
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.init_array import InitArray
-
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
-    get_variable_name,
+    ValueConstraintOrigin,
+    constrain_to_value,
     get_bit_width,
+    get_variable_name,
     is_signed_type,
     type_to_sort,
-    constrain_to_value,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.core.solidity_types.array_type import ArrayType
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.init_array import InitArray
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -35,8 +36,8 @@ class InitArrayHandler(BaseOperationHandler):
     def handle(
         self,
         operation: InitArray,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         element_type = self._get_element_type(operation)
         if element_type is None:
@@ -48,12 +49,16 @@ class InitArrayHandler(BaseOperationHandler):
             if isinstance(init_value, list):
                 continue
             self._process_element(
-                lvalue_name, index, init_value, element_type, domain
+                operation,
+                node,
+                lvalue_name,
+                index,
+                init_value,
+                element_type,
+                domain,
             )
 
-    def _get_element_type(
-        self, operation: InitArray
-    ) -> ElementaryType | None:
+    def _get_element_type(self, operation: InitArray) -> ElementaryType | None:
         lvalue_type = operation.lvalue.type
         if not isinstance(lvalue_type, ArrayType):
             return None
@@ -63,11 +68,13 @@ class InitArrayHandler(BaseOperationHandler):
 
     def _process_element(
         self,
+        operation: InitArray,
+        node: Node,
         array_name: str,
         index: int,
         init_value: object,
         element_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         element_name = f"{array_name}[{index}]"
         sort = type_to_sort(element_type)
@@ -82,4 +89,14 @@ class InitArrayHandler(BaseOperationHandler):
             bit_width=bit_width,
         )
         domain.state.set_variable(element_name, tracked)
-        constrain_to_value(self.solver, tracked, init_value, domain)
+        constrain_to_value(
+            self.solver,
+            tracked,
+            init_value,
+            domain,
+            ValueConstraintOrigin(
+                operation,
+                node,
+                f"array_element_{index}",
+            ),
+        )

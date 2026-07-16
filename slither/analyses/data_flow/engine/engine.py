@@ -6,13 +6,14 @@ both forward and backward data flow analyses.
 
 import time
 from collections import defaultdict, deque
-from typing import Deque, Dict, Generic, List, Set
+from typing import Generic
 
 from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
+
 
 logger = get_logger()
 
@@ -34,14 +35,14 @@ class Engine(Generic[A]):
 
     def __init__(self) -> None:
         """Initialize an empty engine instance."""
-        self.state: Dict[int, AnalysisState[A]] = {}
-        self.nodes: List[Node] = []
+        self.state: dict[int, AnalysisState[A]] = {}
+        self.nodes: list[Node] = []
         self.analysis: Analysis
         self.function: Function
 
         # Performance instrumentation
         self.iteration_count = 0
-        self.node_visit_count: Dict[int, int] = defaultdict(int)
+        self.node_visit_count: dict[int, int] = defaultdict(int)
         self.start_time: float = 0.0
         self.last_progress_time: float = 0.0
 
@@ -91,7 +92,7 @@ class Engine(Generic[A]):
                 external_call_count += len(node.external_calls_as_expressions)
 
         # Count state variables accessed
-        state_vars: Set[str] = set()
+        state_vars: set[str] = set()
         for node in function.nodes:
             if hasattr(node, "state_variables_read"):
                 state_vars.update(str(var) for var in node.state_variables_read)
@@ -114,8 +115,8 @@ class Engine(Generic[A]):
         if not function.nodes:
             return 0
 
-        visited: Set[int] = set()
-        in_stack: Set[int] = set()
+        visited: set[int] = set()
+        in_stack: set[int] = set()
         back_edges = 0
 
         def dfs(node: Node) -> None:
@@ -140,7 +141,7 @@ class Engine(Generic[A]):
 
     def run_analysis(self) -> None:
         """Run the worklist algorithm until fixpoint is reached."""
-        worklist: Deque[Node] = deque()
+        worklist: deque[Node] = deque()
 
         # Instrumentation constants
         MAX_ITERATIONS = 10000
@@ -156,6 +157,9 @@ class Engine(Generic[A]):
             entry_point = self.function.entry_point
             if entry_point is not None:
                 worklist.append(entry_point)
+                telemetry = get_telemetry()
+                if telemetry is not None and telemetry.enabled:
+                    telemetry.record_worklist_enqueue(len(worklist))
                 logger.info("Starting analysis of {name}", name=self.function.name)
         else:
             raise NotImplementedError("Backward analysis is not implemented")
@@ -178,9 +182,9 @@ class Engine(Generic[A]):
                     max=MAX_ITERATIONS,
                     size=len(worklist),
                 )
-                top_nodes = sorted(
-                    self.node_visit_count.items(), key=lambda x: x[1], reverse=True
-                )[:10]
+                top_nodes = sorted(self.node_visit_count.items(), key=lambda x: x[1], reverse=True)[
+                    :10
+                ]
                 for node_id, count in top_nodes:
                     logger.error("Node {node_id}: {count} visits", node_id=node_id, count=count)
                 break
@@ -201,6 +205,13 @@ class Engine(Generic[A]):
 
             # Track node visits
             self.node_visit_count[node.node_id] += 1
+            if telemetry is not None and telemetry.enabled:
+                telemetry.record_worklist_pop(
+                    node.node_id,
+                    self.node_visit_count[node.node_id],
+                    len(worklist) + 1,
+                    self._state_local_constraint_count(self.state[node.node_id].pre),
+                )
             if self.node_visit_count[node.node_id] == 50:
                 logger.warning("Node {node_id} visited 50 times!", node_id=node.node_id)
             if self.node_visit_count[node.node_id] == 100:
@@ -231,7 +242,16 @@ class Engine(Generic[A]):
         if telemetry is not None and telemetry.enabled:
             telemetry.record_fixpoint_reached()
 
-    def result(self) -> Dict[Node, AnalysisState[A]]:
+    @staticmethod
+    def _state_local_constraint_count(domain: object) -> int:
+        """Count state-local constraints without coupling the engine to a domain."""
+        state = getattr(domain, "state", None)
+        getter = getattr(state, "get_path_constraints", None)
+        if getter is None:
+            return 0
+        return len(getter())
+
+    def result(self) -> dict[Node, AnalysisState[A]]:
         """Return analysis results mapped by CFG node.
 
         Returns:

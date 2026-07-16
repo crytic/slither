@@ -2,41 +2,45 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.binary import Binary, BinaryType
-
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
-from slither.analyses.data_flow.analyses.interval.core.state import ComparisonInfo
+from slither.analyses.data_flow.smt_solver.facts import StaticOperationId
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.binary import Binary, BinaryType
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
-COMPARISON_OPERATIONS = frozenset({
-    BinaryType.LESS,
-    BinaryType.GREATER,
-    BinaryType.LESS_EQUAL,
-    BinaryType.GREATER_EQUAL,
-    BinaryType.EQUAL,
-    BinaryType.NOT_EQUAL,
-    BinaryType.ANDAND,
-    BinaryType.OROR,
-})
+COMPARISON_OPERATIONS = frozenset(
+    {
+        BinaryType.LESS,
+        BinaryType.GREATER,
+        BinaryType.LESS_EQUAL,
+        BinaryType.GREATER_EQUAL,
+        BinaryType.EQUAL,
+        BinaryType.NOT_EQUAL,
+        BinaryType.ANDAND,
+        BinaryType.OROR,
+    }
+)
 
 
 class ComparisonHandler(BaseOperationHandler):
@@ -48,8 +52,8 @@ class ComparisonHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Binary,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process comparison binary operation."""
         result_name = get_variable_name(operation.lvalue)
@@ -68,18 +72,26 @@ class ComparisonHandler(BaseOperationHandler):
 
         if condition is not None:
             result_term = self._bool_to_bitvector(condition)
-            self.solver.assert_constraint(result_var.term == result_term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == result_term,
+                "comparison_result",
+            )
             # Store comparison info for condition narrowing
-            domain.state.set_comparison(result_name, ComparisonInfo(condition))
+            operation_id = StaticOperationId.from_operation(operation, node)
+            domain.state.set_comparison(
+                result_name,
+                ComparisonInfo(condition, operation_id),
+            )
 
         domain.state.set_variable(result_name, result_var)
 
     def _create_result_variable(self, name: str) -> TrackedSMTVariable:
         """Create a 1-bit result variable for boolean result."""
         sort = Sort(kind=SortKind.BITVEC, parameters=[1])
-        return TrackedSMTVariable.create(
-            self.solver, name, sort, is_signed=False, bit_width=1
-        )
+        return TrackedSMTVariable.create(self.solver, name, sort, is_signed=False, bit_width=1)
 
     def _get_operand_width(self, operation: Binary) -> int:
         """Get the bit width of operands for comparison."""

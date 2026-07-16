@@ -5,11 +5,14 @@ propagates abstract states between nodes.
 """
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Deque, Dict, Optional
+from collections import deque
+from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.engine.analysis import A, Analysis, AnalysisState
 
+from slither.analyses.data_flow.smt_solver.telemetry import get_telemetry
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations.condition import Condition
 
@@ -32,8 +35,8 @@ class Direction(ABC):
         analysis: "Analysis",
         current_state: "AnalysisState",
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, "AnalysisState[A]"],
     ) -> None:
         """Apply transfer function and propagate state to successors/predecessors.
 
@@ -66,11 +69,11 @@ class Forward(Direction):
         analysis: "Analysis",
         current_state: "AnalysisState",
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, "AnalysisState[A]"],
     ) -> None:
         # Apply transfer function to current node
-        condition_op: Optional[Condition] = None
+        condition_op: Condition | None = None
         for operation in node.irs_ssa or [None]:
             analysis.transfer_function(node=node, domain=current_state.pre, operation=operation)
             # Track the Condition operation if present
@@ -105,9 +108,7 @@ class Forward(Direction):
                 )
                 # Widen on back edges before joining
                 if is_back_edge:
-                    filtered_domain = analysis.apply_widening(
-                        filtered_domain, son_state.pre, set()
-                    )
+                    filtered_domain = analysis.apply_widening(filtered_domain, son_state.pre, set())
                 changed = son_state.pre.join(filtered_domain)
             else:
                 state_to_propagate = current_state.pre
@@ -120,6 +121,9 @@ class Forward(Direction):
 
             if changed and successor not in worklist:
                 worklist.append(successor)
+                telemetry = get_telemetry()
+                if telemetry is not None and telemetry.enabled:
+                    telemetry.record_worklist_enqueue(len(worklist))
 
 
 class Backward(Direction):
@@ -139,8 +143,8 @@ class Backward(Direction):
         analysis: "Analysis",
         current_state: "AnalysisState",
         node: Node,
-        worklist: Deque[Node],
-        global_state: Dict[int, "AnalysisState[A]"],
+        worklist: deque[Node],
+        global_state: dict[int, "AnalysisState[A]"],
     ) -> None:
         """Apply transfer function for backward analysis (not yet implemented)."""
         raise NotImplementedError("Backward transfer function hasn't been developed yet")

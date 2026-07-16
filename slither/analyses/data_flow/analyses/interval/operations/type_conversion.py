@@ -4,40 +4,40 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.type_conversion import TypeConversion
-from slither.slithir.variables.constant import Constant
-
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    constant_to_term,
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
-    constant_to_term,
     try_create_parameter_variable,
-)
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
 )
 from slither.analyses.data_flow.analyses.interval.operations.width_matching import (
     match_width,
     match_width_to_int,
 )
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 # Re-export for backward compatibility — many modules import from here
 __all__ = [
+    "TypeConversionHandler",
     "match_width",
     "match_width_to_int",
-    "TypeConversionHandler",
 ]
 
 
@@ -50,8 +50,8 @@ class TypeConversionHandler(BaseOperationHandler):
     def handle(
         self,
         operation: TypeConversion,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process type conversion operation."""
         target_type = operation.type
@@ -67,7 +67,13 @@ class TypeConversionHandler(BaseOperationHandler):
 
         if source_term is not None:
             converted_term = self._convert_term(source_term, operation, target_width)
-            self.solver.assert_constraint(result_var.term == converted_term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == converted_term,
+                "conversion_result",
+            )
 
         domain.state.set_variable(result_name, result_var)
 
@@ -86,7 +92,7 @@ class TypeConversionHandler(BaseOperationHandler):
     def _resolve_source(
         self,
         operation: TypeConversion,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> SMTTerm | None:
         """Resolve the source variable to an SMT term."""
         source = operation.variable
@@ -100,9 +106,7 @@ class TypeConversionHandler(BaseOperationHandler):
         if tracked is not None:
             return tracked.term
 
-        tracked = try_create_parameter_variable(
-            self.solver, source, source_name, domain
-        )
+        tracked = try_create_parameter_variable(self.solver, source, source_name, domain)
         if tracked is not None:
             return tracked.term
 

@@ -3,32 +3,34 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.binary import Binary, BinaryType
-from slither.slithir.variables.constant import Constant
-from slither.slithir.utils.utils import RVALUE
-
-from slither.analyses.data_flow.logger import get_logger
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.smt_solver.facts import FactKind
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.utils.utils import RVALUE
+from slither.slithir.variables.constant import Constant
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 logger = get_logger()
 
@@ -70,8 +72,8 @@ class ArithmeticHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Binary,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process arithmetic binary operation."""
         result_type = self._get_result_type(operation)
@@ -90,17 +92,11 @@ class ArithmeticHandler(BaseOperationHandler):
         # the pre-write term.  Then create a fresh Z3 variable for
         # the post-write result to avoid a circular constraint.
         if is_compound:
-            left_term = self._resolve_operand(
-                operation.variable_left, domain, bit_width
-            )
-            result_var = self._create_result_variable(
-                result_name + "__post", bit_width, signed
-            )
+            left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
+            result_var = self._create_result_variable(result_name + "__post", bit_width, signed)
         else:
             result_var = self._create_result_variable(result_name, bit_width, signed)
-            left_term = self._resolve_operand(
-                operation.variable_left, domain, bit_width
-            )
+            left_term = self._resolve_operand(operation.variable_left, domain, bit_width)
         right_term = self._resolve_operand(operation.variable_right, domain, bit_width)
 
         if left_term is None or right_term is None:
@@ -117,10 +113,22 @@ class ArithmeticHandler(BaseOperationHandler):
             bit_width,
         )
         if result_term is not None:
-            self.solver.assert_constraint(result_var.term == result_term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == result_term,
+                "arithmetic_result",
+            )
 
         if operation.type in (BinaryType.DIVISION, BinaryType.MODULO):
-            self._add_divisor_nonzero_constraint(right_term, bit_width, domain)
+            self._add_divisor_nonzero_constraint(
+                operation,
+                node,
+                right_term,
+                bit_width,
+                domain,
+            )
 
         overflow_predicates = self._compute_overflow_predicates(
             operation.type, left_term, right_term, signed, both_constants
@@ -129,10 +137,8 @@ class ArithmeticHandler(BaseOperationHandler):
         is_checked = node.scope.is_checked
         should_check = is_checked and result_term is not None and not both_constants
         if should_check:
-            context = ConstraintContext(
-                left_term, right_term, result_term, signed, bit_width
-            )
-            self._assert_checked_constraints(operation.type, context, domain)
+            context = ConstraintContext(left_term, right_term, result_term, signed, bit_width)
+            self._assert_checked_constraints(operation, node, context, domain)
 
         # Store predicates and is_checked flag for deferred overflow checking
         # Overflow is only possible in unchecked contexts (assembly, unchecked blocks)
@@ -147,7 +153,7 @@ class ArithmeticHandler(BaseOperationHandler):
         self,
         operation: Binary,
         result_name: str,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Record that result depends on operands for cycle detection."""
         for operand in (operation.variable_left, operation.variable_right):
@@ -195,9 +201,7 @@ class ArithmeticHandler(BaseOperationHandler):
         """Compute overflow predicates, returning empty dict for constants."""
         if both_constants:
             return {"no_overflow": None, "no_underflow": None}
-        return self._get_overflow_predicates(
-            operation_type, left_term, right_term, is_signed
-        )
+        return self._get_overflow_predicates(operation_type, left_term, right_term, is_signed)
 
     def _check_constant_subtraction_signed(
         self,
@@ -216,24 +220,29 @@ class ArithmeticHandler(BaseOperationHandler):
 
     def _assert_checked_constraints(
         self,
-        operation_type: BinaryType,
+        operation: Binary,
+        node: Node,
         context: ConstraintContext,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Add overflow/underflow constraints as path constraints for checked arithmetic.
 
         Creates path-scoped constraints that narrow input ranges to valid values.
         Using path constraints ensures these don't pollute other branches.
         """
-        if operation_type == BinaryType.ADDITION:
-            self._add_addition_constraints(context, domain)
-        elif operation_type == BinaryType.SUBTRACTION:
-            self._add_subtraction_constraints(context, domain)
-        elif operation_type == BinaryType.MULTIPLICATION:
-            self._add_multiplication_constraints(context, domain)
+        if operation.type == BinaryType.ADDITION:
+            self._add_addition_constraints(operation, node, context, domain)
+        elif operation.type == BinaryType.SUBTRACTION:
+            self._add_subtraction_constraints(operation, node, context, domain)
+        elif operation.type == BinaryType.MULTIPLICATION:
+            self._add_multiplication_constraints(operation, node, context, domain)
 
     def _add_addition_constraints(
-        self, context: ConstraintContext, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        context: ConstraintContext,
+        domain: IntervalDomain,
     ) -> None:
         """Add addition overflow constraints as path constraints.
 
@@ -241,14 +250,23 @@ class ArithmeticHandler(BaseOperationHandler):
         For signed: result must maintain sign consistency
         """
         if context.is_signed:
-            self._add_signed_addition_constraints(context, domain)
+            self._add_signed_addition_constraints(operation, node, context, domain)
         else:
-            domain.state.add_path_constraint(
-                self.solver.bv_uge(context.result, context.left)
+            self._add_state_fact(
+                operation,
+                node,
+                domain,
+                self.solver.bv_uge(context.result, context.left),
+                "checked_addition_no_overflow",
+                kind=FactKind.CHECKED_ARITHMETIC,
             )
 
     def _add_signed_addition_constraints(
-        self, context: ConstraintContext, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        context: ConstraintContext,
+        domain: IntervalDomain,
     ) -> None:
         """Add signed addition overflow constraints as path constraints."""
         # Signed overflow: pos + pos = neg, or neg + neg = pos
@@ -272,11 +290,29 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.Not(self.solver.And(left_negative, right_negative)),
             self.solver.bv_sle(context.result, zero),
         )
-        domain.state.add_path_constraint(no_overflow)
-        domain.state.add_path_constraint(no_underflow)
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            no_overflow,
+            "checked_addition_no_overflow",
+            kind=FactKind.CHECKED_ARITHMETIC,
+        )
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            no_underflow,
+            "checked_addition_no_underflow",
+            kind=FactKind.CHECKED_ARITHMETIC,
+        )
 
     def _add_subtraction_constraints(
-        self, context: ConstraintContext, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        context: ConstraintContext,
+        domain: IntervalDomain,
     ) -> None:
         """Add subtraction underflow constraints as path constraints.
 
@@ -284,14 +320,23 @@ class ArithmeticHandler(BaseOperationHandler):
         For signed: result must maintain sign consistency
         """
         if context.is_signed:
-            self._add_signed_subtraction_constraints(context, domain)
+            self._add_signed_subtraction_constraints(operation, node, context, domain)
         else:
-            domain.state.add_path_constraint(
-                self.solver.bv_ule(context.result, context.left)
+            self._add_state_fact(
+                operation,
+                node,
+                domain,
+                self.solver.bv_ule(context.result, context.left),
+                "checked_subtraction_no_underflow",
+                kind=FactKind.CHECKED_ARITHMETIC,
             )
 
     def _add_signed_subtraction_constraints(
-        self, context: ConstraintContext, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        context: ConstraintContext,
+        domain: IntervalDomain,
     ) -> None:
         """Add signed subtraction overflow/underflow constraints as path constraints."""
         # Signed: pos - neg can overflow, neg - pos can underflow
@@ -315,32 +360,72 @@ class ArithmeticHandler(BaseOperationHandler):
             self.solver.Not(self.solver.And(left_negative, right_positive)),
             result_negative,
         )
-        domain.state.add_path_constraint(no_overflow)
-        domain.state.add_path_constraint(no_underflow)
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            no_overflow,
+            "checked_subtraction_no_overflow",
+            kind=FactKind.CHECKED_ARITHMETIC,
+        )
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            no_underflow,
+            "checked_subtraction_no_underflow",
+            kind=FactKind.CHECKED_ARITHMETIC,
+        )
 
     def _add_multiplication_constraints(
-        self, context: ConstraintContext, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        context: ConstraintContext,
+        domain: IntervalDomain,
     ) -> None:
         """Add multiplication overflow constraints as path constraints.
 
         Uses the solver's built-in predicates for multiplication overflow detection.
         """
-        no_overflow = self.solver.bv_mul_no_overflow(
-            context.left, context.right, context.is_signed
+        no_overflow = self.solver.bv_mul_no_overflow(context.left, context.right, context.is_signed)
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            no_overflow,
+            "checked_multiplication_no_overflow",
+            kind=FactKind.CHECKED_ARITHMETIC,
         )
-        domain.state.add_path_constraint(no_overflow)
         if context.is_signed:
             no_underflow = self.solver.bv_mul_no_underflow(context.left, context.right)
-            domain.state.add_path_constraint(no_underflow)
+            self._add_state_fact(
+                operation,
+                node,
+                domain,
+                no_underflow,
+                "checked_multiplication_no_underflow",
+                kind=FactKind.CHECKED_ARITHMETIC,
+            )
 
     def _add_divisor_nonzero_constraint(
-        self, divisor: SMTTerm, bit_width: int, domain: "IntervalDomain"
+        self,
+        operation: Binary,
+        node: Node,
+        divisor: SMTTerm,
+        bit_width: int,
+        domain: IntervalDomain,
     ) -> None:
         """Add divisor nonzero constraint as path constraint (division by zero reverts)."""
-        zero = self.solver.create_constant(
-            0, Sort(kind=SortKind.BITVEC, parameters=[bit_width])
+        zero = self.solver.create_constant(0, Sort(kind=SortKind.BITVEC, parameters=[bit_width]))
+        self._add_state_fact(
+            operation,
+            node,
+            domain,
+            self.solver.Not(divisor == zero),
+            "nonzero_divisor",
+            kind=FactKind.NONZERO_REQUIREMENT,
         )
-        domain.state.add_path_constraint(self.solver.Not(divisor == zero))
 
     def _get_result_type(self, operation: Binary) -> ElementaryType | None:
         """Get the result type from the operation."""
@@ -352,7 +437,7 @@ class ArithmeticHandler(BaseOperationHandler):
     def _resolve_operand(
         self,
         operand: RVALUE,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
         target_width: int,
     ) -> SMTTerm | None:
         """Resolve an operand, raising ValueError if not found.
@@ -391,17 +476,11 @@ class ArithmeticHandler(BaseOperationHandler):
 
         if is_self_operation:
             if operation_type == BinaryType.DIVISION:
-                return self.solver.create_constant(
-                    1, Sort(SortKind.BITVEC, [bit_width])
-                )
+                return self.solver.create_constant(1, Sort(SortKind.BITVEC, [bit_width]))
             if operation_type == BinaryType.MODULO:
-                return self.solver.create_constant(
-                    0, Sort(SortKind.BITVEC, [bit_width])
-                )
+                return self.solver.create_constant(0, Sort(SortKind.BITVEC, [bit_width]))
             if operation_type == BinaryType.SUBTRACTION:
-                return self.solver.create_constant(
-                    0, Sort(SortKind.BITVEC, [bit_width])
-                )
+                return self.solver.create_constant(0, Sort(SortKind.BITVEC, [bit_width]))
 
         dispatch: dict[BinaryType, Callable[[], SMTTerm]] = {
             BinaryType.ADDITION: lambda: self.solver.bv_add(left, right),

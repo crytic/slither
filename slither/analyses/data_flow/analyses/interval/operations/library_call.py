@@ -6,11 +6,13 @@ from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.operations.interprocedural import (
     InterproceduralHandler,
+    build_call_symbol_prefix,
 )
 from slither.core.declarations.function import Function
 from slither.slithir.operations.library_call import LibraryCall
 
 if TYPE_CHECKING:
+    from slither.analyses.data_flow.smt_solver.facts import AnalysisContextId
     from slither.slithir.operations.call import Call
 
 
@@ -21,9 +23,7 @@ class LibraryCallHandler(InterproceduralHandler):
     library function parameters and analyzing the function body.
     """
 
-    _call_counter: int = 0
-
-    def _get_called_function(self, operation: "Call") -> Function | None:
+    def _get_called_function(self, operation: Call) -> Function | None:
         """Extract the called Function from the library call."""
         if not isinstance(operation, LibraryCall):
             return None
@@ -32,8 +32,11 @@ class LibraryCallHandler(InterproceduralHandler):
             return func
         return None
 
-    def _build_call_prefix(self, operation: "Call") -> str:
-        """Build unique prefix for library call."""
-        LibraryCallHandler._call_counter += 1
+    def _build_call_prefix(
+        self,
+        operation: Call,
+        context_id: AnalysisContextId,
+    ) -> str:
+        """Build a deterministic prefix for a library call context."""
         func_name = operation.function.name if operation.function else "unknown"
-        return f"_lib{LibraryCallHandler._call_counter}_{func_name}_"
+        return build_call_symbol_prefix("lib", func_name, context_id)

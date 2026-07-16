@@ -4,27 +4,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations.unary import Unary, UnaryType
-
-from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
+    TrackedSMTVariable,
+)
 from slither.analyses.data_flow.analyses.interval.operations.base import (
     BaseOperationHandler,
 )
 from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
+    get_bit_width,
     get_variable_name,
     is_signed_type,
-    get_bit_width,
 )
-from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
-    TrackedSMTVariable,
-)
+from slither.analyses.data_flow.smt_solver.types import SMTTerm, Sort, SortKind
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.slithir.operations.unary import Unary, UnaryType
+
 
 if TYPE_CHECKING:
-    from slither.core.cfg.node import Node
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
         IntervalDomain,
     )
+    from slither.core.cfg.node import Node
 
 
 class UnaryHandler(BaseOperationHandler):
@@ -36,8 +36,8 @@ class UnaryHandler(BaseOperationHandler):
     def handle(
         self,
         operation: Unary,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process unary operation."""
         result_type = self._get_result_type(operation)
@@ -57,7 +57,13 @@ class UnaryHandler(BaseOperationHandler):
 
         result_term = self._compute_result(operation.type, operand_term, bit_width)
         if result_term is not None:
-            self.solver.assert_constraint(result_var.term == result_term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == result_term,
+                "unary_result",
+            )
 
         domain.state.set_variable(result_name, result_var)
 

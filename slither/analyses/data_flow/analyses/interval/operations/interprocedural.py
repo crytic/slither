@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.analysis.domain import (
     DomainVariant,
@@ -13,7 +13,6 @@ from slither.analyses.data_flow.analyses.interval.core.state import (
     ComparisonInfo,
     State,
 )
-from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
 )
@@ -30,6 +29,12 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
     is_signed_type,
     type_to_sort,
 )
+from slither.analyses.data_flow.logger import get_logger
+from slither.analyses.data_flow.smt_solver.facts import (
+    AnalysisContextId,
+    Fact,
+    StaticOperationId,
+)
 from slither.analyses.data_flow.smt_solver.types import SMTTerm
 from slither.core.declarations.function import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -37,6 +42,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.variable import Variable
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -48,21 +54,73 @@ if TYPE_CHECKING:
 logger = get_logger()
 
 
+def build_call_symbol_prefix(
+    call_kind: str,
+    function_name: str,
+    context_id: AnalysisContextId,
+) -> str:
+    """Build a traversal-independent symbol prefix from a structured call path."""
+    call_path = "_".join(
+        f"{operation_id.node_id}_{operation_id.ir_position}"
+        for operation_id in context_id.call_path
+    )
+    return f"_{call_kind}_{call_path}_{function_name}_"
+
+
+@dataclass(frozen=True)
+class CalleeContext:
+    """Identity and symbol namespace for one analyzed call site."""
+
+    call_prefix: str
+    analysis_context_id: AnalysisContextId
+    call_operation_id: StaticOperationId
+
+
 @dataclass(frozen=True)
 class CallContext:
-    """Context for call analysis containing result metadata."""
+    """Callee context plus scalar result metadata."""
 
     result_name: str
     result_type: ElementaryType
-    call_prefix: str
+    callee: CalleeContext
+
+
+@dataclass(frozen=True)
+class TupleCallContext:
+    """Callee context plus tuple result metadata."""
+
+    tuple_name: str
+    tuple_types: list
+    callee: CalleeContext
+
+
+@dataclass(frozen=True)
+class ParameterBindingContext:
+    """Mutable binding progress associated with one callee context."""
+
+    parameter_terms: dict[str, SMTTerm]
+    domain: IntervalDomain
+    bound_names: set[str]
+    callee: CalleeContext
 
 
 class PrefixedStateWrapper:
     """Wrapper that prefixes variable names for namespaced call analysis."""
 
-    def __init__(self, state: State, prefix: str) -> None:
+    def __init__(
+        self,
+        state: State,
+        prefix: str,
+        context_id: AnalysisContextId,
+    ) -> None:
         self._state = state
         self._prefix = prefix
+        self._context_id = context_id
+
+    @property
+    def context_id(self) -> AnalysisContextId:
+        """Return the callee analysis context."""
+        return self._context_id
 
     def get_variable(self, name: str) -> TrackedSMTVariable | None:
         """Get variable with prefixed name."""
@@ -72,9 +130,13 @@ class PrefixedStateWrapper:
         """Set variable with prefixed name."""
         self._state.set_variable(self._prefix + name, variable)
 
-    def add_path_constraint(self, constraint: SMTTerm) -> None:
-        """Forward path constraint to underlying state."""
-        self._state.add_path_constraint(constraint)
+    def add_state_fact(self, fact: Fact[SMTTerm]) -> bool:
+        """Forward a typed state fact to the underlying state."""
+        return self._state.add_state_fact(fact)
+
+    def get_facts(self) -> tuple[Fact[SMTTerm], ...]:
+        """Return active state facts for feasibility queries."""
+        return self._state.get_facts()
 
     def add_dependency(self, variable: str, depends_on: str) -> None:
         """Record dependency with prefixed names."""
@@ -89,16 +151,11 @@ class PrefixedStateWrapper:
         """Get dependencies for prefixed variable, returning unprefixed names."""
         prefixed_deps = self._state.get_dependencies(self._prefix + variable)
         prefix_len = len(self._prefix)
-        return {
-            dep[prefix_len:] if dep.startswith(self._prefix) else dep
-            for dep in prefixed_deps
-        }
+        return {dep[prefix_len:] if dep.startswith(self._prefix) else dep for dep in prefixed_deps}
 
     def has_transitive_dependency(self, source: str, target: str) -> bool:
         """Check transitive dependency with prefixed names."""
-        return self._state.has_transitive_dependency(
-            self._prefix + source, self._prefix + target
-        )
+        return self._state.has_transitive_dependency(self._prefix + source, self._prefix + target)
 
     def set_comparison(self, name: str, info: ComparisonInfo) -> None:
         """Store comparison info with prefixed name."""
@@ -112,10 +169,21 @@ class PrefixedStateWrapper:
 class PrefixedDomainWrapper:
     """Wrapper that provides prefixed state access for function call analysis."""
 
-    def __init__(self, domain: "IntervalDomain", prefix: str) -> None:
+    def __init__(
+        self,
+        domain: IntervalDomain,
+        prefix: str,
+        context_id: AnalysisContextId,
+    ) -> None:
         self._domain = domain
         self._prefix = prefix
-        self._state = PrefixedStateWrapper(domain.state, prefix)
+        self._context_id = context_id
+        self._state = PrefixedStateWrapper(domain.state, prefix, context_id)
+
+    @property
+    def context_id(self) -> AnalysisContextId:
+        """Return the callee context independently of its symbol prefix."""
+        return self._context_id
 
     @property
     def state(self) -> PrefixedStateWrapper:
@@ -146,9 +214,9 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def handle(
         self,
-        operation: "Call",
-        domain: "IntervalDomain",
-        node: "Node",
+        operation: Call,
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process call operation with interprocedural analysis."""
         if operation.lvalue is None:
@@ -159,7 +227,7 @@ class InterproceduralHandler(BaseOperationHandler):
 
         # Handle tuple returns separately
         if isinstance(lvalue, TupleVariable):
-            self._handle_tuple_return(operation, domain)
+            self._handle_tuple_return(operation, domain, node)
             return
 
         if not isinstance(lvalue_type, ElementaryType):
@@ -177,14 +245,24 @@ class InterproceduralHandler(BaseOperationHandler):
             self._create_unconstrained_result(result_name, lvalue_type, domain)
             return
 
-        call_prefix = self._build_call_prefix(operation)
-        context = CallContext(result_name, lvalue_type, call_prefix)
+        callee = self._create_callee_context(
+            operation,
+            called_function,
+            domain,
+            node,
+        )
+        context = CallContext(
+            result_name,
+            lvalue_type,
+            callee,
+        )
         self._analyze_called_function(called_function, argument_terms, domain, context)
 
     def _handle_tuple_return(
         self,
-        operation: "Call",
-        domain: "IntervalDomain",
+        operation: Call,
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Handle function calls that return tuples."""
         lvalue = operation.lvalue
@@ -200,21 +278,44 @@ class InterproceduralHandler(BaseOperationHandler):
             self._create_unconstrained_tuple(tuple_name, lvalue.type, domain)
             return
 
-        call_prefix = self._build_call_prefix(operation)
+        callee = self._create_callee_context(
+            operation,
+            called_function,
+            domain,
+            node,
+        )
+        context = TupleCallContext(tuple_name, lvalue.type, callee)
         self._analyze_tuple_function(
             called_function,
             argument_terms,
             domain,
-            tuple_name,
-            lvalue.type,
-            call_prefix,
+            context,
+        )
+
+    def _create_callee_context(
+        self,
+        operation: Call,
+        called_function: Function,
+        domain: IntervalDomain,
+        node: Node,
+    ) -> CalleeContext:
+        """Create structured identity and a display-only symbol prefix."""
+        operation_id = StaticOperationId.from_operation(operation, node)
+        analysis_context_id = domain.context_id.for_call(
+            called_function,
+            operation_id,
+        )
+        return CalleeContext(
+            call_prefix=self._build_call_prefix(operation, analysis_context_id),
+            analysis_context_id=analysis_context_id,
+            call_operation_id=operation_id,
         )
 
     def _create_unconstrained_tuple(
         self,
         tuple_name: str,
-        tuple_types: List,
-        domain: "IntervalDomain",
+        tuple_types: list,
+        domain: IntervalDomain,
     ) -> None:
         """Create unconstrained variables for each tuple element."""
         for index, element_type in enumerate(tuple_types):
@@ -226,48 +327,67 @@ class InterproceduralHandler(BaseOperationHandler):
     def _analyze_tuple_function(
         self,
         function: Function,
-        argument_terms: List[SMTTerm],
-        domain: "IntervalDomain",
-        tuple_name: str,
-        tuple_types: List,
-        call_prefix: str,
+        argument_terms: list[SMTTerm],
+        domain: IntervalDomain,
+        context: TupleCallContext,
     ) -> None:
         """Analyze a function that returns a tuple and extract all return values."""
         parameters = function.parameters
 
         if len(parameters) != len(argument_terms):
-            self._create_unconstrained_tuple(tuple_name, tuple_types, domain)
+            self._create_unconstrained_tuple(
+                context.tuple_name,
+                context.tuple_types,
+                domain,
+            )
             return
 
         param_name_to_term = self._build_parameter_mapping(parameters, argument_terms)
-        self._bind_parameter_reads(function, param_name_to_term, domain, call_prefix)
-        succeeded = self._analyze_function_body(function, domain, call_prefix)
+        self._bind_parameter_reads(
+            function,
+            param_name_to_term,
+            domain,
+            context.callee,
+        )
+        succeeded = self._analyze_function_body(
+            function,
+            domain,
+            context.callee,
+        )
 
         if not succeeded:
             self._restore_domain_state(domain)
-            self._create_unconstrained_tuple(tuple_name, tuple_types, domain)
+            self._create_unconstrained_tuple(
+                context.tuple_name,
+                context.tuple_types,
+                domain,
+            )
             return
 
         self._extract_tuple_return_values(
-            function, domain, tuple_name, tuple_types, call_prefix
+            function,
+            domain,
+            context,
         )
 
     def _extract_tuple_return_values(
         self,
         function: Function,
-        domain: "IntervalDomain",
-        tuple_name: str,
-        tuple_types: List,
-        call_prefix: str,
+        domain: IntervalDomain,
+        context: TupleCallContext,
     ) -> None:
         """Extract all return values from a tuple-returning function."""
-        return_values = self._find_all_return_values(function, domain, call_prefix)
+        return_values = self._find_all_return_values(
+            function,
+            domain,
+            context.callee.call_prefix,
+        )
 
-        for index, element_type in enumerate(tuple_types):
+        for index, element_type in enumerate(context.tuple_types):
             if not isinstance(element_type, ElementaryType):
                 continue
 
-            element_name = f"{tuple_name}[{index}]"
+            element_name = f"{context.tuple_name}[{index}]"
             sort = type_to_sort(element_type)
             is_signed = is_signed_type(element_type)
             bit_width = get_bit_width(element_type)
@@ -281,25 +401,28 @@ class InterproceduralHandler(BaseOperationHandler):
             )
 
             if index < len(return_values) and return_values[index] is not None:
-                return_term = match_width(
-                    self.solver, return_values[index].term, result_var.term
+                return_term = match_width(self.solver, return_values[index].term, result_var.term)
+                self._register_equation_for_id(
+                    context.callee.call_operation_id,
+                    context.callee.analysis_context_id,
+                    result_var.term == return_term,
+                    f"tuple_return_{index}",
                 )
-                self.solver.assert_constraint(result_var.term == return_term)
 
             domain.state.set_variable(element_name, result_var)
 
     def _find_all_return_values(
         self,
         function: Function,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
         call_prefix: str,
-    ) -> List[TrackedSMTVariable | None]:
+    ) -> list[TrackedSMTVariable | None]:
         """Find all return values from the function's return operations.
 
         Skips constant-only Returns (early-exit guards) and takes the
         last Return with any tracked value.
         """
-        latest: List[TrackedSMTVariable | None] = []
+        latest: list[TrackedSMTVariable | None] = []
         for node in function.nodes:
             for operation in node.irs_ssa:
                 if not isinstance(operation, Return):
@@ -324,18 +447,22 @@ class InterproceduralHandler(BaseOperationHandler):
         return latest
 
     @abstractmethod
-    def _get_called_function(self, operation: "Call") -> Function | None:
+    def _get_called_function(self, operation: Call) -> Function | None:
         """Extract the called Function from the operation."""
 
     @abstractmethod
-    def _build_call_prefix(self, operation: "Call") -> str:
+    def _build_call_prefix(
+        self,
+        operation: Call,
+        context_id: AnalysisContextId,
+    ) -> str:
         """Build unique prefix for this call site."""
 
     def _resolve_arguments(
         self,
-        arguments: List,
-        domain: "IntervalDomain",
-    ) -> List[SMTTerm] | None:
+        arguments: list,
+        domain: IntervalDomain,
+    ) -> list[SMTTerm] | None:
         """Resolve call arguments to SMT terms."""
         terms = []
         for arg in arguments:
@@ -348,7 +475,7 @@ class InterproceduralHandler(BaseOperationHandler):
     def _resolve_single_argument(
         self,
         argument,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> SMTTerm | None:
         """Resolve a single argument to an SMT term.
 
@@ -369,7 +496,7 @@ class InterproceduralHandler(BaseOperationHandler):
         self,
         argument,
         arg_name: str,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> SMTTerm | None:
         """Create a tracked variable for an untracked argument.
 
@@ -402,24 +529,29 @@ class InterproceduralHandler(BaseOperationHandler):
     def _analyze_called_function(
         self,
         function: Function,
-        argument_terms: List[SMTTerm],
-        domain: "IntervalDomain",
+        argument_terms: list[SMTTerm],
+        domain: IntervalDomain,
         context: CallContext,
     ) -> None:
         """Analyze called function with argument constraints."""
         parameters = function.parameters
 
         if len(parameters) != len(argument_terms):
-            self._create_unconstrained_result(
-                context.result_name, context.result_type, domain
-            )
+            self._create_unconstrained_result(context.result_name, context.result_type, domain)
             return
 
         param_name_to_term = self._build_parameter_mapping(parameters, argument_terms)
         self._bind_parameter_reads(
-            function, param_name_to_term, domain, context.call_prefix
+            function,
+            param_name_to_term,
+            domain,
+            context.callee,
         )
-        succeeded = self._analyze_function_body(function, domain, context.call_prefix)
+        succeeded = self._analyze_function_body(
+            function,
+            domain,
+            context.callee,
+        )
 
         if not succeeded:
             self._restore_domain_state(domain)
@@ -434,21 +566,21 @@ class InterproceduralHandler(BaseOperationHandler):
 
     def _build_parameter_mapping(
         self,
-        parameters: List,
-        argument_terms: List[SMTTerm],
-    ) -> Dict[str, SMTTerm]:
+        parameters: list,
+        argument_terms: list[SMTTerm],
+    ) -> dict[str, SMTTerm]:
         """Build mapping from parameter base names to argument terms."""
-        mapping: Dict[str, SMTTerm] = {}
-        for param, arg_term in zip(parameters, argument_terms):
+        mapping: dict[str, SMTTerm] = {}
+        for param, arg_term in zip(parameters, argument_terms, strict=True):
             mapping[param.name] = arg_term
         return mapping
 
     def _bind_parameter_reads(
         self,
         function: Function,
-        param_name_to_term: Dict[str, SMTTerm],
-        domain: "IntervalDomain",
-        call_prefix: str,
+        param_name_to_term: dict[str, SMTTerm],
+        domain: IntervalDomain,
+        callee: CalleeContext,
     ) -> None:
         """Bind SSA parameter reads to argument values.
 
@@ -456,41 +588,48 @@ class InterproceduralHandler(BaseOperationHandler):
         vs reads in the function body (a_1). This method finds the actual
         read references and constrains them to argument values.
         """
-        bound_names: set[str] = set()
+        context = ParameterBindingContext(
+            param_name_to_term,
+            domain,
+            set(),
+            callee,
+        )
 
         for node in function.nodes:
             for operation in node.irs_ssa:
                 for var in operation.read:
                     self._bind_if_parameter(
-                        var, param_name_to_term, domain, bound_names, call_prefix
+                        operation,
+                        node,
+                        var,
+                        context,
                     )
 
     def _bind_if_parameter(
         self,
+        operation: object,
+        node: Node,
         variable: Variable,
-        param_name_to_term: Dict[str, SMTTerm],
-        domain: "IntervalDomain",
-        bound_names: set[str],
-        call_prefix: str,
+        context: ParameterBindingContext,
     ) -> None:
         """Bind a variable to its argument value if it's a parameter read."""
         if not isinstance(variable, Variable):
             return
 
         base_name = variable.name
-        if base_name not in param_name_to_term:
+        if base_name not in context.parameter_terms:
             return
 
         original_name = get_variable_name(variable)
-        prefixed_name = call_prefix + original_name
-        if prefixed_name in bound_names:
+        prefixed_name = context.callee.call_prefix + original_name
+        if prefixed_name in context.bound_names:
             return
 
         var_type = variable.type
         if not isinstance(var_type, ElementaryType):
             return
 
-        arg_term = param_name_to_term[base_name]
+        arg_term = context.parameter_terms[base_name]
         sort = type_to_sort(var_type)
         is_signed = is_signed_type(var_type)
         bit_width = get_bit_width(var_type)
@@ -499,15 +638,21 @@ class InterproceduralHandler(BaseOperationHandler):
             self.solver, prefixed_name, sort, is_signed=is_signed, bit_width=bit_width
         )
         matched_arg = match_width(self.solver, arg_term, param_var.term)
-        self.solver.assert_constraint(param_var.term == matched_arg)
-        domain.state.set_variable(prefixed_name, param_var)
-        bound_names.add(prefixed_name)
+        operation_id = StaticOperationId.from_operation(operation, node)
+        self._register_equation_for_id(
+            operation_id,
+            context.callee.analysis_context_id,
+            param_var.term == matched_arg,
+            f"parameter_binding_{original_name}",
+        )
+        context.domain.state.set_variable(prefixed_name, param_var)
+        context.bound_names.add(prefixed_name)
 
     def _analyze_function_body(
         self,
         function: Function,
-        domain: "IntervalDomain",
-        call_prefix: str,
+        domain: IntervalDomain,
+        callee: CalleeContext,
     ) -> bool:
         """Analyze the function's body operations.
 
@@ -520,7 +665,11 @@ class InterproceduralHandler(BaseOperationHandler):
             OperationHandlerRegistry,
         )
 
-        prefixed_domain = PrefixedDomainWrapper(domain, call_prefix)
+        prefixed_domain = PrefixedDomainWrapper(
+            domain,
+            callee.call_prefix,
+            callee.analysis_context_id,
+        )
         registry = OperationHandlerRegistry(self.solver)
 
         for node in function.nodes:
@@ -538,8 +687,7 @@ class InterproceduralHandler(BaseOperationHandler):
 
             if prefixed_domain.variant == DomainVariant.BOTTOM:
                 logger.debug(
-                    "Callee %s set domain to BOTTOM (likely "
-                    "revert without proper CFG join)",
+                    "Callee %s set domain to BOTTOM (likely revert without proper CFG join)",
                     function.name,
                 )
                 return False
@@ -549,11 +697,15 @@ class InterproceduralHandler(BaseOperationHandler):
     def _extract_return_value(
         self,
         function: Function,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
         context: CallContext,
     ) -> None:
         """Extract the return value from the analyzed function."""
-        return_var = self._find_return_variable(function, domain, context.call_prefix)
+        return_var = self._find_return_variable(
+            function,
+            domain,
+            context.callee.call_prefix,
+        )
 
         sort = type_to_sort(context.result_type)
         is_signed = is_signed_type(context.result_type)
@@ -569,14 +721,19 @@ class InterproceduralHandler(BaseOperationHandler):
 
         if return_var is not None:
             matched_return = match_width(self.solver, return_var.term, result_var.term)
-            self.solver.assert_constraint(result_var.term == matched_return)
+            self._register_equation_for_id(
+                context.callee.call_operation_id,
+                context.callee.analysis_context_id,
+                result_var.term == matched_return,
+                "call_return_binding",
+            )
 
         domain.state.set_variable(context.result_name, result_var)
 
     def _find_return_variable(
         self,
         function: Function,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
         call_prefix: str,
     ) -> TrackedSMTVariable | None:
         """Find the return variable from the function's return operations.
@@ -602,7 +759,7 @@ class InterproceduralHandler(BaseOperationHandler):
                     latest = tracked
         return latest
 
-    def _restore_domain_state(self, domain: "IntervalDomain") -> None:
+    def _restore_domain_state(self, domain: IntervalDomain) -> None:
         """Restore domain to STATE if callee analysis poisoned it to BOTTOM."""
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
@@ -611,7 +768,7 @@ class InterproceduralHandler(BaseOperationHandler):
         self,
         name: str,
         element_type: ElementaryType,
-        domain: "IntervalDomain",
+        domain: IntervalDomain,
     ) -> None:
         """Create an unconstrained variable for fallback cases."""
         sort = type_to_sort(element_type)

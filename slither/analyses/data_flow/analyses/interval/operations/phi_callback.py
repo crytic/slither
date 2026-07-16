@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.interval.core.tracked_variable import (
     TrackedSMTVariable,
@@ -18,6 +18,7 @@ from slither.analyses.data_flow.analyses.interval.operations.type_utils import (
 )
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.phi_callback import PhiCallback
+
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.interval.analysis.domain import (
@@ -40,8 +41,8 @@ class PhiCallbackHandler(BaseOperationHandler):
     def handle(
         self,
         operation: PhiCallback,
-        domain: "IntervalDomain",
-        node: "Node",
+        domain: IntervalDomain,
+        node: Node,
     ) -> None:
         """Process PhiCallback by creating unconstrained state variable."""
         if operation.lvalue is None:
@@ -71,15 +72,21 @@ class PhiCallbackHandler(BaseOperationHandler):
 
         # If we have incoming values, constrain result to be one of them
         if incoming_vars:
-            self._add_phi_constraints(result_var, incoming_vars)
+            self._add_phi_constraints(
+                operation,
+                node,
+                domain,
+                result_var,
+                incoming_vars,
+            )
 
         domain.state.set_variable(result_name, result_var)
 
     def _get_incoming_variables(
         self,
-        rvalues: List,
-        domain: "IntervalDomain",
-    ) -> List[TrackedSMTVariable]:
+        rvalues: list,
+        domain: IntervalDomain,
+    ) -> list[TrackedSMTVariable]:
         """Get tracked variables for PhiCallback incoming values."""
         tracked_vars = []
         for rvalue in rvalues:
@@ -91,16 +98,31 @@ class PhiCallbackHandler(BaseOperationHandler):
 
     def _add_phi_constraints(
         self,
+        operation: PhiCallback,
+        node: Node,
+        domain: IntervalDomain,
         result_var: TrackedSMTVariable,
-        incoming_vars: List[TrackedSMTVariable],
+        incoming_vars: list[TrackedSMTVariable],
     ) -> None:
         """Add constraint that result equals one of the incoming values."""
         if len(incoming_vars) == 1:
-            self.solver.assert_constraint(result_var.term == incoming_vars[0].term)
+            self._register_equation(
+                operation,
+                node,
+                domain,
+                result_var.term == incoming_vars[0].term,
+                "phi_callback_result",
+            )
             return
 
         # Multiple incoming values - create disjunction
         equalities = [result_var.term == var.term for var in incoming_vars]
         disjunction = self.solver.Or(*equalities)
 
-        self.solver.assert_constraint(disjunction)
+        self._register_equation(
+            operation,
+            node,
+            domain,
+            disjunction,
+            "phi_callback_result",
+        )
