@@ -6,6 +6,7 @@ import json
 import argparse
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither import Slither
 from slither.exceptions import SlitherError
@@ -29,6 +30,8 @@ def parse_args() -> argparse.Namespace:
             + "TARGET can be a contract address or project directory"
         ),
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument(
         "contract_source",
@@ -78,7 +81,7 @@ def parse_args() -> argparse.Namespace:
         "--json",
         action="store",
         help="Save the result in a JSON file.",
-    )
+    ).complete = shtab.FILE
 
     parser.add_argument(
         "--value",

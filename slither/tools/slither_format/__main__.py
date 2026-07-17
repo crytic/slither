@@ -2,6 +2,7 @@ import sys
 import argparse
 import logging
 from crytic_compile import cryticparser
+import shtab
 from slither import Slither
 from slither.utils.command_line import read_config_file
 from slither.tools.slither_format.slither_format import slither_format
@@ -29,6 +30,8 @@ def parse_args() -> argparse.Namespace:
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(description="slither_format", usage="slither_format filename")
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument(
         "filename", help="The filename of the contract or truffle directory to analyze."
@@ -60,7 +63,7 @@ def parse_args() -> argparse.Namespace:
         action="store",
         dest="config_file",
         default="slither.config.json",
-    )
+    ).complete = shtab.FILE
 
     group_detector = parser.add_argument_group("Detectors")
     group_detector.add_argument(
@@ -74,8 +77,8 @@ def parse_args() -> argparse.Namespace:
 
     group_detector.add_argument(
         "--exclude",
-        help="Comma-separated list of detectors to exclude,"
-        "available detectors: {', '.join(d for d in available_detectors)}",
+        help="Comma-separated list of detectors to exclude, "
+        f"available detectors: {', '.join(d for d in available_detectors)}",
         action="store",
         dest="detectors_to_exclude",
         default="all",

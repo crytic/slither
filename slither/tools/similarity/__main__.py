@@ -5,6 +5,7 @@ import logging
 import sys
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither.tools.similarity.info import info
 from slither.tools.similarity.test import test
@@ -22,11 +23,15 @@ def parse_args() -> argparse.Namespace:
         description="Code similarity detection tool. For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector"
     )
 
-    parser.add_argument("mode", help="|".join(modes))
+    shtab.add_argument_to(parser)
+
+    parser.add_argument("mode", help="|".join(modes), choices=modes)
 
     parser.add_argument("model", help="model.bin")
 
-    parser.add_argument("--filename", action="store", dest="filename", help="contract.sol")
+    parser.add_argument(
+        "--filename", action="store", dest="filename", help="contract.sol"
+    ).complete = shtab.FILE
 
     parser.add_argument("--fname", action="store", dest="fname", help="Target function")
 
@@ -51,7 +56,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--input", action="store", dest="input", help="File or directory used as input"
-    )
+    ).complete = shtab.FILE
 
     parser.add_argument(
         "--version",

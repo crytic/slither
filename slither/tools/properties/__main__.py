@@ -4,6 +4,7 @@ import sys
 from typing import Any
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
@@ -68,6 +69,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-prop filename",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument(
         "filename", help="The filename of the contract or project directory to analyze."
