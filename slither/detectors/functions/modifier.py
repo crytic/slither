@@ -17,7 +17,8 @@ from slither.utils.output import Output
 
 def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
-        ir.function.name in ["revert()", "revert(string"] for ir in node.internal_calls
+        ir.function.name in ["revert()", "revert(string)"] or ir.function.name.startswith("revert ")
+        for ir in node.internal_calls
     )
 
 
