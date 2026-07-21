@@ -33,6 +33,7 @@ from slither.utils.command_line import (
     defaults_flag_in_config,
     output_detectors,
     output_detectors_json,
+    output_config_file_options,
     output_printers,
     output_printers_json,
     output_results_to_markdown,
@@ -669,6 +670,10 @@ def parse_args(
     )
 
     parser.add_argument(
+        "--wiki-config", help=argparse.SUPPRESS, action=OutputWikiConfig, nargs=0, default=False
+    )
+
+    parser.add_argument(
         "--list-detectors-json",
         help=argparse.SUPPRESS,
         action=ListDetectorsJson,
@@ -775,6 +780,18 @@ class OutputWiki(argparse.Action):
         detectors, _ = get_detectors_and_printers()
         assert isinstance(values, str)
         output_wiki(detectors, values)
+        parser.exit()
+
+
+class OutputWikiConfig(argparse.Action):
+    def __call__(
+        self,
+        parser: Any,
+        args: Any,
+        values: str | Sequence[Any] | None,
+        option_string: Any = None,
+    ) -> None:
+        output_config_file_options()
         parser.exit()
 
 
