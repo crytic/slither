@@ -44,7 +44,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function callme(){
-        msg.sender.transfer(balances[msg.sender]):
+        msg.sender.transfer(balances[msg.sender]);
         balances[msg.sender] = 0;
     }
 ```

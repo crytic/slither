@@ -30,10 +30,10 @@ class DeadCode(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
-    function dead_code() internal() {}
+    function dead_code() internal {}
 }
 ```
-`dead_code` is not used in the contract, and make the code's review more difficult."""
+`dead_code` is not used in the contract, and makes the code's review more difficult."""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove unused functions."
