@@ -1,8 +1,9 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: read
@@ -33,8 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     permissions:
-      id-token: write  # For trusted publishing + codesigning.
-      contents: write  # For attaching signing artifacts to the release.
+      id-token: write  # For trusted publishing, PEP 740 attestations, and sigstore signing.
+      contents: write  # For creating the GitHub release and attaching assets.
     needs:
       - build-release
     steps:
@@ -51,4 +52,14 @@ jobs:
         uses: sigstore/gh-action-sigstore-python@5b79a39c381910c090341a2c9b0bf022c8b387e1  # v3.4.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
-          release-signing-artifacts: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
+        with:
+          draft: true
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+            dist/*.sigstore.json
