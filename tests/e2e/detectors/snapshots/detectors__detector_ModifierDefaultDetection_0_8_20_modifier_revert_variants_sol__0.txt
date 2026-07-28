@@ -1,0 +1,2 @@
+Modifier C.brokenNoReturn() (tests/e2e/detectors/test_data/incorrect-modifier/0.8.20/modifier_revert_variants.sol#16-21) does not always execute _; or revert
+
