@@ -112,7 +112,7 @@ contract Bug {
                             )
                     # Check named return variables
                     for named_return in function.returns:
-                        # Shadowed local delcarations in the same function will have "_scope_" in their name.
+                        # Shadowed local declarations in the same function will have "_scope_" in their name.
                         # See `FunctionSolc._add_local_variable`
                         if (
                             "_scope_" in variable.name

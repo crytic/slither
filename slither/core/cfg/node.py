@@ -1094,7 +1094,7 @@ def insert_node(origin: Node, node_inserted: Node) -> None:
 
 def recheable(node: Node) -> set[Node]:
     """
-    Return the set of nodes reacheable from the node
+    Return the set of nodes reachable from the node
     :param node:
     :return: set(Node)
     """

@@ -30,7 +30,7 @@ class DeadCode(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
-    function dead_code() internal() {}
+    function dead_code() internal {}
 }
 ```
 `dead_code` is not used in the contract, and make the code's review more difficult."""

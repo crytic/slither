@@ -270,9 +270,9 @@ class Slither(SlitherCore):
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
         _check_common_things("printer", printer_class, AbstractPrinter, self._printers)
-
-        instance = printer_class(self, logger_printer)
-        self._printers.append(instance)
+        for compilation_unit in self.compilation_units:
+            instance = printer_class(compilation_unit, self, logger_printer)
+            self._printers.append(instance)
 
     def unregister_printer(self, printer_class: type[AbstractPrinter]) -> None:
         """
