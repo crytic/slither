@@ -32,7 +32,7 @@ dependencies = [
     "packaging",
     "prettytable>=3.10.2",
     "pycryptodome>=3.4.6",
-    "crytic-compile>=0.3.9,<0.4.0",
+    "crytic-compile>=0.4.1,<0.5.0",
     "web3>=7.10,<8",
     "eth-abi>=5.0.1",
     "eth-typing>=5.0.0",

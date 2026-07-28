@@ -122,7 +122,7 @@ To show the hidden results again, delete `slither.db.json`.
 
 ### Configuration File
 
-Some options can be set through a json configuration file. By default, `slither.config.json` is used if present (it can be changed through `--config-file file.config.json`).
+Some options can be set through a json configuration file. By default, `slither.config.json` is used if present, with `slither.conf.json` accepted as an alternative (it can be changed through `--config-file file.config.json`).
 
 Options passed via the CLI have priority over options set in the configuration file.
 

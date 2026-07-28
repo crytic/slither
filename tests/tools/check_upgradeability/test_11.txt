@@ -1,3 +1,4 @@
+WARNING:CryticCompile:Multiple frameworks detected: solc, Solc-json. Using solc (highest priority). Use --compile-force-framework to override.
 INFO:Slither:
 Detector: init-missing
 Initializable contract not found, the contract does not follow a standard initalization schema.

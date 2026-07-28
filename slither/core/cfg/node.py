@@ -658,7 +658,7 @@ class Node(SourceMapping):
 
     @property
     def son_false(self) -> Optional["Node"]:
-        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 1:
+        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 2:
             return self._sons[1]
         return None
 
@@ -1094,7 +1094,7 @@ def insert_node(origin: Node, node_inserted: Node) -> None:
 
 def recheable(node: Node) -> set[Node]:
     """
-    Return the set of nodes reacheable from the node
+    Return the set of nodes reachable from the node
     :param node:
     :return: set(Node)
     """

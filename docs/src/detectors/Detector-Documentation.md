@@ -1950,7 +1950,7 @@ If a modifier does not execute `_` or revert, the execution of the function will
 ### Exploit Scenario
 
 ```solidity
-    modidfier myModif(){
+    modifier myModif(){
         if(..){
            _;
         }

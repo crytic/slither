@@ -83,7 +83,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv tool install slither-analyzer
 
 # Or run slither without installation
-uvx slither-analyzer <target>
+uvx --from slither-analyzer slither <target>
 ```
 
 To upgrade:

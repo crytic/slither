@@ -1,0 +1,4 @@
+DivideBeforeMultiplyTest.genuineDivThenMul(uint256,uint256,uint256) (tests/e2e/detectors/test_data/divide-before-multiply/0.8.20/divide_before_multiply_reassignment.sol#32-35) performs a multiplication on the result of a division:
+	- a = x / y (tests/e2e/detectors/test_data/divide-before-multiply/0.8.20/divide_before_multiply_reassignment.sol#33)
+	- a * z (tests/e2e/detectors/test_data/divide-before-multiply/0.8.20/divide_before_multiply_reassignment.sol#34)
+
