@@ -28,7 +28,7 @@ class UninitializedLocalVars(AbstractDetector):
 contract Uninitialized is Owner{
     function withdraw() payable public onlyOwner{
         address to;
-        to.transfer(this.balance)
+        to.transfer(this.balance);
     }
 }
 ```

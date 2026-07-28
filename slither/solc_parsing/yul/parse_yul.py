@@ -770,7 +770,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Expression | None:
     # TODO: the following leads to wrong IR
     # Currently SlithIR doesnt support raw access to memory
     # So things like .offset/.slot will return the variable
-    # Instaed of the actual offset/slot
+    # Instead of the actual offset/slot
     if name.endswith(("_slot", ".slot")):
         potential_name = name[:-5]
         variable_found = _check_for_state_variable_name(root, potential_name)
