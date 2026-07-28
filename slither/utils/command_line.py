@@ -5,6 +5,7 @@ import os
 import re
 import logging
 from collections import defaultdict
+from typing import Any
 
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
@@ -77,6 +78,36 @@ defaults_flag_in_config = {
     "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
+
+
+def _format_config_value(value: Any) -> Any:
+    if isinstance(value, enum.Enum):
+        return value.value
+    return value
+
+
+def format_config_file_defaults(defaults: dict[str, Any] | None = None) -> str:
+    defaults = defaults if defaults is not None else defaults_flag_in_config
+    serializable_defaults = {key: _format_config_value(value) for key, value in defaults.items()}
+    return json.dumps(serializable_defaults, indent=4)
+
+
+def output_config_file_section() -> None:
+    print("### Configuration File")
+    print()
+    print(
+        "Some options can be set through a json configuration file. By default, "
+        "`slither.config.json` is used if present (it can be changed through "
+        "`--config-file file.config.json`)."
+    )
+    print()
+    print("Options passed via the CLI have priority over options set in the configuration file.")
+    print()
+    print("The following flags are supported:")
+    print()
+    print("```json")
+    print(format_config_file_defaults())
+    print("```")
 
 
 def read_config_file(args: argparse.Namespace) -> None:
