@@ -72,6 +72,8 @@ SOLIDITY_FUNCTIONS: dict[str, list[str]] = {
     "log3(bytes32,bytes32,bytes32,bytes32)": [],
     "blockhash(uint256)": ["bytes32"],
     "prevrandao()": ["uint256"],
+    # Solidity 0.8.35 comptime builtin: ERC-7201 namespaced storage base slot
+    "erc7201(string)": ["uint256"],
     # the following need a special handling
     # as they are recognized as a SolidityVariableComposed
     # and converted to a SolidityFunction by SlithIR

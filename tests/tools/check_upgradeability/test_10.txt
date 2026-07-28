@@ -1,7 +1,9 @@
+WARNING:CryticCompile:Multiple frameworks detected: solc, Solc-json. Using solc (highest priority). Use --compile-force-framework to override.
 INFO:Slither:
 Detector: init-missing
 Initializable contract not found, the contract does not follow a standard initalization schema.
 Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+WARNING:CryticCompile:Multiple frameworks detected: solc, Solc-json. Using solc (highest priority). Use --compile-force-framework to override.
 INFO:Slither:
 Detector: became-constant
 ContractV1.destination (tests/tools/check_upgradeability/contractV1.sol#2) was not constant but ContractV2.destination (tests/tools/check_upgradeability/contract_v2_constant.sol#2) is.

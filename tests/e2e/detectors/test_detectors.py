@@ -640,6 +640,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.NamingConvention,
+        "naming_convention_yul_local.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.ControlledDelegateCall,
         "controlled_delegatecall.sol",
         "0.4.25",
@@ -1327,6 +1332,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ModifierDefaultDetection,
+        "modifier_revert_variants.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.IncorrectUnaryExpressionDetection,
         "invalid_unary_expression.sol",
         "0.4.25",
@@ -1446,6 +1456,11 @@ ALL_TESTS = [
         all_detectors.DivideBeforeMultiply,
         "divide_before_multiply.sol",
         "0.7.6",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply_reassignment.sol",
+        "0.8.20",
     ),
     Test(
         all_detectors.TypeBasedTautology,
