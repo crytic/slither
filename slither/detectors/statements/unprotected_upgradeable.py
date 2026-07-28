@@ -47,10 +47,14 @@ def _has_initializing_protection(functions: list[Function]) -> bool:
     return False
 
 
+_WHITELISTED_MODIFIERS = {"onlyProxy", "onlyDelegateCall"}
+
+
 def _whitelisted_modifiers(f: Function) -> bool:
-    # The onlyProxy modifier prevents calling the implementation contract (must be delegatecall)
+    # The onlyProxy / onlyDelegateCall modifiers prevent calling the implementation contract
+    # directly (the call must go through delegatecall via the proxy).
     #  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/3dec82093ea4a490d63aab3e925fed4f692909e8/contracts/proxy/utils/UUPSUpgradeable.sol#L38-L42
-    return "onlyProxy" not in [modifier.name for modifier in f.modifiers]
+    return not any(m.name in _WHITELISTED_MODIFIERS for m in f.modifiers)
 
 
 def _initialize_functions(contract: Contract) -> list[Function]:
