@@ -100,6 +100,11 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
             for func in contract.functions_declared:
                 if func.is_constructor:
                     continue
+                if func.internal_scope:
+                    # Synthetic function defined inside inline assembly.
+                    # Names of these functions and their parameters are
+                    # parser-mangled artifacts, not source identifiers.
+                    continue
                 if not self.is_mixed_case(func.name):
                     if func.visibility in [
                         "internal",

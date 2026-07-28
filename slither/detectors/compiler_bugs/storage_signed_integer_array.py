@@ -66,7 +66,7 @@ contract A {
         """
         Detect if the IR lvalue is a vulnerable type
         Must be a storage allocation, and an array of Int
-        Assume the IR is a InitArray, or an Assignement to an ArrayType
+        Assume the IR is a InitArray, or an Assignment to an ArrayType
         """
         # Storage allocation
         # Base type is signed integer

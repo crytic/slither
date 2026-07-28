@@ -22,7 +22,7 @@ from slither.utils.output import Output
 def _get_variables_entrance(function: FunctionContract) -> list[Any | StateIRVariable]:
     """
     Return the first SSA variables of the function
-    Catpure the phi operation at the entry point
+    Capture the phi operation at the entry point
     """
     ret = []
     if function.entry_point:
