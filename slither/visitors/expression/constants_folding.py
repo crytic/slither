@@ -98,7 +98,10 @@ class ConstantFolding(ExpressionVisitor):
                     cf = ConstantFolding(expr, self._type)
                     expr = cf.result()
                 assert isinstance(expr, Literal)
-                set_val(expression, convert_string_to_int(expr.converted_value))
+                if str(expr.type) == "string":
+                    set_val(expression, expr.converted_value)
+                else:
+                    set_val(expression, convert_string_to_int(expr.converted_value))
             else:
                 raise NotConstant
         elif isinstance(expression.value, SolidityFunction):
@@ -276,6 +279,16 @@ class ConstantFolding(ExpressionVisitor):
             digest = keccak.new(digest_bits=256)
             digest.update(str(args[0]).encode("utf8"))
             set_val(expression, digest.digest())
+        elif called.name == "erc7201(string)":
+            # Solidity 0.8.35 comptime builtin
+            # keccak256(keccak256(id) - 1) & ~0xff
+            inner = keccak.new(digest_bits=256)
+            inner.update(str(args[0]).encode("utf8"))
+            inner_int = int.from_bytes(inner.digest(), "big")
+            minus_one = (inner_int - 1) & ((1 << 256) - 1)
+            outer = keccak.new(digest_bits=256)
+            outer.update(minus_one.to_bytes(32, "big"))
+            set_val(expression, int.from_bytes(outer.digest(), "big") & ~0xFF)
         else:
             raise NotConstant
 

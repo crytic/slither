@@ -55,11 +55,11 @@ jobs:
           - os: windows-2025
             type: simil
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
         with:
           persist-credentials: false
       - name: Install uv and Python ${{ matrix.python }}
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990  # v8
         with:
           python-version: ${{ matrix.python }}
           activate-environment: true
@@ -74,11 +74,11 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15  # v31
+        uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c  # v31
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1  # v16
+        uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71  # v17
         with:
           name: dapp
 
