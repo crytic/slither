@@ -32,12 +32,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v6
         with:
           persist-credentials: false
 
       - name: Run Ruff linter
-        uses: astral-sh/ruff-action@4919ec5cf1f49eff0871dbcea0da843445b837e6  # v3
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89  # v4.1.0
         with:
           args: "check slither/ tests/ scripts/"
 
@@ -58,12 +58,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v6
         with:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990  # v7
         with:
           enable-cache: true
 
@@ -84,12 +84,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v6
         with:
           persist-credentials: false
 
       - name: Run markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@07035fd053f7be764496c0f8d8f9f41f98305101  # v22
+        uses: DavidAnson/markdownlint-cli2-action@8de2aa07cae85fd17c0b35642db70cf5495f1d25  # v24.0.0
         with:
           globs: "docs/**/*.md"
           config: .github/linters/.markdownlint.json

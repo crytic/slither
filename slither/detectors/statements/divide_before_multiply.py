@@ -84,6 +84,11 @@ def _explore(
                         divisions[ir.lvalue] = divisions[ir.rvalue] + [node]  # type: ignore
                     else:
                         divisions[ir.lvalue] = divisions[ir.rvalue]  # type: ignore
+                else:
+                    # rvalue is not division-tainted, so the lvalue is being
+                    # fully overwritten. Clear any stale taint left over from
+                    # a previous division assignment to the same lvalue.
+                    divisions.pop(ir.lvalue, None)  # type: ignore
 
             if is_division(ir):
                 divisions[ir.lvalue] = [node]  # type: ignore

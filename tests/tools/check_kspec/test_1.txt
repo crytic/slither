@@ -1,3 +1,4 @@
+WARNING:CryticCompile:Multiple frameworks detected: solc, Solc-json. Using solc (highest priority). Use --compile-force-framework to override.
 ## Check for functions coverage
 [✓] SafeAdd.add(uint256,uint256)
 

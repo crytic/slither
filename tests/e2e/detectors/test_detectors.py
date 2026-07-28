@@ -1453,6 +1453,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply_reassignment.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.TypeBasedTautology,
         "type_based_tautology.sol",
         "0.4.25",

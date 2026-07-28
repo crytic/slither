@@ -15,6 +15,11 @@ def test_custom_storage_layout(solc_binary_path):
     _test_storage_layout(solc_binary_path, "0.8.33", "storage_layout-0.8.33.sol")
 
 
+def test_erc7201_storage_layout(solc_binary_path):
+    # 0.8.35 erc7201 comptime builtin used as the base slot of `layout at`
+    _test_storage_layout(solc_binary_path, "0.8.35", "storage_layout-0.8.35.sol")
+
+
 def _test_storage_layout(solc_binary_path, solc_version, test_file):
     # the storage layout has not yet changed between solidity versions so we will test with one version of the compiler
     solc_path = solc_binary_path(solc_version)
