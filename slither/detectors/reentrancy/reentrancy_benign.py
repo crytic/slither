@@ -40,7 +40,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
         if( ! (msg.sender.call()() ) ){
             throw;
         }
-        counter += 1
+        counter += 1;
     }
 ```
 
