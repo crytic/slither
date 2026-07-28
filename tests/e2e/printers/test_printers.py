@@ -31,7 +31,10 @@ def test_inheritance_graph_printer(solc_binary_path) -> None:
     standard_json.add_source_file(Path(TEST_DATA_DIR, "test_contract_names", "C.sol").as_posix())
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
-    printer = PrinterInheritanceGraph(slither=slither, logger=None)
+    # Use register_printer to properly handle multiple compilation units
+    slither.register_printer(PrinterInheritanceGraph)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
 
     output = printer.output("test_printer.dot")
     content = output.elements[0]["name"]["content"]
@@ -67,7 +70,9 @@ def test_printer_cheatcode():
         foundry_compile_all=True,
     )
 
-    printer = CheatcodePrinter(slither=slither, logger=None)
+    slither.register_printer(CheatcodePrinter)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
     output = printer.output("")
 
     assert (
@@ -85,7 +90,9 @@ def test_slithir_printer(solc_binary_path) -> None:
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
-    printer = PrinterSlithIR(slither, logger=None)
+    slither.register_printer(PrinterSlithIR)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
     output = printer.output("test_printer_slithir.dot")
 
     assert "slither.core.solidity_types" not in output.data["description"]
@@ -102,7 +109,9 @@ def test_inheritance_text_printer(solc_binary_path) -> None:
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
-    printer = PrinterInheritance(slither=slither, logger=None)
+    slither.register_printer(PrinterInheritance)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
     output = printer.output("test_inheritance.txt")
 
     # Data is nested under additional_fields
@@ -140,7 +149,9 @@ def test_callgraph_printer_toplevel(solc_binary_path) -> None:
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
-    printer = PrinterCallGraph(slither, logger=None)
+    slither.register_printer(PrinterCallGraph)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
     output = printer.output("test_callgraph_toplevel")
     content = output.elements[0]["name"]["content"]
 
@@ -183,7 +194,9 @@ def test_c3_linearization_printer(solc_binary_path) -> None:
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
-    printer = PrinterC3Linearization(slither=slither, logger=None)
+    slither.register_printer(PrinterC3Linearization)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
     output = printer.output("")
 
     # Check that all contracts are present in the output
