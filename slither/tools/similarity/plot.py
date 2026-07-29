@@ -79,6 +79,6 @@ def plot(args: argparse.Namespace) -> None:
         plt.savefig("plot.png", bbox_inches="tight")
 
     except Exception:
-        logger.error(f"Error in {args.filename}")
+        logger.error(f"Error in {getattr(args, 'filename', '<unknown>')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

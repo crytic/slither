@@ -49,6 +49,6 @@ def train(args: argparse.Namespace) -> None:
         logger.info("Done!")
 
     except Exception:
-        logger.error(f"Error in {args.filename}")
+        logger.error(f"Error in {getattr(args, 'filename', '<unknown>')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

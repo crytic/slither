@@ -47,6 +47,6 @@ def test(args: Namespace) -> None:
             logger.info(format_table.format(*(list(x) + [score])))
 
     except Exception:
-        logger.error(f"Error in {args.filename}")
+        logger.error(f"Error in {getattr(args, 'filename', '<unknown>')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

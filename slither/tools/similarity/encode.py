@@ -94,7 +94,7 @@ def load_contracts(dirname: str, ext: str | None = None, nsamples: int | None = 
     for x, y, files in walk:
         for f in files:
             if ext is None or f.endswith(ext):
-                r.append(x + "/".join(y) + "/" + f)
+                r.append(os.path.join(x, f))
 
     if nsamples is None:
         return r
@@ -225,7 +225,7 @@ def encode_contract(cfilename, **kwargs):
     try:
         slither = Slither(cfilename, **kwargs)
     except Exception:
-        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
+        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs.get("solc", "unknown"))
         return r
 
     # Iterate over all the contracts
