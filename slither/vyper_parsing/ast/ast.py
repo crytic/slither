@@ -259,8 +259,8 @@ binop_ast_type_to_op_symbol = {
     "Mod": "%",
     "BitAnd": "&",
     "BitOr": "|",
-    "Shr": "<<",
-    "Shl": ">>",
+    "Shr": ">>",
+    "Shl": "<<",
     "NotEq": "!=",
     "Eq": "==",
     "LtE": "<=",
@@ -378,13 +378,13 @@ aug_assign_ast_type_to_op_symbol = {
     "Add": "+=",
     "Mult": "*=",
     "Sub": "-=",
-    "Div": "-=",
+    "Div": "/=",
     "Pow": "**=",
     "Mod": "%=",
     "BitAnd": "&=",
     "BitOr": "|=",
-    "Shr": "<<=",
-    "Shl": ">>=",
+    "Shr": ">>=",
+    "Shl": "<<=",
 }
 
 
