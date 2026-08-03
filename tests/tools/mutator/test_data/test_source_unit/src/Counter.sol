@@ -21,4 +21,8 @@ contract Counter {
     function restrictedIncrement() public onlyOwner {
         number++;
     }
+
+    function checkNegation(uint256 newNumber) public pure {
+        assert(!(newNumber != 7));
+    }
 }
