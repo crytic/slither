@@ -287,7 +287,7 @@ def test_should_mutate_function_includes_modifier(solc_binary_path):
 
 
 def test_rnm_mutates_negation(solc_binary_path):
-    """Negations used by target function should be mutated """
+    """Negations used by target function should be mutated"""
     solc_path = solc_binary_path("0.8.15")
     file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
     sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
@@ -315,7 +315,6 @@ def test_rnm_mutates_negation(solc_binary_path):
         assert file_path in patches["patches"]
 
         assert any(
-            patch["old_string"] == "!(newNumber != 7)"
-            and patch["new_string"] == "(newNumber != 7)"
+            patch["old_string"] == "!(newNumber != 7)" and patch["new_string"] == "(newNumber != 7)"
             for patch in patches["patches"][file_path]
         )
