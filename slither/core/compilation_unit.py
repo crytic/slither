@@ -374,17 +374,15 @@ class SlitherCompilationUnit(Context):
                 )
 
             if new_slot:
-                # slot += math.ceil(size / 32)
-                
                 # Check if the variable is a fixed-size array
                 is_fixed_array = isinstance(var.type, ArrayType) and not var.type.is_dynamic
-                
+
                 if is_fixed_array:
                     try:
                         elem_type = var.type.type
                         elem_size, _ = elem_type.storage_size
                         array_length = int(str(var.type.length))
-                        
+
                         # Core Solidity rule: Elements cannot cross slot boundaries
                         if elem_size > 32:
                             # For large elements (e.g., structs), each takes multiple full slots
