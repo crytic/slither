@@ -36,6 +36,56 @@ contract StorageLayout {
     PackedStruct[] dynamicArrayOfStructs;
     PackedStruct[3] fixedArrayOfStructs;
 
+    struct SmallS { uint8 x; }
+    SmallS[3] public smallStructArr;
+
+    struct StructWithFixedArr {
+        uint8 a;
+        uint128[2] b;
+        uint256 c;
+    }
+    StructWithFixedArr public s1;
+    StructWithFixedArr[2] public arr_of_s1;
+
+    struct StructWithDynamicArr {
+        uint256[] dynArr;
+        uint8 a;
+    }
+    StructWithDynamicArr public s2;
+    StructWithDynamicArr[] public dyn_arr_of_s2;
+
+    uint256[][3] public fixed_arr_of_dyn;
+    uint256[3][] public fixed_arr_of_dyn2;
+
+    struct InnerS { uint64 i; }
+    struct OuterS {
+        InnerS[2] arr;
+        uint256 j;
+    }
+    OuterS public s3;
+
+    bytes16[3] public packableBytesArr;
+
+    bytes31[3] public nonPackableBytesArr;
+
+    struct StructWithBytes {
+        bytes16 b1;
+        bytes31 b2;
+        uint8 a;
+    }
+    StructWithBytes public s4;
+    StructWithBytes[2] public arr_of_bytes_struct;
+
+    struct InnerNested {
+        uint128[3] fixedArr; 
+        uint8 a;             
+    } 
+    struct OuterNested {
+        uint256[] dynamicArr; 
+        InnerNested inner;    
+    } 
+    OuterNested[2] public nestedStructArr;
+
     function store() external {
         require(_address == address(0));
         _address = msg.sender;
@@ -68,7 +118,7 @@ contract StorageLayout {
         fixedArrayOfStructs[0] = _packedStruct;
         fixedArrayOfStructs[1] = PackedStruct(false, 10);
 
-       mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[0]);
-       mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[1]);
+        mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[0]);
+        mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[1]);
     }
 }

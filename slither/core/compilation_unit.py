@@ -26,7 +26,6 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
-from slither.core.solidity_types import ArrayType, ElementaryType
 
 if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
@@ -374,30 +373,7 @@ class SlitherCompilationUnit(Context):
                 )
 
             if new_slot:
-                # Check if the variable is a fixed-size array
-                is_fixed_array = isinstance(var.type, ArrayType) and not var.type.is_dynamic
-
-                if is_fixed_array:
-                    try:
-                        elem_type = var.type.type
-                        elem_size, _ = elem_type.storage_size
-                        array_length = int(str(var.type.length))
-
-                        # Core Solidity rule: Elements cannot cross slot boundaries
-                        if elem_size > 32:
-                            # For large elements (e.g., structs), each takes multiple full slots
-                            elem_slots = math.ceil(elem_size / 32)
-                            slot += array_length * elem_slots
-                        else:
-                            # For elements <= 32 bytes, pack them tightly within slots
-                            elem_per_slot = 32 // elem_size
-                            slot += math.ceil(array_length / elem_per_slot)
-                    except (ValueError, TypeError, ZeroDivisionError):
-                        # Fallback to original logic to prevent crashes
-                        slot += math.ceil(size / 32)
-                else:
-                    # All other cases (struct, mapping, dynamic array, etc.) use original logic
-                    slot += math.ceil(size / 32)
+                slot += math.ceil(size / 32)
             else:
                 offset += size
 
