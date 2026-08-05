@@ -42,7 +42,8 @@ contract StorageLayout {
     struct StructWithFixedArr {
         uint8 a;
         uint128[2] b;
-        uint256 c;
+        address[3] c;
+        uint256 d;
     }
     StructWithFixedArr public s1;
     StructWithFixedArr[2] public arr_of_s1;
