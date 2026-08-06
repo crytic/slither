@@ -1,0 +1,2 @@
+Deprecated Chainlink call aggregator.latestAnswer used (tests/e2e/detectors/test_data/deprecated-chainlink-call/0.8.20/oracle_deprecated_call.sol#40).
+
