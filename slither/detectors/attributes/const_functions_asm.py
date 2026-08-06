@@ -45,7 +45,7 @@ contract Constant{
     uint counter;
     function get() public view returns(uint){
        counter = counter +1;
-       return counter
+       return counter;
     }
 }
 ```

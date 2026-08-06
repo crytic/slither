@@ -8,6 +8,7 @@ from slither.utils.output import SupportedOutput
 
 if TYPE_CHECKING:
     from slither import Slither
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class IncorrectPrinterInitialization(Exception):
@@ -20,9 +21,12 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     WIKI = ""
 
-    def __init__(self, slither: "Slither", logger: Logger | None) -> None:
+    def __init__(
+        self, compilation_unit: "SlitherCompilationUnit", slither: "Slither", logger: Logger | None
+    ) -> None:
+        self.compilation_unit = compilation_unit
         self.slither = slither
-        self.contracts = slither.contracts
+        self.contracts = compilation_unit.contracts
         self.filename = slither.filename
         self.logger = logger
 

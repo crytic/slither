@@ -35,14 +35,14 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph"
 
-    def __init__(self, slither, logger):
-        super().__init__(slither, logger)
+    def __init__(self, compilation_unit, slither, logger):
+        super().__init__(compilation_unit, slither, logger)
 
-        inheritance = [x.inheritance for x in slither.contracts]
+        inheritance = [x.inheritance for x in self.contracts]
         self.inheritance = {item for sublist in inheritance for item in sublist}
 
         self.overshadowing_state_variables = {}
-        shadows = detect_state_variable_shadowing(slither.contracts)
+        shadows = detect_state_variable_shadowing(self.contracts)
         for overshadowing_instance in shadows:
             overshadowing_state_var = overshadowing_instance[1]
             overshadowed_state_var = overshadowing_instance[3]

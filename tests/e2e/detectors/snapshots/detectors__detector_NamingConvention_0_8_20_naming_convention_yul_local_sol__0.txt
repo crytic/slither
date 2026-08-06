@@ -1,0 +1,2 @@
+Parameter LibArr.tripwire(uint256).Bad_Param (tests/e2e/detectors/test_data/naming-convention/0.8.20/naming_convention_yul_local.sol#44) is not in mixedCase
+
