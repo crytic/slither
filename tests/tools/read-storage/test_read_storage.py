@@ -1,5 +1,7 @@
 import re
 import json
+import sys
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -8,6 +10,7 @@ from web3.contract import Contract
 
 from slither import Slither
 from slither.tools.read_storage import SlitherReadStorage, RpcInfo
+from slither.tools.read_storage.__main__ import _is_solc_standard_json
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
@@ -88,4 +91,117 @@ def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_pa
             with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
                 f.write(str(change.t2))
 
+    assert not diff
+
+
+# --- Regression tests for GitHub issue #2777 -------------------------------
+# slither-read-storage should accept a solc Standard JSON *input* file
+# (https://docs.soliditylang.org/en/latest/using-the-compiler.html#input-description)
+# directly as its target, without requiring --compile-force-framework solc-json.
+
+
+def _build_standard_json(sol_path: Path) -> dict:
+    """Wrap a .sol file's contents in a minimal solc Standard JSON input dict."""
+    return {
+        "language": "Solidity",
+        "sources": {sol_path.name: {"content": get_source_file(sol_path.as_posix())}},
+        "settings": {
+            "outputSelection": {
+                "*": {
+                    "*": ["abi", "evm.bytecode", "evm.deployedBytecode", "devdoc", "userdoc"],
+                    "": ["ast"],
+                }
+            }
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    "existing_file, expected",
+    [
+        # Not JSON at all
+        ("StorageLayout.sol", False),
+        # A JSON file that isn't a solc Standard JSON input (missing "language"/"sources")
+        ("not_standard.json", False),
+        # A well-formed solc Standard JSON input
+        ("standard_json_input.json", True),
+    ],
+)
+def test_is_solc_standard_json(tmp_path, existing_file, expected) -> None:
+    """`_is_solc_standard_json` should only return True for genuine Standard JSON input files,
+    and must not raise on non-JSON, malformed JSON, or missing files."""
+
+    if existing_file == "StorageLayout.sol":
+        path = Path(TEST_DATA_DIR, existing_file).as_posix()
+    elif existing_file == "not_standard.json":
+        path = str(tmp_path / existing_file)
+        with open(path, "w", encoding="utf8") as f:
+            json.dump({"foo": "bar"}, f)
+    else:
+        path = str(tmp_path / existing_file)
+        standard_json = _build_standard_json(Path(TEST_DATA_DIR, "StorageLayout.sol"))
+        with open(path, "w", encoding="utf8") as f:
+            json.dump(standard_json, f)
+
+    assert _is_solc_standard_json(path) is expected
+
+    # A nonexistent path must never raise, and must return False
+    assert _is_solc_standard_json(str(tmp_path / "does_not_exist.json")) is False
+
+    # Invalid JSON syntax must never raise, and must return False
+    broken_path = tmp_path / "broken.json"
+    broken_path.write_text("{not valid json", encoding="utf8")
+    assert _is_solc_standard_json(str(broken_path)) is False
+
+
+def test_read_storage_from_standard_json(tmp_path, solc_binary_path) -> None:
+    """slither-read-storage's storage-layout extraction should work identically whether the
+    contract is given as a plain .sol file or as a solc Standard JSON input file, with no
+    extra flags required (i.e. Slither must auto-select the solc-json compilation platform).
+
+    Note: the auto-detection lives in the CLI's main(), not in Slither.__init__ itself, so this
+    exercises the actual slither-read-storage entrypoint (as issue #2777 did) rather than
+    calling Slither() directly, which would bypass the fix.
+    """
+
+    solc_path = solc_binary_path(version="0.8.10")
+    sol_path = Path(TEST_DATA_DIR, "StorageLayout.sol")
+
+    # Write out a genuine solc Standard JSON input file, the same shape a user would get from
+    # `solc --standard-json` tooling.
+    standard_json_path = tmp_path / "StorageLayout.standard-json.json"
+    with open(standard_json_path, "w", encoding="utf8") as f:
+        json.dump(_build_standard_json(sol_path), f)
+
+    def layout_via_cli(target: str, out_name: str) -> dict:
+        out_path = tmp_path / out_name
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "slither.tools.read_storage",
+                target,
+                "--contract-name",
+                "StorageLayout",
+                "--solc",
+                solc_path,
+                "--json",
+                str(out_path),
+            ],
+            cwd=TEST_DATA_DIR,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        with open(out_path, encoding="utf8") as f:
+            return json.load(f)
+
+    # Baseline: compiling the plain .sol file directly.
+    expected_layout = layout_via_cli(sol_path.as_posix(), "expected.json")
+
+    # This is the exact scenario from issue #2777: passing a Standard JSON file as the sole
+    # target, with no --compile-force-framework flag, must work and produce the same layout.
+    actual_layout = layout_via_cli(standard_json_path.as_posix(), "actual.json")
+
+    diff = DeepDiff(expected_layout, actual_layout, ignore_order=True)
     assert not diff
