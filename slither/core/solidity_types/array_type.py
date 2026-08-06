@@ -5,6 +5,7 @@ from slither.core.expressions.literal import Literal
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type import Type
 from slither.visitors.expression.constants_folding import ConstantFolding
+import math
 
 if TYPE_CHECKING:
     from slither.core.expressions.binary_operation import BinaryOperation
@@ -63,7 +64,11 @@ class ArrayType(Type):
     def storage_size(self) -> tuple[int, bool]:
         if self._length_value:
             elem_size, _ = self._type.storage_size
-            return elem_size * int(str(self._length_value)), True
+            length = int(str(self._length_value))
+            if elem_size > 32:
+                return length * math.ceil(elem_size / 32) * 32, True
+            elem_per_slot = 32 // max(elem_size, 1)
+            return math.ceil(length / elem_per_slot) * 32, True
         return 32, True
 
     def __str__(self) -> str:
