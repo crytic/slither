@@ -462,6 +462,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]
+            contract_by_id = self._contracts_by_id.get(want)
+            if contract_by_id is not None and contract_by_id.name == contract_name:
+                return contract_by_id
             target = None
             # For contracts that are imported and aliased e.g. 'import {A as B} from "./C.sol"',
             # we look through the imports's (`Import`) renaming to find the original contract name

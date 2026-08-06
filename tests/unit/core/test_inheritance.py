@@ -42,3 +42,18 @@ def test_inheritance_with_duplicate_names(solc_binary_path) -> None:
         Path(TEST_DATA_DIR / "duplicate_names", "contract_with_duplicate_names.sol").as_posix(),
         solc=solc_path,
     )
+
+
+def test_inheritance_with_transitive_duplicate_name(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.15")
+    standard_json = SolcStandardJson()
+    for source_file in Path(TEST_DATA_DIR / "transitive_duplicate_name").rglob("*.sol"):
+        standard_json.add_source_file(source_file.as_posix())
+
+    slither = Slither(CryticCompile(standard_json, solc=solc_path), disallow_partial=True)
+    target = slither.get_contract_from_name("Target")[0]
+
+    assert [(base.name, base.contract_kind) for base in target.inheritance] == [
+        ("Lock", "contract"),
+        ("IndirectBase", "contract"),
+    ]
