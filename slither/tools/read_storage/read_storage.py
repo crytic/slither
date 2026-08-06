@@ -1112,6 +1112,49 @@ class SlitherReadStorage:
             )
             if info:
                 data[elem.name] = info
+                elem_type = elem.type
+                # Recurse into nested structs so their members get their own slots.
+                if isinstance(elem_type, UserDefinedType) and isinstance(elem_type.type, Structure):
+                    info.elems = self._all_nested_struct_slots(elem_type.type, info.slot, info.name)
+
+        return data
+
+    def _all_nested_struct_slots(
+        self,
+        st: Structure,
+        base_slot: int,
+        name_prefix: str,
+    ) -> Elem:
+        """Recursively resolves the members of a struct nested within another struct.
+
+        Unlike `_all_struct_slots`, the nested struct does not start at a state
+        variable's slot, so the offsets are computed relative to `base_slot`.
+
+        Args:
+            st (Structure): The nested struct definition.
+            base_slot (int): The slot at which the nested struct begins.
+            name_prefix (str): The dotted name of the nested struct (e.g. `outer.middle`).
+        Returns:
+            (Elem): A mapping of each member's name to its `SlotInfo`.
+        """
+        slot_as_bytes = int.to_bytes(base_slot, 32, byteorder="big")
+        data: Elem = {}
+        for elem in st.elems_ordered:
+            _, type_to, member_slot_bytes, size, offset = self._find_struct_var_slot(
+                st.elems_ordered, slot_as_bytes, elem.name
+            )
+            member_slot = int.from_bytes(member_slot_bytes, byteorder="big")
+            info = SlotInfo(
+                name=f"{name_prefix}.{elem.name}",
+                type_string=type_to,
+                slot=member_slot,
+                size=size,
+                offset=offset,
+            )
+            data[elem.name] = info
+            elem_type = elem.type
+            if isinstance(elem_type, UserDefinedType) and isinstance(elem_type.type, Structure):
+                info.elems = self._all_nested_struct_slots(elem_type.type, member_slot, info.name)
 
         return data
 
