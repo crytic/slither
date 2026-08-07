@@ -623,13 +623,6 @@ def parse_args(
     )
 
     group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
-    )
-
-    group_misc.add_argument(
         "--generate-patches",
         help="Generate patches (json output only)",
         action="store_true",
@@ -906,7 +899,7 @@ def main_impl(
         filename = args.filename
 
         # Determine if we are handling ast from solc
-        if args.solc_ast or (filename.endswith(".json") and not is_supported(filename)):
+        if filename.endswith(".json") and not is_supported(filename):
             globbed_filenames = glob.glob(filename, recursive=True)
             filenames = glob.glob(os.path.join(filename, "*.json"))
             if not filenames:
