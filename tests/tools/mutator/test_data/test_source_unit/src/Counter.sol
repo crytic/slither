@@ -11,6 +11,7 @@ contract Counter {
     }
 
     function setNumber(uint256 newNumber) public {
+        assert(newNumber != 7);
         number = newNumber;
     }
 
