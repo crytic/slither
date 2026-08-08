@@ -49,6 +49,13 @@ Project | Vulnerability | Date
 [charmfinance](https://github.com/charmfinance/cube-protocol/commit/2f1dd9c7bf6ced3c99332bbe0ff50030efece44a) | Lack of return value check | Mar 2021
 [VoyagerToken](https://certificate.quantstamp.com/full/voyager-token) | Lack of return value check | Apr 2021
 [holdmybeer](https://github.com/hodlmybeer/hodl/pull/4) | Reentrancies | Jun 2021
+[API3](https://certificate.quantstamp.com/full/api-3.pdf) | Lack of return value check | Jul 2021
+[KeeperDAO Liquidity Pool and HidingVault](https://certificate.quantstamp.com/full/keeper-dao-liquidity-pool-and-hiding-vault.pdf) | Unprotected upgradeable initializer | Aug 2021
+[Cryptex Staking Function](https://certificate.quantstamp.com/full/cryptex.pdf) | Lack of return value check | Oct 2021
+[Cryptex Staking Function](https://certificate.quantstamp.com/full/cryptex.pdf) | Reentrancy | Oct 2021
+[FODL](https://certificate.quantstamp.com/full/fodl.pdf) | State variable shadowing | Oct 2021
+[FODL](https://certificate.quantstamp.com/full/fodl.pdf) | Contract locking ether | Oct 2021
+[FODL](https://certificate.quantstamp.com/full/fodl.pdf) | Lack of return value check | Oct 2021
 
 ## Slither Rekt
 The following lists security incidents that could have been prevented using Slither.
