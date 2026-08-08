@@ -120,18 +120,52 @@ contract TestSolidityKeyword{
         }
     }
 
-    function bad0() external{
-        require(block.timestamp ==  0);
+    // Comparing against 0 is safe - cannot be manipulated
+    function good4() external{
+        require(block.timestamp == 0);
     }
 
-    function bad1() external{
-        require(block.number== 0);
-    }
-
-    function bad2() external{
+    function good5() external{
         require(block.number == 0);
     }
 
+    function bad0() external{
+        require(block.timestamp == 1);
+    }
+
+    function bad1() external{
+        require(block.number == 100);
+    }
+
+}
+
+contract TestSafeConstants {
+    mapping(address => uint256) public balances;
+
+    // Comparing balance against 0 is safe - cannot reach 0 by adding value
+    function good0() external view returns (bool) {
+        return balances[msg.sender] == 0;
+    }
+
+    // Comparing against type(uint256).max is safe - common infinite approval pattern
+    function good1() external view returns (bool) {
+        return balances[msg.sender] == type(uint256).max;
+    }
+
+    // Comparing ETH balance against 0 is safe
+    function good2() external view returns (bool) {
+        return address(this).balance == 0;
+    }
+
+    // Comparing against arbitrary value is NOT safe
+    function bad0() external view returns (bool) {
+        return balances[msg.sender] == 100;
+    }
+
+    // Comparing against arbitrary ETH value is NOT safe
+    function bad1() external view returns (bool) {
+        return address(this).balance == 10 ether;
+    }
 }
 
 interface Receiver {
