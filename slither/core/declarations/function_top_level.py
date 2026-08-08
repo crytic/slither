@@ -75,8 +75,10 @@ class FunctionTopLevel(Function, TopLevel):
             Return the function summary
         Returns:
             (str, str, str, list(str), list(str), listr(str), list(str), list(str);
-            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
+            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls
         """
+        from slither.slithir.operations import LibraryCall
+
         return (
             "",
             self.full_name,
@@ -85,7 +87,11 @@ class FunctionTopLevel(Function, TopLevel):
             [str(x) for x in self.state_variables_read + self.solidity_variables_read],
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
-            [str(x) for x in self.external_calls_as_expressions],
+            [
+                str(ir.expression)
+                for (_, ir) in self.high_level_calls
+                if not isinstance(ir, LibraryCall)
+            ],
         )
 
     # endregion
