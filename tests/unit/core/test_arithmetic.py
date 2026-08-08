@@ -2,7 +2,7 @@ from pathlib import Path
 
 from slither import Slither
 from slither.utils.arithmetic import unchecked_arithemtic_usage
-from slither.slithir.operations import Binary, Unary, Assignment
+from slither.slithir.operations import Binary, Unary, Assignment, TypeConversion
 from slither.slithir.variables.temporary import TemporaryVariable
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "arithmetic_usage"
@@ -26,7 +26,7 @@ def test_scope_is_checked(solc_binary_path) -> None:
     bin_op_is_checked = {}
     for node in func.nodes:
         for op in node.irs:
-            if isinstance(op, (Binary, Unary)):
+            if isinstance(op, (Binary, Unary, TypeConversion)):
                 bin_op_is_checked[op.lvalue] = op.node.scope.is_checked
             if isinstance(op, Assignment) and isinstance(op.rvalue, TemporaryVariable):
                 if op.lvalue.name.startswith("checked"):

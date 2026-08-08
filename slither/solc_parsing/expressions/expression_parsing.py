@@ -54,6 +54,30 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ExpressionParsing")
 
 
+def _fit_smallest_integer(val: str) -> str:
+    """
+    Return the smallest unsigned integer that can fit val
+
+    :param val:
+    :return:
+    """
+    val = val.lower()
+    if val.startswith("0x"):
+        val = int(val, base=16)
+    elif val.find("e") != -1:
+        val = int(float(val))
+    elif val.find(".") != -1:
+        val = int(float(val))
+    else:
+        val = int(val)
+
+    n = 8
+    while n <= 256:
+        if val <= 2**n - 1:
+            return f"uint{n}"
+        n = n + 8
+
+
 # region Filtering
 ###################################################################################
 ###################################################################################
@@ -465,7 +489,11 @@ def parse_expression(expression: dict, caller_context: CallerContextExpression) 
         elif type_candidate.startswith("rational_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
-            type_candidate = ElementaryType("uint256")
+            if subdenomination:
+                type_candidate = ElementaryType("uint256")
+            else:
+                smallest_type = _fit_smallest_integer(value)
+                type_candidate = ElementaryType(smallest_type)
         elif type_candidate.startswith("bool"):
             type_candidate = ElementaryType("bool")
         elif type_candidate.startswith("address"):
