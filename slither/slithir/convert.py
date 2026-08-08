@@ -1800,6 +1800,17 @@ def convert_type_of_high_and_internal_level_call(
             and not f.is_shadowed
             and len(f.parameters) == len(ir.arguments)
         ]
+        if not candidates:
+            candidates = [
+                f
+                for f in contract.functions
+                if f.name == ir.function_name
+                and not f.is_shadowed
+                and f._default_args_as_expressions
+                and len(f.parameters) - len(f._default_args_as_expressions)
+                <= len(ir.arguments)
+                < len(f.parameters)
+            ]
         if len(candidates) == 1:
             func = candidates[0]
         if func is None:

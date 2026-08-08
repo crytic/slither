@@ -97,3 +97,24 @@ def b(x: uint256):
                 if isinstance(op, InternalCall) and op.function.name == "c":
                     assert len(op.arguments) == 2
                     assert op.arguments[1] == Constant("False", ElementaryType("bool"))
+
+
+def test_interface_call_with_default_argument(slither_from_vyper_source) -> None:
+    """Resolve an interface call that omits a defaulted argument."""
+    with slither_from_vyper_source(
+        """
+interface Pool:
+    def price_oracle(i: uint256 = 0) -> uint256: view
+
+@external
+@view
+def price(a: address):
+    p: uint256 = Pool(a).price_oracle()
+"""
+    ) as sl:
+        interface = next(iter(x for x in sl.contracts if x.is_interface))
+        contract = next(iter(x for x in sl.contracts if not x.is_interface))
+        func = contract.get_function_from_signature("price(address)")
+        (called_contract, ir) = func.high_level_calls[0]
+        assert called_contract == interface
+        assert ir.function.name == "price_oracle"
