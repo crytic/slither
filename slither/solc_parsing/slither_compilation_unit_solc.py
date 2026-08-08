@@ -460,6 +460,30 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if self._parsed:
             raise Exception("Contract analysis can be run only once!")
 
+        def resolve_contract_from_scope(
+            scope: FileScope, contract_name: str, seen: set[FileScope] | None = None
+        ) -> Contract | None:
+            seen = seen or set()
+            if scope in seen:
+                return None
+            seen.add(scope)
+
+            target = scope.get_contract_from_name(contract_name)
+            if target is not None:
+                return target
+
+            if contract_name in scope.renaming:
+                target = scope.get_contract_from_name(scope.renaming[contract_name])
+                if target is not None:
+                    return target
+
+            for accessible_scope in scope.accessible_scopes:
+                target = resolve_contract_from_scope(accessible_scope, contract_name, seen)
+                if target is not None:
+                    return target
+
+            return None
+
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]
             target = None
@@ -475,8 +499,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             # Fallback to the current file scope if the contract is not found in the import path's scope.
             # It is assumed that it isn't possible to defined a contract with the same name as "aliased" names.
             if target is None:
-                target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                    contract_name
+                target = resolve_contract_from_scope(
+                    contract_parser.underlying_contract.file_scope, contract_name
                 )
 
             if target == contract_parser.underlying_contract:
