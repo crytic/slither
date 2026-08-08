@@ -89,3 +89,10 @@ class TestLiteralEquality:
         lit = Literal("100", "uint256")
         assert lit != "100"
         assert lit != 100
+        assert lit != None
+
+    def test_equal_none_subdenomination(self):
+        """Literals with None and absent subdenomination should be equal."""
+        lit1 = Literal("100", "uint256")
+        lit2 = Literal("100", "uint256", subdenomination=None)
+        assert lit1 == lit2
