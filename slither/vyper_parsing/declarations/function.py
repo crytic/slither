@@ -179,7 +179,7 @@ class FunctionVyper:
 
         body = self._functionNotParsed.body
 
-        if body and not isinstance(body[0], Pass):
+        if body and not all(isinstance(stmt, Pass) for stmt in body):
             self._function.is_implemented = True
             self._function.is_empty = False
             self._parse_cfg(body)
