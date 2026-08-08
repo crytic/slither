@@ -1,0 +1,15 @@
+MerkleProof.verifyCalldata() is called with only single hashing on the leaf in MerkleNFTAllowlist.mintAllowlist(bytes32[],uint256) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#136-142)
+	- require(bool,string)(MerkleProof.verifyCalldata(proof,merkleRoot,leaf),Not in allowlist) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#141)
+
+MerkleProof.processProof() is called with only single hashing on the leaf in MerkleAirdrop.claimSingleHashProcess(bytes32[],address,uint256) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#85-93)
+	- computedRoot = MerkleProof.processProof(proof,leaf) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#91)
+
+MerkleProof.verifyCalldata() is called with only single hashing on the leaf in MerkleAirdrop.claimSingleHashCalldata(bytes32[],address,uint256) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#75-82)
+	- require(bool,string)(MerkleProof.verifyCalldata(proof,merkleRoot,leaf),Invalid proof) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#81)
+
+MerkleProof.verify() is called without any hashing on the leaf in MerkleAirdrop.claimNoHash(bytes32[],bytes32) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#57-62)
+	- require(bool,string)(MerkleProof.verify(proof,merkleRoot,leaf),Invalid proof) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#61)
+
+MerkleProof.verify() is called with only single hashing on the leaf in MerkleAirdrop.claimSingleHash(bytes32[],address,uint256) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#65-72)
+	- require(bool,string)(MerkleProof.verify(proof,merkleRoot,leaf),Invalid proof) (tests/e2e/detectors/test_data/merkle-singly-hashed-leaf/0.8.20/merkle_singly_hashed_leaf.sol#71)
+
