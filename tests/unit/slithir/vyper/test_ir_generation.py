@@ -1,7 +1,7 @@
 #
 
 
-from slither.core.solidity_types import ElementaryType
+from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.slithir.operations import (
     Phi,
     InternalCall,
@@ -97,3 +97,43 @@ def b(x: uint256):
                 if isinstance(op, InternalCall) and op.function.name == "c":
                     assert len(op.arguments) == 2
                     assert op.arguments[1] == Constant("False", ElementaryType("bool"))
+
+
+def test_vyper_function_params_in_canonical_name(slither_from_vyper_source):
+    """Regression test for #2796: Vyper function parameters missing from IR.
+
+    canonical_name and full_name were cached before parameter types
+    were resolved, producing signatures like ``f()`` instead of
+    ``f(bytes[1024])``.
+    """
+    with slither_from_vyper_source(
+        """
+@external
+@view
+def f(_x: Bytes[1024]) -> Bytes[1]:
+    return slice(_x, 0, 1)
+
+@external
+@view
+def g(_x: Bytes[1024]) -> Bytes[1]:
+    return slice(_x, 0, 1)
+"""
+    ) as sl:
+        contract = sl.contracts[0]
+        f = contract.get_function_from_signature("f(bytes[1024])")
+        g = contract.get_function_from_signature("g(bytes[1024])")
+        assert f is not None, "f(bytes[1024]) not found"
+        assert g is not None, "g(bytes[1024]) not found"
+
+        # Verify parameters exist and have correct types
+        assert len(f.parameters) == 1
+        assert isinstance(f.parameters[0].type, ArrayType)
+        assert f.full_name == "f(bytes[1024])"
+
+        assert len(g.parameters) == 1
+        assert isinstance(g.parameters[0].type, ArrayType)
+        assert g.full_name == "g(bytes[1024])"
+
+        # Verify canonical names include parameter types
+        assert "(bytes[1024])" in f.canonical_name
+        assert "(bytes[1024])" in g.canonical_name
