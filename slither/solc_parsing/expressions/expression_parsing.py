@@ -445,6 +445,11 @@ def parse_expression(expression: dict, caller_context: CallerContextExpression) 
         else:
             value = expression["attributes"].get("value", None)
             if value:
+                # Fix for legacy AST: some older Solidity versions (e.g., 0.4.23) store
+                # numeric literals with embedded double-quotes like '"12"' instead of '12'
+                # Fixes: https://github.com/crytic/slither/issues/2215
+                if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1]
                 if (
                     "subdenomination" in expression["attributes"]
                     and expression["attributes"]["subdenomination"]
