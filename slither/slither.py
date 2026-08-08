@@ -54,6 +54,13 @@ def _update_file_scopes(
         for refId in scope.exported_symbols:
             if refId in sol_parser.contracts_by_id:
                 contract = sol_parser.contracts_by_id[refId]
+                # This skips to update the current contract as it's already the correct one.
+                # This situation can happen due to a workaround we have to make in add_accessible_scopes
+                # for an old solidity bug when handling aliases.
+                # We union the exported symbols between the different scopes
+                # and could bring in a contract with the same name when actually is not in scope
+                if contract.name in scope.contracts:
+                    continue
                 scope.contracts[contract.name] = contract
             elif refId in sol_parser.functions_by_id:
                 functions = sol_parser.functions_by_id[refId]
