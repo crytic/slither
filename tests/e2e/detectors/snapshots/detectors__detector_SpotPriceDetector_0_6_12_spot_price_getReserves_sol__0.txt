@@ -1,0 +1,4 @@
+Calculations are made with spot price data in tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#200
+Method which could indicate usage of spot price was detected in Uniswap V2 at tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#197
+EXPRESSION (_yaxReserves,None,None) = yaxisEthUniswapV2Pair.getReserves()
+
