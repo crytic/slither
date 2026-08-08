@@ -1,0 +1,6 @@
+UnusedModifierContract.alsoNeverUsed() (unused_modifiers.sol#14-17) is never used and should be removed
+
+UnusedVirtual.unusedVirtualMod() (unused_modifiers.sol#75-77) is never used and should be removed
+
+UnusedModifierContract.neverUsed() (unused_modifiers.sol#9-12) is never used and should be removed
+
