@@ -1,0 +1,8 @@
+delete _temp (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#26) uses `delete` on transient variable `TransientDeleteWithPop._temp (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#21)`, which may emit the wrong storage opcode if using --via-ir
+
+delete _lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#11) uses `delete` on transient variable `TransientDeleteWithMapping._lock (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#5)`, which may emit the wrong storage opcode if using --via-ir
+
+delete _flag (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#61) uses `delete` on transient variable `TransientDeleteWithArray._flag (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#56)`, which may emit the wrong storage opcode if using --via-ir
+
+delete _caller (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#46) uses `delete` on transient variable `TransientDeleteWithStruct._caller (tests/e2e/detectors/test_data/transient-delete/0.8.28/transient_delete.sol#41)`, which may emit the wrong storage opcode if using --via-ir
+
