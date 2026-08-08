@@ -105,6 +105,15 @@ contract Crowdsale{
             is_dependent_ssa(var, taint, function.contract) for var in variables for taint in taints
         )
 
+    @staticmethod
+    def is_side_effect_free_view_or_pure(func: Function) -> bool:
+        if not (func.view or func.pure):
+            return False
+
+        return not any(
+            not (caller.view or caller.pure) for caller in func.all_reachable_from_functions
+        )
+
     def taint_balance_equalities(
         self, functions: list[FunctionContract | Any]
     ) -> list[LocalIRVariable | TemporaryVariableSSA | Any]:
@@ -147,6 +156,8 @@ contract Crowdsale{
         for func in funcs:
             # Disable the detector on top level function until we have good taint on those
             if isinstance(func, FunctionTopLevel):
+                continue
+            if self.is_side_effect_free_view_or_pure(func):
                 continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
