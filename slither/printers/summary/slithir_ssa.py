@@ -22,6 +22,8 @@ class PrinterSlithIRSSA(AbstractPrinter):
         for contract in self.contracts:
             txt += f"Contract {contract.name}" + "\n"
             for function in contract.functions:
+                if function.is_constructor_variables:
+                    continue
                 txt += f"\tFunction {function.canonical_name}" + "\n"
                 for node in function.nodes:
                     if node.expression:

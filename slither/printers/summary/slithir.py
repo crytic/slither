@@ -39,6 +39,8 @@ class PrinterSlithIR(AbstractPrinter):
             for contract in compilation_unit.contracts:
                 txt += f"Contract {contract.name}\n"
                 for function in contract.functions:
+                    if function.is_constructor_variables:
+                        continue
                     txt += f"\tFunction {function.canonical_name} {'' if function.is_shadowed else '(*)'}\n"
                     txt += _print_function(function)
                 for modifier in contract.modifiers:
