@@ -295,13 +295,24 @@ def parse_type(
         all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
+        # Include types from accessible (imported) scopes
+        for accessible in scope.accessible_scopes:
+            all_structures += list(accessible.structures.values())
+            for c in accessible.contracts.values():
+                all_structures += c.structures
 
         enums_direct_access = []
         all_enumss = [c.enums for c in scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += scope.enums.values()
+        for accessible in scope.accessible_scopes:
+            all_enums += list(accessible.enums.values())
+            for c in accessible.contracts.values():
+                all_enums += c.enums
 
-        contracts = scope.contracts.values()
+        contracts = list(scope.contracts.values())
+        for accessible in scope.accessible_scopes:
+            contracts += list(accessible.contracts.values())
         functions = list(scope.functions)
 
         renaming = scope.renaming
@@ -326,12 +337,23 @@ def parse_type(
         all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += scope.structures.values()
+        # Include types from accessible (imported) scopes
+        for accessible in scope.accessible_scopes:
+            all_structures += list(accessible.structures.values())
+            for c in accessible.contracts.values():
+                all_structures += c.structures
         enums_direct_access += contract.enums
         enums_direct_access += scope.enums.values()
         all_enumss = [c.enums for c in scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += scope.enums.values()
-        contracts = scope.contracts.values()
+        for accessible in scope.accessible_scopes:
+            all_enums += list(accessible.enums.values())
+            for c in accessible.contracts.values():
+                all_enums += c.enums
+        contracts = list(scope.contracts.values())
+        for accessible in scope.accessible_scopes:
+            contracts += list(accessible.contracts.values())
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
