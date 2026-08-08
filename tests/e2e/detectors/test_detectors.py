@@ -1513,6 +1513,11 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.BalanceReliance,
+        "balance_reliance.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.DelegatecallInLoop,
         "delegatecall_loop.sol",
         "0.4.25",
