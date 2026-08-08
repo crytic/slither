@@ -91,9 +91,9 @@ class UnusedImport(AbstractDetector):
 
                     use_found = False
                     # Search through all references to the imported file
-                    for _, refs_to_imported_path in self.slither._offset_to_references[
+                    for refs_to_imported_path in self.slither._offset_to_references[
                         imported_path
-                    ].items():
+                    ].values():
                         for ref in refs_to_imported_path:
                             # If there is a reference in this file to the imported file, it is used.
                             if ref.filename == filename:

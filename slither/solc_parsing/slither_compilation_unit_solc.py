@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+from itertools import chain
 from pathlib import Path
 
 from slither.analyses.data_dependency.data_dependency import compute_dependency
@@ -251,8 +252,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         scope = self.compilation_unit.get_scope(filename)
         # Exported symbols includes a reference ID to all top-level definitions the file exports,
         # including def's brought in by imports (even transitively) and def's local to the file.
-        for refId in exported_symbols.values():
-            scope.exported_symbols |= set(refId)
+
+        new_symbols = [
+            symbol
+            for symbol in chain.from_iterable(exported_symbols.values())
+            if symbol not in scope.exported_symbols
+        ]
+        scope.exported_symbols.extend(new_symbols)
 
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
