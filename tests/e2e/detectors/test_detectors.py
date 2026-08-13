@@ -645,6 +645,11 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
+        all_detectors.NamingConvention,
+        "naming_convention_dollar_storage.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.ControlledDelegateCall,
         "controlled_delegatecall.sol",
         "0.4.25",
