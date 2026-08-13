@@ -16,6 +16,7 @@ class NamingConvention(AbstractDetector):
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
     - Allow '_' at the beginning of the mixed_case match for private variables and unused parameters
+    - Allow '$' (the ERC-7201 namespaced-storage pointer name) for the mixed_case match
     - Ignore echidna properties (functions with names starting 'echidna_' or 'crytic_'
     """
 
@@ -33,7 +34,8 @@ class NamingConvention(AbstractDetector):
 Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
 #### Rule exceptions
 - Allow constant variable name/symbol/decimals to be lowercase (`ERC20`).
-- Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters."""
+- Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters.
+- Allow `$` (the [ERC-7201](https://eips.ethereum.org/EIPS/eip-7201) namespaced-storage pointer name) for the `mixed_case` match."""
     # endregion wiki_description
 
     WIKI_RECOMMENDATION = "Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions)."
@@ -54,12 +56,21 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
     @staticmethod
     def is_mixed_case(name: str) -> bool:
+        if name == "$":
+            # `$` is a valid Solidity identifier and the conventional name for
+            # the ERC-7201 namespaced-storage struct pointer (used by
+            # OpenZeppelin, Solady, ...). It has no letters to case, so it
+            # trivially conforms to mixedCase.
+            return True
         return re.search("^[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
     def is_mixed_case_with_underscore(name: str) -> bool:
         # Allow _ at the beginning to represent private variable
         # or unused parameters
+        if name == "$":
+            # ERC-7201 namespaced-storage pointer, see `is_mixed_case`.
+            return True
         return re.search("^[_]?[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
