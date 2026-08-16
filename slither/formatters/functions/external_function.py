@@ -38,7 +38,7 @@ def _patch(
         create_patch(
             result,
             in_file,
-            # start after the function definition's closing paranthesis
+            # start after the function definition's closing parenthesis
             modify_loc_start + len(old_str_of_interest.decode("utf8").split(")")[0]) + 1,
             # end is same as start because we insert the keyword `external` at that location
             modify_loc_start + len(old_str_of_interest.decode("utf8").split(")")[0]) + 1,
