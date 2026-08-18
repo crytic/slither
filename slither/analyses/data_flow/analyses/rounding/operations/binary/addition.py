@@ -71,7 +71,7 @@ class AdditionHandler(BinaryOperationHandler):
             f"Conflicting rounding in addition: {left_tag.name} + {right_tag.name} "
             f"in {function_name}"
         )
-        self.analysis.inconsistencies.append(
+        self.analysis.record_inconsistency(
             RoundingFinding(message=message, node=node)
         )
         self.analysis._logger.warning(message)

@@ -71,7 +71,7 @@ class MultiplicationHandler(BinaryOperationHandler):
             f"Conflicting rounding in multiplication: "
             f"{left_tag.name} * {right_tag.name} in {function_name}"
         )
-        self.analysis.inconsistencies.append(
+        self.analysis.record_inconsistency(
             RoundingFinding(message=message, node=node)
         )
         self.analysis._logger.warning(message)

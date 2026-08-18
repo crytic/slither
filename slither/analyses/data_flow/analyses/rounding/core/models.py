@@ -17,7 +17,7 @@ class RoundingFinding:
     """A structured finding with node reference for detector output."""
 
     message: str
-    node: Node
+    node: Node | None
     variable: Variable | None = None
 
 
@@ -58,8 +58,10 @@ class AnnotatedFunction:
     node_results: dict[Node, AnalysisState] = field(default_factory=dict)
 
 
-def get_node_line(node: Node) -> int | None:
-    """Get the primary source line for a node."""
+def get_node_line(node: Node | None) -> int | None:
+    """Get the primary source line for a node, or None if node is missing."""
+    if node is None:
+        return None
     if node.source_mapping and node.source_mapping.lines:
         return node.source_mapping.lines[0]
     return None

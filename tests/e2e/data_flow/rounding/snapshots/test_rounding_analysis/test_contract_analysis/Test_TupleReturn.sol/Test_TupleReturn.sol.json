@@ -1,6 +1,9 @@
 {
   "Test_TupleReturn": {
     "divBoth": {
+      "inconsistencies": [
+        "Split-direction return in divBoth: function returns DOWN on some paths and UP on others \u2014 verify rounding direction is intentional (down, up)"
+      ],
       "variables": {
         "TMP_4": "DOWN",
         "TMP_5": "UP",
