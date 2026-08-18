@@ -15,6 +15,7 @@ from slither.analyses.data_flow.engine.analysis import (
     Analysis,
     AnalysisState,
 )
+from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
@@ -53,12 +54,23 @@ class Engine(Generic[AnalysisType]):
         self.last_progress_time: float = 0.0
 
     @classmethod
-    def new(cls, analysis: Analysis, function: Function) -> Engine[AnalysisType]:
+    def new(
+        cls,
+        analysis: Analysis,
+        function: Function,
+        entry_domain: Domain | None = None,
+    ) -> Engine[AnalysisType]:
         """Create a new engine for analyzing a function.
 
         Args:
             analysis: The analysis to run.
             function: The function to analyze.
+            entry_domain: Optional state to seed the entry point's
+                pre-state with (e.g. caller argument bindings). Joined
+                into a fresh bottom value, so the engine never takes
+                ownership of the caller's object. Analyses must apply
+                their entry-state defaults set-if-absent so seeded
+                values survive initialization.
 
         Returns:
             An initialized engine ready to run analysis.
@@ -75,6 +87,10 @@ class Engine(Generic[AnalysisType]):
                 post=analysis.bottom_value(),
             )
 
+        entry_point = function.entry_point
+        if entry_domain is not None and entry_point is not None:
+            engine.state[entry_point.node_id].pre.join(entry_domain)
+
         return engine
 
     def run_analysis(self) -> None:
@@ -90,13 +106,9 @@ class Engine(Generic[AnalysisType]):
             node = worklist.popleft()
             self._track_node_visit(node)
 
-            current_state = AnalysisState(
-                pre=self.state[node.node_id].pre,
-                post=self.state[node.node_id].post,
-            )
             self.analysis.direction().apply_transfer_function(
                 analysis=self.analysis,
-                current_state=current_state,
+                current_state=self.state[node.node_id],
                 node=node,
                 worklist=worklist,
                 global_state=self.state,

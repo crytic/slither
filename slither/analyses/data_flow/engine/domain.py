@@ -37,3 +37,11 @@ class Domain(ABC):
         Returns:
             True if self changed as a result of the join.
         """
+
+    @abstractmethod
+    def copy(self) -> "Domain":
+        """Return an independent copy of this domain element.
+
+        Mutating the copy must not affect self. The engine uses this to
+        keep per-node pre and post states separate.
+        """

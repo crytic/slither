@@ -80,8 +80,10 @@ class Forward(Direction):
         worklist: deque[Node],
         global_state: dict[int, AnalysisState[AnalysisType]],
     ) -> None:
-        condition_op = _apply_node_operations(analysis, current_state, node)
-        global_state[node.node_id].post = current_state.pre
+        """Compute post as a copy of pre, leaving the stored pre untouched."""
+        post_domain = current_state.pre.copy()
+        condition_op = _apply_node_operations(analysis, post_domain, node)
+        global_state[node.node_id].post = post_domain
 
         is_conditional = (
             node.type in (NodeType.IF, NodeType.IFLOOP)
@@ -94,7 +96,7 @@ class Forward(Direction):
                 continue
 
             propagated = _resolve_propagated_domain(
-                analysis, current_state.pre,
+                analysis, post_domain,
                 is_conditional, condition_op, branch_index,
             )
             son_state = global_state[successor.node_id]
@@ -137,14 +139,14 @@ class Backward(Direction):
 
 def _apply_node_operations(
     analysis: Analysis,
-    current_state: AnalysisState,
+    domain: Domain,
     node: Node,
 ) -> Condition | None:
     """Run transfer function on each IR op; return Condition if present."""
     condition_op: Condition | None = None
     for operation in node.irs_ssa or [None]:
         analysis.transfer_function(
-            node=node, domain=current_state.pre, operation=operation,
+            node=node, domain=domain, operation=operation,
         )
         if isinstance(operation, Condition):
             condition_op = operation

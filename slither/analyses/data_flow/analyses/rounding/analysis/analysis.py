@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
         KnownLibraryTags,
     )
+    from slither.core.declarations.function import Function
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
 from slither.analyses.data_flow.logger import get_logger
@@ -112,6 +113,9 @@ class RoundingAnalysis(Analysis):
         """Return bottom element of domain lattice."""
         return RoundingDomain.bottom()
 
+    def prepare_for_function(self, function: Function) -> None:
+        """No per-function preparation is needed for rounding analysis."""
+
     def transfer_function(
         self,
         node: Node,
@@ -119,7 +123,7 @@ class RoundingAnalysis(Analysis):
         operation: Operation | None,
     ) -> None:
         """Core analysis logic - tag operations and propagate rounding metadata."""
-        domain = cast(RoundingDomain, domain)
+        domain = cast("RoundingDomain", domain)
 
         if domain.variant == DomainVariant.BOTTOM:
             domain.variant = DomainVariant.STATE
@@ -140,7 +144,11 @@ class RoundingAnalysis(Analysis):
             handler.handle(operation, domain, node)
 
     def _initialize_entry_state(self, node: Node, domain: RoundingDomain) -> None:
-        """Initialize entry-point variables to NEUTRAL for consistent tag display."""
+        """Initialize entry-point variables to NEUTRAL for consistent tag display.
+
+        Defaults are applied set-if-absent so that entry state seeded via
+        ``Engine.new(entry_domain=...)`` is not clobbered.
+        """
         if node.type not in (NodeType.ENTRYPOINT, NodeType.OTHER_ENTRYPOINT):
             return
         function = node.function
@@ -156,13 +164,14 @@ class RoundingAnalysis(Analysis):
                 "Function {name} has no contract, skipping state var init",
                 name=function.name,
             )
+        entry_variables: list[Variable] = []
         if contract is not None:
-            for state_variable in contract.state_variables:
-                domain.state.set_tag(state_variable, RoundingTag.NEUTRAL)
-        for parameter in function.parameters:
-            domain.state.set_tag(parameter, RoundingTag.NEUTRAL)
-        for return_variable in function.returns:
-            domain.state.set_tag(return_variable, RoundingTag.NEUTRAL)
+            entry_variables.extend(contract.state_variables)
+        entry_variables.extend(function.parameters)
+        entry_variables.extend(function.returns)
+        for variable in entry_variables:
+            if not domain.state.has_tag(variable):
+                domain.state.set_tag(variable, RoundingTag.NEUTRAL)
 
     def _check_annotation_for_variable(
         self,

@@ -94,11 +94,13 @@ class Analysis(ABC):
         """
         return current_state
 
+    @abstractmethod
     def prepare_for_function(self, function: "Function") -> None:
         """Prepare analysis for a specific function.
 
-        Called by Engine.new after function is set. Override to collect
-        function-specific data like widening thresholds.
+        Called by Engine.new after function is set. Implementations
+        collect function-specific data like widening thresholds; a
+        documented no-op is a valid implementation.
 
         Args:
             function: The function about to be analyzed.

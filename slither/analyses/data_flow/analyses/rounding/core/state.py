@@ -32,7 +32,7 @@ class TraceNode:
     line_number: int | None
     tags: TagSet
     source: str = ""  # Description like "divDown() → DOWN" or "returns {DOWN, UP}"
-    children: list["TraceNode"] = field(default_factory=list)
+    children: list[TraceNode] = field(default_factory=list)
     branch_condition: str | None = None  # CFG-extracted guard, e.g. "bptSupply == 0"
 
 
@@ -77,6 +77,10 @@ class RoundingState:
         if trace is not None:
             self._traces[variable] = trace
 
+    def has_tag(self, variable: Variable) -> bool:
+        """Return True when the variable has an explicitly assigned tag."""
+        return variable in self._tags
+
     def get_tags(self, variable: Variable) -> TagSet:
         """Get the tag set for a variable (default {NEUTRAL})."""
         return self._tags.get(variable, frozenset({RoundingTag.NEUTRAL}))
@@ -103,7 +107,7 @@ class RoundingState:
         """Get the provenance trace for a variable (if tracked)."""
         return self._traces.get(variable, None)
 
-    def deep_copy(self) -> "RoundingState":
+    def deep_copy(self) -> RoundingState:
         """Create a deep copy of the state."""
         new_state = RoundingState()
         new_state._tags = copy.copy(self._tags)

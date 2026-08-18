@@ -27,18 +27,22 @@ class RoundingDomain(Domain):
         self.state = state or RoundingState()
 
     @classmethod
-    def top(cls) -> "RoundingDomain":
+    def top(cls) -> RoundingDomain:
         """Top element (all variables NEUTRAL)."""
         domain = cls(DomainVariant.STATE)
         # Top means all variables are NEUTRAL, which is the default
         return domain
 
     @classmethod
-    def bottom(cls) -> "RoundingDomain":
+    def bottom(cls) -> RoundingDomain:
         """Bottom element (no information)."""
         return cls(DomainVariant.BOTTOM)
 
-    def join(self, other: "RoundingDomain") -> bool:
+    def copy(self) -> RoundingDomain:
+        """Return an independent copy of this domain."""
+        return RoundingDomain(self.variant, self.state.deep_copy())
+
+    def join(self, other: RoundingDomain) -> bool:
         """Merge two domains, return True if changed.
 
         Join semantics:
@@ -65,7 +69,7 @@ class RoundingDomain(Domain):
 
         return False
 
-    def _merge_variable_tags(self, other: "RoundingDomain") -> bool:
+    def _merge_variable_tags(self, other: RoundingDomain) -> bool:
         """Merge variable tags from other domain into self using set union."""
         changed = False
         all_variables = set(self.state._tags.keys()) | set(other.state._tags.keys())
