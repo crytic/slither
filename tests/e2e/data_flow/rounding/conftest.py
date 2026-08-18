@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from functools import cache
 from pathlib import Path
-from typing import Callable, TypedDict
+from typing import TypedDict
 
 import pytest
 
@@ -13,6 +15,15 @@ from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
 )
 from slither.analyses.data_flow.analyses.rounding.core.models import (
     AnnotatedFunction,
+)
+from slither.analyses.data_flow.analyses.rounding.core.state import (
+    RoundingTag,
+)
+from slither.analyses.data_flow.analyses.rounding.operations.tag_operations import (
+    KnownLibraryTags,
+)
+from slither.analyses.data_flow.analyses.rounding.output.annotate import (
+    analyze_function,
 )
 from slither.analyses.data_flow.analyses.rounding.output.cli import (
     RoundingCLI,
@@ -48,6 +59,55 @@ class FunctionResult(TypedDict, total=False):
 
 ContractResults = dict[str, dict[str, FunctionResult]]
 AnalyzeCallable = Callable[[Path], ContractResults]
+
+
+@cache
+def _compile(contract_path: str) -> Slither:
+    """Compile a fixture once per session; safe to share read-only."""
+    return Slither(contract_path)
+
+
+def analyze_fixture_function(
+    contract_file: str,
+    contract_name: str,
+    function_name: str,
+    known_tags: KnownLibraryTags | None = None,
+) -> AnnotatedFunction:
+    """Run rounding analysis on one function of a fixture contract."""
+    slither_instance = _compile(str(CONTRACTS_DIR / contract_file))
+    contract = next(
+        c for c in slither_instance.contracts if c.name == contract_name
+    )
+    function = next(
+        f for f in contract.functions_declared if f.name == function_name
+    )
+    return analyze_function(function, show_all=False, known_tags=known_tags)
+
+
+def returned_tags(annotated: AnnotatedFunction) -> set[RoundingTag]:
+    """Union of all tags across the function's return values."""
+    tags: set[RoundingTag] = set()
+    for tag_set in annotated.return_tags.values():
+        tags.update(tag_set)
+    return tags
+
+
+def exit_tags_by_name(annotated: AnnotatedFunction) -> dict[str, set[RoundingTag]]:
+    """Union exit-state tags per variable name across all exit nodes."""
+    merged: dict[str, set[RoundingTag]] = {}
+    for node, state in annotated.node_results.items():
+        if node.sons or state.post.variant != DomainVariant.STATE:
+            continue
+        for variable, tags in state.post.state._tags.items():
+            if not isinstance(variable, Variable):
+                continue
+            merged.setdefault(variable.name, set()).update(tags)
+    return merged
+
+
+def finding_messages(annotated: AnnotatedFunction) -> list[str]:
+    """All inconsistency messages for a function."""
+    return [finding.message for finding in annotated.inconsistencies]
 
 
 @pytest.fixture
