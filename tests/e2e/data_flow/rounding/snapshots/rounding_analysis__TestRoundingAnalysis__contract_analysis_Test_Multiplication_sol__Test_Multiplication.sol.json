@@ -1,1 +1,111 @@
-"{}"
+{
+  "Test_Multiplication": {
+    "divDown": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP"
+      }
+    },
+    "test_down_times_neutral": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_4": "DOWN",
+        "downValue": "DOWN",
+        "TMP_5": "DOWN"
+      }
+    },
+    "test_neutral_times_down": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_6": "DOWN",
+        "downValue": "DOWN",
+        "TMP_7": "DOWN"
+      }
+    },
+    "test_up_times_neutral": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_8": "UP",
+        "upValue": "UP",
+        "TMP_9": "UP"
+      }
+    },
+    "test_neutral_times_up": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_10": "UP",
+        "upValue": "UP",
+        "TMP_11": "UP"
+      }
+    },
+    "test_down_times_down": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_12": "DOWN",
+        "down1": "DOWN",
+        "TMP_13": "DOWN",
+        "down2": "DOWN",
+        "TMP_14": "DOWN"
+      }
+    },
+    "test_up_times_up": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_15": "UP",
+        "up1": "UP",
+        "TMP_16": "UP",
+        "up2": "UP",
+        "TMP_17": "UP"
+      }
+    },
+    "test_down_times_up": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "c": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_18": "DOWN",
+        "downValue": "DOWN",
+        "TMP_19": "UP",
+        "upValue": "UP",
+        "TMP_20": "UNKNOWN"
+      },
+      "inconsistencies": [
+        "Conflicting rounding in multiplication: DOWN * UP in test_down_times_up"
+      ]
+    }
+  }
+}

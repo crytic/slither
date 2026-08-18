@@ -1,1 +1,114 @@
-"{}"
+{
+  "Test_NameInference": {
+    "divDown": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "mulDown": {
+      "variables": {
+        "value": "NEUTRAL",
+        "multiplier": "NEUTRAL",
+        "divisor": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "DOWN"
+      }
+    },
+    "roundFloor": {
+      "variables": {
+        "value": "NEUTRAL",
+        "precision": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_3": "DOWN",
+        "TMP_4": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_5": "NEUTRAL",
+        "TMP_6": "NEUTRAL",
+        "TMP_7": "UP"
+      }
+    },
+    "mulUp": {
+      "variables": {
+        "value": "NEUTRAL",
+        "multiplier": "NEUTRAL",
+        "divisor": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_8": "NEUTRAL",
+        "TMP_9": "NEUTRAL",
+        "TMP_10": "NEUTRAL",
+        "TMP_11": "UP"
+      }
+    },
+    "roundCeil": {
+      "variables": {
+        "value": "NEUTRAL",
+        "precision": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_12": "NEUTRAL",
+        "TMP_13": "NEUTRAL",
+        "TMP_14": "UP",
+        "TMP_15": "UP"
+      }
+    },
+    "test_divDown_caller": {
+      "variables": {
+        "amount": "NEUTRAL",
+        "rate": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_16": "DOWN"
+      }
+    },
+    "test_mulDown_caller": {
+      "variables": {
+        "amount": "NEUTRAL",
+        "rate": "NEUTRAL",
+        "base": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_17": "DOWN"
+      }
+    },
+    "test_roundFloor_caller": {
+      "variables": {
+        "value": "NEUTRAL",
+        "step": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_18": "DOWN"
+      }
+    },
+    "test_divUp_caller": {
+      "variables": {
+        "amount": "NEUTRAL",
+        "rate": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_19": "UP"
+      }
+    },
+    "test_mulUp_caller": {
+      "variables": {
+        "amount": "NEUTRAL",
+        "rate": "NEUTRAL",
+        "base": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_20": "UP"
+      }
+    },
+    "test_roundCeil_caller": {
+      "variables": {
+        "value": "NEUTRAL",
+        "step": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_21": "UP"
+      }
+    }
+  }
+}

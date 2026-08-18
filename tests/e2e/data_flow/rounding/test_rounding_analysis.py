@@ -4,13 +4,12 @@ Run tests:
     pytest tests/e2e/data_flow/rounding/ -v
 
 Update snapshots:
-    pytest tests/e2e/data_flow/rounding/ --snapshot-update
+    pytest tests/e2e/data_flow/rounding/ --insta update
 
 Run single contract:
     pytest -k "Assignment" -v
 """
 
-import json
 import pytest
 from pathlib import Path
 
@@ -31,7 +30,7 @@ class TestRoundingAnalysis:
         """Test rounding analysis for a contract file.
 
         Analyzes the contract and compares results against stored snapshots.
-        To update snapshots after changes: pytest --snapshot-update
+        To update snapshots after changes: pytest --insta update
         """
         contract_path = contracts_dir / contract_file
 
@@ -39,5 +38,4 @@ class TestRoundingAnalysis:
             pytest.skip(f"Contract not found: {contract_path}")
 
         results = analyze_contract(contract_path)
-        results_json = json.dumps(results, indent=2, sort_keys=True)
-        snapshot.assert_match(results_json, f"{contract_file}.json")
+        assert results == snapshot(f"{contract_file}.json")

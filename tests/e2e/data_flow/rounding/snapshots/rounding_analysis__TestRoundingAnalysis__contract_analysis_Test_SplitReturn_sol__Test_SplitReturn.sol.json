@@ -1,0 +1,59 @@
+{
+  "Test_SplitReturn": {
+    "divDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP"
+      }
+    },
+    "buggy": {
+      "variables": {
+        "x": "NEUTRAL",
+        "denom": "NEUTRAL",
+        "flag": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_4": "DOWN",
+        "TMP_5": "UP"
+      },
+      "inconsistencies": [
+        "Split-direction return in buggy: function returns DOWN on some paths and UP on others \u2014 verify rounding direction is intentional (TMP_4, TMP_5)"
+      ]
+    },
+    "consistent": {
+      "variables": {
+        "x": "NEUTRAL",
+        "denom": "NEUTRAL",
+        "flag": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_6": "DOWN",
+        "TMP_7": "NEUTRAL",
+        "TMP_8": "DOWN"
+      }
+    },
+    "knownGrayArea_runtimeSelectedDirection": {
+      "variables": {
+        "x": "NEUTRAL",
+        "denom": "NEUTRAL",
+        "roundUp": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_9": "UP",
+        "TMP_10": "DOWN"
+      },
+      "inconsistencies": [
+        "Split-direction return in knownGrayArea_runtimeSelectedDirection: function returns DOWN on some paths and UP on others \u2014 verify rounding direction is intentional (TMP_9, TMP_10)"
+      ]
+    }
+  }
+}

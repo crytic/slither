@@ -1,1 +1,123 @@
-"{}"
+{
+  "MathLib": {
+    "add": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "NEUTRAL"
+      }
+    },
+    "sub": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL"
+      }
+    },
+    "divDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_2": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_3": "NEUTRAL",
+        "TMP_4": "NEUTRAL",
+        "TMP_5": "UP"
+      }
+    },
+    "mulDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_6": "NEUTRAL",
+        "TMP_7": "DOWN"
+      }
+    },
+    "mulUp": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_8": "NEUTRAL",
+        "TMP_9": "NEUTRAL",
+        "TMP_10": "NEUTRAL",
+        "TMP_11": "UP"
+      }
+    }
+  },
+  "Test_LibraryCall": {
+    "test_lib_divDown": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_12": "DOWN"
+      }
+    },
+    "test_lib_divUp": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_13": "UP"
+      }
+    },
+    "test_lib_sub_down_neutral": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "z": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_14": "DOWN",
+        "down": "DOWN",
+        "TMP_15": "DOWN"
+      }
+    },
+    "test_lib_sub_neutral_down": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "z": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_16": "DOWN",
+        "down": "DOWN",
+        "TMP_17": "UP"
+      }
+    },
+    "test_lib_add_up_neutral": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "z": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_18": "UP",
+        "up": "UP",
+        "TMP_19": "UP"
+      }
+    },
+    "test_lib_chain": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "z": "NEUTRAL",
+        "d": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_20": "UP",
+        "up": "UP",
+        "TMP_21": "DOWN"
+      }
+    }
+  }
+}

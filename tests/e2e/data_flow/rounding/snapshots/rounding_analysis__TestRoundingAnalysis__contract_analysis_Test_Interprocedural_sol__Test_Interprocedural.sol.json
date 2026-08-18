@@ -1,1 +1,88 @@
-"{}"
+{
+  "Test_Interprocedural": {
+    "divDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP"
+      }
+    },
+    "scale": {
+      "variables": {
+        "value": "NEUTRAL",
+        "factor": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_4": "NEUTRAL"
+      }
+    },
+    "combine": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_5": "NEUTRAL"
+      }
+    },
+    "testPassDown": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_6": "DOWN",
+        "result": "DOWN",
+        "TMP_7": "DOWN"
+      }
+    },
+    "testPassUp": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_8": "UP",
+        "result": "UP",
+        "TMP_9": "UP"
+      }
+    },
+    "testCombineSame": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_10": "DOWN",
+        "a": "DOWN",
+        "TMP_11": "NEUTRAL",
+        "TMP_12": "DOWN",
+        "b": "DOWN",
+        "TMP_13": "DOWN"
+      }
+    },
+    "wrapper": {
+      "variables": {
+        "value": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_14": "NEUTRAL"
+      }
+    },
+    "testNested": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_15": "DOWN",
+        "result": "DOWN",
+        "TMP_16": "DOWN"
+      }
+    }
+  }
+}

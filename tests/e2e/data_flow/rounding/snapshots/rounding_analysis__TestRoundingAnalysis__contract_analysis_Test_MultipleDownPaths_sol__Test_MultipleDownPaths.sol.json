@@ -1,0 +1,48 @@
+{
+  "Test_MultipleDownPaths": {
+    "divDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "mulDown": {
+      "variables": {
+        "a": "NEUTRAL",
+        "b": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "DOWN"
+      }
+    },
+    "compute": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "useDiv": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_3": "DOWN",
+        "TMP_4": "DOWN"
+      }
+    },
+    "foo": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_5": "DOWN"
+      }
+    },
+    "process": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "useDiv": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_6": "DOWN"
+      }
+    }
+  }
+}

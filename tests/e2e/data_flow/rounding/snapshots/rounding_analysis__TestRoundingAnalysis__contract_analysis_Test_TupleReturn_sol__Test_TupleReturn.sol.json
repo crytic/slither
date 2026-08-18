@@ -1,1 +1,45 @@
-"{}"
+{
+  "Test_TupleReturn": {
+    "divDown": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_0": "DOWN"
+      }
+    },
+    "divUp": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "": "NEUTRAL",
+        "TMP_1": "NEUTRAL",
+        "TMP_2": "NEUTRAL",
+        "TMP_3": "UP"
+      }
+    },
+    "divBoth": {
+      "variables": {
+        "numerator": "NEUTRAL",
+        "denominator": "NEUTRAL",
+        "down": "DOWN",
+        "up": "UP",
+        "TMP_4": "DOWN",
+        "TMP_5": "UP"
+      },
+      "inconsistencies": [
+        "Split-direction return in divBoth: function returns DOWN on some paths and UP on others \u2014 verify rounding direction is intentional (down, up)"
+      ]
+    },
+    "testBasicDestructure": {
+      "variables": {
+        "x": "NEUTRAL",
+        "y": "NEUTRAL",
+        "": "NEUTRAL",
+        "floorResult": "DOWN",
+        "ceilResult": "UP",
+        "TUPLE_0": "{DOWN, UP}"
+      }
+    }
+  }
+}
