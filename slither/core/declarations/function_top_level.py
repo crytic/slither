@@ -5,6 +5,9 @@ Function module
 from typing import TYPE_CHECKING
 
 from slither.core.declarations import Function
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.library_call import LibraryCall
+from slither.slithir.operations.low_level_call import LowLevelCall
 from slither.core.declarations.top_level import TopLevel
 from slither.utils.using_for import USING_FOR, merge_using_for
 
@@ -85,7 +88,7 @@ class FunctionTopLevel(Function, TopLevel):
             [str(x) for x in self.state_variables_read + self.solidity_variables_read],
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
-            [str(x) for x in self.external_calls_as_expressions],
+            [str(op.expression) for op in self.all_slithir_operations() if isinstance(op, (HighLevelCall, LowLevelCall)) and not isinstance(op, LibraryCall) and op.expression is not None],
         )
 
     # endregion
