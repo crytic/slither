@@ -94,7 +94,7 @@ class FunctionVyper:
         self._counter_scope_local_variables = 0
 
         if function_data.doc_string is not None:
-            function.has_documentation = True
+            function.documentation = function_data.doc_string
 
         self._analyze_function_type()
 
