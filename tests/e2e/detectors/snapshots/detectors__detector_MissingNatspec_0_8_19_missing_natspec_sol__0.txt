@@ -1,0 +1,4 @@
+MissingNatspec.withdraw(uint256) (tests/e2e/detectors/test_data/missing-natspec/0.8.19/missing_natspec.sol#14-17) is missing natspec documentation
+
+MissingNatspec.total() (tests/e2e/detectors/test_data/missing-natspec/0.8.19/missing_natspec.sol#19-21) is missing natspec documentation
+
