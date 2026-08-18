@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING, Tuple, Any
+from typing import Union, TYPE_CHECKING, Any
 
 from slither.core.solidity_types import ElementaryType
 from slither.core.solidity_types.type import Type
@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 # https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#type-information
 class TypeInformation(Type):
     def __init__(self, c: Union[ElementaryType, "Contract", "Enum"]) -> None:
-        # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
         from slither.core.declarations.enum import Enum
 
@@ -25,7 +24,7 @@ class TypeInformation(Type):
         return self._type
 
     @property
-    def storage_size(self) -> Tuple[int, bool]:
+    def storage_size(self) -> tuple[int, bool]:
         """
         32 is incorrect, as Type(x) return a kind of structure that can contain
         an arbitrary number of value
@@ -44,6 +43,7 @@ class TypeInformation(Type):
         return f"type({self.type.name})"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, TypeInformation):
+        # Use type() and direct attribute access for performance
+        if type(other) is not TypeInformation:
             return False
-        return self.type == other.type
+        return self._type == other._type

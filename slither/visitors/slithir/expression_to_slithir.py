@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 
 from slither.core import expressions
 from slither.core.scope.scope import FileScope
@@ -36,10 +36,17 @@ from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.unary_operation import UnaryOperation
-from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias, UserDefinedType
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    TypeAlias,
+    UserDefinedType,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -131,11 +138,11 @@ _signed_to_unsigned = {
 
 
 def convert_assignment(
-    left: Union[LocalVariable, StateVariable, ReferenceVariable],
-    right: Union[LocalVariable, StateVariable, ReferenceVariable],
+    left: LocalVariable | StateVariable | ReferenceVariable,
+    right: LocalVariable | StateVariable | ReferenceVariable,
     t: AssignmentOperationType,
     return_type: Type,
-) -> Union[Binary, Assignment]:
+) -> Binary | Assignment:
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     if t == AssignmentOperationType.ASSIGN_OR:
@@ -163,14 +170,12 @@ def convert_assignment(
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-
-    # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
-        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
+        from slither.core.cfg.node import NodeType
 
         self._expression = expression
         self._node = node
-        self._result: List[Operation] = []
+        self._result: list[Operation] = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
             r = Return(get(self.expression))
@@ -179,10 +184,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self) -> List[Operation]:
+    def result(self) -> list[Operation]:
         return self._result
 
-    # pylint: disable=too-many-branches,too-many-statements
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
@@ -192,7 +196,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
-                        not left[idx] is None
+                        left[idx] is not None
                         and expression.type
                         and expression.expression_return_type
                     ):
@@ -208,7 +212,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 assert isinstance(right, TupleVariable)
                 for idx, _ in enumerate(left):
-                    if not left[idx] is None:
+                    if left[idx] is not None:
                         index = idx
                         operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)
@@ -271,7 +275,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
-
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -318,16 +321,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         set_val(expression, val)
 
-    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
-
         assert isinstance(expression, CallExpression)
 
         expression_called = expression.called
         called = get(expression_called)
 
         args = [get(a) for a in expression.arguments if a]
-        val: Union[TupleVariable, TemporaryVariable]
+        val: TupleVariable | TemporaryVariable
         var: Operation
         for arg in args:
             arg_ = Argument(arg)
@@ -358,7 +359,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         ):
             # wrap: underlying_type -> alias
             # unwrap: alias -> underlying_type
-            dest_type: Union[TypeAlias, ElementaryType] = (
+            dest_type: TypeAlias | ElementaryType = (
                 called if expression_called.member_name == "wrap" else called.underlying_type
             )
             val = TemporaryVariable(self._node)
@@ -524,7 +525,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
-        # pylint: disable=too-many-nested-blocks
+
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -534,7 +535,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     assert len(expression.expression.arguments) == 1
                     val = TemporaryVariable(self._node)
                     type_expression_found = expression.expression.arguments[0]
-                    type_found: Union[ElementaryType, UserDefinedType]
+                    type_found: ElementaryType | UserDefinedType
                     if isinstance(type_expression_found, ElementaryTypeNameExpression):
                         type_expression_found_type = type_expression_found.type
                         assert isinstance(type_expression_found_type, ElementaryType)
@@ -701,7 +702,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_new_contract(self, expression: NewContract) -> None:
         val = TemporaryVariable(self._node)
-        operation = TmpNewContract(expression.contract_name, val)
+        operation = TmpNewContract(expression.contract_type, val)
         operation.set_expression(expression)
         if expression.call_value:
             call_value = get(expression.call_value)
@@ -741,7 +742,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
-    # pylint: disable=too-many-statements
     def _post_unary_operation(self, expression: UnaryOperation) -> None:
         value = get(expression.expression)
         operation: Operation

@@ -112,13 +112,13 @@ def test_using_for_constant_folding(slither_from_solidity_source) -> None:
     # https://github.com/crytic/slither/issues/2307
     source = """
             library SafeMath {
-            uint256 private constant twelve = 12; 
+            uint256 private constant twelve = 12;
             struct A {uint256 a;}
             function add(A[twelve] storage z) internal { }
         }
 
         contract MathContract {
-            uint256 private constant twelve = 12; 
+            uint256 private constant twelve = 12;
             using SafeMath for SafeMath.A[twelve];
             SafeMath.A[twelve] public z;
             function safeAdd() public {

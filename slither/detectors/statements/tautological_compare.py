@@ -1,4 +1,3 @@
-from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -37,7 +36,7 @@ class TautologicalCompare(AbstractDetector):
 
     WIKI_RECOMMENDATION = "Remove comparison or compare to different value."
 
-    def _check_function(self, f: Function) -> List[Output]:
+    def _check_function(self, f: Function) -> list[Output]:
         affected_nodes = set()
         for node in f.nodes:
             for ir in node.irs:

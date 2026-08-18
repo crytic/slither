@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Type, List, Any, Optional, Union
+from typing import Any
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
@@ -89,6 +89,12 @@ def parse_args() -> argparse.Namespace:
         help="list of contract names you want to mutate",
     )
 
+    # target specific functions by selector
+    parser.add_argument(
+        "--target-functions",
+        help="Comma-separated list of function selectors (hex like 0xa9059cbb or signature like transfer(address,uint256))",
+    )
+
     # flag to run full mutation based revert mutator output
     parser.add_argument(
         "--comprehensive",
@@ -107,7 +113,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMutator]]:
+def _get_mutators(mutators_list: list[str] | None) -> list[type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
     if mutators_list is not None:
         detectors = [
@@ -122,13 +128,67 @@ def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMu
     return detectors
 
 
-class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
+class ListMutators(argparse.Action):
+    def __call__(self, parser: Any, *args: Any, **kwargs: Any) -> None:
         checks = _get_mutators(None)
         output_mutators(checks)
         parser.exit()
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Selector Parsing
+###################################################################################
+###################################################################################
+
+
+def parse_target_selectors(selector_str: str) -> set[int]:
+    """Parse comma-separated selectors (hex or signature format)
+
+    Handles signatures with commas like transfer(address,uint256) by
+    only splitting on commas outside of parentheses.
+    """
+    from slither.utils.function import get_function_id
+
+    selectors: set[int] = set()
+
+    # Split on commas only when not inside parentheses
+    parts = []
+    current = ""
+    depth = 0
+    for char in selector_str:
+        if char == "(":
+            depth += 1
+            current += char
+        elif char == ")":
+            depth -= 1
+            current += char
+        elif char == "," and depth == 0:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+    if current.strip():
+        parts.append(current.strip())
+
+    for s in parts:
+        if not s:
+            continue
+        if s.startswith("0x"):
+            # Hex format: 0xa9059cbb
+            if len(s) != 10:
+                logger.error(f"Invalid selector format: {s} (must be 0x + 8 hex chars)")
+                sys.exit(1)
+            try:
+                selectors.add(int(s, 16))
+            except ValueError:
+                logger.error(f"Invalid hex selector: {s}")
+                sys.exit(1)
+        else:
+            # Signature format: transfer(address,uint256)
+            selectors.add(get_function_id(s))
+    return selectors
 
 
 # endregion
@@ -139,19 +199,19 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> None:
     args = parse_args()
 
     # arguments
     test_command: str = args.test_cmd
-    test_directory: Optional[str] = args.test_dir
-    paths_to_ignore: Optional[str] = args.ignore_dirs
-    output_dir: Optional[str] = args.output_dir
-    timeout: Optional[int] = args.timeout
-    solc_remappings: Optional[str] = args.solc_remaps
-    verbose: Optional[bool] = args.verbose
-    mutators_to_run: Optional[List[str]] = args.mutators_to_run
-    comprehensive_flag: Optional[bool] = args.comprehensive
+    test_directory: str | None = args.test_dir
+    paths_to_ignore: str | None = args.ignore_dirs
+    output_dir: str | None = args.output_dir
+    timeout: int | None = args.timeout
+    solc_remappings: str | None = args.solc_remaps
+    verbose: bool | None = args.verbose
+    mutators_to_run: list[str] | None = args.mutators_to_run
+    comprehensive_flag: bool | None = args.comprehensive
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
@@ -160,12 +220,16 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     else:
         paths_to_ignore_list = []
 
-    contract_names: List[str] = []
+    contract_names: list[str] = []
     if args.contract_names:
         contract_names = args.contract_names.split(",")
 
+    target_selectors: set[int] | None = None
+    if args.target_functions:
+        target_selectors = parse_target_selectors(args.target_functions)
+
     # get all the contracts as a list from given codebase
-    sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
+    sol_file_list: list[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
     if not contract_names:
         logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
@@ -226,9 +290,9 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     )
 
     # Keep a list of all already mutated contracts so we don't mutate them twice
-    mutated_contracts: List[str] = []
+    mutated_contracts: list[str] = []
 
-    for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
+    for filename in sol_file_list:
         file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
@@ -236,8 +300,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         files_dict = backup_source_file(sl.source_code, output_folder)
         # total revert/comment/tweak mutants that were generated and compiled
         total_mutant_counts = [0, 0, 0]
-        # total uncaught revert/comment/tweak mutants
-        uncaught_mutant_counts = [0, 0, 0]
+        # total caught revert/comment/tweak mutants
+        caught_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
@@ -272,6 +336,35 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                 # Add our target to the mutation list
                 mutated_contracts.append(target_contract.name)
                 logger.info(blue(f"Mutating contract {target_contract}"))
+
+                # Validate target selectors and collect target modifiers
+                target_modifiers: set[str] | None = None
+                if target_selectors:
+                    from slither.utils.function import get_function_id
+
+                    matching_functions = []
+                    target_modifiers = set()
+
+                    for func in target_contract.functions_declared:
+                        func_selector = get_function_id(func.solidity_signature)
+                        if func_selector in target_selectors:
+                            matching_functions.append(func)
+                            # Collect modifiers used by this function
+                            for mod in func.modifiers:
+                                target_modifiers.add(mod.name)
+
+                    if not matching_functions:
+                        logger.error(
+                            f"No functions in {target_contract.name} match selectors: {[hex(s) for s in target_selectors]}"
+                        )
+                        sys.exit(1)
+
+                    logger.info(
+                        blue(f"Targeting functions: {[f.name for f in matching_functions]}")
+                    )
+                    if target_modifiers:
+                        logger.info(blue(f"Including modifiers: {list(target_modifiers)}"))
+
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
@@ -283,39 +376,41 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                         verbose,
                         output_folder,
                         dont_mutate_lines,
+                        target_selectors=target_selectors,
+                        target_modifiers=target_modifiers,
                     )
-                    (total_counts, uncaught_counts, lines_list) = m.mutate()
+                    (total_counts, caught_counts, lines_list) = m.mutate()
 
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
-                        uncaught_mutant_counts[0] += uncaught_counts[0]
+                        caught_mutant_counts[0] += caught_counts[0]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[0]} caught revert mutants (out of {total_counts[0]} that compile)"
                                 )
                             )
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
-                        uncaught_mutant_counts[1] += uncaught_counts[1]
+                        caught_mutant_counts[1] += caught_counts[1]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[1]} caught comment mutants (out of {total_counts[1]} that compile)"
                                 )
                             )
                     else:
                         total_mutant_counts[2] += total_counts[2]
-                        uncaught_mutant_counts[2] += uncaught_counts[2]
+                        caught_mutant_counts[2] += caught_counts[2]
                         if verbose:
                             logger.info(
                                 magenta(
-                                    f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"
+                                    f"Mutator {m.NAME} found {caught_counts[2]} caught tweak mutants (out of {total_counts[2]} that compile)"
                                 )
                             )
                             logger.info(
                                 magenta(
-                                    f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"
+                                    f"Running total: found {caught_mutant_counts[2]} caught tweak mutants (out of {total_mutant_counts[2]} that compile)"
                                 )
                             )
 
@@ -323,7 +418,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                     if comprehensive_flag:
                         dont_mutate_lines = []
 
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             logger.error(e)
             transfer_and_delete(files_dict)
 
@@ -344,7 +439,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[0] > 0:
             logger.info(
                 magenta(
-                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0]/total_mutant_counts[0]}%)"
+                    f"Revert mutants: {caught_mutant_counts[0]} caught of {total_mutant_counts[0]} ({round(100 * caught_mutant_counts[0] / total_mutant_counts[0], 1)}% caught)"
                 )
             )
         else:
@@ -353,7 +448,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[1] > 0:
             logger.info(
                 magenta(
-                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1]/total_mutant_counts[1]}%)"
+                    f"Comment mutants: {caught_mutant_counts[1]} caught of {total_mutant_counts[1]} ({round(100 * caught_mutant_counts[1] / total_mutant_counts[1], 1)}% caught)"
                 )
             )
         else:
@@ -362,7 +457,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         if total_mutant_counts[2] > 0:
             logger.info(
                 magenta(
-                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2]/total_mutant_counts[2]}%)\n"
+                    f"Tweak mutants: {caught_mutant_counts[2]} caught of {total_mutant_counts[2]} ({round(100 * caught_mutant_counts[2] / total_mutant_counts[2], 1)}% caught)"
                 )
             )
         else:
@@ -372,9 +467,9 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
-        uncaught_mutant_counts[0] = 0
-        uncaught_mutant_counts[1] = 0
-        uncaught_mutant_counts[2] = 0
+        caught_mutant_counts[0] = 0
+        caught_mutant_counts[1] = 0
+        caught_mutant_counts[2] = 0
 
     # Print the total time elapsed in a human-readable time format
     elapsed_time = round(time.time() - start_time)

@@ -1,14 +1,13 @@
 """
-    Module detecting state uninitialized variables
-    Recursively check the called functions
+Module detecting state uninitialized variables
+Recursively check the called functions
 
-    The heuristic checks:
-    - state variables including mappings/refs
-    - LibraryCalls, InternalCalls, InternalDynamicCalls with storage variables
+The heuristic checks:
+- state variables including mappings/refs
+- LibraryCalls, InternalCalls, InternalDynamicCalls with storage variables
 
-    Only analyze "leaf" contracts (contracts that are not inherited by another contract)
+Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
-from typing import List, Tuple
 
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
@@ -61,9 +60,9 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     # endregion wiki_recommendation
 
     @staticmethod
-    def _written_variables(contract: Contract) -> List[StateVariable]:
+    def _written_variables(contract: Contract) -> list[StateVariable]:
         ret = []
-        # pylint: disable=too-many-nested-blocks
+
         for f in contract.all_functions_called + contract.modifiers:
             for n in f.nodes:
                 ret += n.state_variables_written
@@ -86,7 +85,6 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     def _variable_written_in_proxy(self):
         # Hack to memoize without having it define in the init
         if hasattr(self, "__variables_written_in_proxy"):
-            # pylint: disable=access-member-before-definition
             return self.__variables_written_in_proxy
 
         variables_written_in_proxy = []
@@ -94,12 +92,11 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             if c.is_upgradeable_proxy:
                 variables_written_in_proxy += self._written_variables(c)
 
-        # pylint: disable=attribute-defined-outside-init
         self.__variables_written_in_proxy = list({v.name for v in variables_written_in_proxy})
         return self.__variables_written_in_proxy
 
-    def _written_variables_in_proxy(self, contract: Contract) -> List[StateVariable]:
-        variables: List[StateVariable] = []
+    def _written_variables_in_proxy(self, contract: Contract) -> list[StateVariable]:
+        variables: list[StateVariable] = []
         if contract.is_upgradeable:
             variables_name_written_in_proxy = self._variable_written_in_proxy()
             if variables_name_written_in_proxy:
@@ -111,7 +108,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         return list(set(variables))
 
     @staticmethod
-    def _read_variables(contract: Contract) -> List[StateVariable]:
+    def _read_variables(contract: Contract) -> list[StateVariable]:
         ret = []
         for f in contract.all_functions_called:
             if isinstance(f, Function):
@@ -120,7 +117,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret += m.state_variables_read
         return ret
 
-    def _detect_uninitialized(self, contract: Contract) -> List[Tuple[Variable, List[Function]]]:
+    def _detect_uninitialized(self, contract: Contract) -> list[tuple[Variable, list[Function]]]:
         written_variables = self._written_variables(contract)
         written_variables += self._written_variables_in_proxy(contract)
         read_variables = self._read_variables(contract)
@@ -132,7 +129,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             and variable in read_variables
         ]
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect uninitialized state variables
 
         Recursively visit the calls
@@ -143,7 +140,6 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         for c in self.compilation_unit.contracts_derived:
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
-
                 info: DETECTOR_INFO = [variable, " is never initialized. It is used in:\n"]
 
                 for f in functions:

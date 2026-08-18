@@ -1,7 +1,8 @@
 """
 Detect mistakenly un-indexed ERC20 event parameters
 """
-from typing import Any, List, Tuple, Union
+
+from typing import Any
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.event import Event
@@ -46,7 +47,7 @@ Failure to include these keywords will exclude the parameter data in the transac
     @staticmethod
     def detect_erc20_unindexed_event_params(
         contract: Contract,
-    ) -> List[Union[Tuple[Event, EventVariable], Any]]:
+    ) -> list[tuple[Event, EventVariable] | Any]:
         """
         Detect un-indexed ERC20 event parameters in a given contract.
         :param contract: The contract to check ERC20 events for un-indexed parameters in.
@@ -61,7 +62,6 @@ Failure to include these keywords will exclude the parameter data in the transac
 
         # Loop through all events to look for poor form.
         for event in contract.events_declared:
-
             # If this is transfer/approval events, expect the first two parameters to be indexed.
             if event.full_name in [
                 "Transfer(address,address,uint256)",
@@ -75,7 +75,7 @@ Failure to include these keywords will exclude the parameter data in the transac
         # Return the results.
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect un-indexed ERC20 event parameters in all contracts.
         """
@@ -84,8 +84,7 @@ Failure to include these keywords will exclude the parameter data in the transac
             unindexed_params = self.detect_erc20_unindexed_event_params(c)
             if unindexed_params:
                 # Add each problematic event definition to our result list
-                for (event, parameter) in unindexed_params:
-
+                for event, parameter in unindexed_params:
                     info = [
                         "ERC20 event ",
                         event,

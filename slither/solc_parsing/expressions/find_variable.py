@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union, List, Tuple
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
@@ -30,15 +30,12 @@ from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.contract import ContractSolc
-
-# pylint: disable=import-outside-toplevel,too-many-branches,too-many-locals
 
 
 # CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
-def _get_pointer_name(variable: Variable) -> Optional[str]:
+def _get_pointer_name(variable: Variable) -> str | None:
     curr_type = variable.type
     while isinstance(curr_type, (ArrayType, MappingType)):
         if isinstance(curr_type, ArrayType):
@@ -53,12 +50,12 @@ def _get_pointer_name(variable: Variable) -> Optional[str]:
 
 
 def _find_variable_from_ref_declaration(
-    referenced_declaration: Optional[int],
-    all_contracts: List["Contract"],
-    all_functions: List["Function"],
+    referenced_declaration: int | None,
+    all_contracts: list["Contract"],
+    all_functions: list["Function"],
     function_parser: Optional["FunctionSolc"],
     contract_declarer: Optional["Contract"],
-) -> Optional[Union[Contract, Function]]:
+) -> Contract | Function | None:
     """
     Reference declarations take the highest priority, but they are not available for legacy AST.
     """
@@ -88,7 +85,7 @@ def _find_variable_from_ref_declaration(
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionSolc"],
-) -> Optional[Variable]:
+) -> Variable | None:
     if function_parser is None:
         return None
     # If not found, check for name
@@ -111,8 +108,8 @@ def _find_variable_in_function_parser(
 
 def find_top_level(
     var_name: str, scope: "FileScope"
-) -> Tuple[
-    Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
+) -> tuple[
+    Enum | Structure | SolidityImportPlaceHolder | CustomError | TopLevelVariable | None, bool
 ]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
@@ -148,7 +145,7 @@ def find_top_level(
 
     # This path should be reached only after the top level custom error have been parsed
     # If not, slither will crash
-    # It does not seem to be reacheable, but if so, we will have to adapt the order of logic
+    # It does not seem to be reachable, but if so, we will have to adapt the order of logic
     # This must be at the end, because other top level objects might require to go over "_find_top_level"
     # Before the parsing of the top level custom error
     # For example, a top variable that use another top level variable
@@ -169,11 +166,11 @@ def find_top_level(
 
 def _find_in_contract(
     var_name: str,
-    contract: Optional[Contract],
-    contract_declarer: Optional[Contract],
+    contract: Contract | None,
+    contract_declarer: Contract | None,
     is_super: bool,
     is_identifier_path: bool = False,
-) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
+) -> Variable | Function | Contract | Event | Enum | Structure | CustomError | None:
     if contract is None or contract_declarer is None:
         return None
 
@@ -188,34 +185,39 @@ def _find_in_contract(
         return conc_variables_ptr[var_name]
 
     if is_super:
-        getter_available = lambda f: f.functions_declared
-        d = {f.canonical_name: f for f in contract.functions}
-        functions = {
-            f.full_name: f
-            for f in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
-            ).values()
-        }
+        # For super calls, resolve based on the inheriting contract's C3 linearization
+        # starting from the position after the declaring contract
+        linearization = list(contract.inheritance) if contract else []
+
+        # Find starting position in linearization
+        start_idx = 0
+        if contract_declarer and contract_declarer != contract:
+            try:
+                start_idx = linearization.index(contract_declarer) + 1
+            except ValueError:
+                pass  # contract_declarer not in linearization, start from beginning
+
+        # Search through parents in C3 order for functions
+        for parent in linearization[start_idx:]:
+            for func in parent.functions_declared:
+                if func.full_name == var_name:
+                    return func
+
+        # Search through parents in C3 order for modifiers
+        for parent in linearization[start_idx:]:
+            for mod in parent.modifiers_declared:
+                if mod.full_name == var_name:
+                    return mod
     else:
         functions = {f.full_name: f for f in contract.functions if not f.is_shadowed}
-    if var_name in functions:
-        return functions[var_name]
+        if var_name in functions:
+            return functions[var_name]
 
-    if is_super:
-        getter_available = lambda m: m.modifiers_declared
-        d = {m.canonical_name: m for m in contract.modifiers}
-        modifiers = {
-            m.full_name: m
-            for m in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
-            ).values()
-        }
-    else:
         modifiers = contract.available_modifiers_as_dict()
-    if var_name in modifiers:
-        return modifiers[var_name]
+        if var_name in modifiers:
+            return modifiers[var_name]
 
-    if is_identifier_path:
+    if is_identifier_path and not is_super:
         for sig, modifier in modifiers.items():
             if "(" in sig:
                 sig = sig[0 : sig.find("(")]
@@ -253,7 +255,7 @@ def _find_in_contract(
         # TODO refactor find_variable to prevent this from happening
         pass
 
-    # If the enum is refered as its name rather than its canonicalName
+    # If the enum is referred as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
     if var_name in enums:
         return enums[var_name]
@@ -261,10 +263,13 @@ def _find_in_contract(
     return None
 
 
-# pylint: disable=too-many-statements
 def _find_variable_init(
     caller_context: CallerContextExpression,
-) -> Tuple[List[Contract], List["Function"], FileScope,]:
+) -> tuple[
+    list[Contract],
+    list["Function"],
+    FileScope,
+]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
@@ -272,8 +277,8 @@ def _find_variable_init(
     from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 
-    direct_contracts: List[Contract]
-    direct_functions_parser: List[Function]
+    direct_contracts: list[Contract]
+    direct_functions_parser: list[Function]
     scope: FileScope
 
     if isinstance(caller_context, FileScope):
@@ -347,22 +352,20 @@ def _find_variable_init(
 def find_variable(
     var_name: str,
     caller_context: CallerContextExpression,
-    referenced_declaration: Optional[int] = None,
+    referenced_declaration: int | None = None,
     is_super: bool = False,
     is_identifier_path: bool = False,
-) -> Tuple[
-    Union[
-        Variable,
-        Function,
-        Contract,
-        SolidityVariable,
-        SolidityFunction,
-        Event,
-        Enum,
-        Structure,
-        CustomError,
-        TypeAlias,
-    ],
+) -> tuple[
+    Variable
+    | Function
+    | Contract
+    | SolidityVariable
+    | SolidityFunction
+    | Event
+    | Enum
+    | Structure
+    | CustomError
+    | TypeAlias,
     bool,
 ]:
     """
@@ -410,8 +413,8 @@ def find_variable(
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
 
-    contract: Optional[Contract] = None
-    contract_declarer: Optional[Contract] = None
+    contract: Contract | None = None
+    contract_declarer: Contract | None = None
     if isinstance(caller_context, ContractSolc):
         contract = caller_context.underlying_contract
         contract_declarer = caller_context.underlying_contract
@@ -432,7 +435,7 @@ def find_variable(
                 if var_name == var.name:
                     return var, False
 
-    function_parser: Optional[FunctionSolc] = (
+    function_parser: FunctionSolc | None = (
         caller_context if isinstance(caller_context, FunctionSolc) else None
     )
     # Use ret0/ret1 to help mypy

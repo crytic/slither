@@ -1,5 +1,3 @@
-from typing import List, Set
-
 from slither.core.declarations import Function, FunctionContract, Contract
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.array_type import ArrayType
@@ -41,7 +39,7 @@ class ExternalFunction(AbstractDetector):
     )
 
     @staticmethod
-    def detect_functions_called(contract: Contract) -> List[Function]:
+    def detect_functions_called(contract: Contract) -> list[Function]:
         """Returns a list of InternallCall, SolidityCall
             calls made in a function
 
@@ -90,23 +88,21 @@ class ExternalFunction(AbstractDetector):
         # Loop through the list of inherited contracts and this contract, to find the first function instance which
         # matches this function's signature. Note here that `inheritance` is in order from most basic to most extended.
         for contract in function.contract.inheritance + [function.contract]:
-
             # Loop through the functions not inherited (explicitly defined in this contract).
             for f in contract.functions_declared:
-
                 # If it matches names, this is the base most function.
                 if f.full_name == function.full_name:
                     return f
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
-        # pylint: disable=broad-exception-raised
+
         raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod
     def get_all_function_definitions(
         base_most_function: FunctionContract,
-    ) -> List[FunctionContract]:
+    ) -> list[FunctionContract]:
         """
         Obtains all function definitions given a base-most function. This includes the provided function, plus any
         overrides of that function.
@@ -141,16 +137,16 @@ class ExternalFunction(AbstractDetector):
             return True
         return False
 
-    def _detect(self) -> List[Output]:  # pylint: disable=too-many-locals,too-many-branches
-        results: List[Output] = []
+    def _detect(self) -> list[Output]:
+        results: list[Output] = []
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
-        dynamic_call_contracts: Set[Contract] = set()
+        dynamic_call_contracts: set[Contract] = set()
 
         # Create a completed functions set to skip over functions already processed (any functions which are the base
         # of, or override hierarchically are processed together).
-        completed_functions: Set[Function] = set()
+        completed_functions: set[Function] = set()
 
         # First we build our set of all contracts with dynamic calls
         for contract in self.contracts:
@@ -159,14 +155,12 @@ class ExternalFunction(AbstractDetector):
 
         # Loop through all contracts
         for contract in self.contracts:
-
             # Filter false-positives: Immediately filter this contract if it's in blacklist
             if contract in dynamic_call_contracts:
                 continue
 
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
-
                 # If all of the function arguments are non-reference type or calldata, we skip it.
                 reference_args = []
                 for arg in function.parameters:
@@ -233,7 +227,7 @@ class ExternalFunction(AbstractDetector):
 
                 # As we collect all shadowed functions in get_all_function_definitions
                 # Some function coming from a base might already been declared as external
-                all_function_definitions: List[FunctionContract] = [
+                all_function_definitions: list[FunctionContract] = [
                     f
                     for f in all_function_definitions
                     if isinstance(f, FunctionContract)

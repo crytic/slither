@@ -31,3 +31,8 @@ contract Test4 is Test2{
 abstract contract Test5 {
     function unused_but_abstract() internal virtual;
 }
+
+// Test case: virtual function WITHOUT override - SHOULD be flagged
+contract Test6 {
+    function unused_virtual_no_override() internal virtual {}
+}

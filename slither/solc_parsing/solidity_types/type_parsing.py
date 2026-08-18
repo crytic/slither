@@ -1,6 +1,7 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict, ValuesView
+from typing import TYPE_CHECKING, Union
+from collections.abc import ValuesView
 
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
@@ -29,10 +30,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("TypeParsing")
 
-# pylint: disable=anomalous-backslash-in-string
 
-
-class UnknownType:  # pylint: disable=too-few-public-methods
+class UnknownType:
     def __init__(self, name: str) -> None:
         self._name = name
 
@@ -41,13 +40,13 @@ class UnknownType:  # pylint: disable=too-few-public-methods
         return self._name
 
 
-def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-arguments
+def _find_from_type_name(
     name: str,
-    functions_direct_access: List["Function"],
-    contracts_direct_access: List["Contract"],
-    structures_direct_access: List["Structure"],
+    functions_direct_access: list["Function"],
+    contracts_direct_access: list["Contract"],
+    structures_direct_access: list["Structure"],
     all_structures: ValuesView["Structure"],
-    enums_direct_access: List["Enum"],
+    enums_direct_access: list["Enum"],
     all_enums: ValuesView["Enum"],
 ) -> Type:
     name_elementary = name.split(" ")[0]
@@ -196,7 +195,6 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 
 
 def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
-
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
     elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
@@ -206,7 +204,7 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
-    t: Union[Dict, UnknownType],
+    t: dict | UnknownType,
     caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
 ) -> Type:
     """
@@ -221,8 +219,7 @@ def parse_type(
     :rtype:
     """
     # local import to avoid circular dependency
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    # pylint: disable=import-outside-toplevel
+
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -234,16 +231,16 @@ def parse_type(
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
     from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
 
-    sl: "SlitherCompilationUnit"
-    renaming: Dict[str, str]
-    type_aliases: Dict[str, TypeAlias]
-    enums_direct_access: List["Enum"] = []
+    sl: SlitherCompilationUnit
+    renaming: dict[str, str]
+    type_aliases: dict[str, TypeAlias]
+    enums_direct_access: list[Enum] = []
     # Note: for convenience top level functions use the same parser as function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
-        structures_direct_access: List["Structure"]
+        structures_direct_access: list[Structure]
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
@@ -447,7 +444,6 @@ def parse_type(
         return ArrayType(array_type, length)
 
     if t[key] == "Mapping":
-
         if is_compact_ast:
             mappingFrom = parse_type(t["keyType"], next_context)
             mappingTo = parse_type(t["valueType"], next_context)
@@ -460,7 +456,6 @@ def parse_type(
         return MappingType(mappingFrom, mappingTo)
 
     if t[key] == "FunctionTypeName":
-
         if is_compact_ast:
             params = t["parameterTypes"]
             return_values = t["returnParameterTypes"]
@@ -474,8 +469,8 @@ def parse_type(
         assert params[key] == "ParameterList"
         assert return_values[key] == "ParameterList"
 
-        params_vars: List[FunctionTypeVariable] = []
-        return_values_vars: List[FunctionTypeVariable] = []
+        params_vars: list[FunctionTypeVariable] = []
+        return_values_vars: list[FunctionTypeVariable] = []
         for p in params[index]:
             var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.compilation_unit)

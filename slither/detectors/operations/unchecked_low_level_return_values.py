@@ -1,7 +1,6 @@
 """
 Module detecting unused return values from low level
 """
-from typing import List
 
 from slither.core.cfg.node import Node
 from slither.slithir.operations import LowLevelCall
@@ -48,7 +47,7 @@ If the low level is used to prevent blocking operations, consider logging failed
     WIKI_RECOMMENDATION = "Ensure that the return value of a low-level call is checked or logged."
 
     @staticmethod
-    def detect_unused_return_values(f: FunctionContract) -> List[Node]:
+    def detect_unused_return_values(f: FunctionContract) -> list[Node]:
         """
         Return the nodes where the return value of a call is unused
         Args:
@@ -72,14 +71,13 @@ If the low level is used to prevent blocking operations, consider logging failed
 
         return [nodes_origin[value].node for value in values_returned]
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect low level calls where the success value is not checked"""
         results = []
         for c in self.compilation_unit.contracts_derived:
             for f in c.functions_and_modifiers:
                 unused_return = UncheckedLowLevel.detect_unused_return_values(f)
                 if unused_return:
-
                     for node in unused_return:
                         info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 

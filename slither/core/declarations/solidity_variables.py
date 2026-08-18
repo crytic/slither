@@ -1,5 +1,5 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
-from typing import List, Dict, Union, Any
+from typing import Any
 
 from slither.core.declarations.custom_error import CustomError
 from slither.core.solidity_types import ElementaryType, TypeInformation
@@ -44,7 +44,7 @@ SOLIDITY_VARIABLES_COMPOSED = {
     "self.balance": "uint256",
 }
 
-SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
+SOLIDITY_FUNCTIONS: dict[str, list[str]] = {
     "blobhash(uint256)": ["bytes32"],
     "gasleft()": ["uint256"],
     "assert(bool)": [],
@@ -72,6 +72,8 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "log3(bytes32,bytes32,bytes32,bytes32)": [],
     "blockhash(uint256)": ["bytes32"],
     "prevrandao()": ["uint256"],
+    # Solidity 0.8.35 comptime builtin: ERC-7201 namespaced storage base slot
+    "erc7201(string)": ["uint256"],
     # the following need a special handling
     # as they are recognized as a SolidityVariableComposed
     # and converted to a SolidityFunction by SlithIR
@@ -204,7 +206,7 @@ class SolidityFunction(SourceMapping):
         assert name in SOLIDITY_FUNCTIONS
         self._name = name
         # Can be TypeInformation if type(address) is used
-        self._return_type: List[Union[TypeInformation, ElementaryType]] = [
+        self._return_type: list[TypeInformation | ElementaryType] = [
             ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]
         ]
 
@@ -217,11 +219,11 @@ class SolidityFunction(SourceMapping):
         return self.name
 
     @property
-    def return_type(self) -> List[Union[TypeInformation, ElementaryType]]:
+    def return_type(self) -> list[TypeInformation | ElementaryType]:
         return self._return_type
 
     @return_type.setter
-    def return_type(self, r: List[Union[TypeInformation, ElementaryType]]) -> None:
+    def return_type(self, r: list[TypeInformation | ElementaryType]) -> None:
         self._return_type = r
 
     def __str__(self) -> str:
@@ -235,10 +237,10 @@ class SolidityFunction(SourceMapping):
 
 
 class SolidityCustomRevert(SolidityFunction):
-    def __init__(self, custom_error: CustomError) -> None:  # pylint: disable=super-init-not-called
+    def __init__(self, custom_error: CustomError) -> None:
         self._name = "revert " + custom_error.solidity_signature
         self._custom_error = custom_error
-        self._return_type: List[Union[TypeInformation, ElementaryType]] = []
+        self._return_type: list[TypeInformation | ElementaryType] = []
 
     @property
     def custom_error(self) -> CustomError:

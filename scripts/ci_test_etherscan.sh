@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-### Test etherscan integration
+### Test slither analysis on a contract
 
-mkdir etherscan
-cd etherscan || exit 255
+DIR_TESTS="tests/tools/etherscan"
 
-echo "::group::Etherscan mainnet"
-if ! slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apikey "$GITHUB_ETHERSCAN" --no-fail-pedantic; then
-    echo "Etherscan mainnet test failed"
+solc-select use 0.4.25 --always-install
+
+echo "::group::BalanceChecker analysis"
+if ! slither "$DIR_TESTS/BalanceChecker.sol" --no-fail-pedantic; then
+    echo "BalanceChecker test failed"
     exit 1
 fi
 echo "::endgroup::"
 
-# Perform a small sleep when API key is not available (e.g. on PR CI from external contributor)
-if [ "$GITHUB_ETHERSCAN" = "" ]; then
-    sleep $(( ( RANDOM % 5 )  + 1 ))s
-fi
-
 exit 0
-

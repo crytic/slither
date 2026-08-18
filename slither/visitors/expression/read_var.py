@@ -1,4 +1,4 @@
-from typing import Any, List, Union, Optional
+from typing import Any
 
 from slither.core.expressions import NewElementaryType
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -29,23 +29,23 @@ from slither.core.expressions.unary_operation import UnaryOperation
 key = "ReadVar"
 
 
-def get(expression: Expression) -> List[Union[Identifier, IndexAccess, Any]]:
+def get(expression: Expression) -> list[Identifier | IndexAccess | Any]:
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
 
-def set_val(expression: Expression, val: List[Union[Identifier, IndexAccess, Any]]) -> None:
+def set_val(expression: Expression, val: list[Identifier | IndexAccess | Any]) -> None:
     expression.context[key] = val
 
 
 class ReadVar(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
-        self._result: Optional[List[Expression]] = None
+        self._result: list[Expression] | None = None
         super().__init__(expression)
 
-    def result(self) -> List[Expression]:
+    def result(self) -> list[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result

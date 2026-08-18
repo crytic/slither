@@ -1,12 +1,12 @@
-from typing import Dict, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, TypeAlias
 from slither.core.solidity_types import Type, UserDefinedType
 
 if TYPE_CHECKING:
     from slither.core.declarations import Function
 
-USING_FOR_KEY = Union[str, Type]  # "*" is wildcard
-USING_FOR_ITEM = List[Union[UserDefinedType, "Function"]]  # UserDefinedType.type is a library
-USING_FOR = Dict[USING_FOR_KEY, USING_FOR_ITEM]
+USING_FOR_KEY: TypeAlias = "str | Type"  # "*" is wildcard
+USING_FOR_ITEM: TypeAlias = "list[UserDefinedType | Function]"  # UserDefinedType.type is a library
+USING_FOR: TypeAlias = "dict[USING_FOR_KEY, USING_FOR_ITEM]"
 
 
 def merge_using_for(uf1: USING_FOR, uf2: USING_FOR) -> USING_FOR:

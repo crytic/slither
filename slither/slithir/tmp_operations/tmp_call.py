@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Union
 
 from slither.core.declarations import (
     Event,
@@ -18,16 +18,15 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 
-class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attributes
+class TmpCall(OperationWithLValue):
     def __init__(
         self,
         called: SourceMapping,
         nbr_arguments: int,
-        result: Union[TupleVariable, TemporaryVariable],
+        result: TupleVariable | TemporaryVariable,
         type_call: str,
-        names: Optional[List[str]] = None,
+        names: list[str] | None = None,
     ) -> None:
-        # pylint: disable=too-many-arguments
         """
         #### Parameters
         names -
@@ -59,7 +58,7 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         self._salt = None
 
     @property
-    def names(self) -> Optional[List[str]]:
+    def names(self) -> list[str] | None:
         """
         For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
         Otherwise, None.
@@ -119,7 +118,7 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         return self._type_call
 
     @property
-    def ori(self) -> Optional[Union[TmpNewContract, TmpNewArray, "TmpCall", Member]]:
+    def ori(self) -> Union[TmpNewContract, TmpNewArray, "TmpCall", Member] | None:
         return self._ori
 
     def set_ori(self, ori: Union["TmpCall", TmpNewContract, TmpNewArray, Member]) -> None:

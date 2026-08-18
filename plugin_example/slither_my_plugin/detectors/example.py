@@ -1,7 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
+class Example(AbstractDetector):
     """
     Documentation
     """
@@ -19,7 +19,6 @@ class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
     WIKI_RECOMMENDATION = "Customize the detector"
 
     def _detect(self):
-
         info = "This is an example!"
 
         json = self.generate_result(info)

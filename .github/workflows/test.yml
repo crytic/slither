@@ -7,15 +7,23 @@ defaults:
 
 on:
   push:
-    branches: [master, dev]
+    branches: [master]
   pull_request:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    paths:
+      - 'slither/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/scripts/**'
+      - '.github/actions/**'
+      - '.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -23,35 +31,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
+        os: ["ubuntu-latest", "windows-2025"]
         type: ["unit", "integration", "tool"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+        python: >-
+          ${{ (github.event_name == 'pull_request' && fromJSON('["3.10", "3.14"]'))
+          || fromJSON('["3.10", "3.11", "3.12", "3.13", "3.14"]') }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           python-version: ${{ matrix.python }}
-          cache: "pip"
-          cache-dependency-path: setup.py
+          activate-environment: true
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          uv sync --group test
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
-          node-version: '16'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
       - name: Install test dependencies
+        env:
+          TEST_TYPE: ${{ matrix.type }}
         run: |
-          if [ ${{ matrix.type }} = "tool" ]; then
+          if [ "$TEST_TYPE" = "tool" ]; then
             # Setup Ganache for slither-read-storage tests.
             npm install --global ganache
-          elif [ ${{ matrix.type }} = "integration" ]; then
+          elif [ "$TEST_TYPE" = "integration" ]; then
             # Setup Hardhat for compilation tests.
             pushd tests/e2e/compilation/test_data/test_node_modules/ || exit
             npm install hardhat
@@ -77,11 +91,12 @@ jobs:
       - name: Run ${{ matrix.type }} tests
         env:
           TEST_TYPE: ${{ matrix.type }}
+          MATRIX_OS: ${{ matrix.os }}
         # Only run coverage on ubuntu-latest.
         run: |
-          if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
+          if [ "$MATRIX_OS" = "ubuntu-latest" ]; then
             TEST_ARGS=(--cov=slither --cov-append)
-          elif [ ${{ matrix.os }} = "windows-2022" ]; then
+          elif [ "$MATRIX_OS" = "windows-2025" ]; then
             TEST_ARGS=()
           fi
           bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
@@ -91,7 +106,7 @@ jobs:
         uses: ./.github/actions/upload-coverage
         # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
         # coverage metadata.
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.8' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.10' }}
 
   coverage:
     needs:
@@ -100,16 +115,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          python-version: 3.8
+          persist-credentials: false
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        with:
+          python-version: "3.10"
+          activate-environment: true
+          enable-cache: true
 
-      - run: pip install coverage[toml]
+      - run: uv pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: coverage-data-*
           merge-multiple: true

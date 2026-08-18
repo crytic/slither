@@ -1,7 +1,8 @@
 """
-    EventContract module
+EventContract module
 """
-from typing import TYPE_CHECKING, Dict
+
+from typing import TYPE_CHECKING
 
 from slither.core.variables.event_variable import EventVariable
 from slither.solc_parsing.variables.event_variable import EventVariableSolc
@@ -17,9 +18,8 @@ class EventContractSolc:
     """
 
     def __init__(
-        self, event: EventContract, event_data: Dict, contract_parser: "ContractSolc"
+        self, event: EventContract, event_data: dict, contract_parser: "ContractSolc"
     ) -> None:
-
         self._event = event
         self._contract_parser = contract_parser
 

@@ -1,7 +1,6 @@
 """
 Detect deletion on structure containing a mapping
 """
-from typing import List, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Structure
@@ -57,14 +56,14 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
     @staticmethod
     def detect_mapping_deletion(
         contract: Contract,
-    ) -> List[Tuple[FunctionContract, Structure, Node]]:
+    ) -> list[tuple[FunctionContract, Structure, Node]]:
         """Detect deletion on structure containing a mapping
 
         Returns:
             list (function, structure, node)
         """
-        ret: List[Tuple[FunctionContract, Structure, Node]] = []
-        # pylint: disable=too-many-nested-blocks
+        ret: list[tuple[FunctionContract, Structure, Node]] = []
+
         for f in contract.functions:
             for node in f.nodes:
                 for ir in node.irs:
@@ -77,7 +76,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
     @staticmethod
     def check_if_mapping(
         value: Variable,
-        ret: List[Tuple[FunctionContract, Structure, Node]],
+        ret: list[tuple[FunctionContract, Structure, Node]],
         f: FunctionContract,
         node: Node,
     ):
@@ -89,7 +88,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
             for e in st.elems.values():
                 MappingDeletionDetection.check_if_mapping(e, ret, f, node)
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect mapping deletion
 
         Returns:
@@ -98,7 +97,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
         results = []
         for c in self.contracts:
             mapping = MappingDeletionDetection.detect_mapping_deletion(c)
-            for (func, struct, node) in mapping:
+            for func, struct, node in mapping:
                 info: DETECTOR_INFO = [func, " deletes ", struct, " which contains a mapping:\n"]
                 info += ["\t-", node, "\n"]
 

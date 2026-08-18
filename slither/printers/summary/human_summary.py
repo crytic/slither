@@ -1,8 +1,8 @@
 """
 Module printing summary of the contract
 """
+
 import logging
-from typing import Tuple, List, Dict
 
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.state_variable import StateVariable
@@ -71,7 +71,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         return txt
 
-    def _get_detectors_result(self) -> Tuple[List[Dict], int, int, int, int, int]:
+    def _get_detectors_result(self) -> tuple[list[dict], int, int, int, int, int]:
         # disable detectors logger
         logger = logging.getLogger("Detectors")
         logger.setLevel(logging.ERROR)
@@ -115,7 +115,7 @@ class PrinterHumanSummary(AbstractPrinter):
             len(issues_high),
         )
 
-    def get_detectors_result(self) -> Tuple[str, List[Dict], int, int, int, int, int]:
+    def get_detectors_result(self) -> tuple[str, list[dict], int, int, int, int, int]:
         (
             all_results,
             optimization,
@@ -177,9 +177,9 @@ class PrinterHumanSummary(AbstractPrinter):
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
             return "Compilation non standard\n"
-        return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
+        return f"Compiled with {self.slither.crytic_compile.type!s}\n"
 
-    def _number_contracts(self) -> Tuple[int, int, int]:
+    def _number_contracts(self) -> tuple[int, int, int]:
         contracts = self.slither.contracts
         deps = [c for c in contracts if c.is_from_dependency()]
         tests = [c for c in contracts if c.is_test]
@@ -200,7 +200,7 @@ class PrinterHumanSummary(AbstractPrinter):
             ercs += contract.ercs()
         return list(set(ercs))
 
-    def _get_features(self, contract):  # pylint: disable=too-many-branches
+    def _get_features(self, contract):
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -278,7 +278,7 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f"Number of contracts in tests       : {number_contracts_tests}\n"
         return txt
 
-    def _get_number_lines(self, txt: str, results: Dict) -> Tuple[str, Dict]:
+    def _get_number_lines(self, txt: str, results: dict) -> tuple[str, dict]:
         loc = compute_loc_metrics(self.slither)
         txt += "Source lines of code (SLOC) in source files: "
         txt += f"{loc.src.sloc}\n"
@@ -295,7 +295,7 @@ class PrinterHumanSummary(AbstractPrinter):
         results["number_lines_assembly"] = total_asm_lines
         return txt, results
 
-    def output(self, _filename):  # pylint: disable=too-many-locals,too-many-statements
+    def output(self, _filename):
         """
         _filename is not used
             Args:
@@ -339,12 +339,12 @@ class PrinterHumanSummary(AbstractPrinter):
 
         libs = self._standard_libraries()
         if libs:
-            txt += f'\nUse: {", ".join(libs)}\n'
+            txt += f"\nUse: {', '.join(libs)}\n"
             results["standard_libraries"] = [str(lib) for lib in libs]
 
         ercs = self._ercs()
         if ercs:
-            txt += f'ERCs: {", ".join(ercs)}\n'
+            txt += f"ERCs: {', '.join(ercs)}\n"
             results["ercs"] = [str(e) for e in ercs]
 
         table = MyPrettyTable(

@@ -1,4 +1,3 @@
-from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -44,7 +43,7 @@ The shift statement will right-shift the constant 8 by `a` bits"""
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."
 
-    def _check_function(self, f: FunctionContract) -> List[Output]:
+    def _check_function(self, f: FunctionContract) -> list[Output]:
         results = []
         in_assembly = False
 
@@ -77,7 +76,7 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                         results.append(json)
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         for c in self.contracts:
             for f in c.functions:

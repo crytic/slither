@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 ### Test slither-interface
 
-DIR_TESTS="tests/tools/interface" 
+DIR_TESTS="tests/tools/interface"
 
-solc-select use 0.8.19 --always-install
-
-#Test 1 - Etherscan target
-slither-interface WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+#Test 1 - WETH9 contract (uses solc 0.4.x)
+solc-select use 0.4.18 --always-install
+slither-interface WETH9 "$DIR_TESTS/WETH9.sol"
 DIFF=$(diff crytic-export/interfaces/IWETH9.sol "$DIR_TESTS/test_1.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]
 then
@@ -18,8 +18,8 @@ then
     exit 255
 fi
 
-
-#Test 2 - Local file target
+#Test 2 - Local file target (uses solc 0.8.x)
+solc-select use 0.8.19 --always-install
 slither-interface Mock tests/tools/interface/ContractMock.sol
 DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_2.sol" --strip-trailing-cr)
 if [  "$DIFF" != "" ]

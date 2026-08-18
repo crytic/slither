@@ -20,38 +20,38 @@ Additionally, Slither can include non-trivial variable tracking by default by tr
 
 `$ slither file.sol --print slithir` will output the IR for every function.
 
-```
+```sh
 $ slither examples/printers/slihtir.sol --printers slithir
 Contract UnsafeMath
-	Function add(uint256,uint256)
-		Expression: a + b
-		IRs:
-			TMP_0(uint256) = a + b
-			RETURN TMP_0
-	Function min(uint256,uint256)
-		Expression: a - b
-		IRs:
-			TMP_0(uint256) = a - b
-			RETURN TMP_0
+ Function add(uint256,uint256)
+  Expression: a + b
+  IRs:
+   TMP_0(uint256) = a + b
+   RETURN TMP_0
+ Function min(uint256,uint256)
+  Expression: a - b
+  IRs:
+   TMP_0(uint256) = a - b
+   RETURN TMP_0
 Contract MyContract
-	Function transfer(address,uint256)
-		Expression: balances[msg.sender] = balances[msg.sender].min(val)
-		IRs:
-			REF_3(uint256) -> balances[msg.sender]
-			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
-		Expression: balances[to] = balances[to].add(val)
-		IRs:
-			REF_3(uint256) -> balances[to]
-			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
-			REF_3 := TMP_1
+ Function transfer(address,uint256)
+  Expression: balances[msg.sender] = balances[msg.sender].min(val)
+  IRs:
+   REF_3(uint256) -> balances[msg.sender]
+   REF_1(uint256) -> balances[msg.sender]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
+  Expression: balances[to] = balances[to].add(val)
+  IRs:
+   REF_3(uint256) -> balances[to]
+   REF_1(uint256) -> balances[to]
+   TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
+   REF_3 := TMP_1
 ```
 
-# SlithIR Specification
+## SlithIR Specification
 
-## Variables
+### Variables
 
 - `StateVariable`
 - `LocalVariable`
@@ -66,18 +66,18 @@ In the following we use:
 - `LVALUE` can be: `StateVariable`, `LocalVariable`, `TemporaryVariable`, `ReferenceVariable` or `TupleVariable`
 - `RVALUE` can be: `StateVariable`, `LocalVariable`, `Constant`, `SolidityVariable`, `TemporaryVariable` or `ReferenceVariable`
 
-## Operators
+### Operators
 
 - All the operators inherit from `Operation` and have a `read` attribute returning the list of variables read (see [slither/slithir/operations/operation.py](https://github.com/crytic/slither/blob/master/slither/slithir/operations/operation.py)).
 - All the operators writing to a `LVALUE` inherit from `OperationWithLValue` and have the `lvalue` attribute (see [slither/slithir/operations/lvalue.py](https://github.com/crytic/slither/blob/master/slither/slithir/operations/lvalue.py)).
 
-### Assignment
+#### Assignment
 
 - `LVALUE := RVALUE`
 - `LVALUE := Tuple`
 - `LVALUE := Function` (for dynamic function)
 
-### Binary Operation
+#### Binary Operation
 
 - `LVALUE = RVALUE ** RVALUE`
 - `LVALUE = RVALUE * RVALUE`
@@ -99,18 +99,18 @@ In the following we use:
 - `LVALUE = RVALUE && RVALUE`
 - `LVALUE = RVALUE -- RVALUE`
 
-### Unary Operation
+#### Unary Operation
 
 - `LVALUE = ! RVALUE`
 - `LVALUE = ~ RVALUE`
 
-### Index
+#### Index
 
 - `REFERENCE -> LVALUE [ RVALUE ]`
 
 Note: The reference points to the memory location
 
-### Member
+#### Member
 
 - `REFERENCE -> LVALUE . RVALUE`
 - `REFERENCE -> CONTRACT . RVALUE`
@@ -118,7 +118,7 @@ Note: The reference points to the memory location
 
 Note: The reference points to the memory location
 
-### New Operators
+#### New Operators
 
 - `LVALUE = NEW_ARRAY ARRAY_TYPE DEPTH(:int)`
 
@@ -132,32 +132,32 @@ Note: The reference points to the memory location
 
 `ELEMENTARY_TYPE` is defined in [slither/core/solidity_types/elementary_type.py](https://github.com/crytic/slither/blob/master/slither/core/solidity_types/elementary_type.py)
 
-### Push Operator
+#### Push Operator
 
 - `PUSH LVALUE RVALUE`
 - `PUSH LVALUE Function` (for dynamic function)
 
-### Delete Operator
+#### Delete Operator
 
 - `DELETE LVALUE`
 
-### Conversion
+#### Conversion
 
 - `CONVERT LVALUE RVALUE TYPE`
 
 TYPE is a [solidity_types](https://github.com/crytic/slither/tree/master/slither/core/solidity_types)
 
-### Unpack
+#### Unpack
 
 - `LVALUE = UNPACK TUPLEVARIABLE INDEX(:int)`
 
-### Array Initialization
+#### Array Initialization
 
 - `LVALUE = INIT_VALUES`
 
 `INIT_VALUES` is a list of `RVALUE`, or a list of lists in case of a multidimensional array.
 
-### Calls Operators
+#### Calls Operators
 
 In the following, `ARG` is a variable as defined in [SlithIR#variables](https://github.com/crytic/slither/wiki/SlithIR#variables)
 
@@ -186,7 +186,7 @@ Optional arguments:
 
 - `GAS` and `VALUE` for `HIGH_LEVEL_CALL` / `LOW_LEVEL_CALL`.
 
-### Return
+#### Return
 
 - `RETURN RVALUE`
 - `RETURN TUPLE`
@@ -194,7 +194,7 @@ Optional arguments:
 
 `Return None` represents an empty return statement.
 
-### Condition
+#### Condition
 
 - `CONDITION RVALUE`
 

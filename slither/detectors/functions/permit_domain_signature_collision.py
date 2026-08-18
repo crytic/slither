@@ -1,7 +1,6 @@
 """
 Module detecting EIP-2612 domain separator collision
 """
-from typing import Union, List
 
 from slither.core.declarations import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -44,11 +43,13 @@ contract Contract{
 
     WIKI_RECOMMENDATION = "Remove or rename the function that collides with DOMAIN_SEPARATOR()."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         domain_sig = get_function_id("DOMAIN_SEPARATOR()")
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_erc20():
-                funcs_and_vars: List[Union[Function, StateVariable]] = contract.functions_entry_points + contract.state_variables_entry_points  # type: ignore
+                funcs_and_vars: list[Function | StateVariable] = (
+                    contract.functions_entry_points + contract.state_variables_entry_points
+                )  # type: ignore
                 for func_or_var in funcs_and_vars:
                     # External/ public function names should not collide with DOMAIN_SEPARATOR()
                     hash_collision = (

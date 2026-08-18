@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, Node
 from slither.core.cfg.scope import Scope
@@ -50,23 +50,22 @@ def link_underlying_nodes(node1: NodeVyper, node2: NodeVyper):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-class FunctionVyper:  # pylint: disable=too-many-instance-attributes
+class FunctionVyper:
     def __init__(
         self,
         function: Function,
         function_data: FunctionDef,
         contract_parser: "ContractVyper",
     ) -> None:
-
         self._function = function
         self._function.name = function_data.name
         self._function.id = function_data.node_id
         self._functionNotParsed = function_data
         self._decoratorNotParsed = None
-        self._local_variables_parser: List[LocalVariableVyper] = []
+        self._local_variables_parser: list[LocalVariableVyper] = []
         self._variables_renamed = []
         self._contract_parser = contract_parser
-        self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
+        self._node_to_NodeVyper: dict[Node, NodeVyper] = {}
 
         for decorator in function_data.decorators:
             if isinstance(decorator, Call):
@@ -116,7 +115,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     @property
     def variables_renamed(
         self,
-    ) -> Dict[int, LocalVariableVyper]:
+    ) -> dict[int, LocalVariableVyper]:
         return self._variables_renamed
 
     def _add_local_variable(self, local_var_parser: LocalVariableVyper) -> None:
@@ -134,9 +133,9 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
         # TODO no reference ID
         # if local_var_parser.reference_id is not None:
         #     self._variables_renamed[local_var_parser.reference_id] = local_var_parser
-        self._function.variables_as_dict[
-            local_var_parser.underlying_variable.name
-        ] = local_var_parser.underlying_variable
+        self._function.variables_as_dict[local_var_parser.underlying_variable.name] = (
+            local_var_parser.underlying_variable
+        )
         self._local_variables_parser.append(local_var_parser)
 
     # endregion
@@ -147,7 +146,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     ###################################################################################
 
     @property
-    def function_not_parsed(self) -> Dict:
+    def function_not_parsed(self) -> dict:
         return self._functionNotParsed
 
     def _analyze_function_type(self) -> None:
@@ -231,7 +230,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     ###################################################################################
 
     def _new_node(
-        self, node_type: NodeType, src: Union[str, Source], scope: Union[Scope, "Function"]
+        self, node_type: NodeType, src: str | Source, scope: Union[Scope, "Function"]
     ) -> NodeVyper:
         node = self._function.new_node(node_type, src, scope)
         node_parser = NodeVyper(node)
@@ -251,9 +250,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
         for son in node.sons:
             self._update_reachability(son)
 
-    # pylint: disable=too-many-branches,too-many-statements,protected-access,too-many-locals
-    def _parse_cfg(self, cfg: List[ASTNode]) -> None:
-
+    def _parse_cfg(self, cfg: list[ASTNode]) -> None:
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
         self._function.entry_point = entry_node.underlying_node
         scope = Scope(True, False, self.underlying_function)
@@ -298,7 +295,6 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
                     curr_node = new_node
 
             elif isinstance(expr, For):
-
                 node_startLoop = self._new_node(NodeType.STARTLOOP, expr.src, scope)
                 node_endLoop = self._new_node(NodeType.ENDLOOP, expr.src, scope)
 
@@ -527,7 +523,6 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     ###################################################################################
 
     def _add_param(self, param: Arg, initialized: bool = False) -> LocalVariableVyper:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param.src, self._function.compilation_unit)
@@ -543,7 +538,6 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
         return local_var_parser
 
     def _parse_params(self, params: Arguments):
-
         self._function.parameters_src().set_offset(params.src, self._function.compilation_unit)
         if params.defaults:
             self._function._default_args_as_expressions = params.defaults
@@ -551,8 +545,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
             local_var = self._add_param(param)
             self._function.add_parameters(local_var.underlying_variable)
 
-    def _parse_returns(self, returns: Union[Name, TupleVyper, Subscript]):
-
+    def _parse_returns(self, returns: Name | TupleVyper | Subscript):
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
         # Only the type of the arg is given, not a name. We create an `Arg` with an empty name
         # so that the function has the correct return type in its signature but doesn't clash with

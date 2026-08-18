@@ -1,9 +1,9 @@
 """
-    Variable used with FunctionType
-    ex:
-    struct C{
-        function(uint) my_func;
-    }
+Variable used with FunctionType
+ex:
+struct C{
+    function(uint) my_func;
+}
 """
 
 from .variable import Variable

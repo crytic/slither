@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.exceptions import SlitherException
 from slither.utils.integer_conversion import convert_string_to_fraction
@@ -7,11 +7,8 @@ from slither.utils.integer_conversion import convert_string_to_fraction
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, Function
 
-# pylint: disable=too-many-branches
-def convert_subdenomination(
-    value: str, sub: str
-) -> int:  # pylint: disable=too-many-return-statements
 
+def convert_subdenomination(value: str, sub: str) -> int:
     decimal_value = convert_string_to_fraction(value)
     if sub == "wei":
         return int(decimal_value)
@@ -54,7 +51,6 @@ def _unchecked_arithemtic_usage(function: "Function") -> bool:
 
     """
 
-    # pylint: disable=import-outside-toplevel
     from slither.slithir.operations import Binary
 
     score = 0
@@ -68,7 +64,7 @@ def _unchecked_arithemtic_usage(function: "Function") -> bool:
     return False
 
 
-def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
+def unchecked_arithemtic_usage(contract: "Contract") -> list["Function"]:
     """
     Return the list of function with some unchecked arithmetics
 
@@ -78,10 +74,10 @@ def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
     Returns:
 
     """
-    # pylint: disable=import-outside-toplevel
+
     from slither.core.declarations import Function
 
-    ret: List[Function] = []
+    ret: list[Function] = []
     for function in contract.all_functions_called:
         if isinstance(function, Function) and _unchecked_arithemtic_usage(function):
             ret.append(function)

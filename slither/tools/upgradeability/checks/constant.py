@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.tools.upgradeability.checks.abstract_checks import (
     AbstractCheck,
     CheckClassification,
@@ -51,7 +49,7 @@ Do not remove `constant` from a state variables during an update.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         contract_v1 = self.contract
         contract_v2 = self.contract_v2
 
@@ -70,7 +68,6 @@ Do not remove `constant` from a state variables during an update.
 
         results = []
         while idx_v1 < len(state_variables_v1):
-
             state_v1 = contract_v1.state_variables[idx_v1]
             if len(state_variables_v2) <= idx_v2:
                 break
@@ -140,7 +137,7 @@ Do not make an existing state variable `constant`.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self) -> List[Output]:
+    def _check(self) -> list[Output]:
         contract_v1 = self.contract
         contract_v2 = self.contract_v2
 
@@ -160,7 +157,6 @@ Do not make an existing state variable `constant`.
 
         results = []
         while idx_v1 < len(state_variables_v1):
-
             state_v1 = contract_v1.state_variables[idx_v1]
             if len(state_variables_v2) <= idx_v2:
                 break

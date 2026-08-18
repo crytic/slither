@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Dict, List
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -13,8 +12,8 @@ from slither.slithir.operations import LowLevelCall, HighLevelCall
 from slither.utils.output import Output
 
 
-def _detect_token_reentrant(contract: Contract) -> Dict[Function, List[Node]]:
-    ret: Dict[Function, List[Node]] = defaultdict(list)
+def _detect_token_reentrant(contract: Contract) -> dict[Function, list[Node]]:
+    ret: dict[Function, list[Node]] = defaultdict(list)
     for function in contract.functions_entry_points:
         if function.full_name in [
             "transfer(address,uint256)",
@@ -25,10 +24,8 @@ def _detect_token_reentrant(contract: Contract) -> Dict[Function, List[Node]]:
                     if not function.parameters:
                         continue
                     if any(
-                        (
-                            is_dependent(ir.destination, parameter, function)
-                            for parameter in function.parameters
-                        )
+                        is_dependent(ir.destination, parameter, function)
+                        for parameter in function.parameters
                     ):
                         ret[function].append(ir.node)
                     if is_dependent(
@@ -87,7 +84,7 @@ contract MyDefi{
 If you do, ensure your users are aware of the potential issues."""
     # endregion wiki_recommendation
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         for contract in self.compilation_unit.contracts_derived:
             vulns = _detect_token_reentrant(contract)

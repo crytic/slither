@@ -1,4 +1,4 @@
-from typing import Any, Union, List, Optional
+from typing import Any
 
 from slither.core.expressions import NewElementaryType
 from slither.core.expressions.expression import Expression
@@ -21,23 +21,23 @@ from slither.core.expressions.unary_operation import UnaryOperation
 key = "FindCall"
 
 
-def get(expression: Expression) -> List[Union[Any, CallExpression]]:
+def get(expression: Expression) -> list[Any | CallExpression]:
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
 
-def set_val(expression: Expression, val: List[Union[Any, CallExpression]]) -> None:
+def set_val(expression: Expression, val: list[Any | CallExpression]) -> None:
     expression.context[key] = val
 
 
 class FindCalls(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
-        self._result: Optional[List[Expression]] = None
+        self._result: list[Expression] | None = None
         super().__init__(expression)
 
-    def result(self) -> List[Expression]:
+    def result(self) -> list[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result

@@ -1,13 +1,14 @@
 import abc
 from logging import Logger
 
-from typing import TYPE_CHECKING, Union, List, Optional, Dict
+from typing import TYPE_CHECKING
 
 from slither.utils import output
 from slither.utils.output import SupportedOutput
 
 if TYPE_CHECKING:
     from slither import Slither
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class IncorrectPrinterInitialization(Exception):
@@ -20,9 +21,12 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     WIKI = ""
 
-    def __init__(self, slither: "Slither", logger: Optional[Logger]) -> None:
+    def __init__(
+        self, compilation_unit: "SlitherCompilationUnit", slither: "Slither", logger: Logger | None
+    ) -> None:
+        self.compilation_unit = compilation_unit
         self.slither = slither
-        self.contracts = slither.contracts
+        self.contracts = compilation_unit.contracts
         self.filename = slither.filename
         self.logger = logger
 
@@ -47,8 +51,8 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     def generate_output(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
-        additional_fields: Optional[Dict] = None,
+        info: str | list[str | SupportedOutput],
+        additional_fields: dict | None = None,
     ) -> output.Output:
         if additional_fields is None:
             additional_fields = {}

@@ -2,7 +2,6 @@
 Module detecting missing events for critical contract parameters set by owners and used in arithmetic
 
 """
-from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
@@ -49,10 +48,10 @@ contract C {
 
     function buy() external {
      ... // buyPrice is used to determine the number of tokens purchased
-    }    
+    }
 }
 ```
-`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain. 
+`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain.
 """
     # endregion wiki_exploit_scenario
 
@@ -61,7 +60,7 @@ contract C {
     @staticmethod
     def _detect_unprotected_use(
         contract: Contract, sv: StateVariable
-    ) -> List[Tuple[Node, FunctionContract]]:
+    ) -> list[tuple[Node, FunctionContract]]:
         unprotected_functions = [
             function for function in contract.functions_declared if not function.is_protected()
         ]
@@ -74,7 +73,7 @@ contract C {
 
     def _detect_missing_events(
         self, contract: Contract
-    ) -> List[Tuple[FunctionContract, List[Tuple[Node, List[Tuple[Node, FunctionContract]]]]]]:
+    ) -> list[tuple[FunctionContract, list[tuple[Node, list[tuple[Node, FunctionContract]]]]]]:
         """
         Detects if critical contract parameters set by owners and used in arithmetic are missing events
         :param contract: The contract to check
@@ -115,7 +114,7 @@ contract C {
                 results.append((function, nodes))
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect missing events for critical contract parameters set by owners and used in arithmetic
         Returns:
             list: {'(function, node)'}
@@ -125,9 +124,9 @@ contract C {
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
-            for (function, nodes) in missing_events:
+            for function, nodes in missing_events:
                 info: DETECTOR_INFO = [function, " should emit an event for: \n"]
-                for (node, _) in nodes:
+                for node, _ in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)
                 results.append(res)

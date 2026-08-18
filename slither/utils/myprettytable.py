@@ -1,5 +1,4 @@
 from shutil import get_terminal_size
-from typing import List, Dict, Union
 
 from prettytable import PrettyTable
 from prettytable.colortable import ColorTable, Themes
@@ -10,13 +9,13 @@ from slither.utils.colors import Colors
 class MyPrettyTable:
     def __init__(
         self,
-        field_names: List[str],
+        field_names: list[str],
         pretty_align: bool = True,
-        max_width: Union[int, None] = "max",  # Default value is "max"
+        max_width: int | None = "max",  # Default value is "max"
     ):
         self._field_names = field_names
-        self._rows: List = []
-        self._options: Dict = {}
+        self._rows: list = []
+        self._options: dict = {}
         if pretty_align:
             self._options["set_alignment"] = []
             for field_name in field_names:
@@ -35,7 +34,7 @@ class MyPrettyTable:
         else:
             self.max_width = max_width
 
-    def add_row(self, row: List[Union[str, List[str]]]) -> None:
+    def add_row(self, row: list[str | list[str]]) -> None:
         self._rows.append(row)
 
     def to_pretty_table(self) -> PrettyTable:
@@ -54,7 +53,7 @@ class MyPrettyTable:
                 table.align[column_header] = value
         return table
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {"fields_names": self._field_names, "rows": self._rows}
 
     def __str__(self) -> str:

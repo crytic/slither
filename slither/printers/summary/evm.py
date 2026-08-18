@@ -1,8 +1,9 @@
 """
-    Module printing evm mapping of the contract
+Module printing evm mapping of the contract
 """
+
 import logging
-from typing import Union, List, Dict
+from typing import Union
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
@@ -73,7 +74,6 @@ def _extract_evm_info(slither):
     return evm_info
 
 
-# pylint: disable=too-many-locals
 class PrinterEVM(AbstractPrinter):
     ARGUMENT = "evm"
     HELP = "Print the evm instructions of nodes in functions"
@@ -83,7 +83,7 @@ class PrinterEVM(AbstractPrinter):
     def build_element_node_str(
         self,
         element: Union["Modifier", "Function"],
-        contract_pcs: Dict[int, List[int]],
+        contract_pcs: dict[int, list[int]],
         contract_cfg,
     ) -> str:
         element_file = self.slither.source_code[

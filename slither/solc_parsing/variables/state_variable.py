@@ -1,11 +1,9 @@
-from typing import Dict
-
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.state_variable import StateVariable
 
 
 class StateVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: StateVariable, variable_data: Dict) -> None:
+    def __init__(self, variable: StateVariable, variable_data: dict) -> None:
         super().__init__(variable, variable_data)
 
     @property
@@ -14,7 +12,7 @@ class StateVariableSolc(VariableDeclarationSolc):
         assert isinstance(self._variable, StateVariable)
         return self._variable
 
-    def _analyze_variable_attributes(self, attributes: Dict) -> None:
+    def _analyze_variable_attributes(self, attributes: dict) -> None:
         """
         Variable Location
         Can be default or transient

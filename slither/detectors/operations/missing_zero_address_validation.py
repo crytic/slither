@@ -2,8 +2,8 @@
 Module detecting missing zero address validation
 
 """
+
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
@@ -58,7 +58,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
     WIKI_RECOMMENDATION = "Check that the address is not zero."
 
     def _zero_address_validation_in_modifier(
-        self, var: LocalVariable, modifier_exprs: List[ModifierStatements]
+        self, var: LocalVariable, modifier_exprs: list[ModifierStatements]
     ) -> bool:
         for mod in modifier_exprs:
             for node in mod.nodes:
@@ -76,7 +76,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
         return False
 
     def _zero_address_validation(
-        self, var: LocalVariable, node: Node, explored: List[Node]
+        self, var: LocalVariable, node: Node, explored: list[Node]
     ) -> bool:
         """
         Detects (recursively) if var is (zero address) checked in the function node
@@ -100,7 +100,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
     def _detect_missing_zero_address_validation(
         self, contract: Contract
-    ) -> List[Union[Tuple[FunctionContract, DefaultDict[LocalVariable, List[Node]]]]]:
+    ) -> list[tuple[FunctionContract, defaultdict[LocalVariable, list[Node]]]]:
         """
         Detects if addresses are zero address validated before use.
         :param contract: The contract to check
@@ -147,7 +147,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
                 results.append((function, var_nodes))
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect if addresses are zero address validated before use.
         Returns:
             list: {'(function, node)'}
@@ -157,7 +157,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_zero_address_validation = self._detect_missing_zero_address_validation(contract)
-            for (_, var_nodes) in missing_zero_address_validation:
+            for _, var_nodes in missing_zero_address_validation:
                 for var, nodes in var_nodes.items():
                     info: DETECTOR_INFO = [var, " lacks a zero-check on ", ":\n"]
                     for node in nodes:

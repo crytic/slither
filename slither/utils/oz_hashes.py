@@ -1,12 +1,11 @@
-from typing import NamedTuple, List
+from typing import NamedTuple
 
 
 class LibraryInfo(NamedTuple):
     name: str
-    versons: List[str]
+    versons: list[str]
 
 
-# pylint: disable=too-many-lines
 oz_hashes = {
     "16ad4eed535bc7e7ea4d1096618d68ffe5a02287": LibraryInfo("Bounty", ["v1.3.0"]),
     "896a88e86ba21fe176d5e3de434af62ee531b1d5": LibraryInfo(

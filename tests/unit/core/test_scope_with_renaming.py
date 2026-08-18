@@ -7,6 +7,7 @@ from slither import Slither
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SCOPE_RENAMING_TEST_DATA_DIR = Path(TEST_DATA_DIR, "scope_with_renaming")
 
+
 # https://github.com/crytic/slither/issues/2454
 def test_find_variable_scope_with_renaming(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.24")

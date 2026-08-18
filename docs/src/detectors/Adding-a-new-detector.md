@@ -1,3 +1,5 @@
+# Adding New Detectors
+
 Slither's plugin architecture lets you integrate new detectors that run from the command-line.
 
 ## Detector Skeleton

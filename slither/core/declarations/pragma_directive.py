@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -7,14 +7,14 @@ if TYPE_CHECKING:
 
 
 class Pragma(SourceMapping):
-    def __init__(self, directive: List[str], scope: "FileScope") -> None:
+    def __init__(self, directive: list[str], scope: "FileScope") -> None:
         super().__init__()
         self._directive = directive
-        self.scope: "FileScope" = scope
+        self.scope: FileScope = scope
         self._pattern = "pragma"
 
     @property
-    def directive(self) -> List[str]:
+    def directive(self) -> list[str]:
         """
         list(str)
         """

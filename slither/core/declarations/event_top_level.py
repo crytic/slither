@@ -10,4 +10,4 @@ if TYPE_CHECKING:
 class EventTopLevel(Event, TopLevel):
     def __init__(self, scope: "FileScope") -> None:
         super().__init__()
-        self.file_scope: "FileScope" = scope
+        self.file_scope: FileScope = scope

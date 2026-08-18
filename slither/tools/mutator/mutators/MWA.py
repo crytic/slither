@@ -1,18 +1,19 @@
-from typing import Dict
 from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
 
-class MWA(AbstractMutator):  # pylint: disable=too-few-public-methods
+class MWA(AbstractMutator):
     NAME = "MWA"
     HELP = '"while" construct around statement'
 
-    def _mutate(self) -> Dict:
-        result: Dict = {}
+    def _mutate(self) -> dict:
+        result: dict = {}
 
         for function in self.contract.functions_and_modifiers_declared:
+            if not self.should_mutate_function(function):
+                continue
             for node in function.nodes:
                 if not self.should_mutate_node(node):
                     continue

@@ -5,7 +5,7 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
-from typing import List
+
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -17,7 +17,10 @@ from slither.utils.output import Output
 
 def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
-        ir.function.name in ["revert()", "revert(string"] for ir in node.internal_calls
+        ir.function.name == "revert()"
+        or ir.function.name == "revert(string)"
+        or ir.function.name.startswith("revert ")  # SolidityCustomRevert
+        for ir in node.internal_calls
     )
 
 
@@ -65,9 +68,9 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
-        # pylint: disable=too-many-nested-blocks
+
         for c in self.contracts:
             for mod in c.modifiers:
                 if mod.contract_declarer != c:

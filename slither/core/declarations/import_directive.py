@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -11,10 +11,10 @@ class Import(SourceMapping):
     def __init__(self, filename: Path, scope: "FileScope") -> None:
         super().__init__()
         self._filename: Path = filename
-        self.scope: "FileScope" = scope
-        self._alias: Optional[str] = None
+        self.scope: FileScope = scope
+        self._alias: str | None = None
         # Map local name -> original name
-        self.renaming: Dict[str, str] = {}
+        self.renaming: dict[str, str] = {}
 
         self._pattern = "import"
 
@@ -40,7 +40,7 @@ class Import(SourceMapping):
         return self._filename
 
     @property
-    def alias(self) -> Optional[str]:
+    def alias(self) -> str | None:
         return self._alias
 
     @alias.setter

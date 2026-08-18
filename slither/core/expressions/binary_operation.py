@@ -1,6 +1,5 @@
 import logging
 from enum import Enum
-from typing import List
 
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
@@ -39,7 +38,6 @@ class BinaryOperationType(Enum):
     GREATER_SIGNED = 22
     RIGHT_SHIFT_ARITHMETIC = 23
 
-    # pylint: disable=too-many-branches
     @staticmethod
     def get_type(
         operation_type: "str",
@@ -95,7 +93,7 @@ class BinaryOperationType(Enum):
 
         raise SlitherCoreError(f"get_type: Unknown operation type {operation_type})")
 
-    def __str__(self) -> str:  # pylint: disable=too-many-branches
+    def __str__(self) -> str:
         if self == BinaryOperationType.POWER:
             return "**"
         if self == BinaryOperationType.MULTIPLICATION:
@@ -161,7 +159,7 @@ class BinaryOperation(Expression):
         self._type: BinaryOperationType = expression_type
 
     @property
-    def expressions(self) -> List[Expression]:
+    def expressions(self) -> list[Expression]:
         return self._expressions
 
     @property

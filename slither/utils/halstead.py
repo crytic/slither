@@ -1,33 +1,33 @@
 """
-    Halstead complexity metrics
-    https://en.wikipedia.org/wiki/Halstead_complexity_measures
+Halstead complexity metrics
+https://en.wikipedia.org/wiki/Halstead_complexity_measures
 
-    12 metrics based on the number of unique operators and operands:
+12 metrics based on the number of unique operators and operands:
 
-    Core metrics:
-    n1 = the number of distinct operators
-    n2 = the number of distinct operands
-    N1 = the total number of operators
-    N2 = the total number of operands
+Core metrics:
+n1 = the number of distinct operators
+n2 = the number of distinct operands
+N1 = the total number of operators
+N2 = the total number of operands
 
-    Extended metrics1:
-    n = n1 + n2  # Program vocabulary
-    N = N1 + N2  # Program length
-    S = n1 * log2(n1) + n2 * log2(n2) # Estimated program length
-    V = N * log2(n) # Volume
+Extended metrics1:
+n = n1 + n2  # Program vocabulary
+N = N1 + N2  # Program length
+S = n1 * log2(n1) + n2 * log2(n2) # Estimated program length
+V = N * log2(n) # Volume
 
-    Extended metrics2:
-    D = (n1 / 2) * (N2 / n2) # Difficulty
-    E = D * V # Effort
-    T = E / 18 seconds # Time required to program
-    B = (E^(2/3)) / 3000 # Number of delivered bugs
+Extended metrics2:
+D = (n1 / 2) * (N2 / n2) # Difficulty
+E = D * V # Effort
+T = E / 18 seconds # Time required to program
+B = (E^(2/3)) / 3000 # Number of delivered bugs
 
 
 """
+
 import math
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Tuple, List, Dict
 
 from slither.core.declarations import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
@@ -35,17 +35,13 @@ from slither.utils.encoding import encode_ir_for_halstead
 from slither.utils.myprettytable import make_pretty_table, MyPrettyTable
 
 
-# pylint: disable=too-many-branches
-
-
-@dataclass
-# pylint: disable=too-many-instance-attributes
+@dataclass(slots=True)
 class HalsteadContractMetrics:
     """Class to hold the Halstead metrics for a single contract."""
 
     contract: Contract
-    all_operators: List[str] = field(default_factory=list)
-    all_operands: List[str] = field(default_factory=list)
+    all_operators: list[str] = field(default_factory=list)
+    all_operands: list[str] = field(default_factory=list)
     n1: int = 0
     n2: int = 0
     N1: int = 0
@@ -70,7 +66,7 @@ class HalsteadContractMetrics:
         if len(self.all_operators) > 0:
             self.compute_metrics()
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Return the metrics as a dictionary."""
         return OrderedDict(
             {
@@ -135,7 +131,7 @@ class HalsteadContractMetrics:
         self.B = (self.E ** (2 / 3)) / 3000
 
 
-@dataclass
+@dataclass(slots=True)
 class SectionInfo:
     """Class to hold the information for a section of the report."""
 
@@ -144,8 +140,7 @@ class SectionInfo:
     txt: str
 
 
-@dataclass
-# pylint: disable=too-many-instance-attributes
+@dataclass(slots=True)
 class HalsteadMetrics:
     """Class to hold the Halstead metrics for all contracts. Contains methods useful for reporting.
 
@@ -156,7 +151,7 @@ class HalsteadMetrics:
 
     """
 
-    contracts: List[Contract] = field(default_factory=list)
+    contracts: list[Contract] = field(default_factory=list)
     contract_metrics: OrderedDict = field(default_factory=OrderedDict)
     title: str = "Halstead complexity metrics"
     full_text: str = ""
@@ -181,7 +176,7 @@ class HalsteadMetrics:
         "Time",
         "Estimated Bugs",
     )
-    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (
+    SECTIONS: tuple[tuple[str, str, tuple[str]]] = (
         ("Core", "core", CORE_KEYS),
         ("Extended 1/2", "extended1", EXTENDED1_KEYS),
         ("Extended 2/2", "extended2", EXTENDED2_KEYS),
@@ -221,7 +216,7 @@ class HalsteadMetrics:
             contract.name: self.contract_metrics[contract.name].to_dict()
             for contract in self.contracts
         }
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n{pretty_table}\n"

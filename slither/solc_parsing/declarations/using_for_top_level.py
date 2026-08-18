@@ -1,8 +1,9 @@
 """
-    Using For Top Level module
+Using For Top Level module
 """
+
 import logging
-from typing import TYPE_CHECKING, Dict, Union
+from typing import TYPE_CHECKING
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import (
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("UsingForTopLevelSolc")
 
 
-class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
+class UsingForTopLevelSolc(CallerContextExpression):
     """
     UsingFor class
     """
@@ -30,7 +31,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     def __init__(
         self,
         uftl: UsingForTopLevel,
-        top_level_data: Dict,
+        top_level_data: dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
         self._type_name = top_level_data["typeName"]
@@ -83,7 +84,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self,
         first_part: str,
         function_name: str,
-        type_name: Union[TypeAliasTopLevel, UserDefinedType],
+        type_name: TypeAliasTopLevel | UserDefinedType,
     ) -> None:
         # We check if the first part appear as alias for an import
         # if it is then function_name must be a top level function
@@ -95,7 +96,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self._analyze_library_function(first_part, function_name, type_name)
 
     def _analyze_top_level_function(
-        self, function_name: str, type_name: Union[TypeAliasTopLevel, UserDefinedType]
+        self, function_name: str, type_name: TypeAliasTopLevel | UserDefinedType
     ) -> None:
         for tl_function in self._using_for.file_scope.functions:
             # The library function is bound to the first parameter's type
@@ -125,7 +126,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self,
         library_name: str,
         function_name: str,
-        type_name: Union[TypeAliasTopLevel, UserDefinedType],
+        type_name: TypeAliasTopLevel | UserDefinedType,
     ) -> None:
         found = False
         for c in self.compilation_unit.contracts:
@@ -148,7 +149,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                 f"Top level using for: Library {library_name} - function {function_name} not found"
             )
 
-    def _propagate_global(self, type_name: Union[TypeAliasTopLevel, UserDefinedType]) -> None:
+    def _propagate_global(self, type_name: TypeAliasTopLevel | UserDefinedType) -> None:
         if self._global:
             for scope in self.compilation_unit.scopes.values():
                 if isinstance(type_name, TypeAliasTopLevel):

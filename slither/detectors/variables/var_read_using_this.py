@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, SolidityVariable
 from slither.detectors.abstract_detector import (
@@ -33,7 +31,7 @@ contract C {
 
     WIKI_RECOMMENDATION = "Read the variable directly from storage instead of calling the contract."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
         for c in self.contracts:
             for func in c.functions:
@@ -51,8 +49,8 @@ contract C {
         return results
 
     @staticmethod
-    def _detect_var_read_using_this(func: Function) -> List[Node]:
-        results: List[Node] = []
+    def _detect_var_read_using_this(func: Function) -> list[Node]:
+        results: list[Node] = []
         for _, ir in func.high_level_calls:
             if (
                 ir.destination == SolidityVariable("this")

@@ -3,7 +3,6 @@ from slither.utils.output import Output
 
 
 class Dominator(AbstractPrinter):
-
     ARGUMENT = "dominator"
     HELP = "Export the dominator tree of each functions"
 

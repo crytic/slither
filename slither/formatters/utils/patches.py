@@ -1,18 +1,17 @@
 import os
 import difflib
-from typing import Dict, Tuple, Union
 from collections import defaultdict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 
-# pylint: disable=too-many-arguments
+
 def create_patch(
-    result: Dict,
+    result: dict,
     file: str,
     start: int,
     end: int,
-    old_str: Union[str, bytes],
-    new_str: Union[str, bytes],
+    old_str: str | bytes,
+    new_str: str | bytes,
 ) -> None:
     if isinstance(old_str, bytes):
         old_str = old_str.decode("utf8")
@@ -25,13 +24,14 @@ def create_patch(
         result["patches"][file].append(p)
 
 
-def apply_patch(original_txt: bytes, patch: Dict, offset: int) -> Tuple[bytes, int]:
+def apply_patch(original_txt: bytes, patch: dict, offset: int) -> tuple[bytes, int]:
     patched_txt = original_txt[: int(patch["start"] + offset)]
     patched_txt += patch["new_string"].encode("utf8")
     patched_txt += original_txt[int(patch["end"] + offset) :]
 
     # Keep the diff of text added or sub, in case of multiple patches
-    patch_length_diff = len(patch["new_string"]) - (patch["end"] - patch["start"])
+    # Note: must use byte length since patch offsets are byte offsets from solc
+    patch_length_diff = len(patch["new_string"].encode("utf8")) - (patch["end"] - patch["start"])
     return patched_txt, patch_length_diff + offset
 
 

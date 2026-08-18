@@ -1,3 +1,5 @@
+# slither-flat
+
 `slither-flat` produces a flattened version of the codebase.
 
 ## Features

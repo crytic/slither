@@ -1,7 +1,6 @@
 """
 Module detecting the incorrect use of unary expressions
 """
-from typing import List
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.expression import Expression
@@ -14,7 +13,7 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 from slither.visitors.expression.expression import ExpressionVisitor
 
-# pylint: disable=too-few-public-methods
+
 class InvalidUnaryExpressionDetector(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
         self.result: bool = False
@@ -23,13 +22,9 @@ class InvalidUnaryExpressionDetector(ExpressionVisitor):
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         if isinstance(expression.expression_right, UnaryOperation):
             if expression.expression_right.type == UnaryOperationType.PLUS_PRE:
-                # This is defined in ExpressionVisitor but pylint
-                # Seems to think its not
-                # pylint: disable=attribute-defined-outside-init
                 self.result = True
 
 
-# pylint: disable=too-few-public-methods
 class InvalidUnaryStateVariableDetector(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:
         self.result: bool = False
@@ -37,9 +32,6 @@ class InvalidUnaryStateVariableDetector(ExpressionVisitor):
 
     def _post_unary_operation(self, expression: UnaryOperation) -> None:
         if expression.type == UnaryOperationType.PLUS_PRE:
-            # This is defined in ExpressionVisitor but pylint
-            # Seems to think its not
-            # pylint: disable=attribute-defined-outside-init
             self.result = True
 
 
@@ -62,7 +54,7 @@ class IncorrectUnaryExpressionDetection(AbstractDetector):
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
-```Solidity 
+```Solidity
 contract Bug{
     uint public counter;
 
@@ -77,7 +69,7 @@ contract Bug{
 
     WIKI_RECOMMENDATION = "Remove the unary expression."
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect the incorrect use of unary expressions
         """

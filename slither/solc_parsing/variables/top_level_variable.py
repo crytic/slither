@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
@@ -13,7 +13,7 @@ class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):
     def __init__(
         self,
         variable: TopLevelVariable,
-        variable_data: Dict,
+        variable_data: dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
         super().__init__(variable, variable_data)

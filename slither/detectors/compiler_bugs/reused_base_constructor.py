@@ -1,7 +1,8 @@
 """
 Module detecting re-used base constructors in inheritance hierarchy.
 """
-from typing import Any, Dict, List, Tuple, Union
+
+from typing import Any
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -15,10 +16,10 @@ from slither.utils.output import Output
 
 # Helper: adds explicitly called constructors with arguments to the results lookup.
 def _add_constructors_with_args(
-    base_constructors: List[Union[Any, FunctionContract]],
+    base_constructors: list[Any | FunctionContract],
     called_by_constructor: bool,
     current_contract: Contract,
-    results: Dict[FunctionContract, List[Tuple[Contract, bool]]],
+    results: dict[FunctionContract, list[tuple[Contract, bool]]],
 ) -> None:
     for explicit_base_constructor in base_constructors:
         if len(explicit_base_constructor.parameters) > 0:
@@ -86,7 +87,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
     def _detect_explicitly_called_base_constructors(
         self, contract: Contract
-    ) -> Dict[FunctionContract, List[Tuple[Contract, bool]]]:
+    ) -> dict[FunctionContract, list[tuple[Contract, bool]]]:
         """
         Detects explicitly calls to base constructors with arguments in the inheritance hierarchy.
         :param contract: The contract to detect explicit calls to a base constructor with arguments to.
@@ -100,7 +101,6 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         # Loop until there are no queued contracts left.
         while len(queued_contracts) > 0:
-
             # Pop a contract off the front of the queue, if it has already been processed, we stop.
             current_contract = queued_contracts.pop(0)
             if current_contract in processed_contracts:
@@ -133,7 +133,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect reused base constructors.
         :return: Returns a list of JSON results.
@@ -143,7 +143,6 @@ The constructor of `A` is called multiple times in `D` and `E`:
 
         # Loop for each contract
         for contract in self.contracts:
-
             # Detect all locations which all underlying base constructors with arguments were called from.
             called_base_constructors = self._detect_explicitly_called_base_constructors(contract)
             for base_constructor, call_list in called_base_constructors.items():
@@ -159,7 +158,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
                     " arguments more than once in inheritance hierarchy:\n",
                 ]
 
-                for (calling_contract, called_by_constructor) in call_list:
+                for calling_contract, called_by_constructor in call_list:
                     info += [
                         "\t- From ",
                         calling_contract,

@@ -2,7 +2,6 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from typing import List, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
@@ -46,11 +45,11 @@ contract Constant{
     uint counter;
     function get() public view returns(uint){
        counter = counter +1;
-       return counter
+       return counter;
     }
 }
 ```
-`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
+`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0.
 All the calls to `get` revert, breaking Bob's smart contract execution."""
     # endregion wiki_exploit_scenario
 
@@ -60,7 +59,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """Detect the constant function changing the state
 
         Recursively visit the calls
@@ -92,5 +91,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
+    def _format(slither: SlitherCompilationUnit, result: dict) -> None:
         custom_format(slither, result)

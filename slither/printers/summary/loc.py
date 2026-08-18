@@ -1,13 +1,13 @@
 """
-    Lines of Code (LOC) printer
+Lines of Code (LOC) printer
 
-    Definitions:
-    cloc: comment lines of code containing only comments
-    sloc: source lines of code with no whitespace or comments
-    loc: all lines of code including whitespace and comments
-    src: source files (excluding tests and dependencies)
-    dep: dependency files
-    test: test files
+Definitions:
+cloc: comment lines of code containing only comments
+sloc: source lines of code with no whitespace or comments
+loc: all lines of code including whitespace and comments
+src: source files (excluding tests and dependencies)
+dep: dependency files
+test: test files
 """
 
 from slither.printers.abstract_printer import AbstractPrinter

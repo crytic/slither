@@ -1,13 +1,10 @@
-from typing import Set
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.slithir.variables.state_variable import StateIRVariable
 
 
-class LocalIRVariable(
-    LocalVariable, SlithIRVariable
-):  # pylint: disable=too-many-instance-attributes
+class LocalIRVariable(LocalVariable, SlithIRVariable):
     def __init__(self, local_variable: LocalVariable) -> None:
         assert isinstance(local_variable, LocalVariable)
 
@@ -32,7 +29,7 @@ class LocalIRVariable(
 
         # Additional field
         # points to state variables
-        self._refers_to: Set[StateIRVariable] = set()
+        self._refers_to: set[StateIRVariable] = set()
 
         # keep un-ssa version
         if isinstance(local_variable, LocalIRVariable):

@@ -1,7 +1,6 @@
 """
 Module detecting tautologies and contradictions based on types in comparison operations over integers
 """
-from typing import List, Set, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
@@ -13,7 +12,7 @@ from slither.slithir.variables import Constant
 from slither.utils.output import Output
 
 
-def typeRange(t: str) -> Tuple[int, int]:
+def typeRange(t: str) -> tuple[int, int]:
     bits = int(t.split("int")[1])
     if t in Uint:
         return 0, (2**bits) - 1
@@ -99,7 +98,7 @@ contract A {
 }
 ```
 `x` is a `uint256`, so `x >= 0` will be always true.
-`y` is a `uint8`, so `y <512` will be always true.  
+`y` is a `uint8`, so `y <512` will be always true.
 """
     # endregion wiki_exploit_scenario
 
@@ -114,7 +113,7 @@ contract A {
         BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
     }
 
-    def detect_type_based_tautologies(self, contract: Contract) -> List[Tuple[Function, Set[Node]]]:
+    def detect_type_based_tautologies(self, contract: Contract) -> list[tuple[Function, set[Node]]]:
         """
         Detects and returns all nodes with tautology/contradiction comparisons (based on type alone).
         :param contract: Contract to detect assignment within.
@@ -122,11 +121,11 @@ contract A {
         """
 
         # Create our result set.
-        results: List[Tuple[Function, Set[Node]]] = []
+        results: list[tuple[Function, set[Node]]] = []
         allInts = Int + Uint
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
+        for function in contract.functions_declared:
             f_results = set()
 
             for node in function.nodes:
@@ -155,7 +154,7 @@ contract A {
         # Return the resulting set of nodes with tautologies and contradictions
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect tautological (or contradictory) comparisons
         """
@@ -163,7 +162,7 @@ contract A {
         for contract in self.contracts:
             tautologies = self.detect_type_based_tautologies(contract)
             if tautologies:
-                for (func, nodes) in tautologies:
+                for func, nodes in tautologies:
                     for node in nodes:
                         info = [func, " contains a tautology or contradiction:\n"]
                         info += ["\t- ", node, "\n"]

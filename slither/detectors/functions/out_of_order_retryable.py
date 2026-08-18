@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, FunctionContract
 from slither.slithir.operations import HighLevelCall
@@ -8,7 +6,6 @@ from slither.utils.output import Output
 
 
 class OutOfOrderRetryable(AbstractDetector):
-
     ARGUMENT = "out-of-order-retryable"
     HELP = "Out-of-order retryable transactions"
     IMPACT = DetectorClassification.MEDIUM
@@ -72,9 +69,8 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
     key = "OUTOFORDERRETRYABLE"
 
-    # pylint: disable=too-many-branches
     def _detect_multiple_tickets(
-        self, function: FunctionContract, node: Node, visited: List[Node]
+        self, function: FunctionContract, node: Node, visited: list[Node]
     ) -> None:
         if node in visited:
             return
@@ -126,10 +122,9 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
         for son in node.sons:
             self._detect_multiple_tickets(function, son, visited)
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
-        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 

@@ -1,5 +1,3 @@
-from typing import List
-
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import (
@@ -10,7 +8,7 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
-def _can_be_destroyed(contract: Contract) -> List[Function]:
+def _can_be_destroyed(contract: Contract) -> list[Function]:
     targets = []
     for f in contract.functions_entry_points:
         found = False
@@ -32,7 +30,7 @@ def _can_be_destroyed(contract: Contract) -> List[Function]:
     return targets
 
 
-def _has_initializing_protection(functions: List[Function]) -> bool:
+def _has_initializing_protection(functions: list[Function]) -> bool:
     # Detects "initializer" constructor modifiers and "_disableInitializers()" constructor internal calls
     # https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
 
@@ -49,13 +47,17 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
     return False
 
 
+_WHITELISTED_MODIFIERS = {"onlyProxy", "onlyDelegateCall"}
+
+
 def _whitelisted_modifiers(f: Function) -> bool:
-    # The onlyProxy modifier prevents calling the implementation contract (must be delegatecall)
+    # The onlyProxy / onlyDelegateCall modifiers prevent calling the implementation contract
+    # directly (the call must go through delegatecall via the proxy).
     #  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/3dec82093ea4a490d63aab3e925fed4f692909e8/contracts/proxy/utils/UUPSUpgradeable.sol#L38-L42
-    return "onlyProxy" not in [modifier.name for modifier in f.modifiers]
+    return not any(m.name in _WHITELISTED_MODIFIERS for m in f.modifiers)
 
 
-def _initialize_functions(contract: Contract) -> List[Function]:
+def _initialize_functions(contract: Contract) -> list[Function]:
     return list(
         filter(
             _whitelisted_modifiers,
@@ -69,7 +71,6 @@ def _initialize_functions(contract: Contract) -> List[Function]:
 
 
 class UnprotectedUpgradeable(AbstractDetector):
-
     ARGUMENT = "unprotected-upgrade"
     HELP = "Unprotected upgradeable contract"
     IMPACT = DetectorClassification.HIGH
@@ -104,7 +105,7 @@ Buggy is an upgradeable contract. Anyone can call initialize on the logic contra
         """Add a constructor to ensure `initialize` cannot be called on the logic contract."""
     )
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

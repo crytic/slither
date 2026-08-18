@@ -1,7 +1,6 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
-from typing import List
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
@@ -10,23 +9,16 @@ from slither.utils.output import Output
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
-
     ARGUMENT = "vars-and-auth"
     HELP = "Print the state variables written and the authorization of the functions"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization"
 
     @staticmethod
-    def get_msg_sender_checks(function: Function) -> List[str]:
-        all_functions = (
-            [
-                ir.function
-                for ir in function.all_internal_calls()
-                if isinstance(ir.function, Function)
-            ]
-            + [function]
-            + [m for m in function.modifiers if isinstance(m, Function)]
-        )
+    def get_msg_sender_checks(function: Function) -> list[str]:
+        all_functions = [
+            ir.function for ir in function.all_internal_calls() if isinstance(ir.function, Function)
+        ] + [function]
 
         all_nodes_ = [f.nodes for f in all_functions]
         all_nodes = [item for sublist in all_nodes_ for item in sublist]
@@ -56,7 +48,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 ["Function", "State variables written", "Conditions on msg.sender"]
             )
             for function in contract.functions:
-
                 state_variables_written = [
                     v.name for v in function.all_state_variables_written() if v.name
                 ]

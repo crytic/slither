@@ -3,7 +3,7 @@ import platform
 import sys
 
 
-class Colors:  # pylint: disable=too-few-public-methods
+class Colors:
     COLORIZATION_ENABLED = True
     RED = "\033[91m"
     GREEN = "\033[92m"
@@ -27,7 +27,6 @@ def enable_windows_virtual_terminal_sequences() -> bool:
     """
 
     try:
-        # pylint: disable=import-outside-toplevel
         from ctypes import windll, byref  # type: ignore
         from ctypes.wintypes import DWORD, HANDLE
 
@@ -41,7 +40,6 @@ def enable_windows_virtual_terminal_sequences() -> bool:
 
         # Loop for each stdout/stderr handle.
         for current_handle in [handle_stdout, handle_stderr]:
-
             # If we get a null handle, or fail any subsequent calls in this scope, we do not colorize any output.
             if current_handle is None or current_handle == HANDLE(-1):
                 return False
@@ -57,7 +55,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
                     current_handle, current_mode.value | virtual_terminal_flag
                 ):
                     return False
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         # Any generic failure (possibly from calling these methods on older Windows builds where they do not exist)
         # will fall back onto disabling colorization.
         return False

@@ -1,7 +1,7 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
-from typing import List, Set, Tuple
+
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -44,9 +44,9 @@ class ABIEncoderV2Array(AbstractDetector):
 ```solidity
 contract A {
     uint[2][3] bad_arr = [[1, 2], [3, 4], [5, 6]];
-    
+
     /* Array of arrays passed to abi.encode is vulnerable */
-    function bad() public {                                                                                          
+    function bad() public {
         bytes memory b = abi.encode(bad_arr);
     }
 }
@@ -62,7 +62,7 @@ contract A {
     @staticmethod
     def _detect_storage_abiencoderv2_arrays(
         contract: Contract,
-    ) -> Set[Tuple[FunctionContract, Node]]:
+    ) -> set[tuple[FunctionContract, Node]]:
         """
         Detects and returns all nodes with storage-allocated abiencoderv2 arrays of arrays/structs in abi.encode, events or external calls
         :param contract: Contract to detect within
@@ -72,7 +72,7 @@ contract A {
         results = set()
 
         # Loop for each function and modifier.
-        # pylint: disable=too-many-nested-blocks
+
         for function in contract.functions_and_modifiers_declared:
             # Loop every node, looking for storage-allocated array of arrays/structs
             # in arguments to abi.encode, events or external calls
@@ -80,8 +80,10 @@ contract A {
                 for ir in node.irs:
                     # Call to abi.encode()
                     if (
-                        isinstance(ir, SolidityCall)
-                        and ir.function == SolidityFunction("abi.encode()")
+                        (
+                            isinstance(ir, SolidityCall)
+                            and ir.function == SolidityFunction("abi.encode()")
+                        )
                         or
                         # Call to emit event
                         # Call to external function
@@ -105,7 +107,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         """
         Detect ABIEncoderV2 array bug
         """

@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -9,7 +8,6 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
-# pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):
     """
     Detect the usage of a Right-To-Left-Override (U+202E) character
@@ -57,12 +55,12 @@ contract Token
 
     WIKI_RECOMMENDATION = "Special control characters must not be allowed."
 
-    RTLO_CHARACTER_ENCODED = "\u202e".encode("utf8")
+    RTLO_CHARACTER_ENCODED = "\u202e".encode()
     STANDARD_JSON = False
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> list[Output]:
         results = []
-        pattern = re.compile(".*\u202e.*".encode("utf8"))
+        pattern = re.compile(".*\u202e.*".encode())
 
         for filename, source in self.slither.source_code.items():
             # Attempt to find all RTLO characters in this source file.

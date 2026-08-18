@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union
 
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
@@ -9,13 +9,13 @@ class IndexAccess(Expression):
     def __init__(
         self,
         left_expression: Union["IndexAccess", Identifier],
-        right_expression: Union[Literal, Identifier],
+        right_expression: Literal | Identifier,
     ) -> None:
         super().__init__()
         self._expressions = [left_expression, right_expression]
 
     @property
-    def expressions(self) -> List["Expression"]:
+    def expressions(self) -> list["Expression"]:
         return self._expressions
 
     @property

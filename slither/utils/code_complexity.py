@@ -1,5 +1,5 @@
 # Function computing the code complexity
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from slither.core.declarations import Function
@@ -20,7 +20,7 @@ def compute_number_edges(function: "Function") -> int:
     return n
 
 
-def compute_strongly_connected_components(function: "Function") -> List[List["Node"]]:
+def compute_strongly_connected_components(function: "Function") -> list[list["Node"]]:
     """
         Compute strongly connected components
         Based on Kosaraju algo
@@ -30,8 +30,8 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     Returns:
         list(list(nodes))
     """
-    visited = {n: False for n in function.nodes}
-    assigned = {n: False for n in function.nodes}
+    visited = dict.fromkeys(function.nodes, False)
+    assigned = dict.fromkeys(function.nodes, False)
     components = []
     l = []
 
@@ -45,7 +45,7 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     for n in function.nodes:
         visit(n)
 
-    def assign(node: "Node", root: List["Node"]) -> None:
+    def assign(node: "Node", root: list["Node"]) -> None:
         if not assigned[node]:
             assigned[node] = True
             root.append(node)
@@ -53,7 +53,7 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
                 assign(father, root)
 
     for n in reversed(l):
-        component: List["Node"] = []
+        component: list[Node] = []
         assign(n, component)
         if component:
             components.append(component)
