@@ -1,31 +1,35 @@
 """
-Centralized logging class for data flow analysis.
+Centralized logging for data flow analysis.
 
-This module provides a unified logging interface that:
-- Centralizes all log messages to avoid repetition throughout the project
-- Uses Loguru for enhanced logging capabilities
-- Provides IPython embed functionality for error debugging
+This module owns a single process-wide :class:`DataFlowLogger`, retrieved with
+:func:`get_logger`. Reconfiguration is explicit: :func:`configure_logger` is the
+only way to change the level or the interactive-debug behaviour once the
+instance exists, and it applies the change rather than dropping it.
 
-Usage Example:
-    from slither.analyses.data_flow.logger import get_logger, LogMessages
+Call convention:
+    Messages are loguru brace-style templates. Formatting is deferred to loguru
+    and only happens when positional or keyword arguments are supplied, so a
+    message logged without arguments is emitted verbatim (literal braces are
+    safe) and a message filtered out by the level is never formatted at all.
 
-    # Get the logger instance
-    logger = get_logger()
+        logger = get_logger()
+        logger.info("Starting analysis of {name}", name=function.name)
+        logger.debug("Worklist: {count} nodes remaining", count=len(worklist))
 
-    # Use centralized messages
-    logger.info(LogMessages.ENGINE_START)
-    logger.info(LogMessages.ENGINE_INIT, function_name="MyFunction")
-    logger.warning(LogMessages.WARNING_SKIP_NODE, node_id=123, reason="Invalid state")
-    logger.error(LogMessages.ERROR_ANALYSIS_FAILED, error="Some error", embed_on_error=True)
+    Never combine an already-interpolated f-string with extra arguments: loguru
+    would then format the rendered text, and literal braces in it (a rendered
+    tag set such as "{UP, DOWN}") would raise a formatting error.
 
-    # Custom messages are also supported
-    logger.debug("Custom debug message")
-    logger.info("Processing completed in {time}s", time=1.5)
+Interactive debugging:
+    ``embed_on_error=True`` only opens an IPython session when the environment
+    variable ``SLITHER_DATA_FLOW_DEBUG=1`` is set. Without that opt-in the flag
+    is ignored, so automated runs (CI, MCP servers) can never block on stdin.
 """
 
 import inspect
+import os
 import sys
-from typing import Optional, Any, Dict, Type
+from typing import Any
 from loguru import logger
 
 # Try to import IPython embed, but don't fail if it's not available
@@ -37,53 +41,46 @@ except ImportError:
     IPYTHON_AVAILABLE = False
     embed = None
 
+INTERACTIVE_DEBUG_ENV_VAR = "SLITHER_DATA_FLOW_DEBUG"
 
-class LogMessages:
-    """Centralized repository for all log messages."""
+_LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+    "<level>{message}</level>"
+)
 
-    # Engine-related messages
-    ENGINE_START = "Starting data flow analysis engine"
-    ENGINE_COMPLETE = "Data flow analysis engine completed"
-    ENGINE_INIT = "Initializing engine for function: {function_name}"
-    ENGINE_NODE_PROCESSING = "Processing node {node_id} in function {function_name}"
 
-    # Analysis-related messages
-    ANALYSIS_START = "Starting analysis: {analysis_name}"
-    ANALYSIS_COMPLETE = "Analysis completed: {analysis_name}"
-    ANALYSIS_TRANSFER_FUNCTION = "Applying transfer function for operation: {operation_type}"
-    ANALYSIS_STATE_UPDATE = "Updating analysis state at node {node_id}"
+def _interactive_debug_enabled() -> bool:
+    """
+    Report whether the operator opted in to interactive debugging.
 
-    # Domain-related messages
-    DOMAIN_BOTTOM = "Domain is at bottom value"
-    DOMAIN_JOIN = "Joining domain states"
-    DOMAIN_STATE_UPDATE = "Domain state updated: {variant}"
+    Read at call time so that setting the environment variable takes effect
+    without rebuilding the logger.
 
-    # Reentrancy-specific messages
-    REENTRANCY_DETECTED = "Reentrancy vulnerability detected in function: {function_name}"
-    REENTRANCY_ETH_DETECTED = "Reentrancy with ETH transfer detected in function: {function_name}"
-    REENTRANCY_STATE_READ = "State variable {variable} read at node {node_id}"
-    REENTRANCY_STATE_WRITE = "State variable {variable} written at node {node_id}"
-    REENTRANCY_CALL_DETECTED = "External call detected at node {node_id}"
-    REENTRANCY_ETH_TRANSFER = "ETH transfer detected at node {node_id}"
+    Returns:
+        True when SLITHER_DATA_FLOW_DEBUG is set to "1"
+    """
+    return os.environ.get(INTERACTIVE_DEBUG_ENV_VAR) == "1"
 
-    # Error messages
-    ERROR_ENGINE_INIT = "Failed to initialize engine: {error}"
-    ERROR_ANALYSIS_FAILED = "Analysis failed: {error}"
-    ERROR_TRANSFER_FUNCTION = "Error in transfer function: {error}"
-    ERROR_NODE_PROCESSING = "Error processing node {node_id}: {error}"
-    ERROR_DOMAIN_OPERATION = "Error in domain operation: {error}"
-    ERROR_UNEXPECTED = "Unexpected error occurred: {error}"
 
-    # Warning messages
-    WARNING_SKIP_NODE = "Skipping node {node_id}: {reason}"
-    WARNING_INVALID_STATE = "Invalid state encountered: {state}"
-    WARNING_BACKWARD_ANALYSIS = "Backward analysis not implemented, skipping"
+def _render(message: str, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
+    """
+    Render a message template the way loguru would.
 
-    # Debug messages
-    DEBUG_WORKLIST_UPDATE = "Worklist updated: {count} nodes remaining"
-    DEBUG_STATE_COMPARISON = "State comparison: {comparison}"
-    DEBUG_FUNCTION_ENTRY = "Entering function: {function_name}"
-    DEBUG_FUNCTION_EXIT = "Exiting function: {function_name}"
+    Only used on paths that need the text eagerly (exception messages, IPython
+    embed context); regular logging leaves formatting to loguru.
+
+    Args:
+        message: Message template
+        args: Positional formatting arguments
+        kwargs: Keyword formatting arguments
+
+    Returns:
+        The formatted message, or the template unchanged when no arguments were
+        supplied
+    """
+    return message.format(*args, **kwargs) if args or kwargs else message
 
 
 class DataFlowLogger:
@@ -95,120 +92,133 @@ class DataFlowLogger:
     like IPython embed for error debugging.
     """
 
-    def __init__(self, enable_ipython_embed: bool = True, log_level: str = "INFO"):
+    def __init__(self, enable_ipython_embed: bool = False, log_level: str = "INFO"):
         """
         Initialize the logger.
 
         Args:
-            enable_ipython_embed: Whether to enable IPython embed on errors
+            enable_ipython_embed: Whether call sites may request IPython embed on
+                errors. Embedding additionally requires the
+                SLITHER_DATA_FLOW_DEBUG=1 opt-in.
             log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         """
         self.enable_ipython_embed = enable_ipython_embed and IPYTHON_AVAILABLE
         self.log_level = log_level
 
-        # Configure Loguru logger
         logger.remove()  # Remove default handler
-        logger.add(
-            sys.stderr,
-            format=(
-                "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-                "<level>{level: <8}</level> | "
-                "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-                "<level>{message}</level>"
-            ),
-            level=log_level,
-            colorize=True,
-        )
+        self._handler_id: int = self._add_sink(log_level)
 
         # Store the configured logger
         self._logger = logger
 
-    @classmethod
-    def get_logger(
-        cls, enable_ipython_embed: bool = True, log_level: str = "INFO"
-    ) -> "DataFlowLogger":
+    @staticmethod
+    def _add_sink(log_level: str) -> int:
         """
-        Get or create a logger instance.
+        Install the stderr sink used by data flow analysis.
 
         Args:
-            enable_ipython_embed: Whether to enable IPython embed on errors
-            log_level: Logging level
+            log_level: Logging level for the sink
 
         Returns:
-            DataFlowLogger instance
+            The loguru handler id, needed to replace the sink later
         """
-        if not hasattr(cls, "_instance"):
-            cls._instance = cls(enable_ipython_embed=enable_ipython_embed, log_level=log_level)
-        return cls._instance
+        return logger.add(sys.stderr, format=_LOG_FORMAT, level=log_level, colorize=True)
+
+    def set_level(self, level: str) -> None:
+        """
+        Set the logging level, replacing this logger's stderr sink.
+
+        Reachable from the command line through ``--data-flow-log-level``.
+
+        Args:
+            level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        """
+        try:
+            logger.remove(self._handler_id)
+        except ValueError:
+            # The sink was already removed (tests silence loguru this way);
+            # installing a fresh one below is still the correct outcome.
+            pass
+        self.log_level = level
+        self._handler_id = self._add_sink(level)
+
+    def _should_embed(self, embed_on_error: bool) -> bool:
+        """
+        Decide whether a log call may open an interactive session.
+
+        Args:
+            embed_on_error: What the call site requested
+
+        Returns:
+            True only when the call site asked for it, this logger allows it,
+            and the operator opted in via the environment
+        """
+        return embed_on_error and self.enable_ipython_embed and _interactive_debug_enabled()
 
     def debug(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log a debug message.
 
         Args:
-            message: Debug message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this message
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.debug(formatted_message)
+        self._logger.opt(depth=1).debug(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(_render(message, args, kwargs), **kwargs)
 
     def info(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log an info message.
 
         Args:
-            message: Info message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this message
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.info(formatted_message)
+        self._logger.opt(depth=1).info(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(_render(message, args, kwargs), **kwargs)
 
     def warning(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log a warning message.
 
         Args:
-            message: Warning message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this message
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.warning(formatted_message)
+        self._logger.opt(depth=1).warning(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(_render(message, args, kwargs), **kwargs)
 
-    def error(self, message: str, *args, embed_on_error: bool = True, **kwargs) -> None:
+    def error(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log an error message.
 
         Args:
-            message: Error message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this error
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.error(formatted_message)
+        self._logger.opt(depth=1).error(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(_render(message, args, kwargs), **kwargs)
 
     def error_and_raise(
         self,
         message: str,
-        exception_class: Type[Exception],
+        exception_class: type[Exception],
         *args,
         embed_on_error: bool = False,
         **kwargs,
@@ -216,23 +226,25 @@ class DataFlowLogger:
         """
         Log an error message and raise an exception.
 
-        Automatically includes file and line number information in the exception message.
+        Automatically includes file and line number information in the exception
+        message. The template is rendered eagerly here because the exception
+        carries the text.
 
         Args:
-            message: Error message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             exception_class: Exception class to raise
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this error
-            **kwargs: Keyword arguments for message formatting (will be passed to exception)
+            embed_on_error: Request IPython embed (requires the environment opt-in)
+            **kwargs: Keyword arguments for message formatting
 
         Raises:
             exception_class: The specified exception with the formatted message
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.error(formatted_message)
+        self._logger.opt(depth=1).error(message, *args, **kwargs)
+        formatted_message = _render(message, args, kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(formatted_message, **kwargs)
 
         # Automatically include file and line number information
         # Use stack()[1] to get the caller's frame (skip this method itself)
@@ -246,40 +258,39 @@ class DataFlowLogger:
         else:
             enhanced_message = formatted_message
 
-        # Extract kwargs that might be intended for exception, but use formatted message
         raise exception_class(enhanced_message)
 
-    def critical(self, message: str, *args, embed_on_error: bool = True, **kwargs) -> None:
+    def critical(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log a critical error message.
 
         Args:
-            message: Critical message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this error
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.critical(formatted_message)
+        self._logger.opt(depth=1).critical(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(_render(message, args, kwargs), **kwargs)
 
-    def exception(self, message: str, *args, embed_on_error: bool = True, **kwargs) -> None:
+    def exception(self, message: str, *args, embed_on_error: bool = False, **kwargs) -> None:
         """
         Log an exception with traceback.
 
         Args:
-            message: Error message (can use format placeholders)
+            message: Message template; formatting is deferred to loguru
             *args: Positional arguments for message formatting
-            embed_on_error: Whether to trigger IPython embed on this error
+            embed_on_error: Request IPython embed (requires the environment opt-in)
             **kwargs: Keyword arguments for message formatting
         """
-        formatted_message = message.format(*args, **kwargs) if args or kwargs else message
-        self._logger.exception(formatted_message)
+        self._logger.opt(depth=1).exception(message, *args, **kwargs)
 
-        if embed_on_error and self.enable_ipython_embed:
-            self._embed_for_debugging(message=formatted_message, exc_info=sys.exc_info(), **kwargs)
+        if self._should_embed(embed_on_error):
+            self._embed_for_debugging(
+                _render(message, args, kwargs), exc_info=sys.exc_info(), **kwargs
+            )
 
     def _embed_for_debugging(self, message: str, **context: Any) -> None:
         """
@@ -294,8 +305,7 @@ class DataFlowLogger:
             return
 
         self._logger.info(
-            "Starting IPython embed session for debugging. "
-            "Type 'exit' or press Ctrl+D to continue."
+            "Starting IPython embed session for debugging. Type 'exit' or press Ctrl+D to continue."
         )
 
         # Make useful variables available in the embed session
@@ -319,7 +329,7 @@ class DataFlowLogger:
         """
         return self._logger.bind(**kwargs)
 
-    def patch(self, record: Dict[str, Any]) -> None:
+    def patch(self, record: dict[str, Any]) -> None:
         """
         Patch logger to add custom record information.
 
@@ -328,47 +338,50 @@ class DataFlowLogger:
         """
         self._logger = self._logger.patch(lambda r: r.update(record))
 
-    def set_level(self, level: str) -> None:
-        """
-        Set the logging level.
 
-        Args:
-            level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        """
-        self.log_level = level
-        logger.remove()
-        logger.add(
-            sys.stderr,
-            format=(
-                "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-                "<level>{level: <8}</level> | "
-                "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-                "<level>{message}</level>"
-            ),
-            level=level,
-            colorize=True,
-        )
-        self._logger = logger
+# The single process-wide instance; there is no second cache on the class.
+_logger_instance: DataFlowLogger | None = None
 
 
-# Create a module-level instance for easy access
-_logger_instance: Optional[DataFlowLogger] = None
-
-
-def get_logger(enable_ipython_embed: bool = True, log_level: str = "INFO") -> DataFlowLogger:
+def get_logger() -> DataFlowLogger:
     """
-    Get the global logger instance.
+    Get the process-wide data flow logger, creating it on first use.
 
-    Args:
-        enable_ipython_embed: Whether to enable IPython embed on errors
-        log_level: Logging level
+    Takes no configuration: passing settings here would silently lose whichever
+    import happened second. Use :func:`configure_logger` to change settings.
 
     Returns:
         DataFlowLogger instance
     """
     global _logger_instance
     if _logger_instance is None:
-        _logger_instance = DataFlowLogger.get_logger(
-            enable_ipython_embed=enable_ipython_embed, log_level=log_level
-        )
+        _logger_instance = DataFlowLogger()
     return _logger_instance
+
+
+def configure_logger(
+    *,
+    log_level: str | None = None,
+    enable_ipython_embed: bool | None = None,
+) -> DataFlowLogger:
+    """
+    Reconfigure the process-wide data flow logger, applying every setting given.
+
+    Unlike a configured ``get_logger()``, this never drops a setting because the
+    logger already exists: each argument that is not None is applied to the
+    existing instance.
+
+    Args:
+        log_level: New logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        enable_ipython_embed: Whether call sites may request IPython embed.
+            Embedding still requires the SLITHER_DATA_FLOW_DEBUG=1 opt-in.
+
+    Returns:
+        The reconfigured DataFlowLogger instance
+    """
+    instance = get_logger()
+    if log_level is not None:
+        instance.set_level(log_level)
+    if enable_ipython_embed is not None:
+        instance.enable_ipython_embed = enable_ipython_embed and IPYTHON_AVAILABLE
+    return instance

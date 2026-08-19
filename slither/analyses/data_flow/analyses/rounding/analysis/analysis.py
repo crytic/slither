@@ -42,7 +42,7 @@ class RoundingAnalysis(Analysis):
         known_tags: KnownLibraryTags | None = None,
     ) -> None:
         self._direction: Direction = Forward()
-        self._logger = get_logger(enable_ipython_embed=False, log_level="INFO")
+        self._logger = get_logger()
         self.inconsistencies: list[RoundingFinding] = []
         self.annotation_mismatches: list[RoundingFinding] = []
         self._seen_inconsistencies: set[tuple[str, int | None]] = set()
@@ -199,7 +199,9 @@ class RoundingAnalysis(Analysis):
             )
             self.record_annotation_mismatch(
                 RoundingFinding(
-                    message=message, node=node, variable=variable,
+                    message=message,
+                    node=node,
+                    variable=variable,
                 )
             )
             self._logger.warning(message)
