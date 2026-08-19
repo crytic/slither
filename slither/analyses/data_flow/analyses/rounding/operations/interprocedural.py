@@ -1,21 +1,23 @@
-"""Base handler for interprocedural analysis of function calls."""
+"""Interprocedural call handler for rounding analysis.
+
+One handler covers InternalCall, HighLevelCall, and LibraryCall. Tags
+are inferred with a priority chain — inline annotation, name inference,
+known-library lookup, callee body analysis, NEUTRAL default — where
+body analysis runs a real nested engine fixpoint via
+``RoundingAnalysis.analyze_call``.
+"""
 
 from __future__ import annotations
 
 import logging
-from abc import abstractmethod
+from typing import TYPE_CHECKING
 
-from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
-    DomainVariant,
-    RoundingDomain,
-)
+from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.core.state import (
-    RoundingState,
     RoundingTag,
     TagSet,
     TraceNode,
 )
-from slither.analyses.data_flow.analyses.rounding.core.models import RoundingFinding
 from slither.analyses.data_flow.analyses.rounding.operations.base import (
     BaseOperationHandler,
 )
@@ -25,29 +27,34 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     lookup_inline_round_tag,
     lookup_known_tag,
 )
-from slither.core.cfg.node import Node, NodeType
+from slither.analyses.data_flow.engine.interprocedural import (
+    iter_matching_unpacks,
+    resolve_callee,
+)
+from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
-from slither.slithir.operations.return_operation import Return
-from slither.slithir.operations.unpack import Unpack
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.variables.tuple import TupleVariable
+
+if TYPE_CHECKING:
+    from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
+        RoundingDomain,
+    )
 
 logger = logging.getLogger("DataFlow")
 
 
 class InterproceduralHandler(BaseOperationHandler):
-    """Base handler for function calls requiring interprocedural analysis.
+    """Handler for call operations requiring interprocedural analysis.
 
-    Subclasses should implement:
-    - _get_called_function: Extract the Function object from the operation
-    - _get_function_name: Get the function name for name-based inference
+    Callee resolution is delegated to ``resolve_callee`` and body
+    analysis to ``RoundingAnalysis.analyze_call``, which runs a nested
+    engine fixpoint guarded against recursion.
     """
-
-    def __init__(self, analysis) -> None:
-        super().__init__(analysis)
-        self._call_stack: set[Function] = set()
 
     def handle(
         self,
@@ -60,7 +67,7 @@ class InterproceduralHandler(BaseOperationHandler):
             logger.debug("Call has no lvalue, skipping: %s", operation)
             return
 
-        function_name = self._get_function_name(operation)
+        function_name = _get_function_name(operation)
 
         if self._is_named_division_function(function_name):
             self._check_named_division_consistency(operation, domain, node)
@@ -81,35 +88,23 @@ class InterproceduralHandler(BaseOperationHandler):
     ) -> None:
         """Handle a call whose lvalue is a TupleVariable.
 
-        Resolves the callee, runs interprocedural analysis, then sets
-        tags directly on Unpack lvalues found in the same node.
+        Resolves the callee, runs a nested fixpoint over its body, then
+        sets tags directly on Unpack lvalues found in the same node.
         """
-        called_function = self._get_called_function(operation)
-        if called_function is None or not called_function.nodes:
-            logger.debug("Tuple call %s: callee unresolvable or has no body", function_name)
+        called_function = resolve_callee(operation)
+        if called_function is None:
+            logger.debug("Tuple call %s: callee unresolvable, skipping", function_name)
             return
 
-        if called_function in self._call_stack:
+        summary = self.analysis.analyze_call(called_function, operation.arguments, domain, node)
+        if summary is None:
+            logger.debug("Tuple call %s: callee has no body, skipping", function_name)
+            return
+        if summary.from_recursion:
             logger.debug("Tuple call %s: recursion guard, skipping", function_name)
             return
 
-        self._call_stack.add(called_function)
-        self.analysis.push_caller_node(node)
-        try:
-            callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
-            self._bind_parameter_tags(
-                called_function,
-                operation.arguments,
-                domain,
-                callee_domain,
-            )
-            self._analyze_callee_body(called_function, callee_domain)
-            per_index = self._extract_per_index_return_tags(called_function, callee_domain)
-        finally:
-            self.analysis.pop_caller_node()
-            self._call_stack.discard(called_function)
-
-        if not per_index:
+        if not summary.per_index:
             message = f"Tuple call {function_name}: analyzed body but found no return tags"
             logger.error(message)
             raise RuntimeError(message)
@@ -117,11 +112,11 @@ class InterproceduralHandler(BaseOperationHandler):
         line_number = node.source_mapping.lines[0] if node.source_mapping else None
         self._apply_tuple_tags_to_unpacks(
             operation,
-            per_index,
+            summary.per_index,
             function_name,
-            line_number,
-            domain,
-            node,
+            line_number=line_number,
+            domain=domain,
+            node=node,
         )
 
     def _apply_tuple_tags_to_unpacks(
@@ -129,20 +124,15 @@ class InterproceduralHandler(BaseOperationHandler):
         operation: Call,
         per_index: list[tuple[TagSet, list[TraceNode]]],
         function_name: str,
+        *,
         line_number: int | None,
         domain: RoundingDomain,
         node: Node,
     ) -> None:
         """Set per-index tags directly on Unpack lvalues in this node."""
         all_tags: set[RoundingTag] = set()
-        for other_operation in node.irs_ssa:
-            if not isinstance(other_operation, Unpack):
-                continue
-            if other_operation.tuple != operation.lvalue:
-                continue
-            if other_operation.lvalue is None:
-                continue
-            index = other_operation.index
+        for unpack in iter_matching_unpacks(node, operation.lvalue):
+            index = unpack.index
             if index >= len(per_index):
                 logger.warning(
                     "Tuple call %s: unpack index %d exceeds return count %d, skipping",
@@ -160,9 +150,9 @@ class InterproceduralHandler(BaseOperationHandler):
                 children=traces,
             )
             domain.state.set_tag(
-                other_operation.lvalue,
+                unpack.lvalue,
                 tags,
-                other_operation,
+                unpack,
                 trace=trace,
             )
             all_tags.update(tags)
@@ -174,50 +164,6 @@ class InterproceduralHandler(BaseOperationHandler):
                 combined,
                 operation,
             )
-
-    def _extract_per_index_return_tags(
-        self,
-        function: Function,
-        callee_domain: RoundingDomain,
-    ) -> list[tuple[TagSet, list[TraceNode]]]:
-        """Extract per-index return tags from a tuple-returning function."""
-        for node in function.nodes:
-            if not node.irs_ssa:
-                continue
-            for operation in node.irs_ssa:
-                if not isinstance(operation, Return):
-                    continue
-                if not operation.values:
-                    continue
-                condition = _find_branch_condition(node)
-                results: list[tuple[TagSet, list[TraceNode]]] = []
-                for return_value in operation.values:
-                    if isinstance(return_value, TupleVariable):
-                        tuple_tags = callee_domain.state.get_tags(
-                            return_value,
-                        )
-                        if not tuple_tags:
-                            tuple_tags = frozenset({RoundingTag.NEUTRAL})
-                        tuple_trace = callee_domain.state.get_trace(
-                            return_value,
-                        )
-                        trace_list = [tuple_trace] if tuple_trace else []
-                        return_types = function.return_type or []
-                        count = max(len(return_types), 1)
-                        for _ in range(count):
-                            results.append((tuple_tags, list(trace_list)))
-                    elif isinstance(return_value, Variable):
-                        tags = callee_domain.state.get_tags(return_value)
-                        trace = callee_domain.state.get_trace(return_value)
-                        if trace is not None:
-                            trace.branch_condition = condition
-                        trace_list = [trace] if trace else []
-                        results.append((tags, trace_list))
-                    else:
-                        neutral = frozenset({RoundingTag.NEUTRAL})
-                        results.append((neutral, []))
-                return results
-        return []
 
     def _lookup_inline_annotation(
         self,
@@ -286,7 +232,7 @@ class InterproceduralHandler(BaseOperationHandler):
             )
             return tags, trace
 
-        called_function = self._get_called_function(operation)
+        called_function = resolve_callee(operation)
 
         known = _lookup_known_function_tag(called_function, function_name, self.analysis.known_tags)
         if known is not None:
@@ -304,9 +250,8 @@ class InterproceduralHandler(BaseOperationHandler):
             logger.debug("%s: callee unresolvable, defaulting to NEUTRAL", function_name)
             return frozenset({RoundingTag.NEUTRAL}), None
 
-        body_tags, child_traces = self._analyze_function_body(
-            called_function, operation.arguments, domain, caller_node=node
-        )
+        summary = self.analysis.analyze_call(called_function, operation.arguments, domain, node)
+        body_tags = summary.tags if summary is not None else None
         if body_tags:
             logger.debug(
                 "%s: resolved via body analysis → %s",
@@ -318,188 +263,11 @@ class InterproceduralHandler(BaseOperationHandler):
                 line_number=line_number,
                 tags=body_tags,
                 source=f"{function_name}() returns {_format_tagset(body_tags)}",
-                children=child_traces,
+                children=summary.traces if summary is not None else [],
             )
             return body_tags, trace
         logger.debug("%s: all inference steps exhausted, defaulting to NEUTRAL", function_name)
         return frozenset({tag}), None
-
-    @abstractmethod
-    def _get_called_function(self, operation: Call) -> Function | None:
-        """Extract the called Function, or None if not resolvable."""
-
-    @abstractmethod
-    def _get_function_name(self, operation: Call) -> str:
-        """Get the function name for name-based inference."""
-
-    def _analyze_function_body(
-        self,
-        function: Function,
-        arguments: list,
-        domain: RoundingDomain,
-        caller_node: Node | None = None,
-    ) -> tuple[TagSet | None, list[TraceNode]]:
-        """Analyze function body with argument tag mapping.
-
-        Returns (tags, child_traces) where tags is the set of all return value tags,
-        and child_traces contains provenance from nested calls. The caller_node,
-        when supplied, is recorded so any inconsistencies emitted inside the
-        callee body are attributed to the user-visible call site.
-        """
-        if function in self._call_stack:
-            logger.debug("Recursion guard: %s already in call stack", function.name)
-            return frozenset({RoundingTag.UNKNOWN}), []
-
-        if not function.nodes:
-            logger.debug("Function %s has no body nodes, skipping analysis", function.name)
-            return None, []
-
-        self._call_stack.add(function)
-        if caller_node is not None:
-            self.analysis.push_caller_node(caller_node)
-        try:
-            return self._run_interprocedural_analysis(function, arguments, domain)
-        finally:
-            if caller_node is not None:
-                self.analysis.pop_caller_node()
-            self._call_stack.discard(function)
-
-    def _run_interprocedural_analysis(
-        self,
-        function: Function,
-        arguments: list,
-        domain: RoundingDomain,
-    ) -> tuple[TagSet | None, list[TraceNode]]:
-        """Run analysis on callee function and extract return tags and traces."""
-        callee_domain = RoundingDomain(DomainVariant.STATE, RoundingState())
-        self._bind_parameter_tags(function, arguments, domain, callee_domain)
-        self._analyze_callee_body(function, callee_domain)
-        tags = self._extract_return_tags(function, callee_domain)
-        traces = self._extract_return_traces(function, callee_domain)
-        return tags, traces
-
-    def _bind_parameter_tags(
-        self,
-        function: Function,
-        arguments: list,
-        caller_domain: RoundingDomain,
-        callee_domain: RoundingDomain,
-    ) -> None:
-        """Map argument tags from caller to parameter variables in callee.
-
-        Binds tags to SSA variable reads by matching base names, since Slither's
-        SSA uses different variable instances for parameters vs body reads.
-        """
-        param_name_to_tag: dict[str, RoundingTag] = {}
-        for parameter, argument in zip(function.parameters, arguments):
-            argument_tag = get_variable_tag(argument, caller_domain)
-            callee_domain.state.set_tag(parameter, argument_tag)
-            param_name_to_tag[parameter.name] = argument_tag
-
-        # Bind to SSA variable reads in the function body
-        bound_vars: set[Variable] = set()
-        for node in function.nodes:
-            if not node.irs_ssa:
-                continue
-            for operation in node.irs_ssa:
-                for var in operation.read:
-                    if not isinstance(var, Variable):
-                        continue
-                    if var in bound_vars:
-                        continue
-                    if var.name in param_name_to_tag:
-                        callee_domain.state.set_tag(var, param_name_to_tag[var.name])
-                        bound_vars.add(var)
-
-    def _analyze_callee_body(
-        self,
-        function: Function,
-        callee_domain: RoundingDomain,
-    ) -> None:
-        """Analyze the function body operations."""
-        for node in function.nodes:
-            self._analyze_node_operations(node, callee_domain)
-
-    def _analyze_node_operations(
-        self,
-        node: Node,
-        callee_domain: RoundingDomain,
-    ) -> None:
-        """Analyze all operations in a single node."""
-        if not node.irs_ssa:
-            return
-        for operation in node.irs_ssa:
-            handler = self.analysis._registry.get_handler(type(operation))
-            if handler is not None:
-                handler.handle(operation, callee_domain, node)
-
-    def _extract_return_tags(
-        self,
-        function: Function,
-        callee_domain: RoundingDomain,
-    ) -> TagSet | None:
-        """Extract all return value tags from the analyzed function."""
-        all_tags: set[RoundingTag] = set()
-        for node in function.nodes:
-            tags = self._get_return_tags_from_node(node, callee_domain)
-            all_tags.update(tags)
-        if not all_tags:
-            return None
-        if len(all_tags) > 1 and RoundingTag.NEUTRAL in all_tags:
-            all_tags.discard(RoundingTag.NEUTRAL)
-        return frozenset(all_tags)
-
-    def _get_return_tags_from_node(
-        self,
-        node: Node,
-        callee_domain: RoundingDomain,
-    ) -> set[RoundingTag]:
-        """Get return tags from a single node if it contains a return operation."""
-        tags: set[RoundingTag] = set()
-        if not node.irs_ssa:
-            return tags
-        for operation in node.irs_ssa:
-            if not isinstance(operation, Return):
-                continue
-            if not operation.values:
-                continue
-            return_value = operation.values[0]
-            if isinstance(return_value, Variable):
-                tags.update(callee_domain.state.get_tags(return_value))
-        return tags
-
-    def _extract_return_traces(
-        self,
-        function: Function,
-        callee_domain: RoundingDomain,
-    ) -> list[TraceNode]:
-        """Extract traces from return values in the analyzed function."""
-        traces: list[TraceNode] = []
-        for node in function.nodes:
-            traces.extend(self._get_return_traces_from_node(node, callee_domain))
-        return traces
-
-    def _get_return_traces_from_node(
-        self,
-        node: Node,
-        callee_domain: RoundingDomain,
-    ) -> list[TraceNode]:
-        """Get traces from return values in a single node."""
-        traces: list[TraceNode] = []
-        if not node.irs_ssa:
-            return traces
-        for operation in node.irs_ssa:
-            if not isinstance(operation, Return):
-                continue
-            if not operation.values:
-                continue
-            return_value = operation.values[0]
-            if isinstance(return_value, Variable):
-                trace = callee_domain.state.get_trace(return_value)
-                if trace is not None:
-                    trace.branch_condition = _find_branch_condition(node)
-                    traces.append(trace)
-        return traces
 
     def _is_named_division_function(self, function_name: str) -> bool:
         """Return True when function name indicates divUp/divDown helpers."""
@@ -590,40 +358,19 @@ class InterproceduralHandler(BaseOperationHandler):
         self.analysis._check_annotation_for_variable(variable, actual_tag, operation, node, domain)
 
 
-def _find_branch_condition(node: Node) -> str | None:
-    """Find the IF condition guarding a CFG node, if any.
+def _get_function_name(operation: Call) -> str:
+    """Extract the called function's display name for name-based inference.
 
-    Walks up the immediate-dominator chain. When an IF node is found,
-    determines whether the original node is in the true or false branch
-    by checking which son dominates it.
+    ``LibraryCall`` subclasses ``HighLevelCall``, so one branch covers
+    both; ``InternalCall`` exposes the Function directly.
     """
-    current = node
-    while current.immediate_dominator is not None:
-        idom = current.immediate_dominator
-        if idom.type == NodeType.IF and idom.expression is not None:
-            if _is_in_true_branch(idom, node):
-                return str(idom.expression)
-            if _is_in_false_branch(idom, node):
-                return f"!({idom.expression})"
-            break
-        current = idom
-    return None
-
-
-def _is_in_true_branch(if_node: Node, target: Node) -> bool:
-    """Check if target is dominated by the true branch of if_node."""
-    son_true = if_node.son_true
-    if son_true is None:
-        return False
-    return son_true == target or son_true in target.dominators
-
-
-def _is_in_false_branch(if_node: Node, target: Node) -> bool:
-    """Check if target is dominated by the false branch of if_node."""
-    son_false = if_node.son_false
-    if son_false is None:
-        return False
-    return son_false == target or son_false in target.dominators
+    if isinstance(operation, InternalCall):
+        if operation.function:
+            return operation.function.name
+        return str(operation.function_name)
+    if isinstance(operation, HighLevelCall):
+        return str(operation.function_name.value)
+    return ""
 
 
 def _lookup_known_function_tag(

@@ -127,14 +127,18 @@ When a call is encountered (`InternalCall`, `HighLevelCall`, `LibraryCall`):
 
 1. Try tag sources 1-3 (annotation, name, known lib). If resolved, apply the
    tag directly to the call's lvalue and build a trace node.
-2. If unresolved, perform body analysis:
-   - Push the callee onto a call stack (recursion guard -- recursive calls
-     return UNKNOWN).
-   - Create a fresh domain for the callee.
-   - Bind caller argument tags to callee parameters (matching SSA base names).
-   - Walk the callee's CFG, dispatching every operation through the same
-     handler registry.
-   - Extract return-value tags from `Return` operations.
+2. If unresolved, perform body analysis via `RoundingAnalysis.analyze_call`
+   (inherited from the engine's `InterproceduralAnalysis`):
+   - Push the callee onto a call stack. Recursive calls and calls past the
+     depth cap (`_MAX_CALL_DEPTH = 32`) degrade to UNKNOWN at scalar call
+     sites; tuple call sites skip silently, leaving `Unpack` lvalues
+     untagged.
+   - Bind caller argument tags to callee parameters (matching SSA base
+     names) into a fresh entry domain.
+   - Run a nested `Engine` worklist fixpoint over the callee's CFG, seeded
+     with the entry domain through `Engine.new`'s `entry_domain` hook.
+   - Extract return-value tags and traces from the `Return` nodes'
+     fixpoint post-states.
    - Pop the callee from the call stack.
 3. For tuple returns, extract per-index tags and apply them to the
    corresponding `Unpack` lvalues.

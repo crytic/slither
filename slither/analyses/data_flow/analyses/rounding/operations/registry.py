@@ -14,14 +14,8 @@ from slither.analyses.data_flow.analyses.rounding.operations.base import (
 from slither.analyses.data_flow.analyses.rounding.operations.binary.handler import (
     BinaryHandler,
 )
-from slither.analyses.data_flow.analyses.rounding.operations.high_level_call import (
-    HighLevelCallHandler,
-)
-from slither.analyses.data_flow.analyses.rounding.operations.internal_call import (
-    InternalCallHandler,
-)
-from slither.analyses.data_flow.analyses.rounding.operations.library_call import (
-    LibraryCallHandler,
+from slither.analyses.data_flow.analyses.rounding.operations.interprocedural import (
+    InterproceduralHandler,
 )
 from slither.analyses.data_flow.analyses.rounding.operations.return_operation import (
     ReturnHandler,
@@ -44,7 +38,7 @@ logger = logging.getLogger("DataFlow")
 class OperationHandlerRegistry:
     """Maps operation types to handlers for rounding analysis."""
 
-    def __init__(self, analysis: "RoundingAnalysis"):
+    def __init__(self, analysis: RoundingAnalysis):
         self._analysis = analysis
         self._handlers: dict[type[Operation], BaseOperationHandler] = {}
         self._register_handlers()
@@ -53,9 +47,10 @@ class OperationHandlerRegistry:
         """Register all implemented operation handlers."""
         self._handlers[Binary] = BinaryHandler(self._analysis)
         self._handlers[Assignment] = AssignmentHandler(self._analysis)
-        self._handlers[InternalCall] = InternalCallHandler(self._analysis)
-        self._handlers[HighLevelCall] = HighLevelCallHandler(self._analysis)
-        self._handlers[LibraryCall] = LibraryCallHandler(self._analysis)
+        interprocedural = InterproceduralHandler(self._analysis)
+        self._handlers[InternalCall] = interprocedural
+        self._handlers[HighLevelCall] = interprocedural
+        self._handlers[LibraryCall] = interprocedural
         self._handlers[Return] = ReturnHandler(self._analysis)
 
     def get_handler(self, operation_type: type[Operation]) -> BaseOperationHandler | None:

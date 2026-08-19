@@ -21,6 +21,33 @@ class RoundingFinding:
     variable: Variable | None = None
 
 
+@dataclass(frozen=True)
+class RoundingCallSummary:
+    """Summary of a callee's return values for one call site.
+
+    Produced by ``RoundingAnalysis.extract_return_summary`` after a
+    nested fixpoint over the callee, or by ``on_recursion`` when the
+    callee's analysis was skipped.
+
+    Attributes:
+        tags: Union of scalar return tags across all Return nodes
+            (first return value only), or None when no return tags
+            were found.
+        traces: Provenance traces for the scalar return values.
+        per_index: Per-return-index (tags, traces) pairs from the first
+            Return node, used by tuple-returning call sites.
+        from_recursion: True when the summary stands in for a skipped
+            (recursive or depth-capped) analysis; tuple call sites
+            treat such summaries as a silent no-op instead of raising
+            on the empty ``per_index``.
+    """
+
+    tags: TagSet | None
+    traces: list[TraceNode]
+    per_index: list[tuple[TagSet, list[TraceNode]]]
+    from_recursion: bool = False
+
+
 @dataclass
 class LineAnnotation:
     """Annotation for a single variable on a source line."""
