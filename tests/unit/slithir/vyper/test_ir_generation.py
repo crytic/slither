@@ -97,3 +97,26 @@ def b(x: uint256):
                 if isinstance(op, InternalCall) and op.function.name == "c":
                     assert len(op.arguments) == 2
                     assert op.arguments[1] == Constant("False", ElementaryType("bool"))
+
+
+def test_for_loop_bounds_and_range_start(slither_from_vyper_source):
+    with slither_from_vyper_source(
+        """
+@external
+def loop(values: DynArray[uint256, 3]):
+    total: uint256 = 0
+    for value in values:
+        total += value
+    for i in range(5, 7):
+        total += i
+"""
+    ) as sl:
+        function = next(
+            function for function in sl.contracts[0].functions if function.name == "loop"
+        )
+        cfg = function.slithir_cfg_to_dot_str()
+
+        assert "counter_var < len()(values)" in cfg
+        assert "counter_var = 0" in cfg
+        assert "counter_var < 7" in cfg
+        assert "counter_var_scope_0 = 5" in cfg

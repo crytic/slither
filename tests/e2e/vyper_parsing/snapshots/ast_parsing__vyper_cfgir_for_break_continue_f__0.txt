@@ -18,10 +18,10 @@ counter_var(uint256) := 0(uint256)"];
 4[label="Node Type: IF_LOOP 4
 
 EXPRESSION:
-counter_var <= 100
+counter_var < 100
 
 IRs:
-TMP_0(bool) = counter_var <= 100
+TMP_0(bool) = counter_var < 100
 CONDITION TMP_0"];
 4->6[label="True"];
 4->2[label="False"];
@@ -98,10 +98,10 @@ counter_var_scope_0(uint256) := 0(uint256)"];
 17[label="Node Type: IF_LOOP 17
 
 EXPRESSION:
-counter_var <= 10
+counter_var < 10
 
 IRs:
-TMP_3(bool) = counter_var <= 10
+TMP_3(bool) = counter_var < 10
 CONDITION TMP_3"];
 17->19[label="True"];
 17->15[label="False"];
