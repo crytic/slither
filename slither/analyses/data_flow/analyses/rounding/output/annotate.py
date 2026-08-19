@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import logging
+
 
 from slither.analyses.data_flow.analyses.rounding.analysis.analysis import (
     RoundingAnalysis,
 )
-from slither.analyses.data_flow.logger import get_logger
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
     DomainVariant,
     RoundingDomain,
@@ -42,7 +43,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.utils.utils import RVALUE
 
-_logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 
 def analyze_function(
@@ -95,9 +96,7 @@ def _check_split_direction_return(annotated: AnnotatedFunction) -> None:
         f"function returns DOWN on some paths and UP on others — "
         f"verify rounding direction is intentional ({return_names})"
     )
-    annotated.inconsistencies.append(
-        RoundingFinding(message=message, node=None, variable=None)
-    )
+    annotated.inconsistencies.append(RoundingFinding(message=message, node=None, variable=None))
 
 
 # ── Trace extraction ─────────────────────────────────────────────
@@ -204,11 +203,7 @@ def _read_source_lines(
                 if line_index > end_line:
                     break
     except (OSError, UnicodeDecodeError) as exc:
-        _logger.warning(
-            "Could not read source file {filename}: {exc}",
-            filename=filename,
-            exc=exc,
-        )
+        logger.warning("Could not read source file %s: %s", filename, exc)
     return lines
 
 
@@ -235,12 +230,8 @@ def _create_annotated_function(
     """Create initial AnnotatedFunction from function metadata."""
     source_mapping = function.source_mapping
     filename = source_mapping.filename.absolute if source_mapping else ""
-    start_line = (
-        source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
-    )
-    end_line = (
-        source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
-    )
+    start_line = source_mapping.lines[0] if source_mapping and source_mapping.lines else 0
+    end_line = source_mapping.lines[-1] if source_mapping and source_mapping.lines else 0
 
     return AnnotatedFunction(
         function_name=function.name,
@@ -255,9 +246,7 @@ def _populate_source_lines(
     annotated: AnnotatedFunction,
 ) -> None:
     """Populate annotated function with source lines."""
-    source_lines = _read_source_lines(
-        annotated.filename, annotated.start_line, annotated.end_line
-    )
+    source_lines = _read_source_lines(annotated.filename, annotated.start_line, annotated.end_line)
     for line_num, text in source_lines.items():
         annotated.lines[line_num] = AnnotatedLine(
             line_number=line_num,
@@ -337,15 +326,7 @@ def _maybe_mark_entry(
 
 
 def _process_operation(
-    operation: (
-        Binary
-        | Assignment
-        | InternalCall
-        | HighLevelCall
-        | LibraryCall
-        | Return
-        | Unpack
-    ),
+    operation: (Binary | Assignment | InternalCall | HighLevelCall | LibraryCall | Return | Unpack),
     domain: RoundingDomain,
     annotated_line: AnnotatedLine,
     annotated: AnnotatedFunction,
@@ -456,9 +437,7 @@ def _process_assignment(
     """Process assignment operation."""
     lvalue_name = _get_variable_name(operation.lvalue)
     lvalue_tags = _get_tags(domain, operation.lvalue)
-    annotated_line.annotations.append(
-        LineAnnotation(variable_name=lvalue_name, tags=lvalue_tags)
-    )
+    annotated_line.annotations.append(LineAnnotation(variable_name=lvalue_name, tags=lvalue_tags))
 
 
 def _process_unpack(

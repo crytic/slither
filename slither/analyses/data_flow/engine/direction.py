@@ -6,6 +6,7 @@ propagates abstract states between nodes.
 
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from collections import deque
 from typing import TYPE_CHECKING
@@ -18,11 +19,10 @@ if TYPE_CHECKING:
     )
 
 from slither.analyses.data_flow.engine.domain import Domain
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations.condition import Condition
 
-logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 
 class Direction(ABC):
@@ -96,14 +96,15 @@ class Forward(Direction):
                 continue
 
             propagated = _resolve_propagated_domain(
-                analysis, post_domain,
-                is_conditional, condition_op, branch_index,
+                analysis,
+                post_domain,
+                is_conditional,
+                condition_op,
+                branch_index,
             )
             son_state = global_state[successor.node_id]
             if successor.type == NodeType.IFLOOP:
-                propagated = analysis.apply_widening(
-                    propagated, son_state.pre, set()
-                )
+                propagated = analysis.apply_widening(propagated, son_state.pre, set())
 
             changed = son_state.pre.join(propagated)
             if changed and successor not in worklist:
@@ -131,10 +132,9 @@ class Backward(Direction):
         global_state: dict[int, AnalysisState[AnalysisType]],
     ) -> None:
         """Apply transfer function for backward analysis."""
-        logger.error_and_raise(
-            "Backward transfer function hasn't been developed yet",
-            NotImplementedError,
-        )
+        message = "Backward transfer function hasn't been developed yet"
+        logger.error(message)
+        raise NotImplementedError(message)
 
 
 def _apply_node_operations(
@@ -146,7 +146,9 @@ def _apply_node_operations(
     condition_op: Condition | None = None
     for operation in node.irs_ssa or [None]:
         analysis.transfer_function(
-            node=node, domain=domain, operation=operation,
+            node=node,
+            domain=domain,
+            operation=operation,
         )
         if isinstance(operation, Condition):
             condition_op = operation

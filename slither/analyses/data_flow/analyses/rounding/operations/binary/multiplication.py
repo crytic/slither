@@ -6,6 +6,7 @@ Both operands must agree on rounding direction for the result to be well-defined
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
@@ -23,6 +24,8 @@ if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
         RoundingDomain,
     )
+
+logger = logging.getLogger("DataFlow")
 
 
 class MultiplicationHandler(BinaryOperationHandler):
@@ -45,20 +48,27 @@ class MultiplicationHandler(BinaryOperationHandler):
         result_tag, has_conflict = combine_tags(left_tag, right_tag)
 
         source = f"{left_tag.name} * {right_tag.name} \u2192 {result_tag.name}"
-        trace = self._build_binary_trace(
-            node, operation, domain, result_tag, source
-        )
+        trace = self._build_binary_trace(node, operation, domain, result_tag, source)
 
         if has_conflict:
             reason = self._format_conflict_reason(left_tag, right_tag, node)
             self.set_tag_with_annotation(
-                result_variable, result_tag, operation, node, domain,
-                unknown_reason=reason, trace=trace,
+                result_variable,
+                result_tag,
+                operation,
+                node,
+                domain,
+                unknown_reason=reason,
+                trace=trace,
             )
             return
 
         self.set_tag_with_annotation(
-            result_variable, result_tag, operation, node, domain,
+            result_variable,
+            result_tag,
+            operation,
+            node,
+            domain,
             trace=trace,
         )
 
@@ -71,8 +81,6 @@ class MultiplicationHandler(BinaryOperationHandler):
             f"Conflicting rounding in multiplication: "
             f"{left_tag.name} * {right_tag.name} in {function_name}"
         )
-        self.analysis.record_inconsistency(
-            RoundingFinding(message=message, node=node)
-        )
-        self.analysis._logger.warning(message)
+        self.analysis.record_inconsistency(RoundingFinding(message=message, node=node))
+        logger.warning(message)
         return message

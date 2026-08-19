@@ -8,6 +8,7 @@ truncation bias overwhelms a single operand's rounding signal.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag
@@ -19,7 +20,6 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     combine_tags,
     invert_tag,
 )
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
@@ -27,7 +27,7 @@ from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.utils.utils import RVALUE
 from slither.slithir.variables.constant import Constant
 
-_logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
@@ -58,14 +58,10 @@ class DivisionHandler(BinaryOperationHandler):
         if self._handle_ceiling_pattern(operation, domain, node):
             return
 
-        if self._handle_consistency_error(
-            left_tag, right_tag, operation, node, domain
-        ):
+        if self._handle_consistency_error(left_tag, right_tag, operation, node, domain):
             return
 
-        self._handle_normal_division(
-            left_tag, right_tag, operation, node, domain
-        )
+        self._handle_normal_division(left_tag, right_tag, operation, node, domain)
 
     def _handle_ceiling_pattern(
         self,
@@ -79,11 +75,18 @@ class DivisionHandler(BinaryOperationHandler):
         ):
             return False
         trace = self._build_binary_trace(
-            node, operation, domain,
-            RoundingTag.UP, "ceiling division \u2192 UP",
+            node,
+            operation,
+            domain,
+            RoundingTag.UP,
+            "ceiling division \u2192 UP",
         )
         self.set_tag_with_annotation(
-            operation.lvalue, RoundingTag.UP, operation, node, domain,
+            operation.lvalue,
+            RoundingTag.UP,
+            operation,
+            node,
+            domain,
             trace=trace,
         )
         return True
@@ -97,21 +100,25 @@ class DivisionHandler(BinaryOperationHandler):
         domain: "RoundingDomain",
     ) -> bool:
         """Handle numerator/denominator consistency error. Returns True if handled."""
-        inconsistency = self._check_division_consistency(
-            left_tag, right_tag, operation, node
-        )
+        inconsistency = self._check_division_consistency(left_tag, right_tag, operation, node)
         if not inconsistency:
             return False
-        source = (
-            f"{left_tag.name} / {right_tag.name} "
-            f"(inconsistent) \u2192 UNKNOWN"
-        )
+        source = f"{left_tag.name} / {right_tag.name} (inconsistent) \u2192 UNKNOWN"
         trace = self._build_binary_trace(
-            node, operation, domain, RoundingTag.UNKNOWN, source,
+            node,
+            operation,
+            domain,
+            RoundingTag.UNKNOWN,
+            source,
         )
         self.set_tag_with_annotation(
-            operation.lvalue, RoundingTag.UNKNOWN, operation, node, domain,
-            unknown_reason=inconsistency, trace=trace,
+            operation.lvalue,
+            RoundingTag.UNKNOWN,
+            operation,
+            node,
+            domain,
+            unknown_reason=inconsistency,
+            trace=trace,
         )
         return True
 
@@ -128,40 +135,54 @@ class DivisionHandler(BinaryOperationHandler):
         result_tag, has_conflict = combine_tags(left_tag, right_inverted)
 
         if has_conflict:
-            reason = self._format_conflict_reason(
-                left_tag, right_tag, right_inverted, node
-            )
+            reason = self._format_conflict_reason(left_tag, right_tag, right_inverted, node)
             source = (
                 f"{left_tag.name} / {right_tag.name} "
                 f"(inverted: {right_inverted.name}) "
                 f"conflict \u2192 UNKNOWN"
             )
             trace = self._build_binary_trace(
-                node, operation, domain, RoundingTag.UNKNOWN, source,
+                node,
+                operation,
+                domain,
+                RoundingTag.UNKNOWN,
+                source,
             )
             self.set_tag_with_annotation(
-                operation.lvalue, RoundingTag.UNKNOWN,
-                operation, node, domain,
-                unknown_reason=reason, trace=trace,
+                operation.lvalue,
+                RoundingTag.UNKNOWN,
+                operation,
+                node,
+                domain,
+                unknown_reason=reason,
+                trace=trace,
             )
             return
 
-        either_neutral = (
-            left_tag == RoundingTag.NEUTRAL
-            or right_tag == RoundingTag.NEUTRAL
-        )
+        either_neutral = left_tag == RoundingTag.NEUTRAL or right_tag == RoundingTag.NEUTRAL
         if either_neutral:
             result_tag = RoundingTag.DOWN
 
         source = self._format_division_source(
-            left_tag, right_tag, right_inverted,
-            result_tag, either_neutral,
+            left_tag,
+            right_tag,
+            right_inverted,
+            result_tag,
+            either_neutral,
         )
         trace = self._build_binary_trace(
-            node, operation, domain, result_tag, source,
+            node,
+            operation,
+            domain,
+            result_tag,
+            source,
         )
         self.set_tag_with_annotation(
-            operation.lvalue, result_tag, operation, node, domain,
+            operation.lvalue,
+            result_tag,
+            operation,
+            node,
+            domain,
             trace=trace,
         )
 
@@ -174,10 +195,7 @@ class DivisionHandler(BinaryOperationHandler):
         floor_bias: bool,
     ) -> str:
         """Format trace source string for normal division."""
-        base = (
-            f"{left_tag.name} / {right_tag.name} "
-            f"(inverted: {right_inverted.name})"
-        )
+        base = f"{left_tag.name} / {right_tag.name} (inverted: {right_inverted.name})"
         if floor_bias:
             return f"{base} floor bias \u2192 {result_tag.name}"
         return f"{base} \u2192 {result_tag.name}"
@@ -195,10 +213,8 @@ class DivisionHandler(BinaryOperationHandler):
             f"Conflicting rounding in division: {left_tag.name} / {right_tag.name} "
             f"(inverted: {right_inverted.name}) in {function_name}"
         )
-        self.analysis.record_inconsistency(
-            RoundingFinding(message=message, node=node)
-        )
-        self.analysis._logger.warning(message)
+        self.analysis.record_inconsistency(RoundingFinding(message=message, node=node))
+        logger.warning(message)
         return message
 
     def _is_ceiling_division_pattern(
@@ -209,18 +225,16 @@ class DivisionHandler(BinaryOperationHandler):
     ) -> bool:
         """Detect the ceiling division pattern: (a + b - 1) / b."""
         if not isinstance(dividend, Variable):
-            _logger.debug("Ceiling check: dividend is not a Variable")
+            logger.debug("Ceiling check: dividend is not a Variable")
             return False
 
         addition_result = self._check_subtraction_minus_one(dividend, domain)
         if addition_result is None:
-            _logger.debug("Ceiling check: dividend is not (X - 1)")
+            logger.debug("Ceiling check: dividend is not (X - 1)")
             return False
 
-        if not self._check_addition_includes_divisor(
-            addition_result, divisor, domain
-        ):
-            _logger.debug("Ceiling check: addition does not include divisor")
+        if not self._check_addition_includes_divisor(addition_result, divisor, domain):
+            logger.debug("Ceiling check: addition does not include divisor")
             return False
 
         return True
@@ -249,10 +263,7 @@ class DivisionHandler(BinaryOperationHandler):
         try:
             return int(constant.value) == 1
         except (ValueError, TypeError, AttributeError):
-            _logger.debug(
-                "Could not parse constant as int: {val}",
-                val=constant.value,
-            )
+            logger.debug("Could not parse constant as int: %s", constant.value)
             return False
 
     def _check_addition_includes_divisor(
@@ -268,9 +279,7 @@ class DivisionHandler(BinaryOperationHandler):
         if addition_operation.type != BinaryType.ADDITION:
             return False
 
-        divisor_name = (
-            divisor.name if isinstance(divisor, Variable) else str(divisor)
-        )
+        divisor_name = divisor.name if isinstance(divisor, Variable) else str(divisor)
         left_name = self._get_operand_name(addition_operation.variable_left)
         right_name = self._get_operand_name(addition_operation.variable_right)
 
@@ -306,8 +315,6 @@ class DivisionHandler(BinaryOperationHandler):
             f"{function_name}: numerator and denominator both "
             f"{numerator_tag.name} in {operation}"
         )
-        self.analysis.record_inconsistency(
-            RoundingFinding(message=message, node=node)
-        )
-        self.analysis._logger.warning(message)
+        self.analysis.record_inconsistency(RoundingFinding(message=message, node=node))
+        logger.warning(message)
         return reason

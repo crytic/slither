@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.operations.assignment import (
@@ -25,7 +26,6 @@ from slither.analyses.data_flow.analyses.rounding.operations.library_call import
 from slither.analyses.data_flow.analyses.rounding.operations.return_operation import (
     ReturnHandler,
 )
-from slither.analyses.data_flow.logger import get_logger
 from slither.slithir.operations import Assignment, Operation
 from slither.slithir.operations.binary import Binary
 from slither.slithir.operations.high_level_call import HighLevelCall
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
         RoundingAnalysis,
     )
 
-logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 
 class OperationHandlerRegistry:
@@ -58,9 +58,7 @@ class OperationHandlerRegistry:
         self._handlers[LibraryCall] = LibraryCallHandler(self._analysis)
         self._handlers[Return] = ReturnHandler(self._analysis)
 
-    def get_handler(
-        self, operation_type: type[Operation]
-    ) -> BaseOperationHandler | None:
+    def get_handler(self, operation_type: type[Operation]) -> BaseOperationHandler | None:
         """Get handler for operation type, or None if not registered."""
         return self._handlers.get(operation_type)
 

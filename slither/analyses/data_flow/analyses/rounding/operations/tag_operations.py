@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import RoundingTag, TagSet
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import RVALUE
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
         RoundingDomain,
     )
 
-_logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 KnownLibraryTags = dict[tuple[str, str], RoundingTag]
 
@@ -134,26 +134,23 @@ def _parse_known_tags_file(file_path: Path) -> KnownLibraryTags:
     raw = json.loads(file_path.read_text(encoding="utf-8"))
 
     if not isinstance(raw, dict):
-        _logger.error_and_raise(
-            f"safe-libs file must be a JSON object, got {type(raw).__name__}",
-            ValueError,
-        )
+        message = f"safe-libs file must be a JSON object, got {type(raw).__name__}"
+        logger.error(message)
+        raise ValueError(message)
 
     tags: KnownLibraryTags = {}
     for key, value in raw.items():
         parts = key.rsplit(".", maxsplit=1)
         if len(parts) != 2:
-            _logger.error_and_raise(
-                f"Invalid key '{key}': expected 'Contract.function'",
-                ValueError,
-            )
+            message = f"Invalid key '{key}': expected 'Contract.function'"
+            logger.error(message)
+            raise ValueError(message)
         contract_name, function_name = parts
         tag = valid_tags.get(value)
         if tag is None:
-            _logger.error_and_raise(
-                f"Invalid tag '{value}' for '{key}': must be UP or DOWN",
-                ValueError,
-            )
+            message = f"Invalid tag '{value}' for '{key}': must be UP or DOWN"
+            logger.error(message)
+            raise ValueError(message)
         tags[(contract_name, function_name)] = tag
 
     return tags
@@ -168,32 +165,36 @@ def lookup_known_tag(
     return known_tags.get((contract_name, function_name))
 
 
-_KNOWN_DOWN_NAMES: frozenset[str] = frozenset({
-    "divdown",
-    "muldown",
-    "divwaddown",
-    "mulwaddown",
-    "divfloor",
-    "mulfloor",
-    "floordiv",
-    "rounddown",
-    "roundfloor",
-    "divroundingdown",
-})
+_KNOWN_DOWN_NAMES: frozenset[str] = frozenset(
+    {
+        "divdown",
+        "muldown",
+        "divwaddown",
+        "mulwaddown",
+        "divfloor",
+        "mulfloor",
+        "floordiv",
+        "rounddown",
+        "roundfloor",
+        "divroundingdown",
+    }
+)
 
-_KNOWN_UP_NAMES: frozenset[str] = frozenset({
-    "divup",
-    "mulup",
-    "divwadup",
-    "mulwadup",
-    "divceil",
-    "mulceil",
-    "ceildiv",
-    "roundup",
-    "roundceil",
-    "divroundingup",
-    "muldivroundingup",
-})
+_KNOWN_UP_NAMES: frozenset[str] = frozenset(
+    {
+        "divup",
+        "mulup",
+        "divwadup",
+        "mulwadup",
+        "divceil",
+        "mulceil",
+        "ceildiv",
+        "roundup",
+        "roundceil",
+        "divroundingup",
+        "muldivroundingup",
+    }
+)
 
 
 def infer_tag_from_name(function_name: object | None) -> RoundingTag:
@@ -248,16 +249,15 @@ def parse_inline_round_annotations(source_line: str) -> dict[str, RoundingTag]:
             continue
         parts = entry.split("=", maxsplit=1)
         if len(parts) != 2:
-            _logger.warning(
-                f"Malformed //@round entry '{entry}': "
-                "expected funcName=TAG — defaulting to UNKNOWN"
+            logger.warning(
+                f"Malformed //@round entry '{entry}': expected funcName=TAG — defaulting to UNKNOWN"
             )
             annotations[entry] = RoundingTag.UNKNOWN
             continue
         func_name, tag_str = parts
         tag = _VALID_INLINE_TAGS.get(tag_str.upper())
         if tag is None:
-            _logger.warning(
+            logger.warning(
                 f"Invalid //@round tag '{tag_str}' for '{func_name}': "
                 "must be UP, DOWN, NEUTRAL, or UNKNOWN — defaulting to UNKNOWN"
             )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from slither.analyses.data_flow.analyses.rounding.core.state import (
@@ -37,15 +38,19 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
 from slither.core.cfg.node import Node
 from slither.slithir.operations.binary import Binary, BinaryType
 
+logger = logging.getLogger("DataFlow")
+
 if TYPE_CHECKING:
     from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
         RoundingDomain,
     )
 
-_INVERT_RIGHT_OPS: frozenset[BinaryType] = frozenset({
-    BinaryType.SUBTRACTION,
-    BinaryType.DIVISION,
-})
+_INVERT_RIGHT_OPS: frozenset[BinaryType] = frozenset(
+    {
+        BinaryType.SUBTRACTION,
+        BinaryType.DIVISION,
+    }
+)
 
 _OP_SYMBOL: dict[BinaryType, str] = {
     BinaryType.ADDITION: "+",
@@ -54,22 +59,24 @@ _OP_SYMBOL: dict[BinaryType, str] = {
     BinaryType.DIVISION: "/",
 }
 
-_ROUNDING_IRRELEVANT_OPS: frozenset[BinaryType] = frozenset({
-    BinaryType.LEFT_SHIFT,
-    BinaryType.RIGHT_SHIFT,
-    BinaryType.AND,
-    BinaryType.CARET,
-    BinaryType.OR,
-    BinaryType.LESS,
-    BinaryType.GREATER,
-    BinaryType.LESS_EQUAL,
-    BinaryType.GREATER_EQUAL,
-    BinaryType.EQUAL,
-    BinaryType.NOT_EQUAL,
-    BinaryType.ANDAND,
-    BinaryType.OROR,
-    BinaryType.MODULO,
-})
+_ROUNDING_IRRELEVANT_OPS: frozenset[BinaryType] = frozenset(
+    {
+        BinaryType.LEFT_SHIFT,
+        BinaryType.RIGHT_SHIFT,
+        BinaryType.AND,
+        BinaryType.CARET,
+        BinaryType.OR,
+        BinaryType.LESS,
+        BinaryType.GREATER,
+        BinaryType.LESS_EQUAL,
+        BinaryType.GREATER_EQUAL,
+        BinaryType.EQUAL,
+        BinaryType.NOT_EQUAL,
+        BinaryType.ANDAND,
+        BinaryType.OROR,
+        BinaryType.MODULO,
+    }
+)
 
 
 class BinaryHandler(BaseOperationHandler):
@@ -112,17 +119,19 @@ class BinaryHandler(BaseOperationHandler):
                 right_tag = next(iter(right_tags))
                 handler.handle(operation, domain, node, left_tag, right_tag)
                 return
-            self.analysis._logger.warning(
-                "No rounding handler for binary op {op}",
-                op=operation_type.name,
-            )
+            logger.warning("No rounding handler for binary op %s", operation_type.name)
             return
 
         if operation_type not in self._handlers:
             return
 
         self._handle_multi_tag(
-            operation, domain, node, left_tags, right_tags, operation_type,
+            operation,
+            domain,
+            node,
+            left_tags,
+            right_tags,
+            operation_type,
         )
 
     def _handle_multi_tag(
@@ -143,13 +152,9 @@ class BinaryHandler(BaseOperationHandler):
         heuristics do not apply to branched provenance.
         """
         right_for_combine = (
-            invert_tag_set(right_tags)
-            if operation_type in _INVERT_RIGHT_OPS
-            else right_tags
+            invert_tag_set(right_tags) if operation_type in _INVERT_RIGHT_OPS else right_tags
         )
-        result_set, every_pair_conflicts = _combine_pairwise(
-            left_tags, right_for_combine
-        )
+        result_set, every_pair_conflicts = _combine_pairwise(left_tags, right_for_combine)
 
         op_symbol = _OP_SYMBOL.get(operation_type, "?")
         source = (
@@ -169,16 +174,25 @@ class BinaryHandler(BaseOperationHandler):
         unknown_reason: str | None = None
         if every_pair_conflicts and result_set == frozenset({RoundingTag.UNKNOWN}):
             unknown_reason = self._record_multi_tag_conflict(
-                operation_type, left_tags, right_tags, node,
+                operation_type,
+                left_tags,
+                right_tags,
+                node,
             )
 
         domain.state.set_tag(
-            operation.lvalue, result_set, operation,
-            unknown_reason=unknown_reason, trace=trace,
+            operation.lvalue,
+            result_set,
+            operation,
+            unknown_reason=unknown_reason,
+            trace=trace,
         )
         self.analysis._check_annotation_for_variable(
-            operation.lvalue, domain.state.get_tag(operation.lvalue),
-            operation, node, domain,
+            operation.lvalue,
+            domain.state.get_tag(operation.lvalue),
+            operation,
+            node,
+            domain,
         )
 
     def _record_multi_tag_conflict(
@@ -196,10 +210,8 @@ class BinaryHandler(BaseOperationHandler):
             f"{_format_tagset(left_tags)} {_OP_SYMBOL.get(operation_type, '?')} "
             f"{_format_tagset(right_tags)} in {function_name}"
         )
-        self.analysis.record_inconsistency(
-            RoundingFinding(message=message, node=node)
-        )
-        self.analysis._logger.warning(message)
+        self.analysis.record_inconsistency(RoundingFinding(message=message, node=node))
+        logger.warning(message)
         return message
 
 

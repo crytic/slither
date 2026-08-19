@@ -1,88 +1,37 @@
-"""Regression guard: the data-flow end-to-end tests emit no loguru noise.
+"""Regression guard: the data-flow end-to-end tests emit no log noise.
 
-The rounding end-to-end tests used to dump colorized loguru INFO lines into the
-pytest report: the analyses log through a stderr sink that nothing removed and
-that no test asserted on. ``tests/e2e/data_flow/conftest.py`` now installs an
-autouse, session-scoped ``silence_data_flow_logging`` fixture which drops every
-loguru sink and disables records originating in the ``slither`` package for this
-whole subtree. This module lives in that subtree, so the fixture applies to it
-and the tests below only pass while it is doing its job:
+The rounding end-to-end tests used to dump log lines into the pytest report:
+the analyses warn on every rounding inconsistency, and these tests provoke them
+on purpose. ``tests/e2e/data_flow/conftest.py`` now installs an autouse,
+session-scoped ``silence_data_flow_logging`` fixture. This module lives in that
+subtree, so the fixture applies to it and the tests below only pass while it is
+doing its job:
 
-* a real ``get_logger()`` call made from a data-flow module reaches no stderr,
-  even when a sink is present, because ``slither`` records are disabled;
-* a record from outside the ``slither`` package still reaches the capture, which
-  is what makes the silence above evidence rather than an empty assertion;
-* no loguru sink survives the fixture at all, which is its other half;
+* a warning logged from a data-flow module reaches neither stderr nor the root
+  handlers;
+* a logger outside the ``DataFlow`` tree is untouched, which is what makes the
+  silence above evidence rather than an empty assertion;
+* both halves of the fixture are load-bearing, checked by driving its body
+  against handler and propagation state it did not install;
 * the fixture is active without being requested (autouse) and is declared at
   session scope.
-
-Global-state note: the loguru logger is process-wide, and
-``DataFlowLogger.__init__`` calls ``loguru.logger.remove()``, dropping every sink
-in the process. ``rebuilt_data_flow_logger`` therefore removes the sink it causes
-to be installed and lets ``monkeypatch`` put the previous singleton back, ending
-in the sink-free state that the session fixture installs.
 """
 
 from __future__ import annotations
 
 import importlib
-import io
-import types
+import logging
 from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
-from loguru import logger as loguru_logger
 
 from slither.analyses.data_flow.engine import engine as engine_module
-from slither.analyses.data_flow.logger import DataFlowLogger, get_logger
-from slither.analyses.data_flow.logger import logger as logger_module
-
 
 CONFTEST_MODULE = "tests.e2e.data_flow.conftest"
 SILENCE_FIXTURE = "silence_data_flow_logging"
+DATA_FLOW_LOGGER_NAME = "DataFlow"
 PROBE_MESSAGE = "data-flow logging guard probe"
-
-
-@pytest.fixture
-def rebuilt_data_flow_logger(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
-    """Make ``get_logger()`` build the production logger inside the test body.
-
-    ``DataFlowLogger`` installs its sink on whatever ``sys.stderr`` is bound to at
-    construction time. The singleton is usually built while a test module is
-    imported, so its sink points at a stream ``capsys`` cannot see; dropping the
-    singleton first means the sink under observation is the real one, attached to
-    the stream ``capsys`` owns.
-
-    Yields:
-        None, after clearing the module-level singleton.
-    """
-    monkeypatch.setattr(logger_module, "_logger_instance", None)
-    try:
-        yield
-    finally:
-        loguru_logger.remove()
-
-
-def _emit_info(data_flow_logger: DataFlowLogger, message: str) -> None:
-    """Log ``message`` at INFO, standing in for an analysis call site."""
-    data_flow_logger.info(message)
-
-
-def _log_info_from_data_flow_module(data_flow_logger: DataFlowLogger, message: str) -> None:
-    """Emit an INFO record that originates inside the ``slither`` package.
-
-    ``logger.disable("slither")`` filters on the module a record comes from, and
-    the ``DataFlowLogger`` methods use ``opt(depth=1)`` so that module is their
-    caller's, not the logger's. Running the probe with the engine module's
-    globals therefore produces exactly the record shape the analyses produce.
-
-    Args:
-        data_flow_logger: The process-wide data-flow logger.
-        message: Text to log.
-    """
-    probe = types.FunctionType(_emit_info.__code__, engine_module.__dict__)
-    probe(data_flow_logger, message)
 
 
 def _fixture_body(fixture: object) -> Callable[[], Iterator[None]]:
@@ -126,59 +75,69 @@ def _fixture_marker(fixture: object) -> Any:
     raise AssertionError(f"{fixture!r} is not a pytest fixture")
 
 
-def test_data_flow_call_site_writes_nothing_to_stderr(
+def test_a_data_flow_warning_reaches_neither_stderr_nor_the_root_handlers(
     capsys: pytest.CaptureFixture[str],
-    rebuilt_data_flow_logger: None,
 ) -> None:
-    """A data-flow log call produces no stderr output while the fixture is active."""
-    data_flow_logger = get_logger()
+    """The level at which the analyses actually log produces no output.
 
-    _log_info_from_data_flow_module(data_flow_logger, PROBE_MESSAGE)
-
-    captured = capsys.readouterr()
-    assert captured.err == "", f"data-flow logging leaked to stderr: {captured.err!r}"
-
-
-def test_capture_sees_a_record_from_outside_the_slither_package(
-    capsys: pytest.CaptureFixture[str],
-    rebuilt_data_flow_logger: None,
-) -> None:
-    """The same logger does emit for a caller the fixture is not silencing.
-
-    Without this, the silence asserted above could just as well come from a probe
-    that never reached a sink, or from a capture that never sees loguru at all.
+    WARNING is the interesting level: it clears the default root threshold, so
+    without the fixture ``logging.lastResort`` would print it to stderr.
     """
-    data_flow_logger = get_logger()
+    root_records: list[logging.LogRecord] = []
+    root_handler = logging.Handler()
+    root_handler.emit = root_records.append  # type: ignore[method-assign]
+    logging.getLogger().addHandler(root_handler)
+    try:
+        engine_module.logger.warning(PROBE_MESSAGE)
+    finally:
+        logging.getLogger().removeHandler(root_handler)
 
-    data_flow_logger.info(PROBE_MESSAGE)
-
-    captured = capsys.readouterr()
-    assert PROBE_MESSAGE in captured.err, "the probe never reached the sink"
+    assert capsys.readouterr().err == "", "data-flow logging leaked to stderr"
+    assert root_records == [], "data-flow logging reached the root handlers"
 
 
-def test_the_fixture_removes_every_sink_not_only_slither_records() -> None:
-    """The fixture drops sinks outright, on top of disabling ``slither`` records.
+def test_a_logger_outside_the_data_flow_tree_still_reaches_stderr() -> None:
+    """The silence above is scoped, not a capture that never sees logging.
 
-    Both halves are load-bearing, and the tests above exercise only the
-    ``disable`` half: they rebuild the singleton, which installs a sink of its
-    own and whose teardown drops every sink again. Live handler state is
-    therefore worthless by the time this runs, so the conftest fixture's own body
-    is driven here against a sink it did not install.
+    Without this, a broken probe or a swallowed handler would look identical to
+    a working fixture.
+    """
+    other_records: list[logging.LogRecord] = []
+    handler = logging.Handler()
+    handler.emit = other_records.append  # type: ignore[method-assign]
+    logging.getLogger().addHandler(handler)
+    try:
+        logging.getLogger("Slither").warning(PROBE_MESSAGE)
+    finally:
+        logging.getLogger().removeHandler(handler)
+
+    assert len(other_records) == 1, "the probe never reached the root handlers"
+
+
+def test_both_halves_of_the_fixture_are_applied() -> None:
+    """Running the fixture's body silences a logger it did not prepare.
+
+    The tests above cannot tell the handler half from the propagation half, so
+    the body is driven here against state it did not install.
     """
     conftest = importlib.import_module(CONFTEST_MODULE)
     fixture_body = _fixture_body(getattr(conftest, SILENCE_FIXTURE))
-    loguru_logger.add(io.StringIO())
+    logger = logging.getLogger(DATA_FLOW_LOGGER_NAME)
+    handlers_before = list(logger.handlers)
+    logger.handlers = []
+    logger.propagate = True
 
     generator = fixture_body()
     next(generator)
     try:
-        assert not loguru_logger._core.handlers, "the fixture left a sink writing"
+        assert logger.handlers, "no handler: WARNING records would hit lastResort"
+        assert logger.propagate is False, "records would still reach the root handlers"
     finally:
         for _ in generator:
             pass
-        # The teardown half re-enables the package: put the session's silence back.
-        loguru_logger.remove()
-        loguru_logger.disable("slither")
+        # The teardown restores what the body changed; put the session's silence back.
+        logger.handlers = handlers_before
+        logger.propagate = False
 
 
 def test_silence_fixture_is_active_without_being_requested(
@@ -195,5 +154,5 @@ def test_silence_fixture_is_session_scoped_and_autouse() -> None:
     assert fixture is not None, f"{CONFTEST_MODULE} no longer defines {SILENCE_FIXTURE}"
 
     marker = _fixture_marker(fixture)
-    assert marker.scope == "session", "a narrower scope re-runs the removal for every test"
+    assert marker.scope == "session", "a narrower scope re-runs the setup for every test"
     assert marker.autouse is True, "tests would have to request the fixture by hand"

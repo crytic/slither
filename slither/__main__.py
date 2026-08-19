@@ -40,7 +40,6 @@ from slither.utils.command_line import (
     output_wiki,
     read_config_file,
 )
-from slither.analyses.data_flow.logger import configure_logger
 from slither.analyses.data_flow.registry.abstract_analysis import (
     AbstractAnalysis,
 )
@@ -874,10 +873,6 @@ def main_impl(
     analysis_classes = get_analysis_classes()
     args = parse_args(all_detector_classes, all_printer_classes, analysis_classes)
 
-    # The data-flow analyses log through loguru, not the stdlib logging tree below. Configure it
-    # before StandardOutputCapture swaps sys.stderr, so the sink binds to the real stderr.
-    configure_logger(log_level=args.data_flow_log_level)
-
     cp: cProfile.Profile | None = None
     if args.perf:
         cp = cProfile.Profile()
@@ -935,6 +930,7 @@ def main_impl(
         ("TypeParsing", default_log),
         ("SSA_Conversion", default_log),
         ("Printers", default_log),
+        ("DataFlow", getattr(logging, args.data_flow_log_level)),
         # ('CryticCompile', default_log)
     ]:
         logger_level = logging.getLogger(l_name)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, cast
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
@@ -28,10 +29,11 @@ if TYPE_CHECKING:
     from slither.core.declarations.function import Function
 from slither.analyses.data_flow.engine.direction import Direction, Forward
 from slither.analyses.data_flow.engine.domain import Domain
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node, NodeType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.operation import Operation
+
+logger = logging.getLogger("DataFlow")
 
 
 class RoundingAnalysis(Analysis):
@@ -42,7 +44,6 @@ class RoundingAnalysis(Analysis):
         known_tags: KnownLibraryTags | None = None,
     ) -> None:
         self._direction: Direction = Forward()
-        self._logger = get_logger()
         self.inconsistencies: list[RoundingFinding] = []
         self.annotation_mismatches: list[RoundingFinding] = []
         self._seen_inconsistencies: set[tuple[str, int | None]] = set()
@@ -153,17 +154,11 @@ class RoundingAnalysis(Analysis):
             return
         function = node.function
         if function is None:
-            self._logger.debug(
-                "Entry node {nid} has no function, skipping init",
-                nid=node.node_id,
-            )
+            logger.debug("Entry node %s has no function, skipping init", node.node_id)
             return
         contract = function.contract
         if contract is None:
-            self._logger.debug(
-                "Function {name} has no contract, skipping state var init",
-                name=function.name,
-            )
+            logger.debug("Function %s has no contract, skipping state var init", function.name)
         entry_variables: list[Variable] = []
         if contract is not None:
             entry_variables.extend(contract.state_variables)
@@ -204,7 +199,7 @@ class RoundingAnalysis(Analysis):
                     variable=variable,
                 )
             )
-            self._logger.warning(message)
+            logger.warning(message)
 
     def _parse_expected_tag_from_name(self, name: str) -> RoundingTag | None:
         """Parse annotation suffixes like _UP/_DOWN/_NEUTRAL from variable names."""

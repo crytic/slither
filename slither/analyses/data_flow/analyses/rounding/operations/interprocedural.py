@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from abc import abstractmethod
 
 from slither.analyses.data_flow.analyses.rounding.analysis.domain import (
@@ -24,7 +25,6 @@ from slither.analyses.data_flow.analyses.rounding.operations.tag_operations impo
     lookup_inline_round_tag,
     lookup_known_tag,
 )
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
@@ -34,7 +34,7 @@ from slither.slithir.operations.return_operation import Return
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.variables.tuple import TupleVariable
 
-_logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 
 class InterproceduralHandler(BaseOperationHandler):
@@ -57,7 +57,7 @@ class InterproceduralHandler(BaseOperationHandler):
     ) -> None:
         """Process call with name-based inference, falling back to body analysis."""
         if not operation.lvalue:
-            _logger.debug("Call has no lvalue, skipping: {op}", op=operation)
+            logger.debug("Call has no lvalue, skipping: %s", operation)
             return
 
         function_name = self._get_function_name(operation)
@@ -69,9 +69,7 @@ class InterproceduralHandler(BaseOperationHandler):
             self._handle_tuple_call(operation, function_name, domain, node)
             return
 
-        tags, trace = self._infer_tag_with_fallback(
-            operation, function_name, domain, node
-        )
+        tags, trace = self._infer_tag_with_fallback(operation, function_name, domain, node)
         self._set_tags(operation.lvalue, tags, operation, node, domain, trace)
 
     def _handle_tuple_call(
@@ -88,17 +86,11 @@ class InterproceduralHandler(BaseOperationHandler):
         """
         called_function = self._get_called_function(operation)
         if called_function is None or not called_function.nodes:
-            _logger.debug(
-                "Tuple call {name}: callee unresolvable or has no body",
-                name=function_name,
-            )
+            logger.debug("Tuple call %s: callee unresolvable or has no body", function_name)
             return
 
         if called_function in self._call_stack:
-            _logger.debug(
-                "Tuple call {name}: recursion guard, skipping",
-                name=function_name,
-            )
+            logger.debug("Tuple call %s: recursion guard, skipping", function_name)
             return
 
         self._call_stack.add(called_function)
@@ -112,19 +104,15 @@ class InterproceduralHandler(BaseOperationHandler):
                 callee_domain,
             )
             self._analyze_callee_body(called_function, callee_domain)
-            per_index = self._extract_per_index_return_tags(
-                called_function, callee_domain
-            )
+            per_index = self._extract_per_index_return_tags(called_function, callee_domain)
         finally:
             self.analysis.pop_caller_node()
             self._call_stack.discard(called_function)
 
         if not per_index:
-            _logger.error_and_raise(
-                "Tuple call {name}: analyzed body but found no return tags",
-                RuntimeError,
-                name=function_name,
-            )
+            message = f"Tuple call {function_name}: analyzed body but found no return tags"
+            logger.error(message)
+            raise RuntimeError(message)
 
         line_number = node.source_mapping.lines[0] if node.source_mapping else None
         self._apply_tuple_tags_to_unpacks(
@@ -156,12 +144,11 @@ class InterproceduralHandler(BaseOperationHandler):
                 continue
             index = other_operation.index
             if index >= len(per_index):
-                _logger.warning(
-                    "Tuple call {name}: unpack index {idx} exceeds "
-                    "return count {count}, skipping",
-                    name=function_name,
-                    idx=index,
-                    count=len(per_index),
+                logger.warning(
+                    "Tuple call %s: unpack index %d exceeds return count %d, skipping",
+                    function_name,
+                    index,
+                    len(per_index),
                 )
                 continue
             tags, traces = per_index[index]
@@ -277,11 +264,7 @@ class InterproceduralHandler(BaseOperationHandler):
 
         inline_tag = self._lookup_inline_annotation(node, function_name)
         if inline_tag is not None:
-            _logger.debug(
-                "{name}: resolved via inline annotation → {tag}",
-                name=function_name,
-                tag=inline_tag.name,
-            )
+            logger.debug("%s: resolved via inline annotation → %s", function_name, inline_tag.name)
             inline_tags = frozenset({inline_tag})
             trace = TraceNode(
                 function_name=function_name,
@@ -293,11 +276,7 @@ class InterproceduralHandler(BaseOperationHandler):
 
         tag = infer_tag_from_name(function_name)
         if tag != RoundingTag.NEUTRAL:
-            _logger.debug(
-                "{name}: resolved via name inference → {tag}",
-                name=function_name,
-                tag=tag.name,
-            )
+            logger.debug("%s: resolved via name inference → %s", function_name, tag.name)
             tags = frozenset({tag})
             trace = TraceNode(
                 function_name=function_name,
@@ -309,15 +288,9 @@ class InterproceduralHandler(BaseOperationHandler):
 
         called_function = self._get_called_function(operation)
 
-        known = _lookup_known_function_tag(
-            called_function, function_name, self.analysis.known_tags
-        )
+        known = _lookup_known_function_tag(called_function, function_name, self.analysis.known_tags)
         if known is not None:
-            _logger.debug(
-                "{name}: resolved via known library → {tag}",
-                name=function_name,
-                tag=known.name,
-            )
+            logger.debug("%s: resolved via known library → %s", function_name, known.name)
             known_tags = frozenset({known})
             trace = TraceNode(
                 function_name=function_name,
@@ -328,20 +301,17 @@ class InterproceduralHandler(BaseOperationHandler):
             return known_tags, trace
 
         if called_function is None:
-            _logger.debug(
-                "{name}: callee unresolvable, defaulting to NEUTRAL",
-                name=function_name,
-            )
+            logger.debug("%s: callee unresolvable, defaulting to NEUTRAL", function_name)
             return frozenset({RoundingTag.NEUTRAL}), None
 
         body_tags, child_traces = self._analyze_function_body(
             called_function, operation.arguments, domain, caller_node=node
         )
         if body_tags:
-            _logger.debug(
-                "{name}: resolved via body analysis → {tags}",
-                name=function_name,
-                tags=_format_tagset(body_tags),
+            logger.debug(
+                "%s: resolved via body analysis → %s",
+                function_name,
+                _format_tagset(body_tags),
             )
             trace = TraceNode(
                 function_name=function_name,
@@ -351,10 +321,7 @@ class InterproceduralHandler(BaseOperationHandler):
                 children=child_traces,
             )
             return body_tags, trace
-        _logger.debug(
-            "{name}: all inference steps exhausted, defaulting to NEUTRAL",
-            name=function_name,
-        )
+        logger.debug("%s: all inference steps exhausted, defaulting to NEUTRAL", function_name)
         return frozenset({tag}), None
 
     @abstractmethod
@@ -380,17 +347,11 @@ class InterproceduralHandler(BaseOperationHandler):
         callee body are attributed to the user-visible call site.
         """
         if function in self._call_stack:
-            _logger.debug(
-                "Recursion guard: {name} already in call stack",
-                name=function.name,
-            )
+            logger.debug("Recursion guard: %s already in call stack", function.name)
             return frozenset({RoundingTag.UNKNOWN}), []
 
         if not function.nodes:
-            _logger.debug(
-                "Function {name} has no body nodes, skipping analysis",
-                name=function.name,
-            )
+            logger.debug("Function %s has no body nodes, skipping analysis", function.name)
             return None, []
 
         self._call_stack.add(function)
@@ -594,10 +555,8 @@ class InterproceduralHandler(BaseOperationHandler):
             f"{function_name}: numerator and denominator both "
             f"{numerator_tag.name} in {operation}"
         )
-        self.analysis.record_inconsistency(
-            RoundingFinding(message=message, node=node)
-        )
-        self.analysis._logger.warning(message)
+        self.analysis.record_inconsistency(RoundingFinding(message=message, node=node))
+        logger.warning(message)
         return reason
 
     def _set_tag(
@@ -612,9 +571,7 @@ class InterproceduralHandler(BaseOperationHandler):
         if variable is None:
             return
         domain.state.set_tag(variable, tag, operation)
-        self.analysis._check_annotation_for_variable(
-            variable, tag, operation, node, domain
-        )
+        self.analysis._check_annotation_for_variable(variable, tag, operation, node, domain)
 
     def _set_tags(
         self,
@@ -630,9 +587,7 @@ class InterproceduralHandler(BaseOperationHandler):
             return
         domain.state.set_tag(variable, tags, operation, trace=trace)
         actual_tag = domain.state.get_tag(variable)
-        self.analysis._check_annotation_for_variable(
-            variable, actual_tag, operation, node, domain
-        )
+        self.analysis._check_annotation_for_variable(variable, actual_tag, operation, node, domain)
 
 
 def _find_branch_condition(node: Node) -> str | None:

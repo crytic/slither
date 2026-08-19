@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
-from slither.analyses.data_flow.logger import get_logger
+import logging
+
 from slither.analyses.data_flow.registry.abstract_analysis import (
     AbstractAnalysis,
 )
 
-logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 try:
     from slither.analyses.data_flow.analyses.rounding.output.cli import (
         RoundingCLI,
     )
+
     _ROUNDING_AVAILABLE = True
 except ImportError:
     _ROUNDING_AVAILABLE = False
@@ -49,11 +51,7 @@ def choose_analyses(
         analysis_class = lookup.get(name)
         if analysis_class is None:
             known = ", ".join(sorted(lookup.keys())) or "(none)"
-            logger.error(
-                "Unknown analysis: '{name}'. Available: {known}",
-                name=name,
-                known=known,
-            )
+            logger.error("Unknown analysis: '%s'. Available: %s", name, known)
             raise SystemExit(1)
         selected.append(analysis_class)
 

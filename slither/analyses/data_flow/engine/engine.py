@@ -6,6 +6,7 @@ both forward and backward data flow analyses.
 
 from __future__ import annotations
 
+import logging
 import time
 from collections import defaultdict, deque
 from typing import Generic
@@ -16,11 +17,10 @@ from slither.analyses.data_flow.engine.analysis import (
     AnalysisState,
 )
 from slither.analyses.data_flow.engine.domain import Domain
-from slither.analyses.data_flow.logger import get_logger
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 
-logger = get_logger()
+logger = logging.getLogger("DataFlow")
 
 _MAX_ITERATIONS = 10000
 _PROGRESS_INTERVAL_SECONDS = 5.0
@@ -133,44 +133,30 @@ class Engine(Generic[AnalysisType]):
 
         worklist: deque[Node] = deque()
         if not self.analysis.direction().IS_FORWARD:
-            logger.error_and_raise(
-                "Backward analysis is not implemented",
-                NotImplementedError,
-            )
+            message = "Backward analysis is not implemented"
+            logger.error(message)
+            raise NotImplementedError(message)
 
         entry_point = self.function.entry_point
         if entry_point is not None:
             worklist.append(entry_point)
-            logger.info(
-                "Starting analysis of {name}", name=self.function.name,
-            )
+            logger.info("Starting analysis of %s", self.function.name)
         else:
-            logger.warning(
-                "No entry point for {name}, skipping analysis",
-                name=self.function.name,
-            )
+            logger.warning("No entry point for %s, skipping analysis", self.function.name)
         return worklist
 
     def _exceeded_iteration_limit(self, worklist_size: int) -> bool:
         """Check if iteration count exceeds safety limit."""
         if self.iteration_count <= _MAX_ITERATIONS:
             return False
-        logger.error(
-            "Exceeded {max} iterations! Worklist size: {size}",
-            max=_MAX_ITERATIONS,
-            size=worklist_size,
-        )
+        logger.error("Exceeded %d iterations! Worklist size: %d", _MAX_ITERATIONS, worklist_size)
         top_nodes = sorted(
             self.node_visit_count.items(),
             key=lambda item: item[1],
             reverse=True,
         )[:10]
         for node_id, count in top_nodes:
-            logger.error(
-                "Node {node_id}: {count} visits",
-                node_id=node_id,
-                count=count,
-            )
+            logger.error("Node %s: %d visits", node_id, count)
         return True
 
     def _log_progress(self, worklist_size: int) -> None:
@@ -180,11 +166,10 @@ class Engine(Generic[AnalysisType]):
             return
         elapsed = current_time - self.start_time
         logger.info(
-            "Progress: {iterations} iterations, worklist={size}, "
-            "{elapsed:.1f}s elapsed",
-            iterations=self.iteration_count,
-            size=worklist_size,
-            elapsed=elapsed,
+            "Progress: %d iterations, worklist=%d, %.1fs elapsed",
+            self.iteration_count,
+            worklist_size,
+            elapsed,
         )
         self.last_progress_time = current_time
 
@@ -193,23 +178,16 @@ class Engine(Generic[AnalysisType]):
         self.node_visit_count[node.node_id] += 1
         visit_count = self.node_visit_count[node.node_id]
         if visit_count == 50:
-            logger.warning(
-                "Node {node_id} visited 50 times!",
-                node_id=node.node_id,
-            )
+            logger.warning("Node %s visited 50 times!", node.node_id)
         if visit_count == 100:
-            logger.error(
-                "Node {node_id} visited 100 times!",
-                node_id=node.node_id,
-            )
+            logger.error("Node %s visited 100 times!", node.node_id)
 
     def _log_completion(self) -> None:
         """Log final analysis statistics."""
         total_time = time.time() - self.start_time
         logger.info(
-            "Analysis of {name} complete: {iterations} iterations "
-            "in {time:.2f}s",
-            name=self.function.name,
-            iterations=self.iteration_count,
-            time=total_time,
+            "Analysis of %s complete: %d iterations in %.2fs",
+            self.function.name,
+            self.iteration_count,
+            total_time,
         )

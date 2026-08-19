@@ -1,16 +1,16 @@
 """Regression tests for the ``--data-flow-log-level`` command line flag.
 
-Data-flow analyses log through loguru, which is independent of the stdlib
-logging tree that ``--debug`` configures. Before the flag existed the loguru
-sink was pinned at INFO for the whole process, so a user had no way to quiet
-or to deepen data-flow output. These tests pin both halves of the contract:
+Data-flow analyses log through ``logging.getLogger("DataFlow")``. Before the
+flag existed there was no way to quiet or deepen that output independently of
+``--debug``. These tests pin both halves of the contract:
 
 * ``parse_args`` exposes the flag as ``args.data_flow_log_level``, defaulting
-  to ``"INFO"`` and restricted to the five loguru level names.
-* ``main_impl`` forwards the parsed value to ``configure_logger``.
+  to ``"INFO"`` and restricted to the five level names.
+* ``main_impl`` applies the parsed value to the ``DataFlow`` logger, alongside
+  the other Slither loggers it configures.
 
-Nothing here touches the real loguru state: the wiring test replaces
-``configure_logger`` with a recorder, so no sink is added or removed.
+The wiring test replaces that logger's ``setLevel`` with a recorder, so no
+level is actually changed.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class _StopAfterConfigure(Exception):
-    """Raised by the ``configure_logger`` stub to halt ``main_impl`` early."""
+    """Raised by the ``setLevel`` stub to halt ``main_impl`` early."""
 
 
 @pytest.fixture(name="isolated_cwd")
@@ -99,7 +99,7 @@ def test_unknown_log_level_is_rejected_as_an_invalid_choice(
     capsys: pytest.CaptureFixture[str],
     isolated_cwd: None,
 ) -> None:
-    """A level outside the loguru names fails argparse validation.
+    """A level outside the logging level names fails argparse validation.
 
     The "invalid choice" wording matters: an argparse run that does not know
     the flag at all also exits, but complains about an unrecognized argument
@@ -114,28 +114,32 @@ def test_unknown_log_level_is_rejected_as_an_invalid_choice(
     assert "invalid choice" in stderr
 
 
-@pytest.mark.parametrize("level", ["DEBUG", "WARNING"])
-def test_main_impl_forwards_log_level_to_configure_logger(
+@pytest.mark.parametrize(
+    ("level", "expected"),
+    [("DEBUG", logging.DEBUG), ("WARNING", logging.WARNING)],
+)
+def test_main_impl_applies_log_level_to_the_data_flow_logger(
     level: str,
+    expected: int,
     monkeypatch: pytest.MonkeyPatch,
     isolated_cwd: None,
     restored_cli_globals: None,
 ) -> None:
-    """``main_impl`` hands the parsed level to ``configure_logger``.
+    """``main_impl`` sets the parsed level on the ``DataFlow`` logger.
 
     The stub raises as soon as it is called, which stops ``main_impl`` before
-    it compiles anything and keeps the real loguru sinks untouched.
+    it compiles anything and leaves the logger's real level alone.
     """
-    recorded: list[tuple[tuple[Any, ...], dict[str, Any]]] = []
+    recorded: list[Any] = []
 
-    def _record(*args: Any, **kwargs: Any) -> None:
-        recorded.append((args, kwargs))
+    def _record(new_level: Any) -> None:
+        recorded.append(new_level)
         raise _StopAfterConfigure
 
-    monkeypatch.setattr(slither_main, "configure_logger", _record)
+    monkeypatch.setattr(logging.getLogger("DataFlow"), "setLevel", _record)
     monkeypatch.setattr(sys, "argv", ["slither", "x.sol", "--data-flow-log-level", level])
 
     with pytest.raises(_StopAfterConfigure):
         slither_main.main_impl(all_detector_classes=[], all_printer_classes=[])
 
-    assert recorded == [((), {"log_level": level})]
+    assert recorded == [expected]
