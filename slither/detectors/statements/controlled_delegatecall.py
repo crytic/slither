@@ -1,6 +1,7 @@
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -9,14 +10,28 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
+_DELEGATECALL_LOW_LEVEL_NAMES = ["delegatecall", "callcode"]
+
+# Inline assembly calls are parsed as SolidityCall, not LowLevelCall, so the assembly forms have
+# to be matched separately. Both take the callee address as their second argument.
+_DELEGATECALL_SOLIDITY_FUNCTIONS = [
+    SolidityFunction("delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"),
+    SolidityFunction("callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"),
+]
+
+_ASSEMBLY_DESTINATION_INDEX = 1
+
+
 def controlled_delegatecall(function: FunctionContract) -> list[Node]:
     ret = []
     for ir in function.low_level_calls:
-        if ir.function_name in [
-            "delegatecall",
-            "callcode",
-        ]:
+        if ir.function_name in _DELEGATECALL_LOW_LEVEL_NAMES:
             if is_tainted(ir.destination, function.contract):
+                ret.append(ir.node)
+    for ir in function.solidity_calls:
+        if ir.function in _DELEGATECALL_SOLIDITY_FUNCTIONS:
+            destination = ir.arguments[_ASSEMBLY_DESTINATION_INDEX]
+            if is_tainted(destination, function.contract):
                 ret.append(ir.node)
     return ret
 

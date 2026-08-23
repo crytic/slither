@@ -665,6 +665,21 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ControlledDelegateCall,
+        "assembly_delegatecall.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ControlledDelegateCall,
+        "assembly_delegatecall.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ControlledDelegateCall,
+        "assembly_delegatecall.sol",
+        "0.8.15",
+    ),
+    Test(
         all_detectors.UninitializedLocalVars,
         "uninitialized_local_variable.sol",
         "0.4.25",
