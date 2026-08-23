@@ -8,22 +8,34 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
+# delegatecall/callcode run the callee's code in this contract's context, so a selfdestruct
+# in the callee destroys this contract.
+_DESTRUCTIVE_LOW_LEVEL_CALLS = ["delegatecall", "callcode"]
+
+# Inline assembly calls are parsed as SolidityCall, not LowLevelCall, so the assembly forms of
+# delegatecall/callcode have to be matched separately (same split as in the locked-ether
+# detector).
+_DESTRUCTIVE_SOLIDITY_CALLS = [
+    SolidityFunction("suicide(address)"),
+    SolidityFunction("selfdestruct(address)"),
+    SolidityFunction("delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"),
+    SolidityFunction("callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"),
+]
+
+
 def _can_be_destroyed(contract: Contract) -> list[Function]:
     targets = []
     for f in contract.functions_entry_points:
         found = False
         for ir in f.all_low_level_calls():
-            if ir.function_name in ["delegatecall", "codecall"]:
+            if ir.function_name in _DESTRUCTIVE_LOW_LEVEL_CALLS:
                 targets.append(f)
                 found = True
                 break
 
         if not found:
             for ir in f.all_solidity_calls():
-                if ir.function in [
-                    SolidityFunction("suicide(address)"),
-                    SolidityFunction("selfdestruct(address)"),
-                ]:
+                if ir.function in _DESTRUCTIVE_SOLIDITY_CALLS:
                     targets.append(f)
                     break
 
