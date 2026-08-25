@@ -31,3 +31,18 @@ contract AssemblyCallcode is Initializable{
         }
     }
 }
+
+contract AssemblySelfdestruct is Initializable{
+    address payable owner;
+
+    function initialize() external initializer{
+        require(owner == address(0));
+        owner = msg.sender;
+    }
+    function kill() external{
+        require(msg.sender == owner);
+        assembly {
+            selfdestruct(caller())
+        }
+    }
+}

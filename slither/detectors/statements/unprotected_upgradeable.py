@@ -13,11 +13,15 @@ from slither.utils.output import Output
 _DESTRUCTIVE_LOW_LEVEL_CALLS = ["delegatecall", "callcode"]
 
 # Inline assembly calls are parsed as SolidityCall, not LowLevelCall, so the assembly forms of
-# delegatecall/callcode have to be matched separately (same split as in the locked-ether
-# detector).
+# selfdestruct/delegatecall/callcode have to be matched separately (same split as in the
+# locked-ether detector). Yul builtins are registered with one uint256 parameter per stack
+# argument (format_function_descriptor in slither/solc_parsing/yul/evm_functions.py), so their
+# signatures differ from the high-level ones. "suicide" is not a Yul builtin, so it has no
+# assembly form.
 _DESTRUCTIVE_SOLIDITY_CALLS = [
     SolidityFunction("suicide(address)"),
     SolidityFunction("selfdestruct(address)"),
+    SolidityFunction("selfdestruct(uint256)"),
     SolidityFunction("delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"),
     SolidityFunction("callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"),
 ]
