@@ -964,6 +964,11 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "NativeCallcode.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.5.16",
     ),
@@ -1014,6 +1019,11 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "AssemblyDestruct.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.7.6",
     ),
@@ -1030,6 +1040,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "AnyInitializer.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AssemblyDestruct.sol",
         "0.7.6",
     ),
     Test(
@@ -1060,6 +1075,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "AnyInitializer.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AssemblyDestruct.sol",
         "0.8.15",
     ),
     Test(
