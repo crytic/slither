@@ -59,7 +59,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install uv and Python ${{ matrix.python }}
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
         with:
           python-version: ${{ matrix.python }}
           activate-environment: true
@@ -74,7 +74,7 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # v31.11.0
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24  # v31.11.1
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
