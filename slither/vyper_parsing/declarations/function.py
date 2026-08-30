@@ -300,6 +300,21 @@ class FunctionVyper:
 
                 link_underlying_nodes(curr_node, node_startLoop)
 
+                counter_initial = Int("-1:-1:-1", -1, 0)
+                range_end = None
+                if isinstance(expr.iter, Call):
+                    # Vyper's optional ``bound`` keyword limits compilation work;
+                    # it does not change the half-open range endpoint.
+                    if len(expr.iter.args) == 1:
+                        range_end = expr.iter.args[0]
+                    elif len(expr.iter.args) == 2:
+                        counter_initial = expr.iter.args[0]
+                        range_end = expr.iter.args[1]
+                    else:
+                        raise ParsingError(
+                            "Vyper range loops must have one or two positional arguments"
+                        )
+
                 local_var = LocalVariable()
                 local_var.set_function(self._function)
                 local_var.set_offset(expr.src, self._function.compilation_unit)
@@ -309,7 +324,7 @@ class FunctionVyper:
                     expr.target.node_id,
                     target=Name("-1:-1:-1", -1, "counter_var"),
                     annotation=Name("-1:-1:-1", -1, "uint256"),
-                    value=Int("-1:-1:-1", -1, 0),
+                    value=counter_initial,
                 )
                 local_var_parser = LocalVariableVyper(local_var, counter_var)
                 self._add_local_variable(local_var_parser)
@@ -347,7 +362,7 @@ class FunctionVyper:
                         "-1:-1:-1",
                         -1,
                         left=Name("-1:-1:-1", -1, "counter_var"),
-                        op="<=",
+                        op="<",
                         right=Call(
                             "-1:-1:-1",
                             -1,
@@ -380,13 +395,12 @@ class FunctionVyper:
                     )
 
                 elif isinstance(expr.iter, Call):  # range
-                    range_val = expr.iter.args[0]
                     cond_expr = Compare(
                         "-1:-1:-1",
                         -1,
                         left=Name("-1:-1:-1", -1, "counter_var"),
-                        op="<=",
-                        right=range_val,
+                        op="<",
+                        right=range_end,
                     )
                     node_condition = self._new_node(NodeType.IFLOOP, expr.src, scope)
                     node_condition.add_unparsed_expression(cond_expr)

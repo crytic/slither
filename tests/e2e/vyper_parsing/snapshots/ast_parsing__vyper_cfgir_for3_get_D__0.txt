@@ -26,11 +26,11 @@ counter_var(uint256) := 0(uint256)"];
 5[label="Node Type: IF_LOOP 5
 
 EXPRESSION:
-counter_var <= len()(_xp)
+counter_var < len()(_xp)
 
 IRs:
 TMP_0(uint256) = SOLIDITY_CALL len()(_xp)
-TMP_1(bool) = counter_var <= TMP_0
+TMP_1(bool) = counter_var < TMP_0
 CONDITION TMP_1"];
 5->7[label="True"];
 5->3[label="False"];
