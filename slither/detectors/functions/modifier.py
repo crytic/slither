@@ -54,7 +54,7 @@ class ModifierDefaultDetection(AbstractDetector):
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
-    modidfier myModif(){
+    modifier myModif(){
         if(..){
            _;
         }

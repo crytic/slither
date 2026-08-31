@@ -47,7 +47,7 @@ If the contract is deployed on a different chain than Ethereum Mainnet the `getP
         registry_functions = [
             "decimals",
             "description",
-            "versiom",
+            "version",
             "latestRoundData",
             "getRoundData",
             "latestAnswer",
