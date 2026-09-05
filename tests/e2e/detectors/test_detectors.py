@@ -1788,6 +1788,11 @@ ALL_TESTS = [
         "unindexed_event_address.sol",
         "0.8.22",
     ),
+    Test(
+        all_detectors.QuantumVulnerableSignatures,
+        "quantum_vulnerable_signatures.sol",
+        "0.8.36",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
