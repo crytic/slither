@@ -23,8 +23,10 @@ def _convert_type_for_solidity_signature_to_string(
         # While having an array of a struct of two uint leads to a (uint, uint)[] signature
         if isinstance(types, ArrayType):
             underlying_type = convert_type_for_solidity_signature(types.type, seen)
+            # Descending through the array adds its element type to the ancestor set, so a
+            # struct that reaches itself via an array still terminates.
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
-                underlying_type, seen
+                underlying_type, seen | {types.type}
             )
 
             if types.length is None:
@@ -70,9 +72,13 @@ def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list
     #    function f(St memory s) internal{}
     #
     # }
+    # `seen` tracks the ancestors of `t` in the current descent, not every type visited
+    # anywhere in the traversal. Mutating a single shared set would make a type that appears
+    # twice as a *sibling* (e.g. two fields of the same user defined type) look like a
+    # recursive back-edge, and the second occurrence would be returned unconverted.
     if t in seen:
         return t
-    seen.add(t)
+    seen = seen | {t}
 
     if isinstance(t, UserDefinedType):
         underlying_type = t.type
