@@ -1,0 +1,18 @@
+SignatureVerifier.verifyLibrary(bytes32,bytes) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#35-37) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- lastSigner = hash.recover(sig) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#36)
+
+SignatureVerifier.verifyBuiltin(bytes32,uint8,bytes32,bytes32) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#31-33) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- lastSigner = ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#32)
+
+SignatureVerifier.claim(bytes32,uint8,bytes32,bytes32) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#43-46) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- require(bool,string)(ecrecover(bytes32,uint8,bytes32,bytes32)(claimHash,v,r,s) != address(0),invalid signature) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#44)
+
+SignatureVerifier.verifyQualified(bytes32,bytes) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#39-41) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- lastSigner = ECDSA.recover(hash,sig) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#40)
+
+ECDSA.tryRecover(bytes32,bytes) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#17-23) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- recoveredAddress = recover(hash,signature) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#21)
+
+ECDSA.recover(bytes32,bytes) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#4-15) relies on a quantum-vulnerable signature scheme (secp256k1 ECDSA):
+	- ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s) (repo_dl/slither-main/tests/e2e/detectors/test_data/quantum-vulnerable-signatures/0.8.36/quantum_vulnerable_signatures.sol#14)
+
