@@ -26,7 +26,7 @@ from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
-from slither.utils.using_for import USING_FOR_KEY
+from slither.utils.using_for import USING_FOR_KEY, merge_using_for
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 LOGGER = logging.getLogger("ContractSolcParsing")
@@ -637,8 +637,17 @@ class ContractSolc(CallerContextExpression):
 
     def analyze_using_for(self) -> None:
         try:
+            # Inherited using-for directives must be merged, not overwritten:
+            # multiple base contracts can attach libraries to the same type
+            # (e.g. two `using X for *` directives in two fathers), and
+            # dict.update() would silently keep only the last one. The dropped
+            # directive then leaves attached library calls unresolved during
+            # IR generation (see crytic/slither#3082).
+            inherited_using_for: dict[USING_FOR_KEY, list] = {}
             for father in self._contract.inheritance:
-                self._contract.using_for.update(father.using_for)
+                inherited_using_for = merge_using_for(inherited_using_for, father.using_for)
+            self._contract.using_for.clear()
+            self._contract.using_for.update(inherited_using_for)
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
                     if using_for.get("typeName"):
