@@ -1068,6 +1068,38 @@ contract Token{
 
 Set the appropriate return values and vtypes for the defined `ERC721` functions.
 
+## ERC-7562 banned opcodes
+
+### Configuration
+
+* Check: `erc7562-banned-opcodes`
+* Severity: `Medium`
+* Confidence: `High`
+
+### Description
+
+ERC-4337 bundlers simulate `validateUserOp` and `validatePaymasterUserOp` before including a user operation and drop the operation if the simulation reaches an opcode whose result can differ between simulation and inclusion (ERC-7562 rule OP-011): `TIMESTAMP`, `NUMBER`, `ORIGIN`, `GASPRICE`, `COINBASE`, `PREVRANDAO`, `GASLIMIT`, `BASEFEE`, `BLOCKHASH`, `BLOBHASH`, `BLOBBASEFEE` and `SELFDESTRUCT`. `BALANCE` and `SELFBALANCE` are allowed only for staked entities (OP-080).
+Nothing on-chain enforces these rules. A contract that breaks them compiles, passes tests that call `EntryPoint.handleOps` directly, and is then rejected by every bundler once deployed. The detector reports each banned opcode reachable from a validation function through internal calls, library calls and modifiers, for every deployable contract.
+
+### Exploit Scenario
+
+```solidity
+contract Paymaster is IPaymaster {
+    function validatePaymasterUserOp(PackedUserOperation calldata userOp, bytes32, uint256 maxCost)
+        external returns (bytes memory context, uint256 validationData)
+    {
+        context = abi.encode(userOp.sender, maxCost, block.timestamp);
+        validationData = _packValidationData(false, uint48(block.timestamp + 1 days), uint48(block.timestamp));
+    }
+}
+```
+
+`Paymaster` reads `block.timestamp` during validation. Every test that calls `EntryPoint.handleOps` passes, but bundlers reject each user operation that names the paymaster, so it cannot sponsor anything in production.
+
+### Recommendation
+
+Remove the banned opcode from every path the validation function can reach, including modifiers and library calls. Express time bounds through the `validAfter` and `validUntil` fields of the returned `validationData` and let the EntryPoint enforce them. Identify the caller with `msg.sender` rather than `tx.origin`. If validation must read a balance, stake the entity with the EntryPoint.
+
 ## Dangerous strict equalities
 
 ### Configuration
