@@ -3,6 +3,8 @@ from enum import Enum
 
 from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
+from slither.core.solidity_types.elementary_type import Int, Uint
+from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -99,6 +101,35 @@ class BinaryType(Enum):
         ]
 
 
+# Shift operators use the type of the left operand (the value being shifted), and
+# exponentiation uses the type of the base, regardless of the other operand's type.
+# See https://docs.soliditylang.org/en/latest/types.html#operators
+_RESULT_TYPE_IS_LEFT_TYPE = {
+    BinaryType.LEFT_SHIFT,
+    BinaryType.RIGHT_SHIFT,
+    BinaryType.POWER,
+}
+
+
+def _arithmetic_result_type(left_type: Type, right_type: Type) -> Type:
+    """
+    Solidity requires the operands of arithmetic/bitwise operators (+, -, *, /, %, &, |, ^)
+    to share a common type and implicitly widens the narrower int/uint operand to the wider
+    one; the result takes that wider type. Shift operators and exponentiation are exceptions
+    handled by the caller before this is reached.
+    """
+    if (
+        isinstance(left_type, ElementaryType)
+        and isinstance(right_type, ElementaryType)
+        and left_type.type in Int + Uint
+        and right_type.type in Int + Uint
+        and (left_type.type in Int) == (right_type.type in Int)
+        and right_type.size > left_type.size
+    ):
+        return right_type
+    return left_type
+
+
 class Binary(OperationWithLValue):
     def __init__(
         self,
@@ -117,8 +148,10 @@ class Binary(OperationWithLValue):
         self._lvalue = result
         if BinaryType.return_bool(operation_type):
             result.set_type(ElementaryType("bool"))
-        else:
+        elif operation_type in _RESULT_TYPE_IS_LEFT_TYPE:
             result.set_type(left_variable.type)
+        else:
+            result.set_type(_arithmetic_result_type(left_variable.type, right_variable.type))
 
     @property
     def read(self) -> list[RVALUE | LVALUE | Function]:
