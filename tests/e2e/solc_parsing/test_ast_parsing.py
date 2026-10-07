@@ -485,6 +485,7 @@ ALL_TESTS = [
     Test("using_for_global_user_defined_operator_1.sol", ["0.8.24"]),
     Test("require-error.sol", ["0.8.27"]),
     Test("yul-solady.sol", ["0.8.27"]),
+    Test("yul-function-pointer-members.sol", ["0.8.27"]),
 ]
 # create the output folder if needed
 try:
