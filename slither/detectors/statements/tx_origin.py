@@ -62,7 +62,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
 
     def detect_tx_origin(self, contract: Contract) -> list[tuple[FunctionContract, list[Node]]]:
         ret = []
-        for f in contract.functions:
+        for f in contract.functions_and_modifiers:
             nodes = f.nodes
             condtional_nodes = [
                 n for n in nodes if n.contains_if() or n.contains_require_or_assert()
@@ -75,7 +75,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
         return ret
 
     def _detect(self) -> list[Output]:
-        """Detect the functions that use tx.origin in a conditional node"""
+        """Detect functions and modifiers that use tx.origin in a conditional node."""
         results = []
         for c in self.contracts:
             values = self.detect_tx_origin(c)
