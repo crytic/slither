@@ -1,0 +1,42 @@
+Reentrancy in ReentrancyInternalCall.badNested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#17-20):
+	External calls:
+	- _nested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#19)
+		- success = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#34)
+	State variables written after the call(s):
+	- _nested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#19)
+		- counter = 9 (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#36)
+	ReentrancyInternalCall.counter (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#2) can be used in cross function reentrancies:
+	- ReentrancyInternalCall._callThenWrite() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#33-37)
+	- ReentrancyInternalCall._callThenWriteValue(uint256) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#39-43)
+	- ReentrancyInternalCall.bad() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#6-9)
+	- ReentrancyInternalCall.badArgument() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#12-14)
+	- ReentrancyInternalCall.badNested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#17-20)
+
+Reentrancy in ReentrancyInternalCall.bad() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#6-9):
+	External calls:
+	- _callThenWrite() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#8)
+		- success = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#34)
+	State variables written after the call(s):
+	- _callThenWrite() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#8)
+		- counter = 9 (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#36)
+	ReentrancyInternalCall.counter (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#2) can be used in cross function reentrancies:
+	- ReentrancyInternalCall._callThenWrite() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#33-37)
+	- ReentrancyInternalCall._callThenWriteValue(uint256) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#39-43)
+	- ReentrancyInternalCall.bad() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#6-9)
+	- ReentrancyInternalCall.badArgument() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#12-14)
+	- ReentrancyInternalCall.badNested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#17-20)
+
+Reentrancy in ReentrancyInternalCall.badArgument() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#12-14):
+	External calls:
+	- _callThenWriteValue(counter) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#13)
+		- success = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#40)
+	State variables written after the call(s):
+	- _callThenWriteValue(counter) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#13)
+		- counter = value + 1 (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#42)
+	ReentrancyInternalCall.counter (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#2) can be used in cross function reentrancies:
+	- ReentrancyInternalCall._callThenWrite() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#33-37)
+	- ReentrancyInternalCall._callThenWriteValue(uint256) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#39-43)
+	- ReentrancyInternalCall.bad() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#6-9)
+	- ReentrancyInternalCall.badArgument() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#12-14)
+	- ReentrancyInternalCall.badNested() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.4.25/reentrancy_internal_call.sol#17-20)
+
