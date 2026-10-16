@@ -13,6 +13,7 @@ from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_sel
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
 from slither.utils.function import get_function_id
+from slither.tools.mutator.mutators.ROR import ROR
 from slither.tools.mutator.mutators.RR import RR
 
 
@@ -283,3 +284,55 @@ def test_should_mutate_function_includes_modifier(solc_binary_path):
         for mod in contract.modifiers:
             if mod.name == "onlyOwner":
                 assert mutator.should_mutate_function(mod) is True
+
+
+def test_ror_replaces_only_the_operator(solc_binary_path):
+    """Each ROR mutant changes the operator of one comparison and leaves the rest of the statement intact"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "ror" / "Ror.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path, compile_force_framework="solc")
+    contract = next(c for c in sl.contracts if c.name == "Ror")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mutator = ROR(
+            sl.compilation_units[0],
+            timeout=30,
+            testing_command="true",
+            testing_directory=None,
+            contract_instance=contract,
+            solc_remappings=None,
+            verbose=False,
+            output_folder=Path(tmpdir),
+            dont_mutate_line=[],
+            target_selectors=None,
+            target_modifiers=None,
+        )
+        patches = mutator._mutate()["patches"][mutator.in_file]
+
+    source = Path(file_path).read_bytes()
+    mutants = set()
+    for patch in patches:
+        mutated = source[: patch["start"]] + patch["new_string"].encode() + source[patch["end"] :]
+        mutants.add(mutated.decode().splitlines()[patch["line_number"] - 1].strip())
+
+        with tempfile.NamedTemporaryFile("wb", suffix=".sol") as mutant_file:
+            mutant_file.write(mutated)
+            mutant_file.flush()
+            compiled = subprocess.run(
+                [solc_path, mutant_file.name], capture_output=True, check=False
+            )
+        assert compiled.returncode == 0, compiled.stderr.decode()
+
+    others = ["<", ">", "<=", ">=", "==", "!="]
+    expected = set()
+    for op in others:
+        if op != "==":
+            expected.add(f"require(a {op} b);")
+        if op != "<":
+            expected.add(f"if (a {op} b && b <= c) {{")
+        if op != "<=":
+            expected.add(f"if (a < b && b {op} c) {{")
+        if op != "!=":
+            expected.add(f"bool x = a {op} 0;")
+    # Addresses only support == and !=, so `a == b` on addresses is not mutated.
+    assert mutants == expected
