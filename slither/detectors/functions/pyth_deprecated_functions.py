@@ -55,10 +55,11 @@ The function `A` uses the deprecated `getPrice` Pyth function.
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:
-                if (
-                    target_contract.name == "IPyth"
-                    and ir.function_name in DEPRECATED_PYTH_FUNCTIONS
-                ):
+                # Unresolved library calls can surface a plain string as the
+                # target instead of a Contract (see issue #3103); skip those.
+                if isinstance(target_contract, str):
+                    continue
+                if target_contract.name == "IPyth" and ir.function_name in DEPRECATED_PYTH_FUNCTIONS:
                     info: DETECTOR_INFO = [
                         "The following Pyth deprecated function is used\n\t- ",
                         ir.node,
