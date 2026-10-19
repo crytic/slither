@@ -89,6 +89,10 @@ The `bad` function gets the price from Chronicle by calling the read function ho
                 contract.all_high_level_calls,
                 key=lambda x: (x[1].node.node_id, x[1].node.function.full_name),
             ):
+                # Unresolved library calls can surface a plain string as the
+                # target instead of a Contract (see issue #3103); skip those.
+                if isinstance(target_contract, str):
+                    continue
                 if target_contract.name in ("IScribe", "IChronicle") and ir.function_name in (
                     "read",
                     "tryRead",
