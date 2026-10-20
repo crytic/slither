@@ -1,0 +1,10 @@
+ParentErrors.inheritedRevert(bool) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#35) uses a literal revert string in require(bool,string)(ok,inherited) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#35); consider a named custom error (changes the error ABI).
+
+CustomErrorsCases.literalRevert() (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#13-15) uses a literal revert string in revert(string)(denied) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#14); consider a named custom error (changes the error ABI).
+
+CustomErrorsCases.literalRequire(bool) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#9-11) uses a literal revert string in require(bool,string)(ok,denied) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#10); consider a named custom error (changes the error ABI).
+
+topLevelRequire(bool) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#32) uses a literal revert string in require(bool,string)(ok,top level) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#32); consider a named custom error (changes the error ABI).
+
+CustomErrorsCases.allowed(bool) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#6) uses a literal revert string in require(bool,string)(ok,modifier) (tests/e2e/detectors/test_data/custom-errors/0.8.20/custom_errors.sol#6); consider a named custom error (changes the error ABI).
+
