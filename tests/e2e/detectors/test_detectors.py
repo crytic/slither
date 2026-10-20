@@ -56,6 +56,8 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
+    Test(all_detectors.GasCacheStorageReads, "cache_storage_reads.sol", "0.8.20"),
+    Test(all_detectors.GasCacheStorageReads, "cache_storage_reads.sol", "0.8.30"),
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
