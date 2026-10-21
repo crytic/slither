@@ -1734,6 +1734,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.IncorrectOperatorExponentiation,
+        "incorrect_exp_assembly.sol",
+        "0.8.26",
+    ),
+    Test(
         all_detectors.TautologicalCompare,
         "compare.sol",
         "0.8.20",
