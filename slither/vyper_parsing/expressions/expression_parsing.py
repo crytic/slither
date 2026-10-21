@@ -6,6 +6,7 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.core.declarations import SolidityFunction, FunctionContract
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.expressions import (
     CallExpression,
     ElementaryTypeNameExpression,
@@ -265,34 +266,34 @@ def parse_expression(
 
         else:
             expr = parse_expression(expression.value, caller_context)
-            member_name_ret_type = None
-            # (recover_type_1) This may be a call to an interface and we don't have the return types,
-            # so we see if there's a function identifier with `member_name` and propagate the type to
-            # its enclosing `CallExpression`. https://github.com/vyperlang/vyper/issues/3581
-            if (
-                isinstance(expr, Identifier)
-                and isinstance(expr.value, StateVariable)
-                and isinstance(expr.value.type, UserDefinedType)
-                and isinstance(expr.value.type.type, Contract)
-            ):
-                # If we access a member of an interface, needs to be interface instead of self namespace
-                var = find_variable(member_name, expr.value.type.type)
-                if isinstance(var, FunctionContract):
-                    rets = var.returns
-                    member_name_ret_type = vars_to_typestr(rets)
+        member_name_ret_type = None
+        # (recover_type_1) This may be a call to an interface and we don't have the return types,
+        # so we see if there's a function identifier with `member_name` and propagate the type to
+        # its enclosing `CallExpression`. https://github.com/vyperlang/vyper/issues/3581
+        if (
+            isinstance(expr, Identifier)
+            and isinstance(expr.value, (StateVariable, LocalVariable))
+            and isinstance(expr.value.type, UserDefinedType)
+            and isinstance(expr.value.type.type, Contract)
+        ):
+            # If we access a member of an interface, needs to be interface instead of self namespace
+            var = find_variable(member_name, expr.value.type.type)
+            if isinstance(var, FunctionContract):
+                rets = var.returns
+                member_name_ret_type = vars_to_typestr(rets)
 
-            if (
-                isinstance(expr, TypeConversion)
-                and isinstance(expr.type, UserDefinedType)
-                and isinstance(expr.type.type, Contract)
-            ):
-                # If we access a member of an interface, needs to be interface instead of self namespace
-                var = find_variable(member_name, expr.type.type)
-                if isinstance(var, FunctionContract):
-                    rets = var.returns
-                    member_name_ret_type = vars_to_typestr(rets)
+        if (
+            isinstance(expr, TypeConversion)
+            and isinstance(expr.type, UserDefinedType)
+            and isinstance(expr.type.type, Contract)
+        ):
+            # If we access a member of an interface, needs to be interface instead of self namespace
+            var = find_variable(member_name, expr.type.type)
+            if isinstance(var, FunctionContract):
+                rets = var.returns
+                member_name_ret_type = vars_to_typestr(rets)
 
-            member_access = MemberAccess(member_name, member_name_ret_type, expr)
+        member_access = MemberAccess(member_name, member_name_ret_type, expr)
 
         member_access.set_offset(expression.src, caller_context.compilation_unit)
         return member_access

@@ -1,14 +1,47 @@
 #
 
 
+import pytest
+
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations import (
     Phi,
     InternalCall,
+    Unpack,
 )
 from slither.slithir.variables import (
     Constant,
 )
+
+
+@pytest.mark.parametrize("receiver", ["x", "local", "self.tester", "Test(x.address)"])
+def test_interface_tuple_return_from_variable(slither_from_vyper_source, receiver):
+    with slither_from_vyper_source(
+        f"""
+interface Test:
+    def pair() -> (address, uint256): nonpayable
+
+tester: Test
+
+@internal
+def read_pair(x: Test):
+    local: Test = x
+    a: address = empty(address)
+    b: uint256 = 0
+    a, b = {receiver}.pair()
+"""
+    ) as sl:
+        interface = next(c for c in sl.contracts if c.is_interface)
+        contract = next(c for c in sl.contracts if not c.is_interface)
+        function = next(f for f in contract.functions if f.name == "read_pair")
+        called_contract, call = function.high_level_calls[0]
+        assert called_contract == interface
+        assert call.function.signature_str == "pair() returns(address,uint256)"
+        unpacks = [ir for node in function.nodes for ir in node.irs if isinstance(ir, Unpack)]
+        assert [(ir.lvalue.name, ir.index, str(ir.lvalue.type)) for ir in unpacks] == [
+            ("a", 0, "address"),
+            ("b", 1, "uint256"),
+        ]
 
 
 def test_interface_conversion_and_call_resolution(slither_from_vyper_source):
