@@ -13,6 +13,7 @@ from slither.printers.inheritance.inheritance import PrinterInheritance
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.inheritance.c3_linearization import PrinterC3Linearization
 from slither.printers.summary.cheatcodes import CheatcodePrinter
+from slither.printers.summary.properties import PropertiesPrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
 
@@ -216,3 +217,28 @@ def test_c3_linearization_printer(solc_binary_path) -> None:
     # Check constructor order is reverse of linearization
     d_constructors = linearizations["D"]["constructor_order"]
     assert d_constructors == ["A", "B", "C", "D"]
+
+
+def test_properties_printer(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
+    standard_json = SolcStandardJson()
+    standard_json.add_source_file(
+        Path(TEST_DATA_DIR, "test_printer_properties", "properties.sol").as_posix()
+    )
+    compilation = CryticCompile(standard_json, solc=solc_path)
+    slither = Slither(compilation)
+
+    slither.register_printer(PropertiesPrinter)
+    assert len(slither._printers) > 0
+    printer = slither._printers[0]
+    output = printer.output("")
+
+    description = output.data["description"]
+    # Markdown table header, see https://github.com/crytic/slither/issues/606
+    assert "| Description | Name | Contract | Result |" in description
+    # Both property functions are listed with markdown hyperlinks
+    assert "[echidna_total_supply_capped](" in description
+    assert "[crytic_balance_never_negative](" in description
+    assert "PropertiesExample" in description
+    # Regular functions are not properties
+    assert "transfer" not in description
