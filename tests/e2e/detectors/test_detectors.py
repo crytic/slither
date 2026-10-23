@@ -918,6 +918,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.IncorrectStrictEquality,
+        "incorrect_equality_view_pure.sol",
+        "0.8.35",
+    ),
+    Test(
         all_detectors.TooManyDigits,
         "too_many_digits.sol",
         "0.4.25",
