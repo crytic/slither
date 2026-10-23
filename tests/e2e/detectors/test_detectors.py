@@ -137,6 +137,21 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "reentrancy_internal_call.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "reentrancy_internal_call.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "reentrancy_internal_call.sol",
+        "0.8.10",
+    ),
+    Test(
         all_detectors.BooleanEquality,
         "boolean-constant-equality.sol",
         "0.4.25",
@@ -366,6 +381,9 @@ ALL_TESTS = [
     Test(all_detectors.ReentrancyEth, "reentrancy_with_non_reentrant.sol", "0.8.10"),
     # Test parse_ignore_comments
     Test(all_detectors.ReentrancyEth, "reentrancy_filtered_comments.sol", "0.8.10"),
+    Test(all_detectors.ReentrancyEth, "reentrancy_internal_call.sol", "0.4.25"),
+    Test(all_detectors.ReentrancyEth, "reentrancy_internal_call.sol", "0.7.6"),
+    Test(all_detectors.ReentrancyEth, "reentrancy_internal_call.sol", "0.8.10"),
     Test(
         all_detectors.UninitializedStorageVars,
         "uninitialized_storage_pointer.sol",
