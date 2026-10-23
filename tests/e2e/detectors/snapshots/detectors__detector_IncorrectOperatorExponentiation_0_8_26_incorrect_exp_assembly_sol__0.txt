@@ -1,0 +1,6 @@
+Test.goodAssemblyThenSolidity(uint256) (tests/e2e/detectors/test_data/incorrect-exp/0.8.26/incorrect_exp_assembly.sol#14-20) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - r = r ^ 10 (tests/e2e/detectors/test_data/incorrect-exp/0.8.26/incorrect_exp_assembly.sol#19)
+
+Test.bad(uint256) (tests/e2e/detectors/test_data/incorrect-exp/0.8.26/incorrect_exp_assembly.sol#3-5) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - a ^ 2 (tests/e2e/detectors/test_data/incorrect-exp/0.8.26/incorrect_exp_assembly.sol#4)
+
