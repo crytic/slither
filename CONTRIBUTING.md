@@ -36,11 +36,16 @@ For development setup, we use [uv](https://github.com/astral-sh/uv):
 # Install uv if you haven't already
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Install prek if you haven't already (make dev uses it to set up pre-commit hooks)
+uv tool install prek
+
 # Setup development environment
 make dev  # Installs dependencies and pre-commit hooks
 ```
 
-Run `make test` for all tests, or `make test TESTS=$name` for specific tests. List test names with `pytest tests --collect-only`.
+Run `make test` for all tests, or `make test TESTS=$name` for specific tests. List test names with `uv run pytest tests --collect-only`.
+
+Running the full test suite also requires two external tools on `PATH`: the `vyper` compiler (CI uses v0.3.7) for the Vyper parsing and unit tests, and `ganache` (`npm install --global ganache`) for the `slither-read-storage` tests. Without them, those tests fail; the Solidity tests run fine.
 
 ### Linters
 
@@ -71,9 +76,9 @@ For each new detector, at least one regression tests must be present.
 1. Create a folder in `tests/e2e/detectors/test_data` with the detector's argument name.
 2. Create a test contract in `tests/e2e/detectors/test_data/<detector_name>/`.
 3. Update `ALL_TESTS` in `tests/e2e/detectors/test_detectors.py`.
-4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a ZIP file of the compilation artifacts.
-5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
-6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
+4. Run `uv run python tests/e2e/detectors/test_detectors.py --compile` to create a ZIP file of the compilation artifacts.
+5. `uv run pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `uv run pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
+6. Run `uv run pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
 
 > **Tip:** Filter with `-k ReentrancyReadBeforeWritten` (class) or `-k 0.7.6` (version). Add `--cov=slither/detectors --cov-report=html` for coverage.
 
@@ -81,9 +86,9 @@ For each new detector, at least one regression tests must be present.
 
 1. Create a test in `tests/e2e/solc_parsing/`
 2. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
-3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
-4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
-5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
+3. Run `uv run python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
+4. Run `uv run python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
+5. Run `uv run pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
 > **Tip:** Filter with `-k user_defined_value_type` (filename), `-k 0.8.12` (version), or `-k legacy` (format). Add `--cov=slither/solc_parsing --cov-report=html` for coverage.
 
