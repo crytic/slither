@@ -134,3 +134,49 @@ def test_using_for_constant_folding(slither_from_solidity_source) -> None:
             if isinstance(ir, LibraryCall) and ir.function_name == "add":
                 found = True
         assert found
+
+
+def test_using_for_inherited_wildcard_collision(slither_from_solidity_source) -> None:
+    # https://github.com/crytic/slither/issues/3082
+    # Two base contracts attach different libraries to the same key ("*") through
+    # `using ... for *`. Merging the inherited directives with dict.update() used to
+    # keep only the last one, leaving the attached library calls inherited from the
+    # other base contract unresolved during IR generation.
+    source = """
+        library LibA {
+            function ping(uint256 v) internal pure returns (uint256) { return v + 1; }
+        }
+        library LibB {
+            function pong(uint256 v) internal pure returns (uint256) { return v + 2; }
+        }
+        abstract contract BaseA {
+            using LibA for *;
+
+            function callPing(uint256 v) internal pure returns (uint256) {
+                return v.ping();
+            }
+        }
+        abstract contract BaseB {
+            using LibB for *;
+
+            function callPong(uint256 v) internal pure returns (uint256) {
+                return v.pong();
+            }
+        }
+        contract Derived is BaseA, BaseB {
+            function go(uint256 v) external pure returns (uint256) {
+                return callPing(v) + callPong(v);
+            }
+        }
+    """
+    with slither_from_solidity_source(source, solc_version="0.8.29") as slither:
+        derived = slither.get_contract_from_name("Derived")[0]
+        irs = [ir for function in derived.functions for ir in function.all_slithir_operations()]
+        assert any(
+            isinstance(ir, LibraryCall) and ir.destination == "LibA" and ir.function_name == "ping"
+            for ir in irs
+        )
+        assert any(
+            isinstance(ir, LibraryCall) and ir.destination == "LibB" and ir.function_name == "pong"
+            for ir in irs
+        )
