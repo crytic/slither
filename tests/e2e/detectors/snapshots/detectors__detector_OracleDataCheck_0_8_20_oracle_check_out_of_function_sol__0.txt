@@ -1,0 +1,3 @@
+The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call ChainlinkETHUSDPriceConsumer.priceFeed.latestRoundData (tests/e2e/detectors/test_data/oracle-data-validation/0.8.20/oracle_check_out_of_function.sol#58).
+The variation of price is checked on the lines ['tests/e2e/detectors/test_data/oracle-data-validation/0.8.20/oracle_check_out_of_function.sol#50']. Not in the original function where the Oracle call is performed.
+

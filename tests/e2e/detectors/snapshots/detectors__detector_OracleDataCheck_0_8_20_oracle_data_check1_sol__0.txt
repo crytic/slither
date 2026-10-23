@@ -1,0 +1,4 @@
+The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call OracleWithoutChecks.priceFeed.latestRoundData (test_data/oracle/0.8.20/oracle_data_check1.sol#46).
+
+The oracle OracleWithoutChecks.priceFeed (test_data/oracle/0.8.20/oracle_data_check1.sol#46) returns the variables ['price'] which are not validated. It can potentially lead to unexpected behaviour.
+
