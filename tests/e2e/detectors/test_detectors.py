@@ -56,6 +56,8 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
+    Test(all_detectors.GasReadonlyCalldata, "readonly_calldata.sol", "0.8.20"),
+    Test(all_detectors.GasReadonlyCalldata, "readonly_calldata.sol", "0.8.30"),
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
