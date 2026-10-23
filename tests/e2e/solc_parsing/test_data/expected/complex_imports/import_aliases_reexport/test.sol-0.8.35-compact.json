@@ -1,0 +1,8 @@
+{
+  "Original": {
+    "run()": "digraph{\n}\n"
+  },
+  "Child": {
+    "run()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  }
+}
