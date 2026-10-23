@@ -1788,6 +1788,11 @@ ALL_TESTS = [
         "unindexed_event_address.sol",
         "0.8.22",
     ),
+    Test(
+        all_detectors.MissingNatspec,
+        "missing_natspec.sol",
+        "0.8.19",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",

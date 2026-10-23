@@ -87,8 +87,12 @@ class FunctionSolc(CallerContextExpression):
 
         self._local_variables_parser: list[LocalVariableSolc | LocalVariableInitFromTupleSolc] = []
 
-        if "documentation" in function_data:
-            function.has_documentation = True
+        documentation = function_data.get("documentation")
+        if documentation is not None:
+            # Old solc versions store the comment as a string; newer ones nest it under "text"
+            function.documentation = (
+                documentation if isinstance(documentation, str) else documentation["text"]
+            )
 
     @property
     def underlying_function(self) -> Function:
