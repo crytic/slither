@@ -1,0 +1,9 @@
+ImplicitAbstractPaymaster.validatePaymasterUserOp(bytes,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#14-17) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of ConcretePaymaster:
+	- now + 86400 (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#25)
+
+LegacyAccount.validateUserOp(bytes,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#4-8) reaches PREVRANDAO (banned by ERC-7562 OP-011) during validation of LegacyAccount:
+	- block.difficulty (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#7)
+
+LegacyAccount.validateUserOp(bytes,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#4-8) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of LegacyAccount:
+	- require(bool,string)(now > 0,clock) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.5.16/erc7562_banned_opcodes.sol#6)
+
