@@ -1,0 +1,6 @@
+MixedWidths (tests/e2e/detectors/test_data/storage-packing/0.8.20/storage_packing.sol#51-56) could use 2 storage slots instead of 3 with field order a, c, b, d. Fresh layouts only: reordering deployed storage can corrupt data.
+
+Unpacked (tests/e2e/detectors/test_data/storage-packing/0.8.20/storage_packing.sol#4-8) could use 2 storage slots instead of 3 with field order b, a, c. Fresh layouts only: reordering deployed storage can corrupt data.
+
+StructCases.UnpackedStruct (tests/e2e/detectors/test_data/storage-packing/0.8.20/storage_packing.sol#17) could use 2 storage slots instead of 3 with field order b, a, c. Fresh layouts only: reordering deployed storage can corrupt data.
+
