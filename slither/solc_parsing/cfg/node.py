@@ -63,9 +63,9 @@ class NodeSolc:
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
 
-            # Classify calls into internal and external
-            # Internal: direct calls, Solidity built-ins (abi.encode, etc.), library calls
-            # External: calls to external contracts
+            # Classify calls into internal and external.
+            # Note: using-for library calls are re-classified later in
+            # _analyze_using_for once the directives are available.
             internal, external = classify_calls(self._node.calls_as_expression)
             self._node.internal_calls_as_expressions = internal
             self._node.external_calls_as_expressions = external

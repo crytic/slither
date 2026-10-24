@@ -701,6 +701,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def _analyze_using_for(
         self, contracts_to_be_analyzed: list[ContractSolc], libraries: list[ContractSolc]
     ) -> None:
+        from slither.visitors.expression.call_classification import classify_calls
+
         self._analyze_top_level_using_for()
 
         for lib in libraries:
@@ -720,6 +722,25 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 contract.set_is_analyzed(True)
             else:
                 contracts_to_be_analyzed += [contract]
+
+        # Re-classify calls now that using-for directives are available.
+        # The initial classification in NodeSolc.analyze_expressions runs
+        # before using-for is parsed, so library calls via ``using L for T``
+        # are incorrectly marked external.  Re-running with the complete
+        # using-for map fixes this.
+        for contract in self._underlying_contract_to_parser:
+            using_for = contract.using_for_complete
+            if not using_for:
+                continue
+            for func in contract.functions_declared + contract.modifiers_declared:
+                for node in func.nodes:
+                    if not node.calls_as_expression:
+                        continue
+                    internal, external = classify_calls(
+                        node.calls_as_expression, using_for=using_for
+                    )
+                    node.internal_calls_as_expressions = internal
+                    node.external_calls_as_expressions = external
 
     def _analyze_enums(self, contract: ContractSolc) -> None:
         # Enum must be analyzed first
