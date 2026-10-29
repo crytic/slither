@@ -31,7 +31,7 @@ def convert_subdenomination(value: str, sub: str) -> int:
     if sub == "weeks":
         return int(decimal_value * 60 * 60 * 24 * 7)
     if sub == "years":
-        return int(decimal_value * 60 * 60 * 24 * 7 * 365)
+        return int(decimal_value * 60 * 60 * 24 * 365)
 
     raise SlitherException(f"Subdemonination conversion impossible {decimal_value} {sub}")
 
