@@ -425,3 +425,34 @@ def __default__():
             ElementaryType("address"),
             MappingType(ElementaryType("address"), ElementaryType("uint256")),
         )
+
+
+def test_vyper_function_body_starting_with_pass(slither_from_vyper_source) -> None:
+    """`pass` as the first statement must not discard the rest of the body.
+
+    https://github.com/crytic/slither/issues/2192
+    """
+    with slither_from_vyper_source(
+        """
+var: uint256
+
+@internal
+def bar(a: uint256):
+    pass
+    self.var = 2
+
+@internal
+def only_pass():
+    pass
+"""
+    ) as sl:
+        functions = sl.contracts[0].available_functions_as_dict()
+
+        f = functions["bar(uint256)"]
+        assert f.is_implemented
+        assert not f.is_empty
+        assert f.nodes
+
+        f = functions["only_pass()"]
+        assert not f.is_implemented
+        assert f.is_empty
