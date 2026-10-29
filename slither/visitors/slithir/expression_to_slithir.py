@@ -526,15 +526,25 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
 
-        if isinstance(expression.expression, CallExpression) and expression.member_name in [
+        # Redundant parentheses, e.g. `(type(X)).max`, wrap the call in a single-element
+        # TupleExpression. Unwrap them so the type(X).max/min folding below still applies;
+        # otherwise the member access reaches convert.py and raises "type(X).max is unknown".
+        called_expression = expression.expression
+        while (
+            isinstance(called_expression, TupleExpression)
+            and len(called_expression.expressions) == 1
+        ):
+            called_expression = called_expression.expressions[0]
+
+        if isinstance(called_expression, CallExpression) and expression.member_name in [
             "min",
             "max",
         ]:
-            if isinstance(expression.expression.called, Identifier):
-                if expression.expression.called.value == SolidityFunction("type()"):
-                    assert len(expression.expression.arguments) == 1
+            if isinstance(called_expression.called, Identifier):
+                if called_expression.called.value == SolidityFunction("type()"):
+                    assert len(called_expression.arguments) == 1
                     val = TemporaryVariable(self._node)
-                    type_expression_found = expression.expression.arguments[0]
+                    type_expression_found = called_expression.arguments[0]
                     type_found: ElementaryType | UserDefinedType
                     if isinstance(type_expression_found, ElementaryTypeNameExpression):
                         type_expression_found_type = type_expression_found.type
