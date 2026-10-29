@@ -113,7 +113,15 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                     ]
                     function.entry_point.context[self.key] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
-        all_results = list(set(self.results))
+        all_results = sorted(
+            set(self.results),
+            key=lambda result: (
+                result[0].source_mapping.filename.absolute,
+                result[0].source_mapping.start,
+                result[1].source_mapping.start,
+                result[1].name,
+            ),
+        )
         for function, uninitialized_local_variable in all_results:
             info = [
                 uninitialized_local_variable,
