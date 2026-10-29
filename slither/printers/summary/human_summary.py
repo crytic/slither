@@ -198,7 +198,7 @@ class PrinterHumanSummary(AbstractPrinter):
         ercs = []
         for contract in self.contracts:
             ercs += contract.ercs()
-        return list(set(ercs))
+        return sorted(set(ercs))
 
     def _get_features(self, contract):
         has_payable = False

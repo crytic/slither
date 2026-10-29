@@ -15,6 +15,21 @@ FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
 
 
+def _event_sort_key(finding: FindingValue) -> tuple:
+    # One event may be reached through several call sites. Include those sites
+    # to break ties independently of the identity hashes in the findings set.
+    return (
+        str(finding.variable.name),
+        finding.node.node_id,
+        finding.node.source_mapping.filename.absolute,
+        finding.node.source_mapping.start,
+        tuple(
+            (node.node_id, node.source_mapping.filename.absolute, node.source_mapping.start)
+            for node in finding.nodes
+        ),
+    )
+
+
 class ReentrancyEvent(Reentrancy):
     ARGUMENT = "reentrancy-events"
     HELP = "Reentrancy vulnerabilities leading to out-of-order Events"
@@ -115,7 +130,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
         for (func, calls, send_eth), events in result_sorted:
             calls = sorted(set(calls), key=lambda x: x[0].node_id)
             send_eth = sorted(set(send_eth), key=lambda x: x[0].node_id)
-            events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
+            events = sorted(events, key=_event_sort_key)
 
             info = ["Reentrancy in ", func, ":\n"]
             info += ["\tExternal calls:\n"]

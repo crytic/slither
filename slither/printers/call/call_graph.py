@@ -103,7 +103,7 @@ def _process_internal_call(
 
 
 def _render_external_calls(external_calls: set[str]) -> str:
-    return "\n".join(external_calls)
+    return "\n".join(sorted(external_calls))
 
 
 def _render_internal_calls(
@@ -116,8 +116,8 @@ def _render_internal_calls(
     lines.append(f"subgraph {_contract_subgraph(contract)} {{")
     lines.append(f'label = "{contract.name}"')
 
-    lines.extend(contract_functions[contract])
-    lines.extend(contract_calls[contract])
+    lines.extend(sorted(contract_functions[contract]))
+    lines.extend(sorted(contract_calls[contract]))
 
     lines.append("}")
 
@@ -130,8 +130,8 @@ def _render_solidity_calls(solidity_functions: set[str], solidity_calls: set[str
     lines.append("subgraph cluster_solidity {")
     lines.append('label = "[Solidity]"')
 
-    lines.extend(solidity_functions)
-    lines.extend(solidity_calls)
+    lines.extend(sorted(solidity_functions))
+    lines.extend(sorted(solidity_calls))
 
     lines.append("}")
 
@@ -144,8 +144,8 @@ def _render_toplevel_calls(toplevel_functions: set[str], toplevel_calls: set[str
     lines.append("subgraph cluster_toplevel {")
     lines.append('label = "[Top Level]"')
 
-    lines.extend(toplevel_functions)
-    lines.extend(toplevel_calls)
+    lines.extend(sorted(toplevel_functions))
+    lines.extend(sorted(toplevel_calls))
 
     lines.append("}")
 
@@ -278,7 +278,14 @@ def _process_functions(functions: Sequence[Function]) -> str:
             )
 
     render_internal_calls = ""
-    for contract in all_contracts:
+    for contract in sorted(
+        all_contracts,
+        key=lambda contract: (
+            contract.id,
+            contract.name,
+            contract.source_mapping.filename.absolute,
+        ),
+    ):
         render_internal_calls += _render_internal_calls(
             contract, contract_functions, contract_calls
         )
