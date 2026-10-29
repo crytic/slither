@@ -2,7 +2,9 @@
 Module detecting incorrect operator usage for exponentiation where bitwise xor '^' is used instead of '**'
 """
 
-from slither.core.cfg.node import Node
+from collections.abc import Iterator
+
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Contract, Function
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -34,13 +36,33 @@ def _is_bitwise_xor_on_constant(ir: Operation) -> bool:
     )
 
 
+def _nodes_outside_assembly(function: Function) -> Iterator[Node]:
+    """
+    Yield the nodes of the function that are not part of an inline assembly block.
+    Yul has no exponentiation operator, so `xor` in assembly is never a mistaken `**`.
+    """
+    in_assembly = False
+    for node in function.nodes:
+        if node.type == NodeType.ASSEMBLY:
+            in_assembly = True
+        elif node.type == NodeType.ENDASSEMBLY:
+            in_assembly = False
+        elif not in_assembly:
+            yield node
+
+
 def _detect_incorrect_operator(contract: Contract) -> list[tuple[Function, Node]]:
     ret: list[tuple[Function, Node]] = []
     f: Function
     for f in contract.functions + contract.modifiers:  # type:ignore
         # Heuristic: look for binary expressions with ^ operator where at least one of the operands is a constant, and
         # the constant is not in hex, because hex typically is used with bitwise xor and not exponentiation
-        nodes = [node for node in f.nodes for ir in node.irs if _is_bitwise_xor_on_constant(ir)]
+        nodes = [
+            node
+            for node in _nodes_outside_assembly(f)
+            for ir in node.irs
+            if _is_bitwise_xor_on_constant(ir)
+        ]
         for node in nodes:
             ret.append((f, node))
     return ret
