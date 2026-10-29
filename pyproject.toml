@@ -33,7 +33,7 @@ dependencies = [
     "prettytable>=3.10.2",
     "pycryptodome>=3.4.6",
     "crytic-compile>=0.4.2,<0.5.0",
-    "web3>=7.10,<8",
+    "web3>=7.10,<9",
     "eth-abi>=5.0.1",
     "eth-typing>=5.0.0",
     "eth-utils>=5.0.0",
@@ -45,7 +45,7 @@ simil = ["fasttext>=0.9.0"]
 # Development dependencies using PEP 735 dependency-groups
 [dependency-groups]
 lint = [
-    "ruff==0.14.13",
+    "ruff==0.17.2",
     "yamllint==1.38.0"
 ]
 test = [
