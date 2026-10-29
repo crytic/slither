@@ -1,0 +1,2 @@
+Parameter LibExample.tripwire(uint256).bad_param (tests/e2e/detectors/test_data/naming-convention/0.8.20/naming_convention_dollar_storage.sol#33) is not in mixedCase
+
