@@ -4,9 +4,10 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, Function
+from slither.core.solidity_types import ElementaryType
 from slither.utils.output import Output
-from slither.slithir.operations import InternalCall, OperationWithLValue
+from slither.slithir.operations import Call, InternalCall, OperationWithLValue
 from slither.core.variables.state_variable import StateVariable
 
 Result = list[tuple[Node, list[str]]]
@@ -58,6 +59,29 @@ def costly_operations_in_loop(
         costly_operations_in_loop(son, in_loop_counter, visited, calls_stack, ret)
 
 
+def cacheable_accumulators(function: Function, loop_writes: set[Node]) -> list[StateVariable]:
+    """Identify scalar accumulators whose intermediate storage writes cannot be observed."""
+    if (
+        function.contains_assembly
+        or function.modifiers
+        or sum(n.type is NodeType.STARTLOOP for n in function.nodes) != 1
+        or any(n.type is NodeType.RETURN for n in function.nodes)
+        or any(isinstance(ir, Call) for n in function.nodes for ir in n.irs)
+    ):
+        return []
+    candidates = []
+    for variable in function.state_variables_written:
+        if not variable.is_stored or not isinstance(variable.type, ElementaryType):
+            continue
+        if variable.type.storage_size[1]:
+            continue
+        updates = {n for n in function.nodes if variable in n.state_variables_written}
+        reads = {n for n in function.nodes if variable in n.state_variables_read}
+        if updates and updates <= loop_writes and reads == updates:
+            candidates.append(variable)
+    return sorted(candidates, key=lambda v: v.canonical_name)
+
+
 class CostlyOperationsInLoop(AbstractDetector):
     ARGUMENT = "costly-loop"
     HELP = "Costly operations in a loop"
@@ -100,13 +124,23 @@ contract CostlyOperationsInLoop{
 Incrementing `state_variable` in a loop incurs a lot of gas because of expensive `SSTOREs`, which might lead to an `out-of-gas`."""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "Use a local variable to hold the loop computation result."
+    WIKI_RECOMMENDATION = (
+        "Consider a local accumulator of the same type and a write immediately after loop exit "
+        "only when intermediate state cannot be observed. Preserve arithmetic, break/continue "
+        "and zero-iteration behavior. The optional cacheable_accumulators JSON field identifies "
+        "conservative scalar candidates without calls, assembly, modifiers, nested loops or returns."
+    )
 
     def _detect(self) -> list[Output]:
         """"""
         results: list[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_costly_operations_in_loop(c)
+            loop_writes = {node for node, _ in values}
+            cacheable = {
+                function: cacheable_accumulators(function, loop_writes)
+                for function in {node.function for node, _ in values}
+            }
             for node, calls_stack in values:
                 func = node.function
                 info: DETECTOR_INFO = [func, " has costly operations inside a loop:\n"]
@@ -117,7 +151,11 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
                     for call in calls_stack:
                         info.extend(["\t\t", call, "\n"])
 
-                res = self.generate_result(info)
+                accumulators = [
+                    v.name for v in cacheable[func] if v in node.state_variables_written
+                ]
+                fields = {"cacheable_accumulators": accumulators} if accumulators else None
+                res = self.generate_result(info, fields)
                 results.append(res)
 
         return results

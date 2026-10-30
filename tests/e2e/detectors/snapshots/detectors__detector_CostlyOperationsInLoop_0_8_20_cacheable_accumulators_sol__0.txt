@@ -1,0 +1,42 @@
+StorageWritesCases.observed(uint256,Observer) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#29-31) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#30)
+
+StorageWritesCases.internalCall(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#40-42) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#41)
+
+StorageWritesCases.resetAfterLoop(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#35-38) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#36)
+
+StorageWritesCases.accumulate(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#11-13) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#12)
+
+StorageWritesCases.reset(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#47-49) has costly operations inside a loop:
+	- total = i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#48)
+
+StorageWritesCases.nested(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#56-58) has costly operations inside a loop:
+	- total += j (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#57)
+
+StorageWritesCases.withModifier(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#53-55) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#54)
+
+StorageWritesCases.observedInCondition(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#50-52) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#51)
+
+StorageWritesCases.withContinue(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#14-16) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#15)
+
+StorageWritesCases.emitted(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#10) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#10)
+
+StorageWritesCases.earlyReturn(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#44-46) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#45)
+
+StorageWritesCases.lowLevelCall(uint256,address) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#32-34) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#33)
+
+StorageWritesCases.withBreak(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#17-19) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#18)
+
+StorageWritesCases.doWhileWrite(uint256) (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#20-23) has costly operations inside a loop:
+	- total += i (tests/e2e/detectors/test_data/costly-loop/0.8.20/cacheable_accumulators.sol#22)
+

@@ -3017,7 +3017,9 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
 
 ### Recommendation
 
-Use a local variable to hold the loop computation result.
+Consider a local accumulator of the same type and a write immediately after loop exit only when intermediate state cannot be observed. Preserve arithmetic, break/continue and zero-iteration behavior. The optional cacheable_accumulators JSON field identifies conservative scalar candidates without calls, assembly, modifiers, nested loops or returns.
+
+For conservatively proven candidates, the JSON result includes an `additional_fields.cacheable_accumulators` list. Other costly-loop findings remain advisory and do not imply caching is safe.
 
 ## Dead-code
 
