@@ -105,5 +105,6 @@ from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
 from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
 from .functions.optimism_deprecation import OptimismDeprecation
 from .attributes.unindexed_event_address import UnindexedEventAddress
+from .statements.quantum_vulnerable_signatures import QuantumVulnerableSignatures
 
 # from .statements.unused_import import UnusedImport
