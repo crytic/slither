@@ -4,7 +4,7 @@ The objective of this tutorial is to demonstrate how to use Slither to automatic
 
 - [Installation](#installation)
 - [Command-line usage](#command-line)
-- [Introduction to static analysis](./static_analysis.md): A concise introduction to static analysis
+- [Introduction to static analysis](../api/static_analysis.md): A concise introduction to static analysis
 - [API](../api/api.md): Python API description
 
 Once you feel confident with the material in this README, proceed to the exercises:
