@@ -12,7 +12,7 @@ from slither.core.variables.variable import Variable
 
 
 def _convert_type_for_solidity_signature_to_string(
-    types: Type | list[Type], seen: set[Type]
+    types: Type | list[Type], seen: frozenset[Type]
 ) -> str:
     if isinstance(types, Type):
         # Array might be struct, so we need to go again through the conversion here
@@ -22,9 +22,18 @@ def _convert_type_for_solidity_signature_to_string(
         # Which is currently not supported. This comes down to (uint, uint)[] not being possible in Solidity
         # While having an array of a struct of two uint leads to a (uint, uint)[] signature
         if isinstance(types, ArrayType):
+            from slither.core.declarations import Structure
+
             underlying_type = convert_type_for_solidity_signature(types.type, seen)
+            # Carry the array's element structure on the rendering descent so
+            # that a genuinely recursive structure (e.g. struct St { St[] kids; })
+            # terminates. `seen` is an ancestor path, not a global visited set:
+            # repeated non-recursive fields/types must still be converted.
+            element_seen = seen
+            if isinstance(types.type, UserDefinedType) and isinstance(types.type.type, Structure):
+                element_seen = seen | {types.type}
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
-                underlying_type, seen
+                underlying_type, element_seen
             )
 
             if types.length is None:
@@ -48,12 +57,19 @@ def _convert_type_for_solidity_signature_to_string(
 
 
 def convert_type_for_solidity_signature_to_string(t: Type) -> str:
-    seen: set[Type] = set()
-    types = convert_type_for_solidity_signature(t, seen)
-    return _convert_type_for_solidity_signature_to_string(types, seen)
+    types = convert_type_for_solidity_signature(t, frozenset())
+    # When the top-level type is an expanded structure, it is its own ancestor
+    # while the (possibly array-deferred) fields are rendered below.
+    render_seen: frozenset[Type] = frozenset()
+    if isinstance(t, UserDefinedType):
+        from slither.core.declarations import Structure
+
+        if isinstance(t.type, Structure):
+            render_seen = frozenset({t})
+    return _convert_type_for_solidity_signature_to_string(types, render_seen)
 
 
-def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list[Type]:
+def convert_type_for_solidity_signature(t: Type, seen: frozenset[Type]) -> Type | list[Type]:
     from slither.core.declarations import Contract, Enum, Structure
 
     # Solidity allows recursive type for structure definition if its not used in public /external
@@ -70,10 +86,14 @@ def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list
     #    function f(St memory s) internal{}
     #
     # }
-    if t in seen:
-        return t
-    seen.add(t)
-
+    #
+    # `seen` holds the structures on the current descent (an ancestor path),
+    # passed by value. It only stops expanding a structure that is its own
+    # ancestor. Leaf conversions (contracts, enums, user-defined value types /
+    # aliases and elementary types) are never inserted: otherwise a type
+    # repeated across sibling fields (e.g. two `Amount` fields) would be
+    # misread as a recursive back-edge and left unconverted after its first
+    # occurrence (issue #3064).
     if isinstance(t, UserDefinedType):
         underlying_type = t.type
         if isinstance(underlying_type, Contract):
@@ -89,9 +109,12 @@ def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list
                 uint = str(int(math.log2(number_values)))
             return ElementaryType(f"uint{uint}")
         if isinstance(underlying_type, Structure):
+            if t in seen:
+                return t
+            child_seen = seen | {t}
             # We can't have recursive types for structure, so recursion is ok here
             types = [
-                convert_type_for_solidity_signature(x.type, seen)
+                convert_type_for_solidity_signature(x.type, child_seen)
                 for x in underlying_type.elems_ordered
             ]
             return types
@@ -103,7 +126,7 @@ def convert_type_for_solidity_signature(t: Type, seen: set[Type]) -> Type | list
 
 
 def _export_nested_types_from_variable(
-    current_type: Type, ret: list[Type], seen: set[Type]
+    current_type: Type, ret: list[Type], seen: frozenset[Type]
 ) -> None:
     """
     Export the list of nested types (mapping/array)
@@ -133,7 +156,7 @@ def export_nested_types_from_variable(variable: Variable) -> list[Type]:
     :return: list(Type)
     """
     l: list[Type] = []
-    seen: set[Type] = set()
+    seen: frozenset[Type] = frozenset()
     _export_nested_types_from_variable(variable.type, l, seen)
     return l
 
