@@ -14,6 +14,7 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.function import FunctionLanguage
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.solidity_import_placeholder import (
@@ -1798,6 +1799,7 @@ def convert_type_of_high_and_internal_level_call(
             for f in contract.functions
             if f.name == ir.function_name
             and not f.is_shadowed
+            and f.function_language is not FunctionLanguage.Yul
             and len(f.parameters) == len(ir.arguments)
         ]
         if len(candidates) == 1:
