@@ -3228,3 +3228,26 @@ contract C {
 ### Recommendation
 
 Read the variable directly from storage instead of calling the contract.
+
+## Cache storage reads
+
+### Configuration
+
+* Check: `cache-storage-reads`
+* Severity: `Optimization`
+* Confidence: `Medium`
+
+### Description
+
+Finds scalar storage reads repeated by a single loop when the function never writes that variable. Excludes all calls, modifiers, assembly, nested loops, constants, immutables and reference types. Compiler optimizations may already hoist these reads.
+
+### Example
+
+```solidity
+for (uint256 i; i < count; ++i) { sum += value; }
+// Cache value before the loop when it is invariant and the compiler does not.
+```
+
+### Recommendation
+
+Consider caching the value in a local of the same type immediately before the loop. Inspect generated code and benchmark first: no saving is claimed when the compiler already caches it.
