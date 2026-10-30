@@ -3228,3 +3228,26 @@ contract C {
 ### Recommendation
 
 Read the variable directly from storage instead of calling the contract.
+
+## Custom errors
+
+### Configuration
+
+* Check: `custom-errors`
+* Severity: `Optimization`
+* Confidence: `High`
+
+### Description
+
+Finds nonempty literal strings passed to require or revert on Solidity >=0.8.4. Named custom errors can reduce deployment and revert-data overhead. Dynamic messages, bare reverts and existing custom errors are excluded.
+
+### Example
+
+```solidity
+function check(bool ok) external pure { require(ok, "denied"); }
+// Consider: if (!ok) revert Denied();
+```
+
+### Recommendation
+
+Consider a named custom error, using if (!condition) revert NamedError() where needed. Review changed error selectors, ABI expectations and revert tests before replacing strings.
