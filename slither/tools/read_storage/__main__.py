@@ -4,12 +4,42 @@ Tool to read on-chain storage from EVM
 
 import json
 import argparse
+import os
 
 from crytic_compile import cryticparser
 
 from slither import Slither
 from slither.exceptions import SlitherError
 from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
+
+# Top-level keys expected in a solc Standard JSON *input* file, see
+# https://docs.soliditylang.org/en/latest/using-the-compiler.html#input-description
+_STANDARD_JSON_REQUIRED_KEYS = ("language", "sources")
+
+
+def _is_solc_standard_json(path: str) -> bool:
+    """Best-effort check for whether `path` is a solc Standard JSON input file.
+
+    This lets users point slither-read-storage directly at a Standard JSON file
+    (e.g. produced by `solc --standard-json` tooling, or hand-built) instead of
+    requiring a .sol file or a full project directory.
+
+    Args:
+        path (str): path that was passed on the command line as the contract source
+
+    Returns:
+        bool: True if `path` is a file that looks like a solc Standard JSON input
+    """
+    if not path.endswith(".json") or not os.path.isfile(path):
+        return False
+
+    try:
+        with open(path, encoding="utf8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return False
+
+    return isinstance(data, dict) and all(key in data for key in _STANDARD_JSON_REQUIRED_KEYS)
 
 
 def parse_args() -> argparse.Namespace:
@@ -127,13 +157,19 @@ def main() -> None:
     args = parse_args()
 
     if len(args.contract_source) == 2:
-        # Source code is file.sol or project directory
+        # Source code is file.sol, project directory, or a solc Standard JSON file
         source_code, target = args.contract_source
-        slither = Slither(source_code, **vars(args))
+        kwargs = vars(args)
+        if not kwargs.get("compile_force_framework") and _is_solc_standard_json(source_code):
+            kwargs["compile_force_framework"] = "solc-json"
+        slither = Slither(source_code, **kwargs)
     else:
-        # Source code is published and retrieved via etherscan
+        # Source code is published and retrieved via etherscan, or a solc Standard JSON file
         target = args.contract_source[0]
-        slither = Slither(target, **vars(args))
+        kwargs = vars(args)
+        if not kwargs.get("compile_force_framework") and _is_solc_standard_json(target):
+            kwargs["compile_force_framework"] = "solc-json"
+        slither = Slither(target, **kwargs)
 
     if args.contract_name:
         contracts = slither.get_contract_from_name(args.contract_name)

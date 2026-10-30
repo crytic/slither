@@ -8,7 +8,7 @@ Slither-read-storage is a tool to retrieve the storage slots and values of entir
 
 ```shell
 positional arguments:
-  contract_source       The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.
+  contract_source       The deployed contract address if verified on etherscan. Prepend project directory, a Solidity file, or a solc Standard JSON input file for unverified contracts.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -39,6 +39,12 @@ Retrieve the storage slots of a local contract:
 
 ```shell
 slither-read-storage file.sol 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --json storage_layout.json
+```
+
+Retrieve the storage layout from a solc Standard JSON input file (e.g. produced by `solc --standard-json` or other tooling that emits this format), without needing to reconstruct a source tree:
+
+```shell
+slither-read-storage input.json --contract-name MyContract --json storage_layout.json
 ```
 
 Retrieve the storage slots of a contract verified on an Etherscan-like platform:
