@@ -63,8 +63,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                     if node.context[self.KEY].calls and not node.context[self.KEY].send_eth:
                         read_then_written = set()
                         for c in node.context[self.KEY].calls:
-                            if c == node:
-                                continue
+                            reads_prior_call = self.reads_prior_call(node, c)
                             read_then_written |= {
                                 FindingValue(
                                     v,
@@ -77,7 +76,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                     ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
-                                if v in node.context[self.KEY].reads_prior_calls[c]
+                                if v in reads_prior_call
                                 and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 

@@ -63,12 +63,13 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     if self.KEY not in node.context:
                         continue
                     if node.context[self.KEY].calls and node.context[self.KEY].send_eth:
-                        if not any(n != node for n in node.context[self.KEY].send_eth):
+                        if not any(
+                            n != node for n in node.context[self.KEY].send_eth
+                        ) and not self._written_after_call_in_callees(node):
                             continue
                         read_then_written = set()
                         for c in node.context[self.KEY].calls:
-                            if c == node:
-                                continue
+                            reads_prior_call = self.reads_prior_call(node, c)
                             read_then_written |= {
                                 FindingValue(
                                     v,
@@ -81,7 +82,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
-                                if v in node.context[self.KEY].reads_prior_calls[c]
+                                if v in reads_prior_call
                                 and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 

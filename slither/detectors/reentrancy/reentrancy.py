@@ -292,6 +292,52 @@ class Reentrancy(AbstractDetector):
         """
         return False
 
+    def _written_after_call_in_callees(self, node: Node) -> set[Variable]:
+        """
+        Return the state variables that the internal callees of node
+        write after an external call made inside these callees
+        """
+        written: set[Variable] = set()
+        explored: set[Function] = set()
+        to_explore = [
+            ir.function for ir in node.internal_calls if isinstance(ir.function, Function)
+        ]
+        while to_explore:
+            function = to_explore.pop()
+            if function in explored:
+                continue
+            explored.add(function)
+            for callee_node in function.nodes:
+                state = callee_node.context.get(self.KEY)
+                if state is None:
+                    continue
+                if any(call != callee_node for call in state.calls):
+                    written |= state.written.keys()
+                elif state.calls:
+                    to_explore += [
+                        ir.function
+                        for ir in callee_node.internal_calls
+                        if isinstance(ir.function, Function)
+                    ]
+        return written
+
+    def reads_prior_call(self, node: Node, call: Node) -> set[Variable]:
+        """
+        Return the state variables read before call, as seen from node
+
+        If call is node itself, the call happens inside an internal callee of node.
+        Only the variables read before node and written by the callee after its
+        external call are returned, as the callee is analyzed on its own
+        """
+        state = node.context[self.KEY]
+        if call != node:
+            return state.reads_prior_calls[call]
+        reads_before = set(node.state_variables_read)
+        for father in node.fathers:
+            if self.KEY in father.context:
+                reads_before |= father.context[self.KEY].reads.keys()
+        return reads_before & self._written_after_call_in_callees(node)
+
     def _explore(self, node: Node | None, skip_father: Node | None = None) -> None:
         """
         Explore the CFG and look for re-entrancy

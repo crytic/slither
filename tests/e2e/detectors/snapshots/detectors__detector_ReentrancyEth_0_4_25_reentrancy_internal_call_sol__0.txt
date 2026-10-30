@@ -1,0 +1,13 @@
+Reentrancy in ReentrancyEthInternalCall.withdraw() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#9-13):
+	External calls:
+	- _send(amount) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#12)
+		- success = msg.sender.call.value(amount)() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#24)
+	State variables written after the call(s):
+	- _send(amount) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#12)
+		- balances[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#26)
+	ReentrancyEthInternalCall.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#2) can be used in cross function reentrancies:
+	- ReentrancyEthInternalCall._send(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#23-27)
+	- ReentrancyEthInternalCall.deposit() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#4-6)
+	- ReentrancyEthInternalCall.withdraw() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#9-13)
+	- ReentrancyEthInternalCall.withdrawSafe() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_internal_call.sol#16-21)
+
