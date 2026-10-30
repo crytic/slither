@@ -58,12 +58,9 @@ def read_triage_info(path_to_sarif: Path, path_to_triage: Path) -> list[str]:
     ids: list[str] = []
     for run, index in indexes:
         # We dont support multiple runs for now
-        if run != 0:
+        if run != 0 or not 0 <= index < len(run_results):
             continue
-        try:
-            elem = run_results[index]
-        except KeyError:
-            continue
+        elem = run_results[index]
         if "partialFingerprints" in elem:
             if "id" in elem["partialFingerprints"]:
                 ids.append(elem["partialFingerprints"]["id"])
