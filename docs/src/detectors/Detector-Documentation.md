@@ -3228,3 +3228,26 @@ contract C {
 ### Recommendation
 
 Read the variable directly from storage instead of calling the contract.
+
+## Storage packing
+
+### Configuration
+
+* Check: `storage-packing`
+* Severity: `Optimization`
+* Confidence: `Medium`
+
+### Description
+
+Finds a concrete order occupying fewer slots for all-elementary fixed-size state variables or struct fields. Skips state initializers, inheritance, recognised upgradeable contracts, custom storage layouts and contracts containing assembly. Constants, immutables and transient state are excluded. Fewer slots do not guarantee cheaper independent field writes.
+
+### Example
+
+```solidity
+uint128 a; uint256 b; uint128 c; // three slots
+// A fresh layout ordered as b, a, c occupies two slots.
+```
+
+### Recommendation
+
+Consider the suggested order only for a fresh layout. Never reorder existing deployed storage, including structs in arrays or mappings. Review ABI and assembly dependencies and positional struct constructors, and benchmark field access patterns.

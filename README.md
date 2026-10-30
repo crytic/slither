@@ -255,6 +255,7 @@ Num | Detector | What it Detects | Impact | Confidence
 98 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
 99 | `immutable-states` | [State variables that could be declared immutable](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable) | Optimization | High
 100 | `var-read-using-this` | [Contract reads its own variable using `this`](https://github.com/crytic/slither/wiki/Detector-Documentation#public-variable-read-in-external-context) | Optimization | High
+101 | `storage-packing` | [Fixed-size storage fields that could occupy fewer slots](https://github.com/crytic/slither/wiki/Detector-Documentation#storage-packing) | Optimization | Medium
 
 For more information, see
 
