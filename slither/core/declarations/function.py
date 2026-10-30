@@ -227,8 +227,7 @@ class Function(SourceMapping, metaclass=ABCMeta):
 
         self._id: str | None = None
 
-        # To be improved with a parsing of the documentation
-        self.has_documentation: bool = False
+        self._documentation: str | None = None
 
     ###################################################################################
     ###################################################################################
@@ -256,6 +255,27 @@ class Function(SourceMapping, metaclass=ABCMeta):
     @name.setter
     def name(self, new_name: str):
         self._name = new_name
+
+    @property
+    def documentation(self) -> str | None:
+        """
+        Return the natspec documentation attached to the function, or None if absent.
+
+        As with Contract.comments, avoid strict text matching: solc's formatting of the
+        extracted comment (e.g. leading spaces) can differ between compiler versions.
+        """
+        return self._documentation
+
+    @documentation.setter
+    def documentation(self, documentation: str) -> None:
+        self._documentation = documentation
+
+    @property
+    def has_documentation(self) -> bool:
+        """
+        bool: True if the function has natspec documentation.
+        """
+        return self._documentation is not None
 
     @property
     def internal_scope(self) -> list[str]:

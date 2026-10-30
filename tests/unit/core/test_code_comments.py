@@ -61,3 +61,33 @@ def test_contract_comments(solc_binary_path) -> None:
     contract = compilation_unit.get_contract_from_name("A")[0]
 
     assert contract.comments == comments
+
+
+def test_function_comments(slither_from_solidity_source) -> None:
+    source = """
+    pragma solidity 0.8.19;
+
+    contract A {
+        /// @notice Adds two numbers
+        /// @param a first operand
+        /// @param b second operand
+        function add(uint256 a, uint256 b) external pure returns (uint256) {
+            return a + b;
+        }
+
+        function undocumented() external pure returns (uint256) {
+            return 0;
+        }
+    }
+    """
+    with slither_from_solidity_source(source) as slither:
+        contract = slither.compilation_units[0].get_contract_from_name("A")[0]
+
+        documented = contract.get_function_from_signature("add(uint256,uint256)")
+        assert documented.has_documentation
+        assert "@notice Adds two numbers" in documented.documentation
+        assert "@param b second operand" in documented.documentation
+
+        undocumented = contract.get_function_from_signature("undocumented()")
+        assert not undocumented.has_documentation
+        assert undocumented.documentation is None
