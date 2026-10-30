@@ -1,0 +1,61 @@
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches BASEFEE (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += block.basefee (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#138)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches GASLIMIT (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += block.gaslimit (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#137)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches GASPRICE (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc = tx.gasprice (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#134)
+
+LibraryPaymaster.validatePaymasterUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#101-107) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of LibraryPaymaster:
+	- block.timestamp (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#34)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches BLOBHASH (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += uint256(blobhash(uint256)(0)) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#141)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches SELFDESTRUCT (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- selfdestruct(address)(address(userOp.sender)) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#144)
+
+RecursiveAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#210-215) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of RecursiveAccount:
+	- block.timestamp (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#219)
+
+AssemblyAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#114-124) reaches ORIGIN (banned by ERC-7562 OP-011) during validation of AssemblyAccount:
+	- o_validateUserOp_asm_0 = origin()() (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#120)
+
+OriginPaymaster.validatePaymasterUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#181-189) reaches ORIGIN (banned by ERC-7562 OP-011) during validation of OriginPaymaster, OriginPaymasterChild:
+	- require(bool,string)(allowedBundlers[tx.origin],bundler) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#187)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches PREVRANDAO (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += block.prevrandao (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#136)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches BLOCKHASH (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += uint256(blockhash(uint256)(1)) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#140)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches BLOBBASEFEE (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += block.blobbasefee (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#142)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches COINBASE (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += uint160(address(block.coinbase)) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#135)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches BALANCE (allowed by ERC-7562 OP-080 only if the entity is staked) during validation of KitchenSinkAccount:
+	- missingAccountFunds > address(this).balance (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#143)
+
+AssemblyAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#114-124) reaches BALANCE (allowed by ERC-7562 OP-080 only if the entity is staked) during validation of AssemblyAccount:
+	- b_validateUserOp_asm_0 = selfbalance()() (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#121)
+
+ModifierPaymaster.validatePaymasterUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#87-94) reaches NUMBER (banned by ERC-7562 OP-011) during validation of ModifierPaymaster:
+	- require(bool,string)(block.number < deadline,expired) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#83)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches ORIGIN (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- require(bool,string)(tx.origin == userOp.sender,bundler) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#133)
+
+KitchenSinkAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#129-147) reaches NUMBER (banned by ERC-7562 OP-011) during validation of KitchenSinkAccount:
+	- acc += block.number (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#139)
+
+BasePaymaster.validatePaymasterUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#42-49) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of TimestampPaymaster:
+	- context = abi.encode(userOp.sender,maxCost,block.timestamp) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#69)
+	- validationData = _pack(uint48(block.timestamp + 86400),uint48(block.timestamp)) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#70)
+
+AssemblyAccount.validateUserOp(PackedUserOperation,bytes32,uint256) (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#114-124) reaches TIMESTAMP (banned by ERC-7562 OP-011) during validation of AssemblyAccount:
+	- t_validateUserOp_asm_0 = timestamp()() (tests/e2e/detectors/test_data/erc7562-banned-opcodes/0.8.26/erc7562_banned_opcodes.sol#119)
+

@@ -1973,6 +1973,16 @@ ALL_TESTS = [
     #     "C.sol",
     #     "0.8.16",
     # ),
+    Test(
+        all_detectors.ERC7562BannedOpcodes,
+        "erc7562_banned_opcodes.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ERC7562BannedOpcodes,
+        "erc7562_banned_opcodes.sol",
+        "0.8.26",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
