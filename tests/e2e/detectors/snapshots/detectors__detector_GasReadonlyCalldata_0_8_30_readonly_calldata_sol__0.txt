@@ -1,0 +1,12 @@
+CalldataCases.readNested(CalldataCases.Nested) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#14) could use calldata for read-only memory parameter CalldataCases.readNested(CalldataCases.Nested).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#14).
+
+CalldataCases.readArray(uint256[]) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#9) could use calldata for read-only memory parameter CalldataCases.readArray(uint256[]).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#9).
+
+CalldataCases.readStruct(CalldataCases.Pair) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#11) could use calldata for read-only memory parameter CalldataCases.readStruct(CalldataCases.Pair).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#11).
+
+CalldataCases.readFixed(uint256[2]) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#13) could use calldata for read-only memory parameter CalldataCases.readFixed(uint256[2]).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#13).
+
+CalldataCases.readBytes(bytes) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#10) could use calldata for read-only memory parameter CalldataCases.readBytes(bytes).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#10).
+
+CalldataCases.readString(string) (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#12) could use calldata for read-only memory parameter CalldataCases.readString(string).data (tests/e2e/detectors/test_data/readonly-calldata/0.8.30/readonly_calldata.sol#12).
+

@@ -107,3 +107,5 @@ from .functions.optimism_deprecation import OptimismDeprecation
 from .attributes.unindexed_event_address import UnindexedEventAddress
 
 # from .statements.unused_import import UnusedImport
+
+from .functions.readonly_calldata import GasReadonlyCalldata

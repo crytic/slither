@@ -3228,3 +3228,27 @@ contract C {
 ### Recommendation
 
 Read the variable directly from storage instead of calling the contract.
+
+## Read-only calldata
+
+### Configuration
+
+* Check: `readonly-calldata`
+* Severity: `Optimization`
+* Confidence: `Medium`
+
+### Description
+
+Finds used, unmodified external memory arrays, structs, bytes and strings on Solidity >=0.6.9. Conservatively excludes assembly, modifiers, non-builtin calls, parameter reassignment and local/return reference aliases. Cast-derived writes use data dependency analysis. Complements the legacy external-function check.
+
+### Example
+
+```solidity
+function first(uint256[] memory data) external pure returns (uint256) {
+    return data[0]; // the parameter could be calldata
+}
+```
+
+### Recommendation
+
+Consider calldata for the reported parameter to avoid an entry-time memory copy. Compile and benchmark with the project's exact compiler and optimizer settings.
