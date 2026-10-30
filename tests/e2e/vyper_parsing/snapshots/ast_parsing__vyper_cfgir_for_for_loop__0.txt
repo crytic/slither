@@ -18,11 +18,11 @@ counter_var(uint256) := 0(uint256)"];
 4[label="Node Type: IF_LOOP 4
 
 EXPRESSION:
-counter_var <= len()(self.strategies)
+counter_var < len()(self.strategies)
 
 IRs:
 TMP_0(uint256) = SOLIDITY_CALL len()(strategies)
-TMP_1(bool) = counter_var <= TMP_0
+TMP_1(bool) = counter_var < TMP_0
 CONDITION TMP_1"];
 4->6[label="True"];
 4->2[label="False"];
