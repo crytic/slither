@@ -380,6 +380,8 @@ ALL_TESTS = [
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.5.16"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.6.11"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.7.6"),
+    Test(all_detectors.TxOrigin, "tx_origin_modifiers.sol", "0.4.25"),
+    Test(all_detectors.TxOrigin, "tx_origin_modifiers.sol", "0.8.20"),
     Test(
         all_detectors.UnusedStateVars,
         "unused_state.sol",

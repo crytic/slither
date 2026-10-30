@@ -1,0 +1,6 @@
+TxOriginModifiers.originIf() (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#11-16) uses tx.origin for authorization: tx.origin != owner (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#12)
+
+TxOriginModifiers.originRequire() (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#6-9) uses tx.origin for authorization: require(bool)(tx.origin == owner) (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#7)
+
+TxOriginModifiers.originAssert() (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#18-21) uses tx.origin for authorization: assert(bool)(tx.origin == owner) (tests/e2e/detectors/test_data/tx-origin/0.4.25/tx_origin_modifiers.sol#19)
+
