@@ -1,3 +1,4 @@
+from slither.core.expressions import BinaryOperation
 from slither.slithir.operations import Binary, BinaryType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
@@ -31,16 +32,23 @@ class ROR(AbstractMutator):
                             str(ir.variable_left.type) != "address"
                             and str(ir.variable_right) != "address"
                         ):
+                            expression = ir.expression
+                            if not isinstance(expression, BinaryOperation):
+                                continue
+                            start = expression.source_mapping.start
+                            stop = start + expression.source_mapping.length
+                            old_str = expression.source_mapping.content
+                            line_no = node.source_mapping.lines
+                            # Replace the operator between the operands, not one inside them.
+                            left = expression.expression_left.source_mapping
+                            left_end = left.start + left.length - start
+                            right_start = expression.expression_right.source_mapping.start - start
+                            gap = old_str[left_end:right_start]
                             alternative_ops = relational_operators[:]
                             alternative_ops.remove(ir.type)
                             for op in alternative_ops:
-                                # Get the string
-                                start = ir.expression.source_mapping.start
-                                stop = start + ir.expression.source_mapping.length
-                                old_str = node.source_mapping.content
-                                line_no = node.source_mapping.lines
-                                # Replace the expression with true
-                                new_str = f"{old_str.split(ir.type.value)[0]}{op.value}{old_str.split(ir.type.value)[1]}"
+                                new_gap = gap.replace(ir.type.value, op.value, 1)
+                                new_str = f"{old_str[:left_end]}{new_gap}{old_str[right_start:]}"
                                 create_patch_with_line(
                                     result,
                                     self.in_file,
