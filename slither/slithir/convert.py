@@ -1974,6 +1974,11 @@ def convert_constant_types(irs: list[Operation]) -> None:
 
             if isinstance(ir, (HighLevelCall, InternalCall)):
                 func = ir.function
+                if func is None:
+                    # e.g. an unresolved internal library call reached through a
+                    # widened parenthesized expression (issue #3103). Nothing to
+                    # convert yet; a later iteration or pass may resolve it.
+                    continue
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
@@ -2044,7 +2049,10 @@ def _find_source_mapping_references(irs: list[Operation]) -> None:
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 
-        if isinstance(ir, HighLevelCall):
+        if isinstance(ir, HighLevelCall) and ir.function is not None:
+            # `function` is None for internal library calls that could not be
+            # resolved during this pass (e.g. a library call reached through a
+            # widened parenthesized expression, issue #3103).
             ir.function.references.append(ir.expression.source_mapping)
 
 

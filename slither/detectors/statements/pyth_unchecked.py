@@ -20,6 +20,10 @@ class PythUnchecked(AbstractDetector):
 
         for contract in self.compilation_unit.contracts_derived:
             for target_contract, ir in contract.all_high_level_calls:
+                # Unresolved library calls can surface a plain string as the
+                # target instead of a Contract (see issue #3103); skip those.
+                if isinstance(target_contract, str):
+                    continue
                 if target_contract.name == "IPyth" and ir.function_name in self.PYTH_FUNCTIONS:
                     # We know for sure the last IR in the node is an Assignment operation of the TMP variable. Example:
                     # 	Expression: price = pyth.getEmaPriceNoOlderThan(id,age)
