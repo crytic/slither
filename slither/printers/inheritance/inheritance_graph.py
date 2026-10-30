@@ -108,8 +108,9 @@ class PrinterInheritanceGraph(AbstractPrinter):
         ]
 
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
+        # Note: `inheritance` is already filtered to exclude mocks and (by default) interfaces.
         if len(inheritance) == 1:
-            immediate_inheritance = contract.immediate_inheritance[0]
+            immediate_inheritance = inheritance[0]
             ret += f"c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance};\n"
         else:
             for i, immediate_inheritance in enumerate(inheritance):
