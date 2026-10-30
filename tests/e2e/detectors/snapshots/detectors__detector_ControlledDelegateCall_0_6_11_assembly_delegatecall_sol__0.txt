@@ -1,0 +1,6 @@
+C.bad_callcode() (tests/e2e/detectors/test_data/controlled-delegatecall/0.6.11/assembly_delegatecall.sol#17-22) uses delegatecall to a input-controlled function id
+	- success_bad_callcode_asm_0 = callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)(gas()(),target,0,0,0,0,0) (tests/e2e/detectors/test_data/controlled-delegatecall/0.6.11/assembly_delegatecall.sol#20)
+
+C.bad_delegate_call() (tests/e2e/detectors/test_data/controlled-delegatecall/0.6.11/assembly_delegatecall.sol#10-15) uses delegatecall to a input-controlled function id
+	- success_bad_delegate_call_asm_0 = delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)(gas()(),target,0,0,0,0) (tests/e2e/detectors/test_data/controlled-delegatecall/0.6.11/assembly_delegatecall.sol#13)
+
