@@ -9,7 +9,13 @@ from unittest import mock
 
 import pytest
 from slither import Slither
-from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_selectors
+from slither.tools.mutator.__main__ import (
+    EXIT_CODE_UNCAUGHT_MUTANTS,
+    _exit_for_campaign_results,
+    _get_mutators,
+    main,
+    parse_target_selectors,
+)
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
 from slither.utils.function import get_function_id
@@ -253,6 +259,29 @@ def test_should_mutate_function_no_match(solc_binary_path):
         # No functions should match bogus selector
         for func in contract.functions_declared:
             assert mutator.should_mutate_function(func) is False
+
+
+def test_exit_for_campaign_results_all_caught_does_not_exit():
+    """All compiled mutants caught: helper returns without raising SystemExit."""
+    _exit_for_campaign_results(total_mutants=5, caught_mutants=5)
+
+
+def test_exit_for_campaign_results_no_mutants_does_not_exit():
+    """No mutants compiled at all (e.g. interface-only run): exit 0."""
+    _exit_for_campaign_results(total_mutants=0, caught_mutants=0)
+
+
+def test_exit_for_campaign_results_uncaught_exits_with_code(caplog):
+    """At least one uncaught mutant: exit with EXIT_CODE_UNCAUGHT_MUTANTS and log a summary."""
+    with pytest.raises(SystemExit) as excinfo:
+        _exit_for_campaign_results(total_mutants=10, caught_mutants=7)
+    assert excinfo.value.code == EXIT_CODE_UNCAUGHT_MUTANTS
+    assert excinfo.value.code != 1
+    # Surface the actual numbers so CI logs are actionable.
+    assert any(
+        "3 uncaught" in record.message and "10 that compiled" in record.message
+        for record in caplog.records
+    )
 
 
 def test_should_mutate_function_includes_modifier(solc_binary_path):

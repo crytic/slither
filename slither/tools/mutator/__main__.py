@@ -199,6 +199,25 @@ def parse_target_selectors(selector_str: str) -> set[int]:
 ###################################################################################
 
 
+# Exit code returned when the campaign completes successfully but at least one
+# mutant escaped the test suite. Distinct from 1 (used by argparse / setup
+# errors) so CI scripts can tell the two apart.
+EXIT_CODE_UNCAUGHT_MUTANTS = 2
+
+
+def _exit_for_campaign_results(total_mutants: int, caught_mutants: int) -> None:
+    """Exit non-zero with a summary if any compiled mutants were uncaught."""
+    uncaught = total_mutants - caught_mutants
+    if uncaught > 0:
+        logger.info(
+            red(
+                f"{uncaught} uncaught mutant(s) out of {total_mutants} that compiled "
+                f"({caught_mutants} caught)"
+            )
+        )
+        sys.exit(EXIT_CODE_UNCAUGHT_MUTANTS)
+
+
 def main() -> None:
     args = parse_args()
 
@@ -212,6 +231,10 @@ def main() -> None:
     verbose: bool | None = args.verbose
     mutators_to_run: list[str] | None = args.mutators_to_run
     comprehensive_flag: bool | None = args.comprehensive
+
+    # accumulators across all files for the campaign-wide summary / exit code
+    campaign_total_mutants = 0
+    campaign_caught_mutants = 0
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
@@ -463,6 +486,9 @@ def main() -> None:
         else:
             logger.info(magenta("Zero Tweak mutants analyzed\n"))
 
+        campaign_total_mutants += sum(total_mutant_counts)
+        campaign_caught_mutants += sum(caught_mutant_counts)
+
         # Reset mutant counts before moving on to the next file
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
@@ -485,6 +511,8 @@ def main() -> None:
     logger.info(
         blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n")
     )
+
+    _exit_for_campaign_results(campaign_total_mutants, campaign_caught_mutants)
 
 
 # endregion
