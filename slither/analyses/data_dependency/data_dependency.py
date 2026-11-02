@@ -293,6 +293,70 @@ def get_all_dependencies_ssa(
     return context.context[KEY_SSA]
 
 
+def get_must_depends_on(variable: SUPPORTED_TYPES) -> List:
+    """
+    Return must dependency of a variable if exist otherwise return None.
+
+    :param variable: target variable whose must dependency needs to be computed
+    :return: Variable | None
+    """
+    must_dependencies = compute_must_dependencies(variable)
+    if len(must_dependencies) != 1:
+        return []
+    return [list(must_dependencies)[0]]
+
+
+def compute_must_dependencies(v: SUPPORTED_TYPES) -> Set[Variable]:
+    if isinstance(v, (SolidityVariableComposed, Constant)) or (
+        v.function.visibility in ["public", "external"] and v in v.function.parameters
+    ):
+        return set([v])
+
+    function_dependencies = {}
+    function_dependencies["context"] = {}
+    lvalues = []
+
+    for node in v.function.nodes:
+        for ir in node.irs_ssa:
+            if isinstance(ir, OperationWithLValue) and ir.lvalue:
+                if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+                    continue
+                if isinstance(ir.lvalue, ReferenceVariable):
+                    lvalue = ir.lvalue.points_to
+                    if lvalue:
+                        lvalues.append((lvalue, v.function, ir))
+                lvalues.append((ir.lvalue, v.function, ir))
+
+    for lvalue_details in lvalues:
+        lvalue = lvalue_details[0]
+        ir = lvalue_details[2]
+
+        if lvalue not in function_dependencies["context"]:
+            function_dependencies["context"][lvalue] = set()
+        read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
+
+        if isinstance(ir, Index):
+            read = [ir.variable_left]
+        elif isinstance(ir, InternalCall) and ir.function:
+            read = ir.function.return_values_ssa
+        else:
+            read = ir.read
+        for variable in read:
+            # if not isinstance(variable, Constant):
+            function_dependencies["context"][lvalue].add(variable)
+    function_dependencies["context"] = convert_to_non_ssa(function_dependencies["context"])
+
+    must_dependencies = set()
+    data_dependencies = list(function_dependencies["context"].get(v, set()))
+    for i, data_dependency in enumerate(data_dependencies):
+        result = compute_must_dependencies(data_dependency)
+        if i > 0:
+            must_dependencies = must_dependencies.intersection(result)
+        else:
+            must_dependencies = must_dependencies.union(result)
+    return must_dependencies
+
+
 # endregion
 ###################################################################################
 ###################################################################################
