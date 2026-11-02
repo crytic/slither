@@ -13,6 +13,7 @@ from slither import Slither
 from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
 from slither.utils.colors import red
+from slither.utils.command_line import read_config_file
 from slither.utils.output import output_to_json
 from slither.tools.upgradeability.checks import all_checks
 from slither.tools.upgradeability.checks.abstract_checks import (
@@ -115,6 +116,14 @@ def parse_args(check_classes: list[type[AbstractCheck]]) -> argparse.Namespace:
         help="URL for markdown generation",
         action="store",
         default="",
+    )
+
+    parser.add_argument(
+        "--config-file",
+        help="Provide a config file (default: slither.config.json or slither.conf.json)",
+        action="store",
+        dest="config_file",
+        default=None,
     )
 
     parser.add_argument(
@@ -286,6 +295,7 @@ def main() -> None:
 
     detectors = _get_checks()
     args = parse_args(detectors)
+    read_config_file(args)
     detectors_to_run = choose_checks(args, detectors)
     v1_filename = vars(args)["contract.sol"]
     number_detectors_run = 0
