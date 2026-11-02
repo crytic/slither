@@ -540,6 +540,11 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.ComplexStructGetter,
+        "complex_struct_getter.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
         "0.4.25",

@@ -1,0 +1,6 @@
+DirectArrayMapping.config (complex_struct_getter.sol#12) is a public state variable of type DirectArrayMapping.Config (complex_struct_getter.sol#7-11) whose automatic getter omits: limits (uint256[]), whitelist (mapping(address => bool))
+
+NestedStruct.settings (complex_struct_getter.sol#23) is a public state variable of type NestedStruct.Outer (complex_struct_getter.sol#19-22) whose automatic getter omits: values (uint256[])
+
+MappingOnly.permissions (complex_struct_getter.sol#31) is a public state variable of type MappingOnly.Permissions (complex_struct_getter.sol#27-30) whose automatic getter omits: allowed (mapping(address => bool))
+
