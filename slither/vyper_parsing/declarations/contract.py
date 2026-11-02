@@ -517,5 +517,31 @@ class ContractVyper:
         for function in self._functions_parser:
             function.analyze_content()
 
+        self._rebind_functions()
+
+    def _rebind_functions(self) -> None:
+        """Rebuild the contract function dict with correct canonical names.
+
+        During ``parse_functions`` the functions are registered via
+        ``add_function`` *before* parameter types are resolved, which
+        causes ``canonical_name`` (and ``full_name``) to be cached
+        with empty parameter lists.  After ``analyze_content`` has
+        resolved all types we invalidate the cached names and
+        re-register every function so the dict keys are correct.
+        """
+        for func_parser in self._functions_parser:
+            func = func_parser.underlying_function
+            # Invalidate stale cached names so they are recomputed
+            # with the now-known parameter types.
+            func._canonical_name = None
+            func._full_name = None
+
+        self._contract.set_functions(
+            {
+                func_parser.underlying_function.canonical_name: (func_parser.underlying_function)
+                for func_parser in self._functions_parser
+            }
+        )
+
     def __hash__(self) -> int:
         return self._contract.id
