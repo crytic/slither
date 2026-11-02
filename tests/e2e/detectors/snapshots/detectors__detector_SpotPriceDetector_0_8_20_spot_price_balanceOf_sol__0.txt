@@ -1,0 +1,5 @@
+Calculations are made with spot price data in tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_balanceOf.sol#41 but the function is not used anywhere in the contract.
+Method which could indicate usage of spot price was detected at tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_balanceOf.sol#38 and tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_balanceOf.sol#39.
+NEW VARIABLE usdcBalance = IERC20(USDCAddress).balanceOf(pool)
+NEW VARIABLE ethBalance = IERC20(weth).balanceOf(pool)
+

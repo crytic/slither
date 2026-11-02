@@ -1627,6 +1627,18 @@ def convert_to_library_or_top_level(
         if new_ir:
             return new_ir
 
+    if (
+        isinstance(t, ElementaryType)
+        and t.name == "address"
+        and ir.destination.name == "this"
+        and UserDefinedType(node.function.contract) in using_for
+    ):
+        new_ir = look_for_library_or_top_level(
+            contract, ir, using_for, UserDefinedType(node.function.contract)
+        )
+        if new_ir:
+            return new_ir
+
     return None
 
 
