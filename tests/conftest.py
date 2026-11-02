@@ -9,24 +9,24 @@ import pytest
 from slither import Slither
 
 
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Create a temporary directory for the tests to use."""
     if is_master():
         config.stash["shared_directory"] = tempfile.mkdtemp()
 
 
-def pytest_unconfigure(config):
+def pytest_unconfigure(config) -> None:
     """Remove the temporary directory after the tests are done."""
     if is_master():
         shutil.rmtree(config.stash["shared_directory"])
 
 
-def pytest_configure_node(node):
+def pytest_configure_node(node) -> None:
     """Configure each worker node with the shared directory."""
     node.workerinput["shared_directory"] = node.config.stash["shared_directory"]
 
 
-def is_master():
+def is_master() -> bool:
     """Returns True if the current process is the master process (which does not have a worker id)."""
     return os.environ.get("PYTEST_XDIST_WORKER") is None
 
