@@ -81,6 +81,8 @@ from .variables.predeclaration_usage_local import PredeclarationUsageLocal
 from .statements.unary import IncorrectUnaryExpressionDetection
 from .operations.missing_zero_address_validation import MissingZeroAddressValidation
 from .functions.dead_code import DeadCode
+from .functions.unused_events import UnusedEvents
+from .functions.unused_modifiers import UnusedModifiers
 from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.msg_value_in_nonpayable import MsgValueInNonPayable
