@@ -5,6 +5,7 @@ from slither.core import expressions
 from slither.core.scope.scope import FileScope
 from slither.core.declarations import (
     Function,
+    FunctionLanguage,
     SolidityVariable,
     SolidityVariableComposed,
     SolidityFunction,
@@ -170,8 +171,9 @@ def convert_assignment(
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
+    # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
-        from slither.core.cfg.node import NodeType
+        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
 
         self._expression = expression
         self._node = node
@@ -187,6 +189,48 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> list[Operation]:
         return self._result
 
+    def _convert_right_assignment(
+        self, left: Any, right: Any, expression: AssignmentOperation
+    ) -> Any:
+        if self._node.function.function_language == FunctionLanguage.Vyper:
+            return right
+        if isinstance(right, list):
+            # Case to implicitly convert elements when assigning to an array. Also handles nested arrays.
+            # uint16[2] memory t = [uint16(2),9];
+            # 9 should be converted to uint16(9)
+            for i, val in enumerate(right):
+                # For the first element in the array, we don't need conversion (it's the reference type)
+                if i == 0:
+                    # If the first element is itself a nested list, recursively process it
+                    if isinstance(val, list):
+                        right[i] = self._convert_right_assignment(left, val, expression)
+                else:
+                    # If this is a nested list, we need to recursively process it
+                    if isinstance(val, list):
+                        # If right[0] is also a list, use its first element as the reference type
+                        # Otherwise use right[0] directly as the reference type
+                        reference = right[0][0] if isinstance(right[0], list) else right[0]
+                        right[i] = self._convert_right_assignment(reference, val, expression)
+                    else:
+                        # For non-nested elements, convert using the first element as reference
+                        right[i] = self._convert_right_assignment(right[0], val, expression)
+        elif (
+            isinstance(left.type, ElementaryType)
+            and isinstance(right.type, ElementaryType)
+            and left.type != right.type
+            # Avoid implicit conversion for bytes/string
+            and not left.type.is_dynamic
+            and not right.type.is_dynamic
+        ):
+            new_right = TemporaryVariable(self._node)
+            conv_right = TypeConversion(new_right, right, ElementaryType(left.type.type))
+            new_right.set_type(ElementaryType(left.type.type))
+            conv_right.set_expression(expression)
+            self._result.append(conv_right)
+            right = new_right
+        return right
+
+    # pylint: disable=too-many-branches,too-many-statements
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
@@ -200,9 +244,12 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         and expression.type
                         and expression.expression_return_type
                     ):
+                        right_converted = self._convert_right_assignment(
+                            left[idx], right[idx], expression
+                        )
                         operation = convert_assignment(
                             left[idx],
-                            right[idx],
+                            right_converted,
                             expression.type,
                             expression.expression_return_type,
                         )
@@ -214,7 +261,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if left[idx] is not None:
                         index = idx
-                        operation = Unpack(left[idx], right, index)
+                        right_converted = self._convert_right_assignment(
+                            left[idx], right, expression
+                        )
+                        operation = Unpack(left[idx], right_converted, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
                 set_val(expression, None)
@@ -226,6 +276,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             and left.tuple_index is not None
             and isinstance(right, TupleVariable)
         ):
+            right = self._convert_right_assignment(left, right, expression)
             operation = Unpack(left, right, left.tuple_index)
             operation.set_expression(expression)
             self._result.append(operation)
@@ -234,6 +285,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # For `InitArray`, the rhs is a list or singleton of `TupleExpression` elements.
             # Init of array e.g. uint8[2] var = [1,2];
             if isinstance(right, list):
+                right = self._convert_right_assignment(left, right, expression)
                 operation = InitArray(right, left)
                 operation.set_expression(expression)
                 self._result.append(operation)
@@ -241,6 +293,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             # Special case for init of array, when the right has only one element e.g. arr = [1];
             elif isinstance(left.type, ArrayType) and not isinstance(right.type, ArrayType):
+                right = self._convert_right_assignment(left, [right], expression)
                 operation = InitArray([right], left)
                 operation.set_expression(expression)
                 self._result.append(operation)
@@ -275,6 +328,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
+                right = self._convert_right_assignment(left, right, expression)
+
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -284,12 +339,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 # a = b = 1;
                 set_val(expression, left)
 
+    # pylint: disable=too-many-statements
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = TemporaryVariable(self._node)
 
         if expression.type in _signed_to_unsigned:
+            val = TemporaryVariable(self._node)
             new_left = TemporaryVariable(self._node)
             conv_left = TypeConversion(new_left, left, ElementaryType("int256"))
             new_left.set_type(ElementaryType("int256"))
@@ -315,12 +371,61 @@ class ExpressionToSlithIR(ExpressionVisitor):
             conv_final.set_expression(expression)
             self._result.append(conv_final)
         else:
-            operation = Binary(val, left, right, _binary_to_binary[expression.type])
-            operation.set_expression(expression)
-            self._result.append(operation)
+            # From solidity docs
+            # The operators ** (exponentiation), << and >> use the type of the left operand for the operation and the result.
+            if (  # pylint: disable=too-many-boolean-expressions
+                self._node.function.function_language != FunctionLanguage.Vyper
+                and isinstance(left.type, ElementaryType)
+                and isinstance(right.type, ElementaryType)
+                and left.type != right.type
+                and expression.type
+                not in (
+                    BinaryOperationType.LEFT_SHIFT,
+                    BinaryOperationType.RIGHT_SHIFT,
+                    BinaryOperationType.POWER,
+                )
+                # Avoid implicit conversion for bytes/string
+                and not left.type.is_dynamic
+                and not right.type.is_dynamic
+            ):
+                # If one is int and the other is uint -> int size
+                if (
+                    left.type.type.startswith("uint")
+                    and right.type.type.startswith("int")
+                    or left.type.size < right.type.size
+                ):
+                    new_left = TemporaryVariable(self._node)
+                    conv_left = TypeConversion(new_left, left, ElementaryType(right.type.type))
+                    new_left.set_type(ElementaryType(right.type.type))
+                    conv_left.set_expression(expression)
+                    self._result.append(conv_left)
+                    val = TemporaryVariable(self._node)
+                    operation = Binary(val, new_left, right, _binary_to_binary[expression.type])
+                    operation.set_expression(expression)
+                    self._result.append(operation)
+                elif (
+                    left.type.type.startswith("int")
+                    and right.type.type.startswith("uint")
+                    or left.type.size > right.type.size
+                ):
+                    new_right = TemporaryVariable(self._node)
+                    conv_right = TypeConversion(new_right, right, ElementaryType(left.type.type))
+                    new_right.set_type(ElementaryType(left.type.type))
+                    conv_right.set_expression(expression)
+                    self._result.append(conv_right)
+                    val = TemporaryVariable(self._node)
+                    operation = Binary(val, left, new_right, _binary_to_binary[expression.type])
+                    operation.set_expression(expression)
+                    self._result.append(operation)
+            else:
+                val = TemporaryVariable(self._node)
+                operation = Binary(val, left, right, _binary_to_binary[expression.type])
+                operation.set_expression(expression)
+                self._result.append(operation)
 
         set_val(expression, val)
 
+    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
         assert isinstance(expression, CallExpression)
 
@@ -525,7 +630,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
-
+        # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -742,6 +847,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
+    # pylint: disable=too-many-statements
     def _post_unary_operation(self, expression: UnaryOperation) -> None:
         value = get(expression.expression)
         operation: Operation
