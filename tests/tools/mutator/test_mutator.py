@@ -10,6 +10,7 @@ from unittest import mock
 import pytest
 from slither import Slither
 from slither.tools.mutator.__main__ import _get_mutators, main, parse_target_selectors
+from slither.tools.mutator.mutators.CR import CR
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_source_file
 from slither.utils.function import get_function_id
@@ -130,6 +131,41 @@ def test_run_tests_timeout(caplog, monkeypatch):
         result = run_test_cmd("forge test", timeout=1)
         assert not result
         assert "Tests took too long" in caplog.messages[0]
+
+
+def test_cr_mutator_uses_block_comments(solc_binary_path):
+    """CR mutator should use block comments /* */ not line comments //"""
+    solc_path = solc_binary_path("0.8.15")
+    file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
+    sl = Slither(file_path, solc=solc_path)
+
+    for contract in sl.contracts:
+        if contract.name == "Counter":
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                mutator = CR(
+                    compilation_unit=contract.compilation_unit,
+                    timeout=10,
+                    testing_command="forge test",
+                    testing_directory=".",
+                    contract_instance=contract,
+                    solc_remappings=None,
+                    verbose=False,
+                    output_folder=Path(tmp_dir),
+                    dont_mutate_line=[],
+                    rate=100,
+                )
+                result = mutator._mutate()
+
+                # Verify mutations were generated
+                assert "patches" in result, "CR mutator should generate patches"
+
+                # Verify all patches use block comments
+                for patches in result["patches"].values():
+                    for patch in patches:
+                        new_str = patch["new_string"]
+                        assert new_str.startswith("/*"), f"Expected block comment, got: {new_str}"
+                        assert new_str.endswith("*/"), f"Expected block comment, got: {new_str}"
+                        assert "//" not in new_str, f"Should not use line comment: {new_str}"
 
 
 def test_parse_target_selectors_hex():
