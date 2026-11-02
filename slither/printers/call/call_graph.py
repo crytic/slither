@@ -332,7 +332,9 @@ class PrinterCallGraph(AbstractPrinter):
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
-                function.canonical_name: function for function in all_functions
+                function.canonical_name: function
+                for function in all_functions
+                if not function.is_constructor_variables
             }
             content = "\n".join(
                 ["strict digraph {"]
@@ -352,7 +354,15 @@ class PrinterCallGraph(AbstractPrinter):
                     ["strict digraph {"]
                     + ['rankdir="LR"']
                     + ["node [shape=box]"]
-                    + [_process_functions(derived_contract.functions)]
+                    + [
+                        _process_functions(
+                            [
+                                f
+                                for f in derived_contract.functions
+                                if not f.is_constructor_variables
+                            ]
+                        )
+                    ]
                     + ["}"]
                 )
                 f.write(content)

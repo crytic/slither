@@ -38,6 +38,8 @@ class RequireOrAssert(AbstractPrinter):
             txt = f"\nContract {contract.name}"
             table = MyPrettyTable(["Function", "require or assert"])
             for function in contract.functions:
+                if function.is_constructor_variables:
+                    continue
                 require = function.all_slithir_operations()
                 require = [
                     ir

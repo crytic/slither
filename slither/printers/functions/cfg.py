@@ -19,6 +19,8 @@ class CFG(AbstractPrinter):
         all_files = []
         for contract in self.contracts:  # type: ignore
             for function in contract.functions + list(contract.modifiers):
+                if function.is_constructor_variables:
+                    continue
                 if filename:
                     new_filename = f"{filename}-{contract.name}-{function.full_name}.dot"
                 else:

@@ -19,6 +19,8 @@ class Dominator(AbstractPrinter):
         all_files = []
         for contract in self.contracts:
             for function in contract.functions + contract.modifiers:
+                if function.is_constructor_variables:
+                    continue
                 if filename:
                     new_filename = f"{filename}-{contract.name}-{function.full_name}.dot"
                 else:

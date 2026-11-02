@@ -48,6 +48,8 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 ["Function", "State variables written", "Conditions on msg.sender"]
             )
             for function in contract.functions:
+                if function.is_constructor_variables:
+                    continue
                 state_variables_written = [
                     v.name for v in function.all_state_variables_written() if v.name
                 ]
