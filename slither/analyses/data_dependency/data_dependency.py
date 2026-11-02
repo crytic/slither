@@ -17,6 +17,8 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, Operation
@@ -502,6 +504,8 @@ def convert_variable_to_non_ssa(v: SUPPORTED_TYPES) -> SUPPORTED_TYPES:
             Type,
             SolidityImportPlaceHolder,
             TopLevelVariable,
+            StateVariable,
+            LocalVariable,
         ),
     )
     return v
