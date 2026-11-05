@@ -484,6 +484,37 @@ class SlitherCore(Context):
 
         return False
 
+    def _is_excluded_by_path_filters(self, source_paths: list[str]) -> bool:
+        """
+        Return True if --filter-paths or --include-paths excludes these source paths
+        """
+        # Use POSIX-style paths so that filter_paths|include_paths works across different
+        # OSes. Convert to a list so elements don't get consumed and are lost
+        # while evaluating the first pattern
+        source_paths = [pathlib.Path(x).resolve().as_posix() if x else x for x in source_paths]
+        (matching, paths, msg_err) = (
+            (True, self._paths_to_include, "--include-paths")
+            if self._paths_to_include
+            else (False, self._paths_to_filter, "--filter-paths")
+        )
+
+        for path in paths:
+            try:
+                if any(
+                    bool(re.search(_relative_path_format(path), src_path))
+                    for src_path in source_paths
+                ):
+                    matching = not matching
+                    break
+            except re.error:
+                logger.error(
+                    f"Incorrect regular expression for {msg_err} {path}."
+                    "\nSlither supports the Python re format"
+                    ": https://docs.python.org/3/library/re.html"
+                )
+
+        return matching
+
     def valid_result(self, r: dict) -> bool:
         """
         Check if the result is valid
@@ -505,34 +536,8 @@ class SlitherCore(Context):
             if "source_mapping" in elem
         ]
 
-        # Use POSIX-style paths so that filter_paths|include_paths works across different
-        # OSes. Convert to a list so elements don't get consumed and are lost
-        # while evaluating the first pattern
-        source_mapping_elements = [
-            pathlib.Path(x).resolve().as_posix() if x else x for x in source_mapping_elements
-        ]
-        (matching, paths, msg_err) = (
-            (True, self._paths_to_include, "--include-paths")
-            if self._paths_to_include
-            else (False, self._paths_to_filter, "--filter-paths")
-        )
-
-        for path in paths:
-            try:
-                if any(
-                    bool(re.search(_relative_path_format(path), src_mapping))
-                    for src_mapping in source_mapping_elements
-                ):
-                    matching = not matching
-                    break
-            except re.error:
-                logger.error(
-                    f"Incorrect regular expression for {msg_err} {path}."
-                    "\nSlither supports the Python re format"
-                    ": https://docs.python.org/3/library/re.html"
-                )
-
-        if r["elements"] and matching:
+        excluded_by_path_filters = self._is_excluded_by_path_filters(source_mapping_elements)
+        if r["elements"] and excluded_by_path_filters:
             return False
 
         if self._show_ignored_findings:
@@ -625,6 +630,10 @@ class SlitherCore(Context):
         unused_comments: list[dict] = []
 
         for file, comments in self._all_ignore_comments.items():
+            # Findings in files excluded by the path filters are dropped before their
+            # ignore comments are matched, so those comments cannot be judged here
+            if self._is_excluded_by_path_filters([file]):
+                continue
             for line_number, comment_type, detectors in comments:
                 # Skip "end" comments as they don't suppress findings directly
                 if comment_type == "end":
