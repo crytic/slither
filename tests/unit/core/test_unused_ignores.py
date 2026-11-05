@@ -201,3 +201,103 @@ contract AllKeyword {
             assert "all" not in item["unused_detectors"], (
                 "'all' should be used since a detector was triggered"
             )
+
+
+DEPENDENCY_WITH_USED_IGNORE = """
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
+
+contract Dep {
+    // slither-disable-next-line naming-convention
+    uint public Bad_Name;
+}
+"""
+
+DEPENDENCY_WITH_UNUSED_IGNORE = """
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
+
+contract Dep {
+    // slither-disable-next-line reentrancy-eth
+    uint public goodName;
+}
+"""
+
+MAIN_IMPORTING_DEPENDENCY = """
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
+
+import "./lib/Dep.sol";
+
+contract Main is Dep {
+    uint public value;
+}
+"""
+
+
+def _unused_ignores_with_dependency(
+    solc_path: str, dependency_source: str, **path_filters: list[str]
+) -> list[dict]:
+    """Run naming-convention on Main.sol, which imports lib/Dep.sol, and return unused ignores."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.makedirs(os.path.join(tmpdir, "lib"))
+        with open(os.path.join(tmpdir, "lib", "Dep.sol"), "w") as f:
+            f.write(dependency_source)
+        main_file = os.path.join(tmpdir, "Main.sol")
+        with open(main_file, "w") as f:
+            f.write(MAIN_IMPORTING_DEPENDENCY)
+
+        slither = Slither(main_file, solc=solc_path, **path_filters)
+        slither.warn_unused_ignores = True
+        slither.register_detector(NamingConvention)
+        slither.run_detectors()
+        return slither.get_unused_ignore_comments()
+
+
+def test_unused_ignores_without_path_filters_reports_dependency(solc_binary_path) -> None:
+    """Without path filters, an unused directive in an imported file is still reported."""
+    unused = _unused_ignores_with_dependency(
+        solc_binary_path("0.8.10"), DEPENDENCY_WITH_UNUSED_IGNORE
+    )
+
+    assert {(Path(item["file"]).name, tuple(item["unused_detectors"])) for item in unused} == {
+        ("Dep.sol", ("reentrancy-eth",))
+    }
+
+
+def test_filter_paths_skips_used_ignore_in_filtered_file(solc_binary_path) -> None:
+    """A directive that suppresses a finding in a filtered path is not reported as unused."""
+    unused = _unused_ignores_with_dependency(
+        solc_binary_path("0.8.10"), DEPENDENCY_WITH_USED_IGNORE, filter_paths=["lib"]
+    )
+
+    assert unused == []
+
+
+def test_filter_paths_skips_unused_ignore_in_filtered_file(solc_binary_path) -> None:
+    """Unused directives in a filtered path are not reported."""
+    unused = _unused_ignores_with_dependency(
+        solc_binary_path("0.8.10"), DEPENDENCY_WITH_UNUSED_IGNORE, filter_paths=["lib"]
+    )
+
+    assert unused == []
+
+
+def test_include_paths_skips_ignores_outside_included_paths(solc_binary_path) -> None:
+    """Directives in files outside include_paths are not reported."""
+    unused = _unused_ignores_with_dependency(
+        solc_binary_path("0.8.10"), DEPENDENCY_WITH_UNUSED_IGNORE, include_paths=["Main.sol"]
+    )
+
+    assert unused == []
+
+
+def test_include_paths_still_reports_ignores_in_included_paths(solc_binary_path) -> None:
+    """Directives in files matched by include_paths are still reported."""
+    unused = _unused_ignores_with_dependency(
+        solc_binary_path("0.8.10"), DEPENDENCY_WITH_UNUSED_IGNORE, include_paths=["lib"]
+    )
+
+    assert {(Path(item["file"]).name, tuple(item["unused_detectors"])) for item in unused} == {
+        ("Dep.sol", ("reentrancy-eth",))
+    }
