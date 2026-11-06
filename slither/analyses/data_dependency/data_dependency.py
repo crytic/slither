@@ -161,9 +161,13 @@ def is_tainted(
     taints = compilation_unit.context[KEY_INPUT]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
-    return variable in taints or any(
-        is_dependent(variable, t, context, only_unprotected) for t in taints
-    )
+    if variable in taints:
+        return True
+    if not taints:
+        return False
+    key = KEY_NON_SSA_UNPROTECTED if only_unprotected else KEY_NON_SSA
+    dependencies = context.context[key]
+    return variable in dependencies and not taints.isdisjoint(dependencies[variable])
 
 
 def is_tainted_ssa(
@@ -194,9 +198,13 @@ def is_tainted_ssa(
     taints = compilation_unit.context[KEY_INPUT_SSA]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
-    return variable in taints or any(
-        is_dependent_ssa(variable, t, context, only_unprotected) for t in taints
-    )
+    if variable in taints:
+        return True
+    if not taints:
+        return False
+    key = KEY_SSA_UNPROTECTED if only_unprotected else KEY_SSA
+    dependencies = context.context[key]
+    return variable in dependencies and not taints.isdisjoint(dependencies[variable])
 
 
 def get_dependencies(
