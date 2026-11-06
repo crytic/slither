@@ -5,6 +5,12 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
+def _format_argument(argument: Any) -> str:
+    if isinstance(argument, list):
+        return "[" + ", ".join(_format_argument(item) for item in argument) + "]"
+    return str(argument)
+
+
 class SolidityCall(Call, OperationWithLValue):
     def __init__(
         self,
@@ -46,7 +52,7 @@ class SolidityCall(Call, OperationWithLValue):
                 str(self.arguments[0]) + "(" + ",".join([str(a) for a in self.arguments[1]]) + ")"
             )
         else:
-            args = ",".join([str(a) for a in self.arguments])
+            args = ",".join(_format_argument(a) for a in self.arguments)
 
         lvalue = ""
         if self.lvalue:
