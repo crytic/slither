@@ -43,6 +43,11 @@ class TestLiteralCaching:
         assert lit._cached_str is None  # Not cached when subdenomination set
         assert str(lit) == "1000000000000000000"
 
+    def test_years_subdenomination(self):
+        """1 years is 365 days."""
+        lit = Literal("1", "uint256", subdenomination="years")
+        assert str(lit) == "31536000"
+
     def test_address_type_cached(self):
         """Address type should be cached."""
         lit = Literal("0x1234", "address")
