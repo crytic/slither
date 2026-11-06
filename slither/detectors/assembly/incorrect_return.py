@@ -19,10 +19,21 @@ def _assembly_node(function: Function) -> SolidityCall | None:
 
     """
 
-    for ir in function.all_solidity_calls():
-        if ir.function == SolidityFunction("return(uint256,uint256)"):
-            return ir
-    return None
+    # all_solidity_calls() is deduplicated through a set, so its order follows
+    # identity hashes. Pick the witness by source location instead.
+    return min(
+        (
+            ir
+            for ir in function.all_solidity_calls()
+            if ir.function == SolidityFunction("return(uint256,uint256)")
+        ),
+        key=lambda ir: (
+            ir.node.source_mapping.filename.absolute,
+            ir.node.source_mapping.start,
+            ir.node.node_id,
+        ),
+        default=None,
+    )
 
 
 class IncorrectReturn(AbstractDetector):
