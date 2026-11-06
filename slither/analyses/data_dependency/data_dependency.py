@@ -395,6 +395,58 @@ def propagate_function(
 
 
 def _compute_transitive_closure(deps: dict[object, set[object]]) -> None:
+    """Propagate exact reachability using integer sets for larger graphs."""
+    # Keep the ordinary set implementation for tiny graphs and aliased sets.
+    # Aliased input values are mutable and must retain their existing behavior.
+    if (
+        type(deps) is not dict
+        or not 32 <= len(deps) <= 8192
+        or any(type(items) is not set for items in deps.values())
+        or len({id(values) for values in deps.values()}) != len(deps)
+    ):
+        _compute_transitive_closure_sets(deps)
+        return
+    values = list(deps)
+    count = len(values)
+    # Limit each mask vector to 8 MiB of bits (plus Python object overhead).
+    # Very large sparse graphs keep the original set representation.
+    max_columns = 8 * 1024 * 1024 * 8 // count
+    indices = {value: i for i, value in enumerate(values)}
+    masks = []
+    reverse = [[] for _ in deps]
+    for dependent, items in enumerate(deps.values()):
+        mask = 0
+        for item in items:
+            index = indices.get(item)
+            if index is None:
+                index = len(values)
+                if index >= max_columns:
+                    _compute_transitive_closure_sets(deps)
+                    return
+                indices[item] = index
+                values.append(item)
+            mask |= 1 << index
+            if index < count:
+                reverse[index].append(dependent)
+        masks.append(mask)
+    original_masks = list(masks)
+    worklist = set(range(count))
+    while worklist:
+        node = worklist.pop()
+        for dependent in reverse[node]:
+            added = masks[node] & ~masks[dependent] & ~(1 << dependent)
+            if added:
+                masks[dependent] |= added
+                worklist.add(dependent)
+    for items, mask, original in zip(deps.values(), masks, original_masks, strict=True):
+        mask &= ~original
+        while mask:
+            bit = mask & -mask
+            items.add(values[bit.bit_length() - 1])
+            mask ^= bit
+
+
+def _compute_transitive_closure_sets(deps: dict[object, set[object]]) -> None:
     """Compute transitive closure using worklist algorithm.
 
     Uses a reverse dependency index to efficiently propagate dependencies:
