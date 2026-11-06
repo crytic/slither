@@ -423,7 +423,7 @@ class SlitherReadStorage:
             info, type_to, slot, size, offset = self._find_struct_var_slot(elems, slot, struct_var)
             self.log += info
 
-        elif isinstance(target_variable_type, MappingType) and key:
+        elif isinstance(target_variable_type, MappingType) and key is not None:
             info, type_to, slot, size, offset = self._find_mapping_slot(
                 target_variable_type,
                 slot,
@@ -887,7 +887,7 @@ class SlitherReadStorage:
                     key *= int(str(target_variable_type_type.length))
                 slot_int = int.from_bytes(slot, "big") + key
 
-            if not deep_key:
+            if deep_key is None:
                 return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
 
             info += f"\nDeep Key: {deep_key}"
@@ -987,16 +987,16 @@ class SlitherReadStorage:
 
         info = ""
         offset = 0
-        if key:
+        if key is not None:
             info += f"\nKey: {key}"
-        if deep_key:
+        if deep_key is not None:
             info += f"\nDeep Key: {deep_key}"
 
         type_from = unwrap_type_alias(target_variable_type.type_from)
 
         assert isinstance(type_from, ElementaryType)
         key_type = type_from.name
-        assert key
+        assert key is not None
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
@@ -1015,7 +1015,7 @@ class SlitherReadStorage:
         elif isinstance(
             target_variable_type.type_to, MappingType
         ):  # mapping(elem => mapping(elem => ???))
-            assert deep_key
+            assert deep_key is not None
             type_from = unwrap_type_alias(target_variable_type.type_to.type_from)
             assert isinstance(type_from, ElementaryType)
             key_type = type_from.name
