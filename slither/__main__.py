@@ -2,6 +2,7 @@
 
 import argparse
 import cProfile
+import gc
 import glob
 import inspect
 import json
@@ -810,9 +811,21 @@ def main() -> None:
     # Codebase with complex domninators can lead to a lot of SSA recursive call
     sys.setrecursionlimit(1500)
 
-    detectors, printers = get_detectors_and_printers()
-
-    main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+    # The analysis keeps a large object graph alive until the command finishes.
+    # Avoid repeatedly traversing it for very little collectible cyclic garbage.
+    # Keep collection enabled and restore the caller's policy on every exit path.
+    thresholds = gc.get_threshold()
+    try:
+        if thresholds[0] and gc.isenabled():
+            # Release cycles from an earlier invocation before deferring collection.
+            gc.collect()
+            gc.set_threshold(
+                max(thresholds[0], 200_000), max(thresholds[1], 30), max(thresholds[2], 30)
+            )
+        detectors, printers = get_detectors_and_printers()
+        main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+    finally:
+        gc.set_threshold(*thresholds)
 
 
 def main_impl(
