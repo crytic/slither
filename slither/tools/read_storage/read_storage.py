@@ -348,6 +348,8 @@ class SlitherReadStorage:
                     if type_name == "address":
                         return to_checksum_address(value) if value else None
                     if "bytes" in type_name:
+                        if isinstance(value, bytes):
+                            return "0x" + value.hex()
                         return value if isinstance(value, str) else hex(value)
                     return str(value)
                 return str(value)

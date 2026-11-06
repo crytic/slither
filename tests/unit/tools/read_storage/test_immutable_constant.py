@@ -14,6 +14,7 @@ pragma solidity ^0.8.0;
 contract TestConstantImmutable {
     // Constant variables
     bytes32 public constant BYTES_CONSTANT = 0x1111111111111111111111111111111111111111111111111111111111111111;
+    bytes4 public constant SELECTOR = bytes4(keccak256("transfer(address,uint256)"));
     uint256 public constant UINT_CONSTANT = 12345;
     address public constant ADDRESS_CONSTANT = 0x2222222222222222222222222222222222222222;
     bool public constant BOOL_CONSTANT = true;
@@ -70,13 +71,14 @@ def test_immutable_constant_detection(slither_from_source):
     assert "privateBytes" in immutable_names
 
     # Check that we found constant variables
-    assert len(srs.constant_variables) == 5
+    assert len(srs.constant_variables) == 6
     constant_names = [var.name for _, var in srs.constant_variables]
     assert "BYTES_CONSTANT" in constant_names
     assert "UINT_CONSTANT" in constant_names
     assert "ADDRESS_CONSTANT" in constant_names
     assert "BOOL_CONSTANT" in constant_names
     assert "PRIVATE_CONSTANT" in constant_names
+    assert "SELECTOR" in constant_names
 
 
 def test_immutable_disabled_by_default(slither_from_source):
@@ -138,6 +140,7 @@ def test_constant_value_extraction(slither_from_source):
     assert "BOOL_CONSTANT" in slot_info
     # Bool constant should be True
     assert slot_info["BOOL_CONSTANT"].value in [True, "true", "True"]
+    assert slot_info["SELECTOR"].value == "0xa9059cbb"
 
 
 def test_variable_name_filter_with_immutable(slither_from_source):
