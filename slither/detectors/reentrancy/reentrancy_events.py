@@ -8,7 +8,7 @@ Iterate over all the nodes of the graph until reaching a fixpoint
 from collections import namedtuple, defaultdict
 
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
+from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable, _node_sort_key
 from slither.utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
@@ -95,7 +95,7 @@ If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` even
                             FindingValue(
                                 e,
                                 e.node,
-                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                tuple(sorted(nodes, key=_node_sort_key)),
                             )
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
