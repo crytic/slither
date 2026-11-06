@@ -62,7 +62,7 @@ This is the preferred option if your project has dependencies as Slither relies 
 However, you can run Slither on a single file that does not import dependencies:
 
 ```console
-slither tests/uninitialized.sol
+slither tests/e2e/detectors/test_data/uninitialized-state/0.7.6/uninitialized.sol
 ```
 
 ## How to install
