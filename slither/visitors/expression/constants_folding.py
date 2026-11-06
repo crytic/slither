@@ -38,14 +38,16 @@ CONSTANT_TYPES_OPERATIONS = (
 )
 
 
-def get_val(expression: CONSTANT_TYPES_OPERATIONS) -> bool | int | Fraction | str:
+def get_val(expression: CONSTANT_TYPES_OPERATIONS) -> bool | int | Fraction | str | bytes:
     val = expression.context[KEY]
     # we delete the item to reduce memory use
     del expression.context[KEY]
     return val
 
 
-def set_val(expression: CONSTANT_TYPES_OPERATIONS, val: bool | int | Fraction | str) -> None:
+def set_val(
+    expression: CONSTANT_TYPES_OPERATIONS, val: bool | int | Fraction | str | bytes
+) -> None:
     expression.context[KEY] = val
 
 
@@ -457,6 +459,13 @@ class ConstantFolding(ExpressionVisitor):
         assert isinstance(expr, Literal)
         if str(expression.type).startswith("uint") and isinstance(expr.value, bytes):
             value = int.from_bytes(expr.value, "big")
+        elif (
+            str(expression.type).startswith("bytes")
+            and str(expression.type) != "bytes"
+            and isinstance(expr.value, bytes)
+        ):
+            size = int(str(expression.type)[5:])
+            value = expr.value[:size].ljust(size, b"\x00")
         elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
             value = int.to_bytes(expr.value, 32, "big")
         elif str(expression.type).startswith("byte") and isinstance(expr.value, str):

@@ -1,4 +1,6 @@
 from pathlib import Path
+
+import pytest
 from slither import Slither
 from slither.visitors.expression.constants_folding import ConstantFolding
 
@@ -125,3 +127,32 @@ def test_constant_folding_binary_expressions(solc_binary_path):
     variable_m = contract.get_state_variable_from_name("m")
     assert str(variable_m.type) == "bytes2"
     assert ConstantFolding(variable_m.expression, "bytes2").result().value == "ab"
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        (
+            'bytes4(keccak256(bytes("transfer(address,uint256)")))',
+            bytes.fromhex("a9059cbb"),
+        ),
+        (
+            'bytes32(keccak256("transfer(address,uint256)"))',
+            bytes.fromhex("a9059cbb2ab09eb219583f4a59a5d0623ade346d962bcd4e46b11da047c9049b"),
+        ),
+        (
+            'bytes8(bytes4(keccak256("transfer(address,uint256)")))',
+            bytes.fromhex("a9059cbb00000000"),
+        ),
+    ],
+    ids=["selector", "digest", "widened-selector"],
+)
+def test_constant_folding_hash_bytes_casts(slither_from_solidity_source, expression, expected):
+    source = (
+        f"pragma solidity 0.8.19; contract C {{ "
+        f"bytes{len(expected)} constant VALUE = {expression}; }}"
+    )
+    with slither_from_solidity_source(source) as slither:
+        variable = slither.get_contract_from_name("C")[0].get_state_variable_from_name("VALUE")
+        result = ConstantFolding(variable.expression, variable.type).result()
+        assert result.value == expected
