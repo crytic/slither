@@ -136,8 +136,16 @@ def add_ssa_ir(
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
+    state_variables_read = {
+        (variable.name, variable.contract)
+        for node in function.nodes
+        for variable in node.state_variables_read
+    }
     for _, variable_instance in all_state_variables_instances.items():
-        if is_used_later(function.entry_point, variable_instance):
+        if (
+            variable_instance.name,
+            variable_instance.contract,
+        ) in state_variables_read and is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
@@ -200,6 +208,7 @@ def add_ssa_ir(
         all_state_variables_instances,
         init_local_variables_instances,
         [],
+        state_variables_read,
     )
 
     fix_phi_rvalues_and_storage_ref(
@@ -220,6 +229,7 @@ def generate_ssa_irs(
     all_state_variables_instances: dict[str, StateIRVariable],
     init_local_variables_instances: dict[str, LocalIRVariable],
     visited: list[Node],
+    state_variables_read: set[tuple[str, object]] | None = None,
 ) -> None:
     if node in visited:
         return
@@ -279,6 +289,11 @@ def generate_ssa_irs(
                 if isinstance(ir, LibraryCall):
                     continue
                 for variable in all_state_variables_instances.values():
+                    if (
+                        state_variables_read is not None
+                        and (variable.name, variable.contract) not in state_variables_read
+                    ):
+                        continue
                     if not is_used_later(node, variable):
                         continue
                     new_var = StateIRVariable(variable)
@@ -313,6 +328,7 @@ def generate_ssa_irs(
             all_state_variables_instances,
             init_local_variables_instances,
             visited,
+            state_variables_read,
         )
 
     for dominated in node.dominance_frontier:
@@ -324,6 +340,7 @@ def generate_ssa_irs(
             all_state_variables_instances,
             init_local_variables_instances,
             visited,
+            state_variables_read,
         )
 
 

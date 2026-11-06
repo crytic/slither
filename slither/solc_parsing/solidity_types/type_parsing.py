@@ -234,6 +234,11 @@ def parse_type(
     sl: SlitherCompilationUnit
     renaming: dict[str, str]
     type_aliases: dict[str, TypeAlias]
+    needs_lookup = isinstance(t, UnknownType) or (
+        isinstance(t, dict)
+        and t.get("nodeType" if getattr(caller_context, "is_compact_ast", False) else "name")
+        in ("UserDefinedTypeName", "IdentifierPath")
+    )
     enums_direct_access: list[Enum] = []
     # Note: for convenience top level functions use the same parser as function in contract
     # but contract_parser is set to None
@@ -252,16 +257,17 @@ def parse_type(
             next_context = caller_context.slither_parser
             renaming = caller_context.underlying_function.file_scope.renaming
             type_aliases = caller_context.underlying_function.file_scope.type_aliases
-        structures_direct_access = sl.structures_top_level
-        all_structuress = [c.structures for c in sl.contracts]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += structures_direct_access
-        enums_direct_access += sl.enums_top_level
-        all_enumss = [c.enums for c in sl.contracts]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += enums_direct_access
-        contracts = sl.contracts
-        functions = []
+        if needs_lookup:
+            structures_direct_access = sl.structures_top_level
+            all_structuress = [c.structures for c in sl.contracts]
+            all_structures = [item for sublist in all_structuress for item in sublist]
+            all_structures += structures_direct_access
+            enums_direct_access += sl.enums_top_level
+            all_enumss = [c.enums for c in sl.contracts]
+            all_enums = [item for sublist in all_enumss for item in sublist]
+            all_enums += enums_direct_access
+            contracts = sl.contracts
+            functions = []
     elif isinstance(
         caller_context,
         (
@@ -291,18 +297,19 @@ def parse_type(
 
         sl = caller_context.compilation_unit
         next_context = caller_context
-        structures_direct_access = list(scope.structures.values())
-        all_structuress = [c.structures for c in scope.contracts.values()]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += structures_direct_access
+        if needs_lookup:
+            structures_direct_access = list(scope.structures.values())
+            all_structuress = [c.structures for c in scope.contracts.values()]
+            all_structures = [item for sublist in all_structuress for item in sublist]
+            all_structures += structures_direct_access
 
-        enums_direct_access = []
-        all_enumss = [c.enums for c in scope.contracts.values()]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += scope.enums.values()
+            enums_direct_access = []
+            all_enumss = [c.enums for c in scope.contracts.values()]
+            all_enums = [item for sublist in all_enumss for item in sublist]
+            all_enums += scope.enums.values()
 
-        contracts = scope.contracts.values()
-        functions = list(scope.functions)
+            contracts = scope.contracts.values()
+            functions = list(scope.functions)
 
         renaming = scope.renaming
         type_aliases = scope.type_aliases
@@ -321,18 +328,19 @@ def parse_type(
             next_context = caller_context
             scope = contract.file_scope
 
-        structures_direct_access = contract.structures
-        structures_direct_access += scope.structures.values()
-        all_structuress = [c.structures for c in scope.contracts.values()]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += scope.structures.values()
-        enums_direct_access += contract.enums
-        enums_direct_access += scope.enums.values()
-        all_enumss = [c.enums for c in scope.contracts.values()]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += scope.enums.values()
-        contracts = scope.contracts.values()
-        functions = contract.functions + contract.modifiers
+        if needs_lookup:
+            structures_direct_access = contract.structures
+            structures_direct_access += scope.structures.values()
+            all_structuress = [c.structures for c in scope.contracts.values()]
+            all_structures = [item for sublist in all_structuress for item in sublist]
+            all_structures += scope.structures.values()
+            enums_direct_access += contract.enums
+            enums_direct_access += scope.enums.values()
+            all_enumss = [c.enums for c in scope.contracts.values()]
+            all_enums = [item for sublist in all_enumss for item in sublist]
+            all_enums += scope.enums.values()
+            contracts = scope.contracts.values()
+            functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
         type_aliases = scope.type_aliases
