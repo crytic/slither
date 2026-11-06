@@ -57,7 +57,15 @@ contract Contract{
                 item.function for sublist in all_libss_called for item in sublist
             ]
             functions_used |= {f.canonical_name for f in all_libs_called if isinstance(f, Function)}
-        for function in sorted(self.compilation_unit.functions, key=lambda x: x.canonical_name):
+        for function in sorted(
+            self.compilation_unit.functions,
+            key=lambda x: (
+                x.canonical_name,
+                x.source_mapping.filename.absolute,
+                x.source_mapping.start,
+                x.source_mapping.length,
+            ),
+        ):
             if (
                 function.visibility in ["public", "external"]
                 or function.is_constructor

@@ -39,9 +39,19 @@ def is_subset(
     return True
 
 
+def _node_sort_key(node) -> tuple:
+    return (
+        node.node_id,
+        node.source_mapping.filename.absolute,
+        node.source_mapping.start,
+        node.source_mapping.length,
+        node.function.canonical_name,
+    )
+
+
 def to_hashable(d: dict[Node, set[Node]]) -> tuple:
-    list_tuple = [(k, tuple(sorted(values, key=lambda x: x.node_id))) for k, values in d.items()]
-    return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
+    list_tuple = [(k, tuple(sorted(values, key=_node_sort_key))) for k, values in d.items()]
+    return tuple(sorted(list_tuple, key=lambda x: _node_sort_key(x[0])))
 
 
 class AbstractState:

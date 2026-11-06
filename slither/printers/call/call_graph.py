@@ -332,7 +332,16 @@ class PrinterCallGraph(AbstractPrinter):
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
-                function.canonical_name: function for function in all_functions
+                function.canonical_name: function
+                for function in sorted(
+                    all_functions,
+                    key=lambda f: (
+                        f.canonical_name,
+                        f.source_mapping.filename.absolute,
+                        f.source_mapping.start,
+                        f.source_mapping.length,
+                    ),
+                )
             }
             content = "\n".join(
                 ["strict digraph {"]
