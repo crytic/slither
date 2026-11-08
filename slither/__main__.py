@@ -38,6 +38,7 @@ from slither.utils.command_line import (
     output_results_to_markdown,
     output_to_markdown,
     output_wiki,
+    positive_int,
     read_config_file,
 )
 from slither.utils.output import (
@@ -77,7 +78,10 @@ def process_single(
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
-    slither = Slither(target, ast_format=ast, **vars(args))
+    slither_kwargs = vars(args).copy()
+    cyclomatic_complexity_threshold = slither_kwargs.pop("cyclomatic_complexity_threshold", 11)
+    slither = Slither(target, ast_format=ast, **slither_kwargs)
+    slither.cyclomatic_complexity_threshold = cyclomatic_complexity_threshold
 
     if args.sarif_input:
         slither.sarif_input = args.sarif_input
@@ -97,7 +101,9 @@ def process_all(
     detector_classes: list[type[AbstractDetector]],
     printer_classes: list[type[AbstractPrinter]],
 ) -> tuple[list[Slither], list[dict], list[Output], int]:
-    compilations = compile_all(target, **vars(args))
+    compile_kwargs = vars(args).copy()
+    compile_kwargs.pop("cyclomatic_complexity_threshold", None)
+    compilations = compile_all(target, **compile_kwargs)
     slither_instances = []
     results_detectors = []
     results_printers = []
@@ -357,6 +363,13 @@ def parse_args(
         action="store",
         dest="detectors_to_run",
         default=defaults_flag_in_config["detectors_to_run"],
+    )
+
+    group_detector.add_argument(
+        "--cyclomatic-complexity-threshold",
+        help="Report functions whose cyclomatic complexity exceeds this value (default: 11)",
+        type=positive_int,
+        default=defaults_flag_in_config["cyclomatic_complexity_threshold"],
     )
 
     group_printer.add_argument(
@@ -715,6 +728,10 @@ def parse_args(
 
     args = parser.parse_args()
     read_config_file(args)
+    try:
+        args.cyclomatic_complexity_threshold = positive_int(args.cyclomatic_complexity_threshold)
+    except argparse.ArgumentTypeError as error:
+        parser.error(str(error))
 
     args.filter_paths = parse_filter_paths(args, True)
     args.include_paths = parse_filter_paths(args, False)

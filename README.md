@@ -232,7 +232,7 @@ Num | Detector | What it Detects | Impact | Confidence
 75 | `assembly` | [Assembly usage](https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage) | Informational | High
 76 | `assert-state-change` | [Assert state change](https://github.com/crytic/slither/wiki/Detector-Documentation#assert-state-change) | Informational | High
 77 | `boolean-equal` | [Comparison to boolean constant](https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality) | Informational | High
-78 | `cyclomatic-complexity` | [Detects functions with high (> 11) cyclomatic complexity](https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity) | Informational | High
+78 | `cyclomatic-complexity` | [Detects functions above the configured threshold (default: 11)](https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity) | Informational | High
 79 | `deprecated-standards` | [Deprecated Solidity Standards](https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards) | Informational | High
 80 | `erc20-indexed` | [Un-indexed ERC20 event parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters) | Informational | High
 81 | `function-init-state` | [Function initializing state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state) | Informational | High

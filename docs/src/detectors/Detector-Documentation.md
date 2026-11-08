@@ -2591,7 +2591,7 @@ Remove the equality to the boolean constant.
 
 ### Description
 
-Detects functions with high (> 11) cyclomatic complexity.
+Detects functions above the configured cyclomatic-complexity threshold (default: 11).
 
 ### Recommendation
 
