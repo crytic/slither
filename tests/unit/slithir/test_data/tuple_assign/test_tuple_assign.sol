@@ -33,3 +33,14 @@ contract TestTupleReassign {
         return b;
     }
 }
+
+contract TestTupleEvaluationOrder {
+    uint256 public index;
+    uint256 public a;
+    uint256 public b;
+
+    function test() external {
+        require(index == 0);
+        (a, b) = (index, ++index);
+    }
+}

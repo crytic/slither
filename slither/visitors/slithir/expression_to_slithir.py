@@ -187,6 +187,68 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> list[Operation]:
         return self._result
 
+    def _visit_assignement_operation(self, expression: AssignmentOperation) -> None:
+        self._visit_expression(expression.expression_left)
+        right = expression.expression_right
+        if isinstance(right, TupleExpression) and len(right.expressions) > 1:
+            self._visit_tuple_expression_with_value_capture(right)
+        else:
+            self._visit_expression(right)
+
+    def _visit_tuple_expression_with_value_capture(self, expression: TupleExpression) -> None:
+        """Visit a tuple assignment RHS and preserve values read before later side effects.
+
+        Solidity evaluates tuple components from left to right, but the assignment itself
+        happens only after every component has been evaluated. A component that reads a
+        variable must therefore not observe a mutation performed by a later component, e.g.
+        ``(a, b) = (index, ++index)`` assigns the old value of ``index`` to ``a``.
+        """
+        self._pre_visit(expression)
+        element_ranges: list[tuple[int, int] | None] = []
+        for element in expression.expressions:
+            if element is None:
+                element_ranges.append(None)
+                continue
+            start = len(self._result)
+            self._visit_expression(element)
+            element_ranges.append((start, len(self._result)))
+        self._post_visit(expression)
+
+        values = get(expression)
+        if not isinstance(values, list):
+            return
+
+        total_irs = len(self._result)
+        captures: dict[int, list[tuple[int, TemporaryVariable, Assignment]]] = {}
+        for index, (element, element_range) in enumerate(
+            zip(expression.expressions, element_ranges, strict=True)
+        ):
+            if element is None or element_range is None:
+                continue
+            _, end = element_range
+            value = values[index]
+            # A value only needs to be preserved if a later component emitted IR that
+            # could mutate it. Temporary variables already hold a value, and reference
+            # types would capture an alias rather than the value read at this point.
+            if (
+                end < total_irs
+                and isinstance(value, (LocalVariable, StateVariable))
+                and isinstance(value.type, ElementaryType)
+            ):
+                temp = TemporaryVariable(self._node)
+                temp.type = value.type
+                capture = Assignment(temp, value, value.type)
+                capture.set_expression(expression)
+                captures.setdefault(end, []).append((index, temp, capture))
+
+        # Insert captures from the end so the recorded positions remain valid.
+        for end in sorted(captures, reverse=True):
+            for index, temp, capture in captures[end]:
+                self._result.insert(end, capture)
+                values[index] = temp
+
+        set_val(expression, values)
+
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
