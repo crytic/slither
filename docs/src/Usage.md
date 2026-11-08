@@ -59,6 +59,14 @@ slither file.sol --exclude naming-convention,unused-state,suicidal
 
 To exclude detectors with an informational or low severity, use `--exclude-informational` or `--exclude-low`.
 
+The `cyclomatic-complexity` detector reports functions whose complexity is greater than 11 by default. Override the threshold on the command line:
+
+```sh
+slither . --detect cyclomatic-complexity --cyclomatic-complexity-threshold 15
+```
+
+Or set `"cyclomatic_complexity_threshold": 15` in `slither.config.json`.
+
 `--list-detectors` lists [available detectors](https://github.com/crytic/slither/wiki/Detector-Documentation).
 
 ### Printer selection
@@ -134,6 +142,7 @@ The following flags are supported:
     "printers_to_run": None,
     "detectors_to_exclude": None,
     "detectors_to_include": None,
+    "cyclomatic_complexity_threshold": 11,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,

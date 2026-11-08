@@ -71,12 +71,26 @@ defaults_flag_in_config = {
     "zip_type": "lzma",
     "show_ignored_findings": False,
     "warn_unused_ignores": False,
+    "cyclomatic_complexity_threshold": 11,
     "no_fail": False,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
     "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
+
+
+def positive_int(value: str | int) -> int:
+    """Parse a positive integer from a CLI argument or JSON configuration."""
+    if isinstance(value, bool) or not isinstance(value, (str, int)):
+        raise argparse.ArgumentTypeError("value must be a positive integer")
+    try:
+        parsed = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("value must be a positive integer") from error
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("value must be a positive integer")
+    return parsed
 
 
 DEFAULT_CONFIG_FILENAMES = ("slither.config.json", "slither.conf.json")
