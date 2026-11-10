@@ -3228,3 +3228,54 @@ contract C {
 ### Recommendation
 
 Read the variable directly from storage instead of calling the contract.
+
+
+## Constructor initialization order changes with via-IR
+### Configuration
+* Check: `ir-constructor-order`
+* Severity: `Low`
+* Confidence: `Medium`
+
+### Description
+The legacy pipeline initializes state variables throughout the inheritance
+hierarchy before executing constructors. The IR pipeline interleaves each contract's state
+initializers with its constructor. An initializer that reads state written by a preceding base
+constructor can therefore observe a different value. Internal helper calls are included. This is
+an audit warning when planning a pipeline change, not proof of an exploitable vulnerability or a claim
+that the current pipeline is incorrect. Value equality and path feasibility are not proved. External calls, assembly-only access and
+dynamic internal calls are not modeled. The warning is emitted with either pipeline selected.
+
+### Exploit Scenario:
+A base constructor initializes an authorization threshold. A derived
+state initializer copies that threshold. Enabling via-IR changes the copied value because the
+base constructor now runs before the derived initializer.
+
+### Recommendation
+Review the initializer and base constructor together. Make the intended
+initialization order explicit and compare deployment behavior under both compiler pipelines.
+
+## Repeated modifier body semantics change with via-IR
+### Configuration
+* Check: `ir-repeated-modifier`
+* Severity: `Low`
+* Confidence: `Medium`
+
+### Description
+When a modifier executes the function body repeatedly, the legacy pipeline
+shares function parameter and return-variable stack slots between executions. The IR pipeline
+passes the original parameters anew and resets return variables. This detector finds a reachable
+repeated placeholder and an elementary parameter/return variable whose initial value can be read
+and whose value is written in the body. Mutually exclusive placeholders alone are not repeated.
+This is a migration audit warning: it does not prove path feasibility or unequal final values,
+and does not cover reference-type aliases, assembly-only writes or dynamic internal calls.
+It checks each directly applied modifier separately and does not model modifiers applied to
+modifiers. The warning is emitted with either pipeline selected.
+
+### Exploit Scenario:
+A modifier executes `_` twice. A function increments a named return
+variable on each execution and returns 2 with legacy codegen but 1 with via-IR. A caller relying
+on the accumulated result changes behavior when the compilation pipeline changes.
+
+### Recommendation
+Execute the function body once, or make accumulation explicit in a
+separate helper with explicit inputs and outputs. Test both pipelines before migrating.
