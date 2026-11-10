@@ -1,1 +1,12 @@
+Indirect.copied (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#13) in Indirect (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#13) reads Base.threshold (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#5) before Base.constructor() (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#7) in legacy codegen, but after it with via-IR:
+	- copied = indirect() (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#13)
+
+Direct.copied (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#12) in Direct (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#12) reads Base.threshold (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#5) before Base.constructor() (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#7) in legacy codegen, but after it with via-IR:
+	- copied = threshold (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#12)
+
+Immutable.copied (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#14) in Immutable (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#14) reads Base.threshold (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#5) before Base.constructor() (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#7) in legacy codegen, but after it with via-IR:
+	- copied = threshold (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#14)
+
+Right.copied (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#25) in RightAfterLeft (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#27) reads Root.value (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#23) before Left.constructor() (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#24) in legacy codegen, but after it with via-IR:
+	- copied = value (tests/e2e/detectors/test_data/ir-constructor-order/0.8.26/migration.sol#25)
 
