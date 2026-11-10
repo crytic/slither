@@ -191,8 +191,32 @@ initialization order explicit and compare deployment behavior under both compile
 
     def _detect(self) -> list[Output]:
         results = []
-        for contract in self.compilation_unit.contracts_derived:
+        # A concrete contract stays deployable when it has descendants, so derived
+        # leaves alone are not every deployment context. Scan those contracts too,
+        # reporting each distinct finding once under the first context that shows it.
+        contexts = list(self.compilation_unit.contracts_derived)
+        contexts.extend(
+            contract
+            for contract in self.compilation_unit.contracts
+            if contract not in contexts and not contract.is_abstract
+        )
+        seen: set[tuple[str, str, int, int, str, str]] = set()
+        for contract in contexts:
             for variable, node, read, constructor in self.dependencies(contract):
+                # Each context gets its own initializer nodes, so identity comes
+                # from the source location, not the node objects.
+                mapping = node.source_mapping
+                key = (
+                    variable.canonical_name,
+                    mapping.filename.absolute,
+                    mapping.start,
+                    mapping.length,
+                    read.canonical_name,
+                    constructor.canonical_name,
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
                 info: DETECTOR_INFO = [
                     variable,
                     " in ",
