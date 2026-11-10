@@ -77,10 +77,43 @@ contract Derived is Base {{ uint public y = {initializer}; }}
             1,
         ),
         ("contract A {uint x;} contract B is A {uint y=x; constructor(){x=42;}}", 0),
+        # A deployable contract stays a context when it has descendants: the leaf
+        # override masks the read, but deploying the middle contract still changes.
+        (
+            "contract A {uint x; constructor(){x=42;} function f() public virtual returns(uint){return x;}}"
+            " contract B is A {uint y=f();}"
+            " contract C is B {function f() public pure override returns(uint){return 7;}}",
+            1,
+        ),
+        # Both the middle and leaf contexts show the same finding; report it once.
+        (
+            "contract A {uint x; constructor(){x=42;}} contract B is A {uint y=x;} contract C is B {}",
+            1,
+        ),
     ],
 )
 def test_constructor_context(tmp_path, compiler, source, expected):
     assert len(analyze(tmp_path, compiler, source, IRConstructorOrder)) == expected
+
+
+def test_nonleaf_deployment_context(tmp_path, compiler):
+    source = """
+contract Base {
+ uint internal x;
+ constructor() { x = 42; }
+}
+contract Mid is Base {
+ uint public y = f();
+ function f() public virtual returns(uint) { return x; }
+}
+contract Leaf is Mid {
+ function f() public pure override returns(uint) { return 7; }
+}
+"""
+    results = analyze(tmp_path, compiler, source, IRConstructorOrder)
+    assert len(results) == 1
+    assert "Mid.y" in results[0]["description"]
+    assert " in Mid (" in results[0]["description"]
 
 
 @pytest.mark.parametrize(
