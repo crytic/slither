@@ -1,0 +1,12 @@
+Repeated.namedReturn() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#12) reads and writes parameters/return variables across repeated body executions by Repeated.twice() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#6); via-IR resets their initial values on each execution:
+	- Repeated.namedReturn().r (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#12)
+
+Repeated.parameter(uint256) (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#11) reads and writes parameters/return variables across repeated body executions by Repeated.twice() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#6); via-IR resets their initial values on each execution:
+	- Repeated.parameter(uint256).a (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#11)
+
+Repeated.loop(uint256) (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#13) reads and writes parameters/return variables across repeated body executions by Repeated.looped() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#7); via-IR resets their initial values on each execution:
+	- Repeated.loop(uint256).a (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#13)
+
+Repeated.conditionalReturn() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#14) reads and writes parameters/return variables across repeated body executions by Repeated.flip() (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#10); via-IR resets their initial values on each execution:
+	- Repeated.conditionalReturn().r (tests/e2e/detectors/test_data/ir-repeated-modifier/0.8.13/migration.sol#14)
+
