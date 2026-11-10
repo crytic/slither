@@ -56,6 +56,10 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
+    Test(all_detectors.IRConstructorOrder, "migration.sol", "0.8.13"),
+    Test(all_detectors.IRConstructorOrder, "migration.sol", "0.8.26"),
+    Test(all_detectors.IRRepeatedModifier, "migration.sol", "0.8.13"),
+    Test(all_detectors.IRRepeatedModifier, "migration.sol", "0.8.26"),
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
