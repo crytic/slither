@@ -61,3 +61,25 @@ def test_yul_parser_sstore_sload(solc_binary_path) -> None:
     write_parameter = contract.get_function_from_full_name("write_parameter(uint256)")
     # Sstore is kept because the slot is dynamic
     assert len(write_parameter.all_solidity_calls()) == 1
+
+
+def test_yul_parser_function_selector_and_address(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.28")
+    slither = Slither(
+        Path(TEST_DATA_DIR, "assembly_function_selector.sol").as_posix(),
+        solc=solc_path,
+        disallow_partial=True,
+    )
+
+    contract = slither.get_contract_from_name("FunctionSelectorAsm")[0]
+    assert not contract.is_incorrectly_constructed
+
+    write_local = contract.get_function_from_full_name("writeLocal()")
+    g_var = write_local.get_local_variable_from_name("g")
+    assert isinstance(g_var, LocalVariable)
+    assert g_var in write_local.variables_written
+
+    read_param = contract.get_function_from_full_name("readParam(function())")
+    pg_var = read_param.get_local_variable_from_name("pg")
+    assert isinstance(pg_var, LocalVariable)
+    assert pg_var in read_param.variables_read
