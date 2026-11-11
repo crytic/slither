@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from slither import Slither
+from slither.slithir.operations import InternalCall
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -43,3 +44,34 @@ def test_name_resolution_legacy_pre_0_5_0(solc_binary_path) -> None:
     function = contract.get_function_from_signature("a()")
     x = function.get_local_variable_from_name("x")
     assert _sort_references_lines(x.references) == [5]
+
+
+def test_qualified_modifier_identifier_path(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.28")
+    slither = Slither(
+        Path(NAME_RESOLUTION_TEST_ROOT, "qualified_modifier_identifier_path.sol").as_posix(),
+        solc=solc_path,
+        disallow_partial=True,
+    )
+    contract_c = slither.get_contract_from_name("C")[0]
+    assert not contract_c.is_incorrectly_constructed
+
+    f_func = contract_c.get_function_from_signature("f()")
+    assert [(m.canonical_name, m.contract_declarer.name) for m in f_func.modifiers] == [
+        ("A.m()", "A")
+    ]
+
+    g_func = contract_c.get_function_from_signature("g(uint256)")
+    assert [(m.canonical_name, m.contract_declarer.name) for m in g_func.modifiers] == [
+        ("A.p(uint256)", "A"),
+        ("B.p(uint256)", "B"),
+        ("C.p(uint256)", "C"),
+    ]
+    g_internal_calls = [op for op in g_func.slithir_operations if isinstance(op, InternalCall)]
+    assert [
+        (op.function.canonical_name, op.function.contract_declarer.name) for op in g_internal_calls
+    ] == [
+        ("A.p(uint256)", "A"),
+        ("B.p(uint256)", "B"),
+        ("C.p(uint256)", "C"),
+    ]

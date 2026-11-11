@@ -55,6 +55,7 @@ def _find_variable_from_ref_declaration(
     all_functions: list["Function"],
     function_parser: Optional["FunctionSolc"],
     contract_declarer: Optional["Contract"],
+    allow_shadowed: bool = False,
 ) -> Contract | Function | None:
     """
     Reference declarations take the highest priority, but they are not available for legacy AST.
@@ -77,7 +78,9 @@ def _find_variable_from_ref_declaration(
         if contract_candidate and contract_candidate.id == referenced_declaration:
             return contract_candidate
     for function_candidate in all_functions:
-        if function_candidate.id == referenced_declaration and not function_candidate.is_shadowed:
+        if function_candidate.id == referenced_declaration and (
+            allow_shadowed or not function_candidate.is_shadowed
+        ):
             return function_candidate
     return None
 
@@ -218,6 +221,15 @@ def _find_in_contract(
             return modifiers[var_name]
 
     if is_identifier_path and not is_super:
+        if "." in var_name:
+            contract_name, modifier_name = var_name.rsplit(".", 1)
+            target_contract_name = contract_name.rsplit(".", 1)[-1]
+            for modifier in contract.modifiers:
+                if (
+                    modifier.contract_declarer.name == target_contract_name
+                    and modifier.name == modifier_name
+                ):
+                    return modifier
         for sig, modifier in modifiers.items():
             if "(" in sig:
                 sig = sig[0 : sig.find("(")]
@@ -439,12 +451,15 @@ def find_variable(
         caller_context if isinstance(caller_context, FunctionSolc) else None
     )
     # Use ret0/ret1 to help mypy
+    # Qualified IdentifierPath references (e.g. Base.modifier) explicitly target
+    # a base declaration even when overridden/shadowed in the current contract.
     ret0 = _find_variable_from_ref_declaration(
         referenced_declaration,
         direct_contracts,
         direct_functions,
         function_parser,
         contract_declarer,
+        allow_shadowed=is_identifier_path and "." in var_name,
     )
     if ret0:
         return ret0, False
