@@ -18,6 +18,7 @@ from slither.core.expressions import (
     AssignmentOperation,
     AssignmentOperationType,
     Identifier,
+    MemberAccess,
     CallExpression,
     TupleExpression,
     BinaryOperation,
@@ -25,7 +26,7 @@ from slither.core.expressions import (
 )
 from slither.core.expressions.expression import Expression
 from slither.core.scope.scope import FileScope
-from slither.core.solidity_types import ElementaryType
+from slither.core.solidity_types import ElementaryType, FunctionType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.exceptions import SlitherException
@@ -795,6 +796,12 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Expression | None:
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.location == "calldata":
             return Identifier(var)
+    for suffix, result_type in ((".selector", "bytes4"), (".address", "address")):
+        if name.endswith(suffix):
+            potential_name = name[: -len(suffix)]
+            var = root.function.get_local_variable_from_name(potential_name)
+            if var and isinstance(var.type, FunctionType):
+                return MemberAccess(suffix[1:], ElementaryType(result_type), Identifier(var))
     return None
 
 
