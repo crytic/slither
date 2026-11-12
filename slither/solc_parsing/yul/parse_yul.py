@@ -18,6 +18,7 @@ from slither.core.expressions import (
     AssignmentOperation,
     AssignmentOperationType,
     Identifier,
+    MemberAccess,
     CallExpression,
     TupleExpression,
     BinaryOperation,
@@ -795,12 +796,12 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Expression | None:
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.location == "calldata":
             return Identifier(var)
-    for suffix in (".selector", ".address"):
+    for suffix, result_type in ((".selector", "bytes4"), (".address", "address")):
         if name.endswith(suffix):
             potential_name = name[: -len(suffix)]
             var = root.function.get_local_variable_from_name(potential_name)
             if var and isinstance(var.type, FunctionType):
-                return Identifier(var)
+                return MemberAccess(suffix[1:], ElementaryType(result_type), Identifier(var))
     return None
 
 
