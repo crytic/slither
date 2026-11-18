@@ -61,6 +61,14 @@ class Constant(SlithIRVariable):
         """
         return self._original_value
 
+    @property
+    def subdenomination(self) -> str | None:
+        """
+        Return the subdenomination (e.g. days, ether), if any.
+        :return: str | None
+        """
+        return self._subdenomination
+
     def __str__(self) -> str:
         return str(self.value)
 
