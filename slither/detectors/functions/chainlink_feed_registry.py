@@ -75,6 +75,10 @@ If the contract is deployed on a different chain than Ethereum Mainnet the `getP
         for contract in self.compilation_unit.contracts_derived:
             nodes = []
             for target, ir in contract.all_high_level_calls:
+                # Unresolved library calls can surface a plain string as the
+                # target instead of a Contract (see issue #3103); skip those.
+                if isinstance(target, str):
+                    continue
                 if (
                     target.name == "FeedRegistryInterface"
                     and ir.function_name in registry_functions
