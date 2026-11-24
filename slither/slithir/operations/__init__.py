@@ -6,6 +6,7 @@ from .delete import Delete
 from .event_call import EventCall
 from .high_level_call import HighLevelCall
 from .index import Index
+from .index_range import IndexRange
 from .init_array import InitArray
 from .internal_call import InternalCall
 from .internal_dynamic_call import InternalDynamicCall

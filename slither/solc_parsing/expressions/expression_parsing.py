@@ -13,6 +13,7 @@ from slither.core.expressions import (
     ElementaryTypeNameExpression,
     Identifier,
     IndexAccess,
+    IndexRangeAccess,
     Literal,
     MemberAccess,
     NewArray,
@@ -638,13 +639,16 @@ def parse_expression(expression: dict, caller_context: CallerContextExpression) 
         return call
 
     if name == "IndexRangeAccess":
-        # For now, we convert array slices to a direct array access
-        # As a result the generated IR will lose the slices information
-        # As far as I understand, array slice are only used in abi.decode
-        # https://solidity.readthedocs.io/en/v0.6.12/types.html
-        # TODO: Investigate array slices usage and implication for the IR
+        # Array slice: base[start:end], start and end are optional
+        # https://docs.soliditylang.org/en/latest/types.html#array-slices
         base = parse_expression(expression["baseExpression"], caller_context)
-        return base
+        start = expression.get("startExpression", None)
+        end = expression.get("endExpression", None)
+        start = parse_expression(start, caller_context) if start else None
+        end = parse_expression(end, caller_context) if end else None
+        index_range = IndexRangeAccess(base, start, end)
+        index_range.set_offset(src, caller_context.compilation_unit)
+        return index_range
 
     # Introduced with solc 0.8
     if name == "IdentifierPath":

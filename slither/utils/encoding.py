@@ -89,6 +89,8 @@ def encode_ir_for_upgradeability_compare(ir: operations.Operation) -> str:
         return f"({encode_var_for_compare(ir.lvalue)}):=({encode_var_for_compare(ir.rvalue)})"
     if isinstance(ir, operations.Index):
         return f"index({ntype(ir.variable_right.type)})"
+    if isinstance(ir, operations.IndexRange):
+        return "index_range"
     if isinstance(ir, operations.Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, operations.Length):
@@ -146,6 +148,8 @@ def encode_ir_for_halstead(ir: operations.Operation) -> str:
         return "assignment"
     if isinstance(ir, operations.Index):
         return "index"
+    if isinstance(ir, operations.IndexRange):
+        return "index_range"
     if isinstance(ir, operations.Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, operations.Length):

@@ -5,6 +5,7 @@ from slither.core.expressions import (
     ConditionalExpression,
     ElementaryTypeNameExpression,
     IndexAccess,
+    IndexRangeAccess,
     NewArray,
     NewContract,
     UnaryOperation,
@@ -83,6 +84,13 @@ class ExportValues(ExpressionVisitor):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = left + right
+        set_val(expression, val)
+
+    def _post_index_range_access(self, expression: IndexRangeAccess) -> None:
+        val = []
+        for sub_expression in expression.expressions:
+            if sub_expression is not None:
+                val += get(sub_expression)
         set_val(expression, val)
 
     def _post_literal(self, expression: Literal) -> None:

@@ -63,6 +63,13 @@ class ExpressionPrinter(ExpressionVisitor):
         val = f"{left}[{right}]"
         set_val(expression, val)
 
+    def _post_index_range_access(self, expression: expressions.IndexRangeAccess) -> None:
+        base = get(expression.expression_base)
+        start = get(expression.expression_start) if expression.expression_start is not None else ""
+        end = get(expression.expression_end) if expression.expression_end is not None else ""
+        val = f"{base}[{start}:{end}]"
+        set_val(expression, val)
+
     def _post_literal(self, expression: expressions.Literal) -> None:
         set_val(expression, str(expression.value))
 
