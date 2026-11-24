@@ -11,8 +11,11 @@ from slither.core.variables.variable import Variable
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions import CallExpression, NewContract
+from slither.slithir.operations import InternalCall, LibraryCall
+from slither.slithir.variables import LocalIRVariable, StateIRVariable
 
 
 def _is_valid_type(v: StateVariable) -> bool:
@@ -64,6 +67,70 @@ def _constant_initial_expression(v: Variable) -> bool:
     return all(val in valid_solidity_function or _is_constant_var(val) for val in values)
 
 
+def _storage_param_calls(function: Function):
+    """
+    Yield (callee, argument, parameter) for each argument passed to a storage parameter
+    of an internal or library call in function
+    """
+    for ir in function.slithir_ssa_operations:
+        if isinstance(ir, (InternalCall, LibraryCall)) and isinstance(ir.function, Function):
+            for arg, param in zip(ir.arguments, ir.function.parameters, strict=False):
+                if param.is_storage:
+                    yield ir.function, arg, param
+
+
+def _may_write_storage_param(
+    function: Function, param: LocalVariable, explored: set[tuple[Function, LocalVariable]]
+) -> bool:
+    """
+    Return true if function may write to the storage pointed to by its parameter param:
+    - param is written in function (including through `x.slot := param.slot` in assembly), or
+    - param is forwarded to a storage parameter of a call that may write it, or that returns a
+      storage reference (e.g. OpenZeppelin StorageSlot.getStringSlot)
+
+    view/pure functions cannot write storage, so a read-only use is not considered a write
+    """
+    if (function, param) in explored:
+        return False
+    explored.add((function, param))
+
+    if function.view or function.pure:
+        return False
+
+    if param in function.variables_written:
+        return True
+
+    for callee, arg, callee_param in _storage_param_calls(function):
+        if isinstance(arg, LocalIRVariable) and arg.non_ssa_version == param:
+            if any(ret.is_storage for ret in callee.returns) or _may_write_storage_param(
+                callee, callee_param, explored
+            ):
+                return True
+    return False
+
+
+def _state_variables_written_through_storage_args(function: Function) -> list[StateVariable]:
+    """
+    Return the state variables passed by storage reference to a call that may write them
+    For example, a string state variable given to a library function that writes it through
+    assembly (OpenZeppelin ShortStrings.toShortStringWithFallback)
+    """
+    written = []
+    for callee, arg, param in _storage_param_calls(function):
+        if isinstance(arg, StateIRVariable):
+            state_variables = [arg.non_ssa_version]
+        elif isinstance(arg, LocalIRVariable) and arg.is_storage:
+            # Storage pointer aliasing a state variable
+            state_variables = [
+                r.non_ssa_version for r in arg.refers_to if isinstance(r, StateIRVariable)
+            ]
+        else:
+            continue
+        if state_variables and _may_write_storage_param(callee, param, set()):
+            written.extend(state_variables)
+    return written
+
+
 class UnchangedStateVariables:
     """
     Find state variables that could be declared as constant or immutable (not written after deployment).
@@ -107,12 +174,15 @@ class UnchangedStateVariables:
             constructor_variables_written = []
             variables_initialized = []
             for f in all_functions:
+                written = f.state_variables_written + _state_variables_written_through_storage_args(
+                    f
+                )
                 if f.is_constructor_variables:
-                    variables_initialized.extend(f.state_variables_written)
+                    variables_initialized.extend(written)
                 elif f.is_constructor:
-                    constructor_variables_written.extend(f.state_variables_written)
+                    constructor_variables_written.extend(written)
                 else:
-                    variables_written.extend(f.state_variables_written)
+                    variables_written.extend(written)
 
             for v in valid_candidates:
                 if v not in variables_written:

@@ -1,0 +1,4 @@
+StorageAlias._readView (tests/e2e/detectors/test_data/constable-states/0.8.0/storage_alias.sol#70) should be constant 
+
+StorageAlias._readNonView (tests/e2e/detectors/test_data/constable-states/0.8.0/storage_alias.sol#71) should be constant 
+
