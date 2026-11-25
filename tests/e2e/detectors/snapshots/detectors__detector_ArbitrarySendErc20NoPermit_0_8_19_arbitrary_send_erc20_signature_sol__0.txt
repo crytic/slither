@@ -1,0 +1,54 @@
+Settlement.bad_ecrecover_compared_to_other_address(address,address,uint256,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#305-316) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#315)
+
+Settlement.bad_constant_digest(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#548-556) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#555)
+
+Settlement.bad_signature_or_approval(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#391-403) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#402)
+
+Settlement.bad_validation_skipped_by_short_circuit(Offer,bytes,uint256,bool) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#318-326) uses arbitrary from in transferFrom: token.safeTransferFrom(offer.maker,address(this),amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#325)
+
+Settlement.bad_check_after_transfer(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#419-428) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#426)
+
+Settlement.bad_erc1271_compared_to_other_value(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#569-578) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#577)
+
+Settlement.bad_check_only_on_one_path(address,address,uint256,bool,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#405-417) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#416)
+
+Settlement.bad_digest_chosen_by_caller(address,address,uint256,bytes32,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#443-452) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#451)
+
+Settlement.bad_signer_local_assigned_on_one_path(Offer,bytes,uint256,bool) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#377-389) uses arbitrary from in transferFrom: token.safeTransferFrom(offer.maker,address(this),amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#388)
+
+Settlement.bad_failed_check_does_not_revert(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#351-362) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#361)
+
+Settlement.bad_checker_on_other_address(address,address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#293-303) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#302)
+
+Settlement.bad_digest_of_caller_bytes_checked_in_callee(address,address,uint256,bytes,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#466-475) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#474)
+
+Settlement.bad_digest_of_caller_bytes(address,address,uint256,bytes,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#454-464) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#463)
+
+Settlement.bad_digest_of_other_struct_member_checked_in_callee(Order,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#511-517) uses arbitrary from in transferFrom: IERC20(token).transferFrom(order.maker,order.taker,order.amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#516)
+
+Settlement.bad_checker_result_ignored(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#328-337) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#336)
+
+Settlement.bad_typed_data_wrapper_over_caller_hash(address,address,uint256,bytes32,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#537-546) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#545)
+
+Settlement.bad_digest_looked_up_by_struct_member(Order,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#527-535) uses arbitrary from in transferFrom: IERC20(token).transferFrom(order.maker,order.taker,order.amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#534)
+
+Settlement.bad_erc1271_result_ignored(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#558-567) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#566)
+
+Settlement.bad_from_replaced_after_check(address,address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#430-441) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#440)
+
+Settlement.bad_checker_result_unused(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#339-349) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#348)
+
+Settlement.bad_digest_replaced_by_caller_bytes_on_one_path(address,address,uint256,bytes,bool,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#477-491) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#490)
+
+Settlement.bad_typed_data_wrapper_over_struct_hash(Order,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#519-525) uses arbitrary from in transferFrom: IERC20(token).transferFrom(order.maker,order.taker,order.amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#524)
+
+Settlement.bad_no_signature(address,address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#280-282) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#281)
+
+Settlement.bad_digest_of_other_struct_member(Order,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#493-499) uses arbitrary from in transferFrom: IERC20(token).transferFrom(order.maker,order.taker,order.amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#498)
+
+Settlement.bad_digest_of_other_struct_parameter(Order,Order,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#501-509) uses arbitrary from in transferFrom: IERC20(token).transferFrom(order.maker,order.taker,order.amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#508)
+
+Settlement.bad_transfer_follows_both_outcomes_of_check(address,address,uint256,bytes) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#364-375) uses arbitrary from in transferFrom: IERC20(token).transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#374)
+
+Settlement.bad_signature_of_other_party(Offer,bytes,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#284-291) uses arbitrary from in transferFrom: token.safeTransferFrom(offer.maker,address(this),amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.19/arbitrary_send_erc20_signature.sol#290)
+

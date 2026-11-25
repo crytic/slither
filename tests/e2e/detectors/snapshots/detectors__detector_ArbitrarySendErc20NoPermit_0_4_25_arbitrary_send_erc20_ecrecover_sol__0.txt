@@ -1,0 +1,8 @@
+Settlement.bad_no_signature(address,address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#40-42) uses arbitrary from in transferFrom: token.transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#41)
+
+Settlement.bad_ecrecover_result_ignored(address,address,uint256,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#57-69) uses arbitrary from in transferFrom: token.transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#68)
+
+Settlement.bad_ecrecover_compared_to_other_address(address,address,uint256,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#44-55) uses arbitrary from in transferFrom: token.transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#54)
+
+Settlement.bad_digest_chosen_by_caller(address,address,uint256,bytes32,uint8,bytes32,bytes32) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#71-82) uses arbitrary from in transferFrom: token.transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20_ecrecover.sol#81)
+
