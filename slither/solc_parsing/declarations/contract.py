@@ -638,7 +638,9 @@ class ContractSolc(CallerContextExpression):
     def analyze_using_for(self) -> None:
         try:
             for father in self._contract.inheritance:
-                self._contract.using_for.update(father.using_for)
+                for type_name, libraries in father.using_for.items():
+                    inherited = self._contract.using_for.setdefault(type_name, [])
+                    inherited.extend(lib for lib in libraries if lib not in inherited)
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
                     if using_for.get("typeName"):

@@ -1573,6 +1573,31 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_ecrecover.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_ecrecover.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_ecrecover.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_ecrecover.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_signature.sol",
+        "0.8.19",
+    ),
+    Test(
         all_detectors.ArbitrarySendErc20Permit,
         "arbitrary_send_erc20_permit.sol",
         "0.4.25",
