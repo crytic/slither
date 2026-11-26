@@ -30,6 +30,7 @@ from slither.slithir.operations import (
     EventCall,
     HighLevelCall,
     Index,
+    IndexRange,
     InitArray,
     InternalCall,
     InternalDynamicCall,
@@ -745,6 +746,12 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Index(lvalue, variable_left, variable_right)
+    if isinstance(ir, IndexRange):
+        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        base = get_variable(ir, lambda x: x.base, *instances)
+        start = get_variable(ir, lambda x: x.start, *instances)  # None if omitted
+        end = get_variable(ir, lambda x: x.end, *instances)  # None if omitted
+        return IndexRange(lvalue, base, start, end)
     if isinstance(ir, InitArray):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         init_values = get_rec_values(ir, lambda x: x.init_values, *instances)

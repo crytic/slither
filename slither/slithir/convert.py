@@ -51,6 +51,7 @@ from slither.slithir.operations import (
     EventCall,
     HighLevelCall,
     Index,
+    IndexRange,
     InitArray,
     InternalCall,
     InternalDynamicCall,
@@ -912,6 +913,9 @@ def propagate_types(ir: Operation, node: "Node"):
                                 )
                                 if v:
                                     ir.lvalue.set_type(v.type)
+            elif isinstance(ir, IndexRange):
+                # A slice has the type of the sliced (calldata) array
+                ir.lvalue.set_type(ir.base.type)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):

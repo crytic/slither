@@ -10,6 +10,7 @@ from slither.core.expressions.elementary_type_name_expression import ElementaryT
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.index_range_access import IndexRangeAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.new_array import NewArray
@@ -110,6 +111,13 @@ class WriteVar(ExpressionVisitor):
         #          else:
         #              val += [n.expression]
         #              n = n.expression
+        set_val(expression, val)
+
+    def _post_index_range_access(self, expression: IndexRangeAccess) -> None:
+        val = []
+        for sub_expression in expression.expressions:
+            if sub_expression is not None:
+                val += get(sub_expression)
         set_val(expression, val)
 
     def _post_literal(self, expression: Literal) -> None:

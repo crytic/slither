@@ -16,6 +16,7 @@ from slither.core.expressions.elementary_type_name_expression import ElementaryT
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.index_range_access import IndexRangeAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.new_array import NewArray
@@ -112,7 +113,8 @@ class SplitTernaryExpression:
             return
 
         if isinstance(
-            expression, (AssignmentOperation, BinaryOperation, TupleExpression, IndexAccess)
+            expression,
+            (AssignmentOperation, BinaryOperation, TupleExpression, IndexAccess, IndexRangeAccess),
         ):
             true_expression._expressions = []
             false_expression._expressions = []

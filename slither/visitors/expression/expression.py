@@ -9,6 +9,7 @@ from slither.core.expressions.elementary_type_name_expression import ElementaryT
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.index_range_access import IndexRangeAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.new_array import NewArray
@@ -36,6 +37,7 @@ def get_visitor_mapping():
         ElementaryTypeNameExpression: "_visit_elementary_type_name_expression",
         Identifier: "_visit_identifier",
         IndexAccess: "_visit_index_access",
+        IndexRangeAccess: "_visit_index_range_access",
         Literal: "_visit_literal",
         MemberAccess: "_visit_member_access",
         NewArray: "_visit_new_array",
@@ -115,6 +117,13 @@ class ExpressionVisitor:
         self._visit_expression(expression.expression_left)
         self._visit_expression(expression.expression_right)
 
+    def _visit_index_range_access(self, expression: IndexRangeAccess) -> None:
+        self._visit_expression(expression.expression_base)
+        if expression.expression_start is not None:
+            self._visit_expression(expression.expression_start)
+        if expression.expression_end is not None:
+            self._visit_expression(expression.expression_end)
+
     def _visit_literal(self, expression: Literal) -> None:
         pass
 
@@ -164,6 +173,9 @@ class ExpressionVisitor:
 
         elif isinstance(expression, IndexAccess):
             self._pre_index_access(expression)
+
+        elif isinstance(expression, IndexRangeAccess):
+            self._pre_index_range_access(expression)
 
         elif isinstance(expression, Literal):
             self._pre_literal(expression)
@@ -220,6 +232,9 @@ class ExpressionVisitor:
     def _pre_index_access(self, expression: IndexAccess) -> None:
         pass
 
+    def _pre_index_range_access(self, expression: IndexRangeAccess) -> None:
+        pass
+
     def _pre_literal(self, expression: Literal) -> None:
         pass
 
@@ -267,6 +282,9 @@ class ExpressionVisitor:
 
         elif isinstance(expression, IndexAccess):
             self._post_index_access(expression)
+
+        elif isinstance(expression, IndexRangeAccess):
+            self._post_index_range_access(expression)
 
         elif isinstance(expression, Literal):
             self._post_literal(expression)
@@ -321,6 +339,9 @@ class ExpressionVisitor:
         pass
 
     def _post_index_access(self, expression: IndexAccess) -> None:
+        pass
+
+    def _post_index_range_access(self, expression: IndexRangeAccess) -> None:
         pass
 
     def _post_literal(self, expression: Literal) -> None:

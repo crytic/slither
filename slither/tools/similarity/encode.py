@@ -21,6 +21,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     Assignment,
     Index,
+    IndexRange,
     Member,
     Length,
     Binary,
@@ -144,6 +145,8 @@ def encode_ir(ir):
         return f"({encode_ir(ir.lvalue)}):=({encode_ir(ir.rvalue)})"
     if isinstance(ir, Index):
         return f"index({ntype(ir.index_type)})"
+    if isinstance(ir, IndexRange):
+        return "index_range"
     if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):

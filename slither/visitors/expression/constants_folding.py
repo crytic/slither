@@ -304,6 +304,9 @@ class ConstantFolding(ExpressionVisitor):
     def _post_index_access(self, expression: expressions.IndexAccess) -> None:
         raise NotConstant
 
+    def _post_index_range_access(self, expression: expressions.IndexRangeAccess) -> None:
+        raise NotConstant
+
     def _post_member_access(self, expression: expressions.MemberAccess) -> None:
         from slither.core.declarations import (
             SolidityFunction,

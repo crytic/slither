@@ -31,6 +31,7 @@ from slither.core.expressions import (
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.index_range_access import IndexRangeAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
@@ -56,6 +57,7 @@ from slither.slithir.operations import (
     BinaryType,
     Delete,
     Index,
+    IndexRange,
     InitArray,
     InternalCall,
     Member,
@@ -509,6 +511,24 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
 
         operation = Index(val, left, right)
+        operation.set_expression(expression)
+        self._result.append(operation)
+        set_val(expression, val)
+
+    def _post_index_range_access(self, expression: IndexRangeAccess) -> None:
+        # Array slice (calldata only): base[start:end]
+        # The result is a new value of the base's type; start and end are optional
+        base = get(expression.expression_base)
+        start = (
+            get(expression.expression_start) if expression.expression_start is not None else None
+        )
+        end = get(expression.expression_end) if expression.expression_end is not None else None
+        val = TemporaryVariable(self._node)
+        # Set the type early (when known), as some later conversions depend on it
+        # e.g. `uint[] calldata x = y[1:]` must not be seen as an array initialization
+        if base.type:
+            val.set_type(base.type)
+        operation = IndexRange(val, base, start, end)
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)

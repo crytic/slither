@@ -5,6 +5,7 @@ from .conditional_expression import ConditionalExpression
 from .elementary_type_name_expression import ElementaryTypeNameExpression
 from .identifier import Identifier
 from .index_access import IndexAccess
+from .index_range_access import IndexRangeAccess
 from .literal import Literal
 from .member_access import MemberAccess
 from .new_array import NewArray
