@@ -113,7 +113,7 @@ def parse_call(raw: dict) -> Call:
     return Call(
         func=parse(raw["func"]),
         args=[parse(arg) for arg in raw["args"]],
-        keyword=parse(raw["keyword"]) if raw["keyword"] else None,
+        keyword=parse(raw["keyword"]) if raw.get("keyword") else None,
         keywords=[parse(keyword) for keyword in raw["keywords"]],
         **_extract_base_props(raw),
     )
